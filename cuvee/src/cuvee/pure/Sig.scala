@@ -20,6 +20,7 @@ case class Sig(funs: Map[String, Fun]) {
     var su: Map[Param, Type] = Map()
 
     case class Pre(private[Exprs] val expr: Expr) {
+      def typ = expr.typ // leaky
       def resolve = expr inst su
     }
 
@@ -49,8 +50,7 @@ case class Sig(funs: Map[String, Fun]) {
       val xs =
         for ((name, typ) <- bound)
           yield Var(name, typ)
-      check(body, typ)
-      Pre(Bind(quant, xs, body.expr))
+      Pre(Bind(quant, xs, body.expr, typ))
     }
 
     def const(name: String) = {

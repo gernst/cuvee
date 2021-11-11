@@ -88,16 +88,15 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
 
 case class Quant(name: String)
 
-case class Bind(quant: Quant, formals: List[Var], body: Expr)
+case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     extends Expr
     with Expr.bind[Bind] {
-  def typ = Sort.bool
   def free = body.free -- formals
   def bound = Set(formals: _*)
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
-    Bind(quant, formals rename a, body rename re)
+    Bind(quant, formals rename a, body rename re, typ)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
-    Bind(quant, formals rename a, body subst su)
+    Bind(quant, formals rename a, body subst su, typ)
   def inst(su: Map[Param, Type]) =
-    Bind(quant, formals inst su, body inst su)
+    Bind(quant, formals inst su, body inst su, typ subst su)
 }

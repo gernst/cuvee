@@ -11,6 +11,9 @@ object Cuvee {
     val real = sort("Real")
     val bool = sort("Bool")
 
+    def array(dom: pure.Type, ran: pure.Type) =
+      sort("Array", List(dom, ran))
+
     def formal(from: sexpr.Expr): (String, pure.Type) =
       from match {
         case sexpr.App(List(sexpr.Id(name), what)) =>
@@ -44,9 +47,16 @@ object Cuvee {
 
         case sexpr.App(List(sexpr.Id(name), sexpr.App(bound), arg))
             if name == "exists" | name == "forall" =>
-          val vars = formals(bound)
-          val body = expr(arg, scope ++ vars)
-          bind(name, vars, body, bool)
+          val xs = formals(bound)
+          val body = expr(arg, scope ++ xs)
+          check(body, bool)
+          bind(name, xs, body, bool)
+
+        case sexpr.App(List(sexpr.Id(name), sexpr.App(List(bound)), arg))
+            if name == "lambda" =>
+          val x @ (_, t) = formal(bound)
+          val body = expr(arg, scope + x)
+          bind(name, List(x), body, array(t, body.typ))
       }
 
     def formals(from: List[sexpr.Expr]): List[(String, pure.Type)] =
