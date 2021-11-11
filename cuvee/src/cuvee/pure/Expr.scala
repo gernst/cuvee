@@ -35,6 +35,8 @@ case class Lit(any: Any, typ: Type) extends Expr {
   def rename(re: Map[Var,Var]): Expr = this
   def subst(su: Map[Var,Expr]): Expr = this
   def inst(su: Map[Param,Type]): Expr = this
+
+  override def toString = any.toString
 }
 
 case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {

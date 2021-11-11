@@ -14,7 +14,7 @@ object Type extends Alpha[Type, Param] {
       case (p1: Param, _) =>
         if (p1 in typ2) {
           println("recursive unification " + p1 + " in " + typ2)
-          fail
+          ???
         }
         su + (p1 -> typ2)
       case (_, p2: Param) =>
@@ -23,7 +23,7 @@ object Type extends Alpha[Type, Param] {
         unify(args1, args2, su)
       case _ =>
         println("cannot unify " + typ1 + " and " + typ2)
-        fail
+        ???
     }
   }
 
@@ -39,7 +39,7 @@ object Type extends Alpha[Type, Param] {
         unify(types1, types2, unify(typ1, typ2, su))
       case _ =>
         println("cannot unify " + types1 + " and " + types2)
-        fail
+        ???
     }
   }
 }
