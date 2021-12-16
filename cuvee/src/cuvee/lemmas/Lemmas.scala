@@ -4,10 +4,20 @@ import cuvee.fail
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.util._
+import cuvee.StringOps
 
-object test extends Run(Lemmas, "examples/list-defs.smt2")
+case class Norm(
+    as: List[(Var, Expr)],
+    bs: List[(Var, Expr)],
+    cs: List[(Var, Expr)],
+    d: Expr
+)
 
-case class Norm(rec: List[(Var, Expr)], map: List[(Var, Expr)], res: Expr)
+object Norm {
+  def just(d: Expr): Norm = {
+    Norm(Nil, Nil, Nil, d)
+  }
+}
 
 case class Case(
     xs: List[Var],
@@ -16,7 +26,13 @@ case class Case(
     rhs: Norm
 )
 
+case class Def(fun: Fun, cases: List[Case])
+
+object test extends Run(Lemmas, "examples/list-defs.smt2")
+
 object Lemmas extends Main {
+  import Split._
+
   var eqs: Map[Fun, Expr] = Map()
 
   def main(args: Array[String]): Unit = {
@@ -34,122 +50,128 @@ object Lemmas extends Main {
       )
         yield eq
 
-    val eqs1 = eqs0.groupBy(_._1)
+    val eqs1 =
+      for ((fun, stuff) <- eqs0.groupBy(_._1))
+        yield {
+          val (_, cases) = stuff.unzip
+          Def(fun, cases)
+        }
 
-    for ((fun, cases) <- eqs1)
-      show(fun, cases)
+    for (df <- eqs1) {
+      show(df)
+
+      val (df_, dfs_a) = ana(df, st)
+      show(df_)
+      for (df_a <- dfs_a)
+        show(df_a)
+    }
   }
 
-  def show(fun: Fun, cases: List[(Any, Case)]) {
+  def ana(df: Def, st: State): (Def, List[Def]) = {
+    val Def(f, cases) = df
+    val params = f.params
+    val types = f.args
+
+    val nil = st funs "nil"
+    val cons = st funs "cons"
+
+    val k = types.length
+
+    val fs =
+      for ((res, i) <- types.zipWithIndex)
+        yield Fun(f.name + "_a" __ i, params, types, Sort.list(res))
+
+    val acs =
+      for (cs <- cases)
+        yield ana(f, fs, cs, nil, cons, st)
+
+    val acs_ = acs.transpose
+
+    val df_a =
+      for ((f, cs) <- fs zip acs_)
+        yield Def(f, cs)
+
+    val at = fs map (_.res)
+    val f_ = Fun(f.name + "'", f.params, f.args ++ at, f.res)
+
+    val cases_ =
+      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases)
+        yield bs match {
+          case Nil =>
+            val as_ =
+              for (_ <- fs)
+                yield App(nil, Nil)
+            Case(xs, args ++ as_, guard, Norm(Nil, Nil, cs, d))
+
+          case List((y, App(`f`, _, es))) =>
+            val ar_as_ =
+              for ((a, _) <- as)
+                yield {
+                  val ar = Var(a.name + "s", Sort.list(a.typ), a.index)
+                  ar -> App(cons, List(a, ar))
+                }
+            val (ar, as_) = ar_as_.unzip
+            val bs_ = List((y, App(f_, es ++ ar)))
+            Case(xs, args ++ as_, guard, Norm(Nil, bs_, cs, d))
+        }
+
+    (Def(f_, cases_), df_a)
+  }
+
+  def ana(
+      f: Fun,
+      fs: List[Fun],
+      cs: Case,
+      nil: Fun,
+      cons: Fun,
+      st: State
+  ): List[Case] = {
+    val Case(xs, args, guard, rhs) = cs
+    val as = rhs.as
+
+    val n = rhs.bs.length
+    require(n == 0 || n == 1, "non-linear recursion in " + f)
+
+    if (n == 1) {
+      require(
+        fs.length == rhs.as.length,
+        "invalid number of a-variables, expected " + fs.length + ", but have " + rhs.as
+      )
+
+      val List((y, App(_, _, args_))) = rhs.bs
+
+      for ((fa, (x, a)) <- fs zip as)
+        yield {
+          val y_ = Var(y.name, fa.res, y.index)
+          val b = App(fa, args_)
+          val d = App(cons, List(x, y_))
+          Case(xs, args, guard, Norm(as, List(y_ -> b), Nil, d))
+        }
+    } else {
+      for (_ <- fs)
+        yield {
+          val d = App(nil, Nil)
+          Case(xs, args, guard, Norm(as, Nil, Nil, d))
+        }
+    }
+  }
+
+  def show(df: Def) {
+    val Def(fun, cases) = df
     println(fun)
-    for ((_, Case(xs, args, guard, Norm(rec, map, res))) <- cases) {
+    for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases) {
       print("  case " + args.mkString("(", ", ", ")"))
       if (guard.nonEmpty)
         print(" if " + guard.mkString(" /\\ "))
       println(" -> ")
-      for ((a, r) <- rec)
-        println("  let  " + a + " = " + r)
-      for ((a, m) <- map)
-        println("  let  " + a + " = " + m)
-      println("       " + res)
+      for ((x, e) <- as)
+        println("    let " + x + " = " + e)
+      for ((x, e) <- bs)
+        println("    let " + x + " = " + e)
+      for ((x, e) <- cs)
+        println("    let " + x + " = " + e)
+      println("    in  " + d)
     }
     println()
-  }
-
-  def maybeShift(fold: (Expr, Boolean), map: List[(Var, Expr)]) =
-    fold match {
-      case (e: App, false) =>
-        val w = Expr.fresh("w", e.typ)
-        (w, List(w -> e))
-      case (e: Lit, false) =>
-        val w = Expr.fresh("w", e.typ)
-        (w, List(w -> e))
-      case (e, _) =>
-        (e, map)
-    }
-
-  def splits(
-      f: Fun,
-      exprs: Expr*
-  ): ((List[Expr], Boolean), List[(Var, Expr)], List[(Var, Expr)]) = {
-    val results = exprs.toList map (split(f, _))
-    val (exprs_, recs, maps) = results.unzip3
-
-    val shift = exprs_ exists (_._2)
-
-    if (shift) {
-      // now shift all non-recursive exprs to the map,
-      // these are maximally non-recursive subterms
-      val exprs_maps =
-        for ((er, map) <- exprs_ zip maps)
-          yield maybeShift(er, map)
-
-      val (es, maps_) = exprs_maps.unzip
-      ((es, true), recs.flatten, maps_.flatten)
-    } else {
-      val (es, _) = exprs_.unzip
-      ((es, false), recs.flatten, maps.flatten)
-    }
-  }
-
-  def split(
-      f: Fun,
-      expr: Expr
-  ): ((Expr, Boolean), List[(Var, Expr)], List[(Var, Expr)]) =
-    expr match {
-      case App(`f`, inst, args) =>
-        val u = Expr.fresh("u", expr.typ)
-        ((u, true), List(u -> expr), Nil)
-
-      case App(g, inst, args) =>
-        val ((args_, rec), recs, maps) = splits(f, args: _*)
-        val expr_ = App(g, inst, args_)
-        ((expr_, rec), recs, maps)
-
-      case _ =>
-        ((expr, false), Nil, Nil)
-    }
-
-  def norm(f: Fun, expr: Expr): Norm = {
-    val ((e, r), rec, map) = split(f, expr)
-    val (e_, map_) = maybeShift((e, r), map) // shift if not recursive
-    Norm(rec, map_, e_)
-  }
-
-  def rw(
-      xs: List[Var],
-      guard: List[Expr],
-      lhs: App,
-      rhs: Expr,
-      st: State
-  ): List[(Fun, Case)] =
-    (lhs, rhs) match {
-      case (App(fun, _, args), Ite(test, left, right)) =>
-        val l = rw(xs, test :: guard, lhs, left, st)
-        val r = rw(xs, Not(test) :: guard, lhs, right, st)
-        l ++ r
-
-      case (App(fun, _, args), rhs) =>
-        List((fun, Case(xs, args, guard, norm(fun, rhs))))
-
-      case _ =>
-        Nil
-    }
-
-  def rw(expr: Expr, st: State): List[(Fun, Case)] =
-    expr match {
-      case Clause(xs, ant, Eq(lhs: App, rhs)) =>
-        rw(xs, ant, lhs, rhs, st)
-
-      case _ =>
-        Nil
-    }
-
-  def rw(exprs: List[Expr], st: State): List[(Fun, Case)] = {
-    for (
-      expr <- exprs;
-      rule <- rw(expr, st)
-    )
-      yield rule
   }
 }

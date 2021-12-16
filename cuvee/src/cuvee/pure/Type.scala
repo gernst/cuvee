@@ -1,5 +1,6 @@
 package cuvee.pure
 
+import cuvee.StringOps
 import cuvee.fail
 
 sealed trait Type extends Type.term {}
@@ -64,10 +65,7 @@ case class Param(name: String, index: Option[Int] = None)
     }
   }
 
-  override def toString = index match {
-    case None        => name
-    case Some(index) => name + "#" + index
-  }
+  override def toString = name __ index
 }
 
 case class Con(name: String, arity: Int) {

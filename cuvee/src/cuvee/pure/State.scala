@@ -11,6 +11,8 @@ object State {
     st.con("Int")
     st.con("Bool")
     st.con("Real")
+
+    // st.con("List", 1)
     st.con("Array", 2)
 
     val Int = st.sort("Int")
@@ -18,12 +20,13 @@ object State {
     val a = st.param("a")
     val b = st.param("b")
 
-    def Array(dom: Type, ran: Type) = st.sort("Array", List(dom, ran))
+    def list(elem: Type) = st.sort("List", List(elem))
+    def array(dom: Type, ran: Type) = st.sort("Array", List(dom, ran))
 
     st.fun("=", List(a), List(a, a), Bool)
     st.fun("ite", List(a), List(Bool, a, a), a)
 
-    val ar = Array(a, b)
+    val ar = array(a, b)
     st.fun("select", List(a, b), List(ar, a), b)
     st.fun("store", List(a, b), List(ar, a, b), ar)
 

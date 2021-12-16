@@ -1,10 +1,32 @@
 package cuvee.pure
 
+import cuvee.StringOps
 import cuvee.util.Alpha
 
 sealed trait Expr extends Expr.term {
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
+
+  def bottomup(g: Expr => Expr): Expr = {
+    map(identity, g)
+  }
+
+  def topdown(f: Expr => Expr): Expr = {
+    map(f, identity)
+  }
+
+  def map(f: Expr => Expr, g: Expr => Expr): Expr = {
+    f(this) match {
+      case lit: Lit =>
+        g(lit)
+      case id: Var =>
+        g(id)
+      case App(fun, inst, args) =>
+        g(App(fun, inst, args map (_.map(f, g))))
+      case Bind(quant, formals, body, typ) =>
+        g(Bind(quant, formals, body.map(f, g), typ))
+    }
+  }
 }
 
 object Expr extends Alpha[Expr, Var] {
@@ -35,11 +57,7 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
   def inst(su: Map[Param, Type]) =
     Var(name, typ subst su, index)
 
-  override def toString = index match {
-    case None        => name
-    case Some(index) => name + "#" + index
-  }
-
+  override def toString = name __ index
   def toStringTyped = toString + ": " + typ
 }
 
