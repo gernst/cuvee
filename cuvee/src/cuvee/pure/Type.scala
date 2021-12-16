@@ -1,6 +1,10 @@
 package cuvee.pure
 
+import cuvee.fail
+
 sealed trait Type extends Type.term {}
+
+case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
 
 object Type extends Alpha[Type, Param] {
   def unify(typ1: Type, typ2: Type, su: Map[Param, Type]): Map[Param, Type] = {
@@ -12,18 +16,14 @@ object Type extends Alpha[Type, Param] {
       case (_, p2: Param) if su contains p2 =>
         unify(typ1, su(p2), su)
       case (p1: Param, _) =>
-        if (p1 in typ2) {
-          println("recursive unification " + p1 + " in " + typ2)
-          ???
-        }
+        require(!(p1 in typ2), "recursive unification, " + p1 + " in " + typ2)
         su + (p1 -> typ2)
       case (_, p2: Param) =>
         unify(p2, typ1, su)
       case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
         unify(args1, args2, su)
       case _ =>
-        println("cannot unify " + typ1 + " and " + typ2)
-        ???
+        fail("cannot unify " + typ1 + " and " + typ2)
     }
   }
 
@@ -38,8 +38,7 @@ object Type extends Alpha[Type, Param] {
       case (typ1 :: types1, typ2 :: types2) =>
         unify(types1, types2, unify(typ1, typ2, su))
       case _ =>
-        println("cannot unify " + types1 + " and " + types2)
-        ???
+        cuvee.fail("cannot unify " + types1 + " and " + types2)
     }
   }
 }

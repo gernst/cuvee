@@ -6,21 +6,30 @@ import java.io.Reader
 import java.io.File
 import java.io.FileReader
 
+import cuvee.fail
+
 class Parser(scanner: Scanner) {
-  var tok: Tok = null
-  var peek: Tok = null
+  var _tok: Tok = null
+  var _peek: Tok = null
 
-  next
+  def peek() = {
+    if (_peek == null) // consume next token only when needed
+      _peek = scanner.next
+    _peek
+  }
 
-  def next = {
-    tok = peek
-    peek = scanner.next
-    tok
+  def next() = {
+    _tok = scanner.next
+    _peek = null
+    _tok
   }
 
   def check(tok: Tok) = {
     next match {
       case `tok` =>
+      // ok
+      case tok =>
+        fail("unexpected token: " + tok)
     }
   }
 
@@ -29,14 +38,16 @@ class Parser(scanner: Scanner) {
       case Tok.lp =>
         val args = sexprs()
         check(Tok.rp)
-        App(args)
+        App(args: _*)
       case atom: Atom =>
         atom
+      case tok =>
+        fail("unexpected token: " + tok)
     }
   }
 
   def sexprs(): List[Expr] = {
-    val buf = mutable.ListBuffer[Expr]()
+    val buf = mutable.Buffer[Expr]()
 
     while (peek != Tok.eof && peek != Tok.rp) {
       buf += sexpr()
@@ -79,13 +90,5 @@ object Parser {
     val result = parser.sexprs()
     parser.eof()
     result
-  }
-
-  def main(args: Array[String]) {
-    println(sexprs(""))
-    println(sexprs("0 1 12 0.0 0.01 0x1 0x12 #b0 #b01"))
-    println(sexprs("a ab |a| |ab| = < |< >|"))
-    println(sexprs("\"\" \"a\" \"ab\""))
-    println(sexprs("() (a) (a b)"))
   }
 }

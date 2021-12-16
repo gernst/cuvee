@@ -1,4 +1,4 @@
-package cuvee.pure
+package cuvee.util
 
 object Alpha {
   trait term[E, V <: E] {
@@ -87,6 +87,11 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
   def fresh(xs: Iterable[V]): Map[V, V] = {
     val ys = xs map (x => (x, x fresh nextIndex))
     ys.toMap
+  }
+
+  def free(es: Iterable[E]): Set[V] = {
+    val ys = es flatMap (_.free)
+    ys.toSet
   }
 
   def free(xs: Map[V, E]): Set[V] = {

@@ -29,4 +29,5 @@ object Lit {
 case class Id(name: String) extends Atom
 case class Kw(name: String) extends Atom
 
-case class App(args: List[Expr]) extends Expr
+case class App(args: Expr*) extends Expr
+

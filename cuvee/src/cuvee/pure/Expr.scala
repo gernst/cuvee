@@ -1,5 +1,7 @@
 package cuvee.pure
 
+import cuvee.util.Alpha
+
 sealed trait Expr extends Expr.term {
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
@@ -9,6 +11,9 @@ object Expr extends Alpha[Expr, Var] {}
 
 class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def inst(su: Map[Param, Type]) = vars map (_ inst su)
+
+  def types = vars map (_.typ)
+  def pairs = vars map { case Var(name, typ, None) => name -> typ }
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
@@ -42,7 +47,7 @@ case class Lit(any: Any, typ: Type) extends Expr {
 case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
   def gen = {
     val re = Type.fresh(params)
-    Inst(this, args rename re, res rename re)
+    Inst(args rename re, res rename re)
   }
 
   def paramsToString =
@@ -63,29 +68,26 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
   }
 }
 
-case class Inst(fun: Fun, args: List[Type], res: Type) {
+case class Inst(args: List[Type], res: Type) {
   def subst(su: Map[Param, Type]) =
-    Inst(fun, args subst su, res subst su)
-
-  override def toString = fun.name
+    Inst(args subst su, res subst su)
 }
 
-case class App(inst: Inst, args: List[Expr]) extends Expr {
-  def fun = inst.fun
+case class App(fun: Fun, inst: Inst, args: List[Expr]) extends Expr {
   val typ = inst.res
   def free = args.free
   def rename(re: Map[Var, Var]) =
-    App(inst, args rename re)
+    App(fun, inst, args rename re)
   def subst(su: Map[Var, Expr]) =
-    App(inst, args subst su)
+    App(fun, inst, args subst su)
   def inst(su: Map[Param, Type]) =
-    App(inst subst su, args inst su)
+    App(fun, inst subst su, args inst su)
 
   override def toString =
     if (args.isEmpty)
-      inst.toString
+      fun.toString
     else
-      inst + args.mkString("(", ", ", ")")
+      fun + args.mkString("(", ", ", ")")
 }
 
 case class Quant(name: String)
