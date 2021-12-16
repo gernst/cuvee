@@ -3,4 +3,15 @@ package object cuvee {
     require(false, msg)
     ???
   }
+
+  def trace[A](msg: => String)(f: => A) = {
+    try {
+      f
+    } catch {
+      case t: Throwable =>
+        println("trace: " + msg)
+        throw t
+    }
+  }
+
 }

@@ -1,15 +1,47 @@
 package cuvee.pure
 
+import cuvee.trace
+
 object State {
   def empty = new State(Map.empty, Map.empty, Map.empty, Map.empty, Map.empty)
 
   def default = {
     val st = empty
 
-    val Int = st.con("Int")
-    val Bool = st.con("Bool")
-    val Real = st.con("Real")
-    val Array = st.con("Array", 2)
+    st.con("Int")
+    st.con("Bool")
+    st.con("Real")
+    st.con("Array", 2)
+
+    val Int = st.sort("Int")
+    val Bool = st.sort("Bool")
+    val a = st.param("a")
+    val b = st.param("b")
+
+    def Array(dom: Type, ran: Type) = st.sort("Array", List(dom, ran))
+
+    st.fun("=", List(a), List(a, a), Bool)
+    st.fun("ite", List(a), List(Bool, a, a), a)
+
+    val ar = Array(a, b)
+    st.fun("select", List(a, b), List(ar, a), b)
+    st.fun("store", List(a, b), List(ar, a, b), ar)
+
+    st.fun("true", Nil, Nil, Bool)
+    st.fun("false", Nil, Nil, Bool)
+    st.fun("not", Nil, List(Bool), Bool)
+    st.fun("and", Nil, List(Bool, Bool), Bool)
+    st.fun("or", Nil, List(Bool, Bool), Bool)
+    st.fun("=>", Nil, List(Bool, Bool), Bool)
+
+    st.fun("+", Nil, List(Int, Int), Int)
+    st.fun("-", Nil, List(Int, Int), Int)
+    st.fun("*", Nil, List(Int, Int), Int)
+
+    st.fun("<=", Nil, List(Int, Int), Bool)
+    st.fun(">=", Nil, List(Int, Int), Bool)
+    st.fun("<", Nil, List(Int, Int), Bool)
+    st.fun(">", Nil, List(Int, Int), Bool)
 
     st
   }
@@ -126,12 +158,14 @@ class State(
       val fun = funs(name)
       val inst = fun.gen
       val exprs = args map (_.expr)
-      unify(inst.args, exprs.typ)
+      unify(inst.args, exprs.types)
       Pre(App(fun, inst, exprs))
     }
 
     def check(arg: Pre, typ: Type) {
-      unify(arg.expr.typ, typ)
+      trace("checking\n  " + arg.expr + ":\n    " + typ) {
+        unify(arg.expr.typ, typ)
+      }
     }
   }
 }

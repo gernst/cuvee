@@ -35,11 +35,11 @@ class Parser(init: State) {
       case App(Id("set-info"), Kw(attr), arg) =>
         SetInfo(attr, Some(arg))
 
-      case Id("get-model")      => GetModel
-      case Id("exit")           => Exit
-      case Id("reset")          => Reset
-      case Id("get-assertions") => GetAssertions
-      case Id("check-sat")      => CheckSat
+      case App(Id("get-model"))      => GetModel
+      case App(Id("exit"))           => Exit
+      case App(Id("reset"))          => Reset
+      case App(Id("get-assertions")) => GetAssertions
+      case App(Id("check-sat"))      => CheckSat(st)
 
       case App(Id("push"), Lit.num(digits)) =>
         stack = stack.tail

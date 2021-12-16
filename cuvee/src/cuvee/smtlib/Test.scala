@@ -8,14 +8,9 @@ import cuvee.util.Run
 
 object Test extends Main {
   def main(args: Array[String]): Unit = {
-    for (f <- args) {
-      println(f)
+    for (file <- args) {
       val st = State.default
-
-      val r = new FileReader(f)
-      val s = new sexpr.Scanner(r)
-      val p = new sexpr.Parser(s)
-      val a = p.sexprs()
+      val a = sexpr.parse(file)
       val q = new Parser(st)
       val c = q.cmds(a)
       for (x <- c)
@@ -25,3 +20,5 @@ object Test extends Main {
 }
 
 object r1 extends Run(Test, "examples/1.smt2")
+
+object list_defs extends Run(Test, "examples/list-defs.smt2")

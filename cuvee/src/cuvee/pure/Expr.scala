@@ -7,7 +7,12 @@ sealed trait Expr extends Expr.term {
   def inst(su: Map[Param, Type]): Expr
 }
 
-object Expr extends Alpha[Expr, Var] {}
+object Expr extends Alpha[Expr, Var] {
+  val infix = Set("=", "<=", "<=", "<", ">", "+", "-", "*")
+
+  def fresh(name: String, typ: Type) =
+    Var(name, typ, Some(nextIndex))
+}
 
 class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def inst(su: Map[Param, Type]) = vars map (_ inst su)
@@ -18,7 +23,7 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
-  def typ = exprs map (_.typ)
+  def types = exprs map (_.typ)
   def inst(su: Map[Param, Type]) = exprs map (_ inst su)
 }
 
@@ -34,13 +39,15 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
     case None        => name
     case Some(index) => name + "#" + index
   }
+
+  def toStringTyped = toString + ": " + typ
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {
   def free: Set[Var] = Set()
-  def rename(re: Map[Var,Var]): Expr = this
-  def subst(su: Map[Var,Expr]): Expr = this
-  def inst(su: Map[Param,Type]): Expr = this
+  def rename(re: Map[Var, Var]): Expr = this
+  def subst(su: Map[Var, Expr]): Expr = this
+  def inst(su: Map[Param, Type]): Expr = this
 
   override def toString = any.toString
 }
@@ -53,7 +60,7 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
 
   def paramsToString =
     params.mkString("forall ", ", ", ". ")
-    
+
   def argsToString =
     args.mkString(" * ") + " -> "
 
@@ -69,9 +76,73 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
   }
 }
 
+object Fun {
+  import Sort.bool
+  import Sort.int
+
+  val a = Param("a")
+  val b = Param("b")
+  val ar = Sort.array(a, b)
+
+  val eq_ = Fun("=", List(a), List(a, a), bool)
+  val ite = Fun("ite", List(a), List(bool, a, a), a)
+
+  val select = Fun("select", List(a, b), List(ar, a), b)
+  val store = Fun("store", List(a, b), List(ar, a, b), ar)
+
+  val true_ = Fun("true", Nil, Nil, bool)
+  val false_ = Fun("false", Nil, Nil, bool)
+  val not = Fun("not", Nil, List(bool), bool)
+  val and = Fun("and", Nil, List(bool, bool), bool)
+  val or = Fun("or", Nil, List(bool, bool), bool)
+  val imp = Fun("=>", Nil, List(bool, bool), bool)
+
+  val uminus = Fun("-", Nil, List(int), int)
+  val plus = Fun("+", Nil, List(int, int), int)
+  val minus = Fun("-", Nil, List(int, int), int)
+  val times = Fun("*", Nil, List(int, int), int)
+
+  val le = Fun("<=", Nil, List(int, int), bool)
+  val ge = Fun(">=", Nil, List(int, int), bool)
+  val lt = Fun("<", Nil, List(int, int), bool)
+  val gt = Fun(">", Nil, List(int, int), bool)
+}
+
+object Eq extends Sugar.binary(Fun.eq_)
+object Ite extends Sugar.ternary(Fun.ite)
+
+object Not extends Sugar.unary(Fun.not)
+object Imp extends Sugar.associative(Fun.imp, Assoc.right)
+object And extends Sugar.commutative(Fun.and, True, Assoc.left)
+object Or extends Sugar.commutative(Fun.or, False, Assoc.left)
+
+object UMinus extends Sugar.unary(Fun.uminus)
+object Plus extends Sugar.commutative(Fun.plus, Zero, Assoc.left)
+object Minus extends Sugar.associative(Fun.minus, Assoc.left)
+object Times extends Sugar.commutative(Fun.times, One, Assoc.left)
+// object DivBy extends Sugar.associative(Fun.divBy, Assoc.left)
+// object Mod extends Sugar.associative(Fun.mod, Assoc.left)
+// object Exp extends Sugar.associative(Fun.exp, Assoc.right)
+
+object Lt extends Sugar.binary(Fun.lt)
+object Le extends Sugar.binary(Fun.le)
+object Gt extends Sugar.binary(Fun.gt)
+object Ge extends Sugar.binary(Fun.ge)
+
+object Forall extends Sugar.binder(Quant.forall, Sort.bool)
+object Exists extends Sugar.binder(Quant.exists, Sort.bool)
+
 case class Inst(args: List[Type], res: Type) {
   def subst(su: Map[Param, Type]) =
     Inst(args subst su, res subst su)
+}
+
+object App {
+  def apply(fun: Fun, args: List[Expr]): Expr = {
+    val inst = fun.gen
+    val su = Type.unify(inst.args, args.types, Map())
+    App(fun, inst subst su, args)
+  }
 }
 
 case class App(fun: Fun, inst: Inst, args: List[Expr]) extends Expr {
@@ -85,13 +156,23 @@ case class App(fun: Fun, inst: Inst, args: List[Expr]) extends Expr {
     App(fun, inst subst su, args inst su)
 
   override def toString =
-    if (args.isEmpty)
-      fun.toString
-    else
-      fun + args.mkString("(", ", ", ")")
+    (fun, args) match {
+      case (_, Nil) =>
+        fun.name
+      case (_, List(left, right)) if Expr.infix contains fun.name =>
+        "(" + left + " " + fun.name + " " + right + ")"
+      case _ =>
+        fun.name + args.mkString("(", ", ", ")")
+    }
 }
 
 case class Quant(name: String)
+
+object Quant {
+  val exists = Quant("exists")
+  val forall = Quant("forall")
+  val lambda = Quant("lambda")
+}
 
 case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     extends Expr
@@ -104,4 +185,36 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     Bind(quant, formals rename a, body subst su, typ)
   def inst(su: Map[Param, Type]) =
     Bind(quant, formals inst su, body inst su, typ subst su)
+
+  override def toString =
+    quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body
 }
+
+/*
+class CaseList(cases: List[Case]) {
+  def free = Set(cases flatMap (_.free): _*)
+  def rename(re: Map[Var, Var]) = cases map (_ rename re)
+  def subst(su: Map[Var, Expr]) = cases map (_ subst su)
+  def inst(su: Map[Param, Type]) = cases map (_ inst su)
+}
+
+case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] {
+  def bound = pat.free
+  def free = expr.free -- pat.free
+  def rename(a: Map[Var, Var], re: Map[Var, Var]) =
+    Case(pat rename a, expr rename re)
+  def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
+    Case(pat rename a, expr subst su)
+  def inst(su: Map[Param, Type]) =
+    Case(pat inst su, expr inst su)
+}
+
+case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
+  def free = expr.free ++ cases.free
+  def rename(re: Map[Var, Var]) =
+    Match(expr rename re, cases rename re, typ)
+  def subst(su: Map[Var, Expr]) =
+    Match(expr subst su, cases subst su, typ)
+  def inst(su: Map[Param, Type]) =
+    Match(expr inst su, cases inst su, typ subst su)
+} */
