@@ -43,7 +43,10 @@ object Type extends Alpha[Type, Param] {
   }
 }
 
-class ParamList(params: List[Param]) extends Type.xs(params)
+class ParamList(params: List[Param]) extends Type.xs(params) {
+  def names = params map { case Param(name, None) => name }
+}
+
 class TypeList(types: List[Type]) extends Type.terms(types)
 
 case class Param(name: String, index: Option[Int] = None)

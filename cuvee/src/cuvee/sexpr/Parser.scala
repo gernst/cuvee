@@ -19,8 +19,12 @@ class Parser(scanner: Scanner) {
   }
 
   def next() = {
-    _tok = scanner.next
-    _peek = null
+    if (_peek == null) {
+      _tok = scanner.next
+    } else {
+      _tok = _peek
+      _peek = null
+    }
     _tok
   }
 

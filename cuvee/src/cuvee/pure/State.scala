@@ -2,6 +2,17 @@ package cuvee.pure
 
 object State {
   def empty = new State(Map.empty, Map.empty, Map.empty, Map.empty, Map.empty)
+
+  def default = {
+    val st = empty
+
+    val Int = st.con("Int")
+    val Bool = st.con("Bool")
+    val Real = st.con("Real")
+    val Array = st.con("Array", 2)
+
+    st
+  }
 }
 
 class State(
@@ -64,8 +75,12 @@ class State(
   }
 
   def sort(name: String, args: List[Type] = Nil): Sort = {
+    require(cons contains name, "type constructor not declared: " + name)
     val con = cons(name)
-    assert(con.arity != args.length)
+    require(
+      con.arity == args.length,
+      "arity mismatch: " + con + " and args: " + args
+    )
     Sort(con, args)
   }
 

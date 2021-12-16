@@ -5,6 +5,6 @@ trait Main {
 }
 
 class Run(what: Main, args: String*) extends Main {
-  def main(args: Array[String]) =
+  def main(ignored: Array[String]) =
     what main args.toArray
 }

@@ -12,6 +12,7 @@ object Expr extends Alpha[Expr, Var] {}
 class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def inst(su: Map[Param, Type]) = vars map (_ inst su)
 
+  def names = vars map { case Var(name, _, None) => name }
   def types = vars map (_.typ)
   def pairs = vars map { case Var(name, typ, None) => name -> typ }
 }

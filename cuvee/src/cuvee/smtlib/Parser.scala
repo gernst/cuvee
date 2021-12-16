@@ -10,12 +10,16 @@ import cuvee.pure.Fun
 import cuvee.pure.Sort
 import cuvee.pure.Var
 
-class Parser(val st: State) {
-  import st._
+class Parser(init: State) {
+  // import st._
+  var stack = List(init)
+  def st = stack.head
 
-  val int = sort("Int")
-  val real = sort("Real")
-  val bool = sort("Bool")
+  val int = st.sort("Int")
+  val bool = st.sort("Bool")
+  val real = st.sort("Real")
+
+  val ctx0: Set[String] = Set()
 
   def cmd(from: Expr): Cmd =
     from match {
@@ -38,49 +42,49 @@ class Parser(val st: State) {
       case Id("check-sat")      => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
+        stack = stack.tail
         Push(digits.toInt)
 
       case App(Id("pop"), Lit.num(digits)) =>
+        stack = stack.head :: stack
         Pop(digits.toInt)
 
       case App(Id("assert"), phi) =>
-        object exprs extends Exprs
-        Assert(exprs(phi))
+        Assert(expr(phi))
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
-        con(name, n)
+        st.con(name, n)
         DeclareSort(name, n)
 
       case App(Id("define-sort"), Id(name), App(args @ _*), res) =>
         val params_ = params(args.toList)
         val n = params_.length
         val res_ = typ(res)
-        con(name, n)
-        condef(name, params_, res_)
+        st.con(name, n)
+        st.condef(name, params_, res_)
         DefineSort(name, params_, res_)
 
       case App(Id("declare-const"), Id(name), res) =>
         val args_ = Nil
         val res_ = typ(res)
-        fun(name, Nil, args_, res_)
+        st.fun(name, Nil, args_, res_)
         DeclareFun(name, args_, res_)
 
       case App(Id("declare-fun"), Id(name), App(args @ _*), res) =>
         val args_ = types(args.toList)
         val res_ = typ(res)
-        fun(name, Nil, args_, res_)
+        st.fun(name, Nil, args_, res_)
         DeclareFun(name, args_, res_)
 
-      case App(Id(cmd), Id(name), App(args @ _*), res, expr)
+      case App(Id(cmd), Id(name), App(args @ _*), res, body)
           if cmd == "define-fun" || cmd == "define-fun-rec" =>
         val formals_ = formals(args.toList)
         val res_ = typ(res)
-        fun(name, Nil, formals_.types, res_)
+        st.fun(name, Nil, formals_.types, res_)
 
-        object exprs extends Exprs
-        val body_ = exprs(expr, formals_.pairs)
-        fundef(name, formals_, body_)
+        val body_ = expr(body, ctx0, formals_.pairs)
+        st.fundef(name, formals_, body_)
 
         DefineFun(name, formals_, res_, body_, cmd == "define-fun-rec")
 
@@ -113,27 +117,32 @@ class Parser(val st: State) {
   ): List[Datatype] = {
     for (((name, arity), from) <- decls zip froms)
       yield {
-        con(name, arity)
+        st.con(name, arity)
         datatype(name, arity, from)
       }
   }
 
-  def sel(params: List[Param], in: Sort, from: Expr): Fun =
+  def sel(params: List[Param], in: Sort, from: Expr, ctx: Set[String]): Fun =
     from match {
       case App(Id(name), arg) =>
-        val out = typ(arg)
+        val out = typ(arg, ctx)
         Fun(name, params, List(in), out)
 
       case _ =>
         fail("invalid selector declaration: " + from)
     }
 
-  def constr(params: List[Param], typ: Sort, from: Expr): (Fun, List[Fun]) =
+  def constr(
+      params: List[Param],
+      typ: Sort,
+      from: Expr,
+      ctx: Set[String]
+  ): (Fun, List[Fun]) =
     from match {
       case App(Id(name), args @ _*) =>
-        val sels_ = sels(params, typ, args.toList)
+        val sels_ = sels(params, typ, args.toList, ctx)
         val types = sels_ map (_.res)
-        fun(name, params, types, typ) -> sels_
+        st.fun(name, params, types, typ) -> sels_
 
       case _ =>
         fail("invalid constructor declaration: " + from)
@@ -143,13 +152,14 @@ class Parser(val st: State) {
     from match {
       case App(Id("par"), App(args @ _*), App(alts @ _*)) =>
         val params_ = params(args.toList)
-        val typ = sort(name, params_)
-        Datatype(params_, constrs(params_, typ, alts.toList))
+        val typ = st.sort(name, params_)
+        val ctx = params_.names.toSet
+        Datatype(params_, constrs(params_, typ, alts.toList, ctx))
 
       case App(alts @ _*) =>
         val params_ = Nil
-        val typ = sort(name)
-        Datatype(params_, constrs(params_, typ, alts.toList))
+        val typ = st.sort(name)
+        Datatype(params_, constrs(params_, typ, alts.toList, ctx0))
 
       case _ =>
         fail("invalid datatype declaration: " + from)
@@ -164,12 +174,12 @@ class Parser(val st: State) {
     }
 
   def array(dom: Type, ran: Type) =
-    sort("Array", List(dom, ran))
+    st.sort("Array", List(dom, ran))
 
-  def formal(from: Expr): Var =
+  def formal(from: Expr, ctx: Set[String] = Set()): Var =
     from match {
       case App(Id(name), what) =>
-        Var(name, typ(what))
+        Var(name, typ(what, ctx))
       case _ =>
         fail("invalid formal parameter: " + from)
     }
@@ -182,21 +192,26 @@ class Parser(val st: State) {
         fail("invalid type parameter: " + from)
     }
 
-  def typ(from: Expr): Type =
+  def typ(from: Expr, ctx: Set[String] = Set()): Type =
     from match {
+      case Id(name) if ctx contains name =>
+        Param(name)
       case Id(name) =>
-        sort(name)
+        st.sort(name)
       case App(Id(name), args @ _*) =>
-        sort(name, types(args.toList))
+        st.sort(name, types(args.toList, ctx))
       case _ =>
         fail("invalid type: " + from)
     }
 
-  def formals(from: List[Expr]): List[Var] =
-    from map formal
+  def cmds(from: List[Expr]): List[Cmd] =
+    from map cmd
 
-  def types(from: List[Expr]): List[Type] =
-    from map typ
+  def formals(from: List[Expr], ctx: Set[String] = Set()): List[Var] =
+    from map (formal(_, ctx))
+
+  def types(from: List[Expr], ctx: Set[String] = Set()): List[Type] =
+    from map (typ(_, ctx))
 
   def params(from: List[Expr]): List[Param] =
     from map param
@@ -207,27 +222,31 @@ class Parser(val st: State) {
   def sels(
       params: List[Param],
       res: Sort,
-      from: List[Expr]
+      from: List[Expr],
+      ctx: Set[String]
   ): List[Fun] =
-    from map { sel(params, res, _) }
+    from map { sel(params, res, _, ctx) }
 
   def constrs(
       params: List[Param],
       res: Sort,
-      from: List[Expr]
+      from: List[Expr],
+      ctx: Set[String]
   ): List[(Fun, List[Fun])] =
-    from map { constr(params, res, _) }
+    from map { constr(params, res, _, ctx) }
 
-  class Exprs extends st.Exprs {
-    def apply(
-        from: Expr,
-        scope: Iterable[(String, Type)] = Map()
-    ) = {
-      val pre = expr(from, scope.toMap)
-      pre.resolve
-    }
+  def expr(
+      from: Expr,
+      ctx: Iterable[String] = Set(),
+      scope: Iterable[(String, Type)] = Map()
+  ) = {
+    val inner = exprs(st)
+    val pre = inner.expr(from, ctx.toSet, scope.toMap)
+    pre.resolve
+  }
 
-    def expr(from: Expr, scope: Map[String, Type]): Pre =
+  def exprs(st: State) = new st.Exprs {
+    def expr(from: Expr, ctx: Set[String], scope: Map[String, Type]): Pre =
       from match {
         case Lit.num(digits) =>
           lit(digits.toInt, int)
@@ -238,22 +257,22 @@ class Parser(val st: State) {
         case Id(name) if scope contains name =>
           x(name, scope(name))
 
-        case Id(name) if funs contains name =>
+        case Id(name) if st.funs contains name =>
           const(name)
 
-        case App(Id(name), args @ _*) if funs contains name =>
-          app(name, exprs(args.toList, scope))
+        case App(Id(name), args @ _*) if st.funs contains name =>
+          app(name, exprs(args.toList, ctx, scope))
 
         case App(Id(name), App(bound @ _*), arg)
             if name == "exists" | name == "forall" =>
-          val xs = formals(bound.toList)
-          val body = expr(arg, scope ++ xs.pairs)
+          val xs = formals(bound.toList, ctx)
+          val body = expr(arg, ctx, scope ++ xs.pairs)
           check(body, bool)
           bind(name, xs, body, bool)
 
         case App(Id(name), App(bound), arg) if name == "lambda" =>
-          val x @ Var(name, dom, _) = formal(bound)
-          val body = expr(arg, scope + (name -> dom))
+          val x @ Var(name, dom, _) = formal(bound, ctx)
+          val body = expr(arg, ctx, scope + (name -> dom))
           bind(name, List(x), body, array(dom, body.typ))
 
         case _ =>
@@ -262,9 +281,10 @@ class Parser(val st: State) {
 
     def exprs(
         from: List[Expr],
+        ctx: Set[String],
         scope: Map[String, Type]
     ): List[Pre] = {
-      from map (expr(_, scope))
+      from map (expr(_, ctx, scope))
     }
   }
 }
