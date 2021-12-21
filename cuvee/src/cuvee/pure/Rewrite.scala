@@ -1,6 +1,17 @@
 package cuvee.pure
 
-case class Rule(vars: Set[Var], lhs: Expr, rhs: Expr, cond: Expr)
+case class Rule(vars: List[Var], lhs: Expr, rhs: Expr, cond: Expr) {
+  val toExpr =
+    (vars, cond) match {
+      case (Nil, True) => Eq(lhs, rhs)
+      case (_, True)   => Forall(vars, Eq(lhs, rhs))
+      case (Nil, _)    => Imp(cond, Eq(lhs, rhs))
+      case _           => Forall(vars, Imp(cond, Eq(lhs, rhs)))
+    }
+
+  override def toString =
+    toExpr.toString
+}
 
 object Rewrite {
   def rewrite(expr: Expr, rules: Map[Fun, List[Rule]]): Expr = {
@@ -51,7 +62,7 @@ object Rewrite {
   }
 
   def bind(
-      vars: Set[Var],
+      vars: List[Var],
       pats: List[Expr],
       args: List[Expr],
       env0: Map[Var, Expr]
@@ -70,7 +81,7 @@ object Rewrite {
   }
   // eq case
   def bind(
-      vars: Set[Var],
+      vars: List[Var],
       pat: Expr,
       arg: Expr,
       env: Map[Var, Expr]

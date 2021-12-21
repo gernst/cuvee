@@ -3,21 +3,20 @@ package cuvee.lemmas
 import cuvee.pure._
 
 object Split {
-  def lift(as: List[Expr]) =
-    for(e <- as)
-    yield {
-      val a = Expr.fresh("a", e.typ)
-      (a, e)
+  def maybeShift(e: Expr) =
+    e match {
+      case App(_, _, args) if args.nonEmpty =>
+        val a = Expr.fresh("a", e.typ)
+        (a, List(a -> e))
+      case _ =>
+        (e, Nil)
     }
 
   def maybeShift(er: (Expr, Boolean), cs: List[(Var, Expr)]) =
     er match {
-      case (e, false) =>
-        val w = Expr.fresh("c", e.typ)
-        (w, List(w -> e))
-      // case (e: Lit, false) =>
-      //   val w = Expr.fresh("c", e.typ)
-      //   (w, List(w -> e))
+      case (e @ App(_, _, args), false) if args.nonEmpty =>
+        val c = Expr.fresh("c", e.typ)
+        (c, List(c -> e))
       case (e, _) =>
         (e, cs)
     }
@@ -27,7 +26,7 @@ object Split {
       exprs: Expr*
   ): (
       (List[Expr], Boolean),
-      (List[(Var, Expr)], List[(Var, Expr)], List[(Var, Expr)])
+      (List[(Var, Expr)], List[(Var, List[Expr])], List[(Var, Expr)])
   ) = {
     val results = exprs.toList map (split(f, _))
     val (es, lets) = results.unzip
@@ -55,15 +54,17 @@ object Split {
       expr: Expr
   ): (
       (Expr, Boolean),
-      (List[(Var, Expr)], List[(Var, Expr)], List[(Var, Expr)])
+      (List[(Var, Expr)], List[(Var, List[Expr])], List[(Var, Expr)])
   ) =
     expr match {
       case App(`f`, inst, args) =>
-        val as = lift(args)
+        val es_as =
+          for (e <- args)
+            yield maybeShift(e)
+        val (args_, as) = es_as.unzip
+
         val b = Expr.fresh("b", expr.typ)
-        val (args_, _) = as.unzip
-        val expr_ = App(f, inst, args_)
-        ((b, true), (as, List(b -> expr_), Nil))
+        ((b, true), (as.flatten, List(b -> args_), Nil))
 
       case App(g, inst, args) =>
         val ((args_, rec), let) = splits(f, args: _*)
@@ -76,8 +77,8 @@ object Split {
 
   def norm(f: Fun, expr: Expr): Norm = {
     val ((e, r), (as, bs, cs)) = split(f, expr)
-    val (e_, cs_) = maybeShift((e, r), cs) // shift if not recursive
-    Norm(as, bs, cs_, e_)
+    // val (e_, cs_) = maybeShift((e, r), cs) // shift if not recursive
+    Norm(as, bs, cs, e)
   }
 
   def rw(

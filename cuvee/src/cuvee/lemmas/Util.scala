@@ -29,4 +29,101 @@ object Util {
         expr
     }
   }
+
+  def vars(name: String, types: List[Type]) = {
+    for ((t, i) <- types.zipWithIndex)
+      yield Var("x", t, Some(i))
+  }
+
+  def simplify(df: Def): Option[(Def, Rule)] = {
+    ???
+  }
+
+  // compute those argument positions that are needed
+  def usedArgs(df: Def): List[Int] = {
+    val ks = cuvee.fix(used(df, _))
+    ks.toList.sorted
+  }
+
+  // compute those argument positions that are propagated constantly
+  def constantArgs(df: Def): List[Int] = {
+    val Def(f, cases) = df
+    val n = f.args.length
+
+    val all = List.tabulate(n)((i: Int) => i)
+
+    all.filter { case i =>
+      cases forall { case Case(xs, args, guard, Norm(as, bs, cs, d)) =>
+        bs forall { case (x, recs) =>
+          recs(i) == args(i)
+        }
+      }
+    }
+  }
+
+  // compute results that are constant or only depend on constant arguments
+  // but which are not just variables already
+  def constantResults(df: Def, ks: List[Int]): List[Int] = {
+    val Def(f, cases) = df
+
+    val zs =
+      for (
+        (Case(xs, args, guard, Norm(as, bs, cs, d)), i) <- cases.zipWithIndex
+      )
+        yield d match {
+          case x: Var =>
+            (i, false)
+          case _ =>
+            val ka = ks map args
+            (i, d.free subsetOf ka.free)
+        }
+
+    zs collect { case (i, true) => i }
+  }
+
+  def used(df: Def, is: Set[Int]): Set[Int] = {
+    val Def(f, cases) = df
+
+    val ks =
+      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases)
+        yield {
+          val zs = d.free
+
+          // cs vars needed for d
+          val ys =
+            for (
+              (x, c) <- cs if zs contains x;
+              y <- c.free
+            )
+              yield y
+
+          // bs vars needed for d, but only for parameters that are known to matter
+          val ws =
+            for (
+              (x, args) <- bs if zs contains x;
+              (e, i) <- args.zipWithIndex if is contains i;
+              y <- e.free
+            )
+              yield y
+
+          // as vars needed for bs/cs or the guard
+          val vs_ =
+            for (
+              (x, a) <- as if (ws contains x) || (zs contains x);
+              y <- a.free
+            )
+              yield y
+
+          val vs = guard.free ++ zs ++ ys ++ ws ++ vs_
+
+          for (
+            (arg, k) <-
+              args.zipWithIndex // note: pattern matching counts as use
+            if (!arg.isInstanceOf[Var]) || (arg.free intersects vs)
+          )
+            yield k
+        }
+
+    ks.flatten.toSet
+  }
 }

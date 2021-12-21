@@ -1,6 +1,8 @@
 package cuvee.pure
 
 import cuvee.StringOps
+import cuvee.fail
+import cuvee.trace
 import cuvee.util.Alpha
 
 sealed trait Expr extends Expr.term {
@@ -34,6 +36,24 @@ object Expr extends Alpha[Expr, Var] {
 
   def fresh(name: String, typ: Type) =
     Var(name, typ, Some(nextIndex))
+
+  // mirror Sort.prod
+  def tuple(es: List[Expr]) = es match {
+    case List(e) => e
+    case _       => Tuple(es)
+  }
+
+  def in(k: Int, arg: Expr, res: Type) = {
+    res match {
+      case Sum(args) if 0 <= k && k < args.length =>
+        In(k, arg, res)
+      case _ if k == 0 =>
+        arg
+      case _ =>
+        fail("undefined: " + k + "th injection into " + res)
+    }
+  }
+
 }
 
 class VarList(vars: List[Var]) extends Expr.xs(vars) {
@@ -158,9 +178,36 @@ case class Inst(args: List[Type], res: Type) {
 object App {
   def apply(fun: Fun, args: List[Expr]): Expr = {
     val inst = fun.gen
-    val su = Type.unify(inst.args, args.types, Map())
+    val su = trace("applying " + fun + " to " + args) {
+      Type.unify(inst.args, args.types, Map())
+    }
     App(fun, inst subst su, args)
   }
+}
+
+case class In(k: Int, arg: Expr, typ: Type) extends Expr {
+  def free = arg.free
+  def rename(re: Map[Var, Var]) =
+    In(k, arg rename re, typ)
+  def subst(su: Map[Var, Expr]) =
+    In(k, arg subst su, typ)
+  def inst(su: Map[Param, Type]) =
+    In(k, arg inst su, typ)
+  override def toString =
+    ("in" __ k) + "(" + arg + ")"
+}
+
+case class Tuple(args: List[Expr]) extends Expr {
+  val typ = Prod(args.types)
+  def free = args.free
+  def rename(re: Map[Var, Var]) =
+    Tuple(args rename re)
+  def subst(su: Map[Var, Expr]) =
+    Tuple(args subst su)
+  def inst(su: Map[Param, Type]) =
+    Tuple(args inst su)
+  override def toString =
+    args.mkString("(", ", ", ")")
 }
 
 case class App(fun: Fun, inst: Inst, args: List[Expr]) extends Expr {

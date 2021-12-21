@@ -165,6 +165,15 @@ class State(
       Pre(App(fun, inst, exprs))
     }
 
+    def in(k: Int, arg: Pre, typ: Type) = {
+      Pre(In(k, arg.expr, typ))
+    }
+
+    def tuple(args: List[Pre]) = {
+      val exprs = args map (_.expr)
+      Pre(Tuple(exprs))
+    }
+
     def check(arg: Pre, typ: Type) {
       trace("checking\n  " + arg.expr + ":\n    " + typ) {
         unify(arg.expr.typ, typ)

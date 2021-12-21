@@ -6,33 +6,20 @@ import cuvee.smtlib._
 import cuvee.util._
 import cuvee.StringOps
 
-case class Norm(
-    as: List[(Var, Expr)],
-    bs: List[(Var, Expr)],
-    cs: List[(Var, Expr)],
-    d: Expr
-)
-
-object Norm {
-  def just(d: Expr): Norm = {
-    Norm(Nil, Nil, Nil, d)
+case class Def(fun: Fun, cases: List[Case]) {
+  for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases) {
+    require(fun.args == args.types, "type mismatch: " + fun)
+    require(fun.res == d.typ, "type mismatch: " + fun)
   }
 }
 
-case class Case(
-    xs: List[Var],
-    args: List[Expr],
-    guard: List[Expr],
-    rhs: Norm
-)
-
-case class Def(fun: Fun, cases: List[Case])
-
-object test extends Run(Lemmas, "examples/list-defs.smt2")
+object _1 extends Run(Lemmas, "examples/1.smt2")
+object _2 extends Run(Lemmas, "examples/2.smt2")
+object _3 extends Run(Lemmas, "examples/3.smt2")
+object test1 extends Run(Lemmas, "examples/list-defs.smt2")
+object test2 extends Run(Lemmas, "examples/list-fused.smt2")
 
 object Lemmas extends Main {
-  import Split._
-
   var eqs: Map[Fun, Expr] = Map()
 
   def main(args: Array[String]): Unit = {
@@ -46,7 +33,7 @@ object Lemmas extends Main {
     val eqs0 =
       for (
         Assert(expr) <- cmds;
-        eq <- rw(expr, st)
+        eq <- Split.rw(expr, st)
       )
         yield eq
 
@@ -60,105 +47,62 @@ object Lemmas extends Main {
     for (df <- eqs1) {
       show(df)
 
-      val (df_, dfs_a) = ana(df, st)
-      show(df_)
+      val us = Util.usedArgs(df)
+      val ka = Util.constantArgs(df)
+      val kr = Util.constantResults(df, ka)
+      // println("used arguments:     " + xs)
+      // println("constant arguments: " + ys)
+      // println("constant results:   " + zs)
+
+      if (kr.nonEmpty) {
+        val (df_, dfa, eq) = Factor.base(df, kr)
+        show(df_)
+        for (df <- dfa)
+          show(df)
+        show(eq)
+      }
+    }
+
+    for (df <- eqs1 if false) {
+      show(df)
+
+      val dfs_a = Norm.ana(df, st)
+
       for (df_a <- dfs_a)
         show(df_a)
+
+      val df_b = Norm.rec(df, st)
+      show(df_b)
+
+      val (df_b_, eq_b) = Norm.lift(df_b, dfs_a, st)
+      show(df_b_)
+
+      println(eq_b)
+      println()
+
+      val df_cr = Norm.map(df, st)
+      show(df_cr)
+
+      val df_cb = Norm.base(df, st)
+      show(df_cb)
+
+      val (df_, eq_) = Norm.lift(df, df_cr, df_cb, st)
+      show(df_)
+
+      println(eq_)
+      println()
     }
   }
 
-  def ana(df: Def, st: State): (Def, List[Def]) = {
-    val Def(f, cases) = df
-    val params = f.params
-    val types = f.args
-
-    val nil = st funs "nil"
-    val cons = st funs "cons"
-
-    val k = types.length
-
-    val fs =
-      for ((res, i) <- types.zipWithIndex)
-        yield Fun(f.name + "_a" __ i, params, types, Sort.list(res))
-
-    val acs =
-      for (cs <- cases)
-        yield ana(f, fs, cs, nil, cons, st)
-
-    val acs_ = acs.transpose
-
-    val df_a =
-      for ((f, cs) <- fs zip acs_)
-        yield Def(f, cs)
-
-    val at = fs map (_.res)
-    val f_ = Fun(f.name + "'", f.params, f.args ++ at, f.res)
-
-    val cases_ =
-      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases)
-        yield bs match {
-          case Nil =>
-            val as_ =
-              for (_ <- fs)
-                yield App(nil, Nil)
-            Case(xs, args ++ as_, guard, Norm(Nil, Nil, cs, d))
-
-          case List((y, App(`f`, _, es))) =>
-            val ar_as_ =
-              for ((a, _) <- as)
-                yield {
-                  val ar = Var(a.name + "s", Sort.list(a.typ), a.index)
-                  ar -> App(cons, List(a, ar))
-                }
-            val (ar, as_) = ar_as_.unzip
-            val bs_ = List((y, App(f_, es ++ ar)))
-            Case(xs, args ++ as_, guard, Norm(Nil, bs_, cs, d))
-        }
-
-    (Def(f_, cases_), df_a)
-  }
-
-  def ana(
-      f: Fun,
-      fs: List[Fun],
-      cs: Case,
-      nil: Fun,
-      cons: Fun,
-      st: State
-  ): List[Case] = {
-    val Case(xs, args, guard, rhs) = cs
-    val as = rhs.as
-
-    val n = rhs.bs.length
-    require(n == 0 || n == 1, "non-linear recursion in " + f)
-
-    if (n == 1) {
-      require(
-        fs.length == rhs.as.length,
-        "invalid number of a-variables, expected " + fs.length + ", but have " + rhs.as
-      )
-
-      val List((y, App(_, _, args_))) = rhs.bs
-
-      for ((fa, (x, a)) <- fs zip as)
-        yield {
-          val y_ = Var(y.name, fa.res, y.index)
-          val b = App(fa, args_)
-          val d = App(cons, List(x, y_))
-          Case(xs, args, guard, Norm(as, List(y_ -> b), Nil, d))
-        }
-    } else {
-      for (_ <- fs)
-        yield {
-          val d = App(nil, Nil)
-          Case(xs, args, guard, Norm(as, Nil, Nil, d))
-        }
-    }
+  def show(r: Rule) {
+    println(r)
+    println()
   }
 
   def show(df: Def) {
     val Def(fun, cases) = df
     println(fun)
+
     for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases) {
       print("  case " + args.mkString("(", ", ", ")"))
       if (guard.nonEmpty)
@@ -166,8 +110,8 @@ object Lemmas extends Main {
       println(" -> ")
       for ((x, e) <- as)
         println("    let " + x + " = " + e)
-      for ((x, e) <- bs)
-        println("    let " + x + " = " + e)
+      for ((x, es) <- bs)
+        println("    let " + x + " = " + App(fun, es))
       for ((x, e) <- cs)
         println("    let " + x + " = " + e)
       println("    in  " + d)
