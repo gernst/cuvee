@@ -71,8 +71,8 @@ object Util {
         (Case(xs, args, guard, Norm(as, bs, cs, d)), i) <- cases.zipWithIndex
       )
         yield d match {
-          case x: Var =>
-            (i, false)
+          // case x: Var =>
+          //   (i, false)
           case _ =>
             val ka = ks map args
             (i, d.free subsetOf ka.free)

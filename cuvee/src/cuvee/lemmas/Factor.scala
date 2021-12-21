@@ -3,22 +3,30 @@ package cuvee.lemmas
 import cuvee.pure._
 
 object Factor {
+  // Lift base cases out of a given definition,
+  // where ks are the indices of the cases of df that
+  // depend on constants or constantly propagated arguments only (cf. Util.constantResults)
   def base(df: Def, ks: List[Int]): (Def, List[Def], Rule) = {
     val Def(f, cases) = df
 
+    // a list of fresh variables, one for each original argument of f
     val xs = Util.vars("x", f.args)
 
+    // additional variables, one for each base case of the definition,
+    // unless that base case is given by variable already which is constantly passed down
     val zs_ =
       for ((c, k) <- cases.zipWithIndex)
         yield
-          if (c.isBaseCase)
+          if (c.isBaseCase && !(c.rhs.d.isInstanceOf[Var] && (ks contains k)))
             Some(Var("z", f.res, Some(k)))
           else
             None
 
     val zs = zs_.flatten
 
+    // function f' receives the original arguments and one additional argument per base case
     val f_ = Fun(f.name + "'", f.params, f.args ++ zs.types, f.res)
+
     val stuff =
       for (
         (Case(ys, args, guard, Norm(as, bs, cs, d)), k) <- cases.zipWithIndex
@@ -49,8 +57,11 @@ object Factor {
                 (Case(_, args, guard, Norm(as, bs, cs, _)), j) <-
                   cases.zipWithIndex if j == k || bs.nonEmpty
               )
-                yield {
-                  Case(xs, args, guard, Norm(as, bs, Nil, d))
+                yield bs match {
+                  case Nil =>
+                    Case(xs, args, guard, Norm(as, bs, Nil, d))
+                  case List((y, b)) => // works only for linear recursion!
+                    Case(xs, args, guard, Norm(as, bs, Nil, y))
                 }
 
             import cuvee.StringOps
@@ -76,9 +87,23 @@ object Factor {
     val as = as_.flatten
 
     val df_ = Def(f_, cases_)
-    val eq = Rule(xs, App(f, xs), App(f_, xs ++ as), True)
 
-    (df_, dfs_.flatten, eq)
+    // remove unused arguments from df_
+    val us = Util.usedArgs(df_)
+    val cases__ =
+      for (Case(ys, args, guard, Norm(as, bs, cs, d)) <- cases_)
+        yield {
+          val bs_ =
+            for ((y, b) <- bs)
+              yield (y, us map b)
+          Case(ys, us map args, guard, Norm(as, bs_, cs, d))
+        }
+    val f__ = f_ copy (args = us map f_.args)
+    val df__ = Def(f__, cases__)
+
+    val eq = Rule(xs, App(f, xs), App(f__, us map (xs ++ as)), True)
+
+    (df__, dfs_.flatten, eq)
   }
 
   //

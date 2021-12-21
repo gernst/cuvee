@@ -8,7 +8,7 @@ import cuvee.StringOps
 
 case class Def(fun: Fun, cases: List[Case]) {
   for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases) {
-    require(fun.args == args.types, "type mismatch: " + fun)
+    require(fun.args == args.types, "type mismatch: " + fun + " applied to " + args)
     require(fun.res == d.typ, "type mismatch: " + fun)
   }
 }
