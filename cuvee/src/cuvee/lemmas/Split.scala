@@ -75,10 +75,10 @@ object Split {
         ((expr, false), (Nil, Nil, Nil))
     }
 
-  def norm(f: Fun, expr: Expr): Norm = {
+  def norm(f: Fun, expr: Expr) = {
     val ((e, r), (as, bs, cs)) = split(f, expr)
     // val (e_, cs_) = maybeShift((e, r), cs) // shift if not recursive
-    Norm(as, bs, cs, e)
+    (as, bs, cs, e)
   }
 
   def rw(
@@ -95,7 +95,8 @@ object Split {
         l ++ r
 
       case (App(fun, _, args), rhs) =>
-        List((fun, Case(xs, args, guard, norm(fun, rhs))))
+        val (as, bs, cs, e) = norm(fun, rhs)
+        List((fun, Case(xs, args, guard, as, bs, cs, e)))
 
       case _ =>
         Nil

@@ -53,7 +53,7 @@ object Util {
     val all = List.tabulate(n)((i: Int) => i)
 
     all.filter { case i =>
-      cases forall { case Case(xs, args, guard, Norm(as, bs, cs, d)) =>
+      cases forall { case Case(xs, args, guard, as, bs, cs, d) =>
         bs forall { case (x, recs) =>
           recs(i) == args(i)
         }
@@ -68,7 +68,7 @@ object Util {
 
     val zs =
       for (
-        (Case(xs, args, guard, Norm(as, bs, cs, d)), i) <- cases.zipWithIndex
+        (Case(xs, args, guard, as, bs, cs, d), i) <- cases.zipWithIndex
       )
         yield d match {
           // case x: Var =>
@@ -85,7 +85,7 @@ object Util {
     val Def(f, cases) = df
 
     val ks =
-      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases)
+      for (Case(xs, args, guard, as, bs, cs, d) <- cases)
         yield {
           val zs = d.free
 

@@ -9,6 +9,21 @@ sealed trait Expr extends Expr.term {
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
 
+  def unary_-(that: Expr) = App(Fun.uminus, List(this))
+  def +(that: Expr) = Plus(this, that)
+  def -(that: Expr) = Minus(this, that)
+  def *(that: Expr) = Times(this, that)
+
+  def and(that: Expr) = And(this, that)
+  def or(that: Expr) = Or(this, that)
+  def ==>(that: Expr) = Imp(this, that)
+
+  def ===(that: Expr) = Eq(this, that)
+
+  def ::(that: Expr) = App(Fun.cons, List(that, this))
+  def ++(that: Expr) = App(Fun.append, List(this, that))
+  def append(that: Expr) = App(Fun.append, List(this, that))
+
   def bottomup(g: Expr => Expr): Expr = {
     map(identity, g)
   }
@@ -91,6 +106,9 @@ case class Lit(any: Any, typ: Type) extends Expr {
 }
 
 case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
+  def apply(args: Expr*) =
+    App(this, args.toList)
+
   def gen = {
     val re = Type.fresh(params)
     Inst(args rename re, res rename re)
@@ -120,13 +138,18 @@ object Fun {
 
   val a = Param("a")
   val b = Param("b")
-  val ar = Sort.array(a, b)
+  val list = Sort.list(a)
+  val array = Sort.array(a, b)
 
   val eq_ = Fun("=", List(a), List(a, a), bool)
   val ite = Fun("ite", List(a), List(bool, a, a), a)
 
-  val select = Fun("select", List(a, b), List(ar, a), b)
-  val store = Fun("store", List(a, b), List(ar, a, b), ar)
+  val select = Fun("select", List(a, b), List(array, a), b)
+  val store = Fun("store", List(a, b), List(array, a, b), array)
+
+  val nil = Fun("nil", List(a), Nil, list)
+  val cons = Fun("cons", List(a), List(a, list), list)
+  val append = Fun("append", List(a), List(list, list), list)
 
   val true_ = Fun("true", Nil, Nil, bool)
   val false_ = Fun("false", Nil, Nil, bool)

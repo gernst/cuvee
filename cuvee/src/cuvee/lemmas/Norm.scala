@@ -4,19 +4,18 @@ import cuvee.pure._
 import cuvee.StringOps
 
 case class Norm(
-    as: List[(Var, Expr)],
-    bs: List[(Var, List[Expr])],
-    cs: List[(Var, Expr)],
-    d: Expr
 )
 
 case class Case(
     xs: List[Var],
     args: List[Expr],
     guard: List[Expr],
-    rhs: Norm
+    as: List[(Var, Expr)],
+    bs: List[(Var, List[Expr])],
+    cs: List[(Var, Expr)],
+    d: Expr
 ) {
-  def isBaseCase = rhs.bs.isEmpty
+  def isBaseCase = bs.isEmpty
 }
 
 object Norm {
@@ -29,13 +28,13 @@ object Norm {
     val f_ = Fun(f.name + "'", f.params, f.args ++ at, f.res)
 
     val cases_ =
-      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases)
+      for (Case(xs, args, guard, as, bs, cs, d) <- cases)
         yield bs match {
           case Nil =>
             val as_ =
               for (_ <- dfs_a)
                 yield App(nil, Nil)
-            Case(xs, args ++ as_, guard, Norm(Nil, Nil, cs, d))
+            Case(xs, args ++ as_, guard, Nil, Nil, cs, d)
 
           case List((y, es)) =>
             val ar_as_ =
@@ -46,7 +45,7 @@ object Norm {
                 }
             val (ar, as_) = ar_as_.unzip
             val bs_ = List((y, es ++ ar))
-            Case(xs, args ++ as_, guard, Norm(Nil, bs_, cs, d))
+            Case(xs, args ++ as_, guard, Nil, bs_, cs, d)
         }
 
     val df_ = Def(f_, cases_)
@@ -81,13 +80,13 @@ object Norm {
     var k = 0
 
     val cases_ =
-      for (Case(zs, args, guard, Norm(as, bs, cs, d)) <- cases)
+      for (Case(zs, args, guard, as, bs, cs, d) <- cases)
         yield bs match {
           case Nil =>
             val ar = App(nil, Nil)
             val ab = Expr.in(j, d, fb.res)
             j += 1
-            Case(zs, List(ar, ab), guard, Norm(Nil, Nil, Nil, d))
+            Case(zs, List(ar, ab), guard, Nil, Nil, Nil, d)
 
           case List((y, es)) =>
             // println(fb)
@@ -99,7 +98,7 @@ object Norm {
             val ar = App(cons, List(x, xs))
             val ab = Var("cb", fb.res)
             k += 1
-            Case(zs, List(ar, ab), guard, Norm(Nil, List(y -> List(xs, ab)), Nil, d))
+            Case(zs, List(ar, ab), guard, Nil, List(y -> List(xs, ab)), Nil, d)
         }
 
     val df_ = Def(f_, cases_)
@@ -124,7 +123,7 @@ object Norm {
     // fails if there are no recursive cases
     // e.g. for fused functions where the recursive call was not contracted
     val types =
-      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases if bs.nonEmpty)
+      for (Case(xs, args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
         yield Sort.prod(cs map (_._1.typ))
     val res = Sort.sum(types)
 
@@ -133,11 +132,11 @@ object Norm {
     var k = 0
 
     val cases_ =
-      for (Case(zs, args, guard, Norm(as, bs, cs, d)) <- cases)
+      for (Case(zs, args, guard, as, bs, cs, d) <- cases)
         yield bs match {
           case Nil =>
             val d = App(nil, Nil)
-            Case(zs, args, guard, Norm(as, Nil, Nil, d))
+            Case(zs, args, guard, as, Nil, Nil, d)
 
           case List((x, es)) =>
             val xs = Var(x.name + "s", f_.res, x.index)
@@ -147,7 +146,7 @@ object Norm {
             k += 1 // count only recursive cases
 
             val d = App(cons, List(y, xs))
-            Case(zs, args, guard, Norm(as, List(xs -> es), List(y -> c), d))
+            Case(zs, args, guard, as, List(xs -> es), List(y -> c), d)
         }
 
     Def(f_, cases_)
@@ -157,7 +156,7 @@ object Norm {
     val Def(f, cases) = df
 
     val types =
-      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases if bs.isEmpty)
+      for (Case(xs, args, guard, as, bs, cs, d) <- cases if bs.isEmpty)
         yield d.typ
     val res = Sort.sum(types)
 
@@ -166,15 +165,15 @@ object Norm {
     var k = 0
 
     val cases_ =
-      for (Case(zs, args, guard, Norm(as, bs, cs, d)) <- cases)
+      for (Case(zs, args, guard, as, bs, cs, d) <- cases)
         yield bs match {
           case Nil =>
             val d_ = Expr.in(k, d, res)
             k += 1 // count only base cases
-            Case(zs, args, guard, Norm(as, Nil, cs, d_))
+            Case(zs, args, guard, as, Nil, cs, d_)
 
           case List((x, es)) =>
-            Case(zs, args, guard, Norm(as, List(x -> es), Nil, x))
+            Case(zs, args, guard, as, List(x -> es), Nil, x)
         }
 
     Def(f_, cases_)
@@ -189,16 +188,16 @@ object Norm {
     val f_ = Fun(f.name + "_b", f.params, f.args, Sort.list(f.res))
 
     val cases_ =
-      for (Case(zs, args, guard, Norm(as, bs, cs, d)) <- cases)
+      for (Case(zs, args, guard, as, bs, cs, d) <- cases)
         yield bs match {
           case Nil =>
             val d = App(nil, Nil)
-            Case(zs, args, guard, Norm(as, Nil, Nil, d))
+            Case(zs, args, guard, as, Nil, Nil, d)
 
           case List((x, es)) =>
             val xs = Var(x.name + "s", f_.res, x.index)
             val d = App(cons, List(x, xs))
-            Case(zs, args, guard, Norm(as, List(xs -> es), Nil, d))
+            Case(zs, args, guard, as, List(xs -> es), Nil, d)
         }
 
     Def(f_, cases_)
@@ -219,13 +218,13 @@ object Norm {
         yield Fun(f.name + "_a" __ i, params, types, Sort.list(res))
 
     val cases_ =
-      for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases)
+      for (Case(xs, args, guard,as, bs, cs, d) <- cases)
         yield bs match {
           case Nil =>
             for (_ <- fs)
               yield {
                 val d = App(nil, Nil)
-                Case(xs, args, guard, Norm(as, Nil, Nil, d))
+                Case(xs, args, guard, as, Nil, Nil, d)
               }
 
           case List((y, args_)) =>
@@ -238,7 +237,7 @@ object Norm {
               yield {
                 val y_ = Var(y.name, fa.res, y.index)
                 val d = App(cons, List(x, y_))
-                Case(xs, args, guard, Norm(as, List(y_ -> args_), Nil, d))
+                Case(xs, args, guard, as, List(y_ -> args_), Nil, d)
               }
         }
 

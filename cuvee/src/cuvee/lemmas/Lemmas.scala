@@ -7,8 +7,11 @@ import cuvee.util._
 import cuvee.StringOps
 
 case class Def(fun: Fun, cases: List[Case]) {
-  for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases) {
-    require(fun.args == args.types, "type mismatch: " + fun + " applied to " + args)
+  for (Case(xs, args, guard, as, bs, cs, d) <- cases) {
+    require(
+      fun.args == args.types,
+      "type mismatch: " + fun + " applied to " + args
+    )
     require(fun.res == d.typ, "type mismatch: " + fun)
   }
 }
@@ -16,6 +19,7 @@ case class Def(fun: Fun, cases: List[Case]) {
 object _1 extends Run(Lemmas, "examples/1.smt2")
 object _2 extends Run(Lemmas, "examples/2.smt2")
 object _3 extends Run(Lemmas, "examples/3.smt2")
+object _4 extends Run(Lemmas, "examples/4.smt2")
 object test1 extends Run(Lemmas, "examples/list-defs.smt2")
 object test2 extends Run(Lemmas, "examples/list-fused.smt2")
 
@@ -60,6 +64,8 @@ object Lemmas extends Main {
         for (df <- dfa)
           show(df)
         show(eq)
+
+        Lift.lift(df_)
       }
     }
 
@@ -103,7 +109,7 @@ object Lemmas extends Main {
     val Def(fun, cases) = df
     println(fun)
 
-    for (Case(xs, args, guard, Norm(as, bs, cs, d)) <- cases) {
+    for (Case(xs, args, guard, as, bs, cs, d) <- cases) {
       print("  case " + args.mkString("(", ", ", ")"))
       if (guard.nonEmpty)
         print(" if " + guard.mkString(" /\\ "))

@@ -79,12 +79,12 @@ object Rewrite {
         None
     }
   }
-  // eq case
+
   def bind(
       vars: List[Var],
       pat: Expr,
       arg: Expr,
-      env: Map[Var, Expr]
+      env: Map[Var, Expr] = Map()
   ): Option[Map[Var, Expr]] = {
     (pat, arg) match {
       case (x: Var, _) if !(env contains x) =>
@@ -98,7 +98,20 @@ object Rewrite {
       case (App(fun1, inst1, pats), App(fun2, inst2, args)) if fun1 == fun2 =>
         bind(vars, pats, args, env)
       case _ =>
+        // println("cannot bind " + pat + " to " + arg)
         None
+    }
+  }
+
+  def matches(
+      vars: List[Var],
+      pat: Expr,
+      arg: Expr,
+      env: Map[Var, Expr] = Map()
+  ): Boolean = {
+    bind(vars, pat, arg, env) match {
+      case None => false
+      case Some(_) => true
     }
   }
 }
