@@ -96,22 +96,24 @@ object Lift {
     val Def(h, cases) = df
     // println("0. " + h.name)
 
-    for (Lift(vs, ys, z, f, b, g) <- lifts) {
+    for (l @ Lift(vs, ys, z, f, b, g) <- lifts) {
       val ok =
         for (Case(xs, args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
           yield Rewrite.bind(vs, f, d) match {
             case None =>
               // println("1. " + h.name + " failed")
-              false
+              (false, bs.exists (_._1 == d)) // direct pass onwards
             case Some(env) =>
               // println("1. " + h.name + " " + ys + " " + env)
-              ys forall { y =>
+              (ys forall { y =>
                 bs exists (_._1 == env(y)) // y must denote a recursive call
-              }
+              }, true)
           }
 
-      if (ok.forall(b => b)) {
-        // println("2. " + h.name)
+      val (yes, maybe) = ok.unzip
+
+      if (yes.exists(b => b) && maybe.forall(b => b)) {
+        // println("2. " + h.name + " with " + l)
         val pos =
           for (Case(xs, args, guard, as, bs, cs, d) <- cases if bs.isEmpty)
             yield args indexOf d
@@ -120,10 +122,10 @@ object Lift {
           // println("3. " + h.name)
           val xs =
             for ((t, i) <- h.args.zipWithIndex)
-              yield Var("x", t, if(pos contains i) None else Some(i))
-              // this case distinction collapses all base cases to the *same* variable
-              // which is needed because commutation cannot discern different base cases
-              // (we do not know which one is triggered)
+              yield Var("x", t, if (pos contains i) None else Some(i))
+          // this case distinction collapses all base cases to the *same* variable
+          // which is needed because commutation cannot discern different base cases
+          // (we do not know which one is triggered)
 
           val as =
             for ((x, i) <- xs.zipWithIndex)

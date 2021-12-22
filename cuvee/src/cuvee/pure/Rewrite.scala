@@ -98,7 +98,7 @@ object Rewrite {
       case (App(fun1, inst1, pats), App(fun2, inst2, args)) if fun1 == fun2 =>
         bind(vars, pats, args, env)
       case _ =>
-        // println("cannot bind " + pat + " to " + arg)
+        // println("cannot bind " + pat + " to " + arg + " in " + env)
         None
     }
   }

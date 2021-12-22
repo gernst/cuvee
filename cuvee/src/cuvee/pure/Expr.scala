@@ -47,7 +47,7 @@ sealed trait Expr extends Expr.term {
 }
 
 object Expr extends Alpha[Expr, Var] {
-  val infix = Set("=", "<=", "<=", "<", ">", "+", "-", "*")
+  val infix = Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>")
 
   def fresh(name: String, typ: Type) =
     Var(name, typ, Some(nextIndex))
@@ -138,6 +138,7 @@ object Fun {
 
   val a = Param("a")
   val b = Param("b")
+
   val list = Sort.list(a)
   val array = Sort.array(a, b)
 
@@ -149,7 +150,11 @@ object Fun {
 
   val nil = Fun("nil", List(a), Nil, list)
   val cons = Fun("cons", List(a), List(a, list), list)
-  val append = Fun("append", List(a), List(list, list), list)
+  // val append = Fun("append", List(a), List(list, list), list)
+
+  val elem = Sort(Con("Elem", 0), Nil)
+  val list_elem = Sort.list(elem)
+  val append = Fun("append", Nil, List(list_elem, list_elem), list_elem)
 
   val true_ = Fun("true", Nil, Nil, bool)
   val false_ = Fun("false", Nil, Nil, bool)
