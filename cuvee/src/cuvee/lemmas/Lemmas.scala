@@ -6,44 +6,6 @@ import cuvee.smtlib._
 import cuvee.util._
 import cuvee.StringOps
 
-case class Case(
-    args: List[Expr],
-    guard: List[Expr],
-    as: Map[Var, Expr],
-    bs: Map[Var, List[Expr]],
-    cs: Map[Var, Expr],
-    d: Expr
-) {
-  def free = args.free
-  def isBaseCase = bs.isEmpty
-
-  def prime = {
-    val re = Expr.subst(free map (x => (x, x.prime)))
-    val as_ = as map { case (a, e) => (a, e rename re) }
-    val bs_ = bs map { case (b, e) => (b, e rename re) }
-    val cs_ = cs map { case (c, e) => (c, e rename re) }
-
-    Case(
-      args rename re,
-      guard rename re,
-      as_,
-      bs_,
-      cs_,
-      d rename re
-    )
-  }
-}
-
-case class Def(fun: Fun, cases: List[Case]) {
-  for (Case(args, guard, as, bs, cs, d) <- cases) {
-    require(
-      fun.args == args.types,
-      "type mismatch: " + fun + " applied to " + args
-    )
-    require(fun.res == d.typ, "type mismatch: " + fun)
-  }
-}
-
 object _1 extends Run(Lemmas, "examples/1.smt2")
 object _2 extends Run(Lemmas, "examples/2.smt2")
 object _3 extends Run(Lemmas, "examples/3.smt2")
@@ -65,7 +27,7 @@ object Lemmas extends Main {
     val eqs0 =
       for (
         Assert(expr) <- cmds;
-        eq <- Split.rw(expr, st)
+        eq <- Def.rw(expr, st)
       )
         yield eq
 
@@ -76,7 +38,14 @@ object Lemmas extends Main {
           Def(fun, cases)
         }
 
-    for (df <- eqs1) {
+    for (df <- eqs1; dg <- eqs1) {
+      for (dfg <- Fuse.fuse(df, dg))
+        show(dfg)
+    }
+
+    for (df0 <- eqs1) {
+      val df = Split.split(df0)
+
       show(df)
 
       val us = Util.usedArgs(df)
@@ -109,23 +78,35 @@ object Lemmas extends Main {
     println()
   }
 
-  def show(df: Def) {
+  def show(fun: Fun, cs: Case) {
+    cs match {
+      case Flat(args, guard, body) =>
+        print("  case " + args.mkString("(", ", ", ")"))
+        if (guard.nonEmpty)
+          print(" if " + guard.mkString(" /\\ "))
+        println(" -> ")
+        println("    in  " + body)
+
+      case Norm(args, guard, as, bs, cs, d) =>
+        print("  case " + args.mkString("(", ", ", ")"))
+        if (guard.nonEmpty)
+          print(" if " + guard.mkString(" /\\ "))
+        println(" -> ")
+        for ((x, e) <- as)
+          println("    let " + x + " = " + e)
+        for ((x, es) <- bs)
+          println("    let " + x + " = " + App(fun, es))
+        for ((x, e) <- cs)
+          println("    let " + x + " = " + e)
+        println("    in  " + d)
+    }
+  }
+
+  def show(df: Def[Case]) {
     val Def(fun, cases) = df
     println(fun)
-
-    for (Case(args, guard, as, bs, cs, d) <- cases) {
-      print("  case " + args.mkString("(", ", ", ")"))
-      if (guard.nonEmpty)
-        print(" if " + guard.mkString(" /\\ "))
-      println(" -> ")
-      for ((x, e) <- as)
-        println("    let " + x + " = " + e)
-      for ((x, es) <- bs)
-        println("    let " + x + " = " + App(fun, es))
-      for ((x, e) <- cs)
-        println("    let " + x + " = " + e)
-      println("    in  " + d)
-    }
+    for (cs <- cases)
+      show(fun, cs)
     println()
   }
 }

@@ -90,13 +90,13 @@ object Lift {
 //     rs.toList
 //   }
 
-  def lift(df: Def) = {
+  def lift(df: Def[Norm]) = {
     val Def(h, cases) = df
     // println("0. " + h.name)
 
     for (l @ Lift(ys, z, f, b, g) <- lifts) {
       val ok =
-        for (Case(args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
+        for (Norm(args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
           yield Rewrite.bind(f, d) match {
             case None =>
               // println("1. " + h.name + " failed")
@@ -113,7 +113,7 @@ object Lift {
       if (yes.exists(b => b) && maybe.forall(b => b)) {
         // println("2. " + h.name + " with " + l)
         val pos =
-          for (Case(args, guard, as, bs, cs, d) <- cases if bs.isEmpty)
+          for (Norm(args, guard, as, bs, cs, d) <- cases if bs.isEmpty)
             yield args indexOf d
 
         if (pos forall (_ >= 0)) {

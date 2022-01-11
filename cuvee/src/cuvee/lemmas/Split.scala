@@ -80,47 +80,16 @@ object Split {
         ((expr, false), (Map(), Map(), Map()))
     }
 
-  def norm(f: Fun, expr: Expr) = {
-    val ((e, r), (as, bs, cs)) = split(f, expr)
-    // val (e_, cs_) = maybeShift((e, r), cs) // shift if not recursive
-    (as, bs, cs, e)
-  }
+  def split(df: Def[Flat]): Def[Norm] = {
+    val Def(f, cases) = df
 
-  def rw(
-      xs: List[Var],
-      guard: List[Expr],
-      lhs: App,
-      rhs: Expr,
-      st: State
-  ): List[(Fun, Case)] =
-    (lhs, rhs) match {
-      case (App(fun, _, args), Ite(test, left, right)) =>
-        val l = rw(xs, test :: guard, lhs, left, st)
-        val r = rw(xs, Not(test) :: guard, lhs, right, st)
-        l ++ r
+    val cases_ =
+      for (Flat(args, guard, body) <- cases)
+        yield {
+          val ((d, r), (as, bs, cs)) = split(f, body)
+          Norm(args, guard, as, bs, cs, d)
+        }
 
-      case (App(fun, _, args), rhs) =>
-        val (as, bs, cs, e) = norm(fun, rhs)
-        List((fun, Case(args, guard, as, bs, cs, e)))
-
-      case _ =>
-        Nil
-    }
-
-  def rw(expr: Expr, st: State): List[(Fun, Case)] =
-    expr match {
-      case Clause(xs, ant, Eq(lhs: App, rhs)) =>
-        rw(xs, ant, lhs, rhs, st)
-
-      case _ =>
-        Nil
-    }
-
-  def rw(exprs: List[Expr], st: State): List[(Fun, Case)] = {
-    for (
-      expr <- exprs;
-      rule <- rw(expr, st)
-    )
-      yield rule
+    Def(f, cases_)
   }
 }

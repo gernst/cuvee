@@ -35,25 +35,25 @@ object Util {
       yield Var("x", t, Some(i))
   }
 
-  def simplify(df: Def): Option[(Def, Rule)] = {
+  def simplify(df: Def[Norm]): Option[(Def[Norm], Rule)] = {
     ???
   }
 
   // compute those argument positions that are needed
-  def usedArgs(df: Def): List[Int] = {
+  def usedArgs(df: Def[Norm]): List[Int] = {
     val ks = cuvee.fix(used(df, _))
     ks.toList.sorted
   }
 
   // compute those argument positions that are propagated constantly
-  def constantArgs(df: Def): List[Int] = {
+  def constantArgs(df: Def[Norm]): List[Int] = {
     val Def(f, cases) = df
     val n = f.args.length
 
     val all = List.tabulate(n)((i: Int) => i)
 
     all.filter { case i =>
-      cases forall { case Case(args, guard, as, bs, cs, d) =>
+      cases forall { case Norm(args, guard, as, bs, cs, d) =>
         bs forall { case (x, recs) =>
           recs(i) == args(i)
         }
@@ -66,22 +66,22 @@ object Util {
   // Note:
   // * no purely tail-recursive functions
   // * only linear recursion (otherwise cannot use a list to represent args)
-  def computedArgs(df: Def): List[Int] = {
+  def computedArgs(df: Def[Norm]): List[Int] = {
     val Def(f, cases) = df
     val n = f.args.length
 
     val all = List.tabulate(n)((i: Int) => i)
 
-    val linear = cases forall { case Case(args, guard, as, bs, cs, d) =>
+    val linear = cases forall { case Norm(args, guard, as, bs, cs, d) =>
       bs.size <= 1
     }
 
-    val tailrec = cases forall { case Case(args, guard, as, bs, cs, d) =>
+    val tailrec = cases forall { case Norm(args, guard, as, bs, cs, d) =>
       bs.isEmpty || (bs exists { case (x, recs) => x == d })
     }
 
     all.filter { case i =>
-      val computed = cases exists { case Case(args, guard, as, bs, cs, d) =>
+      val computed = cases exists { case Norm(args, guard, as, bs, cs, d) =>
         bs exists { case (x, recs) =>
           as exists (_._1 == recs(i))
         }
@@ -93,11 +93,11 @@ object Util {
 
   // compute results that are constant or only depend on constant arguments
   // but which are not just variables already
-  def constantResults(df: Def, ks: List[Int]): List[Int] = {
+  def constantResults(df: Def[Norm], ks: List[Int]): List[Int] = {
     val Def(f, cases) = df
 
     val zs =
-      for ((Case(args, guard, as, bs, cs, d), i) <- cases.zipWithIndex)
+      for ((Norm(args, guard, as, bs, cs, d), i) <- cases.zipWithIndex)
         yield d match {
           // case x: Var =>
           //   (i, false)
@@ -109,11 +109,11 @@ object Util {
     zs collect { case (i, true) => i }
   }
 
-  def used(df: Def, is: Set[Int]): Set[Int] = {
+  def used(df: Def[Norm], is: Set[Int]): Set[Int] = {
     val Def(f, cases) = df
 
     val ks =
-      for (Case(args, guard, as, bs, cs, d) <- cases)
+      for (Norm(args, guard, as, bs, cs, d) <- cases)
         yield {
           val zs = d.free
 

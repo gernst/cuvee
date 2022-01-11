@@ -8,7 +8,7 @@ object Factor {
   // Lift base cases out of a given definition,
   // where ks are the indices of the cases of df that
   // depend on constants or constantly propagated arguments only (cf. Util.constantResults)
-  def base(df: Def, ks: List[Int]): (Def, List[Def], Rule) = {
+  def base(df: Def[Norm], ks: List[Int]): (Def[Norm], List[Def[Norm]], Rule) = {
     val Def(f, cases) = df
 
     // a list of fresh variables, one for each original argument of f
@@ -36,7 +36,7 @@ object Factor {
     // - an expression that denotes the respective base case value
     // - a definition of a function that computes base cases that are not constant
     val stuff =
-      for ((Case(args, guard, as, bs, cs, d), k) <- cases.zipWithIndex)
+      for ((Norm(args, guard, as, bs, cs, d), k) <- cases.zipWithIndex)
         yield (bs, zs_(k)) match {
           // simple case: we can factor the base case value d via the argument given by zk
           case (Map_(), Some(zk)) if ks contains k =>
@@ -51,7 +51,7 @@ object Factor {
                   yield (a, x)
               )
 
-            val res = Case(args ++ zs, guard, as, Map(), cs, zk)
+            val res = Norm(args ++ zs, guard, as, Map(), cs, zk)
             val arg = Some(d rename re)
             val dfs = None
             (res, arg, dfs)
@@ -72,19 +72,19 @@ object Factor {
             // and we can map then one-to-one on the respective base cases
             val cases_ =
               for (
-                (Case(args, guard, as, bs, cs, _), j) <-
+                (Norm(args, guard, as, bs, cs, _), j) <-
                   cases.zipWithIndex if j == k || bs.nonEmpty
               )
                 yield bs match {
                   case Map_() =>
-                    Case(args, guard, as, bs, Map(), d)
+                    Norm(args, guard, as, bs, Map(), d)
                   case Map_((y, b)) => // works only for linear recursion!
-                    Case(args, guard, as, bs, Map(), y)
+                    Norm(args, guard, as, bs, Map(), y)
                 }
 
             val g = f copy (name = (f.name + "_base") __ k)
 
-            val res = Case(args ++ zs, guard, as, Map(), cs, zk)
+            val res = Norm(args ++ zs, guard, as, Map(), cs, zk)
             val arg = Some(App(g, xs))
             val dfs = Some(Def(g, cases_))
             (res, arg, dfs)
@@ -96,7 +96,7 @@ object Factor {
               for ((y, b) <- bs)
                 yield (y, b ++ zs)
 
-            val res = Case(args ++ zs, guard, as, bs_, cs, d)
+            val res = Norm(args ++ zs, guard, as, bs_, cs, d)
             val arg = None
             val dfs = None
             (res, arg, dfs)
@@ -110,12 +110,12 @@ object Factor {
     // remove unused arguments from df_
     val us = Util.usedArgs(df_)
     val cases__ =
-      for (Case(args, guard, as, bs, cs, d) <- cases_)
+      for (Norm(args, guard, as, bs, cs, d) <- cases_)
         yield {
           val bs_ =
             for ((y, b) <- bs)
               yield (y, us map b)
-          Case(us map args, guard, as, bs_, cs, d)
+          Norm(us map args, guard, as, bs_, cs, d)
         }
     val f__ = f_ copy (args = us map f_.args)
     val df__ = Def(f__, cases__)
@@ -127,7 +127,7 @@ object Factor {
 
   // factor arguments that are computed with a variables before passing them down the recursion
   // TODO: do not do this for purely tail-recursive functions
-  def arguments(df: Def, kc: List[Int]): List[Def] = {
+  def arguments(df: Def[Norm], kc: List[Int]): List[Def[Norm]] = {
     val Def(f, cases) = df
     val params = f.params
     val types = f.args
@@ -143,13 +143,13 @@ object Factor {
     
     Nil
     // val cases_ =
-    //   for (Case(xs, args, guard, as, bs, cs, d) <- cases)
+    //   for (Norm(xs, args, guard, as, bs, cs, d) <- cases)
     //     yield bs match {
     //       case Nil =>
     //         for (_ <- fs)
     //           yield {
     //             val d = Fun.nil()
-    //             Case(xs, args, guard, as, Nil, Nil, d)
+    //             Norm(xs, args, guard, as, Nil, Nil, d)
     //           }
 
     //       case List((y, args_)) =>
@@ -162,7 +162,7 @@ object Factor {
     //           yield {
     //             val y_ = Var(y.name, fa.res, y.index)
     //             val d = x :: y_
-    //             Case(xs, args, guard, as, List(y_ -> args_), Nil, d)
+    //             Norm(xs, args, guard, as, List(y_ -> args_), Nil, d)
     //           }
     //     }
 
