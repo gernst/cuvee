@@ -90,22 +90,25 @@ object Lift {
 //     rs.toList
 //   }
 
-  def lift(df: Def[Norm]) = {
+  def lift(df: Def[Norm]): List[Rule] = {
     val Def(h, cases) = df
     // println("0. " + h.name)
 
-    for (l @ Lift(ys, z, f, b, g) <- lifts) {
+    val all = for (l @ Lift(ys, z, f, b, g) <- lifts) yield {
       val ok =
         for (Norm(args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
           yield Rewrite.bind(f, d) match {
             case None =>
               // println("1. " + h.name + " failed")
-              (false, bs.exists (_._1 == d)) // direct pass onwards
+              (false, bs.exists(_._1 == d)) // direct pass onwards
             case Some(env) =>
               // println("1. " + h.name + " " + ys + " " + env)
-              (ys forall { y =>
-                bs exists (_._1 == env(y)) // y must denote a recursive call
-              }, true)
+              (
+                ys forall { y =>
+                  bs exists (_._1 == env(y)) // y must denote a recursive call
+                },
+                true
+              )
           }
 
       val (yes, maybe) = ok.unzip
@@ -142,10 +145,17 @@ object Lift {
           val rhs = g subst su
 
           val vs = xs collect { case v: Var => v }
-          println(Forall(vs.distinct, Eq(lhs, rhs)))
-          println()
+          // println(Forall(vs.distinct, Eq(lhs, rhs)))
+          // println()
+          Some(Rule(lhs, rhs, True))
+        } else {
+          None
         }
+      } else {
+        None
       }
     }
+
+    all.flatten
   }
 }

@@ -65,7 +65,9 @@ object Lemmas extends Main {
           show(df)
         show(eq)
 
-        Lift.lift(df_)
+        val rules = Lift.lift(df_)
+        for (r <- rules)
+          show(r)
       }
 
       // val dfs_a = Factor.arguments(df, kc)
@@ -76,7 +78,6 @@ object Lemmas extends Main {
   }
 
   def show(r: Rule) {
-    println(r)
     for (line <- r.lines)
       println(line)
     println()
@@ -107,6 +108,13 @@ object Lemmas extends Main {
   }
 
   def show(df: Def[Case]) {
+    val cmds = df.decl :: df.axioms
+    for (line <- cmds.flatMap(_.lines))
+      println(line)
+    println()
+  }
+
+  def show_(df: Def[Case]) {
     val Def(fun, cases) = df
     println(fun)
     for (cs <- cases)

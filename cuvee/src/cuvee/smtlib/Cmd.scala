@@ -40,7 +40,7 @@ case object Reset extends Cmd {
 }
 
 case class Assert(expr: Expr) extends Cmd {
-  def sexpr = List("assert", expr.sexpr)
+  def sexpr = List("assert", expr)
 }
 case class CheckSat(st: State) extends Cmd {
   def sexpr = List("check-sat")
@@ -50,11 +50,11 @@ case class DeclareSort(name: String, arity: Int) extends Cmd {
   def sexpr = List("declare-sort", name, arity)
 }
 case class DefineSort(name: String, args: List[Param], body: Type) extends Cmd {
-  def sexpr = List("define-sort", name, args.sexpr, body.sexpr)
+  def sexpr = List("define-sort", name, args, body)
 }
 
 case class DeclareFun(name: String, args: List[Type], res: Type) extends Cmd {
-  def sexpr = List("declare-fun", name, args.sexpr, res.sexpr)
+  def sexpr = List("declare-fun", name, args, res)
 }
 
 case class DefineFun(
@@ -66,15 +66,15 @@ case class DefineFun(
 ) extends Cmd {
   def sexpr = List(
     if (rec) "define-fun-rec" else "define-fun",
-    formals.sexprTyped,
-    res.sexpr,
-    body.sexpr
+    formals.asFormals,
+    res,
+    body
   )
 }
 
 case class DeclareDatatypes(arities: List[(String, Int)], cmds: List[Datatype])
     extends Cmd {
-  def sexpr = List("declare-datatypes", ???, cmds.sexpr)
+  def sexpr = List("declare-datatypes", ???, cmds)
 }
 
 sealed trait Res

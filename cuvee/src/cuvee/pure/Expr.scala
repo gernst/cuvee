@@ -80,8 +80,7 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def names = vars map { case Var(name, _, None) => name }
   def types = vars map (_.typ)
   def pairs = vars map { case Var(name, typ, None) => name -> typ }
-
-  def sexprTyped = vars map { x => List(x.sexpr, x.typ.sexpr) }
+  def asFormals = vars map { case x => x -> x.typ }
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
@@ -98,9 +97,9 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
     Var(name, typ subst su, index)
 
   def prime =
-    Var(name + "'", typ, index)
+    Var(name + "^", typ, index)
 
-  def sexpr = name __ index
+  def sexpr = name ~~ index
   override def toString = name __ index
 }
 
@@ -263,7 +262,7 @@ case class App(fun: Fun, inst: Inst, args: List[Expr]) extends Expr {
 
   def sexpr = args match {
     case Nil => fun.name
-    case _   => fun.name :: args.sexpr
+    case _   => fun.name :: args
   }
 
   override def toString =
@@ -298,7 +297,7 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     Bind(quant, formals inst su, body inst su, typ subst su)
 
   def sexpr =
-    List(quant.name, formals.sexprTyped, body.sexpr)
+    List(quant.name, formals.asFormals, body)
 
   override def toString =
     quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body

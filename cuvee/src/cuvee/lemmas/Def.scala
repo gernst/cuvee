@@ -1,22 +1,27 @@
 package cuvee.lemmas
 
 import cuvee.pure._
+import cuvee.smtlib._
 
 sealed trait Case {
   def args: List[Expr]
   def guard: List[Expr]
   def typ: Type
-  def prime: Case
-
   def free = args.free
+  def rename(re: Map[Var, Var]): Case
+  def axiom(self: Fun): Expr
 }
 
 case class Flat(args: List[Expr], guard: List[Expr], body: Expr) extends Case {
   def typ = body.typ
 
-  def prime = {
-    val re = Expr.subst(free map (x => (x, x.prime)))
+  def rename(re: Map[Var, Var]) = {
     Flat(args rename re, guard rename re, body rename re)
+  }
+
+  def axiom(self: Fun) = {
+    val xs = args.free.toList
+    Clause(xs, guard, Eq(App(self, args), body))
   }
 }
 
@@ -31,20 +36,28 @@ case class Norm(
   def typ = d.typ
   def isBaseCase = bs.isEmpty
 
-  def prime = {
-    val re = Expr.subst(free map (x => (x, x.prime)))
-    val as_ = as map { case (a, e) => (a, e rename re) }
-    val bs_ = bs map { case (b, e) => (b, e rename re) }
-    val cs_ = cs map { case (c, e) => (c, e rename re) }
-
+  def rename(re: Map[Var, Var]) = {
     Norm(
       args rename re,
       guard rename re,
-      as_,
-      bs_,
-      cs_,
+      as map { case (a, e) => (a, e rename re) },
+      bs map { case (b, e) => (b, e rename re) },
+      cs map { case (c, e) => (c, e rename re) },
       d rename re
     )
+  }
+
+  def body(self: Fun) = {
+    val bs_ = bs map { case (b, args) =>
+      b -> App(self, args subst as)
+    }
+
+    d subst (bs_ ++ cs)
+  }
+
+  def axiom(self: Fun) = {
+    val xs = args.free.toList
+    Clause(xs, guard, Eq(App(self, args), body(self)))
   }
 }
 
@@ -60,8 +73,13 @@ case class Def[+C <: Case](fun: Fun, cases: List[C]) {
     )
   }
 
-  def prime = {
-    Def(fun, cases map (_.prime.asInstanceOf[C]))
+  def decl = {
+    val Fun(name, Nil, args, res) = fun
+    DeclareFun(name, args, res)
+  }
+
+  def axioms = {
+    cases map (cs => Assert(cs axiom fun))
   }
 }
 

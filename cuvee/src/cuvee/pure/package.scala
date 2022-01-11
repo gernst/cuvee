@@ -10,6 +10,6 @@ package object pure {
   val True = App(Fun.true_, Nil)
   val False = App(Fun.false_, Nil)
 
-  val Zero = Lit(BigInt(0), Sort.int)
-  val One = Lit(BigInt(1), Sort.int)
+  val Zero = Lit(0, Sort.int)
+  val One = Lit(1, Sort.int)
 }

@@ -13,7 +13,7 @@ case class Rule(lhs: Expr, rhs: Expr, cond: Expr) extends Syntax {
       case _           => Forall(vars, Imp(cond, Eq(lhs, rhs)))
     }
 
-  def sexpr = toExpr.sexpr
+  def sexpr = toExpr
   override def toString = toExpr.toString
 }
 

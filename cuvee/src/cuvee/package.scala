@@ -28,6 +28,11 @@ package object cuvee {
       case None        => self
       case Some(index) => this __ index
     }
+
+    def ~~(index: Option[Int]): String = index match {
+      case None        => self
+      case Some(index) => self + "$" + index
+    }
   }
 
   implicit class SetOps[A](self: Set[A]) {

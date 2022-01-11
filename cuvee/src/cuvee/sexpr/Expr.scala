@@ -56,7 +56,7 @@ case class App(args: Expr*) extends Expr {
     val sum = strings.foldLeft(0)(_ + _.length)
 
     val break =
-      strings.length >= 2 && sum > 20
+      strings.length >= 2 && (max.length > 20 || sum >= 80)
 
     if (break) {
       val first :: rest = strings

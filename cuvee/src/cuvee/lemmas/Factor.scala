@@ -30,7 +30,7 @@ object Factor {
 
     // function f' receives the original arguments and one additional argument per base case
     // that can be factored out
-    val f_ = Fun(f.name + "'", f.params, f.args ++ zs.types, f.res)
+    val f_ = Fun(f.name + "_factored", f.params, f.args ++ zs.types, f.res)
 
     // transform each case, returning optionally
     // - an expression that denotes the respective base case value
@@ -82,7 +82,7 @@ object Factor {
                     Norm(args, guard, as, bs, Map(), y)
                 }
 
-            val g = f copy (name = (f.name + "_base") __ k)
+            val g = f copy (name = f.name + "_base_" + k)
 
             val res = Norm(args ++ zs, guard, as, Map(), cs, zk)
             val arg = Some(App(g, xs))
@@ -140,7 +140,7 @@ object Factor {
 
     fs map println
     println()
-    
+
     Nil
     // val cases_ =
     //   for (Norm(xs, args, guard, as, bs, cs, d) <- cases)

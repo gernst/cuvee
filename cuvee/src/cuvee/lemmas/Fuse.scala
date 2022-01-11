@@ -24,17 +24,15 @@ object Fuse {
       dg: Def[Flat],
       pos: Int
   ): Option[(Def[Flat], Rule)] = {
-    val dg_ = dg.prime
-
     val Def(f, fcases) = df
-    val Def(g, gcases) = dg_
+    val Def(g, gcases) = dg
 
     require(
       f.args(pos) == g.res,
       "cannot fuse " + f + " with " + g + " at pos " + pos
     )
 
-    val name = (f.name + "_" + g.name) __ pos
+    val name = f.name + "_" + g.name + "_" + pos
     val params = f.params ++ g.params
     val args = f.args patch (pos, g.args, 1)
     val res = f.res
@@ -98,8 +96,13 @@ object Fuse {
         List(Flat(args, guard, body))
 
       case Flat(gargs, gguard, gbody) =>
+        val fpats = fcases flatMap (_.args)
+        val critical = gcase.args.free & fpats.free
+        val re = Expr.fresh(critical)
+        val fcases_ = fcases map (_ rename re)
+
         for (
-          Flat(fargs, fguard, fbody) <- fcases;
+          Flat(fargs, fguard, fbody) <- fcases_;
           (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody)
         ) yield {
           val args = fargs patch (pos, gargs_, 1)
@@ -163,8 +166,8 @@ object Fuse {
         if (su(x) == d) {
           Some((args, su))
         } else {
-          println("cannot expose " + x + " over " + d)
-          println("already bound to " + su(x))
+          println("; cannot expose " + x + " over " + d)
+          println("; already bound to " + su(x))
           println(fg)
           println()
           ???
@@ -192,8 +195,8 @@ object Fuse {
         Some((args_, su))
 
       case _ =>
-        println("cannot expose " + pat + " over " + d)
-        println(fg)
+        println("; cannot expose " + pat + " over " + d)
+        println("; " + fg)
         println()
         ???
     }

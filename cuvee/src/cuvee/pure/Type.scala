@@ -11,7 +11,7 @@ case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
   def sexpr = if (params.isEmpty)
     List(???)
   else
-    List("par", params.sexpr, ???)
+    List("par", params, ???)
 }
 
 object Type extends Alpha[Type, Param] {
@@ -80,7 +80,7 @@ case class Param(name: String, index: Option[Int] = None)
     }
   }
 
-  def sexpr = name __ index
+  def sexpr = name ~~ index
   override def toString = name __ index
 }
 
@@ -107,7 +107,7 @@ case class Sort(con: Con, args: List[Type]) extends Type {
     if (args.isEmpty)
       con.name
     else
-      con.name :: args.sexpr
+      con.name :: args
 
   override def toString =
     if (args.isEmpty)
