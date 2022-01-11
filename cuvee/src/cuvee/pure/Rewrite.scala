@@ -1,6 +1,8 @@
 package cuvee.pure
 
-case class Rule(lhs: Expr, rhs: Expr, cond: Expr) {
+import cuvee.sexpr.Syntax
+
+case class Rule(lhs: Expr, rhs: Expr, cond: Expr) extends Syntax {
   val vars = lhs.free.toList
 
   val toExpr =
@@ -11,8 +13,8 @@ case class Rule(lhs: Expr, rhs: Expr, cond: Expr) {
       case _           => Forall(vars, Imp(cond, Eq(lhs, rhs)))
     }
 
-  override def toString =
-    toExpr.toString
+  def sexpr = toExpr.sexpr
+  override def toString = toExpr.toString
 }
 
 object Rewrite {
@@ -109,7 +111,7 @@ object Rewrite {
       env: Map[Var, Expr] = Map()
   ): Boolean = {
     bind(pat, arg, env) match {
-      case None => false
+      case None    => false
       case Some(_) => true
     }
   }

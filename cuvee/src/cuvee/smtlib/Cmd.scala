@@ -2,36 +2,80 @@ package cuvee.smtlib
 
 import cuvee.pure._
 
-sealed trait Cmd
+import cuvee.sexpr
 
-case class SetLogic(logic: String) extends Cmd
-case class SetOption(args: List[String]) extends Cmd
-case class SetInfo(attr: String, arg: Option[Any]) extends Cmd
-case class Push(depth: Int) extends Cmd
-case class Pop(depth: Int) extends Cmd
+sealed trait Cmd extends sexpr.Syntax
 
-case object GetAssertions extends Cmd
-case object GetModel extends Cmd
-case object Exit extends Cmd
-case object Reset extends Cmd
+case class SetLogic(logic: String) extends Cmd {
+  def sexpr = List("set-logic", logic)
+}
 
-case class Assert(expr: Expr) extends Cmd
-case class CheckSat(st: State) extends Cmd
+case class SetOption(args: List[String]) extends Cmd {
+  def sexpr = "set-option" :: args
+}
 
-case class DeclareSort(name: String, arity: Int) extends Cmd
-case class DefineSort(name: String, args: List[Param], body: Type) extends Cmd
+case class SetInfo(attr: String, arg: Option[Any]) extends Cmd {
+  def sexpr = ??? // List("set-info")
+}
 
-case class DeclareFun(name: String, args: List[Type], res: Type) extends Cmd
+case class Push(depth: Int) extends Cmd {
+  def sexpr = List("push", depth)
+}
+
+case class Pop(depth: Int) extends Cmd {
+  def sexpr = List("pop", depth)
+}
+
+case object GetAssertions extends Cmd {
+  def sexpr = List("get-assertions")
+}
+case object GetModel extends Cmd {
+  def sexpr = List("get-model")
+}
+case object Exit extends Cmd {
+  def sexpr = List("exit")
+}
+case object Reset extends Cmd {
+  def sexpr = List("reset")
+}
+
+case class Assert(expr: Expr) extends Cmd {
+  def sexpr = List("assert", expr.sexpr)
+}
+case class CheckSat(st: State) extends Cmd {
+  def sexpr = List("check-sat")
+}
+
+case class DeclareSort(name: String, arity: Int) extends Cmd {
+  def sexpr = List("declare-sort", name, arity)
+}
+case class DefineSort(name: String, args: List[Param], body: Type) extends Cmd {
+  def sexpr = List("define-sort", name, args.sexpr, body.sexpr)
+}
+
+case class DeclareFun(name: String, args: List[Type], res: Type) extends Cmd {
+  def sexpr = List("declare-fun", name, args.sexpr, res.sexpr)
+}
+
 case class DefineFun(
     name: String,
     formals: List[Var],
     res: Type,
     body: Expr,
     rec: Boolean
-) extends Cmd
+) extends Cmd {
+  def sexpr = List(
+    if (rec) "define-fun-rec" else "define-fun",
+    formals.sexprTyped,
+    res.sexpr,
+    body.sexpr
+  )
+}
 
 case class DeclareDatatypes(arities: List[(String, Int)], cmds: List[Datatype])
-    extends Cmd
+    extends Cmd {
+  def sexpr = List("declare-datatypes", ???, cmds.sexpr)
+}
 
 sealed trait Res
 sealed trait IsSat extends Res

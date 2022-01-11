@@ -3,9 +3,10 @@ package cuvee.pure
 import cuvee.StringOps
 import cuvee.fail
 import cuvee.trace
+import cuvee.sexpr
 import cuvee.util.Alpha
 
-sealed trait Expr extends Expr.term {
+sealed trait Expr extends Expr.term with sexpr.Syntax {
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
 
@@ -79,6 +80,8 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def names = vars map { case Var(name, _, None) => name }
   def types = vars map (_.typ)
   def pairs = vars map { case Var(name, typ, None) => name -> typ }
+
+  def sexprTyped = vars map { x => List(x.sexpr, x.typ.sexpr) }
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
@@ -97,6 +100,7 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
   def prime =
     Var(name + "'", typ, index)
 
+  def sexpr = name __ index
   override def toString = name __ index
 }
 
@@ -106,6 +110,7 @@ case class Lit(any: Any, typ: Type) extends Expr {
   def subst(su: Map[Var, Expr]): Expr = this
   def inst(su: Map[Param, Type]): Expr = this
 
+  def sexpr = any
   override def toString = any.toString
 }
 
@@ -225,6 +230,8 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
     In(k, arg subst su, typ)
   def inst(su: Map[Param, Type]) =
     In(k, arg inst su, typ)
+
+  def sexpr = ???
   override def toString =
     ("in" __ k) + "(" + arg + ")"
 }
@@ -239,6 +246,7 @@ case class Tuple(args: List[Expr]) extends Expr {
   def inst(su: Map[Param, Type]) =
     Tuple(args inst su)
 
+  def sexpr = ???
   override def toString =
     args.mkString("(", ", ", ")")
 }
@@ -252,6 +260,11 @@ case class App(fun: Fun, inst: Inst, args: List[Expr]) extends Expr {
     App(fun, inst, args subst su)
   def inst(su: Map[Param, Type]) =
     App(fun, inst subst su, args inst su)
+
+  def sexpr = args match {
+    case Nil => fun.name
+    case _   => fun.name :: args.sexpr
+  }
 
   override def toString =
     (fun, args) match {
@@ -283,6 +296,9 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     Bind(quant, formals rename a, body subst su, typ)
   def inst(su: Map[Param, Type]) =
     Bind(quant, formals inst su, body inst su, typ subst su)
+
+  def sexpr =
+    List(quant.name, formals.sexprTyped, body.sexpr)
 
   override def toString =
     quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body

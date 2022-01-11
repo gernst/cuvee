@@ -77,6 +77,8 @@ object Lemmas extends Main {
 
   def show(r: Rule) {
     println(r)
+    for (line <- r.lines)
+      println(line)
     println()
   }
 

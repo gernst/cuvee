@@ -2,10 +2,17 @@ package cuvee.pure
 
 import cuvee.StringOps
 import cuvee.fail
+import cuvee.sexpr
 
-sealed trait Type extends Type.term {}
+sealed trait Type extends Type.term with sexpr.Syntax {}
 
 case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
+    extends sexpr.Syntax {
+  def sexpr = if (params.isEmpty)
+    List(???)
+  else
+    List("par", params.sexpr, ???)
+}
 
 object Type extends Alpha[Type, Param] {
   def unify(typ1: Type, typ2: Type, su: Map[Param, Type]): Map[Param, Type] = {
@@ -73,6 +80,7 @@ case class Param(name: String, index: Option[Int] = None)
     }
   }
 
+  def sexpr = name __ index
   override def toString = name __ index
 }
 
@@ -95,6 +103,12 @@ case class Sort(con: Con, args: List[Type]) extends Type {
   def subst(su: Map[Param, Type]) =
     Sort(con, args subst su)
 
+  def sexpr =
+    if (args.isEmpty)
+      con.name
+    else
+      con.name :: args.sexpr
+
   override def toString =
     if (args.isEmpty)
       con.name
@@ -111,6 +125,7 @@ case class Prod(args: List[Type]) extends Type {
   def subst(su: Map[Param, Type]) =
     Prod(args subst su)
 
+  def sexpr = ???
   override def toString =
     args.mkString("(", " * ", ")")
 }
@@ -124,6 +139,7 @@ case class Sum(args: List[Type]) extends Type {
   def subst(su: Map[Param, Type]) =
     Sum(args subst su)
 
+  def sexpr = ???
   override def toString =
     args.mkString("(", " + ", ")")
 }
