@@ -39,8 +39,10 @@ object Lemmas extends Main {
         }
 
     for (df <- eqs1; dg <- eqs1) {
-      for (dfg <- Fuse.fuse(df, dg))
+      for ((dfg, eq) <- Fuse.fuse(df, dg)) {
         show(dfg)
+        show(eq)
+      }
     }
 
     for (df0 <- eqs1) {

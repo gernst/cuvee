@@ -4,7 +4,7 @@ import cuvee.pure._
 import cuvee.StringOps
 
 object Fuse {
-  def fuse(df: Def[Flat], dg: Def[Flat]): List[Def[Flat]] = {
+  def fuse(df: Def[Flat], dg: Def[Flat]): List[(Def[Flat], Rule)] = {
     val typ = dg.fun.res
     for (
       (`typ`, pos) <- df.fun.args.zipWithIndex;
@@ -19,7 +19,11 @@ object Fuse {
     }
   }
 
-  def fuse(df: Def[Flat], dg: Def[Flat], pos: Int): Option[Def[Flat]] = {
+  def fuse(
+      df: Def[Flat],
+      dg: Def[Flat],
+      pos: Int
+  ): Option[(Def[Flat], Rule)] = {
     val dg_ = dg.prime
 
     val Def(f, fcases) = df
@@ -44,7 +48,20 @@ object Fuse {
         )
           yield flat
 
-      Some(Def(fg, cases))
+      val dfg = Def(fg, cases)
+
+      val xs =
+        for ((t, i) <- f.args.zipWithIndex)
+          yield Var("x", t, Some(i))
+      val ys =
+        for ((t, i) <- g.args.zipWithIndex)
+          yield Var("y", t, Some(i))
+
+      val lhs = App(f, xs updated (pos, App(g, ys)))
+      val rhs = App(fg, xs patch (pos, ys, 1))
+      val rule = Rule(lhs, rhs, True)
+
+      Some((dfg, rule))
     } catch {
       case _: NotImplementedError =>
         None
@@ -107,7 +124,11 @@ object Fuse {
         x
       case l: Lit =>
         l
-      case App(`f`, inst, args) => // keep inst to prevent making it more generic
+      case App(
+            `f`,
+            inst,
+            args
+          ) => // keep inst to prevent making it more generic
         val args_ = args map (recurse(f, g, fg, pos, _, su))
         args_(pos) match {
           case App(`g`, _, args) =>
