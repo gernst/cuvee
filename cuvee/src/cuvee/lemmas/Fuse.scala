@@ -70,6 +70,16 @@ object Fuse {
         val body = App(f, recs)
         List(Flat(args, guard, body))
 
+      case Flat(gargs, gguard, App(`g`, _, grecs)) =>
+        val fargs =
+          for ((t, i) <- f.args.zipWithIndex)
+            yield Var("x", t, Some(i))
+        val args = fargs patch (pos, gargs, 1)
+        val recs = fargs patch (pos, grecs, 1)
+        val guard = gguard
+        val body = App(fg, recs)
+        List(Flat(args, guard, body))
+
       case Flat(gargs, gguard, gbody) =>
         for (
           Flat(fargs, fguard, fbody) <- fcases;
@@ -77,9 +87,38 @@ object Fuse {
         ) yield {
           val args = fargs patch (pos, gargs_, 1)
           val guard = fguard ++ gguard
-          val body = fbody subst su
+          val body = recurse(f, g, fg, pos, fbody, su) // fbody subst su
           Flat(args, guard, body)
         }
+    }
+
+  def recurse(
+      f: Fun,
+      g: Fun,
+      fg: Fun,
+      pos: Int,
+      body: Expr,
+      su: Map[Var, Expr]
+  ): Expr =
+    body match {
+      case x: Var if su contains x =>
+        su(x) // non-recursive matched case
+      case x: Var =>
+        x
+      case l: Lit =>
+        l
+      case App(`f`, inst, args) => // keep inst to prevent making it more generic
+        val args_ = args map (recurse(f, g, fg, pos, _, su))
+        args_(pos) match {
+          case App(`g`, _, args) =>
+            val res = App(fg, args_ patch (pos, args, 1))
+            res
+          case _ =>
+            App(f, inst, args_)
+        }
+      case App(h, inst, args) =>
+        val args_ = args map (recurse(f, g, fg, pos, _, su))
+        App(h, inst, args_)
     }
 
   // HACK: don't refute when the body is some function
@@ -120,7 +159,7 @@ object Fuse {
         if (fun1 == fun2) {
           expose(f, g, fg, pats, args, ds, su)
         } else {
-          println("refute exposing " + pat + " over " + d)
+          // println("refute exposing " + pat + " over " + d)
           None
         }
 

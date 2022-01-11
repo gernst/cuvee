@@ -54,7 +54,10 @@ case class Def[+C <: Case](fun: Fun, cases: List[C]) {
       fun.args == cs.args.types,
       "type mismatch: " + fun + " applied to " + cs.args
     )
-    require(fun.res == cs.typ, "type mismatch: " + fun + " in case " + cs)
+    require(
+      fun.res == cs.typ,
+      "type mismatch: " + fun + " in case " + cs + ": " + cs.typ
+    )
   }
 
   def prime = {

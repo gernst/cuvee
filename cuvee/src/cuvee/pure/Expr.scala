@@ -238,6 +238,7 @@ case class Tuple(args: List[Expr]) extends Expr {
     Tuple(args subst su)
   def inst(su: Map[Param, Type]) =
     Tuple(args inst su)
+
   override def toString =
     args.mkString("(", ", ", ")")
 }
