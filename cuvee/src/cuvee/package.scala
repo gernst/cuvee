@@ -40,6 +40,12 @@ package object cuvee {
     }
   }
 
+  implicit class ListMapOps[A,B](self: List[Map[A,B]]) {
+    def merged = {
+      self.fold(Map())(_ ++ _)
+    }
+  }
+
   @tailrec
   def fix[A](f: Set[A] => Set[A], as: Set[A] = Set.empty[A]): Set[A] = {
     val as_ = f(as)

@@ -6,8 +6,36 @@ import cuvee.smtlib._
 import cuvee.util._
 import cuvee.StringOps
 
+case class Case(
+    args: List[Expr],
+    guard: List[Expr],
+    as: Map[Var, Expr],
+    bs: Map[Var, List[Expr]],
+    cs: Map[Var, Expr],
+    d: Expr
+) {
+  def free = args.free
+  def isBaseCase = bs.isEmpty
+
+  def prime = {
+    val re = Expr.subst(free map (x => (x, x.prime)))
+    val as_ = as map { case (a, e) => (a, e rename re) }
+    val bs_ = bs map { case (b, e) => (b, e rename re) }
+    val cs_ = cs map { case (c, e) => (c, e rename re) }
+
+    Case(
+      args rename re,
+      guard rename re,
+      as_,
+      bs_,
+      cs_,
+      d rename re
+    )
+  }
+}
+
 case class Def(fun: Fun, cases: List[Case]) {
-  for (Case(xs, args, guard, as, bs, cs, d) <- cases) {
+  for (Case(args, guard, as, bs, cs, d) <- cases) {
     require(
       fun.args == args.types,
       "type mismatch: " + fun + " applied to " + args
@@ -53,6 +81,7 @@ object Lemmas extends Main {
 
       val us = Util.usedArgs(df)
       val ka = Util.constantArgs(df)
+      val kc = Util.computedArgs(df)
       val kr = Util.constantResults(df, ka)
       // println("used arguments:     " + xs)
       // println("constant arguments: " + ys)
@@ -67,36 +96,11 @@ object Lemmas extends Main {
 
         Lift.lift(df_)
       }
-    }
 
-    for (df <- eqs1 if false) {
-      show(df)
+      // val dfs_a = Factor.arguments(df, kc)
 
-      val dfs_a = Norm.ana(df, st)
-
-      for (df_a <- dfs_a)
-        show(df_a)
-
-      val df_b = Norm.rec(df, st)
-      show(df_b)
-
-      val (df_b_, eq_b) = Norm.lift(df_b, dfs_a, st)
-      show(df_b_)
-
-      println(eq_b)
-      println()
-
-      val df_cr = Norm.map(df, st)
-      show(df_cr)
-
-      val df_cb = Norm.base(df, st)
-      show(df_cb)
-
-      val (df_, eq_) = Norm.lift(df, df_cr, df_cb, st)
-      show(df_)
-
-      println(eq_)
-      println()
+      // for (df_a <- dfs_a)
+      //   show(df_a)
     }
   }
 
@@ -109,7 +113,7 @@ object Lemmas extends Main {
     val Def(fun, cases) = df
     println(fun)
 
-    for (Case(xs, args, guard, as, bs, cs, d) <- cases) {
+    for (Case(args, guard, as, bs, cs, d) <- cases) {
       print("  case " + args.mkString("(", ", ", ")"))
       if (guard.nonEmpty)
         print(" if " + guard.mkString(" /\\ "))

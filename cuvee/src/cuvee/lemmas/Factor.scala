@@ -1,6 +1,8 @@
 package cuvee.lemmas
 
+import cuvee.util.Map_
 import cuvee.pure._
+import cuvee.StringOps
 
 object Factor {
   // Lift base cases out of a given definition,
@@ -34,12 +36,10 @@ object Factor {
     // - an expression that denotes the respective base case value
     // - a definition of a function that computes base cases that are not constant
     val stuff =
-      for (
-        (Case(ys, args, guard, as, bs, cs, d), k) <- cases.zipWithIndex
-      )
+      for ((Case(args, guard, as, bs, cs, d), k) <- cases.zipWithIndex)
         yield (bs, zs_(k)) match {
           // simple case: we can factor the base case value d via the argument given by zk
-          case (Nil, Some(zk)) if ks contains k =>
+          case (Map_(), Some(zk)) if ks contains k =>
             // the base case is expressed over variables in the pattern
             // but we need it for the common set of variables xs that are used in the equivalence below,
             // this renaming performs the mapping, it is ok, because we know that
@@ -51,14 +51,14 @@ object Factor {
                   yield (a, x)
               )
 
-            val res = Case(ys, args ++ zs, guard, as, Nil, cs, zk)
+            val res = Case(args ++ zs, guard, as, Map(), cs, zk)
             val arg = Some(d rename re)
             val dfs = None
             (res, arg, dfs)
 
           // this case works similarly but we need to introduce a recursive function
           // that mirrors the changes to the arguments/free variables used in d
-          case (Nil, Some(zk)) =>
+          case (Map_(), Some(zk)) =>
             val re =
               Expr.subst(
                 for ((a: Var, x) <- args zip xs)
@@ -72,20 +72,19 @@ object Factor {
             // and we can map then one-to-one on the respective base cases
             val cases_ =
               for (
-                (Case(_, args, guard, as, bs, cs, _), j) <-
+                (Case(args, guard, as, bs, cs, _), j) <-
                   cases.zipWithIndex if j == k || bs.nonEmpty
               )
                 yield bs match {
-                  case Nil =>
-                    Case(xs, args, guard, as, bs, Nil, d)
-                  case List((y, b)) => // works only for linear recursion!
-                    Case(xs, args, guard, as, bs, Nil, y)
+                  case Map_() =>
+                    Case(args, guard, as, bs, Map(), d)
+                  case Map_((y, b)) => // works only for linear recursion!
+                    Case(args, guard, as, bs, Map(), y)
                 }
 
-            import cuvee.StringOps
             val g = f copy (name = (f.name + "_base") __ k)
 
-            val res = Case(ys, args ++ zs, guard, as, Nil, cs, zk)
+            val res = Case(args ++ zs, guard, as, Map(), cs, zk)
             val arg = Some(App(g, xs))
             val dfs = Some(Def(g, cases_))
             (res, arg, dfs)
@@ -97,7 +96,7 @@ object Factor {
               for ((y, b) <- bs)
                 yield (y, b ++ zs)
 
-            val res = Case(ys, args ++ zs, guard, as, bs_, cs, d)
+            val res = Case(args ++ zs, guard, as, bs_, cs, d)
             val arg = None
             val dfs = None
             (res, arg, dfs)
@@ -111,56 +110,63 @@ object Factor {
     // remove unused arguments from df_
     val us = Util.usedArgs(df_)
     val cases__ =
-      for (Case(ys, args, guard, as, bs, cs, d) <- cases_)
+      for (Case(args, guard, as, bs, cs, d) <- cases_)
         yield {
           val bs_ =
             for ((y, b) <- bs)
               yield (y, us map b)
-          Case(ys, us map args, guard, as, bs_, cs, d)
+          Case(us map args, guard, as, bs_, cs, d)
         }
     val f__ = f_ copy (args = us map f_.args)
     val df__ = Def(f__, cases__)
 
-    val eq = Rule(xs, App(f, xs), App(f__, us map (xs ++ as)), True)
+    val eq = Rule(App(f, xs), App(f__, us map (xs ++ as)), True)
 
     (df__, dfs_.flatten, eq)
   }
 
-  //
+  // factor arguments that are computed with a variables before passing them down the recursion
+  // TODO: do not do this for purely tail-recursive functions
+  def arguments(df: Def, kc: List[Int]): List[Def] = {
+    val Def(f, cases) = df
+    val params = f.params
+    val types = f.args
 
-  // val ds =
-  //   for (
-  //     (Case(_, args, guard, Norm(as, Nil, cs, d)), k) <- cases.zipWithIndex
-  //   )
-  //     yield {
-  //       if (ks contains k) {
-  //         // need to adjust free variables in d
-  //         val re =
-  //           Expr.subst(
-  //             for ((a: Var, x) <- args zip xs)
-  //               yield (a, x)
-  //           )
-  //         (d rename re, None)
-  //       } else {
-  //         val cases_ =
-  //           for (
-  //             (Case(_, args, guard, Norm(as, bs, cs, _)), j) <-
-  //               cases.zipWithIndex if j == k || bs.nonEmpty
-  //           )
-  //             yield {
-  //               Case(xs, args, guard, Norm(as, bs, Nil, d))
-  //             }
+    val k = types.length
 
-  //         import cuvee.StringOps
-  //         val g = f copy (name = (f.name + "_base") __ k)
+    val fs =
+      for ((res, i) <- types.zipWithIndex if kc contains i)
+        yield Fun(f.name + "_arg" __ i, params, types, Sort.list(res))
 
-  //         (App(g, xs), Some(Def(g, cases_)))
-  //       }
-  //     }
+    fs map println
+    println()
+    
+    Nil
+    // val cases_ =
+    //   for (Case(xs, args, guard, as, bs, cs, d) <- cases)
+    //     yield bs match {
+    //       case Nil =>
+    //         for (_ <- fs)
+    //           yield {
+    //             val d = Fun.nil()
+    //             Case(xs, args, guard, as, Nil, Nil, d)
+    //           }
 
-  // val (ys, dfa) = ds.unzip
-  // val df_ = Def(f_, cases_)
-  // val eq = Rule(xs, App(f, xs), App(f_, xs ++ ys), True)
+    //       case List((y, args_)) =>
+    //         require(
+    //           fs.length == as.length,
+    //           "invalid number of a-variables, expected " + fs.length + ", but have " + as
+    //         )
 
-  // (df_, dfa.flatten, eq)
+    //         for ((fa, (x, a)) <- fs zip as)
+    //           yield {
+    //             val y_ = Var(y.name, fa.res, y.index)
+    //             val d = x :: y_
+    //             Case(xs, args, guard, as, List(y_ -> args_), Nil, d)
+    //           }
+    //     }
+
+    // for ((f, cs) <- fs zip cases_.transpose)
+    //   yield Def(f, cs)
+  }
 }

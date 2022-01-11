@@ -9,6 +9,8 @@ sealed trait Expr extends Expr.term {
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
 
+  def toStringTyped = toString + ": " + typ
+
   def unary_-(that: Expr) = App(Fun.uminus, List(this))
   def +(that: Expr) = Plus(this, that)
   def -(that: Expr) = Minus(this, that)
@@ -68,12 +70,12 @@ object Expr extends Alpha[Expr, Var] {
         fail("undefined: " + k + "th injection into " + res)
     }
   }
-
 }
 
 class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def inst(su: Map[Param, Type]) = vars map (_ inst su)
 
+  def prime = vars map (_.prime)
   def names = vars map { case Var(name, _, None) => name }
   def types = vars map (_.typ)
   def pairs = vars map { case Var(name, typ, None) => name -> typ }
@@ -92,8 +94,10 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
   def inst(su: Map[Param, Type]) =
     Var(name, typ subst su, index)
 
+  def prime =
+    Var(name + "'", typ, index)
+
   override def toString = name __ index
-  def toStringTyped = toString + ": " + typ
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {

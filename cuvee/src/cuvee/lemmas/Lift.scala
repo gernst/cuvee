@@ -3,7 +3,6 @@ package cuvee.lemmas
 import cuvee.pure._
 
 case class Lift(
-    xs: List[Var],
     y: List[Var],
     z: Var,
     f: Expr,
@@ -24,14 +23,13 @@ case class Lift(
 
 object Lift {
   def apply(
-      xs: List[Var],
       y: Var,
       z: Var,
       f: Expr,
       b: Expr,
       g: Expr
   ): Lift =
-    Lift(xs, List(y), z, f, b, g)
+    Lift(List(y), z, f, b, g)
 
   val m = Var("m", Sort.int)
   val n = Var("n", Sort.int)
@@ -57,17 +55,17 @@ object Lift {
 
   val lifts = List(
     // Lift(List(x, y), y, z, f(x, y), b, g(y, z)),
-    Lift(List(m, n), m, k, n + m, Zero, m + k),
-    Lift(List(m, n), m, k, m + n, Zero, k + m),
-    Lift(List(m, n), m, k, n * m, One, m * k),
-    Lift(List(m, n), m, k, m * n, One, k * m),
-    Lift(List(p, q), p, r, q or p, False, p or r),
-    Lift(List(p, q), p, r, p or q, False, r or p),
-    Lift(List(p, q), p, r, q and p, True, p and r),
-    Lift(List(p, q), p, r, p and q, True, r and p),
-    Lift(List(x, xs), ys, zs, x :: ys, nil, ys ++ zs),
-    Lift(List(xs, ys), ys, zs, ys ++ xs, nil, zs ++ ys),
-    Lift(List(xs, ys), ys, zs, xs ++ ys, nil, ys ++ zs)
+    Lift(m, k, n + m, Zero, m + k),
+    Lift(m, k, m + n, Zero, k + m),
+    Lift(m, k, n * m, One, m * k),
+    Lift(m, k, m * n, One, k * m),
+    Lift(p, r, q or p, False, p or r),
+    Lift(p, r, p or q, False, r or p),
+    Lift(p, r, q and p, True, p and r),
+    Lift(p, r, p and q, True, r and p),
+    Lift(ys, zs, x :: ys, nil, ys ++ zs),
+    Lift(ys, zs, ys ++ xs, nil, zs ++ ys),
+    Lift(ys, zs, xs ++ ys, nil, ys ++ zs)
   )
 
   def main(args: Array[String]) {
@@ -96,10 +94,10 @@ object Lift {
     val Def(h, cases) = df
     // println("0. " + h.name)
 
-    for (l @ Lift(vs, ys, z, f, b, g) <- lifts) {
+    for (l @ Lift(ys, z, f, b, g) <- lifts) {
       val ok =
-        for (Case(xs, args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
-          yield Rewrite.bind(vs, f, d) match {
+        for (Case(args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
+          yield Rewrite.bind(f, d) match {
             case None =>
               // println("1. " + h.name + " failed")
               (false, bs.exists (_._1 == d)) // direct pass onwards
@@ -115,7 +113,7 @@ object Lift {
       if (yes.exists(b => b) && maybe.forall(b => b)) {
         // println("2. " + h.name + " with " + l)
         val pos =
-          for (Case(xs, args, guard, as, bs, cs, d) <- cases if bs.isEmpty)
+          for (Case(args, guard, as, bs, cs, d) <- cases if bs.isEmpty)
             yield args indexOf d
 
         if (pos forall (_ >= 0)) {

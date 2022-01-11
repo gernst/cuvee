@@ -1,6 +1,8 @@
 package cuvee.pure
 
-case class Rule(vars: List[Var], lhs: Expr, rhs: Expr, cond: Expr) {
+case class Rule(lhs: Expr, rhs: Expr, cond: Expr) {
+  val vars = lhs.free.toList
+
   val toExpr =
     (vars, cond) match {
       case (Nil, True) => Eq(lhs, rhs)
@@ -47,8 +49,8 @@ object Rewrite {
       case Nil =>
         expr
 
-      case Rule(vars, pat, rhs, cond) :: rest =>
-        bind(vars, pat, expr, Map[Var, Expr]()) match {
+      case Rule(pat, rhs, cond) :: rest =>
+        bind(pat, expr, Map[Var, Expr]()) match {
           case None =>
             app(expr, rest, rules)
           case Some(env) =>
@@ -62,7 +64,6 @@ object Rewrite {
   }
 
   def bind(
-      vars: List[Var],
       pats: List[Expr],
       args: List[Expr],
       env0: Map[Var, Expr]
@@ -72,8 +73,8 @@ object Rewrite {
         Some(env0)
       case (pat :: pats, arg :: args) =>
         for (
-          env1 <- bind(vars, pat, arg, env0);
-          env2 <- bind(vars, pats, args, env1)
+          env1 <- bind(pat, arg, env0);
+          env2 <- bind(pats, args, env1)
         ) yield env2
       case _ =>
         None
@@ -81,7 +82,6 @@ object Rewrite {
   }
 
   def bind(
-      vars: List[Var],
       pat: Expr,
       arg: Expr,
       env: Map[Var, Expr] = Map()
@@ -96,7 +96,7 @@ object Rewrite {
       case (a: Lit, b: Lit) if a == b =>
         Some(env)
       case (App(fun1, inst1, pats), App(fun2, inst2, args)) if fun1 == fun2 =>
-        bind(vars, pats, args, env)
+        bind(pats, args, env)
       case _ =>
         // println("cannot bind " + pat + " to " + arg + " in " + env)
         None
@@ -104,12 +104,11 @@ object Rewrite {
   }
 
   def matches(
-      vars: List[Var],
       pat: Expr,
       arg: Expr,
       env: Map[Var, Expr] = Map()
   ): Boolean = {
-    bind(vars, pat, arg, env) match {
+    bind(pat, arg, env) match {
       case None => false
       case Some(_) => true
     }

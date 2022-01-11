@@ -1,0 +1,12 @@
+Achieve first results:
+1. get fusion right
+2. get function matching right
+3. implement main loop
+4. check which proofs work with base case factoring and promotion
+
+Further work
+1. find liftings (promotions) automatically
+2. parse full TIP, maybe Haskell?
+
+Argument factoring
+- find out when we can drop guards, because "nil" is not actually looked at and can in fact be arbitrary (a parameter?)

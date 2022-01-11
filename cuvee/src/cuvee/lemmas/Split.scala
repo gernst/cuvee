@@ -2,21 +2,26 @@ package cuvee.lemmas
 
 import cuvee.pure._
 
+import cuvee.ListMapOps
+
 object Split {
-  def maybeShift(e: Expr) =
+  def maybeShift(e: Expr): (Expr, Map[Var, Expr]) =
     e match {
       case App(_, _, args) if args.nonEmpty =>
         val a = Expr.fresh("a", e.typ)
-        (a, List(a -> e))
+        (a, Map(a -> e))
       case _ =>
-        (e, Nil)
+        (e, Map())
     }
 
-  def maybeShift(er: (Expr, Boolean), cs: List[(Var, Expr)]) =
+  def maybeShift(
+      er: (Expr, Boolean),
+      cs: Map[Var, Expr]
+  ): (Expr, Map[Var, Expr]) =
     er match {
       case (e @ App(_, _, args), false) if args.nonEmpty =>
         val c = Expr.fresh("c", e.typ)
-        (c, List(c -> e))
+        (c, Map(c -> e))
       case (e, _) =>
         (e, cs)
     }
@@ -26,7 +31,7 @@ object Split {
       exprs: Expr*
   ): (
       (List[Expr], Boolean),
-      (List[(Var, Expr)], List[(Var, List[Expr])], List[(Var, Expr)])
+      (Map[Var, Expr], Map[Var, List[Expr]], Map[Var, Expr])
   ) = {
     val results = exprs.toList map (split(f, _))
     val (es, lets) = results.unzip
@@ -42,10 +47,10 @@ object Split {
           yield maybeShift(er, c)
 
       val (es_, cs_) = es_cs.unzip
-      ((es_, true), (as.flatten, bs.flatten, cs_.flatten))
+      ((es_, true), (as.merged, bs.merged, cs_.merged))
     } else {
       val (es_, lets) = es.unzip
-      ((es_, false), (as.flatten, bs.flatten, cs.flatten))
+      ((es_, false), (as.merged, bs.merged, cs.merged))
     }
   }
 
@@ -54,7 +59,7 @@ object Split {
       expr: Expr
   ): (
       (Expr, Boolean),
-      (List[(Var, Expr)], List[(Var, List[Expr])], List[(Var, Expr)])
+      (Map[Var, Expr], Map[Var, List[Expr]], Map[Var, Expr])
   ) =
     expr match {
       case App(`f`, inst, args) =>
@@ -64,7 +69,7 @@ object Split {
         val (args_, as) = es_as.unzip
 
         val b = Expr.fresh("b", expr.typ)
-        ((b, true), (as.flatten, List(b -> args_), Nil))
+        ((b, true), (as.merged, Map(b -> args_), Map()))
 
       case App(g, inst, args) =>
         val ((args_, rec), let) = splits(f, args: _*)
@@ -72,7 +77,7 @@ object Split {
         ((expr_, rec), let)
 
       case _ =>
-        ((expr, false), (Nil, Nil, Nil))
+        ((expr, false), (Map(), Map(), Map()))
     }
 
   def norm(f: Fun, expr: Expr) = {
@@ -96,7 +101,7 @@ object Split {
 
       case (App(fun, _, args), rhs) =>
         val (as, bs, cs, e) = norm(fun, rhs)
-        List((fun, Case(xs, args, guard, as, bs, cs, e)))
+        List((fun, Case(args, guard, as, bs, cs, e)))
 
       case _ =>
         Nil
