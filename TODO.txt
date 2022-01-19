@@ -10,3 +10,17 @@ Further work
 
 Argument factoring
 - find out when we can drop guards, because "nil" is not actually looked at and can in fact be arbitrary (a parameter?)
+
+Guard factoring
+- can we split a function into which of its base cases is triggered? drop/take. Note: more complex when not having linear recursion
+- analogously: can we fix a particular path through the execution, e.g., always take case 1)
+
+Sidecomputation factoring:
+- can we lift b and c separately? they are independent and should combine modularly (i.e. commute)
+- what's the correct condition? a single recursive case? linear recursion?
+
+Look at examples:
+
+map_take:    (getting rid of guards) can we express the param as a map by factoring the arguments to the recursive call?
+length_drop: (getting rid of matched argument) can we synthesis "-" for the argument?
+length_take: observe that some *partial* computation is given by length

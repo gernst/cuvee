@@ -1,12 +1,12 @@
 package cuvee.sexpr
 
-sealed trait Tok
+import arse._
 
 sealed trait Expr {
   def lines: List[String]
 }
 
-sealed trait Atom extends Expr with Tok {}
+sealed trait Atom extends Expr with Token {}
 
 object Expr {
   // access functions for the scanner
@@ -16,9 +16,10 @@ object Expr {
 }
 
 object Tok {
-  case object eof extends Tok
-  case object lp extends Tok
-  case object rp extends Tok
+  val lp = KW("(")
+  val rp = KW(")")
+
+  val eof = new Token {}
 }
 
 object Lit {
@@ -45,6 +46,10 @@ case class Id(name: String) extends Atom {
 
 case class Kw(name: String) extends Atom {
   def lines = List(":" + name)
+}
+
+object App {
+  val from = (args: List[Expr]) => App(args: _*)
 }
 
 case class App(args: Expr*) extends Expr {

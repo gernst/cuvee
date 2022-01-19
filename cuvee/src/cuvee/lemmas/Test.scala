@@ -6,14 +6,14 @@ import cuvee.smtlib._
 import cuvee.util._
 import cuvee.StringOps
 
-object _1 extends Run(Lemmas, "examples/1.smt2")
-object _2 extends Run(Lemmas, "examples/2.smt2")
-object _3 extends Run(Lemmas, "examples/3.smt2")
-object _4 extends Run(Lemmas, "examples/4.smt2")
-object test1 extends Run(Lemmas, "examples/list-defs.smt2")
-object test2 extends Run(Lemmas, "examples/list-fused.smt2")
+// object _1 extends Run(Test, "examples/1.smt2")
+// object _2 extends Run(Test, "examples/2.smt2")
+// object _3 extends Run(Test, "examples/3.smt2")
+// object _4 extends Run(Test, "examples/4.smt2")
+// object test1 extends Run(Test, "examples/list-defs.smt2")
+// object test2 extends Run(Test, "examples/list-fused.smt2")
 
-object Lemmas extends Main {
+object Test extends Main {
   var eqs: Map[Fun, Expr] = Map()
 
   def main(args: Array[String]): Unit = {
@@ -23,6 +23,9 @@ object Lemmas extends Main {
 
   def run(file: String) {
     val (cmds, st) = parse(file)
+
+    val fuse = new Fuse(st)
+    val factor = new Factor(st)
 
     val eqs0 =
       for (
@@ -38,15 +41,15 @@ object Lemmas extends Main {
           Def(fun, cases)
         }
 
-    for (df <- eqs1; dg <- eqs1) {
-      for ((dfg, eq) <- Fuse.fuse(df, dg)) {
-        show(dfg)
-        show(eq)
-      }
-    }
+    // val fused = for (df <- eqs1; dg <- eqs1; (dfg, eq) <- fuse.fuse(df, dg)) yield {
+    //   show(dfg)
+    //   show(eq)
+    //   dfg
+    // }
+
 
     for (df0 <- eqs1) {
-      val df = Split.split(df0)
+      val df = factor.split(df0)
 
       show(df)
 
@@ -56,10 +59,10 @@ object Lemmas extends Main {
       val kr = Util.constantResults(df, ka)
       // println("used arguments:     " + xs)
       // println("constant arguments: " + ys)
-      // println("constant results:   " + zs)
+      println("constant results:   " + kr)
 
       if (kr.nonEmpty) {
-        val (df_, dfa, eq) = Factor.base(df, kr)
+        val (df_, dfa, eq) = factor.base(df)
         show(df_)
         for (df <- dfa)
           show(df)
@@ -77,9 +80,14 @@ object Lemmas extends Main {
     }
   }
 
-  def show(r: Rule) {
+  def show_(r: Rule) {
     for (line <- r.lines)
       println(line)
+    println()
+  }
+
+  def show(r: Rule) {
+    println(r)
     println()
   }
 
@@ -107,14 +115,14 @@ object Lemmas extends Main {
     }
   }
 
-  def show(df: Def[Case]) {
+  def show_(df: Def[Case]) {
     val cmds = df.decl :: df.axioms
     for (line <- cmds.flatMap(_.lines))
       println(line)
     println()
   }
 
-  def show_(df: Def[Case]) {
+  def show(df: Def[Case]) {
     val Def(fun, cases) = df
     println(fun)
     for (cs <- cases)

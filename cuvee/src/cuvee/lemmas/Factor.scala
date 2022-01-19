@@ -4,11 +4,30 @@ import cuvee.util.Map_
 import cuvee.pure._
 import cuvee.StringOps
 
-object Factor {
+class Factor(st: State) {
+  def factor(df: Def[Flat]): (Def[Norm], List[Def[Norm]], List[Rule]) = {
+    val df_ = split(df)
+
+    val ka = Util.constantArgs(df_)
+    val kc = Util.computedArgs(df_)
+    val kr = Util.constantResults(df_, ka)
+
+    if (kr.nonEmpty) {
+      val (df__, dfs, eq) = base(df_)
+      val eqs = Lift.lift(df__)
+      (df__, dfs, eq :: eqs)
+    } else {
+      (df_, Nil, Nil)
+    }
+  }
+
   // Lift base cases out of a given definition,
   // where ks are the indices of the cases of df that
   // depend on constants or constantly propagated arguments only (cf. Util.constantResults)
-  def base(df: Def[Norm], ks: List[Int]): (Def[Norm], List[Def[Norm]], Rule) = {
+  def base(df: Def[Norm]): (Def[Norm], List[Def[Norm]], Rule) = {
+    val ka = Util.constantArgs(df)
+    val kr = Util.constantResults(df, ka)
+
     val Def(f, cases) = df
 
     // a list of fresh variables, one for each original argument of f
@@ -19,7 +38,7 @@ object Factor {
     val zs_ =
       for ((c, k) <- cases.zipWithIndex)
         yield
-          if (c.isBaseCase && !(c.d.isInstanceOf[Var] && (ks contains k)))
+          if (c.isBaseCase && !(c.d.isInstanceOf[Var] && (kr contains k)))
             Some(Var("z", f.res, Some(k)))
           else
             None
@@ -39,7 +58,7 @@ object Factor {
       for ((Norm(args, guard, as, bs, cs, d), k) <- cases.zipWithIndex)
         yield (bs, zs_(k)) match {
           // simple case: we can factor the base case value d via the argument given by zk
-          case (Map_(), Some(zk)) if ks contains k =>
+          case (Map_(), Some(zk)) if kr contains k =>
             // the base case is expressed over variables in the pattern
             // but we need it for the common set of variables xs that are used in the equivalence below,
             // this renaming performs the mapping, it is ok, because we know that
@@ -168,5 +187,93 @@ object Factor {
 
     // for ((f, cs) <- fs zip cases_.transpose)
     //   yield Def(f, cs)
+  }
+
+  def maybeShift(e: Expr): (Expr, Map[Var, Expr]) =
+    e match {
+      case App(_, _, args) if args.nonEmpty =>
+        val a = Expr.fresh("a", e.typ)
+        (a, Map(a -> e))
+      case _ =>
+        (e, Map())
+    }
+
+  def maybeShift(
+      er: (Expr, Boolean),
+      cs: Map[Var, Expr]
+  ): (Expr, Map[Var, Expr]) =
+    er match {
+      case (e @ App(_, _, args), false) if args.nonEmpty =>
+        val c = Expr.fresh("c", e.typ)
+        (c, Map(c -> e))
+      case (e, _) =>
+        (e, cs)
+    }
+
+  def splits(
+      f: Fun,
+      exprs: Expr*
+  ): (
+      (List[Expr], Boolean),
+      (Map[Var, Expr], Map[Var, List[Expr]], Map[Var, Expr])
+  ) = {
+    val results = exprs.toList map (split(f, _))
+    val (es, lets) = results.unzip
+    val (as, bs, cs) = lets.unzip3
+
+    val shift = es exists (_._2)
+
+    if (shift) {
+      // now shift all non-recursive exprs to the map,
+      // these are maximally non-recursive subterms
+      val es_cs =
+        for ((er, c) <- es zip cs)
+          yield maybeShift(er, c)
+
+      val (es_, cs_) = es_cs.unzip
+      ((es_, true), (as.merged, bs.merged, cs_.merged))
+    } else {
+      val (es_, lets) = es.unzip
+      ((es_, false), (as.merged, bs.merged, cs.merged))
+    }
+  }
+
+  def split(
+      f: Fun,
+      expr: Expr
+  ): (
+      (Expr, Boolean),
+      (Map[Var, Expr], Map[Var, List[Expr]], Map[Var, Expr])
+  ) =
+    expr match {
+      case App(`f`, inst, args) =>
+        val es_as =
+          for (e <- args)
+            yield maybeShift(e)
+        val (args_, as) = es_as.unzip
+
+        val b = Expr.fresh("b", expr.typ)
+        ((b, true), (as.merged, Map(b -> args_), Map()))
+
+      case App(g, inst, args) =>
+        val ((args_, rec), let) = splits(f, args: _*)
+        val expr_ = App(g, inst, args_)
+        ((expr_, rec), let)
+
+      case _ =>
+        ((expr, false), (Map(), Map(), Map()))
+    }
+
+  def split(df: Def[Flat]): Def[Norm] = {
+    val Def(f, cases) = df
+
+    val cases_ =
+      for (Flat(args, guard, body) <- cases)
+        yield {
+          val ((d, r), (as, bs, cs)) = split(f, body)
+          Norm(args, guard, as, bs, cs, d)
+        }
+
+    Def(f, cases_)
   }
 }

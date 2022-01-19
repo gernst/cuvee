@@ -45,7 +45,7 @@ package object cuvee {
     }
   }
 
-  implicit class ListMapOps[A,B](self: List[Map[A,B]]) {
+  implicit class ListMapOps[A, B](self: List[Map[A, B]]) {
     def merged = {
       self.fold(Map())(_ ++ _)
     }
@@ -56,5 +56,17 @@ package object cuvee {
     val as_ = f(as)
     if (as == as_) as
     else fix(f, as_)
+  }
+
+  def seq[A](f: => A, last: A = null): Seq[A] = {
+    val builder = Seq.newBuilder[A]
+    var a = f
+
+    while (a != last) {
+      builder += a
+      a = f
+    }
+
+    builder.result
   }
 }

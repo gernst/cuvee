@@ -5,7 +5,7 @@ package cuvee.sexpr;
 %public
 %class Scanner
 %function next
-%type Tok
+%type arse.Token
 
 %eofval{
     return Expr.eof();

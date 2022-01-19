@@ -8,9 +8,26 @@ import java.io.FileReader
 
 import cuvee.fail
 
+object Parser_ {
+  import arse._
+  import arse.implicits._
+
+  val expr: arse.Parser[Expr, Token] =
+    P(app | atom)
+
+  val atom = tok[Token] collect { case atom: Atom =>
+    atom
+  }
+
+  val app =
+    App.from(Tok.lp ~ expr.+ ~ Tok.rp)
+}
+
 class Parser(scanner: Scanner) {
-  var _tok: Tok = null
-  var _peek: Tok = null
+  import arse.Token
+
+  var _tok: Token = null
+  var _peek: Token = null
 
   def peek() = {
     if (_peek == null) // consume next token only when needed
@@ -28,7 +45,7 @@ class Parser(scanner: Scanner) {
     _tok
   }
 
-  def check(tok: Tok) = {
+  def check(tok: Token) = {
     next match {
       case `tok` =>
       // ok

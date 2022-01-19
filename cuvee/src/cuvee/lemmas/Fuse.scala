@@ -1,22 +1,19 @@
 package cuvee.lemmas
 
+import cuvee.fail
 import cuvee.pure._
 import cuvee.StringOps
 
-object Fuse {
-  def fuse(df: Def[Flat], dg: Def[Flat]): List[(Def[Flat], Rule)] = {
-    val typ = dg.fun.res
-    for (
-      (`typ`, pos) <- df.fun.args.zipWithIndex;
-      dfg <- fuse(df, dg, pos) if isRecursivePosition(df, pos)
-    )
-      yield dfg
-  }
+class Fuse(st: State) {
+  object CannotFuse extends Exception
 
-  def isRecursivePosition(df: Def[Flat], pos: Int): Boolean = {
-    df.cases exists { case Flat(args, guard, body) =>
-      args(pos).isInstanceOf[App]
-    }
+  def fuse(df: Def[Flat], dg: Def[Flat]): List[(Def[Flat], Rule)] = {
+    for (
+      (typ, pos) <- df.fun.args.zipWithIndex
+      if typ == dg.fun.res && isRecursivePosition(df, pos);
+      df <- fuse(df, dg, pos)
+    )
+      yield df
   }
 
   def fuse(
@@ -61,8 +58,21 @@ object Fuse {
 
       Some((dfg, rule))
     } catch {
-      case _: NotImplementedError =>
+      case CannotFuse =>
         None
+    }
+  }
+
+  def isConstructor(fun: Fun) = {
+    // st.datatypes exists { case (_, dt) =>
+    //   dt.constrs contains fun
+    // }
+    fun.name == "nil" || fun.name == "cons"
+  }
+
+  def isRecursivePosition(df: Def[Flat], pos: Int): Boolean = {
+    df.cases exists { case Flat(args, guard, body) =>
+      args(pos).isInstanceOf[App]
     }
   }
 
@@ -75,6 +85,9 @@ object Fuse {
       pos: Int
   ): List[Flat] =
     gcase match {
+      // if the case of g is a variable only,
+      // then do not take it apart according to the cases of f,
+      // instead simply wrap it into f
       case Flat(gargs, gguard, x: Var) =>
         val fargs =
           for ((t, i) <- f.args.zipWithIndex)
@@ -85,6 +98,8 @@ object Fuse {
         val body = App(f, recs)
         List(Flat(args, guard, body))
 
+      // if the case of g is a tail-recursive call,
+      // then wrap it in f which produces fg directly
       case Flat(gargs, gguard, App(`g`, _, grecs)) =>
         val fargs =
           for ((t, i) <- f.args.zipWithIndex)
@@ -95,6 +110,8 @@ object Fuse {
         val body = App(fg, recs)
         List(Flat(args, guard, body))
 
+      // otherwise, we need to split up all the cases of f
+      // and see which ones match
       case Flat(gargs, gguard, gbody) =>
         val fpats = fcases flatMap (_.args)
         val critical = gcase.args.free & fpats.free
@@ -112,6 +129,7 @@ object Fuse {
         }
     }
 
+  // Note: this can be done by subst su and the simplifier
   def recurse(
       f: Fun,
       g: Fun,
@@ -145,9 +163,6 @@ object Fuse {
         App(h, inst, args_)
     }
 
-  // HACK: don't refute when the body is some function
-  val constructors = Set("nil", "cons")
-
   // collect cases of a definition that match a particular pattern
   // possibly unfolding other function definitions, too (not implemented yet);
   // make sure the variables in pat do not clash with those in the arguments of the cases!
@@ -160,45 +175,48 @@ object Fuse {
       args: List[Expr],
       d: Expr,
       su: Map[Var, Expr] = Map()
-  ): Option[(List[Expr], Map[Var, Expr])] =
+  ): List[(List[Expr], Map[Var, Expr])] =
     (pat, d) match {
       case (x: Var, _) if su contains x =>
         if (su(x) == d) {
-          Some((args, su))
+          List((args, su))
         } else {
-          println("; cannot expose " + x + " over " + d)
-          println("; already bound to " + su(x))
-          println(fg)
-          println()
-          ???
+          // println("; cannot expose " + x + " over " + d)
+          // println("; already bound to " + su(x))
+          // println(fg)
+          // println()
+          throw CannotFuse
         }
 
       case (x: Var, _) =>
-        Some((args, su + (x -> d)))
+        List((args, su + (x -> d)))
 
       // constructor match: we can recurse into the arguments
       // Note: pat should only have constructors in function position
-      case (App(fun1, _, pats), App(fun2, _, ds))
-          if constructors contains fun2.name =>
+      case (App(fun1, _, pats), App(fun2, _, ds)) if isConstructor(fun2) =>
         if (fun1 == fun2) {
           expose(f, g, fg, pats, args, ds, su)
         } else {
           // println("refute exposing " + pat + " over " + d)
-          None
+          Nil
         }
+
+      // case (_, App(fun2, _, ds)) if defs contains fun2 =>
+      //   println("; cannot expose " + pat + " over " + fun2)
+      //   throw CannotFuse
 
       // unconstrained argument: we can chain the pattern to the top-level
       // TODO: later possibly remove x from the vars of the case
       case (_, x: Var) if args contains x =>
         val pos = args indexOf x
         val args_ = args updated (pos, pat)
-        Some((args_, su))
+        List((args_, su))
 
       case _ =>
-        println("; cannot expose " + pat + " over " + d)
-        println("; " + fg)
-        println()
-        ???
+        // println("; cannot expose " + pat + " over " + d)
+        // println("; " + fg)
+        // println()
+        throw CannotFuse
     }
 
   def expose(
@@ -206,20 +224,19 @@ object Fuse {
       g: Fun,
       fg: Fun,
       pats: List[Expr],
-      args: List[Expr],
+      args0: List[Expr],
       ds: List[Expr],
-      su: Map[Var, Expr]
-  ): Option[(List[Expr], Map[Var, Expr])] =
+      su0: Map[Var, Expr]
+  ): List[(List[Expr], Map[Var, Expr])] =
     (pats, ds) match {
       case (Nil, Nil) =>
-        Some((args, su))
+        List((args0, su0))
 
       case (pat :: pats, d :: ds) =>
-        expose(f, g, fg, pat, args, d, su) match {
-          case None =>
-            None
-          case Some((args_, su_)) =>
-            expose(f, g, fg, pats, args_, ds, su_)
-        }
+        for (
+          (args1, su1) <- expose(f, g, fg, pat, args0, d, su0);
+          (args2, su2) <- expose(f, g, fg, pats, args1, ds, su1)
+        )
+          yield (args2, su2)
     }
 }

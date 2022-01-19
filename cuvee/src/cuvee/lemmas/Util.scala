@@ -45,6 +45,12 @@ object Util {
     ks.toList.sorted
   }
 
+  def removeArgs(df: Def[Norm], as: List[Int]) = {
+    val Def(f, cases) = df
+
+    
+  }
+
   // compute those argument positions that are propagated constantly
   def constantArgs(df: Def[Norm]): List[Int] = {
     val Def(f, cases) = df
@@ -99,8 +105,8 @@ object Util {
     val zs =
       for ((Norm(args, guard, as, bs, cs, d), i) <- cases.zipWithIndex)
         yield d match {
-          // case x: Var =>
-          //   (i, false)
+          case x: Var => // prevents append_append to yield original definition
+            (i, false)
           case _ =>
             val ka = ks map args
             (i, d.free subsetOf ka.free)

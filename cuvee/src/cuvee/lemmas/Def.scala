@@ -3,22 +3,28 @@ package cuvee.lemmas
 import cuvee.pure._
 import cuvee.smtlib._
 
-sealed trait Case {
+trait Case {
   def args: List[Expr]
   def guard: List[Expr]
   def typ: Type
   def free = args.free
   def rename(re: Map[Var, Var]): Case
+  def rule(self: Fun): Rule
+  def flat(self: Fun): Flat
   def axiom(self: Fun): Expr
 }
 
 case class Flat(args: List[Expr], guard: List[Expr], body: Expr) extends Case {
   def typ = body.typ
+  def flat(self: Fun) = this
 
   def rename(re: Map[Var, Var]) = {
     Flat(args rename re, guard rename re, body rename re)
   }
 
+  def rule(self: Fun): Rule = {
+    Rule(App(self, args), body, And(guard))
+  }
   def axiom(self: Fun) = {
     val xs = args.free.toList
     Clause(xs, guard, Eq(App(self, args), body))
@@ -53,6 +59,14 @@ case class Norm(
     }
 
     d subst (bs_ ++ cs)
+  }
+
+  def flat(self: Fun) = {
+    Flat(args, guard, body(self))
+  }
+
+  def rule(self: Fun) = {
+    Rule(App(self, args), body(self), And(guard))
   }
 
   def axiom(self: Fun) = {
