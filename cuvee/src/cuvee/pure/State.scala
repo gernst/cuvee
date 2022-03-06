@@ -159,10 +159,23 @@ class State(
 
     def app(name: String, args: List[Pre]) = {
       val fun = funs(name)
-      val inst = fun.gen
+      val inst = fun.generic
       val exprs = args map (_.expr)
       unify(inst.args, exprs.types)
-      Pre(App(fun, inst, exprs))
+      Pre(App(inst, exprs))
+    }
+
+    def match_(arg: Pre, cases: List[(Pre, Pre)]) = {
+      val typ = Type.fresh(Param("a"))
+      val expr = arg.expr
+      val body =
+        for ((pat, res) <- cases)
+          yield {
+            check(pat, expr.typ)
+            check(res, typ)
+            Case(pat.expr, res.expr)
+          }
+      Pre(Match(expr, body, typ))
     }
 
     def in(k: Int, arg: Pre, typ: Type) = {

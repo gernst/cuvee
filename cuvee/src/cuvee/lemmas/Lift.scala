@@ -1,6 +1,7 @@
 package cuvee.lemmas
 
 import cuvee.pure._
+import cuvee.toControl
 
 case class Lift(
     y: List[Var],
@@ -42,10 +43,10 @@ object Lift {
   val x = Var("x", Fun.a)
   val y = Var("y", Fun.b)
   val z = Var("z", Fun.a)
-  val xs = Var("xs", Fun.list)
-  val ys = Var("ys", Fun.list)
-  val zs = Var("zs", Fun.list)
-  val nil = App(Fun.nil, Nil)
+  val xs = Var("xs", Fun.list_a)
+  val ys = Var("ys", Fun.list_a)
+  val zs = Var("zs", Fun.list_a)
+  val nil = Const(Fun.nil, Fun.list_a)
 
   val A = Sort(Con("A", 0), Nil)
   val B = Sort(Con("B", 0), Nil)
@@ -97,18 +98,16 @@ object Lift {
     val all = for (l @ Lift(ys, z, f, b, g) <- lifts) yield {
       val ok =
         for (Norm(args, guard, as, bs, cs, d) <- cases if bs.nonEmpty)
-          yield Rewrite.bind(f, d) match {
-            case None =>
-              // println("1. " + h.name + " failed")
-              (false, bs.exists(_._1 == d)) // direct pass onwards
-            case Some(env) =>
-              // println("1. " + h.name + " " + ys + " " + env)
+          yield {
+            val (ty, su) = Expr.bind(f, d) 
               (
                 ys forall { y =>
-                  bs exists (_._1 == env(y)) // y must denote a recursive call
+                  bs exists (_._1 == su(y)) // y must denote a recursive call
                 },
                 true
               )
+          } or {
+              (false, bs.exists(_._1 == d)) // direct pass onwards
           }
 
       val (yes, maybe) = ok.unzip
@@ -147,7 +146,7 @@ object Lift {
           val vs = xs collect { case v: Var => v }
           // println(Forall(vs.distinct, Eq(lhs, rhs)))
           // println()
-          Some(Rule(lhs, rhs, True))
+          Some(Rule(lhs, rhs, True, List((z subst su) -> b)))
         } else {
           None
         }

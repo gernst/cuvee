@@ -1,8 +1,10 @@
 package cuvee.pure
 
 import cuvee.StringOps
-import cuvee.fail
+import cuvee.backtrack
+import cuvee.error
 import cuvee.sexpr
+import cuvee.util.Alpha
 
 sealed trait Type extends Type.term with sexpr.Syntax {}
 
@@ -23,8 +25,9 @@ object Type extends Alpha[Type, Param] {
         unify(su(p1), typ2, su)
       case (_, p2: Param) if su contains p2 =>
         unify(typ1, su(p2), su)
+      case (p1: Param, _) if p1 in typ2 =>
+        backtrack("recursive unification, " + p1 + " in " + typ2)
       case (p1: Param, _) =>
-        require(!(p1 in typ2), "recursive unification, " + p1 + " in " + typ2)
         su + (p1 -> typ2)
       case (_, p2: Param) =>
         unify(p2, typ1, su)
@@ -35,7 +38,7 @@ object Type extends Alpha[Type, Param] {
       case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
         unify(args1, args2, su)
       case _ =>
-        fail("cannot unify " + typ1 + " and " + typ2)
+        backtrack("cannot unify " + typ1 + " and " + typ2)
     }
   }
 
@@ -50,9 +53,58 @@ object Type extends Alpha[Type, Param] {
       case (typ1 :: types1, typ2 :: types2) =>
         unify(types1, types2, unify(typ1, typ2, su))
       case _ =>
-        cuvee.fail("cannot unify " + types1 + " and " + types2)
+        backtrack("cannot unify " + types1 + " and " + types2)
     }
   }
+
+  def bind(
+      typ1: Type,
+      typ2: Type,
+      su: Map[Param, Type] = Map()
+  ): Map[Param, Type] = {
+    (typ1, typ2) match {
+      case (p1: Param, _) if su contains p1 =>
+        if (su(p1) != typ2)
+          backtrack("cannot bind " + su(p1) + " to " + typ2)
+        su
+      case (p1: Param, _) =>
+        su + (p1 -> typ2)
+      case (Prod(args1), Prod(args2)) =>
+        binds(args1, args2, su)
+      case (Sum(args1), Sum(args2)) =>
+        binds(args1, args2, su)
+      case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
+        binds(args1, args2, su)
+      case _ =>
+        backtrack("cannot bind " + typ1 + " to " + typ2)
+    }
+  }
+
+  def binds(
+      types1: List[Type],
+      types2: List[Type],
+      su: Map[Param, Type] = Map()
+  ): Map[Param, Type] = {
+    (types1, types2) match {
+      case (Nil, Nil) =>
+        su
+      case (typ1 :: types1, typ2 :: types2) =>
+        binds(types1, types2, bind(typ1, typ2, su))
+      case _ =>
+        backtrack("cannot bind " + types1 + " to " + types2)
+    }
+  }
+
+  // def bind(
+  //     inst1: Inst,
+  //     inst2: Inst,
+  //     su: Map[Param, Type]
+  // ): Map[Param, Type] = {
+  //   (inst1, inst2) match {
+  //     case (Inst(args1, res1), Inst(args2, res2)) =>
+  //       binds(args1, args2, bind(res1, res2, su))
+  //   }
+  // }
 }
 
 class ParamList(params: List[Param]) extends Type.xs(params) {
@@ -160,7 +212,7 @@ object Sort {
 
   def sum(as: List[Type]) =
     as match {
-      case Nil => fail("cannot form empty sum (SMT-LIB types are inhabitated)")
+      case Nil => error("cannot form empty sum (SMT-LIB types are inhabitated)")
       case List(a) => a
       case _       => Sum(as)
     }

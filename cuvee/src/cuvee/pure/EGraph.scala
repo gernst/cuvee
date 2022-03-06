@@ -13,8 +13,8 @@ class EGraph {
     def canon = this
   }
 
-  case class EApp(fun: Fun, inst: Inst, args: List[EClass]) extends ENode {
-    def canon = EApp(fun, inst, args map (_.find))
+  case class EApp(inst: Inst, args: List[EClass]) extends ENode {
+    def canon = EApp(inst, args map (_.find))
   }
 
   class EClass(var parents: Map[ENode, EClass], var nodes: Set[ENode]) {
@@ -43,9 +43,9 @@ class EGraph {
             su
         }
 
-      case App(fun, inst, pats) =>
+      case App(inst, pats) =>
         for (
-          EApp(`fun`, _, args) <- nodes; // do we have to check?
+          EApp(`inst`, args) <- nodes; // do we have to check?
           su <- {
             (pats zip args).foldLeft(sus) { case (sus, (pat, ec)) =>
               ec ematch (pat, sus)
@@ -62,8 +62,8 @@ class EGraph {
   def add(expr: Expr): EClass = expr match {
     case x: Var =>
       add(EVar(x))
-    case App(fun, inst, args) =>
-      add(EApp(fun, inst, args map add))
+    case App(inst, args) =>
+      add(EApp(inst, args map add))
   }
 
   def merge(lhs: Expr, rhs: Expr): EClass = {

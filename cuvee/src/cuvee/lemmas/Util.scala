@@ -4,27 +4,26 @@ import cuvee.pure._
 
 object Util {
   def liftIte(
-      fun: Fun,
       inst: Inst,
       rdone: List[Expr],
       todo: List[Expr]
   ): Expr = {
     todo match {
       case Nil =>
-        App(fun, inst, rdone.reverse)
+        App(inst, rdone.reverse)
       case Ite(test, left, right) :: rest =>
-        val _left = liftIte(fun, inst, rdone, left :: rest)
-        val _right = liftIte(fun, inst, rdone, right :: rest)
+        val _left = liftIte(inst, rdone, left :: rest)
+        val _right = liftIte(inst, rdone, right :: rest)
         Ite(test, _left, _right)
       case arg :: rest =>
-        liftIte(fun, inst, arg :: rdone, rest)
+        liftIte(inst, arg :: rdone, rest)
     }
   }
 
   def liftIte(expr: Expr): Expr = {
     expr match {
-      case App(fun, inst, args) =>
-        liftIte(fun, inst, Nil, args)
+      case App(inst, args) =>
+        liftIte(inst, Nil, args)
       case _ =>
         expr
     }
@@ -32,7 +31,7 @@ object Util {
 
   def vars(name: String, types: List[Type]) = {
     for ((t, i) <- types.zipWithIndex)
-      yield Var("x", t, Some(i))
+      yield Var(name, t, Some(i))
   }
 
   def simplify(df: Def[Norm]): Option[(Def[Norm], Rule)] = {
@@ -48,7 +47,6 @@ object Util {
   def removeArgs(df: Def[Norm], as: List[Int]) = {
     val Def(f, cases) = df
 
-    
   }
 
   // compute those argument positions that are propagated constantly

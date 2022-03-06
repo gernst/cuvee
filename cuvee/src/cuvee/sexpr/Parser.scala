@@ -6,7 +6,7 @@ import java.io.Reader
 import java.io.File
 import java.io.FileReader
 
-import cuvee.fail
+import cuvee.error
 
 object Parser_ {
   import arse._
@@ -50,7 +50,7 @@ class Parser(scanner: Scanner) {
       case `tok` =>
       // ok
       case tok =>
-        fail("unexpected token: " + tok)
+        error("unexpected token: " + tok)
     }
   }
 
@@ -63,7 +63,7 @@ class Parser(scanner: Scanner) {
       case atom: Atom =>
         atom
       case tok =>
-        fail("unexpected token: " + tok)
+        error("unexpected token: " + tok)
     }
   }
 

@@ -5,10 +5,11 @@ package object pure {
   implicit def toExprList(exprs: List[Expr]) = new ExprList(exprs)
   implicit def toParamList(params: List[Param]) = new ParamList(params)
   implicit def toTypeList(types: List[Type]) = new TypeList(types)
-  // implicit def toCaseList(cases: List[Case]) = new CaseList(cases)
+  implicit def toCaseList(cases: List[Case]) = new CaseList(cases)
 
-  val True = App(Fun.true_, Nil)
-  val False = App(Fun.false_, Nil)
+  // work around initialization order, not using Const
+  object True extends App(Inst(Fun.true_, Map()), Nil)
+  object False extends App(Inst(Fun.false_, Map()), Nil)
 
   val Zero = Lit(0, Sort.int)
   val One = Lit(1, Sort.int)

@@ -1,19 +1,37 @@
 package cuvee.lemmas
 
-import cuvee.fail
+import cuvee.error
 import cuvee.pure._
 import cuvee.StringOps
 
-class Fuse(st: State) {
+class Fuse(lemma: Lemma) {
   object CannotFuse extends Exception
 
   def fuse(df: Def[Flat], dg: Def[Flat]): List[(Def[Flat], Rule)] = {
+    // println("; top-level fusion loop for: " + df.fun.name + " over " + dg.fun.name)
     for (
       (typ, pos) <- df.fun.args.zipWithIndex
-      if typ == dg.fun.res && isRecursivePosition(df, pos);
-      df <- fuse(df, dg, pos)
+      if typ == dg.fun.res; // && isRecursivePosition(df, pos);
+      df <- fuse(
+        df,
+        dg,
+        pos
+      ) // TODO: document the purpose of isRecursivePosition
     )
       yield df
+  }
+
+  def isConstructor(fun: Fun) = {
+    // st.datatypes exists { case (_, dt) =>
+    //   dt.constrs contains fun
+    // }
+    (fun.name startsWith "nil") || (fun.name startsWith "cons") || fun.name == "S" || fun.name == "Z"
+  }
+
+  def isRecursivePosition(df: Def[Flat], pos: Int): Boolean = {
+    df.cases exists { case Flat(args, guard, body) =>
+      args(pos).isInstanceOf[App]
+    }
   }
 
   def fuse(
@@ -34,6 +52,7 @@ class Fuse(st: State) {
     val args = f.args patch (pos, g.args, 1)
     val res = f.res
     val fg = Fun(name, params.distinct, args, res)
+    // println("; fusing " + name)
 
     try {
       val cases =
@@ -63,19 +82,6 @@ class Fuse(st: State) {
     }
   }
 
-  def isConstructor(fun: Fun) = {
-    // st.datatypes exists { case (_, dt) =>
-    //   dt.constrs contains fun
-    // }
-    fun.name == "nil" || fun.name == "cons"
-  }
-
-  def isRecursivePosition(df: Def[Flat], pos: Int): Boolean = {
-    df.cases exists { case Flat(args, guard, body) =>
-      args(pos).isInstanceOf[App]
-    }
-  }
-
   def fuse(
       f: Fun,
       g: Fun,
@@ -100,7 +106,7 @@ class Fuse(st: State) {
 
       // if the case of g is a tail-recursive call,
       // then wrap it in f which produces fg directly
-      case Flat(gargs, gguard, App(`g`, _, grecs)) =>
+      case Flat(gargs, gguard, App(`g`, grecs)) =>
         val fargs =
           for ((t, i) <- f.args.zipWithIndex)
             yield Var("x", t, Some(i))
@@ -124,8 +130,9 @@ class Fuse(st: State) {
         ) yield {
           val args = fargs patch (pos, gargs_, 1)
           val guard = fguard ++ gguard
-          val body = recurse(f, g, fg, pos, fbody, su) // fbody subst su
-          Flat(args, guard, body)
+          val guard_ = guard subst su
+          val body_ = recurse(f, g, fg, pos, fbody, su) // fbody subst su
+          Flat(args, guard_, body_)
         }
     }
 
@@ -145,22 +152,18 @@ class Fuse(st: State) {
         x
       case l: Lit =>
         l
-      case App(
-            `f`,
-            inst,
-            args
-          ) => // keep inst to prevent making it more generic
+      case App(Inst(`f`, _), args) =>
         val args_ = args map (recurse(f, g, fg, pos, _, su))
         args_(pos) match {
-          case App(`g`, _, args) =>
+          case App(Inst(`g`, _), args) =>
             val res = App(fg, args_ patch (pos, args, 1))
             res
           case _ =>
-            App(f, inst, args_)
+            App(f, args_)
         }
-      case App(h, inst, args) =>
+      case App(h, args) =>
         val args_ = args map (recurse(f, g, fg, pos, _, su))
-        App(h, inst, args_)
+        App(h, args_)
     }
 
   // collect cases of a definition that match a particular pattern
@@ -183,7 +186,7 @@ class Fuse(st: State) {
         } else {
           // println("; cannot expose " + x + " over " + d)
           // println("; already bound to " + su(x))
-          // println(fg)
+          // println("; " + fg)
           // println()
           throw CannotFuse
         }
@@ -193,8 +196,8 @@ class Fuse(st: State) {
 
       // constructor match: we can recurse into the arguments
       // Note: pat should only have constructors in function position
-      case (App(fun1, _, pats), App(fun2, _, ds)) if isConstructor(fun2) =>
-        if (fun1 == fun2) {
+      case (App(inst1, pats), App(inst2, ds)) if isConstructor(inst2.fun) =>
+        if (inst1 == inst2) {
           expose(f, g, fg, pats, args, ds, su)
         } else {
           // println("refute exposing " + pat + " over " + d)

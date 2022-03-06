@@ -38,8 +38,10 @@ object Sugar {
   class unary(val fun: Fun) extends (Expr => Expr) {
     def unapply(expr: Expr) =
       expr match {
-        case App(`fun`, _, List(arg)) => Some(arg)
-        case _                        => None
+        case App(inst, List(arg)) if inst.fun == fun =>
+          Some(arg)
+        case _ =>
+          None
       }
 
     def apply(arg: Expr) = {
@@ -50,8 +52,10 @@ object Sugar {
   class binary(val fun: Fun) extends ((Expr, Expr) => Expr) {
     def unapply(expr: Expr) =
       expr match {
-        case App(`fun`, _, List(arg1, arg2)) => Some((arg1, arg2))
-        case _                               => None
+        case App(inst, List(arg1, arg2)) if inst.fun == fun =>
+          Some((arg1, arg2))
+        case _ =>
+          None
       }
 
     def apply(arg1: Expr, arg2: Expr): Expr = {
@@ -62,8 +66,10 @@ object Sugar {
   class ternary(val fun: Fun) extends ((Expr, Expr, Expr) => Expr) {
     def unapply(expr: Expr) =
       expr match {
-        case App(`fun`, _, List(arg1, arg2, arg3)) => Some((arg1, arg2, arg3))
-        case _                                     => None
+        case App(inst, List(arg1, arg2, arg3)) if inst.fun == fun =>
+          Some((arg1, arg2, arg3))
+        case _ =>
+          None
       }
 
     def apply(arg1: Expr, arg2: Expr, arg3: Expr): Expr = {
@@ -77,9 +83,11 @@ object Sugar {
 
     def flatten(expr: Expr): List[Expr] =
       expr match {
-        case App(`fun`, _, List(arg1, arg2)) if assoc == Assoc.left =>
+        case App(inst, List(arg1, arg2))
+            if inst.fun == fun && assoc == Assoc.left =>
           flatten(arg1) ++ List(arg2)
-        case App(`fun`, _, List(arg1, arg2)) if assoc == Assoc.right =>
+        case App(inst, List(arg1, arg2))
+            if inst.fun == fun && assoc == Assoc.right =>
           List(arg1) ++ flatten(arg2)
         case _ =>
           List(expr)
@@ -93,8 +101,10 @@ object Sugar {
 
     def flatten(expr: Expr): List[Expr] =
       expr match {
-        case App(`fun`, _, args) => flatten(args)
-        case _                   => List(expr)
+        case App(inst, args) if inst.fun == fun =>
+          flatten(args)
+        case _ =>
+          List(expr)
       }
 
     def apply(arg1: Expr, arg2: Expr): Expr = {
@@ -110,7 +120,7 @@ object Sugar {
 
     def unapply(expr: Expr) =
       expr match {
-        case App(`fun`, _, args) =>
+        case App(inst, args) if inst.fun == fun =>
           Some(flatten(args))
         case _ =>
           None

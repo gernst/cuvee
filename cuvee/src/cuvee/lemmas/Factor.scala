@@ -4,20 +4,22 @@ import cuvee.util.Map_
 import cuvee.pure._
 import cuvee.StringOps
 
-class Factor(st: State) {
-  def factor(df: Def[Flat]): (Def[Norm], List[Def[Norm]], List[Rule]) = {
+class Factor(lemma: Lemma) {
+  def factor(df: Def[Flat]): (Def[Norm], List[Def[Norm]], Option[Rule], List[Rule]) = {
     val df_ = split(df)
 
     val ka = Util.constantArgs(df_)
     val kc = Util.computedArgs(df_)
     val kr = Util.constantResults(df_, ka)
 
-    if (kr.nonEmpty) {
+    if (kr.nonEmpty) { // Why nonempty? reverse-accumulator_factored; append
       val (df__, dfs, eq) = base(df_)
-      val eqs = Lift.lift(df__)
-      (df__, dfs, eq :: eqs)
+      val eqs = Nil // Lift.lift(df__)
+      (df__, dfs, Some(eq), eqs)
     } else {
-      (df_, Nil, Nil)
+      // not worth trying anything here: produces original function
+      // println("; not lifting: " + df.fun)
+      (df_, Nil, None, Nil)
     }
   }
 
@@ -50,6 +52,7 @@ class Factor(st: State) {
     // function f' receives the original arguments and one additional argument per base case
     // that can be factored out
     val f_ = Fun(f.name + "_factored", f.params, f.args ++ zs.types, f.res)
+    // println("; " + f.name)
 
     // transform each case, returning optionally
     // - an expression that denotes the respective base case value
@@ -140,6 +143,9 @@ class Factor(st: State) {
     val df__ = Def(f__, cases__)
 
     val eq = Rule(App(f, xs), App(f__, us map (xs ++ as)), True)
+    // println(df)
+    // println("rule: " + eq)
+    // println(us)
 
     (df__, dfs_.flatten, eq)
   }
@@ -191,7 +197,7 @@ class Factor(st: State) {
 
   def maybeShift(e: Expr): (Expr, Map[Var, Expr]) =
     e match {
-      case App(_, _, args) if args.nonEmpty =>
+      case App(_, args) if args.nonEmpty =>
         val a = Expr.fresh("a", e.typ)
         (a, Map(a -> e))
       case _ =>
@@ -203,7 +209,7 @@ class Factor(st: State) {
       cs: Map[Var, Expr]
   ): (Expr, Map[Var, Expr]) =
     er match {
-      case (e @ App(_, _, args), false) if args.nonEmpty =>
+      case (e @ App(_, args), false) if args.nonEmpty =>
         val c = Expr.fresh("c", e.typ)
         (c, Map(c -> e))
       case (e, _) =>
@@ -246,7 +252,7 @@ class Factor(st: State) {
       (Map[Var, Expr], Map[Var, List[Expr]], Map[Var, Expr])
   ) =
     expr match {
-      case App(`f`, inst, args) =>
+      case App(Inst(`f`, _), args) =>
         val es_as =
           for (e <- args)
             yield maybeShift(e)
@@ -255,9 +261,9 @@ class Factor(st: State) {
         val b = Expr.fresh("b", expr.typ)
         ((b, true), (as.merged, Map(b -> args_), Map()))
 
-      case App(g, inst, args) =>
+      case App(g, args) =>
         val ((args_, rec), let) = splits(f, args: _*)
-        val expr_ = App(g, inst, args_)
+        val expr_ = App(g, args_)
         ((expr_, rec), let)
 
       case _ =>

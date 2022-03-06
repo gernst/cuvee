@@ -1,7 +1,10 @@
 import scala.annotation.tailrec
 
 package object cuvee {
-  def fail(msg: => String) = {
+  def backtrack(message: String) = arse.backtrack(message)
+  implicit def toControl[A](first: A) = new arse.Control(first)
+  
+  def error(msg: => String) = {
     require(false, msg)
     ???
   }

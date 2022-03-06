@@ -1,6 +1,6 @@
 package cuvee.smtlib
 
-import cuvee.fail
+import cuvee.error
 import cuvee.pure.Type
 import cuvee.pure.State
 import cuvee.sexpr._
@@ -27,7 +27,7 @@ class Parser(init: State) {
         SetLogic(logic)
 
       case App(Id("set-option"), args @ _*) =>
-        fail("unsupported command: " + from)
+        error("unsupported command: " + from)
 
       case App(Id("set-info"), Kw(attr)) =>
         SetInfo(attr, None)
@@ -108,7 +108,7 @@ class Parser(init: State) {
         DeclareDatatypes(decls, dts)
 
       case _ =>
-        fail("invalid command: " + from)
+        error("invalid command: " + from)
     }
 
   def datatypes(
@@ -129,7 +129,7 @@ class Parser(init: State) {
         Fun(name, params, List(in), out)
 
       case _ =>
-        fail("invalid selector declaration: " + from)
+        error("invalid selector declaration: " + from)
     }
 
   def constr(
@@ -145,7 +145,7 @@ class Parser(init: State) {
         st.fun(name, params, types, typ) -> sels_
 
       case _ =>
-        fail("invalid constructor declaration: " + from)
+        error("invalid constructor declaration: " + from)
     }
 
   def datatype(name: String, arity: Int, from: Expr): Datatype =
@@ -162,7 +162,7 @@ class Parser(init: State) {
         Datatype(params_, constrs(params_, typ, alts.toList, ctx0))
 
       case _ =>
-        fail("invalid datatype declaration: " + from)
+        error("invalid datatype declaration: " + from)
     }
 
   def arity(from: Expr) =
@@ -170,7 +170,7 @@ class Parser(init: State) {
       case App(Id(name), Lit.num(digits)) =>
         (name, digits.toInt)
       case _ =>
-        fail("invalid arity declaration: " + from)
+        error("invalid arity declaration: " + from)
     }
 
   def array(dom: Type, ran: Type) =
@@ -181,7 +181,7 @@ class Parser(init: State) {
       case App(Id(name), what) =>
         Var(name, typ(what, ctx))
       case _ =>
-        fail("invalid formal parameter: " + from)
+        error("invalid formal parameter: " + from)
     }
 
   def param(from: Expr): Param =
@@ -189,7 +189,7 @@ class Parser(init: State) {
       case Id(name) =>
         Param(name)
       case _ =>
-        fail("invalid type parameter: " + from)
+        error("invalid type parameter: " + from)
     }
 
   def typ(from: Expr, ctx: Set[String] = Set()): Type =
@@ -201,7 +201,7 @@ class Parser(init: State) {
       case App(Id(name), args @ _*) =>
         st.sort(name, types(args.toList, ctx))
       case _ =>
-        fail("invalid type: " + from)
+        error("invalid type: " + from)
     }
 
   def cmds(from: List[Expr]): List[Cmd] =
@@ -275,9 +275,52 @@ class Parser(init: State) {
           val body = expr(arg, ctx, scope + (name -> dom))
           bind(name, List(x), body, array(dom, body.typ))
 
+        case App(Id(name), arg, App(cs @ _*)) if name == "match" =>
+          match_(expr(arg, ctx, scope), cases(cs.toList, ctx, scope))
+
         case _ =>
-          fail("invalid expression: " + from)
+          error("invalid expression: " + from)
       }
+
+    def pat(
+        from: Expr,
+        ctx: Set[String]
+    ): (Pre, Map[String, Type]) =
+      from match {
+        case Id(name) =>
+          (const(name), Map()) // TODO: do proper type checking in this function
+
+        case App(Id(name), args @ _*) =>
+          val fun = st funs name
+          var scope: Map[String, Type] = Map()
+          val args_ = (args.toList zip fun.args) map { case (Id(name), typ) =>
+            scope += name -> typ
+            x(name, typ)
+          }
+          (app(name, args_), scope)
+      }
+
+    def case_(
+        from: Expr,
+        ctx: Set[String],
+        scope: Map[String, Type]
+    ): (Pre, Pre) =
+      from match {
+        case App(p, e) =>
+          val (p_, scope_) = pat(p, ctx)
+          val e_ = expr(e, ctx, scope ++ scope_)
+          (p_, e_)
+        case _ =>
+          error("invalid case: " + from)
+      }
+
+    def cases(
+        from: List[Expr],
+        ctx: Set[String],
+        scope: Map[String, Type]
+    ): List[(Pre, Pre)] = {
+      from map (case_(_, ctx, scope))
+    }
 
     def exprs(
         from: List[Expr],

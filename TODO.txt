@@ -10,6 +10,7 @@ Further work
 
 Argument factoring
 - find out when we can drop guards, because "nil" is not actually looked at and can in fact be arbitrary (a parameter?)
+- more specifically, can we just drop cases when the forward compuation is not looked at any more?
 
 Guard factoring
 - can we split a function into which of its base cases is triggered? drop/take. Note: more complex when not having linear recursion
@@ -24,3 +25,22 @@ Look at examples:
 map_take:    (getting rid of guards) can we express the param as a map by factoring the arguments to the recursive call?
 length_drop: (getting rid of matched argument) can we synthesis "-" for the argument?
 length_take: observe that some *partial* computation is given by length
+
+forall n: Nat. (length_drop_0(n, nil) = zero)
+forall xs: List[Elem]. (length_drop_0(zero, xs) = length(xs))
+forall n: Nat, y: Elem, ys: List[Elem]. (length_drop_0(succ(n), cons(y, ys)) = length_drop_0(n, ys))
+
+New idea: guard fusion:
+- assuming a recursive predicate that holds, can we specialize a function wrt. this premise?
+
+We can do this:
+
+- fuse f.g into f_g (for a particular argument of matching type)
+- factor the base case of any function
+- simplify definitions (when and what are good rules?)
+- inward mapping  = normalization
+- outward mapping = reverse normalization lemmas
+
+Synthesis strategy:
+
+- triggered 

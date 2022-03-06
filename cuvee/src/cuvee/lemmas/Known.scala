@@ -2,7 +2,7 @@ package cuvee.lemmas
 
 import cuvee.pure._
 
-class Known(st: State) {
+class Known(lemma: Lemma) {
   // Note: do not try to specialize known definitions,
   //       this is done via factoring
   def known(df: Def[Norm], all: Iterable[Def[Norm]]): Iterable[Rule] = {
@@ -42,10 +42,10 @@ class Known(st: State) {
   }
 
   def ok(f: Fun, cf: Norm, g: Fun, cg: Norm): Boolean = {
-    ok(cf flat g, cg flat g) // Note: put in the *same* function name!
+    ok(f, cf flat g, g, cg flat g) // Note: put in the *same* function name!
   }
 
-  def ok(cf: Flat, cg: Flat): Boolean = {
+  def ok(f: Fun, cf: Flat, g: Fun, cg: Flat): Boolean = {
     val Flat(fargs, fguard, fbody) = cf
     val Flat(gargs, gguard, gbody) = cg
 
@@ -55,7 +55,7 @@ class Known(st: State) {
     def rename(a: Expr, b: Expr): Unit = (a, b) match {
       case (x: Var, y: Var) =>
         re += (x -> y)
-      case (App(f, _, as), App(g, _, bs)) if f == g =>
+      case (App(f, as), App(g, bs)) if f == g =>
         renames(as, bs)
       case _ =>
         ok = false
@@ -76,9 +76,14 @@ class Known(st: State) {
 
       val _fbody = fbody rename re
       val _gbody = gbody rename re
-      _fguard == _gguard && _fbody == _gbody
-    } else {
-      false
+      ok = _fguard == _gguard && _fbody == _gbody
+
+      // if(!ok && _fguard != _gguard)
+      //   println("; guards different: " + _fguard + " and " + _gguard)
+      // if(!ok && _fbody != _gbody)
+      //   println("; bodies different: " + _fbody + " and " + _gbody)
     }
+
+    ok
   }
 }

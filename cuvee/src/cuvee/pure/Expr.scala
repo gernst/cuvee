@@ -1,7 +1,8 @@
 package cuvee.pure
 
 import cuvee.StringOps
-import cuvee.fail
+import cuvee.error
+import cuvee.backtrack
 import cuvee.trace
 import cuvee.sexpr
 import cuvee.util.Alpha
@@ -9,6 +10,7 @@ import cuvee.util.Alpha
 sealed trait Expr extends Expr.term with sexpr.Syntax {
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr
 
   def toStringTyped = toString + ": " + typ
 
@@ -41,11 +43,22 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
         g(lit)
       case id: Var =>
         g(id)
-      case App(fun, inst, args) =>
-        g(App(fun, inst, args map (_.map(f, g))))
+      case App(inst, args) =>
+        g(App(inst, args map (_.map(f, g))))
       case Bind(quant, formals, body, typ) =>
         g(Bind(quant, formals, body.map(f, g), typ))
     }
+  }
+
+  def subtermOf(that: Expr): Boolean = that match {
+    case _ if this == that =>
+      true
+    case _: Var =>
+      false
+    case _: Lit =>
+      false
+    case App(inst, args) =>
+      args.exists(this subtermOf _)
   }
 }
 
@@ -54,6 +67,11 @@ object Expr extends Alpha[Expr, Var] {
 
   def fresh(name: String, typ: Type) =
     Var(name, typ, Some(nextIndex))
+
+  def vars(name: String, types: List[Type]) = {
+    for ((t, i) <- types.zipWithIndex)
+      yield Var(name, t, Some(i))
+  }
 
   // mirror Sort.prod
   def tuple(es: List[Expr]) = es match {
@@ -68,7 +86,56 @@ object Expr extends Alpha[Expr, Var] {
       case _ if k == 0 =>
         arg
       case _ =>
-        fail("undefined: " + k + "th injection into " + res)
+        error("undefined: " + k + "th injection into " + res)
+    }
+  }
+
+  def bind(
+      pat: Expr,
+      arg: Expr,
+      ty: Map[Param, Type] = Map(),
+      su: Map[Var, Expr] = Map()
+  ): (Map[Param, Type], Map[Var, Expr]) = {
+    (pat, arg) match {
+      case (x: Var, _) if su contains x =>
+        if (su(x) != arg)
+          backtrack("cannot bind " + su(x) + " to " + arg)
+        (ty, su)
+      case (x: Var, _) =>
+        (ty, su + (x -> arg))
+      case (a: Lit, b: Lit) if a == b =>
+        (ty, su)
+      case (App(inst1, pats), App(inst2, args)) =>
+        val ty_ = bind(inst1, inst2, ty)
+        val su_ = binds(pats, args, ty_, su)
+        (ty_, su_)
+      case _ =>
+        backtrack("cannot bind " + pat + " to " + arg)
+    }
+  }
+
+  def bind(
+      pat: Inst,
+      arg: Inst,
+      ty: Map[Param, Type]
+  ): Map[Param, Type] = {
+    Type.binds(pat.args, arg.args, Type.bind(pat.res, arg.res, ty))
+  }
+
+  def binds(
+      pats: List[Expr],
+      args: List[Expr],
+      ty: Map[Param, Type] = Map(),
+      su: Map[Var, Expr] = Map()
+  ): Map[Var, Expr] = {
+    (pats, args) match {
+      case (Nil, Nil) =>
+        su
+      case (pat :: pats, arg :: args) =>
+        val (ty_, su_) = bind(pat, arg, ty, su)
+        binds(pats, args, ty_, su_)
+      case _ =>
+        backtrack("cannot bind " + pats + " to " + args)
     }
   }
 }
@@ -84,8 +151,12 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
-  def types = exprs map (_.typ)
-  def inst(su: Map[Param, Type]) = exprs map (_ inst su)
+  def types =
+    exprs map (_.typ)
+  def inst(su: Map[Param, Type]) =
+    exprs map (_ inst su)
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    exprs map (_ subst (ty, su))
 }
 
 case class Var(name: String, typ: Type, index: Option[Int] = None)
@@ -95,9 +166,28 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
     Var(name, typ, Some(index))
   def inst(su: Map[Param, Type]) =
     Var(name, typ subst su, index)
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    subst(
+      su
+    ) // no need to look at ty, it is relevant for function applications only
 
   def prime =
     Var(name + "^", typ, index)
+
+  def in(that: Expr): Boolean = {
+    that match {
+      case that: Var =>
+        this == that
+      case App(_, args) =>
+        args exists (this in _)
+      case _ =>
+        ???
+    }
+  }
+
+  def in(that: List[Expr]): Boolean = {
+    that exists (this in _)
+  }
 
   def sexpr = name ~~ index
   override def toString = name __ index
@@ -105,81 +195,13 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
 
 case class Lit(any: Any, typ: Type) extends Expr {
   def free: Set[Var] = Set()
-  def rename(re: Map[Var, Var]): Expr = this
-  def subst(su: Map[Var, Expr]): Expr = this
-  def inst(su: Map[Param, Type]): Expr = this
+  def rename(re: Map[Var, Var]) = this
+  def subst(su: Map[Var, Expr]) = this
+  def inst(su: Map[Param, Type]) = this
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) = this
 
   def sexpr = any
   override def toString = any.toString
-}
-
-case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
-  def apply(args: Expr*) =
-    App(this, args.toList)
-
-  def gen = {
-    val re = Type.fresh(params)
-    Inst(args rename re, res rename re)
-  }
-
-  def paramsToString =
-    params.mkString("forall ", ", ", ". ")
-
-  def argsToString =
-    args.mkString(" * ") + " -> "
-
-  override def toString = (params, args) match {
-    case (Nil, Nil) =>
-      name + ": " + res
-    case (Nil, _) =>
-      name + ": " + argsToString + res
-    case (_, Nil) =>
-      name + ": " + paramsToString + res
-    case _ =>
-      name + ": " + paramsToString + argsToString + res
-  }
-}
-
-object Fun {
-  import Sort.bool
-  import Sort.int
-
-  val a = Param("a")
-  val b = Param("b")
-
-  val list = Sort.list(a)
-  val array = Sort.array(a, b)
-
-  val eq_ = Fun("=", List(a), List(a, a), bool)
-  val ite = Fun("ite", List(a), List(bool, a, a), a)
-
-  val select = Fun("select", List(a, b), List(array, a), b)
-  val store = Fun("store", List(a, b), List(array, a, b), array)
-
-  val nil = Fun("nil", List(a), Nil, list)
-  val cons = Fun("cons", List(a), List(a, list), list)
-  // val append = Fun("append", List(a), List(list, list), list)
-
-  val elem = Sort(Con("Elem", 0), Nil)
-  val list_elem = Sort.list(elem)
-  val append = Fun("append", Nil, List(list_elem, list_elem), list_elem)
-
-  val true_ = Fun("true", Nil, Nil, bool)
-  val false_ = Fun("false", Nil, Nil, bool)
-  val not = Fun("not", Nil, List(bool), bool)
-  val and = Fun("and", Nil, List(bool, bool), bool)
-  val or = Fun("or", Nil, List(bool, bool), bool)
-  val imp = Fun("=>", Nil, List(bool, bool), bool)
-
-  val uminus = Fun("-", Nil, List(int), int)
-  val plus = Fun("+", Nil, List(int, int), int)
-  val minus = Fun("-", Nil, List(int, int), int)
-  val times = Fun("*", Nil, List(int, int), int)
-
-  val le = Fun("<=", Nil, List(int, int), bool)
-  val ge = Fun(">=", Nil, List(int, int), bool)
-  val lt = Fun("<", Nil, List(int, int), bool)
-  val gt = Fun(">", Nil, List(int, int), bool)
 }
 
 object Eq extends Sugar.binary(Fun.eq_)
@@ -206,21 +228,6 @@ object Ge extends Sugar.binary(Fun.ge)
 object Forall extends Sugar.binder(Quant.forall, Sort.bool)
 object Exists extends Sugar.binder(Quant.exists, Sort.bool)
 
-case class Inst(args: List[Type], res: Type) {
-  def subst(su: Map[Param, Type]) =
-    Inst(args subst su, res subst su)
-}
-
-object App {
-  def apply(fun: Fun, args: List[Expr]): Expr = {
-    val inst = fun.gen
-    val su = trace("applying " + fun + " to " + args) {
-      Type.unify(inst.args, args.types, Map())
-    }
-    App(fun, inst subst su, args)
-  }
-}
-
 case class In(k: Int, arg: Expr, typ: Type) extends Expr {
   def free = arg.free
   def rename(re: Map[Var, Var]) =
@@ -229,6 +236,8 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
     In(k, arg subst su, typ)
   def inst(su: Map[Param, Type]) =
     In(k, arg inst su, typ)
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    In(k, arg subst (ty, su), typ subst ty)
 
   def sexpr = ???
   override def toString =
@@ -244,35 +253,99 @@ case class Tuple(args: List[Expr]) extends Expr {
     Tuple(args subst su)
   def inst(su: Map[Param, Type]) =
     Tuple(args inst su)
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    Tuple(args subst (ty, su))
 
   def sexpr = ???
   override def toString =
     args.mkString("(", ", ", ")")
 }
 
-case class App(fun: Fun, inst: Inst, args: List[Expr]) extends Expr {
-  val typ = inst.res
+object Const {
+  def apply(fun: Fun, typ: Type): App = {
+    require(
+      fun.args.isEmpty,
+      "cannot instantiate non-constant" + fun
+    )
+
+    val su = Type.bind(fun.res, typ) or {
+      error("cannot cast " + fun + " to " + typ)
+    }
+
+    val ps = fun.params filterNot su.contains
+    require(
+      ps.isEmpty,
+      "unbound params casting " + fun + " to " + typ + ": " + ps
+    )
+
+    App(Inst(fun, su), Nil)
+  }
+}
+
+object App {
+  def apply(fun: Fun, args: List[Expr]): App = {
+    require(
+      fun.params.isEmpty || args.nonEmpty,
+      "cannot instantiate constant " + fun
+    )
+    val su = Type.binds(fun.args, args.types) or {
+      error("cannot apply " + fun + " to " + args)
+    }
+
+    val ps = fun.params filterNot su.contains
+
+    require(
+      ps.isEmpty,
+      "unbound params applying " + fun + " to " + args + ": " + ps
+    )
+
+    App(Inst(fun, su), args)
+  }
+
+  // def apply(fun: Fun, inst: List[Type], args: List[Expr]): App = {
+  //   require(
+  //     fun.params.length == inst.length,
+  //     "invalid instance " + inst + " for " + fun.params
+  //   )
+
+  //   val su = Type.subst(fun.params, inst)
+  //   val types = fun.args subst su
+  //   require(types == args.types, "cannot apply " + fun + " to " + args.types)
+
+  //   new App(fun, inst, args)
+  // }
+}
+
+case class App(inst: Inst, args: List[Expr]) extends Expr {
+  def typ = inst.res
+  // val su = Type.subst(fun.params, inst)
+
+  // not satisified during parser typecheck
+  // require((fun.args subst su) == args.types)
+  // val typ = fun.res subst su
   def free = args.free
   def rename(re: Map[Var, Var]) =
-    App(fun, inst, args rename re)
+    App(inst, args rename re)
   def subst(su: Map[Var, Expr]) =
-    App(fun, inst, args subst su)
+    App(inst, args subst su)
   def inst(su: Map[Param, Type]) =
-    App(fun, inst subst su, args inst su)
+    App(inst subst su, args inst su)
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    App(inst subst ty, args subst (ty, su))
 
   def sexpr = args match {
-    case Nil => fun.name
-    case _   => fun.name :: args
+    case Nil => inst
+    case _   => inst :: args
   }
 
   override def toString =
-    (fun, args) match {
+    (inst, args) match {
       case (_, Nil) =>
-        fun.name
-      case (_, List(left, right)) if Expr.infix contains fun.name =>
-        "(" + left + " " + fun.name + " " + right + ")"
+        inst.toString
+      case (_, List(left, right)) if Expr.infix contains inst.fun.name =>
+        "(" + left + " " + inst + " " + right + ")"
       case _ =>
-        fun.name + args.mkString("(", ", ", ")")
+        inst + args.mkString("(", ", ", ")")
     }
 }
 
@@ -295,6 +368,8 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     Bind(quant, formals rename a, body subst su, typ)
   def inst(su: Map[Param, Type]) =
     Bind(quant, formals inst su, body inst su, typ subst su)
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    ??? // uh oh mess with bound variables
 
   def sexpr =
     List(quant.name, formals.asFormals, body)
@@ -303,7 +378,6 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body
 }
 
-/*
 class CaseList(cases: List[Case]) {
   def free = Set(cases flatMap (_.free): _*)
   def rename(re: Map[Var, Var]) = cases map (_ rename re)
@@ -311,7 +385,9 @@ class CaseList(cases: List[Case]) {
   def inst(su: Map[Param, Type]) = cases map (_ inst su)
 }
 
-case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] {
+case class Case(pat: Expr, expr: Expr)
+    extends Expr.bind[Case]
+    with sexpr.Syntax {
   def bound = pat.free
   def free = expr.free -- pat.free
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
@@ -320,6 +396,7 @@ case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] {
     Case(pat rename a, expr subst su)
   def inst(su: Map[Param, Type]) =
     Case(pat inst su, expr inst su)
+  def sexpr = List(pat, expr)
 }
 
 case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
@@ -330,4 +407,7 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
     Match(expr subst su, cases subst su, typ)
   def inst(su: Map[Param, Type]) =
     Match(expr inst su, cases inst su, typ subst su)
-} */
+  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    ??? // need to fix cases, too
+  def sexpr = List("match", expr, cases)
+}

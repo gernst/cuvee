@@ -1,6 +1,6 @@
 package cuvee.lemmas
 
-import cuvee.fail
+import cuvee.error
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.util._
@@ -24,8 +24,9 @@ object Test extends Main {
   def run(file: String) {
     val (cmds, st) = parse(file)
 
-    val fuse = new Fuse(st)
-    val factor = new Factor(st)
+    val lemma = new Lemma(st)
+    val fuse = new Fuse(lemma)
+    val factor = new Factor(lemma)
 
     val eqs0 =
       for (
@@ -91,7 +92,7 @@ object Test extends Main {
     println()
   }
 
-  def show(fun: Fun, cs: Case) {
+  def show(fun: Fun, cs: CS) {
     cs match {
       case Flat(args, guard, body) =>
         print("  case " + args.mkString("(", ", ", ")"))
@@ -115,14 +116,14 @@ object Test extends Main {
     }
   }
 
-  def show_(df: Def[Case]) {
+  def show_(df: Def[CS]) {
     val cmds = df.decl :: df.axioms
     for (line <- cmds.flatMap(_.lines))
       println(line)
     println()
   }
 
-  def show(df: Def[Case]) {
+  def show(df: Def[CS]) {
     val Def(fun, cases) = df
     println(fun)
     for (cs <- cases)
