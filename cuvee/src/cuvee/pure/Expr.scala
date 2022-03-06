@@ -24,6 +24,7 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
   def ==>(that: Expr) = Imp(this, that)
 
   def ===(that: Expr) = Eq(this, that)
+  def !==(that: Expr) = Not(Eq(this, that))
 
   def ::(that: Expr) = App(Fun.cons, List(that, this))
   def ++(that: Expr) = App(Fun.append, List(this, that))
@@ -50,6 +51,15 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
     }
   }
 
+  def uses(fun: Fun): Boolean = this match {
+    case _: Lit | _: Var =>
+      false
+    case App(Inst(`fun`, _), _) =>
+      true
+    case App(_, args) =>
+      args exists (_ uses fun)
+  }
+
   def subtermOf(that: Expr): Boolean = that match {
     case _ if this == that =>
       true
@@ -58,7 +68,7 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
     case _: Lit =>
       false
     case App(inst, args) =>
-      args.exists(this subtermOf _)
+      args exists (this subtermOf _)
   }
 }
 

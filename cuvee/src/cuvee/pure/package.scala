@@ -11,6 +11,9 @@ package object pure {
   object True extends App(Inst(Fun.true_, Map()), Nil)
   object False extends App(Inst(Fun.false_, Map()), Nil)
 
+  def bool(b: Boolean) =
+    if(b) True else False
+
   val Zero = Lit(0, Sort.int)
   val One = Lit(1, Sort.int)
 }

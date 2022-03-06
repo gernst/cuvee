@@ -132,6 +132,10 @@ case class Param(name: String, index: Option[Int] = None)
     }
   }
 
+  def in(types: List[Type]): Boolean = {
+    types exists (this in _)
+  }
+
   def sexpr = name ~~ index
   override def toString = name __ index
 }
