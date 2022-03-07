@@ -54,6 +54,14 @@ case class Rule(
 object Rewrite {
   val MaxDepth = 10
 
+  def rewrite(rule: Rule, rules: Map[Fun, List[Rule]]): Rule = {
+    val Rule(lhs, rhs, cond, avoid) = rule
+    val lhs_ = rewrite(lhs, rules)
+    val rhs_ = rewrite(rhs, rules)
+    val cond_ = rewrite(cond, rules)
+    Rule(lhs_, rhs_, cond_, avoid)
+  }
+
   def rewrite(expr: Expr, rules: Map[Fun, List[Rule]], depth: Int = 0): Expr = {
     expr bottomup {
       case self if depth > MaxDepth =>
@@ -104,7 +112,10 @@ object Rewrite {
         expr
 
       case rule @ Rule(pat @ App(inst, _), rhs, cond, avoid) :: rest =>
-        require(fun == inst.fun, "inconsistent rewrite rule index: " + fun + " has rule " + rule)
+        require(
+          fun == inst.fun,
+          "inconsistent rewrite rule index: " + fun + " has rule " + rule
+        )
         try {
           val (ty, su) = Expr.bind(pat, expr)
 
@@ -141,7 +152,6 @@ object Rewrite {
           case arse.Backtrack(_) =>
             rewrite(expr, fun, rest, rules, depth)
         }
-
 
       case rule :: _ =>
         error("invalid rewrite rule: " + rule)

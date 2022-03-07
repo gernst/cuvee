@@ -50,6 +50,17 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
   def argsToString =
     args.mkString(" * ") + " -> "
 
+
+
+  def in(expr: Expr): Boolean = expr match {
+    case _: Lit | _: Var =>
+      false
+    case App(Inst(fun, _), _) if fun == this =>
+      true
+    case App(_, args) =>
+      args exists (this in _)
+  }
+
   override def toString = (params, args) match {
     case (Nil, Nil) =>
       name + ": " + res

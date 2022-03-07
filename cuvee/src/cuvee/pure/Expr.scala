@@ -51,15 +51,6 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
     }
   }
 
-  def uses(fun: Fun): Boolean = this match {
-    case _: Lit | _: Var =>
-      false
-    case App(Inst(`fun`, _), _) =>
-      true
-    case App(_, args) =>
-      args exists (_ uses fun)
-  }
-
   def subtermOf(that: Expr): Boolean = that match {
     case _ if this == that =>
       true
