@@ -9,6 +9,7 @@
 (declare-fun map ((Array Elem Elem) (List Elem)) (List Elem))
 (declare-fun append ((List Elem) (List Elem)) (List Elem))
 (declare-fun remove (Elem (List Elem)) (List Elem))
+(declare-fun contains (Elem (List Elem)) Bool)
 
 (assert
   (=
@@ -71,3 +72,19 @@
           y)
         (remove x ys)
         (cons y (remove x ys))))))
+(assert
+  (forall
+    ((x Elem))
+    (=
+      (contains x nil)
+      false)))
+(assert
+  (forall
+    ((x Elem) (y Elem) (ys (List Elem)))
+    (=
+      (contains x (cons y ys))
+      (or
+        (=
+          x
+          y)
+        (contains x ys)))))

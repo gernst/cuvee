@@ -82,6 +82,16 @@ object Type extends Alpha[Type, Param] {
 
   def binds(
       types1: List[Type],
+      res1: Type,
+      types2: List[Type],
+      res2: Type,
+      su: Map[Param, Type]
+  ): Map[Param, Type] = {
+    binds(types1, types2, bind(res1, res2, su))
+  }
+
+  def binds(
+      types1: List[Type],
       types2: List[Type],
       su: Map[Param, Type] = Map()
   ): Map[Param, Type] = {

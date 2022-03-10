@@ -64,7 +64,8 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
 }
 
 object Expr extends Alpha[Expr, Var] {
-  val infix = Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>")
+  val infix =
+    Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
 
   def fresh(name: String, typ: Type) =
     Var(name, typ, Some(nextIndex))
@@ -120,7 +121,7 @@ object Expr extends Alpha[Expr, Var] {
       arg: Inst,
       ty: Map[Param, Type]
   ): Map[Param, Type] = {
-    Type.binds(pat.args, arg.args, Type.bind(pat.res, arg.res, ty))
+    Type.binds(pat.args, pat.res, arg.args, arg.res, ty)
   }
 
   def binds(

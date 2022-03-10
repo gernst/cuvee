@@ -18,13 +18,15 @@ case class Rule(
 
   val vars = lhs.free.toList
 
+  def canFlip = lhs.free subsetOf rhs.free
+
   def flip = {
-    require(lhs.free subsetOf rhs.free, "cannot flip rule: " + this)
+    require(canFlip, "cannot flip rule: " + this)
     Rule(rhs, lhs, cond, avoid)
   }
 
   def maybeFlip = {
-    if (lhs.free subsetOf rhs.free)
+    if (canFlip)
       Some(Rule(rhs, lhs, cond, avoid))
     else
       None
@@ -151,6 +153,88 @@ object Rewrite {
         } catch { // Control#or is shadowed by Expr#or
           case arse.Backtrack(_) =>
             rewrite(expr, fun, rest, rules, depth)
+        }
+
+      case rule :: _ =>
+        error("invalid rewrite rule: " + rule)
+    }
+  }
+
+  def rewriteAll(expr: Expr, rules: Map[Fun, List[Rule]]): List[Expr] = {
+    expr match {
+      case self @ App(inst, args) =>
+        for (
+          args_ <- rewritesAll(args, rules);
+          res <- appAll(self, inst.fun, args_, rules)
+        )
+          yield res
+      case _ =>
+        List(expr)
+    }
+  }
+
+  def rewritesAll(
+      exprs: List[Expr],
+      rules: Map[Fun, List[Rule]]
+  ): List[List[Expr]] = exprs match {
+    case Nil =>
+      List(Nil)
+    case expr :: rest =>
+      for (
+        expr_ <- rewriteAll(expr, rules);
+        rest_ <- rewritesAll(rest, rules)
+      )
+        yield expr_ :: rest_
+  }
+
+  def appAll(
+      expr: Expr,
+      fun: Fun,
+      args: List[Expr],
+      rules: Map[Fun, List[Rule]]
+  ): List[Expr] = {
+    if (rules contains fun) {
+      val _exprs = rewriteAll(expr, fun, rules(fun), rules)
+      _exprs
+    } else {
+      List(expr)
+    }
+  }
+
+  def rewriteAll(
+      expr: Expr,
+      fun: Fun,
+      todo: List[Rule],
+      rules: Map[Fun, List[Rule]]
+  ): List[Expr] = {
+    todo match {
+      case Nil =>
+        List(expr)
+
+      case rule @ Rule(pat @ App(inst, _), rhs, cond, avoid) :: rest =>
+        try {
+          val (ty, su) = Expr.bind(pat, expr)
+
+          val _cond = cond // simplify(cond subst env, ctx, st)
+          if (_cond != True)
+            backtrack("side-condition not satisfied " + _cond)
+
+          val dont = avoid exists { case (a, b) =>
+            (a subst su) == (b subst su)
+          }
+
+          if (dont) {
+            println("avoiding cycle for " + expr)
+            rewriteAll(expr, fun, rest, rules)
+          } else {
+            val rhs_ = rhs subst (ty, su)
+            println("rewrite " + expr)
+            println("  ~~> " + rhs_)
+            rewriteAll(rhs_, rules) ++ rewriteAll(expr, fun, rest, rules)
+          }
+        } catch { // Control#or is shadowed by Expr#or
+          case arse.Backtrack(_) =>
+            rewriteAll(expr, fun, rest, rules)
         }
 
       case rule :: _ =>
