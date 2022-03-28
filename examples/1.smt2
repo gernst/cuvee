@@ -9,6 +9,7 @@
   ((par (A) ((nil) (cons (head A) (tail (List A)))))))
 
 (declare-fun length ((List Elem)) Nat)
+(declare-fun map ((Array Elem Elem) (List Elem)) (List Elem))
 (declare-fun take (Nat (List Elem)) (List Elem))
 (declare-fun drop (Nat (List Elem)) (List Elem))
 
@@ -22,6 +23,19 @@
     (=
       (length (cons y ys))
       (succ (length ys)))))
+
+(assert
+  (forall
+    ((f (Array Elem Elem)))
+    (=
+      (map f nil)
+      nil)))
+(assert
+  (forall
+    ((f (Array Elem Elem)) (y Elem) (ys (List Elem)))
+    (=
+      (map f (cons y ys))
+      (cons (select f y) (map f ys)))))
 
 (assert
   (forall

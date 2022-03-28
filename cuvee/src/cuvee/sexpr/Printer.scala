@@ -1,8 +1,14 @@
 package cuvee.sexpr
 
+import cuvee.error
+
 trait Syntax {
   def sexpr: Any
-  def lines = Printer.print(sexpr).lines
+
+  def lines = {
+    val expr = Printer.print(sexpr)
+    expr.lines
+  }
 }
 
 class SyntaxList(xs: List[Syntax]) {

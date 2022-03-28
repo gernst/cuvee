@@ -1,5 +1,6 @@
 package cuvee.pure
 
+import cuvee.smtlib.DeclareFun
 import cuvee.sexpr.Syntax
 
 case class Inst(fun: Fun, ty: Map[Param, Type]) extends Syntax {

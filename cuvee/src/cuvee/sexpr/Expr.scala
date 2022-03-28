@@ -53,7 +53,9 @@ object App {
 }
 
 case class App(args: Expr*) extends Expr {
-  def lines = {
+  def lines = if(args.isEmpty) {
+    List("()")
+  } else {
     val strings =
       args.toList flatMap (_.lines)
 

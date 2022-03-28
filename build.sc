@@ -9,6 +9,7 @@ object arse extends ScalaModule {
 }
 
 object cuvee extends ScalaModule {
+  def forkArgs = Seq("-Xms4m")
   def scalaVersion = "2.13.7"
   def forkArgs = Seq("-Xss32m")
 

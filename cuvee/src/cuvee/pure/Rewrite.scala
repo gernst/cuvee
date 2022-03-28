@@ -18,7 +18,12 @@ case class Rule(
 
   val vars = lhs.free.toList
 
-  def canFlip = lhs.free subsetOf rhs.free
+  def canFlip = rhs match {
+    case _: App =>
+      lhs.free subsetOf rhs.free
+    case _ =>
+      false
+  }
 
   def flip = {
     require(canFlip, "cannot flip rule: " + this)
@@ -228,9 +233,9 @@ object Rewrite {
             rewriteAll(expr, fun, rest, rules)
           } else {
             val rhs_ = rhs subst (ty, su)
-            println("rewrite " + expr)
-            println("  ~~> " + rhs_)
-            rewriteAll(rhs_, rules) ++ rewriteAll(expr, fun, rest, rules)
+            // println("rewrite " + expr)
+            // println("  ~~> " + rhs_)
+            List(rhs_) ++ rewriteAll(rhs_, rules) ++ rewriteAll(expr, fun, rest, rules)
           }
         } catch { // Control#or is shadowed by Expr#or
           case arse.Backtrack(_) =>
