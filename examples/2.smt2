@@ -4,23 +4,23 @@
   ((List 1))
   ((par (A) ((nil) (cons (head A) (tail (List A)))))))
 
-(declare-fun id ((List Elem)) (List Elem))
+; (declare-fun id ((List Elem)) (List Elem))
 (declare-fun length ((List Elem)) Int)
 (declare-fun map ((Array Elem Elem) (List Elem)) (List Elem))
 (declare-fun append ((List Elem) (List Elem)) (List Elem))
 (declare-fun remove (Elem (List Elem)) (List Elem))
 (declare-fun contains (Elem (List Elem)) Bool)
 
-(assert
-  (=
-    (id nil)
-    nil))
-(assert
-  (forall
-    ((y Elem) (ys (List Elem)))
-    (=
-      (id (cons y ys))
-      (cons y (id ys)))))
+; (assert
+;   (=
+;     (id nil)
+;     nil))
+; (assert
+;   (forall
+;     ((y Elem) (ys (List Elem)))
+;     (=
+;       (id (cons y ys))
+;       (cons y (id ys)))))
 (assert
   (=
     (length nil)

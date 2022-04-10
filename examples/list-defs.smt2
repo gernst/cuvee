@@ -4,7 +4,6 @@
   ((List 1))
   ((par (a) ((nil) (cons (head a) (tail (List a)))))))
 
-(declare-fun id ((List Elem)) (List Elem))
 (declare-fun length ((List Elem)) Int)
 (declare-fun map ((Array Elem Elem) (List Elem)) (List Elem))
 (declare-fun all ((Array Elem Bool) (List Elem)) Bool)
@@ -20,16 +19,7 @@
 (declare-fun append ((List Elem) (List Elem)) (List Elem))
 (declare-fun remove (Elem (List Elem)) (List Elem))
 (declare-fun filter ((Array Elem Bool) (List Elem)) (List Elem))
-(assert
-  (=
-    (id nil)
-    nil))
-(assert
-  (forall
-    ((y Elem) (ys (List Elem)))
-    (=
-      (id (cons y ys))
-      (cons y (id ys)))))
+
 (assert
   (=
     (length nil)

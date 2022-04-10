@@ -8,6 +8,14 @@ Further work
 1. find liftings (promotions) automatically
 2. parse full TIP, maybe Haskell?
 
+New
+1. monomorphic identity functions
+2. prepare promotion queries for Grigory
+3. fix lemma recovery, perhaps using E-Graphs?
+4. implement argument promotion
+
+
+
 Argument factoring
 - find out when we can drop guards, because "nil" is not actually looked at and can in fact be arbitrary (a parameter?)
 - more specifically, can we just drop cases when the forward compuation is not looked at any more?
