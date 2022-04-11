@@ -57,6 +57,13 @@ class State(
     var funs: Map[String, Fun],
     var fundefs: Map[String, (List[Var], Expr)]
 ) {
+  def constrs =
+    for (
+      (_, dt) <- datatypes.toSet;
+      (c, _) <- dt.constrs
+    )
+      yield c
+
   def copy(
       cons: Map[String, Con] = cons,
       condefs: Map[String, (List[Param], Type)] = condefs,

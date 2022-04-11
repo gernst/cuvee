@@ -15,6 +15,30 @@ New
 4. implement argument promotion
 
 
+Open issues:
+
+From
+recovery
+  remove'(x₀, x₁, nil) = remove(x₀, x₁)
+lemmas
+  remove'(x₀, x₁, x₂) = append(x₁, x₂) if remove'_pre₂'?(x₀, x₁, true, false)
+
+conclude the special case for remove, which yields append(x1, nil) = x1
+
+
+map_take == take_ map modulo reordering of parameters
+
+We want to generate such monstrosities on-demand, or perhaps leave this as future work
+  take_take_1'(zero, zero, nil, z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = z₂₈
+  take_take_1'(succ(n), zero, nil, z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = z₂₉
+  take_take_1'(zero, zero, cons(y, ys), z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = z₃₀
+  take_take_1'(succ(n), zero, cons(y, ys), z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = z₃₁
+  take_take_1'(zero, succ(n), nil, z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = z₃₂
+  take_take_1'(succ(n₂₄), succ(n), nil, z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = z₃₃
+  take_take_1'(zero, succ(n), cons(y, ys), z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = z₃₄
+  take_take_1'(succ(n₂₅), succ(n), cons(y, ys), z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄) = cons(y, take_take_1'(n₂₅, n, ys, z₂₈, z₂₉, z₃₀, z₃₁, z₃₂, z₃₃, z₃₄))
+  take_take_1(x₀, x₁, x₂) = take_take_1'(x₀, x₁, x₂, nil, nil, nil, nil, nil, nil, nil)
+
 
 Argument factoring
 - find out when we can drop guards, because "nil" is not actually looked at and can in fact be arbitrary (a parameter?)
