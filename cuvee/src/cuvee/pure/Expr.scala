@@ -93,6 +93,14 @@ object Expr extends Alpha[Expr, Var] {
   }
 
   def bind(
+      pat: Inst,
+      arg: Inst,
+      ty: Map[Param, Type]
+  ): Map[Param, Type] = {
+    Type.binds(pat.args, pat.res, arg.args, arg.res, ty)
+  }
+
+  def bind(
       pat: Expr,
       arg: Expr,
       ty: Map[Param, Type] = Map(),
@@ -116,14 +124,6 @@ object Expr extends Alpha[Expr, Var] {
     }
   }
 
-  def bind(
-      pat: Inst,
-      arg: Inst,
-      ty: Map[Param, Type]
-  ): Map[Param, Type] = {
-    Type.binds(pat.args, pat.res, arg.args, arg.res, ty)
-  }
-
   def binds(
       pats: List[Expr],
       args: List[Expr],
@@ -138,6 +138,47 @@ object Expr extends Alpha[Expr, Var] {
         binds(pats, args, ty_, su_)
       case _ =>
         backtrack("cannot bind " + pats + " to " + args)
+    }
+  }
+
+  def alpha(
+      pat: Expr,
+      arg: Expr,
+      ty: Map[Param, Type] = Map(),
+      re: Map[Var, Var] = Map()
+  ): (Map[Param, Type], Map[Var, Var]) = {
+    (pat, arg) match {
+      case (x: Var, _) if re contains x =>
+        if (re(x) != arg)
+          backtrack("cannot alpha rename " + re(x) + " to " + arg)
+        (ty, re)
+      case (x: Var, y: Var) =>
+        (ty, re + (x -> y))
+      case (a: Lit, b: Lit) if a == b =>
+        (ty, re)
+      case (App(inst1, pats), App(inst2, args)) =>
+        val ty_ = bind(inst1, inst2, ty)
+        val su_ = alphas(pats, args, ty_, re)
+        (ty_, su_)
+      case _ =>
+        backtrack("cannot alpha rename " + pat + " to " + arg)
+    }
+  }
+
+  def alphas(
+      pats: List[Expr],
+      args: List[Expr],
+      ty: Map[Param, Type] = Map(),
+      re: Map[Var, Var] = Map()
+  ): Map[Var, Var] = {
+    (pats, args) match {
+      case (Nil, Nil) =>
+        re
+      case (pat :: pats, arg :: args) =>
+        val (ty_, re_) = alpha(pat, arg, ty, re)
+        alphas(pats, args, ty_, re_)
+      case _ =>
+        backtrack("cannot alpha rename " + pats + " to " + args)
     }
   }
 }

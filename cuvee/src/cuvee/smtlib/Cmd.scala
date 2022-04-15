@@ -74,7 +74,7 @@ case class DefineFun(
 
 case class DeclareDatatypes(arities: List[(String, Int)], cmds: List[Datatype])
     extends Cmd {
-  def sexpr = List("declare-datatypes", ???, cmds)
+  def sexpr = List("declare-datatypes", arities, cmds)
 }
 
 sealed trait Res

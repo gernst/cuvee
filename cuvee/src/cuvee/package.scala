@@ -3,7 +3,7 @@ import scala.annotation.tailrec
 package object cuvee {
   def backtrack(message: String) = arse.backtrack(message)
   implicit def toControl[A](first: A) = new arse.Control(first)
-  
+
   def error(msg: => String) = {
     require(false, msg)
     ???
@@ -71,5 +71,31 @@ package object cuvee {
     }
 
     builder.result
+  }
+
+  def selections[A](xss: List[A]): LazyList[(A, List[A])] = xss match {
+    case Nil => LazyList.empty
+    case x :: xs =>
+      (x, xs) #:: (for ((y, ys) <- selections(xs))
+        yield (y, x :: ys))
+  }
+
+  def permute[A](xs: List[A]): LazyList[List[A]] = xs match {
+    case Nil => LazyList(Nil)
+
+    case t :: Nil      => LazyList(xs)
+    case t :: u :: Nil => LazyList(xs, List(u, t))
+
+    case _ =>
+      for ((y, ys) <- selections(xs); ps <- permute(ys))
+        yield y :: ps
+  }
+
+  def keyedPairings[A,B, K](as: List[A], bs: List[B], ka: A => K, kb: B => K, prio: (K, K) => Boolean) = {
+    val ak = as.zipWithIndex groupBy { case (a, i) => ka(a) } // need to keep track of permutation
+    val bk = bs.zipWithIndex groupBy { case (b, i) => kb(b) }
+    val ks = ak.keys ++ bk.keys
+    val qs = ks.toList.distinct sortWith prio
+    qs map { q => (ak(q), bk(q)) }
   }
 }

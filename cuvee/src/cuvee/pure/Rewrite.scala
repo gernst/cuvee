@@ -4,6 +4,7 @@ import cuvee.error
 import cuvee.backtrack
 import cuvee.toControl
 import cuvee.sexpr.Syntax
+import cuvee.smtlib.Assert
 
 case class Rule(
     lhs: Expr,
@@ -51,6 +52,9 @@ case class Rule(
     }
 
   def sexpr = toExpr
+
+  def cmd = Assert(toExpr)
+
   override def toString =
     if (cond == True)
       lhs + " = " + rhs

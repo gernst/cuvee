@@ -10,10 +10,20 @@ sealed trait Type extends Type.term with sexpr.Syntax {}
 
 case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
     extends sexpr.Syntax {
-  def sexpr = if (params.isEmpty)
-    List(???)
-  else
-    List("par", params, ???)
+  def sexpr = {
+    val constrs_ = for ((k, sels) <- constrs) yield {
+      val sels_ = for (sel <- sels) yield {
+        sel.name :: sel.args
+      }
+
+      k.name :: sels_
+    }
+
+    if (params.isEmpty)
+      constrs_
+    else
+      List("par", params, constrs_)
+  }
 }
 
 object Type extends Alpha[Type, Param] {
