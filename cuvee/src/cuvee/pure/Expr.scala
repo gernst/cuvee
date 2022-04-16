@@ -92,12 +92,45 @@ object Expr extends Alpha[Expr, Var] {
     }
   }
 
-  def bind(
-      pat: Inst,
-      arg: Inst,
-      ty: Map[Param, Type]
-  ): Map[Param, Type] = {
-    Type.binds(pat.args, pat.res, arg.args, arg.res, ty)
+  def unify(
+      pat: Expr,
+      arg: Expr,
+      ty: Map[Param, Type] = Map(),
+      su: Map[Var, Expr] = Map()
+  ): (Map[Param, Type], Map[Var, Expr]) = {
+    (pat, arg) match {
+      case (x: Var, _) if su contains x =>
+        if (su(x) != arg)
+          backtrack("cannot bind " + su(x) + " to " + arg)
+        (ty, su)
+      case (x: Var, _) =>
+        (ty, su + (x -> arg))
+      case (a: Lit, b: Lit) if a == b =>
+        (ty, su)
+      case (App(inst1, pats), App(inst2, args)) =>
+        val ty_ = Type.unify(inst1.args, inst1.res, inst2.args, inst2.res, ty)
+        val su_ = unify(pats, args, ty_, su)
+        (ty_, su_)
+      case _ =>
+        backtrack("cannot bind " + pat + " to " + arg)
+    }
+  }
+
+  def unify(
+      pats: List[Expr],
+      args: List[Expr],
+      ty: Map[Param, Type],
+      su: Map[Var, Expr]
+  ): Map[Var, Expr] = {
+    (pats, args) match {
+      case (Nil, Nil) =>
+        su
+      case (pat :: pats, arg :: args) =>
+        val (ty_, su_) = unify(pat, arg, ty, su)
+        unify(pats, args, ty_, su_)
+      case _ =>
+        backtrack("cannot unify " + pats + " with " + args)
+    }
   }
 
   def bind(
@@ -116,69 +149,28 @@ object Expr extends Alpha[Expr, Var] {
       case (a: Lit, b: Lit) if a == b =>
         (ty, su)
       case (App(inst1, pats), App(inst2, args)) =>
-        val ty_ = bind(inst1, inst2, ty)
-        val su_ = binds(pats, args, ty_, su)
+        val ty_ = Type.binds(inst1.args, inst1.res, inst2.args, inst2.res, ty)
+        val su_ = bind(pats, args, ty_, su)
         (ty_, su_)
       case _ =>
         backtrack("cannot bind " + pat + " to " + arg)
     }
   }
 
-  def binds(
+  def bind(
       pats: List[Expr],
       args: List[Expr],
-      ty: Map[Param, Type] = Map(),
-      su: Map[Var, Expr] = Map()
+      ty: Map[Param, Type],
+      su: Map[Var, Expr]
   ): Map[Var, Expr] = {
     (pats, args) match {
       case (Nil, Nil) =>
         su
       case (pat :: pats, arg :: args) =>
         val (ty_, su_) = bind(pat, arg, ty, su)
-        binds(pats, args, ty_, su_)
+        bind(pats, args, ty_, su_)
       case _ =>
         backtrack("cannot bind " + pats + " to " + args)
-    }
-  }
-
-  def alpha(
-      pat: Expr,
-      arg: Expr,
-      ty: Map[Param, Type] = Map(),
-      re: Map[Var, Var] = Map()
-  ): (Map[Param, Type], Map[Var, Var]) = {
-    (pat, arg) match {
-      case (x: Var, _) if re contains x =>
-        if (re(x) != arg)
-          backtrack("cannot alpha rename " + re(x) + " to " + arg)
-        (ty, re)
-      case (x: Var, y: Var) =>
-        (ty, re + (x -> y))
-      case (a: Lit, b: Lit) if a == b =>
-        (ty, re)
-      case (App(inst1, pats), App(inst2, args)) =>
-        val ty_ = bind(inst1, inst2, ty)
-        val su_ = alphas(pats, args, ty_, re)
-        (ty_, su_)
-      case _ =>
-        backtrack("cannot alpha rename " + pat + " to " + arg)
-    }
-  }
-
-  def alphas(
-      pats: List[Expr],
-      args: List[Expr],
-      ty: Map[Param, Type] = Map(),
-      re: Map[Var, Var] = Map()
-  ): Map[Var, Var] = {
-    (pats, args) match {
-      case (Nil, Nil) =>
-        re
-      case (pat :: pats, arg :: args) =>
-        val (ty_, re_) = alpha(pat, arg, ty, re)
-        alphas(pats, args, ty_, re_)
-      case _ =>
-        backtrack("cannot alpha rename " + pats + " to " + args)
     }
   }
 }

@@ -90,6 +90,16 @@ object Type extends Alpha[Type, Param] {
     }
   }
 
+  def unify(
+      types1: List[Type],
+      res1: Type,
+      types2: List[Type],
+      res2: Type,
+      su: Map[Param, Type]
+  ): Map[Param, Type] = {
+    unify(types1, types2, unify(res1, res2, su))
+  }
+
   def binds(
       types1: List[Type],
       res1: Type,
