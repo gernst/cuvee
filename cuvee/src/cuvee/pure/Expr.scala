@@ -107,7 +107,7 @@ object Expr extends Alpha[Expr, Var] {
         (ty, su + (x -> arg))
       case (a: Lit, b: Lit) if a == b =>
         (ty, su)
-      case (App(inst1, pats), App(inst2, args)) =>
+      case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
         val ty_ = Type.unify(inst1.args, inst1.res, inst2.args, inst2.res, ty)
         val su_ = unify(pats, args, ty_, su)
         (ty_, su_)
@@ -148,7 +148,7 @@ object Expr extends Alpha[Expr, Var] {
         (ty, su + (x -> arg))
       case (a: Lit, b: Lit) if a == b =>
         (ty, su)
-      case (App(inst1, pats), App(inst2, args)) =>
+      case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
         val ty_ = Type.binds(inst1.args, inst1.res, inst2.args, inst2.res, ty)
         val su_ = bind(pats, args, ty_, su)
         (ty_, su_)
