@@ -103,6 +103,8 @@ object Sugar {
       expr match {
         case App(inst, args) if inst.fun == fun =>
           flatten(args)
+        case `neutral` =>
+          Nil
         case _ =>
           List(expr)
       }

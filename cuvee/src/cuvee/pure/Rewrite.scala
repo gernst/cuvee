@@ -55,11 +55,16 @@ case class Rule(
 
   def cmd = Assert(toExpr)
 
-  override def toString =
-    if (cond == True)
-      lhs + " = " + rhs
-    else
-      lhs + " = " + rhs + " if " + cond
+  override def toString = {
+    var res = lhs + " = " + rhs
+    var pres = And.flatten(cond)
+    pres ++= avoid map { case (x, e)  => (x !== e) }
+
+    if (pres.nonEmpty)
+      res += " if " + And(pres)
+
+    res
+  }
 }
 
 object Rewrite {
@@ -96,7 +101,7 @@ object Rewrite {
         self
     }
   }
-
+  
   def rewrites(
       exprs: List[Expr],
       rules: Map[Fun, List[Rule]],
@@ -158,11 +163,11 @@ object Rewrite {
             r
           }
           if (dont) {
-            println("avoiding cycle for " + expr)
+            // println("avoiding cycle for " + expr + " via rule " + rule)
             val res = rewrite(expr, fun, rest, rules, depth)
-            println(res)
-            if (k == 3) ???
-            k += 1
+            // println(res)
+            // if (k == 3) ???
+            // k += 1
             res
           } else {
             val rhs_ = rhs subst (ty, su)
@@ -229,16 +234,17 @@ object Rewrite {
       depth: Int
   ): List[Expr] = {
     if (rules contains fun) {
-        // val indent = "  " * depth
-        // println(indent + "applying " + expr0)
-      val exprs2 = for (
-        rule <- rules(fun);
-        expr1 <- rewriteAll(expr0, fun, rule, depth);
-        expr2 <- rewriteAll(expr1, rules, depth + 1)
-      )
-        yield expr2
+      // val indent = "  " * depth
+      // println(indent + "applying " + expr0)
+      val exprs2 =
+        for (
+          rule <- rules(fun);
+          expr1 <- rewriteAll(expr0, fun, rule, depth);
+          expr2 <- rewriteAll(expr1, rules, depth + 1)
+        )
+          yield expr2
       // require(result.nonEmpty, "no rewriting result for: " + expr0)
-      if(exprs2.nonEmpty) exprs2 else List(expr0)
+      if (exprs2.nonEmpty) exprs2 else List(expr0)
     } else {
       List(expr0)
     }
@@ -264,10 +270,11 @@ object Rewrite {
       }
 
       if (dont) {
-        println("avoiding cycle for " + expr)
+        // println("  avoiding cycle for " + expr + " via rule " + rule)
         Nil
       } else {
         val rhs_ = rhs subst (ty, su)
+        // println("  "*depth + rhs + " ~> " + rhs_)
         List(rhs_)
         /* val self = List(rhs_)
             val rec = cuvee.trace("  via " + rule) {
