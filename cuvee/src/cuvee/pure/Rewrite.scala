@@ -68,7 +68,7 @@ case class Rule(
 }
 
 object Rewrite {
-  val MaxDepth = 10
+  val MaxDepth = 20
 
   def rewrite(rule: Rule, rules: Map[Fun, List[Rule]]): Rule = {
     val Rule(lhs, rhs, cond, avoid) = rule
@@ -92,7 +92,9 @@ object Rewrite {
   def rewrite(expr: Expr, rules: Map[Fun, List[Rule]], depth: Int = 0): Expr = {
     expr bottomup {
       case self if depth > MaxDepth =>
-        error("max rewriting depth reached " + self)
+        println("max rewriting depth reached: " + self)
+        self
+        // error("max rewriting depth reached " + self)
 
       case self @ App(inst, args) =>
         app(self, inst.fun, args, rules, depth)
@@ -171,8 +173,8 @@ object Rewrite {
             res
           } else {
             val rhs_ = rhs subst (ty, su)
-            // println("rewrite " + expr)
-            // println("  ~~> " + rhs_)
+            // println("  "*depth + "rewrite " + expr)
+            // println("  "*depth + "  ~~> " + rhs_)
             rewrite(rhs_, rules, depth + 1)
           }
         } catch { // Control#or is shadowed by Expr#or

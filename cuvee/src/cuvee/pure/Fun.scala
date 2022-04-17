@@ -2,6 +2,7 @@ package cuvee.pure
 
 import cuvee.smtlib.DeclareFun
 import cuvee.sexpr.Syntax
+import cuvee.StringOps
 
 case class Inst(fun: Fun, ty: Map[Param, Type]) extends Syntax {
   require(
@@ -41,6 +42,10 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
   def apply(args: Expr*) =
     App(this, args.toList)
 
+  def __(i: Int) = {
+    copy(name = name __ i)
+  }
+
   def generic = {
     Inst(this, Type.fresh(params))
   }
@@ -50,8 +55,6 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
 
   def argsToString =
     args.mkString(" * ") + " -> "
-
-
 
   def in(expr: Expr): Boolean = expr match {
     case _: Lit | _: Var =>
@@ -111,7 +114,5 @@ object Fun {
   val lt = Fun("<", Nil, List(int, int), bool)
   val gt = Fun(">", Nil, List(int, int), bool)
 
-  def main(args: Array[String]) {
-    
-  }
+  def main(args: Array[String]) {}
 }

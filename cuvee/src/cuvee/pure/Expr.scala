@@ -51,6 +51,13 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
     }
   }
 
+  def replace(f: Fun, g: Fun) = bottomup {
+    case App(Inst(`f`, su), args) =>
+      App(Inst(g, su), args)
+    case e =>
+      e
+  }
+
   def subtermOf(that: Expr): Boolean = that match {
     case _ if this == that =>
       true
