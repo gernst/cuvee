@@ -39,12 +39,11 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
     "unbound parameters " + (res.free -- bound)
   )
 
+  def rename(f: String => String)
+    = Fun(f(name), params, args, res)
+
   def apply(args: Expr*) =
     App(this, args.toList)
-
-  def __(i: Int) = {
-    copy(name = name __ i)
-  }
 
   def generic = {
     Inst(this, Type.fresh(params))

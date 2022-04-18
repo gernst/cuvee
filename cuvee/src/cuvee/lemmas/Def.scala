@@ -89,7 +89,7 @@ case class Def[+C <: CS](fun: Fun, cases: List[C]) {
 
   def decl = {
     val Fun(name, Nil, args, res) = fun
-    DeclareFun(name, args, res)
+    DeclareFun(name.toString, args, res)
   }
 
   def axioms = {

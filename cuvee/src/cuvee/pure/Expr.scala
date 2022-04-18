@@ -14,7 +14,8 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
 
   def toStringTyped = toString + ": " + typ
 
-  def unary_-(that: Expr) = App(Fun.uminus, List(this))
+  def unary_-(that: Expr) = UMinus(this)
+  def unary_!(that: Expr) = Not(this)
   def +(that: Expr) = Plus(this, that)
   def -(that: Expr) = Minus(this, that)
   def *(that: Expr) = Times(this, that)

@@ -8,23 +8,18 @@ Further work
 1. find liftings (promotions) automatically
 2. parse full TIP, maybe Haskell?
 
+Done
+- conclude the special case for remove, which yields append(x1, nil) = x1 
+
 New
 1. monomorphic identity functions
 2. prepare promotion queries for Grigory
 3. fix lemma recovery, perhaps using E-Graphs?
 4. implement argument promotion
+5. fix recognizing the identiry function (monomorphic)
+6. known modulo reordering of cases and parameters
 
-
-Open issues:
-
-From
-recovery
-  remove'(x₀, x₁, nil) = remove(x₀, x₁)
-lemmas
-  remove'(x₀, x₁, x₂) = append(x₁, x₂) if remove'_pre₂'?(x₀, x₁, true, false)
-
-conclude the special case for remove, which yields append(x1, nil) = x1
-
+Boolean stuff: remove'_pre₁'? vs contains'
 
 map_take == take_ map modulo reordering of parameters
 
