@@ -20,7 +20,7 @@ object State {
     val a = st.param("a")
     val b = st.param("b")
 
-    def list(elem: Type) = st.sort("List", List(elem))
+    // def list(elem: Type) = st.sort("List", List(elem))
     def array(dom: Type, ran: Type) = st.sort("Array", List(dom, ran))
 
     st.fun("=", List(a), List(a, a), Bool)

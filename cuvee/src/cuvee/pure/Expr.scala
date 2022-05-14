@@ -27,9 +27,9 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
   def ===(that: Expr) = Eq(this, that)
   def !==(that: Expr) = Not(Eq(this, that))
 
-  def ::(that: Expr) = App(Fun.cons, List(that, this))
-  def ++(that: Expr) = App(Fun.append, List(this, that))
-  def append(that: Expr) = App(Fun.append, List(this, that))
+  // def ::(that: Expr) = App(Fun.cons, List(that, this))
+  // def ++(that: Expr) = App(Fun.append, List(this, that))
+  // def append(that: Expr) = App(Fun.append, List(this, that))
 
   def bottomup(g: Expr => Expr): Expr = {
     map(identity, g)

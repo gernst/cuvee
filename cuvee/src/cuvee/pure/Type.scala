@@ -178,7 +178,7 @@ object Con {
   val bool = Con("Bool", 0)
   val int = Con("Int", 0)
   val real = Con("Real", 0)
-  val list = Con("List", 1)
+  // val list = Con("List", 1)
   val array = Con("Array", 2)
 }
 
@@ -235,7 +235,7 @@ object Sort {
   val int = Sort(Con.int, Nil)
   val real = Sort(Con.real, Nil)
 
-  def list(a: Type) = Sort(Con.list, List(a))
+  // def list(a: Type) = Sort(Con.list, List(a))
   def array(a: Type, b: Type) = Sort(Con.array, List(a, b))
 
   def prod(as: List[Type]) =

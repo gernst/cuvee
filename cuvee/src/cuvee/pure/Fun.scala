@@ -83,7 +83,7 @@ object Fun {
   val a = Param("a")
   val b = Param("b")
 
-  val list_a = Sort.list(a)
+  // val list_a = Sort.list(a)
   val array_a_b = Sort.array(a, b)
 
   val eq_ = Fun("=", List(a), List(a, a), bool)
@@ -92,9 +92,9 @@ object Fun {
   val select = Fun("select", List(a, b), List(array_a_b, a), b)
   val store = Fun("store", List(a, b), List(array_a_b, a, b), array_a_b)
 
-  val nil = Fun("nil", List(a), Nil, list_a)
-  val cons = Fun("cons", List(a), List(a, list_a), list_a)
-  val append = Fun("append", List(a), List(list_a, list_a), list_a)
+  // val nil = Fun("nil", List(a), Nil, list_a)
+  // val cons = Fun("cons", List(a), List(a, list_a), list_a)
+  // val append = Fun("append", List(a), List(list_a, list_a), list_a)
 
   val true_ = Fun("true", Nil, Nil, bool)
   val false_ = Fun("false", Nil, Nil, bool)
