@@ -2,6 +2,7 @@ package cuvee
 
 import java.io.FileReader
 import java.util.regex.Pattern
+import java.io.Reader
 
 package object sexpr {
   implicit def toSyntaxList(xs: List[Syntax]) = new SyntaxList(xs: List[Syntax])
@@ -10,10 +11,12 @@ package object sexpr {
   val False = Id("false")
 
   def parse(file: String): List[Expr] = {
-    val reader = new FileReader(file)
+    parse(new FileReader(file))
+  }
+
+  def parse(reader: Reader): List[Expr] = {
     val scanner = new sexpr.Scanner(reader)
     val parser = new sexpr.Parser(scanner)
-
     parser.sexprs()
   }
 

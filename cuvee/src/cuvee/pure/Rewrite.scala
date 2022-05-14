@@ -14,7 +14,7 @@ case class Rule(
 ) extends Syntax {
   require(
     lhs.typ == rhs.typ && cond.typ == Sort.bool,
-    "rule not type correct"
+    "rule not type correct: " + lhs.typ + ", " + rhs.typ
   )
 
   val vars = lhs.free.toList

@@ -50,7 +50,8 @@ class Parser(init: State) {
         Pop(digits.toInt)
 
       case App(Id("assert"), phi) =>
-        Assert(expr(phi))
+        val phi_ = expr_typed(phi, bool)
+        Assert(phi_)
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
@@ -83,7 +84,7 @@ class Parser(init: State) {
         val res_ = typ(res)
         st.fun(name, Nil, formals_.types, res_)
 
-        val body_ = expr(body, ctx0, formals_.pairs)
+        val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
         st.fundef(name, formals_, body_)
 
         DefineFun(name, formals_, res_, body_, cmd == "define-fun-rec")
@@ -242,6 +243,18 @@ class Parser(init: State) {
   ) = {
     val inner = exprs(st)
     val pre = inner.expr(from, ctx.toSet, scope.toMap)
+    pre.resolve
+  }
+
+  def expr_typed(
+      from: Expr,
+      expect: Type,
+      ctx: Iterable[String] = Set(),
+      scope: Iterable[(String, Type)] = Map()
+  ) = {
+    val inner = exprs(st)
+    val pre = inner.expr(from, ctx.toSet, scope.toMap)
+    inner.check(pre, expect)
     pre.resolve
   }
 

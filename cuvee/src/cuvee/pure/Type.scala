@@ -13,7 +13,7 @@ case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
   def sexpr = {
     val constrs_ = for ((k, sels) <- constrs) yield {
       val sels_ = for (sel <- sels) yield {
-        sel.name :: sel.args
+        List(sel.name, sel.res)
       }
 
       k.name :: sels_
