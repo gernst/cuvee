@@ -1,24 +1,24 @@
 (declare-sort Elem 0)
 
 (declare-datatypes
-  ((List 1))
-  ((par (a) ((nil) (cons (head a) (tail (List a)))))))
+  ((Lst 1))
+  ((par (a) ((nil) (cons (head a) (tail (Lst a)))))))
 
-(declare-fun length ((List Elem)) Int)
-(declare-fun map ((Array Elem Elem) (List Elem)) (List Elem))
-(declare-fun all ((Array Elem Bool) (List Elem)) Bool)
-(declare-fun ex ((Array Elem Bool) (List Elem)) Bool)
-(declare-fun contains (Elem (List Elem)) Bool)
-(declare-fun count (Elem (List Elem)) Int)
-(declare-fun snoc ((List Elem) Elem) (List Elem))
-(declare-fun rotate (Int (List Elem)) (List Elem))
-(declare-fun take (Int (List Elem)) (List Elem))
-(declare-fun drop (Int (List Elem)) (List Elem))
-(declare-fun reverse ((List Elem)) (List Elem))
-(declare-fun reverse-accumulator ((List Elem) (List Elem)) (List Elem))
-(declare-fun append ((List Elem) (List Elem)) (List Elem))
-(declare-fun remove (Elem (List Elem)) (List Elem))
-(declare-fun filter ((Array Elem Bool) (List Elem)) (List Elem))
+(declare-fun length ((Lst Elem)) Int)
+(declare-fun map ((Array Elem Elem) (Lst Elem)) (Lst Elem))
+(declare-fun all ((Array Elem Bool) (Lst Elem)) Bool)
+(declare-fun ex ((Array Elem Bool) (Lst Elem)) Bool)
+(declare-fun contains (Elem (Lst Elem)) Bool)
+(declare-fun count (Elem (Lst Elem)) Int)
+(declare-fun snoc ((Lst Elem) Elem) (Lst Elem))
+(declare-fun rotate (Int (Lst Elem)) (Lst Elem))
+(declare-fun take (Int (Lst Elem)) (Lst Elem))
+(declare-fun drop (Int (Lst Elem)) (Lst Elem))
+(declare-fun reverse ((Lst Elem)) (Lst Elem))
+(declare-fun reverse-accumulator ((Lst Elem) (Lst Elem)) (Lst Elem))
+(declare-fun append ((Lst Elem) (Lst Elem)) (Lst Elem))
+(declare-fun remove (Elem (Lst Elem)) (Lst Elem))
+(declare-fun filter ((Array Elem Bool) (Lst Elem)) (Lst Elem))
 
 (assert
   (=
@@ -26,7 +26,7 @@
     0))
 (assert
   (forall
-    ((y Elem) (ys (List Elem)))
+    ((y Elem) (ys (Lst Elem)))
     (=
       (length (cons y ys))
       (+ 1 (length ys)))))
@@ -38,7 +38,7 @@
       nil)))
 (assert
   (forall
-    ((f (Array Elem Elem)) (y Elem) (ys (List Elem)))
+    ((f (Array Elem Elem)) (y Elem) (ys (Lst Elem)))
     (=
       (map f (cons y ys))
       (cons (select f y) (map f ys)))))
@@ -50,7 +50,7 @@
       true)))
 (assert
   (forall
-    ((f (Array Elem Bool)) (y Elem) (ys (List Elem)))
+    ((f (Array Elem Bool)) (y Elem) (ys (Lst Elem)))
     (=
       (all f (cons y ys))
       (and
@@ -64,7 +64,7 @@
       false)))
 (assert
   (forall
-    ((f (Array Elem Bool)) (y Elem) (ys (List Elem)))
+    ((f (Array Elem Bool)) (y Elem) (ys (Lst Elem)))
     (=
       (ex f (cons y ys))
       (or
@@ -78,7 +78,7 @@
       false)))
 (assert
   (forall
-    ((x Elem) (y Elem) (ys (List Elem)))
+    ((x Elem) (y Elem) (ys (Lst Elem)))
     (=
       (contains x (cons y ys))
       (or
@@ -94,7 +94,7 @@
       0)))
 (assert
   (forall
-    ((x Elem) (y Elem) (ys (List Elem)))
+    ((x Elem) (y Elem) (ys (Lst Elem)))
     (=
       (count x (cons y ys))
       (ite
@@ -111,7 +111,7 @@
       (cons z nil))))
 (assert
   (forall
-    ((z Elem) (y Elem) (ys (List Elem)))
+    ((z Elem) (y Elem) (ys (Lst Elem)))
     (=
       (snoc (cons y ys) z)
       (cons y (snoc ys z)))))
@@ -123,7 +123,7 @@
       nil)))
 (assert
   (forall
-    ((n Int) (y Elem) (ys (List Elem)))
+    ((n Int) (y Elem) (ys (Lst Elem)))
     (=
       (rotate n (cons y ys))
       (ite
@@ -138,7 +138,7 @@
       nil)))
 (assert
   (forall
-    ((n Int) (y Elem) (ys (List Elem)))
+    ((n Int) (y Elem) (ys (Lst Elem)))
     (=
       (take n (cons y ys))
       (ite
@@ -153,7 +153,7 @@
       nil)))
 (assert
   (forall
-    ((n Int) (y Elem) (ys (List Elem)))
+    ((n Int) (y Elem) (ys (Lst Elem)))
     (=
       (drop n (cons y ys))
       (ite
@@ -166,31 +166,31 @@
     nil))
 (assert
   (forall
-    ((y Elem) (ys (List Elem)))
+    ((y Elem) (ys (Lst Elem)))
     (=
       (reverse (cons y ys))
       (append (reverse ys) (cons y nil)))))
 (assert
   (forall
-    ((zs (List Elem)))
+    ((zs (Lst Elem)))
     (=
       (reverse-accumulator nil zs)
       zs)))
 (assert
   (forall
-    ((zs (List Elem)) (y Elem) (ys (List Elem)))
+    ((zs (Lst Elem)) (y Elem) (ys (Lst Elem)))
     (=
       (reverse-accumulator (cons y ys) zs)
       (reverse-accumulator ys (cons y zs)))))
 (assert
   (forall
-    ((zs (List Elem)))
+    ((zs (Lst Elem)))
     (=
       (append nil zs)
       zs)))
 (assert
   (forall
-    ((zs (List Elem)) (y Elem) (ys (List Elem)))
+    ((zs (Lst Elem)) (y Elem) (ys (Lst Elem)))
     (=
       (append (cons y ys) zs)
       (cons y (append ys zs)))))
@@ -202,7 +202,7 @@
       nil)))
 (assert
   (forall
-    ((x Elem) (y Elem) (ys (List Elem)))
+    ((x Elem) (y Elem) (ys (Lst Elem)))
     (=
       (remove x (cons y ys))
       (ite
@@ -219,7 +219,7 @@
       nil)))
 (assert
   (forall
-    ((f (Array Elem Bool)) (y Elem) (ys (List Elem)))
+    ((f (Array Elem Bool)) (y Elem) (ys (Lst Elem)))
     (=
       (filter f (cons y ys))
       (ite

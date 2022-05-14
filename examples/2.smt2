@@ -1,15 +1,15 @@
 (declare-sort Elem 0)
 
 (declare-datatypes
-  ((List 1))
-  ((par (A) ((nil) (cons (head A) (tail (List A)))))))
+  ((Lst 1))
+  ((par (A) ((nil) (cons (head A) (tail (Lst A)))))))
 
-; (declare-fun id ((List Elem)) (List Elem))
-(declare-fun length ((List Elem)) Int)
-(declare-fun map ((Array Elem Elem) (List Elem)) (List Elem))
-(declare-fun append ((List Elem) (List Elem)) (List Elem))
-(declare-fun remove (Elem (List Elem)) (List Elem))
-(declare-fun contains (Elem (List Elem)) Bool)
+; (declare-fun id ((Lst Elem)) (Lst Elem))
+(declare-fun length ((Lst Elem)) Int)
+(declare-fun map ((Array Elem Elem) (Lst Elem)) (Lst Elem))
+(declare-fun append ((Lst Elem) (Lst Elem)) (Lst Elem))
+(declare-fun remove (Elem (Lst Elem)) (Lst Elem))
+(declare-fun contains (Elem (Lst Elem)) Bool)
 
 ; (assert
 ;   (=
@@ -17,7 +17,7 @@
 ;     nil))
 ; (assert
 ;   (forall
-;     ((y Elem) (ys (List Elem)))
+;     ((y Elem) (ys (Lst Elem)))
 ;     (=
 ;       (id (cons y ys))
 ;       (cons y (id ys)))))
@@ -27,7 +27,7 @@
     0))
 (assert
   (forall
-    ((y Elem) (ys (List Elem)))
+    ((y Elem) (ys (Lst Elem)))
     (=
       (length (cons y ys))
       (+ 1 (length ys)))))
@@ -39,19 +39,19 @@
       nil)))
 (assert
   (forall
-    ((f (Array Elem Elem)) (y Elem) (ys (List Elem)))
+    ((f (Array Elem Elem)) (y Elem) (ys (Lst Elem)))
     (=
       (map f (cons y ys))
       (cons (select f y) (map f ys)))))
 (assert
   (forall
-    ((zs (List Elem)))
+    ((zs (Lst Elem)))
     (=
       (append nil zs)
       zs)))
 (assert
   (forall
-    ((zs (List Elem)) (y Elem) (ys (List Elem)))
+    ((zs (Lst Elem)) (y Elem) (ys (Lst Elem)))
     (=
       (append (cons y ys) zs)
       (cons y (append ys zs)))))
@@ -63,7 +63,7 @@
       nil)))
 (assert
   (forall
-    ((x Elem) (y Elem) (ys (List Elem)))
+    ((x Elem) (y Elem) (ys (Lst Elem)))
     (=
       (remove x (cons y ys))
       (ite
@@ -80,7 +80,7 @@
       false)))
 (assert
   (forall
-    ((x Elem) (y Elem) (ys (List Elem)))
+    ((x Elem) (y Elem) (ys (Lst Elem)))
     (=
       (contains x (cons y ys))
       (or

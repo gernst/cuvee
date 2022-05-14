@@ -5,12 +5,12 @@
   (((zero) (succ (pred Nat)))))
 
 (declare-datatypes
-  ((List 1))
-  ((par (A) ((nil) (cons (head A) (tail (List A)))))))
+  ((Lst 1))
+  ((par (A) ((nil) (cons A (tail (Lst A)))))))
 
-(declare-fun map_take ((Array Elem Elem) Int (List Elem)) (List Elem))
-(declare-fun take_map (Int (Array Elem Elem) (List Elem)) (List Elem))
-(declare-fun drop_drop (Int Int (List Elem)) (List Elem))
+(declare-fun map_take ((Array Elem Elem) Int (Lst Elem)) (Lst Elem))
+(declare-fun take_map (Int (Array Elem Elem) (Lst Elem)) (Lst Elem))
+(declare-fun drop_drop (Int Int (Lst Elem)) (Lst Elem))
 
 (assert
   (forall
@@ -20,7 +20,7 @@
       nil)))
 (assert
   (forall
-    ((n Int) (|f'| (Array Elem Elem)) (head57 Elem) (tail58 (List Elem)))
+    ((n Int) (|f'| (Array Elem Elem)) (head57 Elem) (tail58 (Lst Elem)))
     (=
       (take_map n |f'| (cons head57 tail58))
       (ite
@@ -36,7 +36,7 @@
       nil)))
 (assert
   (forall
-    ((f (Array Elem Elem)) (|n'| Int) (head223 Elem) (tail224 (List Elem)))
+    ((f (Array Elem Elem)) (|n'| Int) (head223 Elem) (tail224 (Lst Elem)))
     (=
       (map_take f |n'| (cons head223 tail224))
       (ite

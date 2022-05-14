@@ -1,20 +1,20 @@
 (declare-sort Elem 0)
 
 (declare-datatypes
-  ((List 1))
-  ((par (a) ((nil) (cons (head a) (tail (List a)))))))
+  ((Lst 1))
+  ((par (A) ((nil) (cons A (tail (Lst A)))))))
 
-(declare-fun append ((List Elem) (List Elem)) (List Elem))
+(declare-fun append ((Lst Elem) (Lst Elem)) (Lst Elem))
 
 (assert
   (forall
-    ((zs (List Elem)))
+    ((zs (Lst Elem)))
     (=
       (append nil zs)
       zs)))
 (assert
   (forall
-    ((zs (List Elem)) (y Elem) (ys (List Elem)))
+    ((zs (Lst Elem)) (y Elem) (ys (Lst Elem)))
     (=
       (append (cons y ys) zs)
       (cons y (append ys zs)))))

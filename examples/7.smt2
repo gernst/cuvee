@@ -1,11 +1,11 @@
 (declare-sort Elem 0)
 
 (declare-datatypes
-  ((List 1))
-  ((par (a) ((nil) (cons (head a) (tail (List a)))))))
+  ((Lst 1))
+  ((par (A) ((nil) (cons A (tail (Lst A)))))))
 
-(declare-fun length ((List Elem)) Int)
-(declare-fun reverse-accumulator ((List Elem) (List Elem)) (List Elem))
+(declare-fun length ((Lst Elem)) Int)
+(declare-fun reverse-accumulator ((Lst Elem) (Lst Elem)) (Lst Elem))
 
 (assert
   (=
@@ -13,20 +13,20 @@
     0))
 (assert
   (forall
-    ((y Elem) (ys (List Elem)))
+    ((y Elem) (ys (Lst Elem)))
     (=
       (length (cons y ys))
       (+ 1 (length ys)))))
 
 (assert
   (forall
-    ((zs (List Elem)))
+    ((zs (Lst Elem)))
     (=
       (reverse-accumulator nil zs)
       zs)))
 (assert
   (forall
-    ((zs (List Elem)) (y Elem) (ys (List Elem)))
+    ((zs (Lst Elem)) (y Elem) (ys (Lst Elem)))
     (=
       (reverse-accumulator (cons y ys) zs)
       (reverse-accumulator ys (cons y zs)))))
