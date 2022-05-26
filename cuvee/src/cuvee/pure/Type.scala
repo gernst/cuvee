@@ -36,6 +36,7 @@ object Type extends Alpha[Type, Param] {
       case (_, p2: Param) if su contains p2 =>
         unify(typ1, su(p2), su)
       case (p1: Param, _) if p1 in typ2 =>
+        ???
         backtrack("recursive unification, " + p1 + " in " + typ2)
       case (p1: Param, _) =>
         su + (p1 -> typ2)
@@ -74,8 +75,9 @@ object Type extends Alpha[Type, Param] {
   ): Map[Param, Type] = {
     (typ1, typ2) match {
       case (p1: Param, _) if su contains p1 =>
-        if (su(p1) != typ2)
+        if (su(p1) != typ2) {
           backtrack("cannot bind " + su(p1) + " to " + typ2)
+        }
         su
       case (p1: Param, _) =>
         su + (p1 -> typ2)

@@ -37,12 +37,12 @@ object Parser {
   }
 
   object typing extends Scope[Param, Type] {
-    def unify(typ1: Type, typ2: Type) {
+    def unify(typ1: Type, typ2: Type) = {
       value = Type.unify(typ1, typ2, value)
     }
 
-    def unify(types1: List[Type], types2: List[Type]) {
-      value = Type.unify(types1, types2, value)
+    def unify(types1: List[Type], types2: List[Type]) = {
+      value = Type.unify(types1, types2, value) 
     }
 
     def app(name: String, args: List[Expr]) = {
@@ -98,17 +98,28 @@ object Parser {
   val sort = P(make_sort(name ~ inst))
   val array = P(Sort.array(brackets(typ) ~ typ))
 
-  def translate: (String => String) = {
-    case "<==>" => "="
-    case "==>"  => "=>"
-    case "&&"   => "and"
-    case "||"   => "or"
-    case "=="   => "="
-    case "!="   => "distinct"
-    case "/"    => "div"
-    case "%"    => "mod"
-    case "!"    => "not"
-    case op     => op
+  val translate = Map(
+    "<==>" -> "=",
+    "==>" -> "=>",
+    "&&" -> "and",
+    "||" -> "or",
+    "==" -> "=",
+    "!=" -> "distinct",
+    "/" -> "div",
+    "%" -> "mod",
+    "!" -> "not"
+  )
+
+  def make_op: ((String, List[Expr]) => Expr) = {
+    case (name, args) if translate contains name =>
+      val name_ = translate(name)
+      typing.app(name_, args)
+
+    case (name, args) =>
+      println(name + " " + args)
+      val r = typing.app(name, args)
+      println("r " + r)
+      r
   }
 
   def make_app: ((String, List[Expr]) => Expr) = {
@@ -123,18 +134,17 @@ object Parser {
       typing.bind(name, bound, body, Sort.bool)
   }
 
-  val op = P(translate(opname))
+  val op = P(opname)
   val args = P(parens(expr ~* ",") | ret(Nil))
   val app = P(make_app(name ~ args))
 
-  val expr: Parser[Expr, Token] = M(inner, op, make_app, Syntax)
+  val expr: Parser[Expr, Token] = M(inner, op, make_op, Syntax)
   val inner: Parser[Expr, Token] = P(
-    parens(expr) | num | ite | bind | map
+    parens(expr) | num | ite | bind | map | app
   )
 
-  def make_int: (String => Expr) = {
-    case text =>
-      Lit(BigInt(text), Sort.int)
+  def make_int: (String => Expr) = { case text =>
+    Lit(BigInt(text), Sort.int)
   }
 
   val num = P(make_int(number))
@@ -155,7 +165,7 @@ object Parser {
 
   val formal = P(scope.declare(name ~ ":" ~ typ))
   val formals = P(formal ~* ",")
-  val bind = P(make_bind(scope within (quant ~ formals ~ "." ~ expr)))
+  val bind = P(make_bind(scope within (quant ~ formals ~ "::" ~ expr)))
 
   val assert: (Expr => Cmd) = { case expr =>
     val expr_ = typing.checked(expr, Sort.bool)
@@ -176,12 +186,15 @@ object Parser {
   }
 
   val define_fun: ((String, List[Var], Type, Option[Expr]) => Cmd) = {
-    case (id, args, typ, None) =>
-      DeclareFun(id, args.types, typ)
+    case (name, args, typ, None) =>
+      state.fun(name, Nil, args.types, typ)
+      DeclareFun(name, args.types, typ)
 
-    case (id, args, typ, Some(body)) =>
+    case (name, args, typ, Some(body)) =>
       val body_ = typing.checked(body, typ)
-      DefineFun(id, args, typ, body_, true)
+      state.fun(name, Nil, args.types, typ)
+      state.fundef(name, args, body_)
+      DefineFun(name, args, typ, body_, true)
   }
 
   val axiom_ = typing within assert("axiom" ~ expr ~ ";")
