@@ -170,6 +170,11 @@ case class Param(name: String, index: Option[Int] = None)
   override def toString = name __ index
 }
 
+object Param {
+  val from: (String => Param) =
+    name => Param(name)
+}
+
 case class Con(name: String, arity: Int) {
   override def toString = name + "/" + arity
 }
@@ -230,13 +235,14 @@ case class Sum(args: List[Type]) extends Type {
     args.mkString("(", " + ", ")")
 }
 
-object Sort {
+object Sort extends ((Con, List[Type]) => Sort) {
   val bool = Sort(Con.bool, Nil)
   val int = Sort(Con.int, Nil)
   val real = Sort(Con.real, Nil)
 
   // def list(a: Type) = Sort(Con.list, List(a))
-  def array(a: Type, b: Type) = Sort(Con.array, List(a, b))
+  val array: ((Type, Type) => Type) =
+    (a: Type, b: Type) => Sort(Con.array, List(a, b))
 
   def prod(as: List[Type]) =
     as match {

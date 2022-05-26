@@ -8,7 +8,7 @@ package cuvee.sexpr;
 %type arse.Token
 
 %eofval{
-    return Expr.eof();
+    return Tok.eof();
 %eofval}
 
 %line
@@ -49,8 +49,8 @@ kw      = ":" {symbol}
 {ws}+ {}
 ";" .* {nl} {}
 
-"("         { return Expr.lp();   }
-")"         { return Expr.rp();   }
+"("         { return Tok.lp();   }
+")"         { return Tok.rp();   }
 
 \" ~ \"
             { return new Lit.str(yytext(+1,-1)); }
