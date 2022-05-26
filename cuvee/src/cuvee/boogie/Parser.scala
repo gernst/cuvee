@@ -42,7 +42,7 @@ object Parser {
     }
 
     def unify(types1: List[Type], types2: List[Type]) = {
-      value = Type.unify(types1, types2, value) 
+      value = Type.unify(types1, types2, value)
     }
 
     def app(name: String, args: List[Expr]) = {
@@ -115,11 +115,12 @@ object Parser {
       val name_ = translate(name)
       typing.app(name_, args)
 
+    case (name @ "-", List(arg)) =>
+      val args = List(Zero, arg)
+      typing.app(name, args)
+
     case (name, args) =>
-      println(name + " " + args)
-      val r = typing.app(name, args)
-      println("r " + r)
-      r
+      typing.app(name, args)
   }
 
   def make_app: ((String, List[Expr]) => Expr) = {
