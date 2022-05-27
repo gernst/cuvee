@@ -1,13 +1,15 @@
 package cuvee.smtlib
 
 import cuvee.util.Main
-import cuvee.pure.State
+import cuvee.pure._
 import cuvee.sexpr
 import java.io.FileReader
 import cuvee.util.Run
+import java.io.StringReader
+import cuvee.backend.Sink
 
 object Test extends Main {
-  def main(args: Array[String]): Unit = {
+  def foo(args: Array[String]) {
     for (file <- args) {
       val st = State.default
       val a = sexpr.parse(file)
@@ -15,6 +17,22 @@ object Test extends Main {
       val c = q.cmds(a)
       for (x <- c)
         println(x)
+    }
+  }
+
+  def main(args: Array[String]): Unit = {
+    val st = State.default
+    val solver = z3(st)
+
+    val cmds = List(
+      SetOption(List(":produce-models", "true")),
+      DeclareFun("x", List(), Sort.int),
+      CheckSat
+    )
+
+    for (cmd <- cmds) {
+      val res = solver.exec(cmd)
+      println(res)
     }
   }
 }

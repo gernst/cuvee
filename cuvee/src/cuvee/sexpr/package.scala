@@ -20,8 +20,14 @@ package object sexpr {
     parser.sexprs()
   }
 
+  def iterator(reader: Reader): Iterator[Expr] = {
+    val scanner = new sexpr.Scanner(reader)
+    val parser = new sexpr.Parser(scanner)
+    parser.iterator
+  }
+
   val simplePattern =
-    "[a-zA-Z_~!@$%^&*+=<>.?/\\-][0-9a-zA-Z_~!@$%^&*+=<>.?/\\-]*"
+    "[:]?[a-zA-Z_~!@$%^&*+=<>.?/\\-][0-9a-zA-Z_~!@$%^&*+=<>.?/\\-]*"
 
   def ok = Pattern.compile(simplePattern)
 

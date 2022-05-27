@@ -21,6 +21,22 @@ class Parser(init: State) {
 
   val ctx0: Set[String] = Set()
 
+  def ack(from: Expr): Ack =
+    from match {
+      case Id("success") => Success
+      case _ =>
+        error("invalid ack: " + from)
+    }
+
+  def issat(from: Expr): IsSat =
+    from match {
+      case Id("sat")     => Sat
+      case Id("unsat")   => Unsat
+      case Id("unknown") => Unknown
+      case _ =>
+        error("invalid status: " + from)
+    }
+
   def cmd(from: Expr): Cmd =
     from match {
       case App(Id("set-logic"), Lit.str(logic)) =>
@@ -39,7 +55,7 @@ class Parser(init: State) {
       case App(Id("exit"))           => Exit
       case App(Id("reset"))          => Reset
       case App(Id("get-assertions")) => GetAssertions
-      case App(Id("check-sat"))      => CheckSat(st)
+      case App(Id("check-sat"))      => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
         stack = stack.tail

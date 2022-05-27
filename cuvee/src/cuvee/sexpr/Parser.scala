@@ -29,15 +29,20 @@ class Parser(scanner: Scanner) {
   var _tok: Token = null
   var _peek: Token = null
 
+  def shift() = {
+    val r = scanner.next
+    r
+  }
+
   def peek() = {
     if (_peek == null) // consume next token only when needed
-      _peek = scanner.next
+      _peek = shift()
     _peek
   }
 
   def next() = {
     if (_peek == null) {
-      _tok = scanner.next
+      _tok = shift()
     } else {
       _tok = _peek
       _peek = null
@@ -79,6 +84,17 @@ class Parser(scanner: Scanner) {
 
   def eof() {
     check(Tok.eof)
+  }
+
+  // only one instance per parser
+  object iterator extends Iterator[Expr] {
+    def hasNext = {
+      peek == Tok.eof
+    }
+
+    def next() = {
+      sexpr()
+    }
   }
 }
 
