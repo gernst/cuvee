@@ -8,7 +8,8 @@ object _test extends Run(Test, "test.bpl")
 object Test extends Main {
   def main(args: Array[String]): Unit = {
     for (arg <- args) {
-      val cmds = parse(arg)
+      val (cmds, st) = parse(arg)
+
       for (cmd <- cmds)
         println(cmd)
     }

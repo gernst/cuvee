@@ -7,10 +7,6 @@ package cuvee.boogie;
 %function next
 %type arse.Token
 
-%eofval{
-    return Parser.eof();
-%eofval}
-
 %line
 %column
 

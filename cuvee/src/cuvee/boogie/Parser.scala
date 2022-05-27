@@ -23,7 +23,11 @@ object Parser {
   def none[A](p: Parser[A, Token]) = p map { a => None }
   def some[A](p: Parser[A, Token]) = p map { a => Some(a) }
 
-  object stack extends DynamicVariable(State.default) {}
+  object stack extends DynamicVariable(State.default) {
+    def within[A](p: Parser[A, Token]) =
+      S(p, this)
+  }
+
   def state = stack.value
 
   object context extends Scope[String, Param] {}
@@ -234,6 +238,13 @@ object Parser {
 
   val cmd = P(sortdef | fundef | axiom)
   val cmds = P(cmd.*)
+
+  val make_script: (List[Cmd] => (List[Cmd], State)) = { case cmds =>
+    (cmds, state)
+  }
+
+  val script_ = P(make_script(cmds))
+  val script = P(stack within script_)
 }
 
 object Syntax extends Syntax[String, Token] {
