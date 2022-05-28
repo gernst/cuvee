@@ -1,3 +1,14 @@
+May 27
+
+- integrate promotion for length, contains
+- map is still pending
+- check reverse snoc
+- recognize identity function and apply lemma
+- recognizing negated functions
+- fix fusion
+- is the order of functions relevant?
+- write up stuff
+
 Achieve first results:
 1. get fusion right
 2. get function matching right

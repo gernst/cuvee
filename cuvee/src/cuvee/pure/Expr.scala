@@ -253,7 +253,11 @@ object Ite extends Sugar.ternary(Fun.ite)
 object Select extends Sugar.binary(Fun.select)
 object Store extends Sugar.ternary(Fun.store)
 
-object Not extends Sugar.unary(Fun.not)
+object Not extends Sugar.unary(Fun.not) {
+  def apply(args: List[Expr]) =
+    args map this
+}
+
 object Imp extends Sugar.associative(Fun.imp, Assoc.right)
 object And extends Sugar.commutative(Fun.and, True, Assoc.left)
 object Or extends Sugar.commutative(Fun.or, False, Assoc.left)
@@ -416,6 +420,12 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     Bind(quant, formals inst su, body inst su, typ subst su)
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     ??? // uh oh mess with bound variables
+
+  def refresh(avoid: Iterable[Var]) = {
+    val xs = avoid filter bound
+    val re = Expr.fresh(xs)
+    rename(re)
+  }
 
   def sexpr =
     List(quant.name, formals.asFormals, body)

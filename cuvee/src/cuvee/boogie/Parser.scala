@@ -205,6 +205,9 @@ object Parser {
   val axiom_ = typing within assert("axiom" ~ expr ~ ";")
   val axiom = P(axiom_)
 
+  val lemma_ = typing within assert("axiom" ~ Not(expr) ~ ";")
+  val lemma = P(axiom_)
+
   val funsig =
     ("function" ~ name ~ parens(formals)) | ("const" ~ name ~ ret[List[
       Var

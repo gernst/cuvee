@@ -25,7 +25,7 @@ object Assoc {
 object Sugar {
   class binder(val quant: Quant, val typ: Type)
       extends ((List[Var], Expr) => Expr) {
-    def unapply(expr: Expr) =
+    def unapply(expr: Bind) =
       expr match {
         case Bind(`quant`, formals, body, `typ`) => Some((formals, body))
         case _                                   => None
