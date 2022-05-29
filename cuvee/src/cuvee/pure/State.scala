@@ -168,7 +168,9 @@ class State(
       val fun = funs(name)
       val inst = fun.generic
       val exprs = args map (_.expr)
-      unify(inst.args, exprs.types)
+      cuvee.trace("cannot apply " + fun + " to " + args) {
+        unify(inst.args, exprs.types)
+      }
       Pre(App(inst, exprs))
     }
 

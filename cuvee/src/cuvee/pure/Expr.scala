@@ -153,7 +153,8 @@ object Expr extends Alpha[Expr, Var] {
           backtrack("cannot bind " + su(x) + " to " + arg)
         (ty, su)
       case (x: Var, _) =>
-        (ty, su + (x -> arg))
+        val ty_ = Type.bind(x.typ, arg.typ, ty)
+        (ty_, su + (x -> arg))
       case (a: Lit, b: Lit) if a == b =>
         (ty, su)
       case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
