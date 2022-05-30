@@ -10,13 +10,8 @@ object _test extends Run(Test, "test.bpl")
 
 object Test extends Main {
   def run(cmds: List[Cmd], st: State) {
-    cmds.reverse match {
-      case Assert(Not(phi)) :: _ =>
+    for(Assert(Not(phi)) <- cmds)
         println("proving: " + phi)
-
-      case _ =>
-
-    }
   }
 
   def main(args: Array[String]): Unit = {
