@@ -3,6 +3,7 @@ import mill.scalalib._
 
 
 object arse extends ScalaModule {
+  def millSourcePath = super.millSourcePath / "arse"
   def scalaVersion = "2.13.8"
   def ivyDeps = Agg(
     ivy"com.lihaoyi::sourcecode:0.2.7")
