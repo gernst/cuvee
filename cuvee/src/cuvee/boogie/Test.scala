@@ -21,7 +21,7 @@ object Test extends Main {
 
   def main(args: Array[String]): Unit = {
     for (arg <- args) {
-      val (cmds, st) = parse(arg)
+      val (cmds, st) = cuvee.boogie.parse(arg)
       run(cmds, st)
     }
   }

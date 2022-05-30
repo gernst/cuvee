@@ -23,7 +23,7 @@ ws = {nl} | [ \t\f]
 name    = [a-zA-Z][a-zA-Z0-9]*
 number  = [1-9][0-9]* | 0
 
-kw = "function" | "axiom" | "const" | "data" | "type"
+kw = "function" | "axiom" | "const" | "lemma" | "data" | "type"
    | "(" | ")" | "[" | "]" | "::" | [;,:<>{}]
    | "bool" | "int" | "real"
 

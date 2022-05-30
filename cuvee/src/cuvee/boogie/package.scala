@@ -17,7 +17,7 @@ package object boogie {
     val scanner = new boogie.Scanner(reader)
     val iterator = new ScannerIterator(scanner)
     val stream = Stream.fromIterator(iterator)
-    stream
+    stream.toList
   }
 
   def parse(file: String): (List[Cmd], State) = {

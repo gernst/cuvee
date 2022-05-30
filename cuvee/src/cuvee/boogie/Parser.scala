@@ -205,7 +205,7 @@ object Parser {
   val axiom_ = typing within assert("axiom" ~ expr ~ ";")
   val axiom = P(axiom_)
 
-  val lemma_ = typing within assert("axiom" ~ Not(expr) ~ ";")
+  val lemma_ = typing within assert("lemma" ~ Not(expr) ~ ";")
   val lemma = P(axiom_)
 
   val funsig =
@@ -239,7 +239,7 @@ object Parser {
   val postlude = ret(List[Cmd](CheckSat, GetModel))
   val script = P(prelude ++ cmds ++ postlude) */
 
-  val cmd = P(sortdef | fundef | axiom)
+  val cmd = P(sortdef | fundef | axiom | lemma)
   val cmds = P(cmd.*)
 
   val make_script: (List[Cmd] => (List[Cmd], State)) = { case cmds =>
