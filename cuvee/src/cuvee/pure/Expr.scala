@@ -385,9 +385,10 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     App(inst subst ty, args subst (ty, su))
 
   def sexpr = this match {
-    case And(phis)  => "and" :: phis
-    case Or(phis)   => "or" :: phis
-    case _          => inst :: args
+    case And(phis)         => "and" :: phis
+    case Or(phis)          => "or" :: phis
+    case _ if args.isEmpty => inst
+    case _                 => inst :: args
   }
 
   override def toString =
