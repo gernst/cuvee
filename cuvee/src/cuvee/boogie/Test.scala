@@ -6,12 +6,25 @@ import cuvee.util.Run
 import cuvee.pure._
 import cuvee.smtlib._
 
-object _test extends Run(Test, "test.bpl")
+object _test extends Run(Test, "./test.bpl")
 
 object Test extends Main {
   def run(cmds: List[Cmd], st: State) {
-    for(Assert(Not(phi)) <- cmds)
-        println("proving: " + phi)
+    val slv = z3(st)
+
+    for (cmd ← cmds) {
+      cmd match {
+        case decl: Decl => slv.declare(decl)
+        case Assert(Not(phi)) => {
+          println("proving: " + phi)
+          println("--------------  lines  --------------")
+          println(phi.lines.mkString("\n"))
+          println("--------------  check  --------------")
+          println(slv.check(phi))
+          println("=====================================")
+        }
+      }
+    }
   }
 
   def main(args: Array[String]): Unit = {
