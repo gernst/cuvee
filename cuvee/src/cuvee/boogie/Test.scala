@@ -19,10 +19,16 @@ object Test extends Main {
           println("proving: " + phi)
           println("--------------  lines  --------------")
           println(phi.lines.mkString("\n"))
-          println("--------------  check  --------------")
-          println(slv.check(phi))
+          println("-------------  is true  -------------")
+          println(slv.isTrue(phi))
+
+          println("------------  disj show  ------------")
+          val phi_ = Simplifier.simplify(Disj.show(List(phi), Nil, Nil, Nil))
+          println(phi_)
+
           println("=====================================")
         }
+        case _ =>
       }
     }
   }
