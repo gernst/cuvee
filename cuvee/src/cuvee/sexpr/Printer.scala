@@ -25,6 +25,8 @@ object Printer {
       print(s.sexpr)
     case i: Int =>
       Lit.num(i.toString)
+    case i: BigInt =>
+      Lit.num(i.toString)
     case i: Float =>
       Lit.dec(i.toString)
     case s: String =>
