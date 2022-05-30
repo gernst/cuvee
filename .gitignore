@@ -3,3 +3,4 @@
 .scalafmt.conf
 .vscode/
 out/
+mill.*
