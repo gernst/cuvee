@@ -384,9 +384,10 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     App(inst subst ty, args subst (ty, su))
 
-  def sexpr = args match {
-    case Nil => inst
-    case _   => inst :: args
+  def sexpr = this match {
+    case And(phis)  => "and" :: phis
+    case Or(phis)   => "or" :: phis
+    case _          => inst :: args
   }
 
   override def toString =
