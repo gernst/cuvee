@@ -143,7 +143,7 @@ object Parser {
   val args = P(parens(expr ~* ",") | ret(Nil))
   val app = P(make_app(name ~ args))
 
-  val expr: Parser[Expr, Token] = M(inner, op, make_op, Syntax)
+  val expr: Parser[Expr, Token] = M(inner, op, make_op, syntax)
   val inner: Parser[Expr, Token] = P(
     parens(expr) | num | ite | bind | map | app
   )
@@ -248,30 +248,30 @@ object Parser {
 
   val script_ = P(make_script(cmds))
   val script = P(stack within script_)
-}
 
-object Syntax extends Syntax[String, Token] {
-  val infix_ops = Map(
-    ("<==>", (Left, 0)),
-    ("==>", (Right, 1)),
-    ("||", (Left, 2)),
-    ("&&", (Left, 3)),
-    ("==", (Left, 5)),
-    ("!=", (Left, 5)),
-    (">=", (Left, 5)),
-    (">", (Left, 5)),
-    ("<", (Left, 5)),
-    ("<=", (Left, 5)),
-    ("+", (Left, 6)),
-    ("-", (Left, 6)),
-    ("*", (Left, 7)),
-    ("/", (Left, 7)),
-    ("%", (Left, 7))
-  )
-  val postfix_ops = Map(
-  )
-  val prefix_ops = Map(
-    ("!", 4),
-    ("-", 8)
-  )
+  object syntax extends Syntax[String, Token] {
+    val infix_ops = Map(
+      ("<==>", (Left, 0)),
+      ("==>", (Right, 1)),
+      ("||", (Left, 2)),
+      ("&&", (Left, 3)),
+      ("==", (Left, 5)),
+      ("!=", (Left, 5)),
+      (">=", (Left, 5)),
+      (">", (Left, 5)),
+      ("<", (Left, 5)),
+      ("<=", (Left, 5)),
+      ("+", (Left, 6)),
+      ("-", (Left, 6)),
+      ("*", (Left, 7)),
+      ("/", (Left, 7)),
+      ("%", (Left, 7))
+    )
+    val postfix_ops = Map(
+    )
+    val prefix_ops = Map(
+      ("!", 4),
+      ("-", 8)
+    )
+  }
 }
