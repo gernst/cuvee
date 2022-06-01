@@ -1,42 +1,43 @@
 package cuvee.pure
 
-// sealed trait Prop extends Pretty {
-//   def toExpr: Expr
-// }
+sealed trait Prop {
+  def toExpr: Expr
+}
 
-// sealed trait Pos extends Prop
-// sealed trait Neg extends Prop
+sealed trait Pos extends Prop
+sealed trait Neg extends Prop
 
 // if one decides a neg == False or a pos == True
 // the outer context will collapse to that result
 
 // atomics should not have inner propositional structure
-// case class Atom(expr: Expr) extends Pos with Neg {
-//   def text = Printer.atom(expr)
-//   def unary_! = Atom(!expr)
-//   def toExpr = expr
-// }
+case class Atom(expr: Expr) extends Pos with Neg {
+  // def text = Printer.atom(expr)
+  def unary_! = Atom(!expr)
+  def toExpr = expr
+}
 
-// object Atom {
-//   val t = Atom(True)
-//   val f = Atom(False)
-// }
+object Atom {
+  val t = Atom(True)
+  val f = Atom(False)
+}
 
 // represents
 //   forall xs. /\{ant} ==> \/ suc
 // or written equivalently as a big disjunction
 //   forall xs. \/{not ant}  \/  \/{suc}
-// case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos]) extends Neg {
-//   def text = Printer.Disj(xs, neg, pos)
-//   def toExpr = Forall(xs, And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr)))
-// }
+case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos]) extends Neg {
+  // def text = Printer.Disj(xs, neg, pos)
+  def toExpr = Forall(xs, And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr)))
+}
 
 // represents
 //   exists xs. /\{neg} /\ /\{not pos}
-// case class Conj(xs: List[Var], neg: List[Neg], pos: List[Pos]) extends Pos {
-//   def text = Printer.Conj(xs, neg, pos)
-//   def toExpr = Forall(xs, And(neg map (_.toExpr)) && And(pos map (!_.toExpr)))
-// }
+case class Conj(xs: List[Var], neg: List[Neg], pos: List[Pos]) extends Pos {
+  // def text = Printer.Conj(xs, neg, pos)
+  def toExpr = Forall(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
+}
+
 
 object Disj {
 
@@ -44,23 +45,23 @@ object Disj {
 //     Simplify.forall(xs, Simplify.imp(Simplify.and(neg), Simplify.or(pos)))
 //   }
 
-  def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
-    Forall(xs, And(neg) ==> Or(pos))
-  }
+  // def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
+  //   Forall(xs, And(neg) ==> Or(pos))
+  // }
 
-  def unapply(expr: Expr) = expr match {
-    case Forall(xs, Imp(And(neg), Or(pos))) => Some((xs, neg, pos))
-    case Imp(And(neg), Or(pos))             => Some((Nil, neg, pos))
-    case _                                  => None
-  }
+  // def unapply(expr: Expr) = expr match {
+  //   case Forall(xs, Imp(And(neg), Or(pos))) => Some((xs, neg, pos))
+  //   case Imp(And(neg), Or(pos))             => Some((Nil, neg, pos))
+  //   case _                                  => None
+  // }
 
   def assume(
       that: List[Expr],
       todo: List[Expr],
       xs: List[Var],
-      neg: List[Expr],
-      pos: List[Expr]
-  ): Expr = {
+      neg: List[Neg],
+      pos: List[Pos]
+  ): Disj = {
     that match {
       case Nil =>
         show(todo, xs, neg, pos)
@@ -81,16 +82,16 @@ object Disj {
         val prop = Disj.show(List(expr), Nil, Nil, Nil)
         assume(rest, todo, xs, neg ++ List(prop), pos)
       case phi :: rest =>
-        assume(rest, todo, xs, neg ++ List(phi), pos)
+        assume(rest, todo, xs, neg ++ List(Atom(phi)), pos)
     }
   }
 
   def show(
       todo: List[Expr],
       xs: List[Var],
-      neg: List[Expr],
-      pos: List[Expr]
-  ): Expr = {
+      neg: List[Neg],
+      pos: List[Pos]
+  ): Disj = {
     todo match {
       case Nil =>
         Disj(xs, neg, pos)
@@ -110,7 +111,7 @@ object Disj {
         val Forall(ys, body) = expr refresh xs
         show(body :: rest, xs ++ ys, neg, pos)
       case phi :: rest =>
-        show(rest, xs, neg, pos ++ List(phi))
+        show(rest, xs, neg, pos ++ List(Atom(phi)))
     }
   }
 }
@@ -121,29 +122,29 @@ object Conj {
 //     Simplify.exists(xs, Simplify.and(neg) && Simplify.and(pos map (Simplify.not(_))))
 //   }
 
-  def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
-    Exists(xs, And(neg ++ Not(pos)))
-  }
+  // def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
+  //   Exists(xs, And(neg ++ Not(pos)))
+  // }
 
-  def unapply(expr: Expr) = expr match {
-    case Exists(xs, And(e)) =>
-      val (pos_, neg) = e partition { case Not(_) => true }
-      val pos = pos_ collect { case Not(e) => e }
-      Some((xs, neg, pos))
-    case And(e) =>
-      val (pos_, neg) = e partition { case Not(_) => true }
-      val pos = pos_ collect { case Not(e) => e }
-      Some((Nil, neg, pos))
-    case _ => None
-  }
+  // def unapply(expr: Expr) = expr match {
+  //   case Exists(xs, And(e)) =>
+  //     val (pos_, neg) = e partition { case Not(_) => true }
+  //     val pos = pos_ collect { case Not(e) => e }
+  //     Some((xs, neg, pos))
+  //   case And(e) =>
+  //     val (pos_, neg) = e partition { case Not(_) => true }
+  //     val pos = pos_ collect { case Not(e) => e }
+  //     Some((Nil, neg, pos))
+  //   case _ => None
+  // }
 
   def avoid(
       that: List[Expr],
       todo: List[Expr],
       xs: List[Var],
-      neg: List[Expr],
-      pos: List[Expr]
-  ): Expr = {
+      neg: List[Neg],
+      pos: List[Pos]
+  ): Conj = {
     that match {
       case Nil =>
         show(todo, xs, neg, pos)
@@ -163,16 +164,16 @@ object Conj {
         val Forall(ys, body) = expr refresh xs
         avoid(body :: rest, todo, xs ++ ys, neg, pos)
       case phi :: rest =>
-        avoid(rest, todo, xs, neg, pos ++ List(phi))
+        avoid(rest, todo, xs, neg, pos ++ List(Atom(phi)))
     }
   }
 
   def show(
       todo: List[Expr],
       xs: List[Var],
-      neg: List[Expr],
-      pos: List[Expr]
-  ): Expr = {
+      neg: List[Neg],
+      pos: List[Pos]
+  ): Conj = {
     todo match {
       case Nil =>
         Conj(xs, neg, pos)
@@ -193,7 +194,7 @@ object Conj {
         val prop = Disj.show(List(expr), Nil, Nil, Nil)
         show(rest, xs, neg ++ List(prop), pos)
       case phi :: rest =>
-        show(rest, xs, neg ++ List(phi), pos)
+        show(rest, xs, neg ++ List(Atom(phi)), pos)
     }
   }
 }

@@ -1,0 +1,4 @@
+[submodule "arse"]
+	path = arse
+	url = https://github.com/gernst/arse
+	branch = stream
