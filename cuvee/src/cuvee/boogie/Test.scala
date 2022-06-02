@@ -22,9 +22,9 @@ object Test extends Main {
           println("-------------  is true  -------------")
           println(slv.isTrue(phi))
 
-          println("------------  disj show  ------------")
-          val phi_ = Simplifier.simplify(Disj.show(List(phi), Nil, Nil, Nil))
-          println(phi_)
+          // println("------------  disj show  ------------")
+          // val phi_ = Simplifier.simplify(Disj.show(List(phi), Nil, Nil, Nil))
+          // println(phi_)
 
           println("=====================================")
         }
