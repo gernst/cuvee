@@ -7,6 +7,7 @@ import cuvee.util.Tool
 import cuvee.backend.Solver
 import cuvee.backend.Sink
 import java.io.BufferedReader
+import cuvee.sexpr.Printer
 
 package object smtlib {
   def parse(file: String): (List[Cmd], State) = {
@@ -75,4 +76,7 @@ package object smtlib {
       ???
     }
   }
+
+  /** The default printer to use: Prints s-expressions */
+  implicit val printer: cuvee.util.Printer = Printer
 }
