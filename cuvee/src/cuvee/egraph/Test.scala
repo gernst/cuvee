@@ -5,7 +5,7 @@ import cuvee.pure._
 object Test {
   def main(args: Array[String]) {
     val g = new EGraph()
-    g.debug = true
+    // g.debug = true
 
     val a = Param("a")
     val list_a = Fun.list_a
@@ -35,18 +35,29 @@ object Test {
     val e = length(append(xs, ys))
     val c = g.add(e)
 
-    for (ec <- g.classes)
-      println(ec)
-    println()
+    var cs: Set[g.EClass] = Set()
 
-    g.rewrite(rules)
-    g.rewrite(rules)
-    g.rewrite(rules map (_.flip))
-    println()
+    var i = 0
+    var done = false
+    val all = rules ++ (rules map (_.flip))
 
-    for (ec <- g.classes)
-      println(ec.id + ": " + ec)
-    println()
+    while (!done) {
+      i += 1
+      done = g.rewrite(all)
+
+      val cs_ = g.classes
+      val add = cs_ -- cs
+      val del = cs -- cs_
+      cs = cs_
+
+      println("round " + i + " (new: " + !done + ")")
+      for (c <- add)
+        println("+ " + c)
+      for (c <- del)
+        println("- " + c)
+      if (add.nonEmpty || del.nonEmpty)
+        println()
+    }
 
   }
 }

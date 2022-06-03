@@ -4,7 +4,7 @@ May 27
 - map is still pending
 - check reverse snoc
 - recognize identity function and apply lemma
-- recognizing negated functions
+y recognizing negated functions
 - fix fusion
 - is the order of functions relevant?
 - write up stuff

@@ -8,6 +8,14 @@ import scala.annotation.tailrec
 class EGraph {
   var debug = false
 
+  val hash = mutable.Map[ENode, EClass]()
+  val todo = mutable.Set[EClass]()
+  def classes = hash.values.toSet filter (_.nonEmpty)
+
+  def invariant() {
+    
+  }
+
   sealed trait ENode {
     def args: List[EClass]
     def canon: ENode
@@ -39,36 +47,22 @@ class EGraph {
   class EClass(var parents: Map[ENode, EClass], var nodes: Set[ENode]) {
     var repr: EClass = this
 
-    def id =
-      hashCode
+    def isEmpty = nodes.isEmpty
+    def nonEmpty = nodes.nonEmpty
 
-    // def toString(nd: ENode, known: Set[EClass]): String = nd match {
-    //   case _: EVar | _: ELit =>
-    //     nd.toString
-    //   case EApp(inst, Nil) =>
-    //     inst.toString
-    //   case EApp(inst, args) =>
-    //     val known_ = known ++ args
-    //     val strings = args map (_ toString known_)
-    //     inst + strings.mkString("(", ", ", ")")
-    // }
+    def subst(ty: Map[Param, Type], su: Map[Var, EClass]) = {
+      val nodes_ = nodes map (esubst(_, ty, su))
+      ???
+    }
 
-    // def toString(known: Set[EClass]): String = if (known contains this) {
-    //   "..."
-    // } else {
-    //   val strings = nodes map (toString(_, known))
-    //   if (strings.size == 1)
-    //     strings.head
-    //   else
-    //     strings.mkString("{ ", ", ", " }")
-    // }
-
-    // override def toString: String =
-    //   toString(Set())
-    override def toString = if (nodes.size == 1) {
-      nodes.head.toString
+    override def toString = if (repr == this) {
+      if (nodes.size == 1) {
+        nodes.head.toString
+      } else {
+        nodes.mkString("{ ", ", ", " }")
+      }
     } else {
-      nodes.mkString("{ ", ", ", " }")
+      "..."
     }
 
     def exprs: Set[Expr] = nodes flatMap {
@@ -111,14 +105,24 @@ class EGraph {
 
       that.repr = this
 
-      hash filterInPlace { case (_, ec) =>
-        that != ec
-      }
+      // Note: We cannot get rid of the old classes just like that:
+      //       the nodes still refer to them in that hash map,
+      //       and we would have to update the reference there,
+      //       but *also* and recursively all occurrences inside EApp args.
+      //       Therefore, we can just keep that class around
+      //       (perhaps we could empty its list of nodes)
 
       parents ++= that.parents
       nodes ++= that.nodes
 
+      that.clear()
+
       this
+    }
+
+    def clear() {
+      nodes = Set()
+      parents = Map()
     }
 
     def ematch(
@@ -154,9 +158,24 @@ class EGraph {
     }
   }
 
-  def classes = hash.values.toSet
-  val hash = mutable.Map[ENode, EClass]()
-  val todo = mutable.Set[EClass]()
+  def eunify(
+      pat: Expr,
+      sus: Set[Map[Var, EClass]] = Set(Map())
+  ): Set[Map[Var, EClass]] = pat match {
+    case _ =>
+      ???
+  }
+
+  def esubst(nd: ENode, ty: Map[Param, Type], su: Map[Var, EClass]): EClass =
+    nd match {
+      case EVar(x) if su contains x =>
+        su(x)
+      case _: EVar | _: ELit =>
+        add(nd)
+      case EApp(inst, args) =>
+        val inst_ = inst subst ty
+        ???
+    }
 
   def add(expr: Expr): EClass = expr match {
     case x: Var =>
@@ -165,6 +184,8 @@ class EGraph {
       add(ELit(any, typ))
     case App(inst, args) =>
       add(EApp(inst, args map add))
+    case _ =>
+      cuvee.error("cannot add to e-graph: " + expr)
   }
 
   def subst(expr: Expr, su: Map[Var, EClass]): EClass = expr match {
@@ -176,6 +197,8 @@ class EGraph {
       add(ELit(any, typ))
     case App(inst, args) =>
       add(EApp(inst, subst(args, su)))
+    case _ =>
+      cuvee.error("cannot add to e-graph: " + expr + " (via subst)")
   }
 
   def subst(exprs: List[Expr], su: Map[Var, EClass]): List[EClass] = {
@@ -237,7 +260,7 @@ class EGraph {
 
     for ((pnd_, pec) <- ec.parents) {
       val pnd = pnd_.canon
-      if (parents contains pnd)
+      if (parents contains pnd) // wrong! should refer to new_parents
         merge(pec, parents(pnd))
       parents += pnd -> pec.find
     }
@@ -264,11 +287,13 @@ class EGraph {
         a_ == b_
       }
 
-      println("applying rule " + rule)
-      println("substituting " + rhs + " by " + su)
       val rhs_ = subst(rhs, su)
-      println("rewriting " + lhs_ + " ~> " + rhs_)
-      println()
+      if (debug) {
+        println("applying rule " + rule)
+        println("substituting " + rhs + " by " + su)
+        println("rewriting " + lhs_ + " ~> " + rhs_)
+      }
+
       (bad, rule, su, lhs_ -> rhs_)
     }
   }
@@ -279,14 +304,16 @@ class EGraph {
     // XXX: forall is non strict!!
     for ((bad, rule, su, (lhs, rhs)) <- ematches(rules)) {
       if (bad) {
-        println("avoiding bad match " + lhs.find + " and " + rhs.find)
+        if (debug)
+          println("avoiding bad match " + lhs.find + " and " + rhs.find)
       } else {
         val same = lhs.find == rhs.find
         if (!same) {
           merge(lhs, rhs)
           done = false
         } else {
-          println("not merging " + lhs.find + " and " + rhs.find)
+          if (debug)
+            println("not merging " + lhs.find + " and " + rhs.find)
         }
       }
     }
