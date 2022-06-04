@@ -4,10 +4,12 @@ import cuvee.StringOps
 import cuvee.error
 import cuvee.backtrack
 import cuvee.trace
+import cuvee.boogie
 import cuvee.sexpr
 import cuvee.util.Alpha
+import cuvee.util.Helper._
 
-sealed trait Expr extends Expr.term with sexpr.Syntax {
+sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr
@@ -74,6 +76,8 @@ sealed trait Expr extends Expr.term with sexpr.Syntax {
 object Expr extends Alpha[Expr, Var] {
   val infix =
     Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
+  val boogieInfix =
+    Set("<=", ">=", "<", ">", "+", "-", "*") union boogie.Parser.translate.values.toSet
 
   def fresh(name: String, typ: Type) =
     Var(name, typ, Some(nextIndex))
@@ -234,6 +238,8 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
   }
 
   def sexpr = name ~~ index
+  def bexpr = List(name __ index)
+
   override def toString = name __ index
 }
 
@@ -245,6 +251,8 @@ case class Lit(any: Any, typ: Type) extends Expr {
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]) = this
 
   def sexpr = any
+  def bexpr = List(any.toString)
+
   override def toString = any.toString
 }
 
@@ -291,6 +299,8 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
     In(k, arg subst (ty, su), typ subst ty)
 
   def sexpr = ???
+  def bexpr = ??? /// TODO Daniel thinks that this is not part of boogie.
+
   override def toString =
     ("in" __ k) + "(" + arg + ")"
 }
@@ -308,6 +318,8 @@ case class Tuple(args: List[Expr]) extends Expr {
     Tuple(args subst (ty, su))
 
   def sexpr = ???
+  def bexpr = ??? // Not part of Boogie
+
   override def toString =
     args.mkString("(", ", ", ")")
 }
@@ -390,6 +402,26 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case _ if args.isEmpty => inst
     case _                 => inst :: args
   }
+  def bexpr = this match {
+    // Constants
+    case App(inst, Nil)                        => List(inst.toString)
+    // Logical connectives
+    case And(phis)                 => intersperse(phis, "(", " and ", ")")
+    case Or(phis)                  => intersperse(phis, "(", " or" , ")")
+    // Iff (<==>), needs special handling, as this is also represented by "=" internally
+    case Eq(lhs, rhs) if lhs.typ == Sort.bool  => List(lhs, " ", "<==>", " ", rhs)
+    // Infix operators
+    case App(_, List(left, right))
+      if Expr.boogieInfix contains inst.fun.name
+      => List("(", left, " ", inst, " ", right, ")")
+    // Unary -
+    case Not(psi)                  => List("!", "(", psi, ")")
+    case UMinus(term)              => List("-", "(", term, ")")
+    // Applications (i.e. function calls)
+    case App(_, args)              => inst :: intersperse(args, "(", ", ", ")")
+    case _ if args.isEmpty         => List(inst)
+    case _                         => inst :: args
+  }
 
   override def toString =
     (inst, args) match {
@@ -430,8 +462,8 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     rename(re)
   }
 
-  def sexpr =
-    List(quant.name, formals.asFormals, body)
+  def sexpr = List(quant.name, formals.asFormals, body)
+  def bexpr = List(quant.name, " ", intersperse( formals.map(_.toStringTyped), ", "), " :: ", body)
 
   override def toString =
     quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body
@@ -455,7 +487,9 @@ case class Case(pat: Expr, expr: Expr)
     Case(pat rename a, expr subst su)
   def inst(su: Map[Param, Type]) =
     Case(pat inst su, expr inst su)
+
   def sexpr = List(pat, expr)
+  def bexpr = ??? // Not part of Boogie
 }
 
 case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
@@ -468,5 +502,7 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
     Match(expr inst su, cases inst su, typ subst su)
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     ??? // need to fix cases, too
+
   def sexpr = List("match", expr, cases)
+  def bexpr = ??? // Not part of Boogie
 }

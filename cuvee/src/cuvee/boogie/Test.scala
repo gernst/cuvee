@@ -17,16 +17,11 @@ object Test extends Main {
         case decl: Decl => slv.declare(decl)
         case Assert(Not(phi)) => {
           println("proving: " + phi)
-          println("--------------  lines  --------------")
-          println(phi.lines.mkString("\n"))
-          println("-------------  is true  -------------")
+          println("---------------  lines  ---------------")
+          println(phi.lines(cuvee.boogie.Printer).mkString(""))
+          println("--------------  is true  --------------")
           println(slv.isTrue(phi))
-
-          // println("------------  disj show  ------------")
-          // val phi_ = Simplifier.simplify(Disj.show(List(phi), Nil, Nil, Nil))
-          // println(phi_)
-
-          println("=====================================")
+          println("=======================================")
         }
         case _ =>
       }
