@@ -286,10 +286,10 @@ class Parser(init: State) {
         case Id(name) if scope contains name =>
           x(name, scope(name))
 
-        case Id(name) if st.funs contains name =>
+        case Id(name) if st.funs contains (name, 0) =>
           const(name)
 
-        case App(Id(name), args @ _*) if st.funs contains name =>
+        case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope))
 
         case App(Id(name), App(bound @ _*), arg)
@@ -320,7 +320,7 @@ class Parser(init: State) {
           (const(name), Map()) // TODO: do proper type checking in this function
 
         case App(Id(name), args @ _*) =>
-          val fun = st funs name
+          val fun = st funs (name, args.length)
           var scope: Map[String, Type] = Map()
           val args_ = (args.toList zip fun.args) map { case (Id(name), typ) =>
             scope += name -> typ
