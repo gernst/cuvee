@@ -85,6 +85,7 @@ case class DefineFun(
 ) extends Decl {
   def sexpr = List(
     if (rec) "define-fun-rec" else "define-fun",
+    name,
     formals.asFormals,
     res,
     body
