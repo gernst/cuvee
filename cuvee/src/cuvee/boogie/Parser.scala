@@ -50,7 +50,12 @@ object Parser {
     }
 
     def app(name: String, args: List[Expr]) = {
-      val fun = state funs name
+      val arity = args.length
+      require(
+        state.funs contains (name, arity),
+        "no such function: " + (name, arity) + " in " + state.funs.keys
+      )
+      val fun = state funs (name, arity)
       val inst = fun.generic
       unify(inst.args, args.types)
       App(inst, args)
@@ -119,10 +124,6 @@ object Parser {
       val name_ = translate(name)
       typing.app(name_, args)
 
-    case (name @ "-", List(arg)) =>
-      val args = List(Zero, arg)
-      typing.app(name, args)
-
     case (name, args) =>
       typing.app(name, args)
   }
@@ -130,8 +131,12 @@ object Parser {
   def make_app: ((String, List[Expr]) => Expr) = {
     case (name, Nil) if scope contains name =>
       scope(name)
-    case (name, args) if state.funs contains name =>
+    case (name, args) if state.funs contains (name, args.length) =>
       typing.app(name, args)
+    case (name, Nil) =>
+      error("unknown variable or constant: " + name)
+    case (name, _) =>
+      error("unknown function: " + name)
   }
 
   def make_bind: ((String, List[Var], Expr) => Expr) = {
