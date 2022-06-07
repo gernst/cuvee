@@ -44,19 +44,16 @@ trait Sink {
   def pop() =
     control(Pop(1))
 
-  def scoped[A](f: => A) = {
+  def scoped[A](f: => A) = try {
     push()
-    val res = f
+    f
+  } finally {
     pop()
-    res
   }
 
-  def check(phi: Expr): IsSat = {
-    push()
+  def check(phi: Expr): IsSat = scoped {
     assert(phi)
-    val status = check()
-    pop()
-    status
+    check()
   }
 }
 
