@@ -13,8 +13,17 @@ lemma !!d ==> d;
 
 function p(x: int, y: int): bool;
 
-lemma
+const x: int;
+
+axiom (x > 0);
+
+lemma (x == 0 <==> -x >= 0);
+
+lemma (
     (exists y: int :: forall x: int :: p(x,y))
-        ==> (forall x: int :: exists y: int :: p(x,y));
+        ==> (forall x: int :: exists y: int :: p(x,y))
+  );
 
 lemma -a == a;
+
+const bits: [int] bool;
