@@ -37,6 +37,8 @@ object State {
     st.fun("or", Nil, List(Bool, Bool), Bool)
     st.fun("=>", Nil, List(Bool, Bool), Bool)
 
+    st.fun("-", Nil, List(Int), Int)
+
     st.fun("+", Nil, List(Int, Int), Int)
     st.fun("-", Nil, List(Int, Int), Int)
     st.fun("*", Nil, List(Int, Int), Int)
@@ -54,8 +56,8 @@ class State(
     var cons: Map[String, Con],
     var condefs: Map[String, (List[Param], Type)],
     var datatypes: Map[String, Datatype],
-    var funs: Map[String, Fun],
-    var fundefs: Map[String, (List[Var], Expr)]
+    var funs: Map[(String, Int), Fun],
+    var fundefs: Map[(String, Int), (List[Var], Expr)]
 ) {
   def constrs =
     for (
@@ -68,8 +70,8 @@ class State(
       cons: Map[String, Con] = cons,
       condefs: Map[String, (List[Param], Type)] = condefs,
       datatypes: Map[String, Datatype] = datatypes,
-      funs: Map[String, Fun] = funs,
-      fundefs: Map[String, (List[Var], Expr)] = fundefs
+      funs: Map[(String, Int), Fun] = funs,
+      fundefs: Map[(String, Int), (List[Var], Expr)] = fundefs
   ) =
     new State(cons, condefs, datatypes, funs, fundefs)
 
@@ -104,16 +106,18 @@ class State(
       args: List[Type],
       res: Type
   ): Fun = {
-    require(!(funs contains name), "function already declared: " + name)
+    val arity = args.length
+    require(!(funs contains (name, arity)), "function already declared: " + name)
     val fun = Fun(name, params, args, res)
-    funs += (name -> fun)
+    funs += ((name, arity) -> fun)
     fun
   }
 
   def fundef(name: String, args: List[Var], body: Expr): Unit = {
-    require(funs contains name, "function not declared: " + name)
-    require(!(fundefs contains name), "function already defined: " + name)
-    fundefs + (name -> (args, body))
+    val arity = args.length
+    require(funs contains (name, arity) , "function not declared: " + name)
+    require(!(fundefs contains (name, arity)), "function already defined: " + name)
+    fundefs + ((name, arity) -> (args, body))
   }
 
   def sort(name: String, args: List[Type] = Nil): Sort = {
@@ -165,7 +169,8 @@ class State(
     }
 
     def app(name: String, args: List[Pre]) = {
-      val fun = funs(name)
+      val arity = args.length
+      val fun = funs(name, arity)
       val inst = fun.generic
       val exprs = args map (_.expr)
       cuvee.trace("cannot apply " + fun + " to " + args) {
