@@ -2,10 +2,19 @@ package cuvee.pure
 
 sealed trait Prop {
   def toExpr: Expr
+  def rename(re: Map[Var, Var]): Prop
+  def subst(su: Map[Var, Expr]): Prop
 }
 
-sealed trait Pos extends Prop
-sealed trait Neg extends Prop
+sealed trait Pos extends Prop {
+  def rename(re: Map[Var, Var]): Pos
+  def subst(su: Map[Var, Expr]): Pos
+}
+
+sealed trait Neg extends Prop {
+  def rename(re: Map[Var, Var]): Neg
+  def subst(su: Map[Var, Expr]): Neg
+}
 
 // if one decides a neg == False or a pos == True
 // the outer context will collapse to that result
@@ -13,8 +22,13 @@ sealed trait Neg extends Prop
 // atomics should not have inner propositional structure
 case class Atom(expr: Expr) extends Pos with Neg {
   // def text = Printer.atom(expr)
+  def bound = Set()
   def unary_! = Atom(!expr)
   def toExpr = expr
+  def rename(re: Map[Var, Var]) =
+    Atom(expr rename re)
+  def subst(su: Map[Var, Expr]) =
+    Atom(expr subst su)
 }
 
 object Atom {
@@ -23,21 +37,34 @@ object Atom {
 }
 
 // represents
-//   forall xs. /\{ant} ==> \/ suc
+//   forall xs. /\ {ant} ==> \/ {suc}
 // or written equivalently as a big disjunction
-//   forall xs. \/{not ant}  \/  \/{suc}
-case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos]) extends Neg {
+//   forall xs. \/ {not ant}  \/  \/ {suc}
+case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
+    extends Neg
+    with Expr.bind[Disj] {
   // def text = Printer.Disj(xs, neg, pos)
+  def bound = xs.toSet
   def toExpr = Forall(xs, And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr)))
+  def rename(a: Map[Var, Var], re: Map[Var, Var]) =
+    Disj(xs rename a, neg map (_ rename re), pos map (_ rename re))
+  def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
+    Disj(xs rename a, neg map (_ subst su), pos map (_ subst su))
 }
 
 // represents
 //   exists xs. /\{neg} /\ /\{not pos}
-case class Conj(xs: List[Var], neg: List[Neg], pos: List[Pos]) extends Pos {
+case class Conj(xs: List[Var], neg: List[Neg], pos: List[Pos])
+    extends Pos
+    with Expr.bind[Conj] {
   // def text = Printer.Conj(xs, neg, pos)
-  def toExpr = Forall(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
+  def bound = xs.toSet
+  def toExpr = Exists(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
+  def rename(a: Map[Var, Var], re: Map[Var, Var]) =
+    Conj(xs rename a, neg map (_ rename re), pos map (_ rename re))
+  def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
+    Conj(xs rename a, neg map (_ subst su), pos map (_ subst su))
 }
-
 
 object Disj {
 
@@ -73,13 +100,13 @@ object Disj {
         val Exists(ys, body) = expr refresh xs
         assume(body :: rest, todo, xs ++ ys, neg, pos)
       case Imp(phi, psi) :: rest =>
-        val prop = Disj.assume(List(phi), List(psi), Nil, Nil, Nil)
+        val prop = assume(List(phi), List(psi), Nil, Nil, Nil)
         assume(rest, todo, xs, neg ++ List(prop), pos)
       case Or(phis) :: rest =>
         val prop = show(phis, Nil, Nil, Nil)
         assume(rest, todo, xs, neg ++ List(prop), pos)
       case (expr @ Forall(_, _)) :: rest =>
-        val prop = Disj.show(List(expr), Nil, Nil, Nil)
+        val prop = show(List(expr), Nil, Nil, Nil)
         assume(rest, todo, xs, neg ++ List(prop), pos)
       case phi :: rest =>
         assume(rest, todo, xs, neg ++ List(Atom(phi)), pos)
