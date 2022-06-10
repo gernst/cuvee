@@ -10,6 +10,7 @@ import cuvee.smtlib._
 object _list extends Run(Test, "./list.bpl")
 object _test extends Run(Test, "./test.bpl")
 object _prov extends Run(Test, "./prover.bpl")
+object _smpl extends Run(Test, "./simple.bpl")
 
 object Test extends Main {
   def run(cmds: List[Cmd], st: State) {
@@ -29,10 +30,15 @@ object Test extends Main {
           println("--------------  is true  --------------")
           println(slv.isTrue(phi))
           println("---------------  prove  ---------------")
-          println(prover.prove(Disj.from(phi)).toExpr)
-          println("-------------  disprove  --------------")
-          println(prover.disprove(Conj.from(phi)).toExpr)
+          val disj = Disj.from(phi);
+          println(disj)
+          val disj_ = prover.prove(disj)
+          println(disj_)
+          println(disj_.toExpr)
+          // println("-------------  disprove  --------------")
+          // println(prover.disprove(Conj.from(phi)).toExpr)
           println("=======================================")
+          println()
         }
         case Assert(phi) => slv.assert(phi)
         case _ =>

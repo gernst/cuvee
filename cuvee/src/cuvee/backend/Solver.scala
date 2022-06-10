@@ -105,4 +105,14 @@ trait Solver extends Sink {
     val status = check(phi)
     status == Unsat
   }
+
+  def isSat = {
+    val status = check()
+    status == Sat
+  }
+
+  def isUnsat = {
+    val status = check()
+    status == Unsat
+  }
 }

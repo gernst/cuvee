@@ -23,7 +23,6 @@ sealed trait Neg extends Prop {
 case class Atom(expr: Expr) extends Pos with Neg {
   // def text = Printer.atom(expr)
   def bound = Set()
-  def unary_! = Atom(!expr)
   def toExpr = expr
   def rename(re: Map[Var, Var]) =
     Atom(expr rename re)
@@ -54,27 +53,27 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
 
   def toExpr: Expr = (xs, neg) match {
     case (Nil, Nil) => Or(pos map (_.toExpr))
-    case (Nil, _  ) => Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr)))
-    case (_  , Nil) => Forall(xs, Or(pos map (_.toExpr)))
-    case _          => Forall(xs, Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr))))
+    case (Nil, _)   => Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr)))
+    case (_, Nil)   => Forall(xs, Or(pos map (_.toExpr)))
+    case _ => Forall(xs, Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr))))
   }
 }
 
 // represents
 //   exists xs. /\{neg} /\ /\{not pos}
-case class Conj(xs: List[Var], neg: List[Neg], pos: List[Pos])
+case class Conj(xs: List[Var], neg: List[Neg])
     extends Pos
     with Expr.bind[Conj] {
   // def text = Printer.Conj(xs, neg, pos)
   def bound = xs.toSet
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
-    Conj(xs rename a, neg map (_ rename re), pos map (_ rename re))
+    Conj(xs rename a, neg map (_ rename re))
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
-    Conj(xs rename a, neg map (_ subst su), pos map (_ subst su))
+    Conj(xs rename a, neg map (_ subst su))
 
   def toExpr: Expr = xs match {
-    case Nil => And((neg map (_.toExpr)) ++ (pos map (!_.toExpr)))
-    case _   => Exists(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
+    case Nil => And(neg map (_.toExpr))
+    case _   => Exists(xs, And(neg map (_.toExpr)))
   }
 }
 
@@ -94,7 +93,11 @@ object Disj {
   //   case _                                  => None
   // }
 
-  def from(exp: Expr): Disj  = Disj.show(List(exp), Nil, Nil, Nil);
+  def from(expr: Expr) =
+    Disj.show(List(expr), Nil, Nil, Nil)
+
+  def from(exprs: List[Expr]) =
+    Disj.show(exprs, Nil, Nil, Nil)
 
   def assume(
       that: List[Expr],
@@ -102,10 +105,14 @@ object Disj {
       xs: List[Var],
       neg: List[Neg],
       pos: List[Pos]
-  ): Disj = {
+  ): Neg = {
     that match {
       case Nil =>
         show(todo, xs, neg, pos)
+      case True :: rest =>
+        assume(rest, todo, xs, neg, pos)
+      case False :: rest =>
+        Atom(True)
       case Not(phi) :: rest =>
         assume(rest, phi :: todo, xs, neg, pos)
       case And(phis) :: rest =>
@@ -132,18 +139,28 @@ object Disj {
       xs: List[Var],
       neg: List[Neg],
       pos: List[Pos]
-  ): Disj = {
+  ): Neg = {
     todo match {
       case Nil =>
         Disj(xs, neg, pos)
+      case False :: rest =>
+        show(rest, xs, neg, pos)
+      case True :: rest =>
+        Atom(True)
       case Not(phi) :: rest =>
         assume(List(phi), rest, xs, neg, pos)
       case And(phis) :: rest =>
-        val prop = Conj.show(phis, Nil, Nil, Nil)
+        val prop = Conj.from(phis)
         show(rest, xs, neg, pos ++ List(prop))
       case (expr @ Exists(_, _)) :: rest =>
-        val prop = Conj.show(List(expr), Nil, Nil, Nil)
-        show(rest, xs, neg, pos ++ List(prop))
+        Conj.from(expr) match {
+          case Atom(False) =>
+            show(rest, xs, neg, pos)
+          case prop @ Atom(True) =>
+            prop
+          case prop =>
+            show(rest, xs, neg, pos ++ List(prop))
+        }
       case Imp(phi, psi) :: rest =>
         assume(List(phi), psi :: rest, xs, neg, pos)
       case Or(phis) :: rest =>
@@ -158,6 +175,11 @@ object Disj {
 }
 
 object Conj {
+  def from(expr: Expr) =
+    Conj.show(List(expr), Nil, Nil)
+
+  def from(exprs: List[Expr]) =
+    Conj.show(exprs, Nil, Nil)
 
 //   def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
 //     Simplify.exists(xs, Simplify.and(neg) && Simplify.and(pos map (Simplify.not(_))))
@@ -180,64 +202,101 @@ object Conj {
   // }
 
   def avoid(
+      first: Neg,
+      rest: List[Expr],
+      todo: List[Expr],
+      xs: List[Var],
+      neg: List[Neg]
+  ): Pos = first match {
+    case Atom(True) =>
+      Atom(False)
+    case Atom(False) =>
+      avoid(rest, todo, xs, neg)
+    case _ =>
+      avoid(rest, todo, xs, neg ++ List(first))
+  }
+
+  def avoid(
       that: List[Expr],
       todo: List[Expr],
       xs: List[Var],
-      neg: List[Neg],
-      pos: List[Pos]
-  ): Conj = {
+      neg: List[Neg]
+  ): Pos = {
     that match {
       case Nil =>
-        show(todo, xs, neg, pos)
+        show(todo, xs, neg)
+      case False :: rest =>
+        show(rest, xs, neg)
+      case True :: rest =>
+        Atom(False)
       case Not(phi) :: rest =>
-        avoid(rest, phi :: todo, xs, neg, pos)
+        avoid(rest, phi :: todo, xs, neg)
       case And(phis) :: rest =>
-        val prop = Conj.show(phis, Nil, Nil, Nil)
-        avoid(rest, todo, xs, neg, pos ++ List(prop))
+        val prop = Disj.assume(phis, Nil, Nil, Nil, Nil) // /\ {phis} ==> false
+        avoid(prop, rest, todo, xs, neg)
       case (expr @ Exists(_, _)) :: rest =>
-        val prop = Conj.show(List(expr), Nil, Nil, Nil)
-        avoid(rest, todo, xs, neg, pos ++ List(prop))
+        val prop = Disj.assume(List(expr), Nil, Nil, Nil, Nil)
+        // (exists xs. P(xs)) ==> false  ~~> (forall xs. P(xs) ==> false)
+        avoid(prop, rest, todo, xs, neg)
       case Imp(phi, psi) :: rest =>
-        avoid(psi :: rest, phi :: todo, xs, neg, pos)
+        avoid(psi :: rest, phi :: todo, xs, neg)
       case Or(phis) :: rest =>
-        avoid(phis ++ rest, todo, xs, neg, pos)
+        avoid(phis ++ rest, todo, xs, neg)
       case (expr @ Forall(_, _)) :: rest =>
         val Forall(ys, body) = expr refresh xs
-        avoid(body :: rest, todo, xs ++ ys, neg, pos)
+        avoid(body :: rest, todo, xs ++ ys, neg)
       case phi :: rest =>
-        avoid(rest, todo, xs, neg, pos ++ List(Atom(phi)))
+        avoid(rest, todo, xs, neg ++ List(Atom(!phi)))
     }
+  }
+
+  def show(
+      first: Neg,
+      todo: List[Expr],
+      xs: List[Var],
+      neg: List[Neg]
+  ): Pos = first match {
+    case Atom(False) =>
+      Atom(False)
+    case Atom(True) =>
+      show(todo, xs, neg)
+    case _ =>
+      show(todo, xs, neg ++ List(first))
   }
 
   def show(
       todo: List[Expr],
       xs: List[Var],
-      neg: List[Neg],
-      pos: List[Pos]
-  ): Conj = {
+      neg: List[Neg]
+  ): Pos = {
     todo match {
+      case Nil if neg.isEmpty =>
+        Atom(True)
       case Nil =>
-        Conj(xs, neg, pos)
+        Conj(xs, neg)
+      case True :: rest =>
+        show(rest, xs, neg)
+      case False :: rest =>
+        Atom(False)
       case Not(phi) :: rest =>
-        avoid(List(phi), rest, xs, neg, pos)
+        avoid(List(phi), rest, xs, neg)
       case And(phis) :: rest =>
-        show(phis ++ rest, xs, neg, pos)
+        show(phis ++ rest, xs, neg)
       case (expr @ Exists(_, _)) :: rest =>
         val Exists(ys, body) = expr refresh xs
-        show(body :: rest, xs ++ ys, neg, pos)
+        show(body :: rest, xs ++ ys, neg)
       case Imp(phi, psi) :: rest =>
         val prop = Disj.assume(List(phi), List(psi), Nil, Nil, Nil)
-        show(rest, xs, neg ++ List(prop), pos)
+        show(prop, rest, xs, neg)
       case Or(phis) :: rest =>
         val prop = Disj.show(phis, Nil, Nil, Nil)
-        show(rest, xs, neg ++ List(prop), pos)
+        show(prop, rest, xs, neg)
       case (expr @ Forall(_, _)) :: rest =>
         val prop = Disj.show(List(expr), Nil, Nil, Nil)
-        show(rest, xs, neg ++ List(prop), pos)
+        show(rest, xs, neg ++ List(prop))
       case phi :: rest =>
-        show(rest, xs, neg ++ List(Atom(phi)), pos)
+        show(rest, xs, neg ++ List(Atom(phi)))
     }
   }
 
-  def from(exp: Expr): Conj  = Conj.show(List(exp), Nil, Nil, Nil);
 }

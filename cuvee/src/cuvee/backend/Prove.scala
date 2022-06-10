@@ -1,114 +1,111 @@
-package cuvee.pure
+package cuvee.backend
 
-import cuvee.backend.Solver
+import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
-/**
-  * This class
+/** This class
   *
-  * @param solver SMT solver to use to check expressions
+  * @param solver
+  *   SMT solver to use to check expressions
   */
 class Prove(solver: Solver) {
-
-  def disprove(pos: Pos): Pos = pos match {
-    case Atom(phi) =>
-      if (solver.isFalse(phi))
-        Atom(False)
-      else
-        pos
-
-    case Conj(Nil, ant, suc) =>
-      solver.scoped {
-        val ant_ = prove(ant)
-
-        // A /\ !B  <==>  (A /\ (A ==> !B))
-        for (phi <- ant_)
-          solver.assert(phi.toExpr)
-
-        val suc_ = disprove(suc)
-        Conj(Nil, ant_, suc_)
-      }
-
-    // maybe eliminate
-    // exists x. x == e /\ P(x)
-    // ~>  P(e)
-    case conj: Conj =>
-      val phi = conj.toExpr
-      if (solver.isFalse(phi))
-        Atom(False)
-      else
-        conj
+  def prove(prop: Prop): Prop = prop match {
+    case atom: Atom => prove(atom)
+    case neg: Neg   => prove(neg)
+    case pos: Pos   => prove(pos)
   }
 
-  def prove(neg: Neg): Neg = neg match {
+  def prove(atom: Atom): Atom = atom match {
     case Atom(phi) =>
+      println("ask solver if " + phi + " is true")
       if (solver.isTrue(phi))
         Atom(True)
       else
-        neg
+        atom
+  }
 
-    case disj: Disj =>
+  def prove(pos: Pos): Pos = pos match {
+    case atom: Atom =>
+      prove(atom)
+
+    case Conj(Nil, neg) =>
+      val neg_ = conj(neg)
+      Conj(Nil, neg_)
+
+    case conj: Conj =>
+      prove(Atom(conj.toExpr))
+  }
+
+  def prove(neg: Neg): Neg = neg match {
+    case atom: Atom =>
+      prove(atom)
+
+    // forall xs. /\ {ant} ==> \/ {suc}
+    case Disj(xs, neg, pos) =>
       solver.scoped {
         // A Disj contains variables quantified by a forall quantifier (disj.xs).
         // Below, we'll split those variables from their declaration in the quantifier.
         // Decide how to rename the quantified variables
-        val xs_ = Expr.fresh(disj.xs)
-        // 
-        val xs__ = xs_.values.toList
-        val ant = disj.neg map (_.rename(xs_))
-        val suc = disj.pos map (_.rename(xs_))
+        val re = Expr.fresh(xs)
+        //
+        val xs_ = xs rename re
+        val neg_ = neg map (_ rename re)
+        val pos_ = pos map (_ rename re)
 
         // Declare the variables from the forall-quantifier
-        for (x <- xs__)
+        for (x <- xs_)
           solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
 
         // Attempt to prove the antecedent
-        val ant_ = prove(ant)
+        // println("try proving " + ant)
+        // val ant_ = prove(ant)
 
-        for (phi <- ant_)
+        for (phi <- neg_)
           solver.assert(phi.toExpr)
 
-        // Attempt to disprove the succedent
-        val suc_ = disprove(suc)
-        Disj(xs__, ant_, suc_)
+        if (solver.isUnsat) {
+          Atom(True)
+        } else {
+          // Attempt to disprove the succedent
+          val pos__ = disj(pos_)
+          Disj(xs_, neg_, pos__)
+        }
       }
   }
 
-  def disprove(suc: List[Pos]): List[Pos] = suc match {
+  def disj(suc: List[Pos]): List[Pos] = suc match {
     case Nil =>
       Nil
 
     case first :: rest =>
-      disprove(first) match {
-
+      prove(first) match {
         case first_ @ Atom(False) =>
-          disprove(rest)
+          disj(rest)
 
         case first_ =>
-          // TODO: check if we need to scope this
           solver.scoped {
             // justification: A \/ B  <==>  (A \/ (!A ==> B))
             solver.assert(!first_.toExpr)
-            first_ :: disprove(rest)
+            first_ :: disj(rest)
           }
       }
   }
 
-  def prove(ant: List[Neg]): List[Neg] = ant match {
+  def conj(ant: List[Neg]): List[Neg] = ant match {
     case Nil =>
       Nil
 
     case first :: rest =>
       prove(first) match {
         case first_ @ Atom(True) =>
-          prove(rest)
+          conj(rest)
 
         case first_ =>
           // TODO: check if we need to scope this
           solver.scoped {
             // justification: A /\ B  <==>  (A /\ (A ==> B))
-            solver.assert(!first_.toExpr)
-            first_ :: prove(rest)
+            solver.assert(first_.toExpr)
+            first_ :: conj(rest)
           }
       }
   }
