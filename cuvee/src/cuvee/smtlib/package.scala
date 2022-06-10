@@ -44,7 +44,7 @@ package object smtlib {
   object stderr extends print(System.err)
 
   class print(out: PrintStream) extends Sink {
-    def ack(cmd: Cmd) {
+    def ack(cmd: Cmd) = {
       for (line <- cmd.lines)
         out println line
       Success
