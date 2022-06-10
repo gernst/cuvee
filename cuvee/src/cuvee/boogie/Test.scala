@@ -3,22 +3,37 @@ package cuvee.boogie
 import cuvee.util.Main
 import cuvee.util.Run
 
+import cuvee.backend._
 import cuvee.pure._
 import cuvee.smtlib._
-import cuvee.backend.Tactic
 
 object _list extends Run(Test, "./list.bpl")
 object _test extends Run(Test, "./test.bpl")
+object _prov extends Run(Test, "./prover.bpl")
 
 object Test extends Main {
   def run(cmds: List[Cmd], st: State) {
-    val slv = z3(st)
     import cuvee.sexpr.Printer
+
+    val slv = z3(st)
+    // val slv = new Sink.tee(z3(st), stdout)
+    val prover = new Prove(slv)
 
     for (cmd ← cmds) {
       cmd match {
-        case decl: Decl  => slv.declare(decl)
-        case Assert(Not(phi)) => print(slv.isTrue(phi))
+        case decl: Decl => slv.declare(decl)
+        case Assert(Not(phi)) => {
+          println("proving: " + phi)
+          println("---------------  lines  ---------------")
+          println(phi.lines(cuvee.boogie.Printer).mkString(""))
+          println("--------------  is true  --------------")
+          println(slv.isTrue(phi))
+          println("---------------  prove  ---------------")
+          println(prover.prove(Disj.from(phi)))
+          println("-------------  disprove  --------------")
+          println(prover.disprove(Conj.from(phi)))
+          println("=======================================")
+        }
         case Assert(phi) => slv.assert(phi)
         case _ =>
       }

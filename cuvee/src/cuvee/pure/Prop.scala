@@ -47,15 +47,17 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
 
   // def text = Printer.Disj(xs, neg, pos)
   def bound = xs.toSet
-  def toExpr =
-    if (xs.isEmpty)
-      And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr))
-    else
-      Forall(xs, And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr)))
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Disj(xs rename a, neg map (_ rename re), pos map (_ rename re))
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
     Disj(xs rename a, neg map (_ subst su), pos map (_ subst su))
+
+  def toExpr: Expr = (xs, neg) match {
+    case (Nil, Nil) => Or(pos map (_.toExpr))
+    case (Nil, _  ) => Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr)))
+    case (_  , Nil) => Forall(xs, Or(pos map (_.toExpr)))
+    case _          => Forall(xs, Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr))))
+  }
 }
 
 // represents
@@ -65,15 +67,15 @@ case class Conj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     with Expr.bind[Conj] {
   // def text = Printer.Conj(xs, neg, pos)
   def bound = xs.toSet
-  def toExpr =
-    if (xs.isEmpty)
-      And((neg map (_.toExpr)) ++ (pos map (!_.toExpr)))
-    else
-      Exists(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Conj(xs rename a, neg map (_ rename re), pos map (_ rename re))
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
     Conj(xs rename a, neg map (_ subst su), pos map (_ subst su))
+
+  def toExpr: Expr = xs match {
+    case Nil => And((neg map (_.toExpr)) ++ (pos map (!_.toExpr)))
+    case _   => Exists(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
+  }
 }
 
 object Disj {
@@ -91,6 +93,8 @@ object Disj {
   //   case Imp(And(neg), Or(pos))             => Some((Nil, neg, pos))
   //   case _                                  => None
   // }
+
+  def from(exp: Expr): Disj  = Disj.show(List(exp), Nil, Nil, Nil);
 
   def assume(
       that: List[Expr],
@@ -234,4 +238,6 @@ object Conj {
         show(rest, xs, neg ++ List(Atom(phi)), pos)
     }
   }
+
+  def from(exp: Expr): Conj  = Conj.show(List(exp), Nil, Nil, Nil);
 }
