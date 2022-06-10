@@ -60,7 +60,7 @@ class Prove(solver: Solver) {
 
         // Declare the variables from the forall-quantifier
         for (x <- xs__)
-          solver.declare(DeclareFun(x.name, Nil, x.typ))
+          solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
 
         // Attempt to prove the antecedent
         val ant_ = prove(ant)

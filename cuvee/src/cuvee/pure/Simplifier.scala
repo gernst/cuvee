@@ -12,19 +12,15 @@ object Simplifier {
   }
 
   def simplifyAnd(phis: List[Expr]): Expr = {
-    var phis_ = phis.map(simplify)
-                    .filter(expr => expr != True)
-    if (phis_.contains(False))
-        return False
-    And(phis_)
+    val phis_f = And.flatten(phis)
+    if (phis_f contains False) False
+    And(phis_f.distinct filter (_ != True))
   }
 
   def simplifyOr(phis: List[Expr]): Expr = {
-    var phis_ = phis.map(simplify)
-                    .filter(expr => expr != False)
-    if (phis_.contains(True))
-        return True
-    Or(phis_)
+    val phis_f = Or.flatten(phis)
+    if (phis_f contains True) True
+    Or(phis_f.distinct filter (_ != False))
   }
 
   def simplifyImp(phi: Expr, psi: Expr): Expr = {
@@ -44,9 +40,10 @@ object Simplifier {
   def simplifyNot(phi: Expr): Expr = {
     var phi_ = simplify(phi)
     phi_ match {
-      case False => True
-      case True  => False
-      case _     => Not(phi_)
+      case False        => True
+      case True         => False
+      case Not(psi)     => psi
+      case _            => Not(phi_)
     }
   }
 

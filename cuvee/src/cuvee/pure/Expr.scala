@@ -483,6 +483,7 @@ object Quant {
 case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     extends Expr
     with Expr.bind[Bind] {
+
   require(bound.nonEmpty)
 
   def free = body.free -- formals

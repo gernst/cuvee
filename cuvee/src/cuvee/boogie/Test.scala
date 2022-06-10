@@ -29,9 +29,9 @@ object Test extends Main {
           println("--------------  is true  --------------")
           println(slv.isTrue(phi))
           println("---------------  prove  ---------------")
-          println(prover.prove(Disj.from(phi)))
+          println(prover.prove(Disj.from(phi)).toExpr)
           println("-------------  disprove  --------------")
-          println(prover.disprove(Conj.from(phi)))
+          println(prover.disprove(Conj.from(phi)).toExpr)
           println("=======================================")
         }
         case Assert(phi) => slv.assert(phi)
