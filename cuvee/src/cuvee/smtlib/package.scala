@@ -27,12 +27,47 @@ package object smtlib {
     new solver(st, "z3", "-t:" + timeout, "-in")
 
   def cvc4(st: State, timeout: Int = 1000) =
-    new solver(st, "cvc4", "--tlimit=" + timeout, "--lang=smt2", "--incremental", "--increment-triggers")
+    new solver(
+      st,
+      "cvc4",
+      "--tlimit=" + timeout,
+      "--lang=smt2",
+      "--incremental",
+      "--increment-triggers"
+    )
 
-  def echo(st: State)
-    = new solver(st, "echo", "unsat")
+  def echo(st: State) = new solver(st, "echo", "unsat")
 
   val PrintSuccess = SetOption(List(":print-success", "true"))
+
+  object stdout extends print(System.out)
+  object stderr extends print(System.err)
+
+  class print(out: PrintStream) extends Sink {
+    def ack(cmd: Cmd) {
+      for (line <- cmd.lines)
+        out println line
+      Success
+    }
+
+    def check() = {
+      for (line <- CheckSat.lines)
+        out println line
+      Unknown
+    }
+
+    def model() = {
+      for (line <- GetModel.lines)
+        out println line
+      Model(Nil)
+    }
+
+    def assertions() = {
+      for (line <- GetAssertions.lines)
+        out println line
+      Assertions(Nil)
+    }
+  }
 
   class solver(st: State, cmd: String*) extends Solver {
     val (out, in, err, proc) = Tool.pipe(cmd: _*)

@@ -58,6 +58,16 @@ trait Sink {
 }
 
 object Sink {
+  class print(out: PrintStream) extends Sink {
+    def ack(cmd: Cmd) {
+      for(line <- out.lines)
+      Success
+    }
+    def check(): IsSat
+    def model(): Model
+    def assertions(): Assertions
+  }
+
   class tee(primary: Sink, secondary: Sink*) {
     def ack(cmd: Cmd) = {
       for (that <- secondary)
@@ -65,19 +75,19 @@ object Sink {
       primary ack cmd
     }
 
-    def check()= {
+    def check() = {
       for (that <- secondary)
         that.check()
       primary.check()
     }
 
-    def model()= {
+    def model() = {
       for (that <- secondary)
         that.model()
       primary.model()
     }
 
-    def assertions()= {
+    def assertions() = {
       for (that <- secondary)
         that.assertions()
       primary.assertions()
