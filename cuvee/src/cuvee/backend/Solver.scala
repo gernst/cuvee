@@ -57,6 +57,34 @@ trait Sink {
   }
 }
 
+object Sink {
+  class tee(primary: Sink, secondary: Sink*) {
+    def ack(cmd: Cmd) = {
+      for (that <- secondary)
+        that ack cmd
+      primary ack cmd
+    }
+
+    def check()= {
+      for (that <- secondary)
+        that.check()
+      primary.check()
+    }
+
+    def model()= {
+      for (that <- secondary)
+        that.model()
+      primary.model()
+    }
+
+    def assertions()= {
+      for (that <- secondary)
+        that.assertions()
+      primary.assertions()
+    }
+  }
+}
+
 trait Solver extends Sink {
   def isTrue(phi: Expr) =
     (phi == True) || isUnsat(!phi)
