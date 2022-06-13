@@ -79,12 +79,12 @@ object Expr extends Alpha[Expr, Var] {
   val boogieInfix =
     Set("<=", ">=", "<", ">", "+", "-", "*") union boogie.Parser.translate.values.toSet
 
-  def fresh(name: String, typ: Type) =
-    Var(name, typ, Some(nextIndex))
+  def fresh(name: Name, typ: Type) =
+    Var(name.withIndex(nextIndex), typ)
 
-  def vars(name: String, types: List[Type]) = {
+  def vars(name: Name, types: List[Type]) = {
     for ((t, i) <- types.zipWithIndex)
-      yield Var(name, t, Some(i))
+      yield Var(name.withIndex(i), t)
   }
 
   // mirror Sort.prod
@@ -188,14 +188,30 @@ object Expr extends Alpha[Expr, Var] {
   }
 }
 
-class VarList(vars: List[Var]) extends Expr.xs(vars) {
-  def inst(su: Map[Param, Type]) = vars map (_ inst su)
+/** Identifier for expressions
+  *
+  * @param name
+  *   String identifying the item
+  * @param index
+  *   Optional integral index
+  */
+case class Name(name: String, index: Option[Int] = None) {
+  def withName(name_ : String) = Name(name_, index)
+  def withIndex(index_ : Int) = Name(name, Some(index_))
 
-  def prime = vars map (_.prime)
-  def names = vars map { case Var(name, _, None) => name }
-  def types = vars map (_.typ)
-  def pairs = vars map { case Var(name, typ, None) => name -> typ }
-  def asFormals = vars map { case x => x -> x.typ }
+  /** Convert the name into a label that may be given to a solver for instance.
+    *
+    * @return
+    *   String of the form `name$index` or `name`, if there's no index.
+    */
+  def toLabel: String = name ~~ index
+  override def toString: String = name __ index
+}
+
+object Name {
+  implicit def stringToName(name: String): Name = Name(name, None)
+  implicit def stringRenameToNameRename(f: String => String): (Name => Name) =
+    name => name.withName(f(name.name))
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
@@ -241,6 +257,16 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
   def bexpr = List(name __ index)
 
   override def toString = name __ index
+}
+
+class VarList(vars: List[Var]) extends Expr.xs(vars) {
+  def inst(su: Map[Param, Type]) = vars map (_ inst su)
+
+  def prime = vars map (_.prime)
+  def names = vars map { case Var(Name(name, _), _) => name }
+  def types = vars map (_.typ)
+  def pairs = vars map { case Var(Name(name, _), typ) => name -> typ }
+  def asFormals = vars map { case x => x -> x.typ }
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {
