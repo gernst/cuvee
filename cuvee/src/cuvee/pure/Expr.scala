@@ -438,7 +438,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case Eq(lhs, rhs) if lhs.typ == Sort.bool  => List(lhs, " ", "<==>", " ", rhs)
     // Infix operators
     case App(_, List(left, right))
-      if Expr.boogieInfix contains inst.fun.name
+      if Expr.boogieInfix contains inst.fun.name.name
       => List("(", left, " ", inst, " ", right, ")")
     // Unary -
     case Not(psi)                  => List("!", "(", psi, ")")
@@ -453,7 +453,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     (inst, args) match {
       case (_, Nil) =>
         inst.toString
-      case (_, List(left, right)) if Expr.infix contains inst.fun.name =>
+      case (_, List(left, right)) if Expr.infix contains inst.fun.name.name =>
         "(" + left + " " + inst + " " + right + ")"
       case _ =>
         inst + args.mkString("(", ", ", ")")
