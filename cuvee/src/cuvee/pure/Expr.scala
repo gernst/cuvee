@@ -223,20 +223,20 @@ class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
     exprs map (_ subst (ty, su))
 }
 
-case class Var(name: String, typ: Type, index: Option[Int] = None)
+case class Var(name: Name, typ: Type)
     extends Expr
     with Expr.x {
   def fresh(index: Int): Var =
-    Var(name, typ, Some(index))
+    Var(name.withIndex(index), typ)
   def inst(su: Map[Param, Type]) =
-    Var(name, typ subst su, index)
+    Var(name, typ subst su)
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     subst(
       su
     ) // no need to look at ty, it is relevant for function applications only
 
-  def prime =
-    Var(name + "^", typ, index)
+  def prime: Var =
+    Var(name.withName(name.name + "^"), typ)
 
   def in(that: Expr): Boolean = {
     that match {
@@ -253,10 +253,10 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
     that exists (this in _)
   }
 
-  def sexpr = name ~~ index
-  def bexpr = List(name __ index)
+  def sexpr = name
+  def bexpr = List(name)
 
-  override def toString = name __ index
+  override def toString = name.toString
 }
 
 class VarList(vars: List[Var]) extends Expr.xs(vars) {
