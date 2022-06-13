@@ -241,6 +241,13 @@ case class Var(name: Name, typ: Type)
       su
     ) // no need to look at ty, it is relevant for function applications only
 
+  /**
+    * Skolemize this variable, transferring it to a constant function without parameters.
+    *
+    * @return Function that represents the variable
+    */
+  def skolem: Fun = Fun(name, Nil, Nil, typ)
+
   def prime: Var =
     Var(name.withName(name.name + "^"), typ)
 

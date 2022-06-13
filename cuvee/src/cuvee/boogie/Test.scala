@@ -18,6 +18,7 @@ object Test extends Main {
 
     val slv = z3(st)
     // val slv = new Sink.tee(z3(st), stdout)
+
     val prover = new Prove(slv)
 
     for (cmd ← cmds) {
@@ -29,6 +30,8 @@ object Test extends Main {
           println(phi.lines(cuvee.boogie.Printer).mkString(""))
           println("--------------  is true  --------------")
           println(slv.isTrue(phi))
+          println("--------------  to Disj  --------------")
+          println(Disj.from(phi))
           println("---------------  prove  ---------------")
           val disj = Disj.from(phi);
           println(disj)
