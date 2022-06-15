@@ -65,19 +65,19 @@ case object CheckSat extends Cmd {
   def sexpr = List("check-sat")
 }
 
-case class DeclareSort(name: String, arity: Int) extends Decl {
+case class DeclareSort(name: Name, arity: Int) extends Decl {
   def sexpr = List("declare-sort", name, arity)
 }
-case class DefineSort(name: String, args: List[Param], body: Type) extends Decl {
+case class DefineSort(name: Name, args: List[Param], body: Type) extends Decl {
   def sexpr = List("define-sort", name, args, body)
 }
 
-case class DeclareFun(name: String, args: List[Type], res: Type) extends Decl {
+case class DeclareFun(name: Name, args: List[Type], res: Type) extends Decl {
   def sexpr = List("declare-fun", name, args, res)
 }
 
 case class DefineFun(
-    name: String,
+    name: Name,
     formals: List[Var],
     res: Type,
     body: Expr,
@@ -92,7 +92,7 @@ case class DefineFun(
   )
 }
 
-case class DeclareDatatypes(arities: List[(String, Int)], cmds: List[Datatype])
+case class DeclareDatatypes(arities: List[(Name, Int)], cmds: List[Datatype])
     extends Decl {
   def sexpr = List("declare-datatypes", arities, cmds)
 }
