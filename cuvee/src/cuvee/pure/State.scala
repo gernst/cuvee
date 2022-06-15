@@ -53,11 +53,11 @@ object State {
 }
 
 class State(
-    var cons: Map[String, Con],
-    var condefs: Map[String, (List[Param], Type)],
-    var datatypes: Map[String, Datatype],
-    var funs: Map[(String, Int), Fun],
-    var fundefs: Map[(String, Int), (List[Var], Expr)]
+    var cons: Map[Name, Con],
+    var condefs: Map[Name, (List[Param], Type)],
+    var datatypes: Map[Name, Datatype],
+    var funs: Map[(Name, Int), Fun],
+    var fundefs: Map[(Name, Int), (List[Var], Expr)]
 ) {
   def constrs =
     for (
@@ -67,26 +67,26 @@ class State(
       yield c
 
   def copy(
-      cons: Map[String, Con] = cons,
-      condefs: Map[String, (List[Param], Type)] = condefs,
-      datatypes: Map[String, Datatype] = datatypes,
-      funs: Map[(String, Int), Fun] = funs,
-      fundefs: Map[(String, Int), (List[Var], Expr)] = fundefs
+      cons: Map[Name, Con] = cons,
+      condefs: Map[Name, (List[Param], Type)] = condefs,
+      datatypes: Map[Name, Datatype] = datatypes,
+      funs: Map[(Name, Int), Fun] = funs,
+      fundefs: Map[(Name, Int), (List[Var], Expr)] = fundefs
   ) =
     new State(cons, condefs, datatypes, funs, fundefs)
 
-  def param(name: String): Param = {
+  def param(name: Name): Param = {
     Param(name)
   }
 
-  def con(name: String, arity: Int = 0): Con = {
+  def con(name: Name, arity: Int = 0): Con = {
     require(!(cons contains name), "type constructor already declared: " + name)
     val con = Con(name, arity)
     cons += (name -> con)
     con
   }
 
-  def condef(name: String, params: List[Param], typ: Type): Unit = {
+  def condef(name: Name, params: List[Param], typ: Type): Unit = {
     require(cons contains name, "type constructor not declared: " + name)
     require(
       !(condefs contains name),
@@ -95,13 +95,13 @@ class State(
     condefs += (name -> (params, typ))
   }
 
-  def datatype(name: String, dt: Datatype): Unit = {
+  def datatype(name: Name, dt: Datatype): Unit = {
     require(!(datatypes contains name), "datatype already defined: " + name)
     datatypes += (name -> dt)
   }
 
   def fun(
-      name: String,
+      name: Name,
       params: List[Param],
       args: List[Type],
       res: Type
@@ -113,14 +113,14 @@ class State(
     fun
   }
 
-  def fundef(name: String, args: List[Var], body: Expr): Unit = {
+  def fundef(name: Name, args: List[Var], body: Expr): Unit = {
     val arity = args.length
     require(funs contains (name, arity) , "function not declared: " + name)
     require(!(fundefs contains (name, arity)), "function already defined: " + name)
     fundefs + ((name, arity) -> (args, body))
   }
 
-  def sort(name: String, args: List[Type] = Nil): Sort = {
+  def sort(name: Name, args: List[Type] = Nil): Sort = {
     require(cons contains name, "type constructor not declared: " + name)
     val con = cons(name)
     require(
@@ -146,7 +146,7 @@ class State(
       su = Type.unify(types1, types2, su)
     }
 
-    def x(name: String, typ: Type) = {
+    def x(name: Name, typ: Type) = {
       Pre(Var(name, typ))
     }
 
@@ -164,11 +164,11 @@ class State(
       Pre(Bind(quant, bound, body.expr, typ))
     }
 
-    def const(name: String) = {
+    def const(name: Name) = {
       app(name, Nil)
     }
 
-    def app(name: String, args: List[Pre]) = {
+    def app(name: Name, args: List[Pre]) = {
       val arity = args.length
       val fun = funs(name, arity)
       val inst = fun.generic

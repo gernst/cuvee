@@ -263,9 +263,9 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def inst(su: Map[Param, Type]) = vars map (_ inst su)
 
   def prime = vars map (_.prime)
-  def names = vars map { case Var(Name(name, _), _) => name }
+  def names = vars map { case Var(name, _) => name }
   def types = vars map (_.typ)
-  def pairs = vars map { case Var(Name(name, _), typ) => name -> typ }
+  def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
 }
 
