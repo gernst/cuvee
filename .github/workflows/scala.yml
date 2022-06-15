@@ -1,0 +1,14 @@
+name: Build Cuvée
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: jodersky/setup-mill@v0.2.3
+      with:
+        mill-version: 0.9.12
+    - name: Checkout Arse
+      run: git submodule init && git submodule update
+    - name: Build
+      run: mill cuvee.assembly
