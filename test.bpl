@@ -20,10 +20,14 @@ axiom (x > 0);
 lemma (x == 0 <==> -x >= 0);
 
 lemma (
-    (exists y: int :: forall x: int :: p(x,y))
-        ==> (forall x: int :: exists y: int :: p(x,y))
-  );
+      (exists y: int :: forall x: int :: p(x,y))
+  ==> (forall x: int :: exists y: int :: p(x,y))
+);
 
 lemma -a == a;
 
 const bits: [int] bool;
+
+function isSorted (list: [int] int, len: int) : bool {
+  forall i: int :: 0 <= i && i + 1 < len ==> list[i] <= list[i + 1]
+}

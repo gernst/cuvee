@@ -445,6 +445,8 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     // Unary -
     case Not(psi)                  => List("!", "(", psi, ")")
     case UMinus(term)              => List("-", "(", term, ")")
+    // Map access
+    case Select(arr, idx)          => List(arr, "[", idx, "]")
     // Applications (i.e. function calls)
     case App(_, args)              => inst :: intersperse(args, "(", ", ", ")")
     case _ if args.isEmpty         => List(inst)
