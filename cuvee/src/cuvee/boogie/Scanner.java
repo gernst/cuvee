@@ -753,7 +753,7 @@ public class Scanner {
             // fall through
           case 13: break;
           case 6:
-            { return Parser.name().apply(yytext());
+            { return Parser.id().apply(yytext());
             }
             // fall through
           case 14: break;

@@ -43,7 +43,7 @@ quant = "forall" | "exists"
 \" ~ \"     { return Parser.string().apply(yytext(+1,-1)); }
 {quant}     { return Parser.quant().apply(yytext()); }
 {number}    { return Parser.number().apply(yytext()); }
-{name}      { return Parser.name().apply(yytext()); }
+{name}      { return Parser.id().apply(yytext()); }
 {op}        { return Parser.opname().apply(yytext()); }
 
 [^]         { throw new RuntimeException("unexpected character '" + yytext() + "' at " + yyline + ":" + yycolumn); }

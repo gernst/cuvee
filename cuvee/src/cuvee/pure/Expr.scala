@@ -208,10 +208,12 @@ case class Name(name: String, index: Option[Int] = None) {
   override def toString: String = name __ index
 }
 
-object Name {
+object Name extends (String => Name) {
   implicit def stringToName(name: String): Name = Name(name, None)
   implicit def stringRenameToNameRename(f: String => String): (Name => Name) =
     name => name.withName(f(name.name))
+
+  def apply(name: String) = Name(name, None)
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
