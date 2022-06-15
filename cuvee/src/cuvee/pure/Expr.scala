@@ -79,12 +79,12 @@ object Expr extends Alpha[Expr, Var] {
   val boogieInfix =
     Set("<=", ">=", "<", ">", "+", "-", "*") union boogie.Parser.translate.values.toSet
 
-  def fresh(name: String, typ: Type) =
-    Var(name, typ, Some(nextIndex))
+  def fresh(name: Name, typ: Type) =
+    Var(name.withIndex(nextIndex), typ)
 
-  def vars(name: String, types: List[Type]) = {
+  def vars(name: Name, types: List[Type]) = {
     for ((t, i) <- types.zipWithIndex)
-      yield Var(name, t, Some(i))
+      yield Var(name.withIndex(i), t)
   }
 
   // mirror Sort.prod
@@ -188,14 +188,32 @@ object Expr extends Alpha[Expr, Var] {
   }
 }
 
-class VarList(vars: List[Var]) extends Expr.xs(vars) {
-  def inst(su: Map[Param, Type]) = vars map (_ inst su)
+/** Identifier for expressions
+  *
+  * @param name
+  *   String identifying the item
+  * @param index
+  *   Optional integral index
+  */
+case class Name(name: String, index: Option[Int] = None) {
+  def withName(name_ : String) = Name(name_, index)
+  def withIndex(index_ : Int) = Name(name, Some(index_))
 
-  def prime = vars map (_.prime)
-  def names = vars map { case Var(name, _, None) => name }
-  def types = vars map (_.typ)
-  def pairs = vars map { case Var(name, typ, None) => name -> typ }
-  def asFormals = vars map { case x => x -> x.typ }
+  /** Convert the name into a label that may be given to a solver for instance.
+    *
+    * @return
+    *   String of the form `name$index` or `name`, if there's no index.
+    */
+  def toLabel: String = name ~~ index
+  override def toString: String = name __ index
+}
+
+object Name extends (String => Name) {
+  implicit def stringToName(name: String): Name = Name(name, None)
+  implicit def stringRenameToNameRename(f: String => String): (Name => Name) =
+    name => name.withName(f(name.name))
+
+  def apply(name: String) = Name(name, None)
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
@@ -207,20 +225,20 @@ class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
     exprs map (_ subst (ty, su))
 }
 
-case class Var(name: String, typ: Type, index: Option[Int] = None)
+case class Var(name: Name, typ: Type)
     extends Expr
     with Expr.x {
   def fresh(index: Int): Var =
-    Var(name, typ, Some(index))
+    Var(name.withIndex(index), typ)
   def inst(su: Map[Param, Type]) =
-    Var(name, typ subst su, index)
+    Var(name, typ subst su)
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     subst(
       su
     ) // no need to look at ty, it is relevant for function applications only
 
-  def prime =
-    Var(name + "^", typ, index)
+  def prime: Var =
+    Var(name.withName(name.name + "^"), typ)
 
   def in(that: Expr): Boolean = {
     that match {
@@ -237,10 +255,20 @@ case class Var(name: String, typ: Type, index: Option[Int] = None)
     that exists (this in _)
   }
 
-  def sexpr = name ~~ index
-  def bexpr = List(name __ index)
+  def sexpr = name
+  def bexpr = List(name)
 
-  override def toString = name __ index
+  override def toString = name.toString
+}
+
+class VarList(vars: List[Var]) extends Expr.xs(vars) {
+  def inst(su: Map[Param, Type]) = vars map (_ inst su)
+
+  def prime = vars map (_.prime)
+  def names = vars map { case Var(name, _) => name }
+  def types = vars map (_.typ)
+  def pairs = vars map { case Var(name, typ) => name -> typ }
+  def asFormals = vars map { case x => x -> x.typ }
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {
@@ -412,7 +440,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case Eq(lhs, rhs) if lhs.typ == Sort.bool  => List(lhs, " ", "<==>", " ", rhs)
     // Infix operators
     case App(_, List(left, right))
-      if Expr.boogieInfix contains inst.fun.name
+      if Expr.boogieInfix contains inst.fun.name.name
       => List("(", left, " ", inst, " ", right, ")")
     // Unary -
     case Not(psi)                  => List("!", "(", psi, ")")
@@ -427,7 +455,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     (inst, args) match {
       case (_, Nil) =>
         inst.toString
-      case (_, List(left, right)) if Expr.infix contains inst.fun.name =>
+      case (_, List(left, right)) if Expr.infix contains inst.fun.name.name =>
         "(" + left + " " + inst + " " + right + ")"
       case _ =>
         inst + args.mkString("(", ", ", ")")

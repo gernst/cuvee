@@ -145,7 +145,7 @@ class ParamList(params: List[Param]) extends Type.xs(params) {
 
 class TypeList(types: List[Type]) extends Type.terms(types)
 
-case class Param(name: String, index: Option[Int] = None)
+case class Param(name: Name, index: Option[Int] = None)
     extends Type
     with Type.x {
   def fresh(index: Int) =
@@ -168,17 +168,17 @@ case class Param(name: String, index: Option[Int] = None)
     types exists (this in _)
   }
 
-  def sexpr = name ~~ index
-  override def toString = name __ index
+  def sexpr = name
+  override def toString = name.toString
 }
 
 object Param {
-  val from: (String => Param) =
+  val from: (Name => Param) =
     name => Param(name)
 }
 
-case class Con(name: String, arity: Int) {
-  override def toString = name + "/" + arity
+case class Con(name: Name, arity: Int) {
+  override def toString = name.toString + "/" + arity
 }
 
 object Con {
@@ -204,9 +204,9 @@ case class Sort(con: Con, args: List[Type]) extends Type {
 
   override def toString =
     if (args.isEmpty)
-      con.name
+      con.name.toString
     else
-      con.name + args.mkString("[", ", ", "]")
+      con.name.toString + args.mkString("[", ", ", "]")
 }
 
 case class Prod(args: List[Type]) extends Type {

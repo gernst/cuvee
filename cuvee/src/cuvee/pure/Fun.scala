@@ -25,12 +25,12 @@ case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie
 
   def sexpr = fun.name
   val boogieOperators = boogie.Parser.translate.map(_.swap)
-  def bexpr = List(boogieOperators.getOrElse(fun.name, fun.name))
+  def bexpr = List(boogieOperators.getOrElse(fun.name.name, fun.name))
 
-  override def toString = fun.name
+  override def toString = fun.name.toString
 }
 
-case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
+case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
   def bound = params.toSet
 
   require(
@@ -43,7 +43,7 @@ case class Fun(name: String, params: List[Param], args: List[Type], res: Type) {
     "unbound parameters " + (res.free -- bound)
   )
 
-  def rename(f: String => String)
+  def rename(f: Name => Name)
     = Fun(f(name), params, args, res)
 
   def apply(args: Expr*) =

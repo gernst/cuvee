@@ -30,10 +30,10 @@ object Parser {
 
   def state = stack.value
 
-  object context extends Scope[String, Param] {}
+  object context extends Scope[Name, Param] {}
 
-  object scope extends Scope[String, Var] {
-    val declare: ((String, Type) => Var) = { case (name, typ) =>
+  object scope extends Scope[Name, Var] {
+    val declare: ((Name, Type) => Var) = { case (name, typ) =>
       val x = Var(name, typ)
       scope update (name, x)
       x
@@ -49,7 +49,7 @@ object Parser {
       value = Type.unify(types1, types2, value)
     }
 
-    def app(name: String, args: List[Expr]) = {
+    def app(name: Name, args: List[Expr]) = {
       val arity = args.length
       require(
         state.funs contains (name, arity),
@@ -62,12 +62,12 @@ object Parser {
     }
 
     def bind(
-        name: String,
+        name: Name,
         bound: List[Var],
         body: Expr,
         typ: Type
     ) = {
-      val quant = Quant(name)
+      val quant = Quant(name.name)
       Bind(quant, bound, body, typ)
     }
 
@@ -81,17 +81,19 @@ object Parser {
 
   def kw(name: String) = KW(name)
   val eof = new Token {}
-  val name = V[String]
+  val id = V[String]
   val opname = V[String]
   val number = V[String]
   val string = V[String]
   val quant = V[String]
 
+  val name = P(Name(id))
+
   val con = P(state.cons(name))
   val gen = P(Param.from(name))
   val gens = P(angle(gen ~* ",") | ret(Nil))
 
-  def make_sort: ((String, List[Type]) => Type) = {
+  def make_sort: ((Name, List[Type]) => Type) = {
     case (name, Nil) if context contains name =>
       context(name)
     case (name, args) if state.cons contains name =>
@@ -128,7 +130,7 @@ object Parser {
       typing.app(name, args)
   }
 
-  def make_app: ((String, List[Expr]) => Expr) = {
+  def make_app: ((Name, List[Expr]) => Expr) = {
     case (name, Nil) if scope contains name =>
       scope(name)
     case (name, args) if state.funs contains (name, args.length) =>
@@ -182,7 +184,7 @@ object Parser {
     Assert(expr_)
   }
 
-  val define_sort: ((String, List[Param], Option[Type]) => Cmd) = {
+  val define_sort: ((Name, List[Param], Option[Type]) => Cmd) = {
     case (name, params, None) =>
       val arity = params.length
       state.con(name, arity)
@@ -195,7 +197,7 @@ object Parser {
       DefineSort(name, params, typ)
   }
 
-  val define_fun: ((String, List[Var], Type, Option[Expr]) => Cmd) = {
+  val define_fun: ((Name, List[Var], Type, Option[Expr]) => Cmd) = {
     case (name, args, typ, None) =>
       state.fun(name, Nil, args.types, typ)
       DeclareFun(name, args.types, typ)
@@ -247,9 +249,7 @@ object Parser {
   val cmd = P(sortdef | fundef | axiom | lemma)
   val cmds = P(cmd.*)
 
-  val make_script: (List[Cmd] => (List[Cmd], State)) = { case cmds =>
-    (cmds, state)
-  }
+  val make_script: (List[Cmd] => (List[Cmd], State)) = cmds => (cmds, state)
 
   val script_ = P(make_script(cmds))
   val script = P(stack within script_)

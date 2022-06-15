@@ -3,12 +3,13 @@ package cuvee.smtlib
 import cuvee.error
 import cuvee.pure.Type
 import cuvee.pure.State
-import cuvee.sexpr._
 import cuvee.pure.Param
 import cuvee.pure.Datatype
 import cuvee.pure.Fun
 import cuvee.pure.Sort
 import cuvee.pure.Var
+import cuvee.pure.Name
+import cuvee.sexpr._
 
 class Parser(init: State) {
   // import st._
@@ -19,7 +20,7 @@ class Parser(init: State) {
   val bool = st.sort("Bool")
   val real = st.sort("Real")
 
-  val ctx0: Set[String] = Set()
+  val ctx0: Set[Name] = Set()
 
   def ack(from: Expr): Ack =
     from match {
@@ -110,12 +111,12 @@ class Parser(init: State) {
             Id(name),
             from @ App(Id("par"), App(args @ _*), App(alts @ _*))
           ) =>
-        val decl = (name, args.length)
+        val decl = (name: Name, args.length)
         val List(dt) = datatypes(List(decl), List(from))
         DeclareDatatypes(List(decl), List(dt))
 
       case App(Id("declare-datatype"), Id(name), from @ App(alts @ _*)) =>
-        val decl = (name, 0)
+        val decl = (name: Name, 0)
         val List(dt) = datatypes(List(decl), List(from))
         DeclareDatatypes(List(decl), List(dt))
 
@@ -129,7 +130,7 @@ class Parser(init: State) {
     }
 
   def datatypes(
-      decls: List[(String, Int)],
+      decls: List[(Name, Int)],
       froms: List[Expr]
   ): List[Datatype] = {
     for (((name, arity), from) <- decls zip froms)
@@ -139,7 +140,7 @@ class Parser(init: State) {
       }
   }
 
-  def sel(params: List[Param], in: Sort, from: Expr, ctx: Set[String]): Fun =
+  def sel(params: List[Param], in: Sort, from: Expr, ctx: Set[Name]): Fun =
     from match {
       case App(Id(name), arg) =>
         val out = typ(arg, ctx)
@@ -153,7 +154,7 @@ class Parser(init: State) {
       params: List[Param],
       typ: Sort,
       from: Expr,
-      ctx: Set[String]
+      ctx: Set[Name]
   ): (Fun, List[Fun]) =
     from match {
       case App(Id(name), args @ _*) =>
@@ -165,7 +166,7 @@ class Parser(init: State) {
         error("invalid constructor declaration: " + from)
     }
 
-  def datatype(name: String, arity: Int, from: Expr): Datatype =
+  def datatype(name: Name, arity: Int, from: Expr): Datatype =
     from match {
       case App(Id("par"), App(args @ _*), App(alts @ _*)) =>
         val params_ = params(args.toList)
@@ -182,10 +183,10 @@ class Parser(init: State) {
         error("invalid datatype declaration: " + from)
     }
 
-  def arity(from: Expr) =
+  def arity(from: Expr): (Name, Int) =
     from match {
       case App(Id(name), Lit.num(digits)) =>
-        (name, digits.toInt)
+        (name: Name, digits.toInt)
       case _ =>
         error("invalid arity declaration: " + from)
     }
@@ -193,7 +194,7 @@ class Parser(init: State) {
   def array(dom: Type, ran: Type) =
     st.sort("Array", List(dom, ran))
 
-  def formal(from: Expr, ctx: Set[String] = Set()): Var =
+  def formal(from: Expr, ctx: Set[Name] = Set()): Var =
     from match {
       case App(Id(name), what) =>
         Var(name, typ(what, ctx))
@@ -209,7 +210,7 @@ class Parser(init: State) {
         error("invalid type parameter: " + from)
     }
 
-  def typ(from: Expr, ctx: Set[String] = Set()): Type =
+  def typ(from: Expr, ctx: Set[Name] = Set()): Type =
     from match {
       case Id(name) if ctx contains name =>
         Param(name)
@@ -224,23 +225,23 @@ class Parser(init: State) {
   def cmds(from: List[Expr]): List[Cmd] =
     from map cmd
 
-  def formals(from: List[Expr], ctx: Set[String] = Set()): List[Var] =
+  def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
     from map (formal(_, ctx))
 
-  def types(from: List[Expr], ctx: Set[String] = Set()): List[Type] =
+  def types(from: List[Expr], ctx: Set[Name] = Set()): List[Type] =
     from map (typ(_, ctx))
 
   def params(from: List[Expr]): List[Param] =
     from map param
 
-  def arities(from: List[Expr]): List[(String, Int)] =
+  def arities(from: List[Expr]): List[(Name, Int)] =
     from map arity
 
   def sels(
       params: List[Param],
       res: Sort,
       from: List[Expr],
-      ctx: Set[String]
+      ctx: Set[Name]
   ): List[Fun] =
     from map { sel(params, res, _, ctx) }
 
@@ -248,14 +249,14 @@ class Parser(init: State) {
       params: List[Param],
       res: Sort,
       from: List[Expr],
-      ctx: Set[String]
+      ctx: Set[Name]
   ): List[(Fun, List[Fun])] =
     from map { constr(params, res, _, ctx) }
 
   def expr(
       from: Expr,
-      ctx: Iterable[String] = Set(),
-      scope: Iterable[(String, Type)] = Map()
+      ctx: Iterable[Name] = Set(),
+      scope: Iterable[(Name, Type)] = Map()
   ) = {
     val inner = exprs(st)
     val pre = inner.expr(from, ctx.toSet, scope.toMap)
@@ -265,8 +266,8 @@ class Parser(init: State) {
   def expr_typed(
       from: Expr,
       expect: Type,
-      ctx: Iterable[String] = Set(),
-      scope: Iterable[(String, Type)] = Map()
+      ctx: Iterable[Name] = Set(),
+      scope: Iterable[(Name, Type)] = Map()
   ) = {
     val inner = exprs(st)
     val pre = inner.expr(from, ctx.toSet, scope.toMap)
@@ -275,7 +276,7 @@ class Parser(init: State) {
   }
 
   def exprs(st: State) = new st.Exprs {
-    def expr(from: Expr, ctx: Set[String], scope: Map[String, Type]): Pre =
+    def expr(from: Expr, ctx: Set[Name], scope: Map[Name, Type]): Pre =
       from match {
         case Lit.num(digits) =>
           lit(digits.toInt, int)
@@ -300,9 +301,9 @@ class Parser(init: State) {
           bind(name, xs, body, bool)
 
         case App(Id(name), App(bound), arg) if name == "lambda" =>
-          val x @ Var(name, dom, _) = formal(bound, ctx)
+          val x @ Var(name, dom) = formal(bound, ctx)
           val body = expr(arg, ctx, scope + (name -> dom))
-          bind(name, List(x), body, array(dom, body.typ))
+          bind(name.toLabel, List(x), body, array(dom, body.typ))
 
         case App(Id(name), arg, App(cs @ _*)) if name == "match" =>
           match_(expr(arg, ctx, scope), cases(cs.toList, ctx, scope))
@@ -313,17 +314,18 @@ class Parser(init: State) {
 
     def pat(
         from: Expr,
-        ctx: Set[String]
-    ): (Pre, Map[String, Type]) =
+        ctx: Set[Name]
+    ): (Pre, Map[Name, Type]) =
       from match {
         case Id(name) =>
           (const(name), Map()) // TODO: do proper type checking in this function
 
         case App(Id(name), args @ _*) =>
           val fun = st funs (name, args.length)
-          var scope: Map[String, Type] = Map()
+          var scope: Map[Name, Type] = Map()
           val args_ = (args.toList zip fun.args) map { case (Id(name), typ) =>
-            scope += name -> typ
+            val name_ : Name = name
+            scope += name_ -> typ
             x(name, typ)
           }
           (app(name, args_), scope)
@@ -331,8 +333,8 @@ class Parser(init: State) {
 
     def case_(
         from: Expr,
-        ctx: Set[String],
-        scope: Map[String, Type]
+        ctx: Set[Name],
+        scope: Map[Name, Type]
     ): (Pre, Pre) =
       from match {
         case App(p, e) =>
@@ -345,16 +347,16 @@ class Parser(init: State) {
 
     def cases(
         from: List[Expr],
-        ctx: Set[String],
-        scope: Map[String, Type]
+        ctx: Set[Name],
+        scope: Map[Name, Type]
     ): List[(Pre, Pre)] = {
       from map (case_(_, ctx, scope))
     }
 
     def exprs(
         from: List[Expr],
-        ctx: Set[String],
-        scope: Map[String, Type]
+        ctx: Set[Name],
+        scope: Map[Name, Type]
     ): List[Pre] = {
       from map (expr(_, ctx, scope))
     }

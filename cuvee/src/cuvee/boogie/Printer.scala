@@ -17,6 +17,8 @@ object Printer extends cuvee.util.Printer {
     case i: Int      => List(i.toString)
     case i: BigInt   => List(i.toString)
     case f: Float    => List(f.toString)
+    // Name
+    case n: Name     => List(n.toLabel)
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax   => lines(s.bexpr)
     // String (= Id)
