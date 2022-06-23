@@ -27,17 +27,32 @@ object Tok {
 object Lit {
   val zero = num("0")
 
-  case class bin(digits: String) extends Lit { }
-  case class dec(digits: String) extends Lit { }
-  case class num(digits: String) extends Lit { }
-  case class hex(digits: String) extends Lit { }
-  case class str(digits: String) extends Lit { }
+  case class bin(digits: String) extends Lit {
+    override def toString = "#b" + digits
+  }
+
+  case class dec(digits: String) extends Lit {
+    override def toString = digits
+  }
+
+  case class num(digits: String) extends Lit {
+    override def toString = digits
+  }
+
+  case class hex(digits: String) extends Lit {
+    override def toString = "0x" + digits
+  }
+
+  case class str(digits: String) extends Lit {
+    override def toString = "\"" + digits + "\""
+  }
 }
 
-case class Kw(name: String) extends Lit { }
+case class Kw(name: String) extends Lit { override def toString = ":" + name }
 
 case class Id(name: String) extends Atom {
   def replace(re: Map[String, Expr]) = re getOrElse (name, this)
+  override def toString = name
 }
 
 object App {
@@ -47,4 +62,6 @@ object App {
 case class App(args: Expr*) extends Expr {
   def replace(re: Map[String, Expr]) =
     App(args map (_ replace re): _*)
+  override def toString =
+    args.mkString("(", " ", ")")
 }
