@@ -269,6 +269,7 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def types = vars map (_.typ)
   def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
+  def asScope = vars map { case x@Var(name, typ) => name -> x }
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {

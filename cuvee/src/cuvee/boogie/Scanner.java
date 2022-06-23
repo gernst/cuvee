@@ -738,7 +738,7 @@ public class Scanner {
             // fall through
           case 10: break;
           case 3:
-            { return Parser.opname().apply(yytext());
+            { return Parser.op().apply(yytext());
             }
             // fall through
           case 11: break;
