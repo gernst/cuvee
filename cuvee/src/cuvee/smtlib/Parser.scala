@@ -40,7 +40,7 @@ class Parser(init: State) {
 
   def cmd(from: Expr): Cmd =
     from match {
-      case App(Id("set-logic"), Lit.str(logic)) =>
+      case App(Id("set-logic"), Id(logic)) =>
         SetLogic(logic)
 
       case App(Id("set-option"), args @ _*) =>
@@ -134,10 +134,10 @@ class Parser(init: State) {
       froms: List[Expr]
   ): List[Datatype] = {
     for (((name, arity), from) <- decls zip froms)
-      yield {
-        st.con(name, arity)
-        datatype(name, arity, from)
-      }
+      st.con(name, arity)
+
+    for (((name, arity), from) <- decls zip froms)
+      yield datatype(name, arity, from)
   }
 
   def sel(params: List[Param], in: Sort, from: Expr, ctx: Set[Name]): Fun =

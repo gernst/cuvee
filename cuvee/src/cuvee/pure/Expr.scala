@@ -50,6 +50,7 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
       case Bind(quant, formals, body, typ) =>
+        println("here: " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
     }
   }
