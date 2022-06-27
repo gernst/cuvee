@@ -17,7 +17,11 @@ const x: int;
 
 axiom (x > 0);
 
-lemma (x == 0 <==> -x >= 0);
+lemma forall x : int :: (x == 0 <==> -x >= 0)
+proof induction x
+  zero    -> sorry,
+  succ(x) -> sorry
+end;
 
 lemma (
     (exists y: int :: forall x: int :: p(x,y))

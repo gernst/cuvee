@@ -38,6 +38,10 @@ trait Sink {
   def assert(expr: Expr) =
     ack(Assert(expr))
 
+  def assert(exprs: List[Expr]): Any = {
+    exprs.foldLeft(())((_, expr) => assert(expr))
+  }
+
   def push() =
     control(Push(1))
 

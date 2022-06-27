@@ -18,6 +18,7 @@ object Test extends Main {
     lines <- cmd.lines) {
       println(lines)
     }
+    // val prover = new Prove(slv)
 
     for (cmd ← cmds) {
       cmd match {
@@ -29,6 +30,19 @@ object Test extends Main {
           println("--------------  is true  --------------")
           println(slv.isTrue(phi))
           println("=======================================")
+        }
+        case Lemma(expr, tactic) => {
+          println("================  LEMMA  ================")
+          println("show:" + expr)
+
+          // val normalized = Disj.from(expr)
+          val normalized = Disj.show(List(expr), Nil, Nil, Nil)
+          if (tactic.isEmpty) {
+            println("No tactic given.")
+            // TODO: Consider what to do here. Call `prove` maybe?
+          } else {
+            println()
+          }
         }
         case _ =>
       }

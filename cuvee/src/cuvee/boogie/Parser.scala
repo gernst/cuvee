@@ -3,6 +3,7 @@ package cuvee.boogie
 import arse._
 
 import cuvee._
+import cuvee.backend._
 import cuvee.pure._
 import cuvee.smtlib.Cmd
 import cuvee.smtlib.Assert
@@ -10,6 +11,7 @@ import cuvee.smtlib.DeclareFun
 import cuvee.smtlib.DefineFun
 import cuvee.smtlib.DeclareSort
 import cuvee.smtlib.DefineSort
+import cuvee.smtlib.Lemma
 import scala.util.DynamicVariable
 import cuvee.smtlib.DeclareDatatypes
 
@@ -145,6 +147,16 @@ object Parser {
       error("unknown function: " + name)
   }
 
+  def make_var(scope: Map[Name, Var]): (Name => Var) = {
+    case name if scope contains name =>
+      scope(name)
+    case name =>
+      error(s"unknown variable: ${name.toString}")
+  }
+
+  def var_(implicit scope: Map[Name, Var]) =
+    P(make_var(scope)(name))
+
   def make_bind: ((String, (List[Var], Expr)) => Expr) = {
     case (name, (bound, body)) =>
       typing.bind(name, bound, body, Sort.bool)
@@ -249,8 +261,26 @@ object Parser {
   val axiom_ = typing within ("axiom" ~ formula ~ ";")
   val axiom = P(Assert(axiom_))
 
-  val lemma_ = typing within ("lemma" ~ Not(formula) ~ ";")
-  val lemma = P(Assert(lemma_))
+  val sorry = P(Sorry(KW("sorry")));
+  def induction(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("induction" ~ Induction(var_ ~ ((expr ~ "->" ~ tactic) ~* ",")) ~ "end");
+  def tactic(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) : Parser[Tactic, Token] = P(sorry | induction);
+
+  def collect_all_the_vars(phi: Expr): List[Var] = phi match {
+    case Forall(bound, body) =>
+      bound ++ collect_all_the_vars(body)
+    case _ =>
+      Nil
+  }
+
+  def scoped_tactic(phi: Expr)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+    val xs = collect_all_the_vars(phi)
+    tactic(scope ++ xs.asScope, ctx)
+  }
+
+  def lemma_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    ("lemma" ~ (typing within formula) ~@ (phi => ("proof" ~ scoped_tactic(phi)).?) ~ ";")
+  def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(Lemma(lemma_))
 
   def scoped_rhs(bound: List[Var]) = {
     implicit val scope: Map[Name, Var] = Map()
@@ -267,8 +297,8 @@ object Parser {
 
   val fundef = P(define_fun(const_ | fun_))
 
-  // val sortdef_ = define_sort("type" ~ name ~ gens ~ ("=" ~ typ).? ~ ";")
-  // val sortdef = P((context within sortdef_))
+  def sortdef_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = define_sort("type" ~ name ~ gens ~ ("=" ~ typ).? ~ ";")
+  def sortdef(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P((typing within sortdef_))
 
   def make_constr
       : ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {
@@ -304,13 +334,15 @@ object Parser {
 
   val datadef = P(make_datatype(("data" ~ name ~ gens ~ "=") ~@ constrs ~ ";"))
 
-  val cmd = P(/*sortdef | */ datadef | fundef | axiom | lemma)
-  val cmds = P(cmd.*)
+  def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(/*sortdef | */ datadef | fundef | axiom | lemma)
+  def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(cmd.*)
 
   val make_script: (List[Cmd] => (List[Cmd], State)) = cmds => (cmds, state)
 
-  val script_ = P(make_script(cmds))
-  val script = P(stack within script_)
+  def script_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(make_script(cmds))
+  def script(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(stack within script_)
+
+  // val script: Parser[(List[Cmd], State), Token] = ???
 
   object syntax extends Syntax[String, Token] {
     val infix_ops = Map(
