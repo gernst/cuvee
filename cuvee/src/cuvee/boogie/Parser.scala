@@ -20,9 +20,6 @@ object Parser {
   def ret[A](a: A) =
     new arse.Parser.Accept[A, Token](a)
 
-  val la = just(op filter (_ == "<"))
-  val ra = just(op filter (_ == ">"))
-
   def parens[A](p: Parser[A, Token]) = "(" ~ p ~ ")"
   def braces[A](p: Parser[A, Token]) = "{" ~ p ~ "}"
   def brackets[A](p: Parser[A, Token]) = "[" ~ p ~ "]"
@@ -85,6 +82,9 @@ object Parser {
   val string = V[String]
   val quant = V[String]
   val name = P(Name(id))
+
+  val la = just(op filter (_ == "<"))
+  val ra = just(op filter (_ == ">"))
 
   val con = P(state.cons(name))
   val gen = P(Param.from(name))
@@ -284,10 +284,13 @@ object Parser {
   }
 
   def sel(implicit params: List[Param], res: Type, ctx: Map[Name, Param]) =
-    P(Fun.unary(name ~ ":" ~ ret(params) ~ ret(res) ~ typ))
+    P(Fun.unary(name ~ ret(params) ~ ":" ~ ret(res) ~ typ))
+
+  def sels(implicit params: List[Param], res: Type, ctx: Map[Name, Param]) =
+    parens(sel ~* ",") | ret(Nil)
 
   def constr(implicit params: List[Param], res: Type, ctx: Map[Name, Param]) =
-    P(make_constr(name ~ ":" ~ ret(params) ~ parens(sel.*) ~ ret(res)))
+    P(make_constr(name ~ ret(params) ~ sels ~ ret(res)))
 
   def constrs(lhs: (Name, List[Param])) = {
     val ctx: Map[Name, Param] = Map()
@@ -296,37 +299,18 @@ object Parser {
     state.con(name, arity)
     val res = state.sort(name, params)
     val inner = constr(params, res, ctx ++ params.asContext)
-    inner.*
+    inner ~* "|"
   }
 
-  val datadecl = P(make_datatype(("data" ~ name ~ gens) ~@ constrs))
+  val datadef = P(make_datatype(("data" ~ name ~ gens ~ "=") ~@ constrs ~ ";"))
 
-  /*
-  val arity = P(Arity(sort ~ ret(0)))
-  val sel = P(Sel(id ~ ":" ~ typ))
-  val sels = parens(sel ~* ",") | ret(Nil)
-  val constr = P(Constr(id ~ sels))
-  val dt = P(Datatype(ret(Nil) ~ (constr ~* "|")))
-  val datadef = P(DeclareDatatype("data" ~ arity ~ "=" ~ dt ~ ";"))
-
-
-  val cmd = P(sortdef | datadef | axiom | lemma | const | fun)
-
-  val cmds = P(cmd.*)
-  val prelude = ret(List[Cmd](SetOption(List(":produce-models", "true"))))
-  val postlude = ret(List[Cmd](CheckSat, GetModel))
-  val script = P(prelude ++ cmds ++ postlude) */
-
-  /*
-  val cmd = P(sortdef | fundef | axiom | lemma)
+  val cmd = P(/*sortdef | */ datadef | fundef | axiom | lemma)
   val cmds = P(cmd.*)
 
   val make_script: (List[Cmd] => (List[Cmd], State)) = cmds => (cmds, state)
 
   val script_ = P(make_script(cmds))
-  val script = P(stack within script_) */
-
-  val script: Parser[(List[Cmd], State), Token] = ???
+  val script = P(stack within script_)
 
   object syntax extends Syntax[String, Token] {
     val infix_ops = Map(
