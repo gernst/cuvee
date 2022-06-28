@@ -5,6 +5,7 @@ import cuvee.util.Run
 
 import cuvee.pure._
 import cuvee.smtlib._
+import cuvee.backend.Tactic
 
 object _list extends Run(Test, "./list.bpl")
 object _test extends Run(Test, "./test.bpl")
@@ -32,16 +33,18 @@ object Test extends Main {
           println("=======================================")
         }
         case Lemma(expr, tactic) => {
+          println("\n\n")
           println("================  LEMMA  ================")
-          println("show:" + expr)
+          println("show:  " + expr)
 
           // val normalized = Disj.from(expr)
           val normalized = Disj.show(List(expr), Nil, Nil, Nil)
-          if (tactic.isEmpty) {
-            println("No tactic given.")
-            // TODO: Consider what to do here. Call `prove` maybe?
+
+          if (tactic.isDefined) {
+            rec(normalized, tactic.get, 1)
           } else {
-            println()
+            println("> open goal:  " + normalized)
+            println("(no tactic given)")
           }
         }
         case _ =>
@@ -55,4 +58,24 @@ object Test extends Main {
       run(cmds, st)
     }
   }
+
+  def rec(prop: Prop, tactic: Tactic, depth: Int = 0): Unit = {
+    def indent(depth: Int, indentStr: String = "  "): String = {
+      if (depth <= 0) return "";
+      indentStr + indent(depth - 1, indentStr)
+    }
+
+    println(indent(depth) + "---  PROOF OBLIGATION ---")
+    println(indent(depth) + "prop:    " + prop)
+    println(indent(depth) + "tactic:  " + tactic)
+    val result = tactic.apply(prop)
+    for((prop_, tactic_) <- result) {
+      if (tactic_.isDefined) {
+        rec(prop_, tactic_.get, depth + 1)
+      } else {
+        println(indent(depth) + "> open goal:  " + prop_)
+        println(indent(depth) + "(no tactic given)")
+      }
+    }
+  };
 }

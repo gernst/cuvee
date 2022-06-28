@@ -1,33 +1,7 @@
-const a: int;
-const b: int;
-const c: int;
+function P(n: int): bool;
 
-lemma a > 0 && b > 0 && c > 0 && a * a + b * b == c * c;
-
-const d: bool;
-const e: bool;
-
-lemma (d ==> e) ==> (!e ==> !d);
-
-lemma !!d ==> d;
-
-function p(x: int, y: int): bool;
-
-const x: int;
-
-axiom (x > 0);
-
-lemma forall x : int :: (x == 0 <==> -x >= 0)
+lemma forall x : int :: P(x)
 proof induction x
-  zero    -> sorry,
-  succ(x) -> sorry
+  0     -> sorry,
+  x + 1 -> sorry
 end;
-
-lemma (
-    (exists y: int :: forall x: int :: p(x,y))
-        ==> (forall x: int :: exists y: int :: p(x,y))
-  );
-
-lemma -a == a;
-
-const bits: [int] bool;

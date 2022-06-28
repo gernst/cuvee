@@ -43,6 +43,8 @@ object Atom {
 case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     extends Neg
     with Expr.bind[Disj] {
+  require(xs == xs.distinct)
+
   // def text = Printer.Disj(xs, neg, pos)
   def bound = xs.toSet
   def toExpr = Forall(xs, And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr)))
