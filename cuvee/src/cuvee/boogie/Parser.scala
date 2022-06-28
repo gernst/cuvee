@@ -11,14 +11,22 @@ import cuvee.smtlib.DefineFun
 import cuvee.smtlib.DeclareSort
 import cuvee.smtlib.DefineSort
 import scala.util.DynamicVariable
+import cuvee.smtlib.DeclareDatatypes
 
 object Parser {
   import arse.implicits._
 
+  // shadow existing definition for T = Token
+  def ret[A](a: A) =
+    new arse.Parser.Accept[A, Token](a)
+
+  val la = just(op filter (_ == "<"))
+  val ra = just(op filter (_ == ">"))
+
   def parens[A](p: Parser[A, Token]) = "(" ~ p ~ ")"
   def braces[A](p: Parser[A, Token]) = "{" ~ p ~ "}"
   def brackets[A](p: Parser[A, Token]) = "[" ~ p ~ "]"
-  def angle[A](p: Parser[A, Token]) = "<" ~ p ~ ">"
+  def angle[A](p: Parser[A, Token]) = la ~ p ~ ra
 
   def none[A](p: Parser[A, Token]) = p map { a => None }
   def some[A](p: Parser[A, Token]) = p map { a => Some(a) }
@@ -261,6 +269,37 @@ object Parser {
 
   // val sortdef_ = define_sort("type" ~ name ~ gens ~ ("=" ~ typ).? ~ ";")
   // val sortdef = P((context within sortdef_))
+
+  def make_constr
+      : ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {
+    case (name, params, sels, res) =>
+      (Fun(name, params, sels map (_.res), res), sels)
+  }
+
+  def make_datatype: (((Name, List[Param]), List[(Fun, List[Fun])]) => Cmd) = {
+    case ((name, params), constrs) =>
+      val arity = params.length
+      val dt = Datatype(params, constrs)
+      DeclareDatatypes(List((name, arity)), List(dt))
+  }
+
+  def sel(implicit params: List[Param], res: Type, ctx: Map[Name, Param]) =
+    P(Fun.unary(name ~ ":" ~ ret(params) ~ ret(res) ~ typ))
+
+  def constr(implicit params: List[Param], res: Type, ctx: Map[Name, Param]) =
+    P(make_constr(name ~ ":" ~ ret(params) ~ parens(sel.*) ~ ret(res)))
+
+  def constrs(lhs: (Name, List[Param])) = {
+    val ctx: Map[Name, Param] = Map()
+    val (name, params) = lhs
+    val arity = params.length
+    state.con(name, arity)
+    val res = state.sort(name, params)
+    val inner = constr(params, res, ctx ++ params.asContext)
+    inner.*
+  }
+
+  val datadecl = P(make_datatype(("data" ~ name ~ gens) ~@ constrs))
 
   /*
   val arity = P(Arity(sort ~ ret(0)))
