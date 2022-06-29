@@ -374,7 +374,7 @@ object Const {
   }
 }
 
-object App {
+object App extends ((Inst, List[Expr]) => App) {
   def apply(fun: Fun, args: List[Expr]): App = {
     require(
       fun.params.isEmpty || args.nonEmpty,

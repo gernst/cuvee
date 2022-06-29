@@ -1,7 +1,9 @@
-function P(n: int): bool;
+data list<a> = nil | cons(head: a, tail: list<a>);
 
-lemma forall x : int :: P(x)
+function P(n: list<int>): bool;
+
+lemma forall x : list<int> :: P(x)
 proof induction x
-  0     -> sorry,
-  x + 1 -> sorry
+  nil         -> sorry,
+  cons(a, xs) -> sorry
 end;

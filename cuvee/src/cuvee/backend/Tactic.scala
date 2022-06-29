@@ -34,7 +34,6 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)]) extends Tactic 
     val Disj(xs, pos, neg) = Disj.show(List(prop_.toExpr), Nil, Nil, Nil)
 
     // Build a formula that states the induction hypothesis, i.e. forall m : int :: m < variable ==> P(m)
-    // TODO: Actually choose a new name, not just "m" → use prop
     val n = variable
     val m = variable.prime
 

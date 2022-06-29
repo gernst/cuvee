@@ -261,19 +261,72 @@ object Parser {
   val axiom_ = typing within ("axiom" ~ formula ~ ";")
   val axiom = P(Assert(axiom_))
 
+  /* TACTICS */
+  // SORRY
   val sorry = P(Sorry(KW("sorry")));
-  def induction(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("induction" ~ Induction(var_ ~ ((expr ~ "->" ~ tactic) ~* ",")) ~ "end");
-  def tactic(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) : Parser[Tactic, Token] = P(sorry | induction);
 
-  def collect_all_the_vars(phi: Expr): List[Var] = phi match {
-    case Forall(bound, body) =>
-      bound ++ collect_all_the_vars(body)
-    case _ =>
-      Nil
+  // INDUCTION
+  def pat(implicit typ: Type): Parser[Expr, Token] =
+    P(unapply(typ) | var_typed(typ))
+
+  def var_typed(typ: Type) =
+    P(Var(name ~ ret(typ)))
+  def unapply(typ: Type): Parser[Expr, Token] =
+    P(App(constr_inst(typ) ~@ patargs))
+
+  def make_constr_inst(typ: Type): (Name => Inst) = name => {
+    typ match {
+      case sort: Sort =>
+            val tname = sort.con.name
+            val dt    = state.datatypes(tname)
+            val con   = dt.constrs.find(_._1.name == name)
+
+            con match {
+              case None => error("Could not find constructor")
+              case Some((constr, selectors)) =>
+                val su = Type.bind(constr.res, typ)
+                Inst(constr, su)
+            }
+      // TODO: Check whether this will work in all circumstances
+      case _ => error("Variable in induction tactic not parsed as sort. Cannot continue.")
+    }
   }
 
+  def constr_inst(typ: Type): Parser[Inst, Token] =
+    P(make_constr_inst(typ)(name))
+
+  def patargs(inst: Inst): Parser[List[Expr], Token] = {
+    val ts = inst.args
+    if (ts.isEmpty)
+      ret(Nil)
+    else {
+      val ps = ts map (t => pat(t))
+      parens( ps.join(",") )
+    }
+  }
+
+  def case_(scope: Map[Name, Var])(implicit typ: Type, ctx: Map[Name, Param]): Parser[(Expr, Tactic), Token] =
+    pat(typ) ~ "->" ~@ (e => {
+      val xs = e.free
+      val scope_ = scope ++ xs.map {x => (x.name, x)}
+      tactic(scope_, ctx)
+    })
+
+  def induction(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[Induction, Token] =
+    P("induction" ~ Induction( var_ ~@ (v => case_(scope)(v.typ, ctx) ~* ",") ) ~ "end");
+
+  // ANY TACTIC
+  def tactic(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) : Parser[Tactic, Token] =
+    P(sorry | induction);
+
   def scoped_tactic(phi: Expr)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+    def collect_all_the_vars(phi: Expr): List[Var] = phi match {
+      case Forall(bound, body) =>
+        bound ++ collect_all_the_vars(body)
+      case _ =>
+        Nil
+    }
+
     val xs = collect_all_the_vars(phi)
     tactic(scope ++ xs.asScope, ctx)
   }
@@ -303,6 +356,13 @@ object Parser {
   def make_constr
       : ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {
     case (name, params, sels, res) =>
+      // declare the constructor
+      state.fun(name, params, sels map (_.res), res)
+      // declare projections for the selectors
+      for (sel <- sels) {
+        state.fun(sel.name, sel.params, sel.args, sel.res)
+      }
+
       (Fun(name, params, sels map (_.res), res), sels)
   }
 
@@ -310,6 +370,7 @@ object Parser {
     case ((name, params), constrs) =>
       val arity = params.length
       val dt = Datatype(params, constrs)
+      state.datatype(name, dt)
       DeclareDatatypes(List((name, arity)), List(dt))
   }
 

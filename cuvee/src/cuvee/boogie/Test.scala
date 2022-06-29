@@ -15,10 +15,6 @@ object Test extends Main {
     val slv = z3(st)
     import cuvee.sexpr.Printer
 
-    for(cmd <- cmds;
-    lines <- cmd.lines) {
-      println(lines)
-    }
     // val prover = new Prove(slv)
 
     for (cmd ← cmds) {
