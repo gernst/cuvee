@@ -266,34 +266,29 @@ object Parser {
   val sorry = P(Sorry(KW("sorry")));
 
   // INDUCTION
-  def pat(implicit typ: Type): Parser[Expr, Token] =
-    P(unapply(typ) | var_typed(typ))
+  def make_pat(typ: Type): (Name => Parser[Expr, Token]) = {
+    // Check if name identifies a constructor of the correct type
+    case name if state.constrs exists (_.name == name) =>
+      val sort  = typ.asInstanceOf[Sort]
+      val dt    = state.datatypes(sort.con.name)
 
-  def var_typed(typ: Type) =
-    P(Var(name ~ ret(typ)))
-  def unapply(typ: Type): Parser[Expr, Token] =
-    P(App(constr_inst(typ) ~@ patargs))
+      dt.constrs.find(_._1.name == name) match {
+        case None => error("Could not find constructor")
+        case Some((con, _)) =>
+          val su = Type.bind(con.res, typ)
+          val inst = Inst(con, su)
 
-  def make_constr_inst(typ: Type): (Name => Inst) = name => {
-    typ match {
-      case sort: Sort =>
-            val tname = sort.con.name
-            val dt    = state.datatypes(tname)
-            val con   = dt.constrs.find(_._1.name == name)
+          val mkapp: (List[Expr] => Expr) = l => App(inst, l)
 
-            con match {
-              case None => error("Could not find constructor")
-              case Some((constr, selectors)) =>
-                val su = Type.bind(constr.res, typ)
-                Inst(constr, su)
-            }
-      // TODO: Check whether this will work in all circumstances
-      case _ => error("Variable in induction tactic not parsed as sort. Cannot continue.")
-    }
+          P( mkapp(patargs(inst)) )
+      }
+    // Otherwise, it's a variable
+    case name =>
+      P(ret(Var(name, typ)))
   }
 
-  def constr_inst(typ: Type): Parser[Inst, Token] =
-    P(make_constr_inst(typ)(name))
+  def pat(implicit typ: Type): Parser[Expr, Token] =
+    P(name ~>@ make_pat(typ))
 
   def patargs(inst: Inst): Parser[List[Expr], Token] = {
     val ts = inst.args
