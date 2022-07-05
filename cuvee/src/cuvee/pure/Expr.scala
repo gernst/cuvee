@@ -409,6 +409,11 @@ object App extends ((Inst, List[Expr]) => App) {
 }
 
 case class App(inst: Inst, args: List[Expr]) extends Expr {
+  require(
+    inst.args == args.types,
+    "The actual arguments' types don't match the function parameter types"
+  )
+
   def typ = inst.res
   // val su = Type.subst(fun.params, inst)
 
