@@ -9,6 +9,6 @@ jobs:
       with:
         mill-version: 0.9.12
     - name: Checkout Arse
-      run: git submodule init && git submodule update
+      run: git submodule init && git submodule set-url arse https://github.com/gernst/arse.git && git submodule update
     - name: Build
       run: mill cuvee.assembly
