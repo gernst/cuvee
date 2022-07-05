@@ -79,8 +79,11 @@ object Expr extends Alpha[Expr, Var] {
   val boogieInfix =
     Set("<=", ">=", "<", ">", "+", "-", "*") union boogie.Parser.translate.values.toSet
 
-  def fresh(name: Name, typ: Type) =
+  def fresh(name: Name, typ: Type): Var =
     Var(name.withIndex(nextIndex), typ)
+
+  def fresh(names: List[Name], types: List[Type]): List[Var] =
+    names zip types map { case (name, typ) => Var(name.withIndex(nextIndex), typ) }
 
   def vars(name: Name, types: List[Type]) = {
     for ((t, i) <- types.zipWithIndex)

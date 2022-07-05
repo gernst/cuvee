@@ -37,9 +37,9 @@ object Test extends Main {
           val normalized = Disj.show(List(expr), Nil, Nil, Nil)
 
           if (tactic.isDefined) {
-            rec(normalized, tactic.get, 1)
+            rec(normalized, tactic.get, 1)(st)
           } else {
-            println("> open goal:  " + normalized)
+            println("> open goal:  " + normalized.toExpr)
             println("(no tactic given)")
           }
         }
@@ -55,22 +55,23 @@ object Test extends Main {
     }
   }
 
-  def rec(prop: Prop, tactic: Tactic, depth: Int = 0): Unit = {
+  def rec(prop: Prop, tactic: Tactic, depth: Int = 0)(implicit state: State): Unit = {
     def indent(depth: Int, indentStr: String = "  "): String = {
       if (depth <= 0) return "";
       indentStr + indent(depth - 1, indentStr)
     }
 
     println(indent(depth) + "---  PROOF OBLIGATION ---")
-    println(indent(depth) + "prop:    " + prop)
+    println(indent(depth) + "prop:    " + prop.toExpr)
     println(indent(depth) + "tactic:  " + tactic)
-    val result = tactic.apply(prop)
+    val result = tactic.apply(state, prop)
     for((prop_, tactic_) <- result) {
       if (tactic_.isDefined) {
         rec(prop_, tactic_.get, depth + 1)
       } else {
-        println(indent(depth) + "> open goal:  " + prop_)
-        println(indent(depth) + "(no tactic given)")
+        println(indent(depth + 1) + "---  OPEN PROOF OBLIGATION ---")
+        println(indent(depth + 1) + "prop:    " + prop.toExpr)
+        println(indent(depth + 1) + "NO TACTIC GIVEN")
       }
     }
   };

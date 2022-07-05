@@ -3,48 +3,78 @@ package cuvee.backend
 import cuvee.pure._
 import cuvee.smtlib.Cmd
 
-/**
-  * Represents a tactic that can be applied to a proof obligation.
+/** Represents a tactic that can be applied to a proof obligation.
   */
 trait Tactic {
-  def apply(prop: Prop): List[(Prop, Option[Tactic])]
+  def apply(state: State, prop: Prop): List[(Prop, Option[Tactic])]
 }
 
 case object Sorry extends Tactic {
-  def apply(prop: Prop) = {
-    println(">> sorry >>  " + prop.toExpr)
-
+  def apply(state: State, prop: Prop) = {
+    // Currently a no-op
     Nil
   };
 }
 
-case class Induction(variable: Var, cases: List[(Expr, Tactic)]) extends Tactic {
-  def apply(prop: Prop) = {
-    // Currently, this is only implemented for integers
-    assert(variable.typ == Sort.int)
-    // At the moment, this assumes that there are *exactly* two cases and that the first case is the zero case, the second one the succ(x) case.
-    assert(cases.length == 2)
+case class Induction(variable: Var, cases: List[(Expr, Tactic)])
+    extends Tactic {
+  def apply(state: State, prop: Prop) = {
+    // First determine the variable's datatype
+    val sort = variable.typ.asInstanceOf[Sort]
+    val dt = state.datatypes(sort.con.name)
 
+    assert(dt.params.length == sort.args.length)
+    val su = dt.params.zip(sort.args).toMap
+
+    // We want to split the constructors given in the cases from the omitted constructors
+    // First, determine all constructors and instantiate them with the type parameters
+    val con_sels = (dt.constrs map { case (fun, sels) =>
+      (Inst(fun, su), sels map (_.name))
+    }).toMap
+    val all_cons = con_sels.keySet
+
+    // Generate a map matching cases to the given lhs expressions and tactics
+    val con_tactics = cases
+      .collect({ case (expr: App, tactic) =>
+        (expr.inst, (expr, tactic))
+      })
+      .toMap
+
+    val given_cons = con_tactics.keySet
+    val missing_cons = all_cons.diff(given_cons)
+
+    // Generate a copy of prop without a top level quantor quantifying the induction `variable`
     val prop_ = prop match {
-      case Conj(xs, neg, pos) => Conj(xs.filterNot(_ == variable), neg, pos)
       case Disj(xs, neg, pos) => Disj(xs.filterNot(_ == variable), neg, pos)
-      case _ => prop
+      case _ => cuvee.error("Only Disj supported in induction tactic")
     }
 
-    val Disj(xs, pos, neg) = Disj.show(List(prop_.toExpr), Nil, Nil, Nil)
+    // Generate goals for every constructor, as Map mapping each constructor to its goal
+    all_cons
+      .map(inst => {
+        val args = if (given_cons contains inst) {
+          // HACK! Replace List[Var] somehow.
+          val (pattern @ App(_, args: List[Var]), _) = con_tactics(inst)
+          assert(args forall (_.isInstanceOf[Var]))
+          args
+        } else {
+          val sels: List[Name] = con_sels(inst)
+          Expr.fresh(sels, inst.args)
+        }
 
-    // Build a formula that states the induction hypothesis, i.e. forall m : int :: m < variable ==> P(m)
-    val n = variable
-    val m = variable.prime
+        val rec_args = args.filter(_.typ == sort)
+        val hyps = rec_args map (arg => prop_.subst(Map(variable -> arg)))
 
-    val lt = App(Inst(Fun("<", Nil, List(Sort.int, Sort.int), Sort.bool), Map()), List(m, n))
-    val ind = Bind(Quant("forall"), List(m), Imp(lt, prop_.subst(Map(variable -> m)).toExpr), Sort.bool)
+        val su = Map(variable -> App(inst, args))
 
-    // TODO: Once constructors / datatypes are available, generate a list of all constructors and handle undefined cases automatically
+        val goal = Disj(
+          prop_.xs ++ args,
+          prop_.neg.map(_.subst(su)) ++ hyps,
+          prop_.pos.map(_.subst(su))
+        )
 
-    List(
-      (prop_.subst(Map(variable -> Lit(0, Sort.int))), Some(cases(0)._2)),
-      (Disj.assume(List(ind), Nil, xs, pos, neg), Some(cases(1)._2))
-    )
-  };
+        (goal, con_tactics.get(inst) map (_._2))
+      })
+      .toList
+  }
 }
