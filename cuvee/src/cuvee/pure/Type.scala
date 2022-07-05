@@ -141,6 +141,7 @@ object Type extends Alpha[Type, Param] {
 
 class ParamList(params: List[Param]) extends Type.xs(params) {
   def names = params map { case Param(name, None) => name }
+  def asContext = params map { case p@Param(name, typ) => name -> p }
 }
 
 class TypeList(types: List[Type]) extends Type.terms(types)

@@ -80,8 +80,11 @@ object Expr extends Alpha[Expr, Var] {
   val boogieInfix =
     Set("<=", ">=", "<", ">", "+", "-", "*") union boogie.Parser.translate.values.toSet
 
-  def fresh(name: Name, typ: Type) =
+  def fresh(name: Name, typ: Type): Var =
     Var(name.withIndex(nextIndex), typ)
+
+  def fresh(names: List[Name], types: List[Type]): List[Var] =
+    names zip types map { case (name, typ) => Var(name.withIndex(nextIndex), typ) }
 
   def vars(name: Name, types: List[Type]) = {
     for ((t, i) <- types.zipWithIndex)
@@ -270,6 +273,7 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def types = vars map (_.typ)
   def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
+  def asScope = vars map { case x@Var(name, typ) => name -> x }
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {
@@ -374,7 +378,7 @@ object Const {
   }
 }
 
-object App {
+object App extends ((Inst, List[Expr]) => App) {
   def apply(fun: Fun, args: List[Expr]): App = {
     require(
       fun.params.isEmpty || args.nonEmpty,
@@ -409,6 +413,11 @@ object App {
 }
 
 case class App(inst: Inst, args: List[Expr]) extends Expr {
+  require(
+    inst.args == args.types,
+    "The actual arguments' types don't match the function parameter types"
+  )
+
   def typ = inst.res
   // val su = Type.subst(fun.params, inst)
 

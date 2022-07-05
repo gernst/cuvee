@@ -1,0 +1,1 @@
+data list<a> = nil | cons(head: a, tail: list<a>);

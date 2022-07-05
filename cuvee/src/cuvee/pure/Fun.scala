@@ -84,6 +84,11 @@ object Fun {
   import Sort.bool
   import Sort.int
 
+  val unary: ((Name, List[Param], Type, Type) => Fun) = {
+    case (name, params, arg, res) =>
+      Fun(name, params, List(arg), res)
+  }
+
   val a = Param("a")
   val b = Param("b")
 

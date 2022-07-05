@@ -22,6 +22,9 @@ package object boogie {
 
   def parse(file: String): (List[Cmd], State) = {
     val in = scan(file)
+    
+    implicit val ctx: Map[Name, Param] = Map()
+    implicit val scope: Map[Name, Var] = Map()
     Parser.script.parseAll(in)
   }
 
