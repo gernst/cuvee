@@ -390,7 +390,7 @@ object Parser {
 
   val datadef = P(make_datatype(("data" ~ name ~ gens ~ "=") ~@ constrs ~ ";"))
 
-  def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(/*sortdef | */ datadef | fundef | axiom | lemma)
+  def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(sortdef | datadef | fundef | axiom | lemma)
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = P(cmd.*)
 
   val make_script: (List[Cmd] => (List[Cmd], State)) = cmds => (cmds, state)

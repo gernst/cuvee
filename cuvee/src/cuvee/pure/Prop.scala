@@ -47,7 +47,11 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
 
   // def text = Printer.Disj(xs, neg, pos)
   def bound = xs.toSet
-  def toExpr = Forall(xs, And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr)))
+  def toExpr =
+    if (xs.isEmpty)
+      And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr))
+    else
+      Forall(xs, And(neg map (_.toExpr)) ==> Or(pos map (_.toExpr)))
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Disj(xs rename a, neg map (_ rename re), pos map (_ rename re))
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
@@ -61,7 +65,11 @@ case class Conj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     with Expr.bind[Conj] {
   // def text = Printer.Conj(xs, neg, pos)
   def bound = xs.toSet
-  def toExpr = Exists(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
+  def toExpr =
+    if (xs.isEmpty)
+      And((neg map (_.toExpr)) ++ (pos map (!_.toExpr)))
+    else
+      Exists(xs, And((neg map (_.toExpr)) ++ (pos map (!_.toExpr))))
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Conj(xs rename a, neg map (_ rename re), pos map (_ rename re))
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =

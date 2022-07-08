@@ -413,10 +413,10 @@ object App extends ((Inst, List[Expr]) => App) {
 }
 
 case class App(inst: Inst, args: List[Expr]) extends Expr {
-  require(
-    inst.args == args.types,
-    "The actual arguments' types don't match the function parameter types"
-  )
+  // require(
+  //   inst.args == args.types,
+  //   f"The actual arguments' types don't match the function parameter types.\noffending function: ${inst.fun}"
+  // )
 
   def typ = inst.res
   // val su = Type.subst(fun.params, inst)
@@ -483,6 +483,8 @@ object Quant {
 case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     extends Expr
     with Expr.bind[Bind] {
+  require(bound.nonEmpty)
+
   def free = body.free -- formals
   def bound = Set(formals: _*)
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =

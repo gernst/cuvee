@@ -15,33 +15,22 @@ object Test extends Main {
     val slv = z3(st)
     import cuvee.sexpr.Printer
 
-    // val prover = new Prove(slv)
-
     for (cmd ← cmds) {
       cmd match {
-        case decl: Decl => slv.declare(decl)
-        case Assert(Not(phi)) => {
-          println("proving: " + phi)
-          println("---------------  lines  ---------------")
-          println(phi.lines(cuvee.boogie.Printer).mkString(""))
-          println("--------------  is true  --------------")
-          println(slv.isTrue(phi))
-          println("=======================================")
-        }
+        case decl: Decl  => slv.declare(decl)
+        case Assert(phi) => slv.assert(phi)
         case Lemma(expr, tactic) => {
-          println("\n\n")
+          println()
           println("================  LEMMA  ================")
           println("show:  " + expr)
 
           // val normalized = Disj.from(expr)
           val normalized = Disj.show(List(expr), Nil, Nil, Nil)
 
-          if (tactic.isDefined) {
-            rec(normalized, tactic.get, 1)(st)
-          } else {
-            println("> open goal:  " + normalized.toExpr)
-            println("(no tactic given)")
-          }
+          if (rec(normalized, tactic, 1)(st, slv))
+            println("\u001b[92m✔\u001b[0m lemma proved successfully!")
+          else
+            println("\u001b[91m✘\u001b[0m could not prove the lemma!")
         }
         case _ =>
       }
@@ -55,7 +44,10 @@ object Test extends Main {
     }
   }
 
-  def rec(prop: Prop, tactic: Tactic, depth: Int = 0)(implicit state: State): Unit = {
+  def rec(prop: Prop, tactic: Option[Tactic], depth: Int = 0)(implicit
+      state: State,
+      slv: solver
+   ): Boolean = {
     def indent(depth: Int, indentStr: String = "  "): String = {
       if (depth <= 0) return "";
       indentStr + indent(depth - 1, indentStr)
@@ -63,15 +55,22 @@ object Test extends Main {
 
     println(indent(depth) + "---  PROOF OBLIGATION ---")
     println(indent(depth) + "prop:    " + prop.toExpr)
-    println(indent(depth) + "tactic:  " + tactic)
-    val result = tactic.apply(state, prop)
-    for((prop_, tactic_) <- result) {
-      if (tactic_.isDefined) {
-        rec(prop_, tactic_.get, depth + 1)
+
+    if (tactic.isDefined) {
+      println(indent(depth) + "tactic:  " + tactic)
+      val result = tactic.get.apply(state, prop)
+
+      result.forall({ case (prop_, tactic_) => rec(prop_, tactic_, depth + 1) })
+    } else {
+      println(indent(depth) + "tactic:  none given, trying solver")
+
+      val result = slv.isTrue(prop.toExpr)
+      if (!result) {
+        println(indent(depth + 1) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically")
+        false
       } else {
-        println(indent(depth + 1) + "---  OPEN PROOF OBLIGATION ---")
-        println(indent(depth + 1) + "prop:    " + prop.toExpr)
-        println(indent(depth + 1) + "NO TACTIC GIVEN")
+        println(indent(depth + 1) + "\u001b[92m✔\u001b[0m goal confimed true by solver")
+        true
       }
     }
   };
