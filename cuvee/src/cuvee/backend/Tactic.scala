@@ -41,7 +41,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
       .toMap
 
     val given_cons = con_tactics.keySet
-    val missing_cons = all_cons.diff(given_cons)
+    val missing_cons = all_cons &~ given_cons
 
     // Generate a copy of prop without a top level quantor quantifying the induction `variable`
     val prop_ = prop match {

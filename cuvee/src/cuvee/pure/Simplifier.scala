@@ -28,9 +28,9 @@ object Simplifier {
       var psi_ = simplify(psi)
 
       (phi_, psi_) match {
-          case (True, _)        => psi_
           case (_, True)        => True
           case (False, _)       => True
+          case (True, _)        => psi_
           case (_, False)       => Not(phi_)
           case (d, e) if d == e => True
           case _                => Imp(phi_, psi_)
@@ -49,19 +49,23 @@ object Simplifier {
 
   def simplifyForall(vars: List[Var], psi: Expr): Expr = {
     var psi_ = simplify(psi)
+    var vars_ = psi_.free & Set.from(vars)
 
-    if (vars.isEmpty)
+    if (vars_.isEmpty)
       return psi_
 
-    Forall(vars, psi_)
+    // Maintain current variable order, but remove variables that are not free in psi_
+    Forall(vars filter (vars_ contains _), psi_)
   }
 
   def simplifyExists(vars: List[Var], psi: Expr): Expr = {
     var psi_ = simplify(psi)
+    var vars_ = psi_.free & Set.from(vars)
 
-    if (vars.isEmpty)
+    if (vars_.isEmpty)
       return psi_
 
-    Exists(vars, psi_)
+    // Maintain current variable order, but remove variables that are not free in psi_
+    Exists(vars filter (vars_ contains _), psi_)
   }
 }

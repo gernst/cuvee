@@ -17,7 +17,6 @@ class Prove(solver: Solver) {
 
   def prove(atom: Atom): Atom = atom match {
     case Atom(phi) =>
-      println("ask solver if " + phi + " is true")
       if (solver.isTrue(phi))
         Atom(True)
       else

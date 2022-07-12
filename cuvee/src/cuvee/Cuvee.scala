@@ -3,6 +3,7 @@ package cuvee
 import cuvee.backend.Tactic
 import cuvee.pure._
 import cuvee.smtlib._
+import cuvee.backend.Prove
 
 class Cuvee {
   var state: Option[State] = None
@@ -38,7 +39,7 @@ class Cuvee {
     assert(state.isDefined, "No file was parsed")
 
     val slv = z3(state.get)
-    import cuvee.sexpr.Printer
+    val prover = new Prove(slv)
 
     for (cmd ← cmds) {
       cmd match {
@@ -49,13 +50,12 @@ class Cuvee {
           println("================  LEMMA  ================")
           println("show:  " + expr)
 
-          // val normalized = Disj.from(expr)
-          val normalized = Disj.show(List(expr), Nil, Nil, Nil)
+          val normalized = Disj.from(expr)
 
-          if (rec(normalized, tactic, 1)(state.get, slv))
-            println("\u001b[92m✔\u001b[0m lemma proved successfully!")
+          if (rec(normalized, tactic, 1)(state.get, slv, prover))
+            println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
           else
-            println("\u001b[91m✘\u001b[0m could not prove the lemma!")
+            println("\u001b[91m✘\u001b[0m Could not prove the lemma!")
         }
         case _ =>
       }
@@ -64,7 +64,8 @@ class Cuvee {
 
   def rec(prop: Prop, tactic: Option[Tactic], depth: Int = 0)(implicit
       state: State,
-      slv: solver
+      slv: solver,
+      prover: Prove
   ): Boolean = {
     def indent(depth: Int, indentStr: String = "  "): String = {
       if (depth <= 0) return "";
@@ -72,32 +73,56 @@ class Cuvee {
     }
 
     println(indent(depth) + "---  PROOF OBLIGATION ---")
-    println(indent(depth) + "prop:    " + prop.toExpr)
+    println(indent(depth) + "prop:     " + prop.toExpr)
 
-    if (tactic.isDefined) {
-      println(indent(depth) + "tactic:  " + tactic)
-      val result = tactic.get.apply(state, prop)
+    val simp = Simplifier.simplify(prop.toExpr)
+    println(indent(depth) + "simp:     " + simp)
 
-      result.forall({ case (prop_, tactic_) => rec(prop_, tactic_, depth + 1) })
-    } else {
-      println(indent(depth) + "tactic:  none given, trying solver")
-
-      val result = slv.isTrue(prop.toExpr)
-      if (!result) {
-        println(
-          indent(
-            depth + 1
-          ) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
-        )
-        false
-      } else {
-        println(
-          indent(
-            depth + 1
-          ) + "\u001b[92m✔\u001b[0m goal confimed true by solver"
-        )
+    (simp, tactic) match {
+      case (True, _)  =>
+        println(indent(depth + 1) + "\u001b[92m✔\u001b[0m Goal confimed true by simplifier")
         true
-      }
+      case (False, _) =>
+        println(indent(depth + 1) + "\u001b[91m✘\u001b[0m Goal was reduced to `false` by simplifier")
+        false
+
+      case (_, Some(tactic_)) =>
+        println(indent(depth) + "tactic:   " + tactic)
+        val result = tactic_.apply(state, prop)
+
+        result.forall({ case (prop_, tactic_) =>
+          rec(prop_, tactic_, depth + 1)
+        })
+
+      case (_, _) =>
+        println(indent(depth) + "tactic:   none given, trying prover")
+
+        val res = prover.prove(prop).toExpr
+        println(indent(depth + 1) + "new goal: " + res)
+
+        val simp = Simplifier.simplify(res)
+        println(indent(depth + 1) + "simp:     " + simp)
+
+        simp match {
+          case True =>
+            println(indent(depth + 1) + "\u001b[92m✔\u001b[0m Goal transformed to `true` by prover + simplifier")
+            true
+
+          case False => 
+            println(indent(depth + 1) + "\u001b[91m✘\u001b[0m Goal transformed to `false` by prover + simplifier")
+            false
+
+          case goal =>
+            println(indent(depth + 1) + "Asking solver, if new goal is true.")
+
+            val isTrue = slv.isTrue(goal)
+            if (isTrue)
+              println(indent(depth + 2) + "\u001b[92m✔\u001b[0m Goal confimed true by solver")
+            else
+              println(indent(depth + 2) + f"\u001b[91m✘\u001b[0m Could not show goal ${res} automatically")
+
+            isTrue
+        }
     }
   }
 }
