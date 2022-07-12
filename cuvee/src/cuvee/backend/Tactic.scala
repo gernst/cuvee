@@ -1,17 +1,28 @@
 package cuvee.backend
 
 import cuvee.pure._
-import cuvee.smtlib.Cmd
+import cuvee.smtlib._
 
 /** Represents a tactic that can be applied to a proof obligation.
   */
 trait Tactic {
+
+  /** Apply the tactic to a proposition in a given state
+    *
+    * @param state
+    * @param prop
+    * @return
+    *   A list of subgoals, given as tuples (prop, tactic?), where prop is the
+    *   formula corresponding to the subgoal and tactic? is an optional tactic
+    *   to prove the subgoal.
+    */
   def apply(state: State, prop: Prop): List[(Prop, Option[Tactic])]
 }
 
 case object Sorry extends Tactic {
   def apply(state: State, prop: Prop) = {
     // Currently a no-op
+    println("\u001b[93m⚠\u001b[0m Use of the \u001b[93msorry\u001b[0m tactic!")
     Nil
   };
 }
@@ -76,5 +87,21 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
         (goal, con_tactics.get(inst) map (_._2))
       })
       .toList
+  }
+}
+
+case class Show(goal: Expr, tactic: Option[Tactic], cont: Option[Tactic])
+    extends Tactic {
+  def apply(state: State, prop: Prop) = {
+    assert(prop.isInstanceOf[Disj])
+    val goal_ = Disj.from(goal)
+
+    val Disj(xs, neg, pos) = prop.asInstanceOf[Disj]
+    val prop_ = Disj.assume(List(goal), Nil, xs, neg, pos)
+
+    List(
+      (goal_, tactic),
+      (prop_, cont)
+    )
   }
 }

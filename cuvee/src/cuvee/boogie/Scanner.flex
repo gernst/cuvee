@@ -25,7 +25,8 @@ number  = [1-9][0-9]* | 0
 kw = "function" | "axiom" | "const" | "lemma" | "data" | "type"
    | "(" | ")" | "[" | "]" | "::" | [;,:{}]
    | "bool" | "int" | "real" | "=" | "|"
-   | "proof" | "sorry" | "induction" | "->" | "end"
+   | "proof" | "sorry" | "show" | "by" | "then"
+   | "induction" | "->" | "end"
 
 id = [a-zA-Z][a-zA-Z0-9]*
 op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"
