@@ -93,8 +93,8 @@ class Cuvee {
         println(indent(depth) + "tactic:   " + tactic)
         val result = tactic_.apply(state, prop)
 
-        result.forall({ case (prop_, tactic_) =>
-          rec(prop_, tactic_, depth + 1)
+        result.foldLeft(true) ({ case (acc, (prop_, tactic_)) =>
+          rec(prop_, tactic_, depth + 1) && acc
         })
 
       case (_, _) =>
