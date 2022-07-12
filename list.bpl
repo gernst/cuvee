@@ -85,7 +85,7 @@ axiom forall n: int, y: elem, ys: list<elem> ::
 axiom
   reverse(nil) == nil;
 axiom forall y: elem, ys: list<elem> ::
-  reverse(cons(y, ys)) == append(reverse(ys), cons(y, nil));
+  reverse(cons(y, ys)) == snoc(reverse(ys), y);
 
 // reverseaccumulator
 axiom forall zs: list<elem> ::
@@ -134,5 +134,9 @@ proof
   induction xs
     cons(y, ys) ->
       show (forall z: elem, zs: list<elem> :: reverse(reverse(cons(z, zs))) == cons(z, reverse(reverse(zs))))
-      by   sorry
+      by   show (forall z: elem, zs: list<elem> :: reverse(snoc(zs, z)) == cons(z, reverse(zs)))
+           by   induction zs
+                end
+           end
+      end
   end;

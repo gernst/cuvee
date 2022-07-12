@@ -312,7 +312,7 @@ object Parser {
 
   // SHOW
   def show(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("show" ~ Show(expr ~ ("by" ~ tactic).? ~ ("then" ~ tactic).?))
+    P("show" ~ Show((typing within formula) ~@ (phi => ("by" ~ scoped_tactic(phi)).?) ~ ("then" ~ tactic).?) ~ "end")
 
   // ANY TACTIC
   def tactic(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) : Parser[Tactic, Token] =
