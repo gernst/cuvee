@@ -56,6 +56,9 @@ class Cuvee {
             println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
           else
             println("\u001b[91m✘\u001b[0m Could not prove the lemma!")
+
+          // In any case, assert the lemma, so that its statement is available in later proofs
+          slv.assert(expr)
         }
         case _ =>
       }
