@@ -310,9 +310,13 @@ object Parser {
   def induction(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[Induction, Token] =
     P("induction" ~ Induction( var_ ~@ (v => case_(scope)(v.typ, ctx) ~* ",") ) ~ "end");
 
+  // SHOW
+  def show(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("show" ~ Show((typing within formula) ~@ (phi => ("by" ~ scoped_tactic(phi)).?) ~ ("then" ~ tactic).?) ~ "end")
+
   // ANY TACTIC
   def tactic(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) : Parser[Tactic, Token] =
-    P(sorry | induction);
+    P(sorry | show | induction);
 
   def scoped_tactic(phi: Expr)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
     def collect_all_the_vars(phi: Expr): List[Var] = phi match {
