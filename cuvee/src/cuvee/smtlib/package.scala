@@ -69,6 +69,10 @@ package object smtlib {
     }
   }
 
+  object solver {
+    var debug = false
+  }
+
   class solver(st: State, cmd: String*) extends Solver {
     val (out, in, err, proc) = Tool.pipe(cmd: _*)
 
@@ -80,12 +84,16 @@ package object smtlib {
     def write(cmd: Cmd) {
       for (line <- cmd.lines) {
         out.println(line)
+        if(solver.debug)
+          println("> " + line)
       }
       out.flush()
     }
 
     def read() = {
       val line = res.next()
+      if(solver.debug)
+        println("< " + line)
       line
     }
 

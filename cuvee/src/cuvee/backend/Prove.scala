@@ -62,10 +62,15 @@ class Prove(solver: Solver) {
         for (phi <- neg_)
           solver.assert(phi.toExpr)
 
-        if (solver.isUnsat) {
+        if (pos.isEmpty && solver.isUnsat) {
+          // Empty succedent: the only option to close the proof
+          // is when the assumptions are already inconsistent.
+          // However, do not do this eagerly, because *typicall*
+          // they are not inconsistent if we have a proper goal.
           Atom(True)
         } else {
-          // Attempt to disprove the succedent
+          // Otherwise: Attempt to prove one formula of the succedent,
+          // will succeed anyway if the assumptions are already inconsistent
           val pos__ = disj(pos_)
           Disj(xs_, neg_, pos__)
         }

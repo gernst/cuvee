@@ -13,6 +13,10 @@ class Cuvee {
     args match {
       case Nil =>
 
+      case "-debug:solver" :: rest =>
+        cuvee.smtlib.solver.debug = true
+        configure(rest)
+
       case path :: rest if state.isDefined =>
         cuvee.error(
           "A file was already loaded. At the moment only a single input file is supported."
