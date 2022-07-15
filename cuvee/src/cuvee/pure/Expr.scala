@@ -10,6 +10,7 @@ import cuvee.util.Alpha
 import cuvee.util.Helper._
 
 sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
+  def funs: Set[Fun]
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr
@@ -78,13 +79,15 @@ object Expr extends Alpha[Expr, Var] {
   val infix =
     Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
   val boogieInfix =
-    Set("<=", ">=", "<", ">", "+", "-", "*") union boogie.Parser.translate.values.toSet
+    boogie.Parser.syntax.infix_ops.keySet
 
   def fresh(name: Name, typ: Type): Var =
     Var(name.withIndex(nextIndex), typ)
 
   def fresh(names: List[Name], types: List[Type]): List[Var] =
-    names zip types map { case (name, typ) => Var(name.withIndex(nextIndex), typ) }
+    names zip types map { case (name, typ) =>
+      Var(name.withIndex(nextIndex), typ)
+    }
 
   def vars(name: Name, types: List[Type]) = {
     for ((t, i) <- types.zipWithIndex)
@@ -223,15 +226,16 @@ object Name extends (String => Name) {
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
   def types =
     exprs map (_.typ)
+  def funs =
+    Set(exprs flatMap (_.funs): _*)
   def inst(su: Map[Param, Type]) =
     exprs map (_ inst su)
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     exprs map (_ subst (ty, su))
 }
 
-case class Var(name: Name, typ: Type)
-    extends Expr
-    with Expr.x {
+case class Var(name: Name, typ: Type) extends Expr with Expr.x {
+  def funs = Set()
   def fresh(index: Int): Var =
     Var(name.withIndex(index), typ)
   def inst(su: Map[Param, Type]) =
@@ -241,10 +245,11 @@ case class Var(name: Name, typ: Type)
       su
     ) // no need to look at ty, it is relevant for function applications only
 
-  /**
-    * Skolemize this variable, transferring it to a constant function without parameters.
+  /** Skolemize this variable, transferring it to a constant function without
+    * parameters.
     *
-    * @return Function that represents the variable
+    * @return
+    *   Function that represents the variable
     */
   def skolem: Fun = Fun(name, Nil, Nil, typ)
 
@@ -280,11 +285,12 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def types = vars map (_.typ)
   def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
-  def asScope = vars map { case x@Var(name, typ) => name -> x }
+  def asScope = vars map { case x @ Var(name, typ) => name -> x }
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {
-  def free: Set[Var] = Set()
+  def funs = Set()
+  def free = Set()
   def rename(re: Map[Var, Var]) = this
   def subst(su: Map[Var, Expr]) = this
   def inst(su: Map[Param, Type]) = this
@@ -328,6 +334,7 @@ object Forall extends Sugar.binder(Quant.forall, Sort.bool)
 object Exists extends Sugar.binder(Quant.exists, Sort.bool)
 
 case class In(k: Int, arg: Expr, typ: Type) extends Expr {
+  def funs = arg.funs
   def free = arg.free
   def rename(re: Map[Var, Var]) =
     In(k, arg rename re, typ)
@@ -347,6 +354,7 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
 
 case class Tuple(args: List[Expr]) extends Expr {
   val typ = Prod(args.types)
+  def funs = args.funs
   def free = args.free
   def rename(re: Map[Var, Var]) =
     Tuple(args rename re)
@@ -425,6 +433,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   //   f"The actual arguments' types don't match the function parameter types.\noffending function: ${inst.fun}"
   // )
 
+  def funs = args.funs + inst.fun
   def typ = inst.res
   // val su = Type.subst(fun.params, inst)
 
@@ -449,23 +458,24 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   }
   def bexpr = this match {
     // Constants
-    case App(inst, Nil)                        => List(inst.toString)
+    case App(inst, Nil) => List(inst.toString)
     // Logical connectives
-    case And(phis)                 => intersperse(phis, "(", " and ", ")")
-    case Or(phis)                  => intersperse(phis, "(", " or" , ")")
+    case And(phis) => intersperse(phis, "(", " and ", ")")
+    case Or(phis)  => intersperse(phis, "(", " or", ")")
     // Iff (<==>), needs special handling, as this is also represented by "=" internally
-    case Eq(lhs, rhs) if lhs.typ == Sort.bool  => List(lhs, " ", "<==>", " ", rhs)
+    case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
+      List(lhs, " ", "<==>", " ", rhs)
     // Infix operators
     case App(_, List(left, right))
-      if Expr.boogieInfix contains inst.fun.name.name
-      => List("(", left, " ", inst, " ", right, ")")
+        if Expr.boogieInfix contains inst.fun.name.name =>
+      List("(", left, " ", inst, " ", right, ")")
     // Unary -
-    case Not(psi)                  => List("!", "(", psi, ")")
-    case UMinus(term)              => List("-", "(", term, ")")
+    case Not(psi)     => List("!", "(", psi, ")")
+    case UMinus(term) => List("-", "(", term, ")")
     // Applications (i.e. function calls)
-    case App(_, args)              => inst :: intersperse(args, "(", ", ", ")")
-    case _ if args.isEmpty         => List(inst)
-    case _                         => inst :: args
+    case App(_, args)      => inst :: intersperse(args, "(", ", ", ")")
+    case _ if args.isEmpty => List(inst)
+    case _                 => inst :: args
   }
 
   override def toString =
@@ -493,6 +503,7 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
 
   require(bound.nonEmpty)
 
+  def funs = body.funs
   def free = body.free -- formals
   def bound = Set(formals: _*)
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
@@ -511,7 +522,13 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   }
 
   def sexpr = List(quant.name, formals.asFormals, body)
-  def bexpr = List(quant.name, " ", intersperse( formals.map(_.toStringTyped), ", "), " :: ", body)
+  def bexpr = List(
+    quant.name,
+    " ",
+    intersperse(formals.map(_.toStringTyped), ", "),
+    " :: ",
+    body
+  )
 
   override def toString =
     quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body
@@ -519,6 +536,7 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
 
 class CaseList(cases: List[Case]) {
   def free = Set(cases flatMap (_.free): _*)
+  def funs = Set(cases flatMap (_.funs): _*)
   def rename(re: Map[Var, Var]) = cases map (_ rename re)
   def subst(su: Map[Var, Expr]) = cases map (_ subst su)
   def inst(su: Map[Param, Type]) = cases map (_ inst su)
@@ -527,6 +545,8 @@ class CaseList(cases: List[Case]) {
 case class Case(pat: Expr, expr: Expr)
     extends Expr.bind[Case]
     with sexpr.Syntax {
+
+  def funs = pat.funs ++ expr.funs
   def bound = pat.free
   def free = expr.free -- pat.free
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
@@ -541,6 +561,7 @@ case class Case(pat: Expr, expr: Expr)
 }
 
 case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
+  def funs = expr.funs ++ cases.funs
   def free = expr.free ++ cases.free
   def rename(re: Map[Var, Var]) =
     Match(expr rename re, cases rename re, typ)
