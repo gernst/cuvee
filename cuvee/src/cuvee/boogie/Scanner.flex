@@ -28,7 +28,7 @@ kw = "function" | "axiom" | "const" | "lemma" | "data" | "type"
    | "proof" | "sorry" | "show" | "by" | "then"
    | "induction" | "->" | "end"
 
-id = [a-zA-Z][a-zA-Z0-9]*
+id = [a-zA-Z_][a-zA-Z0-9_]*
 op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"
    | "==" | "!=" | "<=" | "<" | ">" | ">="
 

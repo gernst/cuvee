@@ -65,6 +65,7 @@ object Parser {
         typ: Type
     ) = {
       val quant = Quant(name.name)
+      unify(body.typ, typ)
       Bind(quant, bound, body, typ)
     }
 
