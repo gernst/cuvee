@@ -26,11 +26,13 @@ class Cuvee {
         val (cmds_, state_) = cuvee.boogie.parse(path)
         state = Some(state_)
         cmds = cmds_
+        configure(rest)
 
       case path :: rest if path.endsWith(".smt2") =>
         val (cmds_, state_) = cuvee.smtlib.parse(path)
         state = Some(state_)
         cmds = cmds_
+        configure(rest)
 
       case path :: rest =>
         error(
