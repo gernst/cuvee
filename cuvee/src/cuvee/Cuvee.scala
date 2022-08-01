@@ -104,33 +104,40 @@ class Cuvee {
         })
 
       case (_, _) =>
-        println(indent(depth) + "tactic:   none given, trying prover")
+        println(indent(depth) + "tactic:   none given, trying simplifier and prover")
 
-        val res = prover.prove(prop).toExpr
-        println(indent(depth + 1) + "new goal: " + res)
+        var components: List[String] = Nil
 
-        val simp = Simplifier.simplify(res)
+        // Try a simplification first, without calling the prover
+        components :+= "simplifier"
+        val simp = (Simplifier.simplify(prop.toExpr) match {
+          // Should this yield a boolean atom, no need to call the prover.
+          case res@(True | False) =>
+            res
+          // Otherwise, call the prover …
+          case simp_prop =>
+            val res = prover.prove(prop).toExpr
+            components :+= "prover"
+
+            println(indent(depth + 1) + "new goal: " + res)
+            // … and simplify the result
+            Simplifier.simplify(res)
+        })
+
         println(indent(depth + 1) + "simp:     " + simp)
 
         simp match {
           case True =>
-            println(indent(depth + 1) + "\u001b[92m✔\u001b[0m Goal transformed to `true` by prover + simplifier")
+            println(indent(depth + 1) + f"\u001b[92m✔\u001b[0m Goal transformed to `true` by ${components.mkString(", ")}")
             true
 
           case False => 
-            println(indent(depth + 1) + "\u001b[91m✘\u001b[0m Goal transformed to `false` by prover + simplifier")
+            println(indent(depth + 1) + f"\u001b[91m✘\u001b[0m Goal transformed to `false` by ${components.mkString(", ")}")
             false
 
           case goal =>
-            println(indent(depth + 1) + "Asking solver, if new goal is true.")
-
-            val isTrue = slv.isTrue(goal)
-            if (isTrue)
-              println(indent(depth + 2) + "\u001b[92m✔\u001b[0m Goal confimed true by solver")
-            else
-              println(indent(depth + 2) + f"\u001b[91m✘\u001b[0m Could not show goal ${res} automatically")
-
-            isTrue
+            println(indent(depth + 2) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically")
+            false
         }
     }
   }
