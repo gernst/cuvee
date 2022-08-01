@@ -58,7 +58,7 @@ class Cuvee {
 
           val normalized = Disj.from(expr)
 
-          if (rec(normalized, tactic, 1)(state.get, slv, prover))
+          if (rec(normalized, tactic, 1)(state.get, slv, prover) == Atom(True))
             println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
           else
             println("\u001b[91m✘\u001b[0m Could not prove the lemma!")
@@ -75,7 +75,7 @@ class Cuvee {
       state: State,
       slv: solver,
       prover: Prove
-  ): Boolean = {
+  ): Prop = {
     def indent(depth: Int, indentStr: String = "  "): String = {
       if (depth <= 0) return "";
       indentStr + indent(depth - 1, indentStr)
@@ -90,21 +90,28 @@ class Cuvee {
     (simp, tactic) match {
       case (True, _)  =>
         println(indent(depth + 1) + "\u001b[92m✔\u001b[0m Goal confimed true by simplifier")
-        true
+        Atom(True)
       case (False, _) =>
         println(indent(depth + 1) + "\u001b[91m✘\u001b[0m Goal was reduced to `false` by simplifier")
-        false
+        Atom(False)
 
       case (_, Some(tactic_)) =>
         println(indent(depth) + "tactic:   " + tactic)
-        val result = tactic_.apply(state, prop)
+        // Apply the tactic and get the remaining subgoals that we need to prove
+        val goals = tactic_.apply(state, prop)
 
-        result.foldLeft(true) ({ case (acc, (prop_, tactic_)) =>
-          rec(prop_, tactic_, depth + 1) && acc
-        })
+        // TODO: What do we return, if not all of the subgoals can be proven?
+        //       Do we return /\ {unprovable subgoals} ?
+        (goals map ({
+          case (prop_, tactic_) =>  rec(prop_, tactic_, depth + 1)
+        }) filter (_ != Atom(True))
+        ) match {
+          case Nil             => Atom(True)
+          case remaining_goals => Atom(And(remaining_goals map (_.toExpr)))
+        }
 
       case (_, _) =>
-        println(indent(depth) + "tactic:   none given, trying simplifier and prover")
+        println(indent(depth) + "tactic:   none given, trying to solve goal automatically")
 
         var components: List[String] = Nil
 
@@ -129,15 +136,15 @@ class Cuvee {
         simp match {
           case True =>
             println(indent(depth + 1) + f"\u001b[92m✔\u001b[0m Goal transformed to `true` by ${components.mkString(", ")}")
-            true
+            Atom(True)
 
           case False => 
             println(indent(depth + 1) + f"\u001b[91m✘\u001b[0m Goal transformed to `false` by ${components.mkString(", ")}")
-            false
+            Atom(False)
 
           case goal =>
             println(indent(depth + 2) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically")
-            false
+            Atom(simp)
         }
     }
   }
