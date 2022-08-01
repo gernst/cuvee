@@ -113,20 +113,20 @@ axiom forall p: [elem]bool, y: elem, ys: list<elem> ::
 
 // Proofs
 
-// lemma forall xs: list<elem> ::
-//   length(xs) >= 0
-// proof
-//   induction xs end;
-//
-// lemma forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
-//   append(append(xs, ys), zs) == append(xs, append(ys, zs))
-// proof
-//   induction xs end;
-//
-// lemma forall xs: list<elem>, ys: list<elem> ::
-//   length(append(xs, ys)) == length(xs) + length(ys)
-// proof
-//   induction xs end;
+lemma forall xs: list<elem> ::
+  length(xs) >= 0
+proof
+  induction xs end;
+
+lemma forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
+  append(append(xs, ys), zs) == append(xs, append(ys, zs))
+proof
+  induction xs end;
+
+lemma forall xs: list<elem>, ys: list<elem> ::
+  length(append(xs, ys)) == length(xs) + length(ys)
+proof
+  induction xs end;
 
 lemma forall xs: list<elem> ::
   reverse(reverse(xs)) == xs
@@ -134,8 +134,8 @@ proof
   induction xs
     cons(y, ys) ->
       show (forall z: elem, zs: list<elem> :: reverse(reverse(cons(z, zs))) == cons(z, reverse(reverse(zs))))
-      by   show (forall z: elem, zs: list<elem> :: reverse(snoc(zs, z)) == cons(z, reverse(zs)))
-           by   induction zs
+      proof show (forall z: elem, zs: list<elem> :: reverse(snoc(zs, z)) == cons(z, reverse(zs)))
+           proof induction zs
                 end
            end
       end
