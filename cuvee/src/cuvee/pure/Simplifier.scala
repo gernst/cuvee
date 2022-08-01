@@ -12,13 +12,15 @@ object Simplifier {
   }
 
   def simplifyAnd(phis: List[Expr]): Expr = {
-    val phis_f = And.flatten(phis)
+    val phis_ = phis map simplify
+    val phis_f = And.flatten(phis_)
     if (phis_f contains False) False
     And(phis_f.distinct filter (_ != True))
   }
 
   def simplifyOr(phis: List[Expr]): Expr = {
-    val phis_f = Or.flatten(phis)
+    val phis_ = phis map simplify
+    val phis_f = Or.flatten(phis_)
     if (phis_f contains True) True
     Or(phis_f.distinct filter (_ != False))
   }
