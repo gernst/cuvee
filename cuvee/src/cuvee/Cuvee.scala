@@ -58,10 +58,11 @@ class Cuvee {
 
           val normalized = Disj.from(expr)
 
-          if (rec(normalized, tactic, 1)(state.get, slv, prover) == Atom(True))
-            println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
-          else
-            println("\u001b[91m✘\u001b[0m Could not prove the lemma!")
+          rec(normalized, tactic, 1)(state.get, slv, prover) match {
+            case Atom(True)  => println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
+            case Atom(False) => println("\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!")
+            case remaining   => println("\u001b[91m⚠\u001b[0m Some subgoals could not be proven! Remaining combined goal: " + remaining.toExpr)
+          }
 
           // In any case, assert the lemma, so that its statement is available in later proofs
           slv.assert(expr)
@@ -84,16 +85,16 @@ class Cuvee {
     println(indent(depth) + "---  PROOF OBLIGATION ---")
     println(indent(depth) + "prop:     " + prop.toExpr)
 
-    val simp = Simplifier.simplify(prop.toExpr)
+    val simp = Simplifier.simplify(prop)
     println(indent(depth) + "simp:     " + simp)
 
     (simp, tactic) match {
-      case (True, _)  =>
+      case (Atom(True), _)  =>
         println(indent(depth + 1) + "\u001b[92m✔\u001b[0m Goal confimed true by simplifier")
-        Atom(True)
-      case (False, _) =>
+        simp // Atom(True)
+      case (Atom(False), _) =>
         println(indent(depth + 1) + "\u001b[91m✘\u001b[0m Goal was reduced to `false` by simplifier")
-        Atom(False)
+        simp // Atom(False)
 
       case (_, Some(tactic_)) =>
         println(indent(depth) + "tactic:   " + tactic)
@@ -107,7 +108,7 @@ class Cuvee {
         }) filter (_ != Atom(True))
         ) match {
           case Nil             => Atom(True)
-          case remaining_goals => Atom(And(remaining_goals map (_.toExpr)))
+          case remaining_goals => Conj.from(And(remaining_goals map (_.toExpr)))
         }
 
       case (_, _) =>
@@ -117,35 +118,35 @@ class Cuvee {
 
         // Try a simplification first, without calling the prover
         components :+= "simplifier"
-        val simp = (Simplifier.simplify(prop.toExpr) match {
+        val simp = (Simplifier.simplify(prop) match {
           // Should this yield a boolean atom, no need to call the prover.
-          case res@(True | False) =>
+          case res@(Atom(True) | Atom(False)) =>
             res
           // Otherwise, call the prover …
           case simp_prop =>
-            val res = prover.prove(prop).toExpr
+            val res = prover.prove(prop)
             components :+= "prover"
 
-            println(indent(depth + 1) + "new goal: " + res)
+            println(indent(depth + 1) + "new goal: " + res.toExpr)
             // … and simplify the result
             Simplifier.simplify(res)
         })
 
-        println(indent(depth + 1) + "simp:     " + simp)
+        println(indent(depth + 1) + "simp:     " + simp.toExpr)
 
         simp match {
-          case True =>
+          case Atom(True) =>
             println(indent(depth + 1) + f"\u001b[92m✔\u001b[0m Goal transformed to `true` by ${components.mkString(", ")}")
-            Atom(True)
 
-          case False => 
+          case Atom(False) => 
             println(indent(depth + 1) + f"\u001b[91m✘\u001b[0m Goal transformed to `false` by ${components.mkString(", ")}")
-            Atom(False)
 
           case goal =>
             println(indent(depth + 2) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically")
-            Atom(simp)
         }
+
+        // Return whatever remained
+        simp
     }
   }
 }
