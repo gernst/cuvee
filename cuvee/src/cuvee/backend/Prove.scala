@@ -55,17 +55,13 @@ class Prove(solver: Solver) {
         for (x <- xs_)
           solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
 
-        // Attempt to prove the antecedent
-        // println("try proving " + ant)
-        // val ant_ = prove(ant)
-
         for (phi <- neg_)
           solver.assert(phi.toExpr)
 
         if (pos.isEmpty && solver.isUnsat) {
           // Empty succedent: the only option to close the proof
           // is when the assumptions are already inconsistent.
-          // However, do not do this eagerly, because *typicall*
+          // However, do not do this eagerly, because *typically*
           // they are not inconsistent if we have a proper goal.
           Atom(True)
         } else {

@@ -181,9 +181,9 @@ object Conj {
   def from(exprs: List[Expr]) =
     Conj.show(exprs, Nil, Nil)
 
-//   def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
-//     Simplify.exists(xs, Simplify.and(neg) && Simplify.and(pos map (Simplify.not(_))))
-//   }
+  // def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
+  //   Simplify.exists(xs, Simplify.and(neg) && Simplify.and(pos map (Simplify.not(_))))
+  // }
 
   // def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
   //   Exists(xs, And(neg ++ Not(pos)))
