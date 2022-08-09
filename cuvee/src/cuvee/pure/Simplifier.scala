@@ -70,4 +70,36 @@ object Simplifier {
     // Maintain current variable order, but remove variables that are not free in psi_
     Exists(vars filter (vars_ contains _), psi_)
   }
+
+  def simplify(prop: Prop): Prop = prop match {
+    case Atom(expr)         => simplifyAtom(expr)
+    case Disj(xs, neg, pos) => simplifyDisj(xs, neg, pos)
+    case Conj(xs, neg)      => simplifyConj(xs, neg)
+  }
+
+  def simplifyAtom(expr: Expr): Prop = Atom(simplify(expr))
+  def simplifyDisj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Prop = {
+    val neg_ = (neg map simplify) filter (_ != Atom(True))
+    val pos_ = (pos map simplify) filter (_ != Atom(False))
+
+    if (neg_ contains Atom(False))
+      return Atom(True)
+    if (pos_ contains Atom(True))
+      return Atom(True)
+
+      val neg__ = neg_ map (_.asInstanceOf[Neg])
+      val pos__ = pos_ map (_.asInstanceOf[Pos])
+
+    Disj(xs, neg__, pos__)
+  }
+  def simplifyConj(xs: List[Var], neg: List[Neg]): Prop = {
+    val neg_ = (neg map simplify) filter (_ != Atom(True))
+
+    if (neg_ contains Atom(False))
+      return Atom(False)
+
+    val neg__ = neg_ map (_.asInstanceOf[Neg])
+
+    Conj(xs, neg__)
+  }
 }
