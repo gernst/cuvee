@@ -15,6 +15,8 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
   def inst(su: Map[Param, Type]): Expr
   def subst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr
 
+  def ~~>(that: Expr) = Rule(this, that)
+
   def toStringTyped = toString + ": " + typ
 
   def unary_- = UMinus(this)

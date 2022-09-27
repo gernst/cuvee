@@ -20,4 +20,17 @@ object Tool {
     val err = proc.getErrorStream()
     (in, out, err, proc)
   }
+
+  import scala.concurrent.ExecutionContext.Implicits.global
+  import scala.concurrent._
+  import scala.concurrent.duration._
+  import scala.util.Try
+
+  def withTimeout[A](ms: Long)(a: => A) = {
+    Try(Await.result(Future(a), ms.milliseconds)).toOption
+  }
+
+  def withTimeout[A](ms: Long, default: => A)(a: => A) = {
+    Try(Await.result(Future(a), ms.milliseconds)).getOrElse(default)
+  }
 }
