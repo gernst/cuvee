@@ -31,8 +31,11 @@ object Sugar {
         case _                                   => None
       }
 
-    def apply(formals: List[Var], body: Expr) =
-      Bind(quant, formals, body, typ)
+    def apply(formals: List[Var], body: Expr) = {
+      val formals_ = formals filter body.free
+      if (formals_.isEmpty) body
+      else Bind(quant, formals, body, typ)
+    }
   }
 
   class unary(val fun: Fun) extends (Expr => Expr) {

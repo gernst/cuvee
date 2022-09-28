@@ -42,8 +42,8 @@ object Eval {
   def no_ret(st: Any) =
     cuvee.error("return not within procedure")
 
-  def wp(how: Modality, prog: Prog, st: Map[Var, Expr], post: Expr): Expr = {
-    wp(how, List(prog), Nil, st, Nil, eval(post, _, Nil), no_brk, no_ret)
+  def wp(how: Modality, prog: Prog, st: Map[Var, Expr], post: Expr, old: List[Map[Var, Expr]] = Nil): Expr = {
+    wp(how, List(prog), Nil, st, old, eval(post, _, old), no_brk, no_ret)
   }
 
   def wp(
@@ -88,7 +88,7 @@ object Eval {
       case Assign(xs, rhs) :: rest =>
         val rhs_ = rhs subst st // don't use eval, old is specification-only
         val st_ = assign(st, xs, rhs_)
-        wp(how, rest, cont, st, old, post, brk, ret)
+        wp(how, rest, cont, st_, old, post, brk, ret)
 
       case Spec(xs, phi, psi) :: rest =>
         val (xs_, re) = havoc(xs)
@@ -143,8 +143,8 @@ object Eval {
           val (xsk, re) = havoc(xs1)
           val stk = assign(st2, xs1, xsk)
 
-          val sum1k = eval(inv, stk, st1 :: old)
-          val sum2k = eval(inv, stk, st2 :: old)
+          val sum1k = eval(sum, stk, st1 :: old)
+          val sum2k = eval(sum, stk, st2 :: old)
 
           // possibly add termination condition
           val term2 = if (how == WP) {
@@ -153,7 +153,7 @@ object Eval {
             val term2 = eval(term, st2, st0 :: old)
 
             // Note: can assume test is positive otherwise loop terminates anyway
-            test2 ==> (Zero <= term2) && (term2 < term1)
+            test2 ==> (Zero <= term2 && term2 < term1)
           } else {
             True
           }
@@ -164,10 +164,10 @@ object Eval {
 
         def brk_(st2: Map[Var, Expr]) = {
           // establish summary for last partial iteration
-          val sum12 = eval(inv, st2, st1 :: old)
+          val sum12 = eval(sum, st2, st1 :: old)
 
           // how we continue after the loop, assuming the summary of the entire loop
-          val sum02 = eval(inv, st2, st0 :: old)
+          val sum02 = eval(sum, st2, st0 :: old)
           val exit2 = wp(how, rest, cont, st2, old, post, brk, ret)
 
           // ensure this formula after a break
@@ -176,8 +176,8 @@ object Eval {
 
         def ret_(st2: Map[Var, Expr]) = {
           // analogously to break we extend the partial summary to a complete one
-          val sum02 = eval(inv, st2, st0 :: old)
-          val sum12 = eval(inv, st2, st1 :: old)
+          val sum02 = eval(sum, st2, st0 :: old)
+          val sum12 = eval(sum, st2, st1 :: old)
 
           // ensure whatever postcondition we had previously on return
           sum12 && (sum02 ==> ret(st2))
