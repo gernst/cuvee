@@ -6,6 +6,7 @@ import cuvee.smtlib._
 import cuvee.backend.Prove
 import cuvee.imp.Eval
 import cuvee.imp.WP
+import cuvee.backend.Solver
 
 class Cuvee {
   var state: Option[State] = None
@@ -17,6 +18,10 @@ class Cuvee {
 
       case "-debug:solver" :: rest =>
         cuvee.smtlib.solver.debug = true
+        configure(rest)
+
+      case "-debug:scanner" :: rest =>
+        cuvee.sexpr.debug = true
         configure(rest)
 
       case path :: rest if state.isDefined =>
@@ -43,7 +48,47 @@ class Cuvee {
     }
   }
 
-  def run() {
+  def run(cmds: List[Cmd], state: State, solver: Solver) {
+    cmds match {
+      case Nil                                =>
+      case DeclareProc(name, in, out) :: rest =>
+
+      case DefineProc(name, in, out, body) :: rest =>
+        val xs = in ++ out
+        val st = Expr.id(xs)
+        val post = True
+        val phi = Forall(xs, Eval.wp(WP, body, st, post))
+        val cmd = Lemma(phi, None)
+
+        run(cmd :: rest, state, solver)
+
+      case (ctrl: Ctrl) :: rest =>
+        solver.control(ctrl)
+        run(rest, state, solver)
+
+      case (decl: Decl) :: rest =>
+        solver.declare(decl)
+        run(rest, state, solver)
+
+      case Assert(phi) :: rest =>
+        solver.assert(phi)
+        run(rest, state, solver)
+
+      case Lemma(phi, None) :: rest =>
+        val prop = Disj.from(phi)
+
+        val prove = new Prove(solver)
+        val result = prove.prove(prop)
+
+        if (result != Atom(True)) {
+          println("lemma " + result)
+        }
+
+        solver.assert(result.toExpr)
+    }
+  }
+
+  def run_() {
     assert(state.isDefined, "No file was parsed")
 
     val st = state.get
@@ -60,7 +105,7 @@ class Cuvee {
           val st = Expr.id(xs)
           val post = True
           val phi = Forall(xs, Eval.wp(WP, body, st, post))
-          
+
           val status = slv.check(!phi)
           println("procedure " + name + ": " + status)
 
@@ -202,6 +247,6 @@ object Cuvee {
   def main(args: Array[String]) {
     val c = new Cuvee
     c.configure(args.toList)
-    c.run()
+    c.run(c.cmds, c.state.get, z3(c.state.get))
   }
 }

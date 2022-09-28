@@ -38,7 +38,7 @@ package object smtlib {
 
   def echo(st: State) = new solver(st, "echo", "unsat")
 
-  val PrintSuccess = SetOption(List(":print-success", "true"))
+  val PrintSuccess = SetOption("print-success", "true")
 
   object stdout extends print(System.out)
   object stderr extends print(System.err)

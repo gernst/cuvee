@@ -27,16 +27,27 @@ sealed trait Cmd extends sexpr.Syntax
 sealed trait Decl extends Cmd
 sealed trait Ctrl extends Cmd
 
+case object Labels extends Cmd {
+  def sexpr = List("labels")
+}
+
 case class SetLogic(logic: String) extends Ctrl {
   def sexpr = List("set-logic", logic)
 }
 
-case class SetOption(args: List[String]) extends Ctrl {
-  def sexpr = "set-option" :: args
+case class SetOption(attr: String, arg: Any) extends Ctrl {
+  def sexpr = List("set-option", ":" + attr, arg)
+}
+
+case class GetInfo(attr: String) extends Ctrl {
+  def sexpr = List("get-info", ":" + attr)
 }
 
 case class SetInfo(attr: String, arg: Option[Any]) extends Ctrl {
-  def sexpr = ??? // List("set-info")
+  def sexpr = arg match {
+    case None      => List("set-info", ":" + attr)
+    case Some(arg) => List("set-info", ":" + attr, arg)
+  }
 }
 
 case class Push(depth: Int) extends Ctrl {

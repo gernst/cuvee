@@ -3,7 +3,7 @@ package cuvee.sexpr
 import cuvee.error
 import cuvee.util.Name
 
-trait Syntax extends util.Syntax {
+trait Syntax extends cuvee.util.Syntax {
   def sexpr: Any
 }
 

@@ -66,9 +66,8 @@ public class Scanner {
     "\1\6\1\7\1\10\3\6\1\0\1\11\1\12\2\6"+
     "\1\0\1\6\1\13\1\6\1\14\1\15\10\16\1\17"+
     "\1\20\5\6\6\21\24\6\3\0\2\6\1\0\1\21"+
-    "\1\22\4\21\6\6\1\23\1\24\6\6\1\25\2\6"+
-    "\1\26\2\6\1\0\1\27\1\0\1\6\6\0\1\3"+
-    "\u01a2\0\2\3\326\0\u0100\3";
+    "\1\22\4\21\21\6\1\23\2\6\1\0\1\24\1\0"+
+    "\1\6\6\0\1\3\u01a2\0\2\3\326\0\u0100\3";
 
   private static int [] zzUnpackcmap_blocks() {
     int [] result = new int[1024];
@@ -96,11 +95,11 @@ public class Scanner {
 
   private static final String ZZ_ACTION_PACKED_0 =
     "\1\0\1\1\1\2\1\3\2\1\1\4\1\5\2\6"+
-    "\2\1\1\3\1\1\1\0\1\7\2\0\1\10\1\0"+
-    "\2\2\1\3\1\0\1\11\1\12\1\13\4\3\1\14";
+    "\3\1\1\0\1\7\3\0\1\10\1\0\2\2\1\0"+
+    "\1\11\1\12\1\13\1\14";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[32];
+    int [] result = new int[27];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -125,13 +124,13 @@ public class Scanner {
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\30\0\60\0\110\0\140\0\170\0\30\0\30"+
-    "\0\220\0\250\0\300\0\330\0\360\0\u0108\0\140\0\30"+
-    "\0\u0120\0\u0138\0\u0150\0\330\0\30\0\u0168\0\u0180\0\u0108"+
-    "\0\30\0\u0120\0\u0138\0\u0198\0\u01b0\0\u01c8\0\u01e0\0\110";
+    "\0\0\0\25\0\52\0\77\0\124\0\151\0\25\0\25"+
+    "\0\176\0\223\0\250\0\275\0\322\0\124\0\25\0\347"+
+    "\0\374\0\u0111\0\u0126\0\275\0\25\0\u013b\0\322\0\25"+
+    "\0\347\0\374\0\u0111";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[32];
+    int [] result = new int[27];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -156,22 +155,16 @@ public class Scanner {
   private static final String ZZ_TRANS_PACKED_0 =
     "\1\2\2\3\1\2\2\3\1\4\1\5\1\6\1\7"+
     "\1\10\1\4\1\11\2\12\1\13\1\14\3\4\1\15"+
-    "\2\4\1\16\31\0\2\3\1\0\2\3\30\0\1\4"+
-    "\4\0\4\4\2\0\6\4\1\0\7\17\1\20\20\17"+
-    "\22\0\1\21\33\0\1\22\15\0\3\12\17\0\1\23"+
-    "\4\0\1\23\5\0\6\23\1\0\2\24\1\25\2\0"+
-    "\1\26\22\24\6\0\1\4\4\0\4\4\2\0\4\4"+
-    "\1\27\1\4\1\0\27\30\1\31\14\0\2\32\26\0"+
-    "\3\33\2\0\2\33\13\0\1\23\4\0\4\23\2\0"+
-    "\6\23\3\0\1\25\33\0\1\4\4\0\4\4\2\0"+
-    "\2\4\1\34\3\4\7\0\1\4\4\0\1\35\3\4"+
-    "\2\0\6\4\7\0\1\4\4\0\1\4\1\35\2\4"+
-    "\2\0\3\4\1\36\2\4\7\0\1\4\4\0\4\4"+
-    "\2\0\4\4\1\37\1\4\7\0\1\4\4\0\4\4"+
-    "\2\0\2\4\1\40\3\4\1\0";
+    "\26\0\2\3\1\0\2\3\25\0\1\4\4\0\4\4"+
+    "\2\0\3\4\1\0\7\16\1\17\15\16\22\0\1\20"+
+    "\15\0\1\21\7\0\1\22\14\0\1\21\3\12\14\0"+
+    "\1\23\4\0\1\23\5\0\3\23\1\0\2\24\1\25"+
+    "\2\0\1\26\17\24\24\27\1\30\14\0\2\31\23\0"+
+    "\3\32\22\0\3\33\2\0\2\33\10\0\1\23\4\0"+
+    "\4\23\2\0\3\23\3\0\1\25\22\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[504];
+    int [] result = new int[336];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -214,11 +207,11 @@ public class Scanner {
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\1\0\1\11\4\1\2\11\6\1\1\0\1\11\2\0"+
-    "\1\1\1\0\1\11\2\1\1\0\1\11\7\1";
+    "\1\0\1\11\4\1\2\11\5\1\1\0\1\11\3\0"+
+    "\1\1\1\0\1\11\1\1\1\0\1\11\3\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[32];
+    int [] result = new int[27];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -746,12 +739,12 @@ public class Scanner {
             // fall through
           case 22: break;
           case 11:
-            { return new Lit.hex(yytext(+2,0));
+            { return new Lit.dec(yytext());
             }
             // fall through
           case 23: break;
           case 12:
-            { return new Lit.dec(yytext());
+            { return new Lit.hex(yytext(+2,0));
             }
             // fall through
           case 24: break;

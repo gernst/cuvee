@@ -30,7 +30,7 @@ letter  = [a-zA-Z]
 extra   = [~!@$%&*_+=<>.?/] | "-" | "^"
 
 num     = [1-9]{digit}* | 0
-dec     = num "\." 0* num
+dec     = {num} "\." 0* {num}
 hex     = "0x" [0-9a-fA-F]+
 bin     = "#b" [01]+
 
@@ -55,8 +55,8 @@ kw      = ":" {symbol}
 \" ~ \"
             { return new Lit.str(yytext(+1,-1)); }
 
-{num}       { return new Lit.num(yytext()); }
 {dec}       { return new Lit.dec(yytext()); }
+{num}       { return new Lit.num(yytext()); }
 {hex}       { return new Lit.hex(yytext(+2,0)); }
 {bin}       { return new Lit.bin(yytext(+2,0)); }
 

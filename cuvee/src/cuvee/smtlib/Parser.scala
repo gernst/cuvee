@@ -43,8 +43,11 @@ class Parser(init: State) {
       case App(Id("set-logic"), Id(logic)) =>
         SetLogic(logic)
 
-      case App(Id("set-option"), args @ _*) =>
-        error("unsupported command: " + from)
+      case App(Id("set-option"), Kw(attr), arg) =>
+        SetOption(attr, arg)
+
+      case App(Id("get-info"), Kw(attr)) =>
+        GetInfo(attr)
 
       case App(Id("set-info"), Kw(attr)) =>
         SetInfo(attr, None)
@@ -53,18 +56,21 @@ class Parser(init: State) {
         SetInfo(attr, Some(arg))
 
       case App(Id("get-model"))      => GetModel
+      case App(Id("labels"))         => Labels
       case App(Id("exit"))           => Exit
       case App(Id("reset"))          => Reset
       case App(Id("get-assertions")) => GetAssertions
       case App(Id("check-sat"))      => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
-        stack = stack.tail
-        Push(digits.toInt)
+        val n = digits.toInt
+        stack = List.tabulate(n)(_ => stack.head) ++ stack
+        Push(n)
 
       case App(Id("pop"), Lit.num(digits)) =>
-        stack = stack.head :: stack
-        Pop(digits.toInt)
+        val n = digits.toInt
+        stack = stack drop n
+        Pop(n)
 
       case App(Id("assert"), phi) =>
         val phi_ = expr_typed(phi, bool)
@@ -289,6 +295,18 @@ class Parser(init: State) {
 
         case Id(name) if st.funs contains (name, 0) =>
           const(name)
+
+        case App(Id("!"), from, rest @ _*) =>
+          println("ignoring annotation")
+          expr(from, ctx, scope)
+
+        case App(Id("let"), rest @ _*) =>
+          println("abstracting let")
+          const("undefined")
+
+        case App(Id("distinct"), rest @ _*) =>
+          println("abstracting distinct")
+          const("undefined")
 
         case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope))

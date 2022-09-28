@@ -5,6 +5,8 @@ import java.util.regex.Pattern
 import java.io.Reader
 
 package object sexpr {
+  var debug = false
+
   implicit def toSyntaxList(xs: List[Syntax]) = new SyntaxList(xs: List[Syntax])
 
   val True = Id("true")
@@ -17,7 +19,10 @@ package object sexpr {
   def parse(reader: Reader): List[Expr] = {
     val scanner = new sexpr.Scanner(reader)
     val parser = new sexpr.Parser(scanner)
-    parser.sexprs()
+    val result = parser.sexprs()
+    if(debug)
+      println(result)
+    result
   }
 
   def iterator(reader: Reader): Iterator[Expr] = {
