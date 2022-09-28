@@ -34,7 +34,7 @@ object Eval {
     st ++ (xs zip es)
   }
 
-  type Exit = (Map[Var, Expr]) => Expr
+  type Exit = Map[Var, Expr] => Expr
 
   def no_brk(st: Any) =
     cuvee.error("break not within while loop")
@@ -42,7 +42,13 @@ object Eval {
   def no_ret(st: Any) =
     cuvee.error("return not within procedure")
 
-  def wp(how: Modality, prog: Prog, st: Map[Var, Expr], post: Expr, old: List[Map[Var, Expr]] = Nil): Expr = {
+  def wp(
+      how: Modality,
+      prog: Prog,
+      st: Map[Var, Expr],
+      post: Expr,
+      old: List[Map[Var, Expr]] = Nil
+  ): Expr = {
     wp(how, List(prog), Nil, st, old, eval(post, _, old), no_brk, no_ret)
   }
 
@@ -81,7 +87,7 @@ object Eval {
         //       and compute on these within the current block (but not in cont)
         val (xs_, re) = havoc(xs)
         val rest_ = rest replace re
-        val init_ = if (init.isEmpty) xs_ else init rename re
+        val init_ = if (init.isEmpty) xs_ else init subst st
         val st_ = assign(st, xs, init_)
         wp(how, rest_, cont, st_, old, post, brk, ret)
 
@@ -96,12 +102,9 @@ object Eval {
 
         val phi_ = eval(phi, st, old)
         val psi_ = eval(psi, st_, st :: old)
+        val rest_ = wp(how, rest, cont, st_, old, post, brk, ret)
 
-        phi && how.spec(
-          xs_,
-          psi_,
-          wp(how, rest, cont, st_, old, post, brk, ret)
-        )
+        phi && how.spec(xs_, psi_, rest_)
 
       case If(test, left, right) :: rest =>
         val test_ = test subst st
@@ -116,6 +119,7 @@ object Eval {
           "while within diamond: reachability not implemented"
         )
 
+        // variables modified by the loop
         val xs0 = body.mod.toList
         val (xs1, re) = havoc(xs0)
 

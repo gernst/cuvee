@@ -94,10 +94,16 @@ case object Return extends Prog {
 case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
   require(xs.nonEmpty, "empty local variable declaration")
 
-  require(
-    rhs.isEmpty || xs.length == rhs.length,
-    "mismatches between number of variables and initializer in declaration"
-  )
+  if (rhs.nonEmpty) {
+    require(
+      xs.length == rhs.length,
+      "mismatches between number of variables and initializer in declaration"
+    )
+
+    for ((x, e) <- (xs zip rhs)) {
+      require(x.typ == e.typ, "ill-typed declaration")
+    }
+  }
 
   def mod = Set() // Note: all new!
   def read = rhs.free
@@ -107,10 +113,15 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
 
 case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
   require(xs.nonEmpty, "empty assignment")
+
   require(
     xs.length == rhs.length,
     "mismatches between number of variables and right-hand-side expressions in assignment"
   )
+
+  for ((x, e) <- (xs zip rhs)) {
+    require(x.typ == e.typ, "ill-typed declaration")
+  }
 
   def mod = Set(xs: _*)
   def read = rhs.free
@@ -119,6 +130,15 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
 }
 
 case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
+  require(
+    pre.typ == Sort.bool,
+    "non-boolean precondition in specification statement"
+  )
+  require(
+    post.typ == Sort.bool,
+    "non-boolean postcondition in specification statement"
+  )
+
   def mod = xs.toSet
   def read = pre.free ++ (post.free -- mod)
   def breaks = false
@@ -132,6 +152,11 @@ object Spec extends ((List[Var], Expr, Expr) => Spec) {
 }
 
 case class If(test: Expr, left: Prog, right: Prog) extends Prog {
+  require(
+    test.typ == Sort.bool,
+    "non-boolean test in if statement"
+  )
+
   def mod = left.mod ++ right.mod
   def read = test.free ++ left.read ++ right.read
   def breaks = left.breaks || right.breaks
@@ -161,9 +186,26 @@ case class While(
     body: Prog,
     term: Expr,
     inv: Expr,
-    post: Expr,
+    sum: Expr,
     frames: List[Frame]
 ) extends Prog {
+  require(
+    test.typ == Sort.bool,
+    "non-boolean test in while statement"
+  )
+  require(
+    term.typ == Sort.int,
+    "non-integer decreases clause in while statement"
+  )
+  require(
+    inv.typ == Sort.bool,
+    "non-boolean invariant in while statement"
+  )
+  require(
+    sum.typ == Sort.bool,
+    "non-boolean summary in while statement"
+  )
+
   def mod = body.mod
   def read = test.free ++ body.read
   def breaks = false
@@ -173,7 +215,7 @@ case class While(
       body replace re,
       term rename re,
       inv rename re,
-      post rename re,
+      sum rename re,
       frames map (_ rename re)
     )
 }
