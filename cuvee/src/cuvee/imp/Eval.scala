@@ -91,7 +91,6 @@ object Eval {
         val rest_ = rest replace re
         val init_ = if (init.isEmpty) xs_ else init subst st
         val st_ = assign(st, xs_, init_)
-        println("evaluate " + rest_ + " in " + st_)
         
         val phi = wp(how, rest_, cont, st_, old, post, brk, ret)
         Forall(xs_, phi)

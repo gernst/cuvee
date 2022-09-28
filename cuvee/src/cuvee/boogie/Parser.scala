@@ -42,6 +42,9 @@ object Parser {
 
   def state = stack.value
 
+  val a = Param("a")
+  state.fun("old", List(a), List(a), a)
+
   object typing extends Scope[Param, Type] {
     def unify(typ1: Type, typ2: Type) = {
       value = Type.unify(typ1, typ2, value)
@@ -405,7 +408,9 @@ object Parser {
   def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(
       While(
-        "while" ~ parens(expr) ~ aux("decreases").? ~ aux("invariant").? ~ aux("invariant").? ~ ret(Nil) ~ block
+        "while" ~ parens(expr) ~ aux("decreases").? ~ aux("invariant").? ~ aux(
+          "summary"
+        ).? ~ ret(Nil) ~ block
       )
     )
 
@@ -449,9 +454,9 @@ object Parser {
     P(None(";") | some(scoped_block(in ++ out)))
   }
 
-  val proc_ = "procedure" ~ name ~ (parens(formals_top) ~ "returns" ~ parens(
-    formals_top
-  ) ~@ scoped_body)
+  val maybe_returns = ("returns" ~ parens(formals_top)) | ret(Nil)
+  val proc_ =
+    "procedure" ~ name ~ (parens(formals_top) ~ maybe_returns ~@ scoped_body)
 
   val proc = P(define_proc(proc_))
 

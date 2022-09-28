@@ -46,7 +46,9 @@ class Cuvee {
   def run() {
     assert(state.isDefined, "No file was parsed")
 
-    val slv = z3(state.get)
+    val st = state.get
+
+    val slv = z3(st)
     val prover = new Prove(slv)
 
     for (cmd ← cmds) {
