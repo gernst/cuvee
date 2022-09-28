@@ -25,8 +25,11 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
   def -(that: Expr) = Minus(this, that)
   def *(that: Expr) = Times(this, that)
 
-  def and(that: Expr) = And(this, that)
-  def or(that: Expr) = Or(this, that)
+  def <=(that: Expr) = Le(this, that)
+  def <(that: Expr) = Lt(this, that)
+
+  def &&(that: Expr) = And(this, that)
+  def ||(that: Expr) = Or(this, that)
   def ==>(that: Expr) = Imp(this, that)
 
   def ===(that: Expr) = Eq(this, that)
