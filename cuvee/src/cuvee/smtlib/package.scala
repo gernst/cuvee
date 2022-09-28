@@ -1,6 +1,6 @@
 package cuvee
 
-import cuvee.pure.State
+import cuvee.State
 import java.io.PrintStream
 import cuvee.pure.Expr
 import cuvee.util.Tool

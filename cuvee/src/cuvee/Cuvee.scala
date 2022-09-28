@@ -4,6 +4,8 @@ import cuvee.backend.Tactic
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.backend.Prove
+import cuvee.imp.Eval
+import cuvee.imp.WP
 
 class Cuvee {
   var state: Option[State] = None
@@ -49,8 +51,21 @@ class Cuvee {
 
     for (cmd ← cmds) {
       cmd match {
-        case decl: Decl  => slv.declare(decl)
+        case DeclareProc(name, in, out) =>
+
+        case DefineProc(name, in, out, body) =>
+          val xs = in ++ out
+          val st = Expr.id(xs)
+          val post = True
+          val phi = Forall(xs, Eval.wp(WP, body, st, post))
+          
+          val status = slv.check(!phi)
+          println("procedure " + name + ": " + status)
+
+        case decl: Decl => slv.declare(decl)
+
         case Assert(phi) => slv.assert(phi)
+
         case Lemma(expr, tactic) => {
           println()
           println("================  LEMMA  ================")
@@ -59,9 +74,16 @@ class Cuvee {
           val normalized = Disj.from(expr)
 
           rec(normalized, tactic, 1)(state.get, slv, prover) match {
-            case Atom(True)  => println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
-            case Atom(False) => println("\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!")
-            case remaining   => println("\u001b[91m⚠\u001b[0m Some subgoals could not be proven! Remaining combined goal: " + remaining.toExpr)
+            case Atom(True) =>
+              println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
+            case Atom(False) =>
+              println(
+                "\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!"
+              )
+            case remaining =>
+              println(
+                "\u001b[91m⚠\u001b[0m Some subgoals could not be proven! Remaining combined goal: " + remaining.toExpr
+              )
           }
 
           // In any case, assert the lemma, so that its statement is available in later proofs
@@ -89,11 +111,19 @@ class Cuvee {
     println(indent(depth) + "simp:     " + simp)
 
     (simp, tactic) match {
-      case (Atom(True), _)  =>
-        println(indent(depth + 1) + "\u001b[92m✔\u001b[0m Goal confimed true by simplifier")
+      case (Atom(True), _) =>
+        println(
+          indent(
+            depth + 1
+          ) + "\u001b[92m✔\u001b[0m Goal confimed true by simplifier"
+        )
         simp // Atom(True)
       case (Atom(False), _) =>
-        println(indent(depth + 1) + "\u001b[91m✘\u001b[0m Goal was reduced to `false` by simplifier")
+        println(
+          indent(
+            depth + 1
+          ) + "\u001b[91m✘\u001b[0m Goal was reduced to `false` by simplifier"
+        )
         simp // Atom(False)
 
       case (_, Some(tactic_)) =>
@@ -103,16 +133,19 @@ class Cuvee {
 
         // TODO: What do we return, if not all of the subgoals can be proven?
         //       Do we return /\ {unprovable subgoals} ?
-        (goals map ({
-          case (prop_, tactic_) =>  rec(prop_, tactic_, depth + 1)
-        }) filter (_ != Atom(True))
-        ) match {
+        (goals map ({ case (prop_, tactic_) =>
+          rec(prop_, tactic_, depth + 1)
+        }) filter (_ != Atom(True))) match {
           case Nil             => Atom(True)
           case remaining_goals => Conj.from(And(remaining_goals map (_.toExpr)))
         }
 
       case (_, _) =>
-        println(indent(depth) + "tactic:   none given, trying to solve goal automatically")
+        println(
+          indent(
+            depth
+          ) + "tactic:   none given, trying to solve goal automatically"
+        )
 
         var components: List[String] = Nil
 
@@ -120,7 +153,7 @@ class Cuvee {
         components :+= "simplifier"
         val simp = (Simplifier.simplify(prop) match {
           // Should this yield a boolean atom, no need to call the prover.
-          case res@(Atom(True) | Atom(False)) =>
+          case res @ (Atom(True) | Atom(False)) =>
             res
           // Otherwise, call the prover …
           case simp_prop =>
@@ -136,13 +169,25 @@ class Cuvee {
 
         simp match {
           case Atom(True) =>
-            println(indent(depth + 1) + f"\u001b[92m✔\u001b[0m Goal transformed to `true` by ${components.mkString(", ")}")
+            println(
+              indent(
+                depth + 1
+              ) + f"\u001b[92m✔\u001b[0m Goal transformed to `true` by ${components.mkString(", ")}"
+            )
 
-          case Atom(False) => 
-            println(indent(depth + 1) + f"\u001b[91m✘\u001b[0m Goal transformed to `false` by ${components.mkString(", ")}")
+          case Atom(False) =>
+            println(
+              indent(
+                depth + 1
+              ) + f"\u001b[91m✘\u001b[0m Goal transformed to `false` by ${components.mkString(", ")}"
+            )
 
           case goal =>
-            println(indent(depth + 2) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically")
+            println(
+              indent(
+                depth + 2
+              ) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
+            )
         }
 
         // Return whatever remained

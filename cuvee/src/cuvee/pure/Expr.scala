@@ -1,12 +1,12 @@
 package cuvee.pure
 
-import cuvee.StringOps
 import cuvee.error
 import cuvee.backtrack
 import cuvee.trace
 import cuvee.boogie
 import cuvee.sexpr
 import cuvee.util.Alpha
+import cuvee.util.Name
 import cuvee.util.Helper._
 
 sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
@@ -200,34 +200,6 @@ object Expr extends Alpha[Expr, Var] {
   }
 }
 
-/** Identifier for expressions
-  *
-  * @param name
-  *   String identifying the item
-  * @param index
-  *   Optional integral index
-  */
-case class Name(name: String, index: Option[Int] = None) {
-  def withName(name_ : String) = Name(name_, index)
-  def withIndex(index_ : Int) = Name(name, Some(index_))
-
-  /** Convert the name into a label that may be given to a solver for instance.
-    *
-    * @return
-    *   String of the form `name$index` or `name`, if there's no index.
-    */
-  def toLabel: String = name ~~ index
-  override def toString: String = name __ index
-}
-
-object Name extends (String => Name) {
-  implicit def stringToName(name: String): Name = Name(name, None)
-  implicit def stringRenameToNameRename(f: String => String): (Name => Name) =
-    name => name.withName(f(name.name))
-
-  def apply(name: String) = Name(name, None)
-}
-
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
   def types =
     exprs map (_.typ)
@@ -353,8 +325,10 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
   def sexpr = ???
   def bexpr = ??? /// TODO Daniel thinks that this is not part of boogie.
 
-  override def toString =
+  override def toString = {
+    import cuvee.StringOps
     ("in" __ k) + "(" + arg + ")"
+  }
 }
 
 case class Tuple(args: List[Expr]) extends Expr {

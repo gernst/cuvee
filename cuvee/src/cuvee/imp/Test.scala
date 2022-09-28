@@ -1,5 +1,6 @@
 package cuvee.imp
 
+import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
 

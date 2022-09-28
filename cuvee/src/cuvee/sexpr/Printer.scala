@@ -1,8 +1,7 @@
 package cuvee.sexpr
 
 import cuvee.error
-import cuvee.util
-import cuvee.pure.Name
+import cuvee.util.Name
 
 trait Syntax extends util.Syntax {
   def sexpr: Any

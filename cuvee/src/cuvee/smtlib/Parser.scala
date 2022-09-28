@@ -1,14 +1,14 @@
 package cuvee.smtlib
 
 import cuvee.error
+import cuvee.State
 import cuvee.pure.Type
-import cuvee.pure.State
 import cuvee.pure.Param
 import cuvee.pure.Datatype
 import cuvee.pure.Fun
 import cuvee.pure.Sort
 import cuvee.pure.Var
-import cuvee.pure.Name
+import cuvee.util.Name
 import cuvee.sexpr._
 
 class Parser(init: State) {

@@ -1,6 +1,7 @@
 package cuvee
 
 import cuvee.pure._
+import cuvee.util.Name
 import cuvee.smtlib._
 import java.io.FileReader
 import java.io.Reader

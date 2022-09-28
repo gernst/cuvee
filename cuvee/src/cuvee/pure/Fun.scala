@@ -4,6 +4,7 @@ import cuvee.smtlib.DeclareFun
 import cuvee.boogie
 import cuvee.sexpr
 import cuvee.StringOps
+import cuvee.util.Name
 
 case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie.Syntax {
   require(

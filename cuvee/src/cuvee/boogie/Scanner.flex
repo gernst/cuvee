@@ -22,9 +22,11 @@ ws = {nl} | [ \t\f]
 
 number  = [1-9][0-9]* | 0
 
-kw = "function" | "axiom" | "const" | "lemma" | "data" | "type"
-   | "(" | ")" | "[" | "]" | "::" | [;,:{}]
+kw = "function" | "axiom" | "const" | "lemma" | "data" | "type" | "procedure"
+   | "(" | ")" | "[" | "]" | "::" | [;,:{}] | ":="
    | "bool" | "int" | "real" | "=" | "|"
+   | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
+   | "while" | "if" | "else"
    | "proof" | "sorry" | "show" | "then"
    | "induction" | "->" | "end"
 

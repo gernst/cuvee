@@ -108,7 +108,12 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
   def mod = Set() // Note: all new!
   def read = rhs.free
   def breaks = false
-  def replace(re: Map[Var, Var]) = Assign(xs rename re, rhs rename re)
+  def replace(re: Map[Var, Var]) = Local(xs rename re, rhs rename re)
+}
+
+object Local extends ((List[Var], Option[List[Expr]]) => Local) {
+  def apply(xs: List[Var], rhs: Option[List[Expr]]): Local =
+    Local(xs, rhs.getOrElse(Nil))
 }
 
 case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
@@ -147,6 +152,7 @@ case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
 }
 
 object Spec extends ((List[Var], Expr, Expr) => Spec) {
+  def havoc = (xs: List[Var]) => Spec(xs, True, True)
   def assert = (pre: Expr) => Spec(Nil, pre, True)
   def assume = (post: Expr) => Spec(Nil, True, post)
 }
@@ -207,7 +213,7 @@ case class While(
   )
 
   def mod = body.mod
-  def read = test.free ++ body.read
+  def read = test.free ++ term.free ++ inv.free ++ sum.free ++ body.read
   def breaks = false
   def replace(re: Map[Var, Var]) =
     While(
@@ -224,20 +230,20 @@ object While
     extends (
         (
             Expr,
-            Prog,
             Option[Expr],
             Option[Expr],
             Option[Expr],
-            List[Frame]
+            List[Frame],
+            Prog
         ) => While
     ) {
   def apply(
       test: Expr,
-      body: Prog,
       term: Option[Expr],
       inv: Option[Expr],
       post: Option[Expr],
-      frames: List[Frame]
+      frames: List[Frame],
+      body: Prog
   ): While = {
     val _term = term getOrElse Zero
     val _inv = inv getOrElse True

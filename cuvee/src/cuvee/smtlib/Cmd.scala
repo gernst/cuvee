@@ -5,6 +5,8 @@ import cuvee.pure._
 import cuvee.sexpr
 import scala.reflect.ClassTag
 import cuvee.backend.Tactic
+import cuvee.imp.Prog
+import cuvee.util.Name
 
 sealed trait Res
 sealed trait IsSat extends Res
@@ -100,5 +102,22 @@ case class DeclareDatatypes(arities: List[(Name, Int)], cmds: List[Datatype])
 
 // This is not actually a feature of SMTLIB's
 case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
+  def sexpr = ???
+}
+
+case class DeclareProc(
+    name: Name,
+    in: List[Type],
+    out: List[Type]
+) extends Decl {
+  def sexpr = ???
+}
+
+case class DefineProc(
+    name: Name,
+    in: List[Var],
+    out: List[Var],
+    body: Prog
+) extends Decl {
   def sexpr = ???
 }

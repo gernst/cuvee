@@ -3,6 +3,7 @@ package cuvee.boogie
 import cuvee.error
 import cuvee.util
 import cuvee.pure._
+import cuvee.util.Name
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]

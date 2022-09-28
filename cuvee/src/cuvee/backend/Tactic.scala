@@ -1,5 +1,6 @@
 package cuvee.backend
 
+import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
 
@@ -69,7 +70,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
           assert(args forall (_.isInstanceOf[Var]))
           args
         } else {
-          val sels: List[Name] = con_sels(inst)
+          val sels = con_sels(inst)
           Expr.fresh(sels, inst.args)
         }
 

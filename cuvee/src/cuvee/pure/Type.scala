@@ -4,6 +4,7 @@ import cuvee.StringOps
 import cuvee.backtrack
 import cuvee.error
 import cuvee.sexpr
+import cuvee.util.Name
 import cuvee.util.Alpha
 
 sealed trait Type extends Type.term with sexpr.Syntax {}
