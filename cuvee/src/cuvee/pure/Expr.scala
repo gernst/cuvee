@@ -13,7 +13,7 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
   def funs: Set[Fun]
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr
 
   def ~~>(that: Expr) = Rule(this, that)
 
@@ -207,8 +207,8 @@ class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
     Set(exprs flatMap (_.funs): _*)
   def inst(su: Map[Param, Type]) =
     exprs map (_ inst su)
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    exprs map (_ subst (ty, su))
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    exprs map (_ inst (ty, su))
 }
 
 case class Var(name: Name, typ: Type) extends Expr with Expr.x {
@@ -217,7 +217,7 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
     Var(name.withIndex(index), typ)
   def inst(su: Map[Param, Type]) =
     Var(name, typ subst su)
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     subst(
       su
     ) // no need to look at ty, it is relevant for function applications only
@@ -271,7 +271,7 @@ case class Lit(any: Any, typ: Type) extends Expr {
   def rename(re: Map[Var, Var]) = this
   def subst(su: Map[Var, Expr]) = this
   def inst(su: Map[Param, Type]) = this
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) = this
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) = this
 
   def sexpr = any
   def bexpr = List(any.toString)
@@ -319,8 +319,8 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
     In(k, arg subst su, typ)
   def inst(su: Map[Param, Type]) =
     In(k, arg inst su, typ)
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    In(k, arg subst (ty, su), typ subst ty)
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    In(k, arg inst (ty, su), typ subst ty)
 
   def sexpr = ???
   def bexpr = ??? /// TODO Daniel thinks that this is not part of boogie.
@@ -341,8 +341,8 @@ case class Tuple(args: List[Expr]) extends Expr {
     Tuple(args subst su)
   def inst(su: Map[Param, Type]) =
     Tuple(args inst su)
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    Tuple(args subst (ty, su))
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    Tuple(args inst (ty, su))
 
   def sexpr = ???
   def bexpr = ??? // Not part of Boogie
@@ -426,8 +426,8 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     App(inst, args subst su)
   def inst(su: Map[Param, Type]) =
     App(inst subst su, args inst su)
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    App(inst subst ty, args subst (ty, su))
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    App(inst subst ty, args inst (ty, su))
 
   def sexpr = this match {
     case And(phis)         => "and" :: phis
@@ -491,7 +491,7 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     Bind(quant, formals rename a, body subst su, typ)
   def inst(su: Map[Param, Type]) =
     Bind(quant, formals inst su, body inst su, typ subst su)
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     ??? // uh oh mess with bound variables
 
   def refresh(avoid: Iterable[Var]) = {
@@ -548,9 +548,73 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
     Match(expr subst su, cases subst su, typ)
   def inst(su: Map[Param, Type]) =
     Match(expr inst su, cases inst su, typ subst su)
-  def subst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     ??? // need to fix cases, too
 
   def sexpr = List("match", expr, cases)
   def bexpr = ??? // Not part of Boogie
+}
+
+class LetEqList(eqs: List[LetEq]) {
+  def vars = eqs map (_.x)
+  def args = eqs map (_.e)
+  def bound = Set(eqs map (_.bound): _*)
+  def free = Set(eqs flatMap (_.free): _*)
+  def funs = Set(eqs flatMap (_.funs): _*)
+  def rename(a: Map[Var, Var], re: Map[Var, Var]) = eqs map (_ rename (a, re))
+  def subst(a: Map[Var, Var], su: Map[Var, Expr]) = eqs map (_ subst (a, su))
+  def inst(su: Map[Param, Type]) = eqs map (_ inst su)
+}
+
+case class LetEq(x: Var, e: Expr) {
+  def bound = x
+  def free = e.free
+  def funs = e.funs
+  def rename(a: Map[Var, Var], re: Map[Var, Var]) =
+    LetEq(x rename a, e rename re)
+  def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
+    LetEq(x rename a, e subst su)
+  def inst(su: Map[Param, Type]) = LetEq(x, e inst su)
+
+  def sexpr = List(x, e)
+  def bexpr = ???
+}
+
+case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
+  def bound = eqs.bound
+  def free = eqs.free ++ (body.free -- bound)
+  def funs = eqs.funs ++ body.funs
+  def typ = body.typ
+
+  def rename(a: Map[Var, Var], re: Map[Var, Var]) =
+    Let(eqs rename (a, re), body rename re)
+  def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
+    Let(eqs subst (a, su), body subst su)
+  def inst(su: Map[Param, Type]) =
+    Let(eqs inst su, body inst su)
+
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    ??? // need to fix let eqs, too
+
+  def sexpr = List("let", eqs, body)
+  def bexpr = ???
+}
+
+case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
+  def typ = expr.typ
+
+  def free = expr.free
+  def funs = expr.funs
+
+  def rename(re: Map[Var, Var]) =
+    Note(expr rename re, attr)
+  def subst(su: Map[Var, Expr]) =
+    Note(expr subst su, attr)
+  def inst(su: Map[Param, Type]) =
+    Note(expr inst su, attr)
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    Note(expr inst (ty, su), attr)
+
+  def sexpr = "!" :: expr :: attr
+  def bexpr = ???
 }

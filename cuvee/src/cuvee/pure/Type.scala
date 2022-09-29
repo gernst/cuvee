@@ -177,6 +177,9 @@ case class Param(name: Name, index: Option[Int] = None)
 object Param {
   val from: (Name => Param) =
     name => Param(name)
+
+  def fresh(name: String) =
+    Param(name, Some(Type.nextIndex))
 }
 
 case class Con(name: Name, arity: Int) {

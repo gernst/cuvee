@@ -10,6 +10,7 @@ import cuvee.pure.Sort
 import cuvee.pure.Var
 import cuvee.util.Name
 import cuvee.sexpr._
+import cuvee.pure.LetEq
 
 class Parser(init: State) {
   // import st._
@@ -297,12 +298,7 @@ class Parser(init: State) {
           const(name)
 
         case App(Id("!"), from, rest @ _*) =>
-          println("ignoring annotation")
-          expr(from, ctx, scope)
-
-        case App(Id("let"), rest @ _*) =>
-          println("abstracting let")
-          const("undefined")
+          note(expr(from, ctx, scope), rest.toList)
 
         case App(Id("distinct"), rest @ _*) =>
           println("abstracting distinct")
@@ -310,6 +306,12 @@ class Parser(init: State) {
 
         case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope))
+
+        case App(Id("let"), App(bound @ _*), arg) =>
+          val eqs = leteqs(bound.toList, ctx, scope)
+          val xs = eqs map (_._1)
+          val body = expr(arg, ctx, scope ++ xs.pairs)
+          let(eqs, body)
 
         case App(Id(name), App(bound @ _*), arg)
             if name == "exists" | name == "forall" =>
@@ -369,6 +371,22 @@ class Parser(init: State) {
         scope: Map[Name, Type]
     ): List[(Pre, Pre)] = {
       from map (case_(_, ctx, scope))
+    }
+
+    def leteq(from: Expr, ctx: Set[Name], scope: Map[Name, Type]): (Var, Pre) =
+      from match {
+        case App(Id(name), what) =>
+          leteq(name, expr(what, ctx, scope))
+        case _ =>
+          error("invalid let binding: " + from)
+      }
+
+    def leteqs(
+        from: List[Expr],
+        ctx: Set[Name],
+        scope: Map[Name, Type]
+    ): List[(Var, Pre)] = {
+      from map (leteq(_, ctx, scope))
     }
 
     def exprs(

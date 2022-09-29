@@ -172,7 +172,7 @@ object Rewrite {
             // k += 1
             res
           } else {
-            val rhs_ = rhs subst (ty, su)
+            val rhs_ = rhs inst (ty, su)
             // println("  "*depth + "rewrite " + expr)
             // println("  "*depth + "  ~~> " + rhs_)
             rewrite(rhs_, rules, depth + 1)
@@ -275,7 +275,7 @@ object Rewrite {
         // println("  avoiding cycle for " + expr + " via rule " + rule)
         Nil
       } else {
-        val rhs_ = rhs subst (ty, su)
+        val rhs_ = rhs inst (ty, su)
         // println("  "*depth + rhs + " ~> " + rhs_)
         List(rhs_)
         /* val self = List(rhs_)

@@ -6,6 +6,7 @@ package object pure {
   implicit def toParamList(params: List[Param]) = new ParamList(params)
   implicit def toTypeList(types: List[Type]) = new TypeList(types)
   implicit def toCaseList(cases: List[Case]) = new CaseList(cases)
+  implicit def toLetEqList(eqs: List[LetEq]) = new LetEqList(eqs)
 
   // work around initialization order, not using Const
   object True extends App(Inst(Fun.true_, Map()), Nil)
