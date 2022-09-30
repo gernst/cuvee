@@ -25,7 +25,10 @@ class Parser(init: State) {
 
   def ack(from: Expr): Ack =
     from match {
-      case Id("success") => Success
+      case Id("success") =>
+        Success
+      case App(Id("error"), args @ _*) =>
+        Error(args.toList)
       case _ =>
         error("invalid ack: " + from)
     }
@@ -35,6 +38,8 @@ class Parser(init: State) {
       case Id("sat")     => Sat
       case Id("unsat")   => Unsat
       case Id("unknown") => Unknown
+      case App(Id("error"), args @ _*) =>
+        Error(args.toList)
       case _ =>
         error("invalid status: " + from)
     }
@@ -56,10 +61,9 @@ class Parser(init: State) {
       case App(Id("set-info"), Kw(attr), arg) =>
         SetInfo(attr, Some(arg))
 
-      case App(Id("get-model"))      => GetModel
-      case App(Id("labels"))         => Labels
-      case App(Id("exit"))           => Exit
-      case App(Id("reset"))          => Reset
+      case App(Id("get-model")) => GetModel
+      case App(Id("labels"))    => Labels
+
       case App(Id("get-assertions")) => GetAssertions
       case App(Id("check-sat"))      => CheckSat
 
@@ -72,6 +76,15 @@ class Parser(init: State) {
         val n = digits.toInt
         stack = stack drop n
         Pop(n)
+
+      case App(Id("reset")) =>
+        stack = List(init)
+        Reset
+      
+      case App(Id("exit"))      =>
+        println("!!! exit in parser")
+        ???
+        Exit
 
       case App(Id("assert"), phi) =>
         val phi_ = expr_typed(phi, bool)
@@ -301,8 +314,7 @@ class Parser(init: State) {
           note(expr(from, ctx, scope), rest.toList)
 
         case App(Id("distinct"), rest @ _*) =>
-          println("abstracting distinct")
-          const("undefined")
+          distinct(exprs(rest.toList, ctx, scope))
 
         case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope))

@@ -50,7 +50,8 @@ class Cuvee {
 
   def run(cmds: List[Cmd], state: State, solver: Solver) {
     cmds match {
-      case Nil                                =>
+      case Nil =>
+
       case DeclareProc(name, in, out) :: rest =>
 
       case DefineProc(name, in, out, body) :: rest =>
@@ -63,7 +64,7 @@ class Cuvee {
         run(cmd :: rest, state, solver)
 
       case (ctrl: Ctrl) :: rest =>
-        solver.control(ctrl)
+        // solver.control(ctrl)
         run(rest, state, solver)
 
       case (decl: Decl) :: rest =>
@@ -85,6 +86,18 @@ class Cuvee {
         }
 
         solver.assert(result.toExpr)
+
+        run(rest, state, solver)
+
+      case Labels :: rest =>
+        // val result = solver.labels()
+        run(rest, state, solver)
+
+      case CheckSat :: rest =>
+      // val result = solver.check()
+      // println(result)
+        run(rest, state, solver)
+
     }
   }
 

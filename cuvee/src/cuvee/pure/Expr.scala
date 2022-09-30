@@ -217,10 +217,10 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
     Var(name.withIndex(index), typ)
   def inst(su: Map[Param, Type]) =
     Var(name, typ subst su)
+
+  // no need to look at ty, it is relevant for function applications only
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    subst(
-      su
-    ) // no need to look at ty, it is relevant for function applications only
+    subst(su)
 
   /** Skolemize this variable, transferring it to a constant function without
     * parameters.
@@ -566,7 +566,7 @@ class LetEqList(eqs: List[LetEq]) {
   def inst(su: Map[Param, Type]) = eqs map (_ inst su)
 }
 
-case class LetEq(x: Var, e: Expr) {
+case class LetEq(x: Var, e: Expr) extends sexpr.Syntax with boogie.Syntax {
   def bound = x
   def free = e.free
   def funs = e.funs
@@ -615,6 +615,26 @@ case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Note(expr inst (ty, su), attr)
 
-  def sexpr = "!" :: expr :: attr
+    def sexpr = expr
+  // def sexpr = "!" :: expr :: attr
+  def bexpr = ???
+}
+
+case class Distinct(exprs: List[Expr]) extends Expr {
+  def typ = Sort.bool
+
+  def free = exprs.free
+  def funs = exprs.funs
+
+  def rename(re: Map[Var, Var]) =
+    Distinct(exprs rename re)
+  def subst(su: Map[Var, Expr]) =
+    Distinct(exprs subst su)
+  def inst(su: Map[Param, Type]) =
+    Distinct(exprs inst su)
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    Distinct(exprs inst (ty, su))
+
+  def sexpr = "distinct" :: exprs
   def bexpr = ???
 }

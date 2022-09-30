@@ -52,7 +52,7 @@ object Lit {
 
 case class Kw(name: String) extends Atom {
   def replace(re: Map[String, Expr]) = this
-  def sexpr = List(":" + name)
+  def sexpr = ":" + name
   override def toString = ":" + name
 }
 

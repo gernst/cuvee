@@ -14,7 +14,7 @@ sealed trait Ack extends Res
 
 case object Success extends Ack
 case object Unsupported extends Ack
-case class Error(info: Seq[Any]) extends Res
+case class Error(info: List[Any]) extends Ack with IsSat
 
 case object Sat extends IsSat
 case object Unknown extends IsSat
