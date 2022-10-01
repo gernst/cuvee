@@ -26,26 +26,26 @@ object Simplifier {
   }
 
   def simplifyImp(phi: Expr, psi: Expr): Expr = {
-      var phi_ = simplify(phi)
-      var psi_ = simplify(psi)
+    var phi_ = simplify(phi)
+    var psi_ = simplify(psi)
 
-      (phi_, psi_) match {
-          case (_, True)        => True
-          case (False, _)       => True
-          case (True, _)        => psi_
-          case (_, False)       => Not(phi_)
-          case (d, e) if d == e => True
-          case _                => Imp(phi_, psi_)
-      }
+    (phi_, psi_) match {
+      case (_, True)        => True
+      case (False, _)       => True
+      case (True, _)        => psi_
+      case (_, False)       => Not(phi_)
+      case (d, e) if d == e => True
+      case _                => Imp(phi_, psi_)
+    }
   }
 
   def simplifyNot(phi: Expr): Expr = {
     var phi_ = simplify(phi)
     phi_ match {
-      case False        => True
-      case True         => False
-      case Not(psi)     => psi
-      case _            => Not(phi_)
+      case False    => True
+      case True     => False
+      case Not(psi) => psi
+      case _        => Not(phi_)
     }
   }
 
@@ -77,7 +77,10 @@ object Simplifier {
     case Conj(xs, neg)      => simplifyConj(xs, neg)
   }
 
-  def simplifyAtom(expr: Expr): Prop = Atom(simplify(expr))
+  def simplifyAtom(expr: Expr): Prop = {
+    Atom(simplify(expr))
+  }
+
   def simplifyDisj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Prop = {
     val neg_ = (neg map simplify) filter (_ != Atom(True))
     val pos_ = (pos map simplify) filter (_ != Atom(False))
@@ -87,11 +90,12 @@ object Simplifier {
     if (pos_ contains Atom(True))
       return Atom(True)
 
-      val neg__ = neg_ map (_.asInstanceOf[Neg])
-      val pos__ = pos_ map (_.asInstanceOf[Pos])
+    val neg__ = neg_ map (_.asInstanceOf[Neg])
+    val pos__ = pos_ map (_.asInstanceOf[Pos])
 
     Disj(xs, neg__, pos__)
   }
+
   def simplifyConj(xs: List[Var], neg: List[Neg]): Prop = {
     val neg_ = (neg map simplify) filter (_ != Atom(True))
 

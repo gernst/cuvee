@@ -77,15 +77,17 @@ class Cuvee {
 
       case Lemma(phi, None) :: rest =>
         val prop = Disj.from(phi)
+        println("prop  " + prop)
 
         val prove = new Prove(solver)
         val result = prove.prove(prop)
+        val psi = result.toExpr
 
-        if (result != Atom(True)) {
+        if (psi == True) {
+          solver.assert(psi)
+        } else {
           println("lemma " + result)
         }
-
-        solver.assert(result.toExpr)
 
         run(rest, state, solver)
 
@@ -94,8 +96,8 @@ class Cuvee {
         run(rest, state, solver)
 
       case CheckSat :: rest =>
-      // val result = solver.check()
-      // println(result)
+        // val result = solver.check()
+        // println(result)
         run(rest, state, solver)
 
     }

@@ -3,50 +3,77 @@ package cuvee.backend
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
-/** This class
-  *
-  * @param solver
-  *   SMT solver to use to check expressions
-  */
 class Prove(solver: Solver) {
-  def prove(prop: Prop): Prop = prop match {
-    case atom: Atom => prove(atom)
-    case neg: Neg   => prove(neg)
-    case pos: Pos   => prove(pos)
+  def prove(prop: Prop, expect: Boolean = true): Prop = prop match {
+    case atom: Atom => prove(atom, expect)
+    case neg: Neg   => prove(neg, expect)
+    case pos: Pos   => prove(pos, expect)
   }
 
-  def prove(atom: Atom): Atom = atom match {
-    case Atom(phi) =>
-      if (solver.isTrue(phi))
-        Atom(True)
-      else
-        atom
+  def prove(atom: Atom, expect: Boolean): Atom = atom match {
+    case Atom(phi) if expect && solver.isTrue(phi) =>
+      Atom(True)
+
+    case Atom(phi) if !expect && solver.isFalse(phi) =>
+      Atom(False)
+
+    case _ =>
+      atom
   }
 
-  def prove(pos: Pos): Pos = pos match {
+  def prove(pos: Pos, expect: Boolean): Pos = pos match {
     case atom: Atom =>
-      prove(atom)
+      prove(atom, expect)
 
     case Conj(Nil, neg) =>
-      val neg_ = conj(neg)
-      Conj(Nil, neg_)
+      val neg_ = conj(neg, expect)
 
-    case conj: Conj =>
-      prove(Atom(conj.toExpr))
+      neg_ match {
+        case Nil =>
+          Atom.t
+        case neg_ if neg_ contains Atom.f =>
+          Atom.f
+        case _ =>
+          Conj(Nil, neg_)
+      }
+
+    case Conj(xs, neg) =>
+      val re = Expr.fresh(xs)
+      val re_ = re map (_.swap)
+
+      val xs_ = xs rename re
+      val neg_ = neg map (_ rename re)
+
+      val neg__ = conj(neg_, expect)
+
+      val res = neg__ match {
+        case Nil =>
+          Atom.t
+        case _ if neg__ contains Atom.f =>
+          Atom.f
+        case _ =>
+          Conj(xs, neg__ map (_ rename re_))
+      }
+
+      if (xs.nonEmpty && expect && solver.isTrue(res.toExpr)) {
+        Atom.t
+      } else {
+        res
+      }
   }
 
-  def prove(neg: Neg): Neg = neg match {
+  def prove(neg: Neg, expect: Boolean): Neg = neg match {
     case atom: Atom =>
-      prove(atom)
+      prove(atom, expect)
 
-    // forall xs. /\ {ant} ==> \/ {suc}
     case Disj(xs, neg, pos) =>
       solver.scoped {
         // A Disj contains variables quantified by a forall quantifier (disj.xs).
         // Below, we'll split those variables from their declaration in the quantifier.
         // Decide how to rename the quantified variables
         val re = Expr.fresh(xs)
-        //
+        val re_ = re map (_.swap)
+
         val xs_ = xs rename re
         val neg_ = neg map (_ rename re)
         val pos_ = pos map (_ rename re)
@@ -55,57 +82,70 @@ class Prove(solver: Solver) {
         for (x <- xs_)
           solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
 
-        for (phi <- neg_)
+        // Filter out redundant assumptions, always expect true
+        val neg__ = conj(neg_, expect)
+
+        // Add assumptions to the solver
+        for (phi <- neg__)
           solver.assert(phi.toExpr)
 
-        if (pos.isEmpty && solver.isUnsat) {
-          // Empty succedent: the only option to close the proof
-          // is when the assumptions are already inconsistent.
-          // However, do not do this eagerly, because *typically*
-          // they are not inconsistent if we have a proper goal.
-          Atom(True)
+        // Filter out redundant conclusions
+        val pos__ = disj(pos_, expect)
+
+        val res = pos__ match {
+          case Nil =>
+            Atom(False)
+          case _ if pos__ contains Atom.t =>
+            Atom.t
+          case _ =>
+            // Undo the substitution
+            Disj(xs, neg__ map (_ rename re_), pos__ map (_ rename re_))
+        }
+
+        if (xs.nonEmpty && !expect && solver.isFalse(res.toExpr)) {
+          Atom.f
         } else {
-          // Otherwise: Attempt to prove one formula of the succedent,
-          // will succeed anyway if the assumptions are already inconsistent
-          val pos__ = disj(pos_)
-          Disj(xs_, neg_, pos__)
+          res
         }
       }
   }
 
-  def disj(suc: List[Pos]): List[Pos] = suc match {
+  def disj(suc: List[Pos], expect: Boolean): List[Pos] = suc match {
+    case Nil if expect && solver.isUnsat =>
+      List(Atom.t)
+
     case Nil =>
       Nil
 
     case first :: rest =>
-      prove(first) match {
-        case first_ @ Atom(False) =>
-          disj(rest)
+      prove(first, expect = false) match {
+        case Atom.f =>
+          disj(rest, expect)
 
         case first_ =>
           solver.scoped {
-            // justification: A \/ B  <==>  (A \/ (!A ==> B))
             solver.assert(!first_.toExpr)
-            first_ :: disj(rest)
+            first :: disj(rest, expect)
           }
       }
   }
 
-  def conj(ant: List[Neg]): List[Neg] = ant match {
+  def conj(ant: List[Neg], expect: Boolean): List[Neg] = ant match {
+    case Nil if !expect && solver.isUnsat =>
+      List(Atom.f)
+
     case Nil =>
       Nil
 
     case first :: rest =>
-      prove(first) match {
-        case first_ @ Atom(True) =>
-          conj(rest)
+      prove(first, expect = true) match {
+        case Atom.t =>
+          conj(rest, expect)
 
         case first_ =>
-          // TODO: check if we need to scope this
           solver.scoped {
-            // justification: A /\ B  <==>  (A /\ (A ==> B))
             solver.assert(first_.toExpr)
-            first_ :: conj(rest)
+            first :: conj(rest, expect)
           }
       }
   }
