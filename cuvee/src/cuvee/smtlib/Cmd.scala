@@ -75,6 +75,11 @@ case class Assert(expr: Expr) extends Cmd {
   def sexpr = List("assert", expr)
 }
 
+// This is not actually a feature of SMTLIB's
+case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
+  def sexpr = List("lemma", expr)
+}
+
 case object CheckSat extends Cmd {
   def sexpr = List("check-sat")
 }
@@ -109,11 +114,6 @@ case class DefineFun(
 case class DeclareDatatypes(arities: List[(Name, Int)], cmds: List[Datatype])
     extends Decl {
   def sexpr = List("declare-datatypes", arities, cmds)
-}
-
-// This is not actually a feature of SMTLIB's
-case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
-  def sexpr = ???
 }
 
 case class DeclareProc(

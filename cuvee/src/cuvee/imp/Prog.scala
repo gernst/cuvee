@@ -134,6 +134,24 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
   def replace(re: Map[Var, Var]) = Assign(xs rename re, rhs rename re)
 }
 
+object Assign extends ((List[Var], List[Expr]) => Assign) {
+  def flat(l: Expr, r: Expr): (Var, Expr) = l match {
+    case x: Var =>
+      (x, r)
+    case Select(a, i) =>
+      flat(a, Store(a, i, r))
+  }
+
+  val flatten = (xs: List[Expr], rhs: List[Expr]) => {
+    require(
+      xs.length == rhs.length,
+      "mismatches between number of variables and right-hand-side expressions in assignment"
+    )
+
+    ???
+  }
+}
+
 case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
   require(
     pre.typ == Sort.bool,

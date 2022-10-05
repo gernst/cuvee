@@ -264,7 +264,7 @@ object Parser {
       val body_ = typing.checked(body, typ)
       state.fun(name, Nil, args.types, typ)
       state.fundef(name, args, body_)
-      DefineFun(name, args, typ, body_, true)
+      DefineFun(name, args, typ, body_, body.funs exists (_.name == name))
   }
 
   val define_proc: ((Name, ((List[Var], List[Var]), Option[Prog])) => Cmd) = {
@@ -397,7 +397,9 @@ object Parser {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Prog, Token] =
-    P(spec | if_ | while_ | assign)
+    P(spec | ctrl | if_ | while_ | assign)
+
+  val ctrl = Break("break" ~ ";") | Return("return" ~ ";") 
 
   def if_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(If("if" ~ parens(expr) ~ block ~ ("else" ~ block).?))

@@ -30,7 +30,17 @@ package object smtlib {
     new solver(
       st,
       "cvc4",
-      "--tlimit=" + timeout,
+      "--tlimit-per=" + timeout,
+      "--lang=smt2",
+      "--incremental",
+      "--increment-triggers"
+    )
+    
+  def cvc5(st: State, timeout: Int = 1000) =
+    new solver(
+      st,
+      "cvc5",
+      "--tlimit-per=" + timeout,
       "--lang=smt2",
       "--incremental",
       "--increment-triggers"

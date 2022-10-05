@@ -7,6 +7,19 @@ import cuvee.backend.Prove
 import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.backend.Solver
+import cuvee.util.Main
+import cuvee.util.Run
+import cuvee.backend.ProveSimple
+
+object fastexp extends Run(Cuvee, "examples/fastexp.smt2", "-debug:solver")
+
+object Cuvee extends Main {
+  def main(args: Array[String]) {
+    val c = new Cuvee
+    c.configure(args.toList)
+    c.run(c.cmds, c.state.get, z3(c.state.get))
+  }
+}
 
 class Cuvee {
   var state: Option[State] = None
@@ -48,6 +61,21 @@ class Cuvee {
     }
   }
 
+  def show(phi: Expr, state: State, solver: Solver): Expr = {
+    val prop = Disj.from(phi)
+
+    val prove = new Prove(solver)
+    val result = prove.prove(prop)
+    val psi = result.toExpr
+
+    if (psi != True) {
+      for (line <- psi.lines)
+        println(line)
+    }
+
+    phi
+  }
+
   def run(cmds: List[Cmd], state: State, solver: Solver) {
     cmds match {
       case Nil =>
@@ -63,6 +91,9 @@ class Cuvee {
 
         run(cmd :: rest, state, solver)
 
+      case SetOption("print-success", _) :: rest =>
+        run(rest, state, solver)
+
       case (ctrl: Ctrl) :: rest =>
         // solver.control(ctrl)
         run(rest, state, solver)
@@ -71,22 +102,30 @@ class Cuvee {
         solver.declare(decl)
         run(rest, state, solver)
 
+      case Assert(Not(phi)) :: rest =>
+        println("lemma")
+        for (line <- phi.lines)
+          println(line)
+        val phi_ = show(phi, state, solver)
+        solver.assert(Not(phi))
+        run(rest, state, solver)
+
       case Assert(phi) :: rest =>
+        // println("axiom " + phi)
         solver.assert(phi)
         run(rest, state, solver)
 
-      case Lemma(phi, None) :: rest =>
-        val prop = Disj.from(phi)
-        println("prop  " + prop)
+      case (cmd @ Lemma(phi, None)) :: rest if false =>
+        val phi_ = show(phi, state, solver)
+        run(rest, state, solver)
 
-        val prove = new Prove(solver)
-        val result = prove.prove(prop)
-        val psi = result.toExpr
+      case (cmd @ Lemma(phi, None)) :: rest =>
+        val prove = new ProveSimple(solver)
+        val phi_ = prove.prove(phi)
 
-        if (psi == True) {
-          solver.assert(psi)
-        } else {
-          println("lemma " + result)
+        if (!solver.isTrue(phi_)) {
+          for (line <- phi_.lines)
+            println(line)
         }
 
         run(rest, state, solver)
@@ -96,8 +135,8 @@ class Cuvee {
         run(rest, state, solver)
 
       case CheckSat :: rest =>
-        // val result = solver.check()
-        // println(result)
+        val result = solver.check()
+        println(result)
         run(rest, state, solver)
 
     }
@@ -255,13 +294,5 @@ class Cuvee {
         // Return whatever remained
         simp
     }
-  }
-}
-
-object Cuvee {
-  def main(args: Array[String]) {
-    val c = new Cuvee
-    c.configure(args.toList)
-    c.run(c.cmds, c.state.get, z3(c.state.get))
   }
 }

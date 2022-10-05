@@ -26,7 +26,7 @@ kw = "function" | "axiom" | "const" | "lemma" | "data" | "type" | "procedure"
    | "(" | ")" | "[" | "]" | "::" | [;,:{}] | ":="
    | "bool" | "int" | "real" | "=" | "|"
    | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
-   | "while" | "if" | "else"
+   | "while" | "if" | "else" | "break" | "return"
    | "proof" | "sorry" | "show" | "then"
    | "induction" | "->" | "end"
 
