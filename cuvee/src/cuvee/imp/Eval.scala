@@ -148,8 +148,8 @@ object Eval {
           val inv2 = eval(inv, st2, st0 :: old)
 
           // propagate summary from st2 to st1 wrt. arbitrary state stk
-          val (xsk, re) = havoc(xs1)
-          val stk = assign(st2, xs1, xsk)
+          val (xsk, re) = havoc(xs0)
+          val stk = assign(st2, xs0, xsk)
 
           val sum1k = eval(sum, stk, st1 :: old)
           val sum2k = eval(sum, stk, st2 :: old)
@@ -167,7 +167,7 @@ object Eval {
           }
 
           // ensure this formula after a regular loop termination
-          inv2 && term2 && (sum2k ==> sum1k)
+          inv2 && term2 && Forall(xsk, sum2k ==> sum1k)
         }
 
         def brk_(st2: Map[Var, Expr]) = {

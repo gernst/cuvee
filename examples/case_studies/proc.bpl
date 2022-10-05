@@ -74,9 +74,22 @@ procedure copy(a: [int]int, n: int) returns (b: [int]int)
     while(i < n)
         decreases n - i;
         invariant 0 <= i && i <= n;
+        // transition invariant i < i' therefore *after* one iteration we get i <= i' + 1 i.e. i < i'
+        // cf. Rybalchenko & Podelski, LICS 04
+
+        // proof rule: R <= T and T;R <= T
+        // moreover if T is transition invariant then
+        // I + {s' | I(s) /\ T(s,s')}
+        // is regular invariant, i.e., all T successors from some invariant
+
+        // modifies clauses: ex T predecessor in current state such that array is modified in that iteration
     {
         b := b[i := a[i]];
         i := i + 1;
+
+        // we want a formula like i < i' that relates two arbitrary iterations
+        // such that we can say that all indices from prior iterations that are modified are def. smaller
+        // we *should* be able to compute this by accelleration or abstract interpretation
     }
 
 
