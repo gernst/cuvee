@@ -50,9 +50,18 @@ procedure lsearch(x: int, a: [int]int, n: int)
     var r: bool := false;
     var i: int  := 0;
 
+    // observation: we do not even need summaries in the backend, we can avoid the quantifier if
+    // we let final(_) denote some arbitrary but *fixed* final state,
+    // but that does not *force* us to prove that the summary is preserved (i.e. implication premise can just fail silently)
     while(i < n)
         decreases n - i;
         invariant 0 <= i && i <= n && !r;
+        // invariant initial(i) <= i && earlier(i) < i && i < later(i);
+        // summary   final(r) <==> contains(x, a, i, n);
+        // for a in mod:
+        //    invariant old(a[k])   == a[k] if earlier(a[k] == a'[k]) for all earlier transitions
+        //    summary   final(a[k]) == a[k] if later(a[k] == a'[k]) for all later transitions
+
         summary   r <==> old(contains(x, a, i, n));
     {
         if(x == a[i]) {
@@ -79,7 +88,7 @@ procedure copy(a: [int]int, n: int) returns (b: [int]int)
 
         // proof rule: R <= T and T;R <= T
         // moreover if T is transition invariant then
-        // I + {s' | I(s) /\ T(s,s')}
+        // I + { s' | I(s) /\ T(s,s') }
         // is regular invariant, i.e., all T successors from some invariant
 
         // modifies clauses: ex T predecessor in current state such that array is modified in that iteration
