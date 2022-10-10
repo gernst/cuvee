@@ -130,13 +130,16 @@ object Parser {
     "&&" -> "and",
     "||" -> "or",
     "==" -> "=",
-    "!=" -> "distinct",
+    // "!=" -> "distinct",
     "/" -> "div",
     "%" -> "mod",
     "!" -> "not"
   )
 
   def make_op: ((String, List[Expr]) => Expr) = {
+    case ("!=", List(arg1, arg2)) =>
+      Not(Eq(arg1, arg2))
+
     case (name, args) if translate contains name =>
       val name_ = translate(name)
       typing.app(name_, args)
