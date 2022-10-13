@@ -17,7 +17,7 @@ object Cuvee extends Main {
   def main(args: Array[String]) {
     val c = new Cuvee
     c.configure(args.toList)
-    c.run(c.cmds, c.state.get, z3(c.state.get))
+    c.run_(c.cmds, c.state.get, z3(c.state.get))
   }
 }
 
@@ -142,13 +142,10 @@ class Cuvee {
     }
   }
 
-  def run_() {
-    assert(state.isDefined, "No file was parsed")
+  def run_(cmds: List[Cmd], state: State, solver: Solver) {
+    assert(this.state.isDefined, "No file was parsed")
 
-    val st = state.get
-
-    val slv = z3(st)
-    val prover = new Prove(slv)
+    val prover = new Prove(solver)
 
     for (cmd ← cmds) {
       cmd match {
@@ -160,12 +157,12 @@ class Cuvee {
           val post = True
           val phi = Forall(xs, Eval.wp(WP, body, st, post))
 
-          val status = slv.check(!phi)
+          val status = solver.check(!phi)
           println("procedure " + name + ": " + status)
 
-        case decl: Decl => slv.declare(decl)
+        case decl: Decl => solver.declare(decl)
 
-        case Assert(phi) => slv.assert(phi)
+        case Assert(phi) => solver.assert(phi)
 
         case Lemma(expr, tactic) => {
           println()
@@ -174,7 +171,7 @@ class Cuvee {
 
           val normalized = Disj.from(expr)
 
-          rec(normalized, tactic, 1)(state.get, slv, prover) match {
+          rec(normalized, tactic, 1)(state, solver, prover) match {
             case Atom(True) =>
               println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
             case Atom(False) =>
@@ -188,7 +185,7 @@ class Cuvee {
           }
 
           // In any case, assert the lemma, so that its statement is available in later proofs
-          slv.assert(expr)
+          solver.assert(expr)
         }
         case _ =>
       }
@@ -197,7 +194,7 @@ class Cuvee {
 
   def rec(prop: Prop, tactic: Option[Tactic], depth: Int = 0)(implicit
       state: State,
-      slv: solver,
+      slv: Solver,
       prover: Prove
   ): Prop = {
     def indent(depth: Int, indentStr: String = "  "): String = {
