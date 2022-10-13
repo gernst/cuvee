@@ -148,7 +148,7 @@ class State(
     require(funs contains (name, arity), "function not declared: " + name)
     if (fundefs contains (name, arity))
       require(fundefs(name, arity) == (args, body), "function already defined")
-    fundefs + ((name, arity) -> (args, body))
+    fundefs += ((name, arity) -> (args, body))
   }
 
   def proc(
