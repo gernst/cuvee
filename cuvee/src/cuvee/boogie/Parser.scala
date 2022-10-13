@@ -197,11 +197,13 @@ object Parser {
   ): Parser[Expr, Token] =
     P(parens(expr) | num | ite | bind | map | app)
 
-  def make_int: (String => Expr) = { case text =>
-    Lit(BigInt(text), Sort.int)
-  }
+  def make_int: (String => BigInt) = text =>
+    BigInt(text)
+  def make_int_lit: (String => Expr) = text =>
+    Lit(make_int(text), Sort.int)
 
-  val num = P(make_int(number))
+  val num = P(make_int_lit(number))
+  val int_ = P(make_int(number))
 
   def update(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(":=" ~ expr)
@@ -358,7 +360,7 @@ object Parser {
       ctx: Map[Name, Param]
   ): Parser[Unfold, Token] =
     P(
-      "unfold" ~ Unfold(name ~ ("then" ~ tactic).?)
+      "unfold" ~ Unfold(name ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?)
     )
 
   // ANY TACTIC

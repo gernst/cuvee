@@ -108,19 +108,29 @@ case class Show(prop: Expr, tactic: Option[Tactic], cont: Option[Tactic])
   }
 }
 
-case class Unfold(target: Name, cont: Option[Tactic])
+case class Unfold(target: Name, places: Option[List[BigInt]], cont: Option[Tactic])
     extends Tactic {
+  require(!places.isDefined || places.get.forall(i => 1 <= i))
+
   def apply(state: State, goal: Prop) = {
     val expr = goal.toExpr
 
-    val goal_ = expr.bottomup(e => e match {
+    var i = 0
+
+    val goal_ = expr.topdown(e => e match {
       case App(inst, args) if inst.fun.name == target => {
-        val arity = args.length
-        val (params, body) = state.fundefs((target, arity))
+        i += 1
 
-        val su = params.zip(args).toMap
+        if (places.isDefined && !places.get.contains(i)) {
+          e
+        } else {
+          val arity = args.length
+          val (params, body) = state.fundefs((target, arity))
 
-        body.subst(su)
+          val su = params.zip(args).toMap
+
+          body.subst(su)
+        }
       }
 
       case _ => e
