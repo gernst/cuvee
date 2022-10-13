@@ -3,6 +3,7 @@ package cuvee.backend
 import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
+import cuvee.util.Name
 
 /** Represents a tactic that can be applied to a proof obligation.
   */
@@ -104,5 +105,27 @@ case class Show(prop: Expr, tactic: Option[Tactic], cont: Option[Tactic])
       (prop_, tactic),
       (goal_, cont)
     )
+  }
+}
+
+case class Unfold(target: Name, cont: Option[Tactic])
+    extends Tactic {
+  def apply(state: State, goal: Prop) = {
+    val expr = goal.toExpr
+
+    val goal_ = expr.bottomup(e => e match {
+      case App(inst, args) if inst.fun.name == target => {
+        val arity = args.length
+        val (params, body) = state.fundefs((target, arity))
+
+        val su = params.zip(args).toMap
+
+        body.subst(su)
+      }
+
+      case _ => e
+    })
+
+    List( (Disj.from(goal_), cont) )
   }
 }

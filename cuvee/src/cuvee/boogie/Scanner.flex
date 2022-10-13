@@ -28,7 +28,7 @@ kw = "function" | "axiom" | "const" | "lemma" | "data" | "type" | "procedure"
    | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
    | "while" | "if" | "else" | "break" | "return"
    | "proof" | "sorry" | "show" | "then"
-   | "induction" | "->" | "end"
+   | "induction" | "unfold" | "at" | "->" | "end"
 
 id = [a-zA-Z_][a-zA-Z0-9_]*
 op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"

@@ -352,12 +352,21 @@ object Parser {
       ) ~ "end"
     )
 
+  // UNFOLD
+  def unfold(implicit
+      scope: Map[Name, Var],
+      ctx: Map[Name, Param]
+  ): Parser[Unfold, Token] =
+    P(
+      "unfold" ~ Unfold(name ~ ("then" ~ tactic).?)
+    )
+
   // ANY TACTIC
   def tactic(implicit
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Tactic, Token] =
-    P(sorry | show | induction);
+    P(sorry | show | induction | unfold);
 
   def scoped_tactic(
       phi: Expr
