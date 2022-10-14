@@ -139,3 +139,14 @@ case class Unfold(target: Name, places: Option[List[BigInt]], cont: Option[Tacti
     List( (Disj.from(goal_), cont) )
   }
 }
+
+/**
+  * This "tactic" is actually just a wrapper for another tactic.
+  * It serves to signal the 
+  *
+  * @param tactic
+  */
+case class NoAuto(tactic: Tactic) extends Tactic {
+  def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])] =
+    tactic.apply(state, goal)
+}
