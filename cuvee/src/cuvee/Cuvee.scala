@@ -10,6 +10,7 @@ import cuvee.backend.Solver
 import cuvee.util.Main
 import cuvee.util.Run
 import cuvee.backend.ProveSimple
+import cuvee.backend.NoAuto
 
 object fastexp extends Run(Cuvee, "examples/fastexp.smt2", "-debug:solver")
 
@@ -205,26 +206,25 @@ class Cuvee {
     println(indent(depth) + "---  PROOF OBLIGATION ---")
     println(indent(depth) + "prop:     " + prop.toExpr)
 
-    val simp = Simplifier.simplify(prop)
-    println(indent(depth) + "simp:     " + simp)
+    // Call the prover, except if instructed by the NoAuto tactic *not* to do so.
+    // Sets `tactic_` to an `Option[Tactic]` of the tactic that should be applied to the remaining goal (if any)
+    val (tactic_, prop_) = tactic match {
+      case Some(NoAuto(tactic_)) =>
+        // Skip the prover call and execute the inner tactic directly
+        (Some(tactic_), prop)
 
-    (simp, tactic) match {
-      case (Atom(True), _) =>
-        println(
-          indent(
-            depth + 1
-          ) + "\u001b[92m✔\u001b[0m Goal confimed true by simplifier"
-        )
-        simp // Atom(True)
-      case (Atom(False), _) =>
-        println(
-          indent(
-            depth + 1
-          ) + "\u001b[91m✘\u001b[0m Goal was reduced to `false` by simplifier"
-        )
-        simp // Atom(False)
+      case _ =>
+        // Call prover
+        val res = prover.prove(prop)
+        println(indent(depth) + "new goal: " + res.toExpr)
 
-      case (_, Some(tactic_)) =>
+        // Set tactic_ to whatever tactic was beforehand
+        (tactic, res)
+    }
+
+    // Apply the tactic `tactic_`
+    val prop__ = tactic_ match {
+      case Some(tactic_) => 
         println(indent(depth) + "tactic:   " + tactic)
         // Apply the tactic and get the remaining subgoals that we need to prove
         val goals = tactic_.apply(state, prop)
@@ -237,59 +237,31 @@ class Cuvee {
           case Nil             => Atom(True)
           case remaining_goals => Conj.from(And(remaining_goals map (_.toExpr)))
         }
+      case None => prop_
+    }
 
-      case (_, _) =>
+    // Call the simplifier
+    val simp = Simplifier.simplify(prop__)
+    println(indent(depth) + "simp:     " + simp.toExpr)
+
+    simp match {
+      case Atom(True) =>
         println(
-          indent(
-            depth
-          ) + "tactic:   none given, trying to solve goal automatically"
+          indent(depth) + f"\u001b[92m✔\u001b[0m Goal found to be `true`"
         )
 
-        var components: List[String] = Nil
+      case Atom(False) =>
+        println(
+          indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
+        )
 
-        // Try a simplification first, without calling the prover
-        components :+= "simplifier"
-        val simp = (Simplifier.simplify(prop) match {
-          // Should this yield a boolean atom, no need to call the prover.
-          case res @ (Atom(True) | Atom(False)) =>
-            res
-          // Otherwise, call the prover …
-          case simp_prop =>
-            val res = prover.prove(prop)
-            components :+= "prover"
-
-            println(indent(depth + 1) + "new goal: " + res.toExpr)
-            // … and simplify the result
-            Simplifier.simplify(res)
-        })
-
-        println(indent(depth + 1) + "simp:     " + simp.toExpr)
-
-        simp match {
-          case Atom(True) =>
-            println(
-              indent(
-                depth + 1
-              ) + f"\u001b[92m✔\u001b[0m Goal transformed to `true` by ${components.mkString(", ")}"
-            )
-
-          case Atom(False) =>
-            println(
-              indent(
-                depth + 1
-              ) + f"\u001b[91m✘\u001b[0m Goal transformed to `false` by ${components.mkString(", ")}"
-            )
-
-          case goal =>
-            println(
-              indent(
-                depth + 2
-              ) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
-            )
-        }
-
-        // Return whatever remained
-        simp
+      case goal =>
+        println(
+          indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
+        )
     }
+
+    // Return whatever remained
+    simp
   }
 }
