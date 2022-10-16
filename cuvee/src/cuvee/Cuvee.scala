@@ -11,6 +11,8 @@ import cuvee.util.Main
 import cuvee.util.Run
 import cuvee.backend.ProveSimple
 import cuvee.backend.NoAuto
+import cuvee.backend.Induction
+import cuvee.backend.Show
 
 object fastexp extends Run(Cuvee, "examples/fastexp.smt2", "-debug:solver")
 
@@ -212,6 +214,10 @@ class Cuvee {
       case Some(NoAuto(tactic_)) =>
         // Skip the prover call and execute the inner tactic directly
         (Some(tactic_), prop)
+
+      // Also, skip the prover call, if the next tactic on the "prover blacklist", that follows.
+      case Some(Induction(_, _)) | Some(Show(_, _, _)) =>
+        (tactic, prop)
 
       case _ =>
         // Call prover
