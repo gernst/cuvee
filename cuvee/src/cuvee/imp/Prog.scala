@@ -209,8 +209,8 @@ case class While(
     test: Expr,
     body: Prog,
     term: Expr,
-    inv: Expr,
-    sum: Expr,
+    inv: List[Expr],
+    sum: List[Expr],
     frames: List[Frame]
 ) extends Prog {
   require(
@@ -222,11 +222,11 @@ case class While(
     "non-integer decreases clause in while statement"
   )
   require(
-    inv.typ == Sort.bool,
+    inv.forall(_.typ == Sort.bool),
     "non-boolean invariant in while statement"
   )
   require(
-    sum.typ == Sort.bool,
+    sum.forall(_.typ == Sort.bool),
     "non-boolean summary in while statement"
   )
 
@@ -249,8 +249,8 @@ object While
         (
             Expr,
             Option[Expr],
-            Option[Expr],
-            Option[Expr],
+            List[Expr],
+            List[Expr],
             List[Frame],
             Prog
         ) => While
@@ -258,15 +258,13 @@ object While
   def apply(
       test: Expr,
       term: Option[Expr],
-      inv: Option[Expr],
-      post: Option[Expr],
+      inv: List[Expr],
+      post: List[Expr],
       frames: List[Frame],
       body: Prog
   ): While = {
     val _term = term getOrElse Zero
-    val _inv = inv getOrElse True
-    val _post = post getOrElse True
-    While(test, body, _term, _inv, _post, frames)
+    While(test, body, _term, inv, post, frames)
   }
 }
 
