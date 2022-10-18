@@ -3,6 +3,7 @@ package cuvee.backend
 import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
+import cuvee.util.Name
 
 /** Represents a tactic that can be applied to a proof obligation.
   */
@@ -11,17 +12,17 @@ trait Tactic {
   /** Apply the tactic to a proposition in a given state
     *
     * @param state
-    * @param prop
+    * @param goal
     * @return
     *   A list of subgoals, given as tuples (prop, tactic?), where prop is the
     *   formula corresponding to the subgoal and tactic? is an optional tactic
     *   to prove the subgoal.
     */
-  def apply(state: State, prop: Prop): List[(Prop, Option[Tactic])]
+  def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])]
 }
 
 case object Sorry extends Tactic {
-  def apply(state: State, prop: Prop) = {
+  def apply(state: State, goal: Prop) = {
     // Currently a no-op
     println("\u001b[93m⚠\u001b[0m Use of the \u001b[93msorry\u001b[0m tactic!")
     Nil
@@ -30,7 +31,7 @@ case object Sorry extends Tactic {
 
 case class Induction(variable: Var, cases: List[(Expr, Tactic)])
     extends Tactic {
-  def apply(state: State, prop: Prop) = {
+  def apply(state: State, goal: Prop) = {
     // First determine the variable's datatype
     val sort = variable.typ.asInstanceOf[Sort]
     val dt = state.datatypes(sort.con.name)
@@ -55,8 +56,8 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
     val given_cons = con_tactics.keySet
     val missing_cons = all_cons &~ given_cons
 
-    // Generate a copy of prop without a top level quantor quantifying the induction `variable`
-    val prop_ = prop match {
+    // Generate a copy of goal without a top level quantor quantifying the induction `variable`
+    val goal_ = goal match {
       case Disj(xs, neg, pos) => Disj(xs.filterNot(_ == variable), neg, pos)
       case _ => cuvee.error("Only Disj supported in induction tactic")
     }
@@ -75,34 +76,77 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
         }
 
         val rec_args = args.filter(_.typ == sort)
-        val hyps = rec_args map (arg => prop_.subst(Map(variable -> arg)))
+        val hyps = rec_args map (arg => goal_.subst(Map(variable -> arg)))
 
         val su = Map(variable -> App(inst, args))
 
-        val goal = Disj(
-          prop_.xs ++ args,
-          prop_.neg.map(_.subst(su)) ++ hyps,
-          prop_.pos.map(_.subst(su))
+        val new_goal = Disj(
+          goal_.xs ++ args,
+          goal_.neg.map(_.subst(su)) ++ hyps,
+          goal_.pos.map(_.subst(su))
         )
 
-        (goal, con_tactics.get(inst) map (_._2))
+        (new_goal, con_tactics.get(inst) map (_._2))
       })
       .toList
   }
 }
 
-case class Show(goal: Expr, tactic: Option[Tactic], cont: Option[Tactic])
+case class Show(prop: Expr, tactic: Option[Tactic], cont: Option[Tactic])
     extends Tactic {
-  def apply(state: State, prop: Prop) = {
-    assert(prop.isInstanceOf[Disj])
-    val goal_ = Disj.from(goal)
+  def apply(state: State, goal: Prop) = {
+    assert(goal.isInstanceOf[Disj])
+    val prop_ = Disj.from(prop)
 
-    val Disj(xs, neg, pos) = prop.asInstanceOf[Disj]
-    val prop_ = Disj.assume(List(goal), Nil, xs, neg, pos)
+    val Disj(xs, neg, pos) = goal.asInstanceOf[Disj]
+    val goal_ = Disj.assume(List(prop), Nil, xs, neg, pos)
 
     List(
-      (goal_, tactic),
-      (prop_, cont)
+      (prop_, tactic),
+      (goal_, cont)
     )
   }
+}
+
+case class Unfold(target: Name, places: Option[List[BigInt]], cont: Option[Tactic])
+    extends Tactic {
+  require(!places.isDefined || places.get.forall(i => 1 <= i))
+
+  def apply(state: State, goal: Prop) = {
+    val expr = goal.toExpr
+
+    var i = 0
+
+    val goal_ = expr.topdown(e => e match {
+      case App(inst, args) if inst.fun.name == target => {
+        i += 1
+
+        if (places.isDefined && !places.get.contains(i)) {
+          e
+        } else {
+          val arity = args.length
+          val (params, body) = state.fundefs((target, arity))
+
+          val su = params.zip(args).toMap
+
+          body.subst(su)
+        }
+      }
+
+      case _ => e
+    })
+
+    List( (Disj.from(goal_), cont) )
+  }
+}
+
+/**
+  * This "tactic" is actually just a wrapper for another tactic.
+  * It serves to signal the 
+  *
+  * @param tactic
+  */
+case class NoAuto(tactic: Tactic) extends Tactic {
+  def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])] =
+    tactic.apply(state, goal)
 }

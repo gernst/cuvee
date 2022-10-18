@@ -197,11 +197,13 @@ object Parser {
   ): Parser[Expr, Token] =
     P(parens(expr) | num | ite | bind | map | app)
 
-  def make_int: (String => Expr) = { case text =>
-    Lit(BigInt(text), Sort.int)
-  }
+  def make_int: (String => BigInt) = text =>
+    BigInt(text)
+  def make_int_lit: (String => Expr) = text =>
+    Lit(make_int(text), Sort.int)
 
-  val num = P(make_int(number))
+  val num = P(make_int_lit(number))
+  val int_ = P(make_int(number))
 
   def update(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(":=" ~ expr)
@@ -352,12 +354,30 @@ object Parser {
       ) ~ "end"
     )
 
+  // UNFOLD
+  def unfold(implicit
+      scope: Map[Name, Var],
+      ctx: Map[Name, Param]
+  ) =
+    P(
+      "unfold" ~ Unfold(name ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?)
+    )
+
+  // NOAUTO
+  def noauto(implicit
+      scope: Map[Name, Var],
+      ctx: Map[Name, Param]
+  ) =
+    P(
+      "noauto" ~ NoAuto(tactic)
+    )
+
   // ANY TACTIC
   def tactic(implicit
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Tactic, Token] =
-    P(sorry | show | induction);
+    P(sorry | show | induction | unfold | noauto);
 
   def scoped_tactic(
       phi: Expr
