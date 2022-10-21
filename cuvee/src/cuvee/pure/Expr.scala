@@ -413,6 +413,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   // )
 
   def funs = args.funs + inst.fun
+  def fun = inst.fun
   def typ = inst.res
   // val su = Type.subst(fun.params, inst)
 
