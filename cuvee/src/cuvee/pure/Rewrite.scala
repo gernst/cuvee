@@ -4,9 +4,87 @@ import cuvee.error
 import cuvee.backtrack
 import cuvee.sexpr.Syntax
 import cuvee.smtlib.Assert
+import cuvee.smtlib.Cmd
+import cuvee.State
+import cuvee.smtlib.DefineFun
+import cuvee.util.Fix
+import cuvee.smtlib.DeclareFun
 
 object Rewrite {
   val MaxDepth = 20
+
+  def from(
+      cmd: Cmd,
+      ok: Set[Fun],
+      st: State,
+      assert: Boolean,
+      define: Boolean
+  ): List[Rule] = {
+    cmd match {
+      case Assert(expr) if assert =>
+        Rules.from(expr, ok)
+      case DefineFun(name, xs, _, body, rec) if define =>
+        val fun = st.funs(name, xs.length)
+        Rules.from(fun, xs, body, ok)
+      case _ =>
+        Nil
+    }
+  }
+
+  def from(
+      cmds: List[Cmd],
+      st: State,
+      assert: Boolean = true,
+      define: Boolean = true
+  ): List[Rule] = {
+    val ok =
+      for (DeclareFun(name, args, res) <- cmds)
+        yield st.funs(name, args.length)
+
+    for (
+      cmd <- cmds;
+      rule <- from(cmd, ok.toSet, st, assert, define)
+    )
+      yield rule
+  }
+
+  def safe(rules: List[Rule], st: State): List[Rule] = {
+    val deps = Rewrite.deps(rules)
+
+    for (
+      rule @ Rule(App(Inst(fun, _), pats), rhs, _, _) <- rules
+      if !(deps(fun) contains fun) && decreases(fun, pats, rhs, st.constrs)
+    )
+      yield rule
+  }
+
+  def decreases(
+      fun: Fun,
+      pats: List[Expr],
+      rhs: Expr,
+      constrs: Set[Fun]
+  ): Boolean = rhs match {
+    case App(Inst(`fun`, _), rec) =>
+      pats.zipWithIndex.exists { case (App(inst, args), i) =>
+        (constrs contains inst.fun) && (args contains rec(i))
+      }
+
+    case App(_, args) =>
+      args forall (decreases(fun, pats, _, constrs))
+
+    case x: Var =>
+      true
+
+    case _ =>
+      false // add more cases!
+  }
+
+  def deps(rules: List[Rule]) = {
+    Fix.tc {
+      for (rule <- rules)
+        yield rule.fun -> rule.rhs.funs
+    }
+  }
 
   def rewrite(rule: Rule, rules: Map[Fun, List[Rule]]): Rule = {
     val Rule(lhs, rhs, cond, avoid) = rule
