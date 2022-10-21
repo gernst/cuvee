@@ -153,8 +153,8 @@ object Rewrite {
             backtrack("side-condition not satisfied " + _cond)
 
           val dont = avoid exists { case (a, b) =>
-            val _a = a subst su
-            val _b = b subst su
+            val _a = a inst (ty, su)
+            val _b = b inst (ty, su)
             // println(rule)
             // println("checking cycle " + _a + " and " + _b + " in " + env)
             val r = _a.toString == _b.toString // HACK!!
