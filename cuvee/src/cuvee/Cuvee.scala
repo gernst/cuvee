@@ -247,7 +247,7 @@ class Cuvee {
     }
 
     // Call the simplifier
-    val simp = Simplifier.simplify(prop__)
+    val simp = Simplify.simplify(prop__)
     println(indent(depth) + "simp:     " + simp.toExpr)
 
     simp match {

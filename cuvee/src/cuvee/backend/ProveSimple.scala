@@ -4,17 +4,15 @@ import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
 class ProveSimple(solver: Solver) {
-  import Simplifier._
-
   def prove(expr: Expr): Expr = expr match {
     case And(phis) =>
-      simplifyAnd(phis map prove)
+      Simplify.and(phis map prove)
 
     case Imp(phi, psi) =>
       solver.scoped {
         solver.assert(phi)
         val psi_ = prove(psi)
-        simplifyImp(phi, psi_)
+        Simplify.imp(phi, psi_)
       }
 
     case Forall(xs, body) =>
