@@ -2,7 +2,6 @@ package cuvee.pure
 
 import cuvee.error
 import cuvee.backtrack
-import cuvee.toControl
 import cuvee.sexpr.Syntax
 import cuvee.smtlib.Assert
 
@@ -23,7 +22,7 @@ object Rewrite {
       case self if depth > MaxDepth =>
         println("max rewriting depth reached: " + self)
         self
-        // error("max rewriting depth reached " + self)
+      // error("max rewriting depth reached " + self)
 
       case self @ App(inst, args) =>
         app(self, inst.fun, args, rules, depth)
@@ -32,7 +31,7 @@ object Rewrite {
         self
     }
   }
-  
+
   def rewrites(
       exprs: List[Expr],
       rules: Map[Fun, List[Rule]],
@@ -56,8 +55,6 @@ object Rewrite {
     }
   }
 
-  var k = 0
-
   def rewrite(
       expr: Expr,
       fun: Fun,
@@ -74,7 +71,8 @@ object Rewrite {
           fun == inst.fun,
           "inconsistent rewrite rule index: " + fun + " has rule " + rule
         )
-        try {
+
+        {
           val (ty, su) = Expr.bind(pat, expr)
 
           val _cond = cond // simplify(cond subst env, ctx, st)
@@ -82,23 +80,13 @@ object Rewrite {
             backtrack("side-condition not satisfied " + _cond)
 
           val dont = avoid exists { case (a, b) =>
-            val _a = a inst (ty, su)
-            val _b = b inst (ty, su)
-            // println(rule)
-            // println("checking cycle " + _a + " and " + _b + " in " + env)
-            val r = _a.toString == _b.toString // HACK!!
-            if (r && _a != _b)
-              println(
-                "cycle recognized via hack: " + _a + " and " + _b + " in " + su
-              )
-            r
+            (a inst (ty, su)) == (b inst (ty, su))
           }
+
           if (dont) {
             // println("avoiding cycle for " + expr + " via rule " + rule)
             val res = rewrite(expr, fun, rest, rules, depth)
             // println(res)
-            // if (k == 3) ???
-            // k += 1
             res
           } else {
             val rhs_ = rhs inst (ty, su)
@@ -106,9 +94,8 @@ object Rewrite {
             // println("  "*depth + "  ~~> " + rhs_)
             rewrite(rhs_, rules, depth + 1)
           }
-        } catch { // Control#or is shadowed by Expr#or
-          case arse.Backtrack(_) =>
-            rewrite(expr, fun, rest, rules, depth)
+        } or {
+          rewrite(expr, fun, rest, rules, depth)
         }
 
       case rule :: _ =>
