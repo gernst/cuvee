@@ -50,10 +50,16 @@ object Rewrite {
 
   def safe(rules: List[Rule], st: State): List[Rule] = {
     val deps = Rewrite.deps(rules)
+    println(deps)
 
     for (
       rule @ Rule(App(Inst(fun, _), pats), rhs, _, _) <- rules
-      if !(deps(fun) contains fun) && decreases(fun, pats, rhs, st.constrs)
+      if /* !(deps(fun) contains fun) && */ decreases(
+        fun,
+        pats,
+        rhs,
+        st.constrs
+      )
     )
       yield rule
   }
@@ -65,14 +71,20 @@ object Rewrite {
       constrs: Set[Fun]
   ): Boolean = rhs match {
     case App(Inst(`fun`, _), rec) =>
-      pats.zipWithIndex.exists { case (App(inst, args), i) =>
-        (constrs contains inst.fun) && (args contains rec(i))
+      val ok = pats.zipWithIndex.exists {
+        case (App(inst, args), i) =>
+          (constrs contains inst.fun) && (args contains rec(i))
+        case _ =>
+          false
       }
+      if (!ok)
+        println("rejecting: " + rhs)
+      ok
 
     case App(_, args) =>
       args forall (decreases(fun, pats, _, constrs))
 
-    case x: Var =>
+    case _: Var | _: Lit =>
       true
 
     case _ =>
