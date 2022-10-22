@@ -21,6 +21,21 @@ trait Tactic {
   def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])]
 }
 
+case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
+  def apply(state: State, goal: Prop) = {
+    val goal_ = Simplify.simplify(goal, rules)
+
+    goal_ match {
+      case Atom.t =>
+        Nil
+      case Atom.f =>
+        List(goal -> None) // clarify: not solvable
+      case _ =>
+        List(goal -> None)
+    }
+  }
+}
+
 case object Sorry extends Tactic {
   def apply(state: State, goal: Prop) = {
     // Currently a no-op
@@ -108,8 +123,11 @@ case class Show(prop: Expr, tactic: Option[Tactic], cont: Option[Tactic])
   }
 }
 
-case class Unfold(target: Name, places: Option[List[BigInt]], cont: Option[Tactic])
-    extends Tactic {
+case class Unfold(
+    target: Name,
+    places: Option[List[BigInt]],
+    cont: Option[Tactic]
+) extends Tactic {
   require(!places.isDefined || places.get.forall(i => 1 <= i))
 
   def apply(state: State, goal: Prop) = {
@@ -117,8 +135,8 @@ case class Unfold(target: Name, places: Option[List[BigInt]], cont: Option[Tacti
 
     var i = 0
 
-    val goal_ = expr.topdown(e => e match {
-      case App(inst, args) if inst.fun.name == target => {
+    val goal_ = expr.topdown {
+      case e@App(inst, args) if inst.fun.name == target =>
         i += 1
 
         if (places.isDefined && !places.get.contains(i)) {
@@ -131,18 +149,17 @@ case class Unfold(target: Name, places: Option[List[BigInt]], cont: Option[Tacti
 
           body.subst(su)
         }
-      }
 
-      case _ => e
-    })
+      case e =>
+        e
+    }
 
-    List( (Disj.from(goal_), cont) )
+    List((Disj.from(goal_), cont))
   }
 }
 
-/**
-  * This "tactic" is actually just a wrapper for another tactic.
-  * It serves to signal the 
+/** This "tactic" is actually just a wrapper for another tactic. It serves to
+  * signal the
   *
   * @param tactic
   */

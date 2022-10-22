@@ -13,10 +13,21 @@ import cuvee.backend.ProveSimple
 import cuvee.backend.NoAuto
 import cuvee.backend.Induction
 import cuvee.backend.Show
+import cuvee.backend.Builtin
 
-object fastexp extends Run(Cuvee, "examples/fastexp.smt2", "-debug:solver")
+object fastexp extends Run(Cuvee, "examples/fastexp.smt2")
+object list extends Run(Cuvee_, "examples/case_studies/list.bpl")
+object debug extends Run(Cuvee_, "-rewrite", "debug.bpl")
 
 object Cuvee extends Main {
+  def main(args: Array[String]) {
+    val c = new Cuvee
+    c.configure(args.toList)
+    c.run(c.cmds, c.state.get, z3(c.state.get))
+  }
+}
+
+object Cuvee_ extends Main {
   def main(args: Array[String]) {
     val c = new Cuvee
     c.configure(args.toList)
@@ -27,6 +38,8 @@ object Cuvee extends Main {
 class Cuvee {
   var state: Option[State] = None
   var cmds: List[Cmd] = Nil
+
+  var rewrite = false
 
   def configure(args: List[String]) {
     args match {
@@ -44,6 +57,10 @@ class Cuvee {
         cuvee.error(
           "A file was already loaded. At the moment only a single input file is supported."
         )
+
+      case "-rewrite" :: rest =>
+        rewrite = true
+        configure(rest)
 
       case path :: rest if path.endsWith(".bpl") =>
         val (cmds_, state_) = cuvee.boogie.parse(path)
@@ -109,6 +126,7 @@ class Cuvee {
         println("lemma")
         for (line <- phi.lines)
           println(line)
+
         val phi_ = show(phi, state, solver)
         solver.assert(Not(phi))
         run(rest, state, solver)
@@ -149,6 +167,8 @@ class Cuvee {
     assert(this.state.isDefined, "No file was parsed")
 
     val prover = new Prove(solver)
+    val rules = Rewrite.from(cmds, state)
+    val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
     for (cmd ← cmds) {
       cmd match {
@@ -174,7 +194,7 @@ class Cuvee {
 
           val normalized = Disj.from(expr)
 
-          rec(normalized, tactic, 1)(state, solver, prover) match {
+          rec(normalized, tactic, 1)(state, solver, prover, if(rewrite) safe else Map()) match {
             case Atom(True) =>
               println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
             case Atom(False) =>
@@ -198,7 +218,8 @@ class Cuvee {
   def rec(prop: Prop, tactic: Option[Tactic], depth: Int = 0)(implicit
       state: State,
       slv: Solver,
-      prover: Prove
+      prover: Prove,
+      rules: Map[Fun, List[Rule]]
   ): Prop = {
     def indent(depth: Int, indentStr: String = "  "): String = {
       if (depth <= 0) return "";
@@ -230,7 +251,7 @@ class Cuvee {
 
     // Apply the tactic `tactic_`
     val prop__ = tactic_ match {
-      case Some(tactic_) => 
+      case Some(tactic_) =>
         println(indent(depth) + "tactic:   " + tactic)
         // Apply the tactic and get the remaining subgoals that we need to prove
         val goals = tactic_.apply(state, prop)
@@ -247,7 +268,7 @@ class Cuvee {
     }
 
     // Call the simplifier
-    val simp = Simplify.simplify(prop__)
+    val simp = Simplify.simplify(prop__, rules)
     println(indent(depth) + "simp:     " + simp.toExpr)
 
     simp match {
@@ -263,7 +284,9 @@ class Cuvee {
 
       case goal =>
         println(
-          indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
+          indent(
+            depth
+          ) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
         )
     }
 

@@ -64,6 +64,8 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
 case class Conj(xs: List[Var], neg: List[Neg])
     extends Pos
     with Expr.bind[Conj] {
+  require(xs == xs.distinct)
+  
   // def text = Printer.Conj(xs, neg, pos)
   def bound = xs.toSet
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =

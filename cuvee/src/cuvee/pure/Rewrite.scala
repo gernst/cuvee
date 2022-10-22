@@ -9,6 +9,7 @@ import cuvee.State
 import cuvee.smtlib.DefineFun
 import cuvee.util.Fix
 import cuvee.smtlib.DeclareFun
+import arse.Backtrack
 
 object Rewrite {
   val MaxDepth = 20
@@ -162,7 +163,7 @@ object Rewrite {
           "inconsistent rewrite rule index: " + fun + " has rule " + rule
         )
 
-        {
+        try {
           val (ty, su) = Expr.bind(pat, expr)
 
           val _cond = cond // simplify(cond subst env, ctx, st)
@@ -184,8 +185,9 @@ object Rewrite {
             // println("  "*depth + "  ~~> " + rhs_)
             rewrite(rhs_, rules, depth + 1)
           }
-        } or {
-          rewrite(expr, fun, rest, rules, depth)
+        } catch {
+          case _: Backtrack =>
+            rewrite(expr, fun, rest, rules, depth)
         }
 
       case rule :: _ =>

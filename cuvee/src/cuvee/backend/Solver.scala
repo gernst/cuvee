@@ -116,3 +116,12 @@ trait Solver extends Sink {
     status == Unsat
   }
 }
+
+object Solver {
+  object dummy extends Solver {
+    def ack(cmd: Cmd) = Success
+    def check() = Unknown
+    def model() = cuvee.error("no model")
+    def assertions() = ???
+  }
+}
