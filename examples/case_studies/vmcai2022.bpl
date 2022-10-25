@@ -36,11 +36,10 @@ procedure compare(a: [int]elem, m: int, b: [int]elem, n: int)
     while(true)
         decreases (m + n) - (i + j);
         invariant 0 <= i && i <= m
-               && 0 <= j && j <= n
-               && !r;
+               && 0 <= j && j <= n;
         summary   r <==> filter(tolist(a, old(i), m)) == filter(tolist(b, old(j), n));
     {
-        if(i == m && j == m)              { r := true; break; }
+        if(i == m && j == n)              { r := true; break; }
         else if (i < m && !isdigit(a[i])) { i := i + 1; }
         else if (j < n && !isdigit(b[j])) { j := j + 1; }
         else if (i < m && j < n && a[i] == b[j]) { i := i + 1; j := j + 1; }
