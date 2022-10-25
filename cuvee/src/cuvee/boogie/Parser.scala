@@ -435,9 +435,7 @@ object Parser {
   def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(
       While(
-        "while" ~ parens(expr) ~ aux("decreases").? ~ aux("invariant").? ~ aux(
-          "summary"
-        ).? ~ ret(Nil) ~ block
+        "while" ~ parens(expr) ~ aux("decreases").? ~ aux("invariant").* ~ aux("summary").* ~ ret(Nil) ~ block
       )
     )
 
