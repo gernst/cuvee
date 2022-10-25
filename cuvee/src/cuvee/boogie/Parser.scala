@@ -424,8 +424,10 @@ object Parser {
 
   val ctrl = Break("break" ~ ";") | Return("return" ~ ";") 
 
-  def if_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(If("if" ~ parens(expr) ~ block ~ ("else" ~ block).?))
+  def else_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[Prog, Token] =
+    block | if_
+  def if_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[Prog, Token] =
+    P(If("if" ~ parens(expr) ~ block ~ ("else" ~ else_).?))
 
   def aux(what: String)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     what ~ expr ~ ";"
