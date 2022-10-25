@@ -26,7 +26,7 @@ object Test extends Main {
     val solver = z3(st)
 
     val cmds = List(
-      SetOption(":produce-models", "true"),
+      SetOption("produce-models", "true"),
       DeclareFun("x", List(), Sort.int),
       CheckSat
     )

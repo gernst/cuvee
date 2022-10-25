@@ -7,7 +7,7 @@ import cuvee.StringOps
   * @param name
   *   String identifying the item
   * @param index
-  *   Optional integral index
+  *   Optional integer index
   */
 case class Name(name: String, index: Option[Int] = None) {
   def withName(name_ : String) = Name(name_, index)
