@@ -1,3 +1,3 @@
 #!/usr/bin/bash
 
-./mill cuvee.run $@
+./mill --disable-ticker cuvee.run $@
