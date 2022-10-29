@@ -116,6 +116,9 @@ object Disj {
   def from(exprs: List[Expr]) =
     Disj.show(exprs, Nil, Nil, Nil)
 
+  def from(xs: List[Var], neg: List[Expr], pos: List[Expr]) =
+    Disj.assume(neg, pos, xs, Nil, Nil)
+
   def assume(
       that: List[Expr],
       todo: List[Expr],
@@ -197,6 +200,10 @@ object Conj {
 
   def from(exprs: List[Expr]) =
     Conj.show(exprs, Nil, Nil)
+
+
+  def from(xs: List[Var], neg: List[Expr]) =
+    Conj.show(neg, xs, Nil)
 
   // def apply(xs: List[Var], neg: List[Expr], pos: List[Expr]) = {
   //   Simplify.exists(xs, Simplify.and(neg) && Simplify.and(pos map (Simplify.not(_))))

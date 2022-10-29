@@ -11,10 +11,10 @@ object Simplify {
     case Eq(left, right)   => eq(simplify(left, rules), simplify(right, rules))
 
     case App(inst, args) if rules.nonEmpty =>
-      println(" try rewriting: " + expr + " with rules: " + rules)
+      // println(" try rewriting: " + expr + " with rules: " + rules)
       val args_ = Rewrite.rewrites(args, rules)
       val expr_ = App(inst, args_)
-      println(" args: " + args_)
+      // println(" args: " + args_)
       Rewrite.app(expr_, inst.fun, args_, rules, depth = 0)
     // Rewrite.rewrite(expr, rules)
 
@@ -24,9 +24,10 @@ object Simplify {
 
   // TODO: maybe simplify should be part of Prop and expr, because this sucks:
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]]): Prop = prop match {
-    case Atom(expr)         => atom(simplify(expr, rules))
-    case Disj(xs, neg, pos) => disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
-    case Conj(xs, neg)      => conj(xs, neg map (simplify(_, rules)))
+    case Atom(expr) => atom(simplify(expr, rules))
+    case Disj(xs, neg, pos) =>
+      disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
+    case Conj(xs, neg) => conj(xs, neg map (simplify(_, rules)))
   }
 
   def simplify(prop: Pos, rules: Map[Fun, List[Rule]]): Pos = prop match {
@@ -35,8 +36,9 @@ object Simplify {
   }
 
   def simplify(prop: Neg, rules: Map[Fun, List[Rule]]): Neg = prop match {
-    case Atom(expr)         => atom(simplify(expr, rules))
-    case Disj(xs, neg, pos) => disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
+    case Atom(expr) => atom(simplify(expr, rules))
+    case Disj(xs, neg, pos) =>
+      disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
   }
 
   def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]]): List[Expr] = {
@@ -99,6 +101,18 @@ object Simplify {
   }
 
   def disj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
+    val neg_ = neg map (_.toExpr)
+    val pos_ = pos map (_.toExpr)
+    Disj.from(xs, neg_, pos_)
+    Disj(xs, neg, pos)
+  }
+
+  def conj(xs: List[Var], neg: List[Neg]): Pos = {
+    val neg_ = neg map (_.toExpr)
+    Conj.from(xs, neg_)
+  }
+
+  def disj_(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
     val neg_ = neg filter (_ != Atom(True))
     val pos_ = pos filter (_ != Atom(False))
 
@@ -114,7 +128,7 @@ object Simplify {
     Disj(xs, neg_, pos_)
   }
 
-  def conj(xs: List[Var], neg: List[Neg]): Pos = {
+  def conj_(xs: List[Var], neg: List[Neg]): Pos = {
     val neg_ = neg filter (_ != Atom(True))
 
     if (neg_ contains Atom.f)

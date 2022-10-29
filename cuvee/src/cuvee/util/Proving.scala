@@ -21,7 +21,7 @@ object Proving {
   ): Prop = {
     val res = rec(prop, tactic, 1)(state, solver, prover, rules)
     res match {
-      case Atom(True) =>
+      case Atom(True) | Disj(_, _, List(Atom(True)))=> // hack around incomplete simplification
         if (debug)
           println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
       case Atom(False) =>
@@ -32,7 +32,7 @@ object Proving {
       case remaining =>
         if (debug)
           println(
-            "\u001b[91m⚠\u001b[0m Some subgoals could not be proven! Remaining combined goal: " + remaining.toExpr
+            "\u001b[91m⚠\u001b[0m Some subgoals could not be proven! Remaining combined goal: " + remaining
           )
         val cmd = Lemma(remaining.toExpr, None);
         for (line <- cmd.lines)

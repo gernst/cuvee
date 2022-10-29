@@ -40,6 +40,10 @@ class Cuvee {
         cuvee.sexpr.debug = true
         configure(rest)
 
+      case "-debug:prover" :: rest =>
+        cuvee.util.Proving.debug = true
+        configure(rest)
+
       case "-print:smtlib" :: rest =>
         printer = cuvee.smtlib.printer
         configure(rest)
