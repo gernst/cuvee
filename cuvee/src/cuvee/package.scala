@@ -49,17 +49,15 @@ package object cuvee {
   }
 
   implicit class ListOps[A](self: List[A]) {
-    def intersperse(inner: Any): List[Any] = self match {
-      case fst :: snd :: rest => fst :: inner :: ((snd :: rest) intersperse inner)
-      case fst :: Nil         => List(fst)
-      case _                  => List()
+    def intersperse[B >: A](inner: B): List[B] = self match {
+      case fst :: snd :: rest =>
+        fst :: inner :: ((snd :: rest) intersperse inner)
+      case fst :: Nil => List(fst)
+      case _          => List()
     }
 
-    def intersperse(
-        left: Any,
-        inner: Any,
-        right: Any
-    ): List[Any] = left :: (self intersperse inner) ::: List(right)
+    def intersperse[B >: A](left: B, inner: B, right: B): List[B] =
+      left :: (self intersperse inner) ::: List(right)
   }
 
   implicit class ListMapOps[A, B](self: List[Map[A, B]]) {

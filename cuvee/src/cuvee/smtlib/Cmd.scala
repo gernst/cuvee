@@ -104,8 +104,8 @@ case class Assert(expr: Expr) extends Cmd {
 case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
   def sexpr = List("lemma", expr)
   def bexpr = tactic match {
-    case None         => List("lemma", expr, ";")
-    case Some(tactic) => List("lemma", expr, "proof", tactic, ";")
+    case None         => List("lemma", " ", expr, ";")
+    case Some(tactic) => List("lemma", " ", expr, "proof", tactic, ";")
   }
 }
 

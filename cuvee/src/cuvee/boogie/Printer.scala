@@ -29,7 +29,7 @@ object Printer extends cuvee.util.Printer {
     // Pairs and lists consist of tokens and more syntax elements
     // Call lines on the elements recursively
     case (a, b)      => lines(a) ++ lines(b)
-    case xs: List[_] => xs flatMap lines
+    case xs: List[_] => List((xs flatMap lines).mkString)
     // Fall-through: just crash
     // case _ => List()
   }

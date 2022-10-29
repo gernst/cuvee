@@ -441,10 +441,14 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case App(inst, Nil) => List(inst.toString)
     // Logical connectives
     case And(phis) => phis intersperse ("(", " and ", ")")
-    case Or(phis)  => phis intersperse ("(", " or", ")")
+    case Or(phis)  => phis intersperse ("(", " or ", ")")
     // Iff (<==>), needs special handling, as this is also represented by "=" internally
     case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
       List(lhs, " ", "<==>", " ", rhs)
+      case Eq(lhs, rhs) =>
+      List(lhs, " ", "==", " ", rhs)
+      case Imp(phi, psi) =>
+        List("(", phi, " ", "==>", " ", psi, ")")
     // Infix operators
     case App(_, List(left, right))
         if Expr.boogieInfix contains inst.fun.name.name =>
@@ -504,13 +508,19 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   }
 
   def sexpr = List(quant.name, formals.asFormals, body)
-  def bexpr = List(
+  def bexpr = { 
+    val formals_ = formals map {
+      case x => List(x, ":", " ", x.typ)
+    }
+
+    List(
     quant.name,
     " ",
-    new cuvee.ListOps(formals.map(_.toStringTyped)).intersperse (", "),
+    new cuvee.ListOps(formals_) intersperse (", "),
     " :: ",
     body
   )
+  }
 
   override def toString =
     quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body

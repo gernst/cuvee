@@ -4,10 +4,11 @@ import cuvee.StringOps
 import cuvee.backtrack
 import cuvee.error
 import cuvee.sexpr
+import cuvee.boogie
 import cuvee.util.Name
 import cuvee.util.Alpha
 
-sealed trait Type extends Type.term with sexpr.Syntax {}
+sealed trait Type extends Type.term with sexpr.Syntax with boogie.Syntax {}
 
 case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
     extends sexpr.Syntax {
@@ -142,7 +143,7 @@ object Type extends Alpha[Type, Param] {
 
 class ParamList(params: List[Param]) extends Type.xs(params) {
   def names = params map { case Param(name, None) => name }
-  def asContext = params map { case p@Param(name, typ) => name -> p }
+  def asContext = params map { case p @ Param(name, typ) => name -> p }
 }
 
 class TypeList(types: List[Type]) extends Type.terms(types)
@@ -171,6 +172,7 @@ case class Param(name: Name, index: Option[Int] = None)
   }
 
   def sexpr = name
+  def bexpr = List(name)
   override def toString = name.toString
 }
 
@@ -207,6 +209,12 @@ case class Sort(con: Con, args: List[Type]) extends Type {
     else
       con.name :: args
 
+  def bexpr =
+    if (args.isEmpty)
+      List(con.name)
+    else
+      con.name :: (args intersperse ("[", ",", "]"))
+
   override def toString =
     if (args.isEmpty)
       con.name.toString
@@ -224,6 +232,7 @@ case class Prod(args: List[Type]) extends Type {
     Prod(args subst su)
 
   def sexpr = ???
+  def bexpr = ???
   override def toString =
     args.mkString("(", " * ", ")")
 }
@@ -238,6 +247,7 @@ case class Sum(args: List[Type]) extends Type {
     Sum(args subst su)
 
   def sexpr = ???
+  def bexpr = ???
   override def toString =
     args.mkString("(", " + ", ")")
 }
@@ -247,7 +257,7 @@ object Sort extends ((Con, List[Type]) => Sort) {
   val int = Sort(Con.int, Nil)
   val real = Sort(Con.real, Nil)
 
-  def list(a: Type) = 
+  def list(a: Type) =
     Sort(Con.list, List(a))
 
   val array: ((Type, Type) => Type) =
