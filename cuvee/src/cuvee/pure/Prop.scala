@@ -1,6 +1,9 @@
 package cuvee.pure
 
-sealed trait Prop {
+import cuvee.sexpr
+import cuvee.boogie
+
+sealed trait Prop extends sexpr.Syntax with boogie.Syntax {
   def toExpr: Expr
   def rename(re: Map[Var, Var]): Prop
   def subst(su: Map[Var, Expr]): Prop
@@ -28,6 +31,8 @@ case class Atom(expr: Expr) extends Pos with Neg {
     Atom(expr rename re)
   def subst(su: Map[Var, Expr]) =
     Atom(expr subst su)
+  def sexpr = expr.sexpr
+  def bexpr = expr.bexpr
 }
 
 object Atom {
@@ -57,6 +62,11 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     case (_, Nil)   => Forall(xs, Or(pos map (_.toExpr)))
     case _ => Forall(xs, Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr))))
   }
+
+  def sexpr =
+    List("forall", xs.asFormals, List("=>", "and" :: neg, "or" :: pos))
+
+  def bexpr = toExpr.bexpr
 }
 
 // represents
@@ -65,7 +75,7 @@ case class Conj(xs: List[Var], neg: List[Neg])
     extends Pos
     with Expr.bind[Conj] {
   require(xs == xs.distinct)
-  
+
   // def text = Printer.Conj(xs, neg, pos)
   def bound = xs.toSet
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
@@ -77,6 +87,11 @@ case class Conj(xs: List[Var], neg: List[Neg])
     case Nil => And(neg map (_.toExpr))
     case _   => Exists(xs, And(neg map (_.toExpr)))
   }
+
+  def sexpr =
+    List("exists", xs.asFormals, "or" :: neg)
+
+  def bexpr = toExpr.bexpr
 }
 
 object Disj {
