@@ -21,7 +21,11 @@ object Proving {
   ): Prop = {
     val res = rec(prop, tactic, 1)(state, solver, prover, rules)
     res match {
-      case Atom(True) | Disj(_, _, List(Atom(True)))=> // hack around incomplete simplification
+      case Atom(True) | Disj(
+            _,
+            _,
+            List(Atom(True))
+          ) => // hack around incomplete simplification
         if (debug)
           println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
       case Atom(False) =>
@@ -29,6 +33,56 @@ object Proving {
           println(
             "\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!"
           )
+      case remaining if printer == cuvee.boogie.printer =>
+        val lines = remaining match {
+          case Atom(expr) =>
+            expr.lines
+
+          case Conj(xs, neg) =>
+            val s1 = "exists " ++ (xs map (_.lines))
+            val s2 = None
+            List(s1)
+
+          case Disj(xs, neg, pos) =>
+            var result: List[String] = Nil
+
+            val bound =
+              for (x <- xs)
+                yield "  " + x.name.toLabel + ": " + x.typ
+
+            val assms =
+              for (
+                phi <- neg;
+                line <- phi.lines
+              )
+                yield "  " + line
+
+            val concls =
+              for (
+                phi <- pos;
+                line <- phi.lines
+              )
+                yield "  " + line
+
+            if (bound.nonEmpty)
+              result ++= List("forall") ++ bound
+
+            if (assms.nonEmpty)
+              result ++= List("assume") ++ assms
+
+            if (concls.size == 1)
+              result ++= List("show") ++ concls
+
+            if (concls.size > 1)
+              result ++= List("show one of") ++ concls
+
+            result
+        }
+
+        println("lemma")
+        for (line <- lines)
+          println("  " + line)
+
       case remaining =>
         if (debug)
           println(

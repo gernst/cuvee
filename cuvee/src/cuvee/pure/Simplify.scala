@@ -104,7 +104,6 @@ object Simplify {
     val neg_ = neg map (_.toExpr)
     val pos_ = pos map (_.toExpr)
     Disj.from(xs, neg_, pos_)
-    Disj(xs, neg, pos)
   }
 
   def conj(xs: List[Var], neg: List[Neg]): Pos = {
