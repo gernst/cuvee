@@ -5,7 +5,7 @@ import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.pure._
 // import cuvee.smtlib._
-import cuvee.boogie.printer
+// import cuvee.boogie.printer
 import cuvee.State
 import cuvee.smtlib.Lemma
 
@@ -16,6 +16,7 @@ object Proving {
       state: State,
       solver: Solver,
       prover: Prove,
+      printer: Printer,
       rules: Map[Fun, List[Rule]] = Map()
   ): Prop = {
     val res = rec(prop, tactic, 1)(state, solver, prover, rules)

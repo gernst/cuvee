@@ -8,6 +8,7 @@ import cuvee.imp.WP
 import cuvee.util.Main
 import cuvee.util.Run
 import cuvee.util.Proving
+import cuvee.util.Printer
 
 object fastexp extends Run(Cuvee, "examples/fastexp.smt2")
 object list extends Run(Cuvee, "examples/case_studies/list.bpl")
@@ -24,6 +25,7 @@ object Cuvee extends Main {
 class Cuvee {
   var state: Option[State] = None
   var cmds: List[Cmd] = Nil
+  var printer: Printer = cuvee.smtlib.printer
   var rewrite: Boolean = false
 
   def configure(args: List[String]) {
@@ -38,6 +40,14 @@ class Cuvee {
         cuvee.sexpr.debug = true
         configure(rest)
 
+      case "-print:smtlib" :: rest =>
+        printer = cuvee.smtlib.printer
+        configure(rest)
+
+      case "-print:boogie" :: rest =>
+        printer = cuvee.boogie.printer
+        configure(rest)
+
       case path :: rest if state.isDefined =>
         cuvee.error(
           "A file was already loaded. At the moment only a single input file is supported."
@@ -49,12 +59,14 @@ class Cuvee {
 
       case path :: rest if path.endsWith(".bpl") =>
         val (cmds_, state_) = cuvee.boogie.parse(path)
+        printer = cuvee.boogie.printer
         state = Some(state_)
         cmds = cmds_
         configure(rest)
 
       case path :: rest if path.endsWith(".smt2") =>
         val (cmds_, state_) = cuvee.smtlib.parse(path)
+        printer = cuvee.smtlib.printer
         state = Some(state_)
         cmds = cmds_
         configure(rest)
@@ -116,22 +128,28 @@ class Cuvee {
           val phi = Forall(xs, Eval.wp(WP, body, st, post))
 
           // println("procedure " + name)
-          Proving.show(Disj.from(phi), None)(state, solver, prover, safe)
+          Proving.show(Disj.from(phi), None)(
+            state,
+            solver,
+            prover,
+            printer,
+            safe
+          )
 
-          // rec(Disj.from(phi), None, 1)(state, solver, prover)
+        // rec(Disj.from(phi), None, 1)(state, solver, prover)
 
-          // solver.scoped {
-          //   solver.assert(!phi)
-          //   val status = solver.check()
+        // solver.scoped {
+        //   solver.assert(!phi)
+        //   val status = solver.check()
 
-          //   if (status == Sat) {
-          //     solver.model()
-          //   }
+        //   if (status == Sat) {
+        //     solver.model()
+        //   }
 
-          // }
+        // }
 
         case ctrl: Ctrl =>
-          // solver.control(ctrl)
+        // solver.control(ctrl)
 
         case decl: Decl =>
           solver.declare(decl)
@@ -145,13 +163,19 @@ class Cuvee {
           println("================  LEMMA  ================")
           println("show:  " + expr)
 
-          Proving.show(Disj.from(expr), tactic)(state, solver, prover, safe)
+          Proving.show(Disj.from(expr), tactic)(
+            state,
+            solver,
+            prover,
+            printer,
+            safe
+          )
 
           // In any case, assert the lemma, so that its statement is available in later proofs
           solver.assert(expr)
 
         case Labels =>
-          // val result = solver.labels()
+        // val result = solver.labels()
 
         case CheckSat =>
           val result = solver.check()
