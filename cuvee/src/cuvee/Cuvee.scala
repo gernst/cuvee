@@ -1,23 +1,17 @@
 package cuvee
 
-import cuvee.backend.Tactic
+import cuvee.backend._
 import cuvee.pure._
 import cuvee.smtlib._
-import cuvee.backend.Prove
 import cuvee.imp.Eval
 import cuvee.imp.WP
-import cuvee.backend.Solver
 import cuvee.util.Main
 import cuvee.util.Run
-import cuvee.backend.ProveSimple
-import cuvee.backend.NoAuto
-import cuvee.backend.Induction
-import cuvee.backend.Show
-import cuvee.backend.Builtin
+import cuvee.util.Proving
 
 object fastexp extends Run(Cuvee, "examples/fastexp.smt2")
-object list extends Run(Cuvee_, "examples/case_studies/list.bpl")
-object debug extends Run(Cuvee_, "-rewrite", "debug.bpl")
+object list extends Run(Cuvee, "examples/case_studies/list.bpl")
+object debug extends Run(Cuvee, "-rewrite", "debug.bpl")
 
 object Cuvee extends Main {
   def main(args: Array[String]) {
@@ -27,19 +21,10 @@ object Cuvee extends Main {
   }
 }
 
-object Cuvee_ extends Main {
-  def main(args: Array[String]) {
-    val c = new Cuvee
-    c.configure(args.toList)
-    c.run_(c.cmds, c.state.get, z3(c.state.get))
-  }
-}
-
 class Cuvee {
   var state: Option[State] = None
   var cmds: List[Cmd] = Nil
-
-  var rewrite = false
+  var rewrite: Boolean = false
 
   def configure(args: List[String]) {
     args match {
@@ -81,90 +66,40 @@ class Cuvee {
     }
   }
 
-  def show(phi: Expr, state: State, solver: Solver): Expr = {
-    val prop = Disj.from(phi)
+  // TODO: Figure out, whether or how to integrate these commands
+  // def old_run(cmds: List[Cmd], state: State, solver: Solver) {
+  //   cmds match {
+  //     case Assert(Not(phi)) :: rest =>
+  //       println("lemma")
+  //       for (line <- phi.lines)
+  //         println(line)
+  //       val phi_ = show(phi, state, solver)
+  //       solver.assert(Not(phi))
+  //       run(rest, state, solver)
 
-    val prove = new Prove(solver)
-    val result = prove.prove(prop)
-    val psi = result.toExpr
+  //     case (cmd @ Lemma(phi, None)) :: rest if false =>
+  //       val phi_ = show(phi, state, solver)
+  //       run(rest, state, solver)
 
-    if (psi != True) {
-      for (line <- psi.lines)
-        println(line)
-    }
+  //     case (cmd @ Lemma(phi, None)) :: rest =>
+  //       val prove = new ProveSimple(solver)
+  //       val phi_ = prove.prove(phi)
 
-    phi
-  }
+  //       if (!solver.isTrue(phi_)) {
+  //         for (line <- phi_.lines)
+  //           println(line)
+  //       }
+
+  //       run(rest, state, solver)
+
+  //   }
+  // }
 
   def run(cmds: List[Cmd], state: State, solver: Solver) {
-    cmds match {
-      case Nil =>
-
-      case DeclareProc(name, in, out) :: rest =>
-
-      case DefineProc(name, in, out, body) :: rest =>
-        val xs = in ++ out
-        val st = Expr.id(xs)
-        val post = True
-        val phi = Forall(xs, Eval.wp(WP, body, st, post))
-        val cmd = Lemma(phi, None)
-
-        run(cmd :: rest, state, solver)
-
-      case SetOption("print-success", _) :: rest =>
-        run(rest, state, solver)
-
-      case (ctrl: Ctrl) :: rest =>
-        // solver.control(ctrl)
-        run(rest, state, solver)
-
-      case (decl: Decl) :: rest =>
-        solver.declare(decl)
-        run(rest, state, solver)
-
-      case Assert(Not(phi)) :: rest =>
-        println("lemma")
-        for (line <- phi.lines)
-          println(line)
-
-        val phi_ = show(phi, state, solver)
-        solver.assert(Not(phi))
-        run(rest, state, solver)
-
-      case Assert(phi) :: rest =>
-        // println("axiom " + phi)
-        solver.assert(phi)
-        run(rest, state, solver)
-
-      case (cmd @ Lemma(phi, None)) :: rest if false =>
-        val phi_ = show(phi, state, solver)
-        run(rest, state, solver)
-
-      case (cmd @ Lemma(phi, None)) :: rest =>
-        val prove = new ProveSimple(solver)
-        val phi_ = prove.prove(phi)
-
-        if (!solver.isTrue(phi_)) {
-          for (line <- phi_.lines)
-            println(line)
-        }
-
-        run(rest, state, solver)
-
-      case Labels :: rest =>
-        // val result = solver.labels()
-        run(rest, state, solver)
-
-      case CheckSat :: rest =>
-        val result = solver.check()
-        println(result)
-        run(rest, state, solver)
-
-    }
-  }
-
-  def run_(cmds: List[Cmd], state: State, solver: Solver) {
     assert(this.state.isDefined, "No file was parsed")
+
+    solver.exec(SetOption("produce-models", true))
+    solver.exec(SetOption("produce-assignments", true))
 
     val prover = new Prove(solver)
     val rules = Rewrite.from(cmds, state)
@@ -180,117 +115,48 @@ class Cuvee {
           val post = True
           val phi = Forall(xs, Eval.wp(WP, body, st, post))
 
-          val status = solver.check(!phi)
-          println("procedure " + name + ": " + status)
+          println("procedure " + name)
+          Proving.show(Disj.from(phi), None)(state, solver, prover, safe)
 
-        case decl: Decl => solver.declare(decl)
+          // rec(Disj.from(phi), None, 1)(state, solver, prover)
 
-        case Assert(phi) => solver.assert(phi)
+          // solver.scoped {
+          //   solver.assert(!phi)
+          //   val status = solver.check()
 
-        case Lemma(expr, tactic) => {
+          //   if (status == Sat) {
+          //     solver.model()
+          //   }
+
+          // }
+
+        case ctrl: Ctrl =>
+          // solver.control(ctrl)
+
+        case decl: Decl =>
+          solver.declare(decl)
+
+        case Assert(phi) =>
+          // println("axiom " + phi)
+          solver.assert(phi)
+
+        case Lemma(expr, tactic) =>
           println()
           println("================  LEMMA  ================")
           println("show:  " + expr)
 
-          val normalized = Disj.from(expr)
-
-          rec(normalized, tactic, 1)(state, solver, prover, if(rewrite) safe else Map()) match {
-            case Atom(True) =>
-              println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
-            case Atom(False) =>
-              println(
-                "\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!"
-              )
-            case remaining =>
-              println(
-                "\u001b[91m⚠\u001b[0m Some subgoals could not be proven! Remaining combined goal: " + remaining.toExpr
-              )
-          }
+          Proving.show(Disj.from(expr), tactic)(state, solver, prover, safe)
 
           // In any case, assert the lemma, so that its statement is available in later proofs
           solver.assert(expr)
-        }
-        case _ =>
+
+        case Labels =>
+          // val result = solver.labels()
+
+        case CheckSat =>
+          val result = solver.check()
+          println(result)
       }
     }
-  }
-
-  def rec(prop: Prop, tactic: Option[Tactic], depth: Int = 0)(implicit
-      state: State,
-      slv: Solver,
-      prover: Prove,
-      rules: Map[Fun, List[Rule]]
-  ): Prop = {
-    def indent(depth: Int, indentStr: String = "  "): String = {
-      if (depth <= 0) return "";
-      indentStr + indent(depth - 1, indentStr)
-    }
-
-    println(indent(depth) + "---  PROOF OBLIGATION ---")
-    println(indent(depth) + "prop:     " + prop.toExpr)
-
-    // Call the prover, except if instructed by the NoAuto tactic *not* to do so.
-    // Sets `tactic_` to an `Option[Tactic]` of the tactic that should be applied to the remaining goal (if any)
-    val (tactic_, prop_) = tactic match {
-      case Some(NoAuto(tactic_)) =>
-        // Skip the prover call and execute the inner tactic directly
-        (Some(tactic_), prop)
-
-      // Also, skip the prover call, if the next tactic on the "prover blacklist", that follows.
-      case Some(Induction(_, _)) | Some(Show(_, _, _)) =>
-        (tactic, prop)
-
-      case _ =>
-        // Call prover
-        val res = prover.prove(prop)
-        println(indent(depth) + "new goal: " + res.toExpr)
-
-        // Set tactic_ to whatever tactic was beforehand
-        (tactic, res)
-    }
-
-    // Apply the tactic `tactic_`
-    val prop__ = tactic_ match {
-      case Some(tactic_) =>
-        println(indent(depth) + "tactic:   " + tactic)
-        // Apply the tactic and get the remaining subgoals that we need to prove
-        val goals = tactic_.apply(state, prop)
-
-        // TODO: What do we return, if not all of the subgoals can be proven?
-        //       Do we return /\ {unprovable subgoals} ?
-        (goals map ({ case (prop_, tactic_) =>
-          rec(prop_, tactic_, depth + 1)
-        }) filter (_ != Atom(True))) match {
-          case Nil             => Atom(True)
-          case remaining_goals => Conj.from(And(remaining_goals map (_.toExpr)))
-        }
-      case None => prop_
-    }
-
-    // Call the simplifier
-    val simp = Simplify.simplify(prop__, rules)
-    println(indent(depth) + "simp:     " + simp.toExpr)
-
-    simp match {
-      case Atom(True) =>
-        println(
-          indent(depth) + f"\u001b[92m✔\u001b[0m Goal found to be `true`"
-        )
-
-      case Atom(False) =>
-        println(
-          indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
-        )
-
-      case goal =>
-        println(
-          indent(
-            depth
-          ) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
-        )
-    }
-
-    // Return whatever remained
-    simp
   }
 }
