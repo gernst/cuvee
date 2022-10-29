@@ -20,13 +20,17 @@ package cuvee.boogie;
 nl = \r|\n|\r\n
 ws = {nl} | [ \t\f]
 
-name    = [a-zA-Z][a-zA-Z0-9]*
 number  = [1-9][0-9]* | 0
 
-kw = "function" | "axiom" | "const" | "lemma" | "data" | "type"
-   | "(" | ")" | "[" | "]" | "::" | [;,:{}]
-   | "bool" | "int" | "real"
+kw = "function" | "axiom" | "const" | "lemma" | "data" | "type" | "procedure"
+   | "(" | ")" | "[" | "]" | "::" | [;,:{}] | ":="
+   | "bool" | "int" | "real" | "=" | "|"
+   | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
+   | "while" | "if" | "else" | "break" | "return"
+   | "proof" | "sorry" | "show" | "then"
+   | "induction" | "unfold" | "at" | "->" | "end" | "noauto"
 
+id = [a-zA-Z_][a-zA-Z0-9_]*
 op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"
    | "==" | "!=" | "<=" | "<" | ">" | ">="
 
@@ -43,8 +47,8 @@ quant = "forall" | "exists"
 \" ~ \"     { return Parser.string().apply(yytext(+1,-1)); }
 {quant}     { return Parser.quant().apply(yytext()); }
 {number}    { return Parser.number().apply(yytext()); }
-{name}      { return Parser.id().apply(yytext()); }
-{op}        { return Parser.opname().apply(yytext()); }
+{id}        { return Parser.id().apply(yytext()); }
+{op}        { return Parser.op().apply(yytext()); }
 
 [^]         { throw new RuntimeException("unexpected character '" + yytext() + "' at " + yyline + ":" + yycolumn); }
 

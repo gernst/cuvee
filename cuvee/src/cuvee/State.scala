@@ -1,27 +1,46 @@
-package cuvee.pure
+package cuvee
 
-import cuvee.trace
+import cuvee.util.Name
+import cuvee.pure._
+import cuvee.imp._
 
 object State {
-  def empty = new State(Map.empty, Map.empty, Map.empty, Map.empty, Map.empty)
+  def empty =
+    new State(
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty,
+      Map.empty
+    )
 
   def default = {
     val st = empty
 
-    st.con("Int")
     st.con("Bool")
+    st.con("Int")
     st.con("Real")
+
+    st.con("RoundingMode")
 
     // st.con("List", 1)
     st.con("Array", 2)
 
-    val Int = st.sort("Int")
     val Bool = st.sort("Bool")
+    val Int = st.sort("Int")
+    val Real = st.sort("Real")
+
     val a = st.param("a")
     val b = st.param("b")
 
     // def list(elem: Type) = st.sort("List", List(elem))
     def array(dom: Type, ran: Type) = st.sort("Array", List(dom, ran))
+
+    st.fun("undefined", List(a), Nil, a)
+    st.fun("to_int", Nil, List(Real), Int)
+    st.fun("to_real", Nil, List(Int), Real)
 
     st.fun("=", List(a), List(a, a), Bool)
     st.fun("ite", List(a), List(Bool, a, a), a)
@@ -42,6 +61,8 @@ object State {
     st.fun("+", Nil, List(Int, Int), Int)
     st.fun("-", Nil, List(Int, Int), Int)
     st.fun("*", Nil, List(Int, Int), Int)
+    st.fun("div", Nil, List(Int, Int), Int)
+    st.fun("mod", Nil, List(Int, Int), Int)
 
     st.fun("<=", Nil, List(Int, Int), Bool)
     st.fun(">=", Nil, List(Int, Int), Bool)
@@ -57,7 +78,9 @@ class State(
     var condefs: Map[Name, (List[Param], Type)],
     var datatypes: Map[Name, Datatype],
     var funs: Map[(Name, Int), Fun],
-    var fundefs: Map[(Name, Int), (List[Var], Expr)]
+    var fundefs: Map[(Name, Int), (List[Var], Expr)],
+    var procs: Map[Name, Proc],
+    var procdefs: Map[Name, (List[Var], List[Var], Prog)]
 ) {
   def constrs =
     for (
@@ -71,32 +94,38 @@ class State(
       condefs: Map[Name, (List[Param], Type)] = condefs,
       datatypes: Map[Name, Datatype] = datatypes,
       funs: Map[(Name, Int), Fun] = funs,
-      fundefs: Map[(Name, Int), (List[Var], Expr)] = fundefs
+      fundefs: Map[(Name, Int), (List[Var], Expr)] = fundefs,
+      procs: Map[Name, Proc] = procs,
+      procdefs: Map[Name, (List[Var], List[Var], Prog)] = procdefs
   ) =
-    new State(cons, condefs, datatypes, funs, fundefs)
+    new State(cons, condefs, datatypes, funs, fundefs, procs, procdefs)
 
   def param(name: Name): Param = {
     Param(name)
   }
 
   def con(name: Name, arity: Int = 0): Con = {
-    require(!(cons contains name), "type constructor already declared: " + name)
     val con = Con(name, arity)
+    if (cons contains name)
+      require(cons(name) == con, "type constructor already declared: " + name)
     cons += (name -> con)
     con
   }
 
   def condef(name: Name, params: List[Param], typ: Type): Unit = {
     require(cons contains name, "type constructor not declared: " + name)
-    require(
-      !(condefs contains name),
-      "type constructor already defined: " + name
-    )
+    if (condefs contains name)
+      require(
+        condefs(name) == (params, typ),
+        "type constructor already defined: " + name
+      )
     condefs += (name -> (params, typ))
   }
 
   def datatype(name: Name, dt: Datatype): Unit = {
-    require(!(datatypes contains name), "datatype already defined: " + name)
+    require(cons contains name, "type constructor not declared: " + name)
+    if (datatypes contains name)
+      require(datatypes(name) == dt, "datatype already defined: " + name)
     datatypes += (name -> dt)
   }
 
@@ -107,17 +136,42 @@ class State(
       res: Type
   ): Fun = {
     val arity = args.length
-    require(!(funs contains (name, arity)), "function already declared: " + name)
     val fun = Fun(name, params, args, res)
+    if (funs contains (name, arity))
+      require(funs(name, arity) == fun, "function already declared: " + name)
     funs += ((name, arity) -> fun)
     fun
   }
 
   def fundef(name: Name, args: List[Var], body: Expr): Unit = {
     val arity = args.length
-    require(funs contains (name, arity) , "function not declared: " + name)
-    require(!(fundefs contains (name, arity)), "function already defined: " + name)
-    fundefs + ((name, arity) -> (args, body))
+    require(funs contains (name, arity), "function not declared: " + name)
+    if (fundefs contains (name, arity))
+      require(fundefs(name, arity) == (args, body), "function already defined")
+    fundefs += ((name, arity) -> (args, body))
+  }
+
+  def proc(
+      name: Name,
+      params: List[Param],
+      in: List[Type],
+      out: List[Type]
+  ): Proc = {
+    // require(
+    //   !(procs contains name),
+    //   "procedure already declared: " + name
+    // )
+    val proc = Proc(name, params, in, out)
+    procs += (name -> proc)
+    proc
+  }
+
+  def procdef(name: Name, in: List[Var], out: List[Var], body: Prog): Unit = {
+    // require(
+    //   !(procdefs contains name),
+    //   "procedure already defined: " + name
+    // )
+    procdefs += (name -> (in, out, body))
   }
 
   def sort(name: Name, args: List[Type] = Nil): Sort = {
@@ -164,8 +218,30 @@ class State(
       Pre(Bind(quant, bound, body.expr, typ))
     }
 
+    def leteq(name: Name, arg: Pre) = {
+      val x = Var(name, Param.fresh("a"))
+      (x, arg)
+    }
+
+    def let(
+        eqs: List[(Var, Pre)],
+        body: Pre
+    ) = {
+      val vars = eqs map (_._1)
+      val args = eqs map (_._2.expr)
+      unify(vars.types, args.types)
+      val eqs_ =
+        for ((x, e) <- (vars zip args))
+          yield LetEq(x, e)
+      Pre(Let(eqs_, body.expr))
+    }
+
     def const(name: Name) = {
       app(name, Nil)
+    }
+
+    def note(expr: Pre, attr: List[sexpr.Expr]) = {
+      Pre(Note(expr.expr, attr))
     }
 
     def app(name: Name, args: List[Pre]) = {
@@ -180,7 +256,7 @@ class State(
     }
 
     def match_(arg: Pre, cases: List[(Pre, Pre)]) = {
-      val typ = Type.fresh(Param("a"))
+      val typ = Param.fresh("a")
       val expr = arg.expr
       val body =
         for ((pat, res) <- cases)
@@ -199,6 +275,11 @@ class State(
     def tuple(args: List[Pre]) = {
       val exprs = args map (_.expr)
       Pre(Tuple(exprs))
+    }
+
+    def distinct(args: List[Pre]) = {
+      val exprs = args map (_.expr)
+      Pre(Distinct(exprs))
     }
 
     def check(arg: Pre, typ: Type) {

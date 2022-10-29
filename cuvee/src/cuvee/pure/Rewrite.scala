@@ -2,73 +2,101 @@ package cuvee.pure
 
 import cuvee.error
 import cuvee.backtrack
-import cuvee.toControl
 import cuvee.sexpr.Syntax
 import cuvee.smtlib.Assert
-
-case class Rule(
-    lhs: Expr,
-    rhs: Expr,
-    cond: Expr = True,
-    avoid: List[(Expr, Expr)] = Nil
-) extends Syntax {
-  require(
-    lhs.typ == rhs.typ && cond.typ == Sort.bool,
-    "rule " + this + " not type correct: " + lhs.typ + ", " + rhs.typ
-  )
-
-  val vars = lhs.free.toList
-
-  def canFlip = rhs match {
-    case _: App =>
-      lhs.free subsetOf rhs.free
-    case _ =>
-      false
-  }
-
-  def flip = {
-    require(canFlip, "cannot flip rule: " + this)
-    Rule(rhs, lhs, cond, avoid)
-  }
-
-  def maybeFlip = {
-    if (canFlip)
-      Some(Rule(rhs, lhs, cond, avoid))
-    else
-      None
-  }
-
-  def fun = {
-    val App(inst, _) = lhs
-    inst.fun
-  }
-
-  val toExpr =
-    (vars, cond) match {
-      case (Nil, True) => Eq(lhs, rhs)
-      case (_, True)   => Forall(vars, Eq(lhs, rhs))
-      case (Nil, _)    => Imp(cond, Eq(lhs, rhs))
-      case _           => Forall(vars, Imp(cond, Eq(lhs, rhs)))
-    }
-
-  def sexpr = toExpr
-
-  def cmd = Assert(toExpr)
-
-  override def toString = {
-    var res = lhs + " = " + rhs
-    var pres = And.flatten(cond)
-    pres ++= avoid map { case (x, e)  => (x !== e) }
-
-    if (pres.nonEmpty)
-      res += " if " + And(pres)
-
-    res
-  }
-}
+import cuvee.smtlib.Cmd
+import cuvee.State
+import cuvee.smtlib.DefineFun
+import cuvee.util.Fix
+import cuvee.smtlib.DeclareFun
+import arse.Backtrack
 
 object Rewrite {
   val MaxDepth = 20
+
+  def from(
+      cmd: Cmd,
+      ok: Set[Fun],
+      st: State,
+      assert: Boolean,
+      define: Boolean
+  ): List[Rule] = {
+    cmd match {
+      case Assert(expr) if assert =>
+        Rules.from(expr, ok)
+      case DefineFun(name, xs, _, body, rec) if define =>
+        val fun = st.funs(name, xs.length)
+        Rules.from(fun, xs, body, ok)
+      case _ =>
+        Nil
+    }
+  }
+
+  def from(
+      cmds: List[Cmd],
+      st: State,
+      assert: Boolean = true,
+      define: Boolean = true
+  ): List[Rule] = {
+    val ok =
+      for (DeclareFun(name, args, res) <- cmds)
+        yield st.funs(name, args.length)
+
+    for (
+      cmd <- cmds;
+      rule <- from(cmd, ok.toSet, st, assert, define)
+    )
+      yield rule
+  }
+
+  def safe(rules: List[Rule], st: State): List[Rule] = {
+    val deps = Rewrite.deps(rules)
+
+    for (
+      rule @ Rule(App(Inst(fun, _), pats), rhs, _, _) <- rules
+      if /* !(deps(fun) contains fun) && */ decreases(
+        fun,
+        pats,
+        rhs,
+        st.constrs
+      )
+    )
+      yield rule
+  }
+
+  def decreases(
+      fun: Fun,
+      pats: List[Expr],
+      rhs: Expr,
+      constrs: Set[Fun]
+  ): Boolean = rhs match {
+    case App(Inst(`fun`, _), rec) =>
+      val ok = pats.zipWithIndex.exists {
+        case (App(inst, args), i) =>
+          (constrs contains inst.fun) && (args contains rec(i))
+        case _ =>
+          false
+      }
+      if (!ok)
+        println("rejecting: " + rhs)
+      ok
+
+    case App(_, args) =>
+      args forall (decreases(fun, pats, _, constrs))
+
+    case _: Var | _: Lit =>
+      true
+
+    case _ =>
+      false // add more cases!
+  }
+
+  def deps(rules: List[Rule]) = {
+    Fix.tc {
+      for (rule <- rules)
+        yield rule.fun -> rule.rhs.funs
+    }
+  }
 
   def rewrite(rule: Rule, rules: Map[Fun, List[Rule]]): Rule = {
     val Rule(lhs, rhs, cond, avoid) = rule
@@ -79,22 +107,12 @@ object Rewrite {
     Rule(lhs_, rhs_, cond_, avoid_)
   }
 
-  def rewriteAll(rule: Rule, rules: Map[Fun, List[Rule]]): List[Rule] = {
-    val Rule(lhs, rhs, cond, avoid) = rule
-    for (
-      lhs_ <- rewriteAll(lhs, rules);
-      rhs_ <- rewriteAll(rhs, rules);
-      cond_ <- rewriteAll(cond, rules)
-    )
-      yield Rule(lhs_, rhs_, cond_, avoid)
-  }
-
   def rewrite(expr: Expr, rules: Map[Fun, List[Rule]], depth: Int = 0): Expr = {
     expr bottomup {
       case self if depth > MaxDepth =>
         println("max rewriting depth reached: " + self)
         self
-        // error("max rewriting depth reached " + self)
+      // error("max rewriting depth reached " + self)
 
       case self @ App(inst, args) =>
         app(self, inst.fun, args, rules, depth)
@@ -103,7 +121,7 @@ object Rewrite {
         self
     }
   }
-  
+
   def rewrites(
       exprs: List[Expr],
       rules: Map[Fun, List[Rule]],
@@ -127,8 +145,6 @@ object Rewrite {
     }
   }
 
-  var k = 0
-
   def rewrite(
       expr: Expr,
       fun: Fun,
@@ -145,6 +161,7 @@ object Rewrite {
           fun == inst.fun,
           "inconsistent rewrite rule index: " + fun + " has rule " + rule
         )
+
         try {
           val (ty, su) = Expr.bind(pat, expr)
 
@@ -153,32 +170,22 @@ object Rewrite {
             backtrack("side-condition not satisfied " + _cond)
 
           val dont = avoid exists { case (a, b) =>
-            val _a = a subst su
-            val _b = b subst su
-            // println(rule)
-            // println("checking cycle " + _a + " and " + _b + " in " + env)
-            val r = _a.toString == _b.toString // HACK!!
-            if (r && _a != _b)
-              println(
-                "cycle recognized via hack: " + _a + " and " + _b + " in " + su
-              )
-            r
+            (a inst (ty, su)) == (b inst (ty, su))
           }
+
           if (dont) {
             // println("avoiding cycle for " + expr + " via rule " + rule)
             val res = rewrite(expr, fun, rest, rules, depth)
             // println(res)
-            // if (k == 3) ???
-            // k += 1
             res
           } else {
-            val rhs_ = rhs subst (ty, su)
+            val rhs_ = rhs inst (ty, su)
             // println("  "*depth + "rewrite " + expr)
             // println("  "*depth + "  ~~> " + rhs_)
             rewrite(rhs_, rules, depth + 1)
           }
-        } catch { // Control#or is shadowed by Expr#or
-          case arse.Backtrack(_) =>
+        } catch {
+          case _: Backtrack =>
             rewrite(expr, fun, rest, rules, depth)
         }
 
@@ -186,164 +193,4 @@ object Rewrite {
         error("invalid rewrite rule: " + rule)
     }
   }
-
-  def rewriteAll(
-      expr: Expr,
-      rules: Map[Fun, List[Rule]],
-      depth: Int = 0
-  ): List[Expr] = {
-    expr match {
-      case self if depth > MaxDepth =>
-        error("max rewriting depth reached " + self)
-      case self @ App(inst, args) =>
-        // val indent = "  " * depth
-        // println(indent + "rewrite " + expr)
-        // println(indent + "  ~~>  " + rhs_)
-        val exprs_ = cuvee.trace("rewriting: " + self) {
-          for (
-            args_ <- rewritesAll(args, rules, depth);
-            expr_ <- appAll(App(inst, args_), inst.fun, rules, depth)
-          )
-            yield expr_
-        }
-        // println(indent + "    ~~> " + exprs_.mkString(" "))
-        exprs_
-      case _ =>
-        List(expr)
-    }
-  }
-
-  def rewritesAll(
-      exprs: List[Expr],
-      rules: Map[Fun, List[Rule]],
-      depth: Int
-  ): List[List[Expr]] = exprs match {
-    case Nil =>
-      List(Nil)
-    case expr :: rest =>
-      for (
-        expr_ <- rewriteAll(expr, rules, depth);
-        rest_ <- rewritesAll(rest, rules, depth)
-      )
-        yield expr_ :: rest_
-  }
-
-  def appAll(
-      expr0: Expr,
-      fun: Fun,
-      // args: List[Expr],
-      rules: Map[Fun, List[Rule]],
-      depth: Int
-  ): List[Expr] = {
-    if (rules contains fun) {
-      // val indent = "  " * depth
-      // println(indent + "applying " + expr0)
-      val exprs2 =
-        for (
-          rule <- rules(fun);
-          expr1 <- rewriteAll(expr0, fun, rule, depth);
-          expr2 <- rewriteAll(expr1, rules, depth + 1)
-        )
-          yield expr2
-      // require(result.nonEmpty, "no rewriting result for: " + expr0)
-      if (exprs2.nonEmpty) exprs2 else List(expr0)
-    } else {
-      List(expr0)
-    }
-  }
-
-  def rewriteAll(
-      expr: Expr,
-      fun: Fun,
-      rule: Rule,
-      depth: Int
-  ): List[Expr] = {
-    val Rule(pat @ App(inst, _), rhs, cond, avoid) = rule
-
-    try {
-      val (ty, su) = Expr.bind(pat, expr)
-
-      val _cond = cond // simplify(cond subst env, ctx, st)
-      if (_cond != True)
-        backtrack("side-condition not satisfied " + _cond)
-
-      val dont = avoid exists { case (a, b) =>
-        (a subst su) == (b subst su)
-      }
-
-      if (dont) {
-        // println("  avoiding cycle for " + expr + " via rule " + rule)
-        Nil
-      } else {
-        val rhs_ = rhs subst (ty, su)
-        // println("  "*depth + rhs + " ~> " + rhs_)
-        List(rhs_)
-        /* val self = List(rhs_)
-            val rec = cuvee.trace("  via " + rule) {
-              rewriteAll(rhs_, rules, depth + 1)
-            }
-            println(indent + "  ~~>' " + rec.mkString(" "))
-            val others = rewriteAll(expr, fun, rest, rules, depth)
-            println(indent + "  ~~>* " + others.mkString(" "))
-            // val all = self ++ rec ++ other
-            val all = rec ++ others // here keep only fully rewritten terms
-            all.distinct */
-      }
-    } catch { // Control#or is shadowed by Expr#or
-      case arse.Backtrack(_) =>
-        Nil
-    }
-  }
-
-  /* def rewriteAll(
-      expr: Expr,
-      fun: Fun,
-      todo: List[Rule],
-      rules: Map[Fun, List[Rule]],
-      depth: Int
-  ): List[Expr] = {
-    todo match {
-      case Nil =>
-        List(expr)
-
-      case (rule @ Rule(pat @ App(inst, _), rhs, cond, avoid)) :: rest =>
-        try {
-          val (ty, su) = Expr.bind(pat, expr)
-
-          val _cond = cond // simplify(cond subst env, ctx, st)
-          if (_cond != True)
-            backtrack("side-condition not satisfied " + _cond)
-
-          val dont = avoid exists { case (a, b) =>
-            (a subst su) == (b subst su)
-          }
-
-          if (dont) {
-            println("avoiding cycle for " + expr)
-            rewriteAll(expr, fun, rest, rules, depth)
-          } else {
-            val indent = "  " * depth
-            val rhs_ = rhs subst (ty, su)
-            println(indent + "rewrite " + expr)
-            println(indent + "  ~~>  " + rhs_)
-            val self = List(rhs_)
-            val rec = cuvee.trace("  via " + rule) {
-              rewriteAll(rhs_, rules, depth + 1)
-            }
-            println(indent + "  ~~>' " + rec.mkString(" "))
-            val others = rewriteAll(expr, fun, rest, rules, depth)
-            println(indent + "  ~~>* " + others.mkString(" "))
-            // val all = self ++ rec ++ other
-            val all = rec ++ others // here keep only fully rewritten terms
-            all.distinct
-          }
-        } catch { // Control#or is shadowed by Expr#or
-          case arse.Backtrack(_) =>
-            rewriteAll(expr, fun, rest, rules, depth)
-        }
-
-      case rule :: _ =>
-        error("invalid rewrite rule: " + rule)
-    }
-  } */
 }

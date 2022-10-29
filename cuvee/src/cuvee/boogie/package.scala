@@ -1,6 +1,7 @@
 package cuvee
 
 import cuvee.pure._
+import cuvee.util.Name
 import cuvee.smtlib._
 import java.io.FileReader
 import java.io.Reader
@@ -22,6 +23,9 @@ package object boogie {
 
   def parse(file: String): (List[Cmd], State) = {
     val in = scan(file)
+    
+    implicit val ctx: Map[Name, Param] = Map()
+    implicit val scope: Map[Name, Var] = Map()
     Parser.script.parseAll(in)
   }
 
@@ -52,4 +56,7 @@ package object boogie {
       token != None
     }
   }
+  
+  /** The default printer to use: Prints s-expressions */
+  implicit val printer: cuvee.util.Printer = Printer
 }

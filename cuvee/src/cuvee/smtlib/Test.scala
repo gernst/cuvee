@@ -1,6 +1,7 @@
 package cuvee.smtlib
 
 import cuvee.util.Main
+import cuvee.State
 import cuvee.pure._
 import cuvee.sexpr
 import java.io.FileReader
@@ -25,7 +26,7 @@ object Test extends Main {
     val solver = z3(st)
 
     val cmds = List(
-      SetOption(List(":produce-models", "true")),
+      SetOption("produce-models", "true"),
       DeclareFun("x", List(), Sort.int),
       CheckSat
     )

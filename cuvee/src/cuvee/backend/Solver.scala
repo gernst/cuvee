@@ -38,6 +38,10 @@ trait Sink {
   def assert(expr: Expr) =
     ack(Assert(expr))
 
+  def assert(exprs: List[Expr]): Any = {
+    for (expr <- exprs) assert(expr)
+  }
+
   def push() =
     control(Push(1))
 
@@ -100,5 +104,24 @@ trait Solver extends Sink {
   def isUnsat(phi: Expr) = {
     val status = check(phi)
     status == Unsat
+  }
+
+  def isSat = {
+    val status = check()
+    status == Sat
+  }
+
+  def isUnsat = {
+    val status = check()
+    status == Unsat
+  }
+}
+
+object Solver {
+  object dummy extends Solver {
+    def ack(cmd: Cmd) = Success
+    def check() = Unknown
+    def model() = cuvee.error("no model")
+    def assertions() = ???
   }
 }

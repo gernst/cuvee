@@ -1,6 +1,6 @@
 package cuvee
 
-import cuvee.pure.State
+import cuvee.State
 import java.io.PrintStream
 import cuvee.pure.Expr
 import cuvee.util.Tool
@@ -30,7 +30,17 @@ package object smtlib {
     new solver(
       st,
       "cvc4",
-      "--tlimit=" + timeout,
+      "--tlimit-per=" + timeout,
+      "--lang=smt2",
+      "--incremental",
+      "--increment-triggers"
+    )
+    
+  def cvc5(st: State, timeout: Int = 1000) =
+    new solver(
+      st,
+      "cvc5",
+      "--tlimit-per=" + timeout,
       "--lang=smt2",
       "--incremental",
       "--increment-triggers"
@@ -38,7 +48,7 @@ package object smtlib {
 
   def echo(st: State) = new solver(st, "echo", "unsat")
 
-  val PrintSuccess = SetOption(List(":print-success", "true"))
+  val PrintSuccess = SetOption("print-success", "true")
 
   object stdout extends print(System.out)
   object stderr extends print(System.err)
@@ -69,6 +79,10 @@ package object smtlib {
     }
   }
 
+  object solver {
+    var debug = false
+  }
+
   class solver(st: State, cmd: String*) extends Solver {
     val (out, in, err, proc) = Tool.pipe(cmd: _*)
 
@@ -80,12 +94,16 @@ package object smtlib {
     def write(cmd: Cmd) {
       for (line <- cmd.lines) {
         out.println(line)
+        if(solver.debug)
+          println("> " + line)
       }
       out.flush()
     }
 
     def read() = {
       val line = res.next()
+      if(solver.debug)
+        println("< " + line)
       line
     }
 

@@ -4,6 +4,7 @@ import cuvee.StringOps
 import cuvee.backtrack
 import cuvee.error
 import cuvee.sexpr
+import cuvee.util.Name
 import cuvee.util.Alpha
 
 sealed trait Type extends Type.term with sexpr.Syntax {}
@@ -141,6 +142,7 @@ object Type extends Alpha[Type, Param] {
 
 class ParamList(params: List[Param]) extends Type.xs(params) {
   def names = params map { case Param(name, None) => name }
+  def asContext = params map { case p@Param(name, typ) => name -> p }
 }
 
 class TypeList(types: List[Type]) extends Type.terms(types)
@@ -175,6 +177,9 @@ case class Param(name: Name, index: Option[Int] = None)
 object Param {
   val from: (Name => Param) =
     name => Param(name)
+
+  def fresh(name: String) =
+    Param(name, Some(Type.nextIndex))
 }
 
 case class Con(name: Name, arity: Int) {

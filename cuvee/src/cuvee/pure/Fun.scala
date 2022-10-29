@@ -4,6 +4,7 @@ import cuvee.smtlib.DeclareFun
 import cuvee.boogie
 import cuvee.sexpr
 import cuvee.StringOps
+import cuvee.util.Name
 
 case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie.Syntax {
   require(
@@ -83,6 +84,11 @@ case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
 object Fun {
   import Sort.bool
   import Sort.int
+
+  val unary: ((Name, List[Param], Type, Type) => Fun) = {
+    case (name, params, arg, res) =>
+      Fun(name, params, List(arg), res)
+  }
 
   val a = Param("a")
   val b = Param("b")

@@ -224,6 +224,6 @@
       (filter f (cons y ys))
       (ite
         (select f y)
-        (filter f ys)
-        (cons y (filter f ys))))))
+        (cons y (filter f ys))
+        (filter f ys)))))
 (check-sat)

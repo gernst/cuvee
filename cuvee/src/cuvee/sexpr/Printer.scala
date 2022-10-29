@@ -1,10 +1,9 @@
 package cuvee.sexpr
 
 import cuvee.error
-import cuvee.util
-import cuvee.pure.Name
+import cuvee.util.Name
 
-trait Syntax extends util.Syntax {
+trait Syntax extends cuvee.util.Syntax {
   def sexpr: Any
 }
 
@@ -22,11 +21,11 @@ object Printer extends cuvee.util.Printer {
     case i: BigInt   => List(i.toString)
     case f: Float    => List(f.toString)
     // Name
-    case n: Name     => List(n.toLabel)
+    case n: Name     => List(cuvee.sexpr.mangle(n.toLabel))
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax   => lines(s.sexpr)
     // String (= Id)
-    case s: String   => List(cuvee.sexpr.mangle(s))
+    case s: String   => List(s)
     // Applications, either represented by a pair (a, b) or a list
     case (a, b)      => printApp(lines(a) ++ lines(b))
     case xs: List[_] => printApp(xs flatMap lines)

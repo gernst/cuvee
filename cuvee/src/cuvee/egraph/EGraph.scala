@@ -474,7 +474,7 @@ class EGraph {
     done
   }
 
-  final def saturate(rules: List[Rule]) {
+  def saturate(rules: List[Rule]) {
     while (!rewrite(rules)) {}
   }
 }

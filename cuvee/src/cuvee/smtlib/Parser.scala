@@ -1,15 +1,16 @@
 package cuvee.smtlib
 
 import cuvee.error
+import cuvee.State
 import cuvee.pure.Type
-import cuvee.pure.State
 import cuvee.pure.Param
 import cuvee.pure.Datatype
 import cuvee.pure.Fun
 import cuvee.pure.Sort
 import cuvee.pure.Var
-import cuvee.pure.Name
+import cuvee.util.Name
 import cuvee.sexpr._
+import cuvee.pure.LetEq
 
 class Parser(init: State) {
   // import st._
@@ -24,7 +25,10 @@ class Parser(init: State) {
 
   def ack(from: Expr): Ack =
     from match {
-      case Id("success") => Success
+      case Id("success") =>
+        Success
+      case App(Id("error"), args @ _*) =>
+        Error(args.toList)
       case _ =>
         error("invalid ack: " + from)
     }
@@ -34,17 +38,22 @@ class Parser(init: State) {
       case Id("sat")     => Sat
       case Id("unsat")   => Unsat
       case Id("unknown") => Unknown
+      case App(Id("error"), args @ _*) =>
+        Error(args.toList)
       case _ =>
         error("invalid status: " + from)
     }
 
   def cmd(from: Expr): Cmd =
     from match {
-      case App(Id("set-logic"), Lit.str(logic)) =>
+      case App(Id("set-logic"), Id(logic)) =>
         SetLogic(logic)
 
-      case App(Id("set-option"), args @ _*) =>
-        error("unsupported command: " + from)
+      case App(Id("set-option"), Kw(attr), arg) =>
+        SetOption(attr, arg)
+
+      case App(Id("get-info"), Kw(attr)) =>
+        GetInfo(attr)
 
       case App(Id("set-info"), Kw(attr)) =>
         SetInfo(attr, None)
@@ -52,19 +61,30 @@ class Parser(init: State) {
       case App(Id("set-info"), Kw(attr), arg) =>
         SetInfo(attr, Some(arg))
 
-      case App(Id("get-model"))      => GetModel
-      case App(Id("exit"))           => Exit
-      case App(Id("reset"))          => Reset
+      case App(Id("get-model")) => GetModel
+      case App(Id("labels"))    => Labels
+
       case App(Id("get-assertions")) => GetAssertions
       case App(Id("check-sat"))      => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
-        stack = stack.tail
-        Push(digits.toInt)
+        val n = digits.toInt
+        stack = List.tabulate(n)(_ => stack.head) ++ stack
+        Push(n)
 
       case App(Id("pop"), Lit.num(digits)) =>
-        stack = stack.head :: stack
-        Pop(digits.toInt)
+        val n = digits.toInt
+        stack = stack drop n
+        Pop(n)
+
+      case App(Id("reset")) =>
+        stack = List(init)
+        Reset
+      
+      case App(Id("exit"))      =>
+        println("!!! exit in parser")
+        ???
+        Exit
 
       case App(Id("assert"), phi) =>
         val phi_ = expr_typed(phi, bool)
@@ -134,10 +154,10 @@ class Parser(init: State) {
       froms: List[Expr]
   ): List[Datatype] = {
     for (((name, arity), from) <- decls zip froms)
-      yield {
-        st.con(name, arity)
-        datatype(name, arity, from)
-      }
+      st.con(name, arity)
+
+    for (((name, arity), from) <- decls zip froms)
+      yield datatype(name, arity, from)
   }
 
   def sel(params: List[Param], in: Sort, from: Expr, ctx: Set[Name]): Fun =
@@ -290,8 +310,20 @@ class Parser(init: State) {
         case Id(name) if st.funs contains (name, 0) =>
           const(name)
 
+        case App(Id("!"), from, rest @ _*) =>
+          note(expr(from, ctx, scope), rest.toList)
+
+        case App(Id("distinct"), rest @ _*) =>
+          distinct(exprs(rest.toList, ctx, scope))
+
         case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope))
+
+        case App(Id("let"), App(bound @ _*), arg) =>
+          val eqs = leteqs(bound.toList, ctx, scope)
+          val xs = eqs map (_._1)
+          val body = expr(arg, ctx, scope ++ xs.pairs)
+          let(eqs, body)
 
         case App(Id(name), App(bound @ _*), arg)
             if name == "exists" | name == "forall" =>
@@ -351,6 +383,22 @@ class Parser(init: State) {
         scope: Map[Name, Type]
     ): List[(Pre, Pre)] = {
       from map (case_(_, ctx, scope))
+    }
+
+    def leteq(from: Expr, ctx: Set[Name], scope: Map[Name, Type]): (Var, Pre) =
+      from match {
+        case App(Id(name), what) =>
+          leteq(name, expr(what, ctx, scope))
+        case _ =>
+          error("invalid let binding: " + from)
+      }
+
+    def leteqs(
+        from: List[Expr],
+        ctx: Set[Name],
+        scope: Map[Name, Type]
+    ): List[(Var, Pre)] = {
+      from map (leteq(_, ctx, scope))
     }
 
     def exprs(

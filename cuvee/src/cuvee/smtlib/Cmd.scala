@@ -5,6 +5,9 @@ import cuvee.pure._
 import cuvee.boogie
 import cuvee.sexpr
 import scala.reflect.ClassTag
+import cuvee.backend.Tactic
+import cuvee.imp.Prog
+import cuvee.util.Name
 
 sealed trait Res
 sealed trait IsSat extends Res
@@ -12,7 +15,7 @@ sealed trait Ack extends Res
 
 case object Success extends Ack
 case object Unsupported extends Ack
-case class Error(info: Seq[Any]) extends Res
+case class Error(info: List[Any]) extends Ack with IsSat
 
 case object Sat extends IsSat
 case object Unknown extends IsSat
@@ -25,19 +28,44 @@ sealed trait Cmd extends sexpr.Syntax with boogie.Syntax
 sealed trait Decl extends Cmd
 sealed trait Ctrl extends Cmd
 
-case class SetLogic(logic: String) extends Ctrl {
-  def sexpr = List("set-logic", logic)
-  def bexpr = List("/* ", "Command unsupported in boogie:", "set-logic", logic, " */")
+case object Labels extends Cmd {
+  def sexpr = List("labels")
+  def bexpr = ???
 }
 
-case class SetOption(args: List[String]) extends Ctrl {
-  def sexpr = "set-option" :: args
-  def bexpr = List("/* ", "Command unsupported in boogie:", "set-logic", args.mkString(", "), " */")
+case class SetLogic(logic: String) extends Ctrl {
+  def sexpr = List("set-logic", logic)
+  def bexpr =
+    List("/* ", "Command unsupported in boogie:", "set-logic", logic, " */")
+}
+
+case class SetOption(attr: String, arg: Any) extends Ctrl {
+  def sexpr = List("set-option", ":" + attr, arg)
+  def bexpr = List(
+    "/* ",
+    "Command unsupported in boogie:",
+    "set-option",
+    attr,
+    arg,
+    " */"
+  )
+}
+
+case class GetInfo(attr: String) extends Ctrl {
+  def sexpr = List("get-info", ":" + attr)
+  def bexpr =
+    List("/* ", "Command unsupported in boogie:", "get-info", attr, " */")
 }
 
 case class SetInfo(attr: String, arg: Option[Any]) extends Ctrl {
-  def sexpr = ??? // List("set-info")
-  def bexpr = List("/* ", "Command unsupported in boogie:", "set-logic", arg.toString, " */")
+  def sexpr = arg match {
+    case None      => List("set-info", ":" + attr)
+    case Some(arg) => List("set-info", ":" + attr, arg)
+  }
+
+
+  def bexpr =
+    List("/* ", "Command unsupported in boogie:", "set-info", attr, " */")
 }
 
 case class Push(depth: Int) extends Ctrl {
@@ -70,6 +98,15 @@ case object Reset extends Ctrl {
 case class Assert(expr: Expr) extends Cmd {
   def sexpr = List("assert", expr)
   def bexpr = List("assert", " ", expr, ";")
+}
+
+// This is not actually a feature of SMTLIB's
+case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
+  def sexpr = List("lemma", expr)
+  def bexpr = tactic match {
+    case None         => List("lemma", expr, ";")
+    case Some(tactic) => List("lemma", expr, "proof", tactic, ";")
+  }
 }
 
 case object CheckSat extends Cmd {
@@ -106,16 +143,52 @@ case class DefineFun(
     body
   )
   def bexpr = List(
-    "function", " ", name,"(",
+    "function",
+    " ",
+    name,
+    "(",
     formals.asFormals,
-    ")", ":", " ", res, "\n",
-    "{ ", body, " }",     "\n"
+    ")",
+    ":",
+    " ",
+    res,
+    "\n",
+    "{ ",
+    body,
+    " }",
+    "\n"
   )
 }
 
 case class DeclareDatatypes(arities: List[(Name, Int)], cmds: List[Datatype])
     extends Decl {
   def sexpr = List("declare-datatypes", arities, cmds)
-  def bexpr = List("/* ", "declare-datatypes", " arities: ", arities, ", commands: ", cmds, "*/") // What should we do here?
+  def bexpr = List(
+    "/* ",
+    "declare-datatypes",
+    " arities: ",
+    arities,
+    ", commands: ",
+    cmds,
+    "*/"
+  ) // What should we do here?
 }
 
+case class DeclareProc(
+    name: Name,
+    in: List[Type],
+    out: List[Type]
+) extends Decl {
+  def sexpr = ???
+  def bexpr = ???
+}
+
+case class DefineProc(
+    name: Name,
+    in: List[Var],
+    out: List[Var],
+    body: Prog
+) extends Decl {
+  def sexpr = ???
+  def bexpr = ???
+}

@@ -48,6 +48,20 @@ package object cuvee {
     }
   }
 
+  implicit class ListOps[A](self: List[A]) {
+    def intersperse(inner: Any): List[Any] = self match {
+      case fst :: snd :: rest => fst :: inner :: ((snd :: rest) intersperse inner)
+      case fst :: Nil         => List(fst)
+      case _                  => List()
+    }
+
+    def intersperse(
+        left: Any,
+        inner: Any,
+        right: Any
+    ): List[Any] = left :: (self intersperse inner) ::: List(right)
+  }
+
   implicit class ListMapOps[A, B](self: List[Map[A, B]]) {
     def merged = {
       self.fold(Map())(_ ++ _)
@@ -91,8 +105,16 @@ package object cuvee {
         yield y :: ps
   }
 
-  def keyedPairings[A,B, K](as: List[A], bs: List[B], ka: A => K, kb: B => K, prio: (K, K) => Boolean) = {
-    val ak = as.zipWithIndex groupBy { case (a, i) => ka(a) } // need to keep track of permutation
+  def keyedPairings[A, B, K](
+      as: List[A],
+      bs: List[B],
+      ka: A => K,
+      kb: B => K,
+      prio: (K, K) => Boolean
+  ) = {
+    val ak = as.zipWithIndex groupBy { case (a, i) =>
+      ka(a)
+    } // need to keep track of permutation
     val bk = bs.zipWithIndex groupBy { case (b, i) => kb(b) }
     val ks = ak.keys ++ bk.keys
     val qs = ks.toList.distinct sortWith prio

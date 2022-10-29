@@ -3,6 +3,7 @@ package cuvee.boogie
 import cuvee.error
 import cuvee.util
 import cuvee.pure._
+import cuvee.util.Name
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -29,7 +30,7 @@ object Printer extends cuvee.util.Printer {
     // Call lines on the elements recursively
     case (a, b)      => lines(a) ++ lines(b)
     case xs: List[_] => xs flatMap lines
-    // Fall-through: Print nothing
-    case _ => List()
+    // Fall-through: just crash
+    // case _ => List()
   }
 }
