@@ -21,7 +21,6 @@ import cuvee.smtlib.DeclareProc
 import cuvee.smtlib.DefineProc
 
 object Parser {
-
   def kw(name: String) = KW(name)
   val eof = new Token {}
   val id = V[String]
@@ -44,6 +43,18 @@ object Parser {
 
   val a = Param("a")
   state.fun("old", List(a), List(a), a)
+
+  val translate = Map(
+    "<==>" -> "=",
+    "==>" -> "=>",
+    "&&" -> "and",
+    "||" -> "or",
+    "==" -> "=",
+    // "!=" -> "distinct",
+    "/" -> "div",
+    "%" -> "mod",
+    "!" -> "not"
+  )
 
   object typing extends Scope[Param, Type] {
     def unify(typ1: Type, typ2: Type) = {
@@ -95,18 +106,6 @@ object Parser {
     case (name, args) if state.cons contains name =>
       Sort(state.cons(name), args)
   }
-
-  val translate = Map(
-    "<==>" -> "=",
-    "==>" -> "=>",
-    "&&" -> "and",
-    "||" -> "or",
-    "==" -> "=",
-    // "!=" -> "distinct",
-    "/" -> "div",
-    "%" -> "mod",
-    "!" -> "not"
-  )
 
   def make_op: ((String, List[Expr]) => Expr) = {
     case ("!=", List(arg1, arg2)) =>
