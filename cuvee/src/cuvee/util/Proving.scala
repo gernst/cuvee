@@ -39,9 +39,28 @@ object Proving {
             expr.lines
 
           case Conj(xs, neg) =>
-            val s1 = "exists " ++ (xs map (_.lines))
-            val s2 = None
-            List(s1)
+            var result: List[String] = Nil
+
+            val bound =
+              for (x <- xs)
+                yield "  " + x.name.toLabel + ": " + x.typ
+
+            val indent = if (bound.isEmpty) "" else "  "
+
+            val concls =
+              for (
+                phi <- neg;
+                line <- phi.lines
+              )
+                yield indent + line
+
+            if (bound.nonEmpty)
+              result ++= List("exists") ++ bound
+
+            if (concls.size == 1)
+              result ++= concls
+
+            result
 
           case Disj(xs, neg, pos) =>
             var result: List[String] = Nil
