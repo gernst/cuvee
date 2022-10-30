@@ -32,13 +32,6 @@ object Grammar {
   val num = P(make_int_lit(number))
   val int_ = P(make_int(number))
 
-  def kw(name: String) = KW(name)
-  val eof = new Token {}
-  val id = V[String]
-  val op = V[String]
-  val number = V[String]
-  val string = V[String]
-  val quant = V[String]
   val name = P(Name(id))
 
   val la = just(op filter (_ == "<"))
@@ -160,7 +153,7 @@ object Grammar {
     P(If("if" ~ parens(formula) ~ block ~ ("else" ~ else_).?))
 
   def aux(what: String)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    what ~ formula ~ ";"
+    what ~ expr ~ ";"
 
   def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(

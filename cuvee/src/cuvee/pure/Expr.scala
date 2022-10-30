@@ -83,7 +83,7 @@ object Expr extends Alpha[Expr, Var] {
   val infix =
     Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
   val boogieInfix =
-    boogie.Parser.syntax.infix_ops.keySet
+    boogie.Grammar.syntax.infix_ops.keySet
 
   def fresh(name: Name, typ: Type): Var =
     Var(name.withIndex(nextIndex), typ)

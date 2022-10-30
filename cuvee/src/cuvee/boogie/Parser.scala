@@ -21,6 +21,15 @@ import cuvee.smtlib.DeclareProc
 import cuvee.smtlib.DefineProc
 
 object Parser {
+
+  def kw(name: String) = KW(name)
+  val eof = new Token {}
+  val id = V[String]
+  val op = V[String]
+  val number = V[String]
+  val string = V[String]
+  val quant = V[String]
+
   object toplevel {
     implicit val scope: Map[Name, Var] = Map()
     implicit val ctx: Map[Name, Param] = Map()
