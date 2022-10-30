@@ -13,4 +13,9 @@ axiom forall x: elem, xs: list<elem> ::
 lemma forall xs: list<elem> ::
   length(xs) >= n
 proof
-  induction xs end;
+  induction xs;
+
+procedure zero(b: [int]int, n: int)
+{
+    assume 0 <= n;
+}

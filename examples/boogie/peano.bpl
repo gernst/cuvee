@@ -17,50 +17,50 @@ axiom forall a: nat, b: nat ::
 lemma forall a: nat ::
     add(a, zero) == a
 proof
-    induction a end;
+    induction a;
 
 lemma forall a: nat, b: nat ::
     add(a, succ(b)) == succ(add(a, b))
 proof
-    induction a end;
+    induction a;
 
 // add is commutative
 lemma forall a: nat, b: nat ::
     add(a, b) == add(b, a)
 proof
-    induction a end;
+    induction a;
 
 // add is associative
 lemma forall a: nat, b: nat, c: nat ::
     add(a, add(b, c)) == add(add(a, b), c)
 proof
-    induction a end;
+    induction a;
 
 // lemmas about mul
 lemma forall a: nat ::
     mul(a, zero) == zero
 proof
-    induction a end;
+    induction a;
 
 lemma forall a: nat, b: nat ::
     mul(a, succ(b)) == add(mul(a, b), a)
 proof
-    induction a end;
+    induction a;
 
 // mul is commutative
 lemma forall a: nat, b: nat ::
     mul(a, b) == mul(b, a)
 proof
-    induction a end;
+    induction a;
 
 // add, mul are distributive
 lemma forall a: nat, b: nat, c:nat ::
     mul(a, add(b, c)) == add(mul(a, b), mul(a, c))
 proof
-    induction a end;
+    induction a;
 
 // mul is associative
 lemma forall a: nat, b: nat, c: nat ::
     mul(a, mul(b, c)) == mul(mul(a, b), c)
 proof
-    induction a end;
+    induction a;

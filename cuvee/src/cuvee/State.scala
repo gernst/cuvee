@@ -240,6 +240,18 @@ class State(
       app(name, Nil)
     }
 
+    def select(base: Pre, index: Pre) = {
+      app("select", List(base, index))
+    }
+
+    def store(base: Pre, index: Pre, value: Pre) = {
+      app("store", List(base, index, value))
+    }
+
+    def ite(test: Pre, left: Pre, right: Pre) = {
+      app("ite", List(test, left, right))
+    }
+
     def note(expr: Pre, attr: List[sexpr.Expr]) = {
       Pre(Note(expr.expr, attr))
     }
