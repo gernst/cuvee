@@ -89,6 +89,9 @@ object Proving {
             if (assms.nonEmpty)
               result ++= List("assume") ++ assms
 
+            if (concls.isEmpty)
+              result ++= List("show contradiction")
+
             if (concls.size == 1)
               result ++= List("show") ++ concls
 
@@ -101,6 +104,8 @@ object Proving {
         println("lemma")
         for (line <- lines)
           println("  " + line)
+        println("  sorry")
+        println()
 
       case remaining =>
         if (debug)

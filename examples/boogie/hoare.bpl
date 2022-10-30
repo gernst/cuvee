@@ -10,8 +10,8 @@ data Cmd
   = skip
   | assign(lhs: Var, rhs: Expr)
   | seq(fst: Cmd, snd: Cmd)
-  | if(test: Expr, left: Cmd, right: Cmd)
-  | while(cond: Expr, body: Cmd)
+  | if_(test: Expr, left: Cmd, right: Cmd)
+  | while_(cond: Expr, body: Cmd)
   ;
 
 function eval(expr: Expr, st: State): Val;
@@ -60,12 +60,12 @@ axiom forall n: Nat, test: Expr, body: Cmd, st: State, st__: State ::
     == (truth(eval(test, st)) && exists st_: State :: steps(body, st, st_) && iter(n, test, body, st_, st__));
 
 axiom forall test: Expr, left: Cmd, right: Cmd, st: State, st_: State ::
-  steps(if(test, left, right), st, st_)
+  steps(if_(test, left, right), st, st_)
     == (    truth(eval(test, st)) && steps(left,  st, st_)
         || !truth(eval(test, st)) && steps(right, st, st_));
 
 axiom forall test: Expr, body: Cmd, st: State, st_: State ::
-  steps(while(test, body), st, st_)
+  steps(while_(test, body), st, st_)
     == exists n: Nat :: iter(n, test, body, st, st_);
 
 function hoare(pre: [State]bool, cmd: Cmd, post: [State]bool): bool {
@@ -87,7 +87,7 @@ lemma forall fst: Cmd, snd: Cmd, P: [State]bool, Q: [State]bool, R: [State]bool 
 lemma forall test: Expr, left: Cmd, right: Cmd, P: [State]bool, Q: [State]bool ::
   hoare(and_(P, prop(test)), left, Q) &&
   hoare(and_(P, not_(prop(test))), right, Q)
-    ==> hoare(P, if(test, left, right), Q);
+    ==> hoare(P, if_(test, left, right), Q);
 
 lemma forall n: Nat, test: Expr, body: Cmd, st: State, st_: State ::
   iter(n, test, body, st, st_)
@@ -102,4 +102,4 @@ proof induction n end;
 
 lemma forall test: Expr, body: Cmd, I: [State]bool ::
   hoare(and_(I, prop(test)), body, I)
-    ==> hoare(I, while(test, body), and_(I, not_(prop(test))));
+    ==> hoare(I, while_(test, body), and_(I, not_(prop(test))));
