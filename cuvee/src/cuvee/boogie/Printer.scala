@@ -12,24 +12,36 @@ trait Syntax extends util.Syntax {
 object Printer extends cuvee.util.Printer {
   def lines(any: Any): List[String] = any match {
     // Boolean values
-    case true        => List("true")
-    case false       => List("false")
+    case true  => List("true")
+    case false => List("false")
     // Numbers
-    case i: Int      => List(i.toString)
-    case i: BigInt   => List(i.toString)
-    case f: Float    => List(f.toString)
+    case i: Int    => List(i.toString)
+    case i: BigInt => List(i.toString)
+    case f: Float  => List(f.toString)
     // Name
-    case n: Name     => List(n.toLabel)
+    case n: Name => List(n.toLabel)
     // Syntax (recursive call on the syntax' s-expression)
-    case s: Syntax   => lines(s.bexpr)
+    case s: Syntax => lines(s.bexpr)
     // String (= Id)
-    case s: String   => List(s)
+    case s: String => List(s)
     // Syntax (recursive call on the syntax' s-expression)
-    case s: Syntax   => lines(s.bexpr)
+    case s: Syntax => lines(s.bexpr)
     // Pairs and lists consist of tokens and more syntax elements
     // Call lines on the elements recursively
-    case (a, b)      => lines(a) ++ lines(b)
-    case xs: List[_] => List((xs flatMap lines).mkString)
+    case (a, b) => lines(a) ++ lines(b)
+    case xs: List[_] =>
+      val args = xs flatMap lines
+      val max = args.maxBy(_.length)
+      val sum = args.foldLeft(0)(_ + _.length)
+
+      val break =
+        args.length >= 2 && (max.length > 20 || sum >= 80)
+
+      if (break && false) {
+        args
+      } else {
+        List(args.mkString(""))
+      }
     // Fall-through: just crash
     // case _ => List()
   }
