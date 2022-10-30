@@ -26,7 +26,7 @@ package object boogie {
     
     implicit val ctx: Map[Name, Param] = Map()
     implicit val scope: Map[Name, Var] = Map()
-    Parser.script.parseAll(in)
+    Grammar.script.parseAll(in)
   }
 
   class ScannerIterator(scanner: boogie.Scanner) extends Iterator[Token] {
