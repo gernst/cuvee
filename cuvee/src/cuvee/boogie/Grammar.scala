@@ -152,17 +152,25 @@ object Grammar {
   ): Parser[Prog, Token] =
     P(If("if" ~ parens(formula) ~ block ~ ("else" ~ else_).?))
 
-  def aux(what: String)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    what ~ expr ~ ";"
+  def modifies(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("modifies" ~ expr ~ ";")
+  def decreases(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("decreases" ~ expr(Sort.int) ~ ";")
+  def invariant(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("invariant" ~ formula ~ ";")
+  def summary(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("summary" ~ formula ~ ";")
+  def requires(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("requires" ~ formula ~ ";")
+  def ensures(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("ensures" ~ formula ~ ";")
 
   def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(
       While(
-        "while" ~ parens(formula) ~ aux("decreases").? ~ aux(
-          "invariant"
-        ).* ~ aux(
-          "summary"
-        ).* ~ ret(Nil) ~ block
+        "while" ~ parens(formula) ~ decreases.? ~ invariant.* ~ summary.* ~ ret(
+          Nil
+        ) ~ block
       )
     )
 
@@ -201,20 +209,27 @@ object Grammar {
   def block(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     Block("{" ~ block_)
 
+  def ann(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(???)
+
   def scoped_body(implicit ctx: Map[Name, Param]) =
     (sig: (List[Var], List[Var])) => {
       import toplevel.scope
 
       val (in, out) = sig
       val bound = in ++ out
-      None(";") | some(block(scope ++ bound.asScope, ctx))
+
+      val contract: Parser[Option[Spec], Token] = ???
+      val body = None(";") | some(block(scope ++ bound.asScope, ctx))
+
+      contract ~ body
     }
 
   def maybe_returns(implicit ctx: Map[Name, Param]) =
     ("returns" ~ parens(formals)) | ret(Nil)
 
   def proc(implicit ctx: Map[Name, Param]) = {
-    P((parens(formals) ~ maybe_returns ~@ scoped_body))
+    P(((parens(formals) ~ maybe_returns) ~@ scoped_body))
   }
 
   def typed_rhs(bound: List[Var])(implicit ctx: Map[Name, Param]) =

@@ -155,13 +155,14 @@ class State(
       name: Name,
       params: List[Param],
       in: List[Type],
-      out: List[Type]
+      out: List[Type],
+      spec: Option[Spec]
   ): Proc = {
     // require(
     //   !(procs contains name),
     //   "procedure already declared: " + name
     // )
-    val proc = Proc(name, params, in, out)
+    val proc = Proc(name, params, in, out, spec)
     procs += (name -> proc)
     proc
   }
