@@ -1,11 +1,15 @@
 package cuvee.backend
 
+import scala.annotation.varargs
+import scala.language.postfixOps
+
 import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.util.Name
 
-/** Represents a tactic that can be applied to a proof obligation.
+/** Represents an instance of a tactic, possibly with arguments.
+  * It may be applied to a proof obligation.
   */
 trait Tactic {
 
@@ -18,10 +22,22 @@ trait Tactic {
     *   formula corresponding to the subgoal and tactic? is an optional tactic
     *   to prove the subgoal.
     */
+  @throws[TacticNotApplicableException]("if the tactic is not applicable to the given goal and state")
   def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])]
 }
 
+/** A trait that allows some implementation to suggest a tactic that may be
+  * applied to a given goal in a given state.
+  */
+trait Suggest {
+
+  def suggest(state: State, goal: Prop): List[Tactic]
+}
+
+class TacticNotApplicableException(s:String) extends Exception(s){}
+
 case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
+
   def apply(state: State, goal: Prop) = {
     val goal_ = Simplify.simplify(goal, rules)
 
@@ -29,7 +45,7 @@ case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
       case Atom.t =>
         Nil
       case Atom.f =>
-        List(goal -> None) // clarify: not solvable
+        throw new TacticNotApplicableException("not solvable")
       case _ =>
         List(goal -> None)
     }
@@ -37,16 +53,33 @@ case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
 }
 
 case object Sorry extends Tactic {
+
   def apply(state: State, goal: Prop) = {
     // Currently a no-op
     println("\u001b[93m⚠\u001b[0m Use of the \u001b[93msorry\u001b[0m tactic!")
     Nil
-  };
+  }
+}
+
+object Induction
+    extends ((Var, List[(Expr, Tactic)]) => Induction)
+    with Suggest {
+
+  // TODO: Suggest doing induction over top level disj variables
+  def suggest(state: State, goal: Prop): List[Tactic] = Nil
 }
 
 case class Induction(variable: Var, cases: List[(Expr, Tactic)])
     extends Tactic {
+
   def apply(state: State, goal: Prop) = {
+    goal match {
+      case Atom(_, _) | Conj(_, _) =>
+        throw new TacticNotApplicableException("Only Disj supported in induction tactic")
+      case Disj(xs, _, _) if !(xs contains variable) =>
+        throw new TacticNotApplicableException(f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier")
+    }
+
     // First determine the variable's datatype
     val sort = variable.typ.asInstanceOf[Sort]
     val dt = state.datatypes(sort.con.name)
@@ -74,7 +107,6 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
     // Generate a copy of goal without a top level quantor quantifying the induction `variable`
     val goal_ = goal match {
       case Disj(xs, neg, pos) => Disj(xs.filterNot(_ == variable), neg, pos)
-      case _ => cuvee.error("Only Disj supported in induction tactic")
     }
 
     // Generate goals for every constructor, as Map mapping each constructor to its goal
@@ -107,8 +139,12 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
   }
 }
 
-case class Show(prop: Expr, tactic: Option[Tactic], cont: Option[Tactic])
-    extends Tactic {
+case class Show(
+    prop: Expr,
+    tactic : Option[Tactic],
+    cont: Option[Tactic]
+) extends Tactic {
+
   def apply(state: State, goal: Prop) = {
     assert(goal.isInstanceOf[Disj])
     val prop_ = Disj.from(prop)
@@ -121,6 +157,15 @@ case class Show(prop: Expr, tactic: Option[Tactic], cont: Option[Tactic])
       (goal_, cont)
     )
   }
+}
+
+object Unfold
+    extends ((Name, Option[List[BigInt]], Option[Tactic]) => Unfold)
+    with Suggest {
+
+  // TODO: Consider suggesting unfolding of defined functions?
+  def suggest(state: State, goal: Prop): List[Tactic] = Nil
+
 }
 
 case class Unfold(
@@ -136,7 +181,7 @@ case class Unfold(
     var i = 0
 
     val goal_ = expr.topdown {
-      case e@App(inst, args) if inst.fun.name == target =>
+      case e @ App(inst, args) if inst.fun.name == target =>
         i += 1
 
         if (places.isDefined && !places.get.contains(i)) {
@@ -159,11 +204,13 @@ case class Unfold(
 }
 
 /** This "tactic" is actually just a wrapper for another tactic. It serves to
-  * signal the
+  * signal that no automatic proving attempt shall happen, before the contained
+  * tactic has been applied.
   *
   * @param tactic
   */
-case class NoAuto(tactic: Tactic) extends Tactic {
+case class NoAuto(tactic : Tactic) extends Tactic {
+
   def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])] =
     tactic.apply(state, goal)
 }

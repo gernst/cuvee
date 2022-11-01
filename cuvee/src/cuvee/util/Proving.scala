@@ -95,8 +95,6 @@ object Proving {
         // Apply the tactic and get the remaining subgoals that we need to prove
         val goals = tactic_.apply(state, prop)
 
-        // TODO: What do we return, if not all of the subgoals can be proven?
-        //       Do we return /\ {unprovable subgoals} ?
         (goals map ({ case (prop_, tactic_) =>
           rec(prop_, tactic_, depth + 1)
         }) filter (_ != Atom(True))) match {
