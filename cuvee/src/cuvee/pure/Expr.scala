@@ -281,6 +281,8 @@ case class Lit(any: Any, typ: Type) extends Expr {
 object Eq extends Sugar.binary(Fun.eq_)
 object Ite extends Sugar.ternary(Fun.ite)
 
+object Old extends Sugar.unary(Fun.old)
+
 object Select extends Sugar.binary(Fun.select)
 object Store extends Sugar.ternary(Fun.store)
 

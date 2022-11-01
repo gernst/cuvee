@@ -2,6 +2,8 @@ package cuvee.boogie
 
 import arse._
 
+import scala.util.DynamicVariable
+
 import cuvee._
 import cuvee.State
 import cuvee.backend._
@@ -15,7 +17,6 @@ import cuvee.smtlib.DefineFun
 import cuvee.smtlib.DeclareSort
 import cuvee.smtlib.DefineSort
 import cuvee.smtlib.Lemma
-import scala.util.DynamicVariable
 import cuvee.smtlib.DeclareDatatypes
 import cuvee.smtlib.DeclareProc
 import cuvee.smtlib.DefineProc
@@ -42,7 +43,7 @@ object Parser {
   def state = stack.value
 
   val a = Param("a")
-  state.fun("old", List(a), List(a), a)
+  val old = state.fun("old", List(a), List(a), a)
 
   val translate = Map(
     "<==>" -> "=",
@@ -183,7 +184,7 @@ object Parser {
     case (name, ((in, out), (spec, Some(body)))) =>
       state.proc(name, Nil, in.types, out.types, spec)
       state.procdef(name, in, out, body)
-      DefineProc(name, in, out, body)
+      DefineProc(name, in, out, spec, body)
   }
 
   def make_constr

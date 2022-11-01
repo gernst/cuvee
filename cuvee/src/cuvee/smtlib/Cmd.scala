@@ -8,6 +8,7 @@ import scala.reflect.ClassTag
 import cuvee.backend.Tactic
 import cuvee.imp.Prog
 import cuvee.util.Name
+import cuvee.imp.Spec
 
 sealed trait Res
 sealed trait IsSat extends Res
@@ -187,6 +188,7 @@ case class DefineProc(
     name: Name,
     in: List[Var],
     out: List[Var],
+    spec: Option[Spec],
     body: Prog
 ) extends Decl {
   def sexpr = ???

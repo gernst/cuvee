@@ -117,7 +117,7 @@ object Grammar {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Expr, Token] = {
-    typing within make_typed_expr(typ)(unresolved.expr(scope, ctx))
+    typing within make_typed_expr(typ)(unresolved.expr)
   }
 
   def expr(implicit
@@ -152,39 +152,47 @@ object Grammar {
   ): Parser[Prog, Token] =
     P(If("if" ~ parens(formula) ~ block ~ ("else" ~ else_).?))
 
-  def modifies(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("modifies" ~ expr ~ ";")
-  def decreases(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("decreases" ~ expr(Sort.int) ~ ";")
-  def invariant(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("invariant" ~ formula ~ ";")
-  def summary(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("summary" ~ formula ~ ";")
-  def requires(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("requires" ~ formula ~ ";")
-  def ensures(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("ensures" ~ formula ~ ";")
+  def havoc(kw: String)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Spec.havoc(kw ~ (var_ ~+ ",") ~ ";"))
+  def assume(
+      kw: String
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Spec.assume(kw ~ formula ~ ";"))
+  def assert(
+      kw: String
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Spec.assert(kw ~ formula ~ ";"))
+  def decreases(
+      kw: String
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(kw ~ expr(Sort.int) ~ ";")
 
-  def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(
-      While(
-        "while" ~ parens(formula) ~ decreases.? ~ invariant.* ~ summary.* ~ ret(
-          Nil
-        ) ~ block
-      )
-    )
+  val merge = (specs: List[Spec]) => {
+    val xs = specs flatMap (_.xs)
+    val pre = And(specs map (_.pre))
+    val post = And(specs map (_.post))
+    Spec(xs, pre, post)
+  }
 
-  def assume(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Spec.assume("assume" ~ formula ~ ";"))
-
-  def assert(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Spec.assert("assert" ~ formula ~ ";"))
-
-  def havoc(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    Spec.havoc("havoc" ~ (var_ ~+ ",") ~ ";")
+  val maybe_merge = (specs: List[Spec]) => {
+    if(specs.isEmpty) None
+    else Some(merge(specs))
+  }
 
   def spec(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(assume | assert | havoc)
+    P(assert("assert") | assume("assume") | havoc("havoc"))
+
+  def loop_spec(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(assert("invariant") | assume("summary"))
+
+  def proc_spec(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(assert("requires") | assume("ensures") | havoc("modifies"))
+
+  def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+    val head =
+      "while" ~ parens(formula) ~ decreases("decreases").? ~ merge(loop_spec.*)
+    P(While(head ~ block))
+  }
 
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";")
@@ -209,20 +217,18 @@ object Grammar {
   def block(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     Block("{" ~ block_)
 
-  def ann(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(???)
 
   def scoped_body(implicit ctx: Map[Name, Param]) =
     (sig: (List[Var], List[Var])) => {
-      import toplevel.scope
+      // import toplevel.scope
 
       val (in, out) = sig
       val bound = in ++ out
+      implicit val scope = toplevel.scope ++ bound.asScope
 
-      val contract: Parser[Option[Spec], Token] = ???
-      val body = None(";") | some(block(scope ++ bound.asScope, ctx))
+      val body = None(";") | some(block)
 
-      contract ~ body
+      maybe_merge(proc_spec.*) ~ body
     }
 
   def maybe_returns(implicit ctx: Map[Name, Param]) =
