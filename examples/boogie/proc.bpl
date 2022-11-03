@@ -1,7 +1,18 @@
-procedure test(x: int, y: int) returns (z: int) {
+procedure test(x: int, y: int)
+    returns (z: int)
+{
     assume x > y;
     z := x;
     assert z > y;
+}
+
+procedure contract(x: int, y: int)
+    returns (z: int)
+    requires x > y;
+    ensures  z > y;
+{
+    z := x;
+    y := x + 1;
 }
 
 procedure loop1() {
@@ -12,7 +23,8 @@ procedure loop1() {
 
     while(a > 0)
         decreases a;
-        invariant a >= 0 && a + b == a0 + b0;
+        invariant a >= 0;
+        invariant a + b == a0 + b0;
     {
         a := a - 1;
         b := b + 1;
@@ -29,8 +41,8 @@ procedure summary1() {
 
     while(a > 0)
         decreases a;
-        invariant a >= 0;
         summary   b == old(a + b);
+        invariant a >= 0;
     {
         a := a - 1;
         b := b + 1;

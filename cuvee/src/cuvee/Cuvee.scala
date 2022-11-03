@@ -9,6 +9,7 @@ import cuvee.util.Main
 import cuvee.util.Run
 import cuvee.util.Proving
 import cuvee.util.Printer
+import cuvee.imp.Spec
 
 object fastexp extends Run(Cuvee, "examples/fastexp.smt2")
 object list extends Run(Cuvee, "examples/case_studies/list.bpl")
@@ -145,11 +146,19 @@ class Cuvee {
       cmd match {
         case DeclareProc(name, in, out) =>
 
-        case DefineProc(name, in, out, body) =>
-          val xs = in ++ out
+        case DefineProc(name, in, out, spec, body) =>
+          val (ys, pre, post) = spec match {
+            case None                      => (Nil, True, True)
+            case Some(Spec(xs, pre, post)) => (xs, pre, post)
+          }
+
+          val su = Expr.subst(in, in map Old)
+
+          val xs = in ++ out ++ ys
+          val post_ = post subst su
           val st = Expr.id(xs)
-          val post = True
-          val phi = Forall(xs, Eval.wp(WP, body, st, post))
+
+          val phi = Forall(xs, pre ==> Eval.wp(WP, body, st, post_, List(st)))
 
           // println("procedure " + name)
           Proving.show(Disj.from(phi), None)(

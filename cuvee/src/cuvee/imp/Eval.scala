@@ -18,7 +18,7 @@ object Eval {
         scope(x)
 
       case x: Var =>
-        error("undefined program variable: " + x)
+        error("undefined program variable: " + x + " in " + st.keys.mkString(" "))
 
       case _: Lit =>
         expr
@@ -169,25 +169,25 @@ object Eval {
         val st1 = assign(st, xs0, xs1)
 
         // invariant to show at loop head upon entry
-        val inv0 = eval(And(inv), scope, st0, st0 :: old)
+        val inv0 = eval(inv, scope, st0, st0 :: old)
 
         // test and invariant at loop head before some iteration
         val test1 = test subst st1
-        val inv1 = eval(And(inv), scope, st1, st0 :: old)
+        val inv1 = eval(inv, scope, st1, st0 :: old)
 
         // below we adjust the three exit cases (termination, break, return)
         // for a single iteration of the loop body
 
         def post_(st2: Map[Var, Expr]) = {
           // invariant that needs to be preserved (from inv1)
-          val inv2 = eval(And(inv), scope, st2, st0 :: old)
+          val inv2 = eval(inv, scope, st2, st0 :: old)
 
           // propagate summary from st2 to st1 wrt. arbitrary state stk
           val (xsk, re) = havoc(xs0)
           val stk = assign(st2, xs0, xsk)
 
-          val sum1k = eval(And(sum), scope, stk, st1 :: old)
-          val sum2k = eval(And(sum), scope, stk, st2 :: old)
+          val sum1k = eval(sum, scope, stk, st1 :: old)
+          val sum2k = eval(sum, scope, stk, st2 :: old)
 
           // possibly add termination condition
           val term2 = if (how == WP) {
@@ -207,10 +207,10 @@ object Eval {
 
         def brk_(st2: Map[Var, Expr]) = {
           // establish summary for last partial iteration
-          val sum12 = eval(And(sum), scope, st2, st1 :: old)
+          val sum12 = eval(sum, scope, st2, st1 :: old)
 
           // how we continue after the loop, assuming the summary of the entire loop
-          val sum02 = eval(And(sum), scope, st2, st0 :: old)
+          val sum02 = eval(sum, scope, st2, st0 :: old)
           val exit2 = wp(how, rest, cont, scope, st2, old, post, brk, ret)
 
           // ensure this formula after a break
@@ -219,8 +219,8 @@ object Eval {
 
         def ret_(st2: Map[Var, Expr]) = {
           // analogously to break we extend the partial summary to a complete one
-          val sum02 = eval(And(sum), scope, st2, st0 :: old)
-          val sum12 = eval(And(sum), scope, st2, st1 :: old)
+          val sum02 = eval(sum, scope, st2, st0 :: old)
+          val sum12 = eval(sum, scope, st2, st1 :: old)
 
           // ensure whatever postcondition we had previously on return
           sum12 && (sum02 ==> ret(st2))
@@ -231,10 +231,10 @@ object Eval {
 
         val base1 = {
           // establish summary reflexively
-          val sum11 = eval(And(sum), scope, st1, st1 :: old)
+          val sum11 = eval(sum, scope, st1, st1 :: old)
 
           // how we continue after the loop, assuming the summary of the entire loop
-          val sum01 = eval(And(sum), scope, st1, st0 :: old)
+          val sum01 = eval(sum, scope, st1, st0 :: old)
           val exit1 = wp(how, rest, cont, scope, st1, old, post, brk, ret)
 
           // ensure this formula at regular loop exit

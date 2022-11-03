@@ -16,7 +16,7 @@ object Test {
     val sum = True
     val post = y === (Old(x) + Old(y))
 
-    val prog = While(Zero < x, body, term, List(inv), List(sum), Nil)
+    val prog = While(Zero < x, body, term, inv, sum, Nil)
 
     val xs = List(x, y)
     val st = Expr.id(xs)

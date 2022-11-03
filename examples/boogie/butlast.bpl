@@ -18,4 +18,4 @@ axiom forall x: elem, xs: list<elem> ::
 
 lemma forall x: elem, xs: list<elem> ::
   butlast(append(xs, cons(x, nil))) == xs
-proof induction xs end;
+proof induction xs;

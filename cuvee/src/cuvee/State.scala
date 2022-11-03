@@ -155,13 +155,14 @@ class State(
       name: Name,
       params: List[Param],
       in: List[Type],
-      out: List[Type]
+      out: List[Type],
+      spec: Option[Spec]
   ): Proc = {
     // require(
     //   !(procs contains name),
     //   "procedure already declared: " + name
     // )
-    val proc = Proc(name, params, in, out)
+    val proc = Proc(name, params, in, out, spec)
     procs += (name -> proc)
     proc
   }
@@ -238,6 +239,18 @@ class State(
 
     def const(name: Name) = {
       app(name, Nil)
+    }
+
+    def select(base: Pre, index: Pre) = {
+      app("select", List(base, index))
+    }
+
+    def store(base: Pre, index: Pre, value: Pre) = {
+      app("store", List(base, index, value))
+    }
+
+    def ite(test: Pre, left: Pre, right: Pre) = {
+      app("ite", List(test, left, right))
     }
 
     def note(expr: Pre, attr: List[sexpr.Expr]) = {

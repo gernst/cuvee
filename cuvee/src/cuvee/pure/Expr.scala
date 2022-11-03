@@ -83,7 +83,7 @@ object Expr extends Alpha[Expr, Var] {
   val infix =
     Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
   val boogieInfix =
-    boogie.Parser.syntax.infix_ops.keySet
+    boogie.Grammar.syntax.infix_ops.keySet
 
   def fresh(name: Name, typ: Type): Var =
     Var(name.withIndex(nextIndex), typ)
@@ -280,6 +280,8 @@ case class Lit(any: Any, typ: Type) extends Expr {
 
 object Eq extends Sugar.binary(Fun.eq_)
 object Ite extends Sugar.ternary(Fun.ite)
+
+object Old extends Sugar.unary(Fun.old)
 
 object Select extends Sugar.binary(Fun.select)
 object Store extends Sugar.ternary(Fun.store)

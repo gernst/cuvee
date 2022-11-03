@@ -92,13 +92,13 @@ lemma forall test: Expr, left: Cmd, right: Cmd, P: [State]bool, Q: [State]bool :
 lemma forall n: Nat, test: Expr, body: Cmd, st: State, st_: State ::
   iter(n, test, body, st, st_)
     ==> ! truth(eval(test, st_))
-proof induction n end;
+proof induction n;
 
 lemma forall n: Nat, test: Expr, body: Cmd, I: [State]bool, st: State, st_: State ::
   hoare(and_(I, prop(test)), body, I) &&
   iter(n, test, body, st, st_) && I[st]
     ==> I[st_]
-proof induction n end;
+proof induction n;
 
 lemma forall test: Expr, body: Cmd, I: [State]bool ::
   hoare(and_(I, prop(test)), body, I)

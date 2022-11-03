@@ -1,6 +1,7 @@
 package cuvee.imp
 
 import cuvee.pure._
+import cuvee.util.Name
 
 object Skip extends Block(Nil)
 object Old extends Sugar.unary(old)
@@ -209,8 +210,8 @@ case class While(
     test: Expr,
     body: Prog,
     term: Expr,
-    inv: List[Expr],
-    sum: List[Expr],
+    inv: Expr,
+    sum: Expr,
     frames: List[Frame]
 ) extends Prog {
   require(
@@ -222,11 +223,11 @@ case class While(
     "non-integer decreases clause in while statement"
   )
   require(
-    inv.forall(_.typ == Sort.bool),
+    inv.typ == Sort.bool,
     "non-boolean invariant in while statement"
   )
   require(
-    sum.forall(_.typ == Sort.bool),
+    sum.typ == Sort.bool,
     "non-boolean summary in while statement"
   )
 
@@ -249,43 +250,35 @@ object While
         (
             Expr,
             Option[Expr],
-            List[Expr],
-            List[Expr],
-            List[Frame],
+            Spec,
             Prog
         ) => While
     ) {
   def apply(
       test: Expr,
-      term: Option[Expr],
-      inv: List[Expr],
-      post: List[Expr],
-      frames: List[Frame],
+      term_ : Option[Expr],
+      spec: Spec,
       body: Prog
   ): While = {
-    val _term = term getOrElse Zero
-    While(test, body, _term, inv, post, frames)
+    val term = term_ getOrElse Zero
+    val Spec(xs, inv, sum) = spec
+    require(xs.isEmpty, "modifies annotation for loops not supported")
+    While(test, body, term, inv, sum, frames = Nil)
   }
+}
+
+case class Call(name: Name, in: List[Expr], out: List[Var]) extends Prog {
+  def dup = out.groupBy(identity).filter(_._2.size > 1)
+  require(dup.nonEmpty, "procedure call " + name + " has duplicate outputs " + dup)
+
+  def mod = out.toSet
+  def read = in.free
+  def breaks = false
+  def replace(re: Map[Var, Var]) =
+    Call(name, in rename re, out rename re)
 }
 
 /*
-case class Call(name: Id, in: List[Expr], out: List[Id]) extends Prog {
-  {
-    val duplicateOuts = out.groupBy(identity).filter(_._2.size > 1)
-    if (duplicateOuts.nonEmpty) {
-      throw Error(
-        s"The procedure call to $name declares duplicate output parameters ${duplicateOuts.keys.mkString(", ")}"
-      )
-    }
-  }
-
-  def mod = out.toSet
-  def read = in.flatMap(_.free).distinct.toSet
-  def breaks = false
-  def replace(re: Map[Var, Var]) = Call(name, in map (_ rename re), out map (_ rename re))
-  override def toString = Printer.call(name, in, out)
-}
-
 case class Refines(a: Sort, c: Sort, r: Id) extends Expr {
   override def free: Set[Id] = Set.empty
   override def rename(re: Map[Var, Var]): Expr = {
