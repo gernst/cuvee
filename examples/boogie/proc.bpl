@@ -12,7 +12,7 @@ procedure contract(x: int, y: int)
     ensures  z > y;
 {
     z := x;
-    y := x + 1;
+    y := x;
 }
 
 procedure loop1() {

@@ -1,6 +1,7 @@
 package cuvee
 
 package object pure {
+  implicit def toVarSet(vars: Set[Var]) = new VarSet(vars)
   implicit def toVarList(vars: List[Var]) = new VarList(vars)
   implicit def toExprList(exprs: List[Expr]) = new ExprList(exprs)
   implicit def toParamList(params: List[Param]) = new ParamList(params)

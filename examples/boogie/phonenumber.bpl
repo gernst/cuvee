@@ -27,10 +27,11 @@ axiom forall x: elem, xs: list<elem> ::
     !isdigit(x) ==> filter(cons(x,xs)) == filter(xs);
 
 procedure compare(a: [int]elem, m: int, b: [int]elem, n: int)
+    returns (r: bool)
+    requires 0 <= m && 0 <= n;
+    ensures  r <==> filter(tolist(a, 0, m)) == filter(tolist(b, 0, n));
 {
-    assume 0 <= m && 0 <= n;
-
-    var r: bool := false;
+    r := false;
     var i: int, j: int := 0, 0;
 
     while(true)
@@ -45,6 +46,4 @@ procedure compare(a: [int]elem, m: int, b: [int]elem, n: int)
         else if (i < m && j < n && a[i] == b[j]) { i := i + 1; j := j + 1; }
         else                              { r := false; break; }
     }
-
-
 }

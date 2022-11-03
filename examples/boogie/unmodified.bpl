@@ -18,6 +18,8 @@ procedure unmodified(a: [int]int, n: int)
         a := a[i := 0];
         i := i + 1;
     }
+
+    assert false;
 }
 
 function T(i: int, i_: int): bool {

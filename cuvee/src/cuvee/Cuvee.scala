@@ -152,7 +152,7 @@ class Cuvee {
             case Some(Spec(xs, pre, post)) => (xs, pre, post)
           }
 
-          val su = Expr.subst(in, in map Old)
+          val su = Expr.subst(in, Old(in))
 
           val xs = in ++ out ++ ys
           val post_ = post subst su

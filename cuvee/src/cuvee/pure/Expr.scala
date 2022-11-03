@@ -264,6 +264,10 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def asScope = vars map { case x @ Var(name, typ) => name -> x }
 }
 
+class VarSet(vars: Set[Var]) {
+  def asScope = vars map { case x @ Var(name, typ) => name -> x }
+}
+
 case class Lit(any: Any, typ: Type) extends Expr {
   def funs = Set()
   def free = Set()
@@ -281,7 +285,11 @@ case class Lit(any: Any, typ: Type) extends Expr {
 object Eq extends Sugar.binary(Fun.eq_)
 object Ite extends Sugar.ternary(Fun.ite)
 
-object Old extends Sugar.unary(Fun.old)
+object Old extends Sugar.unary(Fun.old) {
+  def apply(exprs: List[Expr]) = {
+    exprs map this
+  }
+}
 
 object Select extends Sugar.binary(Fun.select)
 object Store extends Sugar.ternary(Fun.store)
