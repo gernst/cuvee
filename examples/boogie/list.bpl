@@ -131,12 +131,9 @@ proof
 lemma forall xs: list<elem> ::
   reverse(reverse(xs)) == xs
 proof
-  induction xs
-    cons(y, ys) ->
+  induction xs {
+    case cons(y, ys) =>
       show (forall z: elem, zs: list<elem> :: reverse(reverse(cons(z, zs))) == cons(z, reverse(reverse(zs))))
       proof show (forall z: elem, zs: list<elem> :: reverse(snoc(zs, z)) == cons(z, reverse(zs)))
            proof induction zs
-               
-          
-     
- ;
+  };

@@ -175,7 +175,7 @@ object Grammar {
   }
 
   val maybe_merge = (specs: List[Spec]) => {
-    if(specs.isEmpty) None
+    if (specs.isEmpty) None
     else Some(merge(specs))
   }
 
@@ -216,7 +216,6 @@ object Grammar {
 
   def block(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     Block("{" ~ block_)
-
 
   def scoped_body(implicit ctx: Map[Name, Param]) =
     (sig: (List[Var], List[Var])) => {
@@ -297,7 +296,7 @@ object Grammar {
     P(Sorry(KW("sorry")));
 
   // INDUCTION
-  def make_pat(typ: Type): (Name => Parser[Expr, Token]) = {
+  def patargs(typ: Type): (Name => Parser[Expr, Token]) = {
     // Check if name identifies a constructor of the correct type
     case name if state.constrs exists (_.name == name) =>
       val sort = typ.asInstanceOf[Sort]
@@ -318,9 +317,6 @@ object Grammar {
       P(ret(Var(name, typ)))
   }
 
-  def pat(implicit typ: Type): Parser[Expr, Token] =
-    P(name ~>@ make_pat(typ))
-
   def patargs(inst: Inst): Parser[List[Expr], Token] = {
     val ts = inst.args
     if (ts.isEmpty)
@@ -331,20 +327,24 @@ object Grammar {
     }
   }
 
-  def case_(
-      scope: Map[Name, Var]
-  )(implicit typ: Type, ctx: Map[Name, Param]): Parser[(Expr, Tactic), Token] =
-    pat(typ) ~ "->" ~@ (e => {
-      val xs = e.free
-      val scope_ = scope ++ xs.map { x => (x.name, x) }
-      tactic(scope_, ctx)
-    })
+  def pat(implicit typ: Type): Parser[Expr, Token] =
+    P(name ~>@ patargs(typ))
 
-  def induction(implicit
-      scope: Map[Name, Var],
-      ctx: Map[Name, Param]
-  ): Parser[Induction, Token] =
-    P(Induction("induction" ~ var_ ~@ (v => case_(scope)(v.typ, ctx) ~* ",")));
+  def scoped_case(
+      pat: Expr
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+    val xs = pat.free.toList
+    tactic(scope ++ xs.asScope, ctx)
+  }
+
+  def case_(typ: Type)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P("case" ~ pat(typ) ~ "=>" ~@ scoped_case)
+
+  def cases(arg: Expr)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    braces(case_(arg.typ).*) | ret(Nil)
+
+  def induction(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Induction("induction" ~ var_ ~@ cases));
 
   def maybe_proof(
       phi: Expr
