@@ -24,8 +24,6 @@ object Printer extends cuvee.util.Printer {
     case s: Syntax => lines(s.bexpr)
     // String (= Id)
     case s: String => List(s)
-    // Syntax (recursive call on the syntax' s-expression)
-    case s: Syntax => lines(s.bexpr)
     // Pairs and lists consist of tokens and more syntax elements
     // Call lines on the elements recursively
     case (a, b) => lines(a) ++ lines(b)

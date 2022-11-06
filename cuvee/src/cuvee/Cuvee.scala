@@ -136,7 +136,6 @@ class Cuvee {
     // assert(cmds.nonEmpty, "No file was parsed")
 
     solver.exec(SetOption("produce-models", true))
-    solver.exec(SetOption("produce-assignments", true))
 
     val prover = new Prove(solver)
     val rules = Rewrite.from(cmds, state)
@@ -168,18 +167,6 @@ class Cuvee {
             printer,
             safe
           )
-
-        // rec(Disj.from(phi), None, 1)(state, solver, prover)
-
-        // solver.scoped {
-        //   solver.assert(!phi)
-        //   val status = solver.check()
-
-        //   if (status == Sat) {
-        //     solver.model()
-        //   }
-
-        // }
 
         case ctrl: Ctrl =>
         // solver.control(ctrl)

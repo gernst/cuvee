@@ -4,8 +4,6 @@ import cuvee.backend._
 import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.pure._
-// import cuvee.smtlib._
-// import cuvee.boogie.printer
 import cuvee.State
 import cuvee.smtlib.Lemma
 
@@ -21,11 +19,8 @@ object Proving {
   ): Prop = {
     val res = rec(prop, tactic, 1)(state, solver, prover, rules)
     res match {
-      case Atom(True) | Disj(
-            _,
-            _,
-            List(Atom(True))
-          ) => // hack around incomplete simplification
+      case Atom(True) | Disj(_, _, List(Atom(True))) =>
+        // hack around incomplete simplification
         if (debug)
           println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
       case Atom(False) =>
@@ -161,6 +156,7 @@ object Proving {
       case Some(tactic_) =>
         if (debug)
           println(indent(depth) + "tactic:   " + tactic)
+
         // Apply the tactic and get the remaining subgoals that we need to prove
         val goals = tactic_.apply(state, prop)
 
@@ -180,27 +176,22 @@ object Proving {
     if (debug)
       println(indent(depth) + "simp:     " + simp.toExpr)
 
-    simp match {
-      case Atom(True) =>
-        if (debug)
+      simp match {
+        case Atom(True) =>
           println(
             indent(depth) + f"\u001b[92m✔\u001b[0m Goal found to be `true`"
           )
 
-      case Atom(False) =>
-        if (debug)
+        case Atom(False) =>
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
           )
 
-      case goal =>
-        if (debug)
+        case goal =>
           println(
-            indent(
-              depth
-            ) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
+            indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
           )
-    }
+      }
 
     // Return whatever remained
     simp
