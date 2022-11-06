@@ -18,10 +18,18 @@ class Prove(solver: Solver) {
 
   def prove(atom: Atom): Atom = atom match {
     case Atom(phi) =>
-      if (solver.isTrue(phi))
-        Atom(True)
-      else
-        atom
+      solver scoped {
+        solver.assert(!phi)
+        val status = solver.check()
+
+        status match {
+          case Sat =>
+            println(solver.model)
+            atom
+          case Unsat =>
+            Atom(True)
+        }
+      }
   }
 
   def prove(pos: Pos): Pos = pos match {

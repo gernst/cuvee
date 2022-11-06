@@ -113,8 +113,7 @@ package object smtlib {
 
     def model(): Model = {
       write(GetModel)
-      // parser.model(read())
-      cuvee.undefined
+      Model(parser.model(read()))
     }
   }
 
