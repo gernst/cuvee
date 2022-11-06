@@ -66,7 +66,37 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
   def sexpr =
     List("forall", xs.asFormals, List("=>", "and" :: neg, "or" :: pos))
 
-  def bexpr = toExpr.bexpr
+  def bexpr = {
+    var result: List[String] = Nil
+    val bound =
+      for (x <- xs)
+        yield "  " + x.name.toLabel + ": " + x.typ
+
+    val assms =
+      for (phi <- neg; line <- phi.toExpr.lines(cuvee.boogie.printer))
+        yield "  " + line
+
+    val concls =
+      for (phi <- pos; line <- phi.toExpr.lines(cuvee.boogie.printer))
+        yield "  " + line
+
+    if (bound.nonEmpty)
+      result ++= List("forall") ++ bound
+
+    if (assms.nonEmpty)
+      result ++= List("assume") ++ assms
+
+    if (concls.isEmpty)
+      result ++= List("show contradiction")
+
+    if (concls.size == 1)
+      result ++= List("show") ++ concls
+
+    if (concls.size > 1)
+      result ++= List("show one of") ++ concls
+
+    result
+  }
 }
 
 // represents
@@ -91,7 +121,27 @@ case class Conj(xs: List[Var], neg: List[Neg])
   def sexpr =
     List("exists", xs.asFormals, "or" :: neg)
 
-  def bexpr = toExpr.bexpr
+  def bexpr = {
+    var result: List[String] = Nil
+
+    val bound =
+      for (x <- xs)
+        yield "  " + x.name.toLabel + ": " + x.typ
+
+    val indent = if (bound.isEmpty) "" else "  "
+
+    val concls =
+      for (phi <- neg; line <- phi.toExpr.lines(cuvee.boogie.printer))
+        yield indent + line
+
+    if (bound.nonEmpty)
+      result ++= List("exists") ++ bound
+
+    if (concls.size == 1)
+      result ++= concls
+
+    result
+  }
 }
 
 object Disj {

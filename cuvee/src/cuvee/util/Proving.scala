@@ -4,8 +4,6 @@ import cuvee.backend._
 import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.pure._
-// import cuvee.smtlib._
-// import cuvee.boogie.printer
 import cuvee.State
 import cuvee.smtlib.Lemma
 
@@ -21,11 +19,8 @@ object Proving {
   ): Prop = {
     val res = rec(prop, tactic, 1)(state, solver, prover, rules)
     res match {
-      case Atom(True) | Disj(
-            _,
-            _,
-            List(Atom(True))
-          ) => // hack around incomplete simplification
+      case Atom(True) | Disj(_, _, List(Atom(True))) =>
+        // hack around incomplete simplification
         if (debug)
           println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
       case Atom(False) =>
@@ -34,72 +29,7 @@ object Proving {
             "\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!"
           )
       case remaining if printer == cuvee.boogie.printer =>
-        val lines = remaining match {
-          case Atom(expr) =>
-            expr.lines
-
-          case Conj(xs, neg) =>
-            var result: List[String] = Nil
-
-            val bound =
-              for (x <- xs)
-                yield "  " + x.name.toLabel + ": " + x.typ
-
-            val indent = if (bound.isEmpty) "" else "  "
-
-            val concls =
-              for (
-                phi <- neg;
-                line <- phi.lines
-              )
-                yield indent + line
-
-            if (bound.nonEmpty)
-              result ++= List("exists") ++ bound
-
-            if (concls.size == 1)
-              result ++= concls
-
-            result
-
-          case Disj(xs, neg, pos) =>
-            var result: List[String] = Nil
-
-            val bound =
-              for (x <- xs)
-                yield "  " + x.name.toLabel + ": " + x.typ
-
-            val assms =
-              for (
-                phi <- neg;
-                line <- phi.lines
-              )
-                yield "  " + line
-
-            val concls =
-              for (
-                phi <- pos;
-                line <- phi.lines
-              )
-                yield "  " + line
-
-            if (bound.nonEmpty)
-              result ++= List("forall") ++ bound
-
-            if (assms.nonEmpty)
-              result ++= List("assume") ++ assms
-
-            if (concls.isEmpty)
-              result ++= List("show contradiction")
-
-            if (concls.size == 1)
-              result ++= List("show") ++ concls
-
-            if (concls.size > 1)
-              result ++= List("show one of") ++ concls
-
-            result
-        }
+        val lines = printer.lines(remaining)
 
         println("lemma")
         for (line <- lines)
@@ -161,6 +91,7 @@ object Proving {
       case Some(tactic_) =>
         if (debug)
           println(indent(depth) + "tactic:   " + tactic)
+
         // Apply the tactic and get the remaining subgoals that we need to prove
         val goals = tactic_.apply(state, prop)
 
@@ -196,9 +127,7 @@ object Proving {
       case goal =>
         if (debug)
           println(
-            indent(
-              depth
-            ) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
+            indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
           )
     }
 

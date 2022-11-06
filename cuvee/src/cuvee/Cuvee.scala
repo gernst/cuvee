@@ -145,7 +145,6 @@ class Cuvee {
     // assert(cmds.nonEmpty, "No file was parsed")
 
     solver.exec(SetOption("produce-models", true))
-    solver.exec(SetOption("produce-assignments", true))
 
     val prover = new Prove(solver)
     val rules = Rewrite.from(cmds, state)
