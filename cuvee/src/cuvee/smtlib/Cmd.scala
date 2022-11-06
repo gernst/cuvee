@@ -34,6 +34,11 @@ case object Unsat extends IsSat { def sexpr = "unknown" }
 
 case class Model(defs: List[DefineFun]) extends Res {
   def sexpr = "model" :: defs
+
+  override def toString() : String = {
+    var result = defs map (d => d.name + " = " + d.body.toString)
+    result.mkString("model (", ", ", ")")
+  }
 }
 
 sealed trait Cmd extends sexpr.Syntax with boogie.Syntax
