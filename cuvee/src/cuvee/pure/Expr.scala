@@ -221,8 +221,7 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     subst(su)
 
-  /** Skolemize this variable, transferring it to a constant function without
-    * parameters.
+  /** Skolemize this variable, transferring it to a constant function without parameters.
     *
     * @return
     *   Function that represents the variable
@@ -307,8 +306,8 @@ object UMinus extends Sugar.unary(Fun.uminus)
 object Plus extends Sugar.commutative(Fun.plus, Zero, Assoc.left)
 object Minus extends Sugar.associative(Fun.minus, Assoc.left)
 object Times extends Sugar.commutative(Fun.times, One, Assoc.left)
-// object DivBy extends Sugar.associative(Fun.divBy, Assoc.left)
-// object Mod extends Sugar.associative(Fun.mod, Assoc.left)
+object DivBy extends Sugar.associative(Fun.div, Assoc.left)
+object Mod extends Sugar.associative(Fun.mod, Assoc.left)
 // object Exp extends Sugar.associative(Fun.exp, Assoc.right)
 
 object Lt extends Sugar.binary(Fun.lt)
@@ -445,7 +444,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case _ if args.isEmpty => inst
     case _                 => inst :: args
   }
-  
+
   def bexpr = this match {
     // Constants
     case App(inst, Nil) => List(inst.toString)
@@ -455,13 +454,16 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     // Iff (<==>), needs special handling, as this is also represented by "=" internally
     case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
       List(lhs, " ", "<==>", " ", rhs)
-      case Eq(lhs, rhs) =>
+    case Eq(lhs, rhs) =>
       List(lhs, " ", "==", " ", rhs)
-      case Imp(phi, psi) =>
-        List("(", phi, " ", "==>", " ", psi, ")")
+    case Imp(phi, psi) =>
+      List("(", phi, " ", "==>", " ", psi, ")")
+    case DivBy(lhs, rhs) =>
+      List(lhs, " ", "/", " ", rhs)
+    case Mod(lhs, rhs) =>
+      List(lhs, " ", "%", " ", rhs)
     // Infix operators
-    case App(_, List(left, right))
-        if Expr.boogieInfix contains inst.fun.name.name =>
+    case App(_, List(left, right)) if Expr.boogieInfix contains inst.fun.name.name =>
       List("(", left, " ", inst, " ", right, ")")
     // Unary -
     case Not(psi)     => List("!", "(", psi, ")")
@@ -518,18 +520,18 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   }
 
   def sexpr = List(quant.name, formals.asFormals, body)
-  def bexpr = { 
-    val formals_ = formals map {
-      case x => List(x, ":", " ", x.typ)
+  def bexpr = {
+    val formals_ = formals map { case x =>
+      List(x, ":", " ", x.typ)
     }
 
     List(
-    quant.name,
-    " ",
-    new cuvee.ListOps(formals_) intersperse (", "),
-    " :: ",
-    body
-  )
+      quant.name,
+      " ",
+      new cuvee.ListOps(formals_) intersperse (", "),
+      " :: ",
+      body
+    )
   }
 
   override def toString =
@@ -544,9 +546,7 @@ class CaseList(cases: List[Case]) {
   def inst(su: Map[Param, Type]) = cases map (_ inst su)
 }
 
-case class Case(pat: Expr, expr: Expr)
-    extends Expr.bind[Case]
-    with sexpr.Syntax {
+case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with sexpr.Syntax {
 
   def funs = pat.funs ++ expr.funs
   def bound = pat.free

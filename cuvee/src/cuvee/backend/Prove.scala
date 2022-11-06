@@ -46,7 +46,8 @@ class Prove(solver: Solver) {
         // Below, we'll split those variables from their declaration in the quantifier.
         // Decide how to rename the quantified variables
         val re = Expr.fresh(xs)
-        //
+        val re_ = re map (_.swap)
+
         val xs_ = xs rename re
         val neg_ = neg map (_ rename re)
         val pos_ = pos map (_ rename re)
@@ -68,7 +69,8 @@ class Prove(solver: Solver) {
           // Otherwise: Attempt to prove one formula of the succedent,
           // will succeed anyway if the assumptions are already inconsistent
           val pos__ = disj(pos_)
-          Disj(xs_, neg_, pos__)
+          // undo the renaming
+          Disj(xs, neg_ map (_ rename re_), pos__ map (_ rename re_))
         }
       }
   }

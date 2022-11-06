@@ -83,6 +83,27 @@ object Eval {
       no_ret
     )
   }
+  
+    def wp_proc(
+      how: Modality,
+      prog: Prog,
+      st: Map[Var, Expr],
+      post: Expr,
+  ): Expr = {
+    val old = List(st)
+
+    wp(
+      how,
+      List(prog),
+      Nil,
+      Map(),
+      st,
+      old,
+      eval(post, Map(), _, old),
+      no_brk,
+      eval(post, Map(), _, old)
+    )
+  }
 
   def wp(
       how: Modality,
@@ -214,7 +235,7 @@ object Eval {
           val exit2 = wp(how, rest, cont, scope, st2, old, post, brk, ret)
 
           // ensure this formula after a break
-          sum12 && (sum02 ==> exit2)
+          (sum12 ==> sum02) ==> exit2
         }
 
         def ret_(st2: Map[Var, Expr]) = {
@@ -223,7 +244,7 @@ object Eval {
           val sum12 = eval(sum, scope, st2, st1 :: old)
 
           // ensure whatever postcondition we had previously on return
-          sum12 && (sum02 ==> ret(st2))
+          (sum12 ==> sum02) ==> ret(st2)
         }
 
         // below, we define the base case and the step case

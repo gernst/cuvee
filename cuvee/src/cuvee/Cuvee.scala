@@ -26,8 +26,9 @@ object Cuvee extends Main {
 class Cuvee {
   var state = State.default
   var cmds: List[Cmd] = Nil
-  var printer: Printer = cuvee.smtlib.printer
   var rewrite: Boolean = false
+
+  implicit var printer: Printer = cuvee.smtlib.printer
 
   val options = Map(
     "-help" ->
@@ -39,20 +40,18 @@ class Cuvee {
     "-debug:scanner" -> ("show list of parsed tokens (SMT-LIB only)", () => {
       cuvee.sexpr.debug = true
     }),
-    "-debug:prover" -> ("show details about proof steps and tactic applications", () =>
-      {
-        cuvee.util.Proving.debug = true
-      }),
+    "-debug:prover" -> ("show details about proof steps and tactic applications", () => {
+      cuvee.util.Proving.debug = true
+    }),
     "-print:smtlib" -> ("override printer to output SMT-LIB format", () => {
       this.printer = cuvee.smtlib.printer
     }),
     "-print:boogie" -> ("override printer to output Boogie format", () => {
       this.printer = cuvee.boogie.printer
     }),
-    "-rewrite" -> ("apply structurally recursive axioms as rewrite rules", () =>
-      {
-        this.rewrite = true
-      })
+    "-rewrite" -> ("apply structurally recursive axioms as rewrite rules", () => {
+      this.rewrite = true
+    })
   )
 
   def help() {
@@ -83,17 +82,27 @@ class Cuvee {
         )
 
       case path :: rest if path.endsWith(".bpl") =>
-        val (cmds_, state_) = cuvee.boogie.parse(path)
-        printer = cuvee.boogie.printer
-        state = state_
-        cmds = cmds_
+        try {
+          val (cmds_, state_) = cuvee.boogie.parse(path)
+          printer = cuvee.boogie.printer
+          state = state_
+          cmds = cmds_
+        } catch {
+          case error: arse.Error =>
+            println(error)
+        }
         configure(rest)
 
       case path :: rest if path.endsWith(".smt2") =>
-        val (cmds_, state_) = cuvee.smtlib.parse(path)
-        printer = cuvee.smtlib.printer
-        state = state_
-        cmds = cmds_
+        try {
+          val (cmds_, state_) = cuvee.smtlib.parse(path)
+          printer = cuvee.smtlib.printer
+          state = state_
+          cmds = cmds_
+        } catch {
+          case error: arse.Error =>
+            println(error)
+        }
         configure(rest)
 
       case path :: rest =>
@@ -142,77 +151,75 @@ class Cuvee {
     val rules = Rewrite.from(cmds, state)
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
+    def prove(phi: Expr, tactic: Option[Tactic]) {
+      Proving.show(Disj.from(phi), tactic)(
+        state,
+        solver,
+        prover,
+        printer,
+        safe
+      )
+      // val phi_ = Simplify.simplify(phi, safe)
+      // if (!solver.isTrue(phi)) {
+      //   val cmd = Lemma(phi_, None)
+      //   for (line <- cmd.lines)
+      //     println(line)
+      // }
+    }
+
+    def exec(cmd: Cmd) = cmd match {
+      case DeclareProc(name, in, out) =>
+
+      case DefineProc(name, in, out, spec, body) =>
+        val (ys, pre, post) = spec match {
+          case None                      => (Nil, True, True)
+          case Some(Spec(xs, pre, post)) => (xs, pre, post)
+        }
+
+        val su = Expr.subst(in, Old(in))
+
+        val xs = in ++ out ++ ys
+        val post_ = post subst su
+        val st = Expr.id(xs)
+
+        val phi = Forall(xs, pre ==> Eval.wp_proc(WP, body, st, post_))
+
+        prove(phi, tactic = None)
+
+      case ctrl: Ctrl =>
+      // solver.control(ctrl)
+
+      case decl: Decl =>
+        solver.declare(decl)
+
+      case Assert(phi) =>
+        // println("axiom " + phi)
+        solver.assert(phi)
+
+      case Lemma(phi, tactic) =>
+        // println()
+        // println("================  LEMMA  ================")
+        // println("show:  " + expr)
+        prove(phi, tactic)
+
+        // In any case, assert the lemma, so that its statement is available in later proofs
+        solver.assert(phi)
+
+      case Labels =>
+      // val result = solver.labels()
+
+      case CheckSat =>
+        val result = solver.check()
+        println(result)
+    }
+
     for (cmd ← cmds) {
-      cmd match {
-        case DeclareProc(name, in, out) =>
-
-        case DefineProc(name, in, out, spec, body) =>
-          val (ys, pre, post) = spec match {
-            case None                      => (Nil, True, True)
-            case Some(Spec(xs, pre, post)) => (xs, pre, post)
-          }
-
-          val su = Expr.subst(in, Old(in))
-
-          val xs = in ++ out ++ ys
-          val post_ = post subst su
-          val st = Expr.id(xs)
-
-          val phi = Forall(xs, pre ==> Eval.wp(WP, body, st, post_, List(st)))
-
-          // println("procedure " + name)
-          Proving.show(Disj.from(phi), None)(
-            state,
-            solver,
-            prover,
-            printer,
-            safe
-          )
-
-        // rec(Disj.from(phi), None, 1)(state, solver, prover)
-
-        // solver.scoped {
-        //   solver.assert(!phi)
-        //   val status = solver.check()
-
-        //   if (status == Sat) {
-        //     solver.model()
-        //   }
-
-        // }
-
-        case ctrl: Ctrl =>
-        // solver.control(ctrl)
-
-        case decl: Decl =>
-          solver.declare(decl)
-
-        case Assert(phi) =>
-          // println("axiom " + phi)
-          solver.assert(phi)
-
-        case Lemma(expr, tactic) =>
-          // println()
-          // println("================  LEMMA  ================")
-          // println("show:  " + expr)
-
-          Proving.show(Disj.from(expr), tactic)(
-            state,
-            solver,
-            prover,
-            printer,
-            safe
-          )
-
-          // In any case, assert the lemma, so that its statement is available in later proofs
-          solver.assert(expr)
-
-        case Labels =>
-        // val result = solver.labels()
-
-        case CheckSat =>
-          val result = solver.check()
-          println(result)
+      try {
+        exec(cmd)
+      } catch {
+        case bad: smtlib.Error =>
+          for (line <- bad.lines)
+            println(line)
       }
     }
   }

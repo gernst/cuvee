@@ -14,7 +14,7 @@ sealed trait Expr extends cuvee.sexpr.Syntax {
 sealed trait Atom extends Expr with Token {}
 
 sealed trait Lit extends Atom {
-  def sexpr = List(toString)
+  def sexpr = toString
   def replace(re: Map[String, Expr]) = this
 }
 

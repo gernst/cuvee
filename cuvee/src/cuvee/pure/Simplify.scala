@@ -8,6 +8,7 @@ object Simplify {
     case Imp(phi, psi)     => imp(simplify(phi, rules), simplify(psi, rules))
     case Forall(vars, phi) => forall(vars, simplify(phi, rules))
     case Exists(vars, phi) => exists(vars, simplify(phi, rules))
+    case Eq(left, right) if left.typ == Sort.bool => eqv(simplify(left, rules), simplify(right, rules))
     case Eq(left, right)   => eq(simplify(left, rules), simplify(right, rules))
 
     case App(inst, args) if rules.nonEmpty =>
@@ -73,7 +74,18 @@ object Simplify {
       case (_, True)       => True
       case (False, _)      => True
       case (True, _)       => psi
-      case (_, False)      => Not(phi)
+      case (_, False)      => not(phi)
+      case _ if phi == psi => True
+      case _               => Imp(phi, psi)
+    }
+  }
+
+  def eqv(phi: Expr, psi: Expr): Expr = {
+    (phi, psi) match {
+      case (_, True)       => phi
+      case (False, _)      => not(psi)
+      case (True, _)       => psi
+      case (_, False)      => not(phi)
       case _ if phi == psi => True
       case _               => Imp(phi, psi)
     }

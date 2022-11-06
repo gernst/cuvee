@@ -119,6 +119,8 @@ object Fun {
   val plus = Fun("+", Nil, List(int, int), int)
   val minus = Fun("-", Nil, List(int, int), int)
   val times = Fun("*", Nil, List(int, int), int)
+  val div = Fun("div", Nil, List(int, int), int)
+  val mod = Fun("mod", Nil, List(int, int), int)
 
   val le = Fun("<=", Nil, List(int, int), bool)
   val ge = Fun(">=", Nil, List(int, int), bool)

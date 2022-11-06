@@ -106,8 +106,10 @@ object Sugar {
       expr match {
         case App(inst, args) if inst.fun == fun =>
           flatten(args)
-        case `neutral` =>
-          Nil
+        // Note: this case causes And(phis) with empty phi,
+        //       which is not necessarily understood by solvers
+        // case `neutral` =>
+        //   Nil
         case _ =>
           List(expr)
       }

@@ -10,20 +10,35 @@ import cuvee.imp.Prog
 import cuvee.util.Name
 import cuvee.imp.Spec
 
-sealed trait Res
+sealed trait Res extends sexpr.Syntax {}
+
 sealed trait IsSat extends Res
 sealed trait Ack extends Res
 
-case object Success extends Ack
-case object Unsupported extends Ack
-case class Error(info: List[Any]) extends Ack with IsSat
+case object Success extends Ack { def sexpr = "success" }
+case object Unsupported extends Ack { def sexpr = "unsupported" }
 
-case object Sat extends IsSat
-case object Unknown extends IsSat
-case object Unsat extends IsSat
+case class Error(info: List[Any]) extends Exception with Ack with IsSat {
+  def sexpr = "error" :: info
+}
 
-case class Assertions(exprs: List[Expr]) extends Res
-case class Model(defs: List[DefineFun]) extends Res
+object Error extends (List[Any] => Error) {
+  def apply(info: List[Any]): Error = {
+    throw new Error(info)
+  }
+}
+
+case object Sat extends IsSat { def sexpr = "sat" }
+case object Unknown extends IsSat { def sexpr = "unsat" }
+case object Unsat extends IsSat { def sexpr = "unknown" }
+
+case class Assertions(exprs: List[Expr]) extends Res {
+  def sexpr = "assertions" :: exprs
+}
+
+case class Model(defs: List[DefineFun]) extends Res {
+  def sexpr = "model" :: defs
+}
 
 sealed trait Cmd extends sexpr.Syntax with boogie.Syntax
 sealed trait Decl extends Cmd
@@ -63,7 +78,6 @@ case class SetInfo(attr: String, arg: Option[Any]) extends Ctrl {
     case None      => List("set-info", ":" + attr)
     case Some(arg) => List("set-info", ":" + attr, arg)
   }
-
 
   def bexpr =
     List("/* ", "Command unsupported in boogie:", "set-info", attr, " */")
@@ -161,8 +175,7 @@ case class DefineFun(
   )
 }
 
-case class DeclareDatatypes(arities: List[(Name, Int)], cmds: List[Datatype])
-    extends Decl {
+case class DeclareDatatypes(arities: List[(Name, Int)], cmds: List[Datatype]) extends Decl {
   def sexpr = List("declare-datatypes", arities, cmds)
   def bexpr = List(
     "/* ",

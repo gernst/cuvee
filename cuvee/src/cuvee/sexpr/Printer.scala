@@ -24,7 +24,6 @@ object Printer extends cuvee.util.Printer {
     case n: Name     => List(cuvee.sexpr.mangle(n.toLabel))
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax   => lines(s.sexpr)
-    // String (= Id)
     case s: String   => List(s)
     // Applications, either represented by a pair (a, b) or a list
     case (a, b)      => printApp(lines(a) ++ lines(b))
