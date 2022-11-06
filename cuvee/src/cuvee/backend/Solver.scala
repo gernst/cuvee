@@ -11,7 +11,6 @@ trait Sink {
 
   def check(): IsSat
   def model(): Model
-  def assertions(): Assertions
 
   def exec(cmd: Cmd): Res =
     cmd match {
@@ -25,8 +24,6 @@ trait Sink {
         check()
       case GetModel =>
         model()
-      case GetAssertions =>
-        assertions()
     }
 
   def control(cmd: Ctrl) =
@@ -80,12 +77,6 @@ object Sink {
         that.model()
       primary.model()
     }
-
-    def assertions() = {
-      for (that <- secondary)
-        that.assertions()
-      primary.assertions()
-    }
   }
 }
 
@@ -122,6 +113,5 @@ object Solver {
     def ack(cmd: Cmd) = Success
     def check() = Unknown
     def model() = cuvee.error("no model")
-    def assertions() = cuvee.undefined
   }
 }

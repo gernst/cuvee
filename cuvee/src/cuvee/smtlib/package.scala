@@ -71,12 +71,6 @@ package object smtlib {
         out println line
       Model(Nil)
     }
-
-    def assertions() = {
-      for (line <- GetAssertions.lines)
-        out println line
-      Assertions(Nil)
-    }
   }
 
   object solver {
@@ -120,12 +114,6 @@ package object smtlib {
     def model(): Model = {
       write(GetModel)
       // parser.model(read())
-      cuvee.undefined
-    }
-
-    def assertions(): Assertions = {
-      write(GetAssertions)
-      // parser.assertions(read())
       cuvee.undefined
     }
   }

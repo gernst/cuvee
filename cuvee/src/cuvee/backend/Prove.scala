@@ -2,6 +2,7 @@ package cuvee.backend
 
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
+import cuvee.smtlib._
 
 /** This class
   *

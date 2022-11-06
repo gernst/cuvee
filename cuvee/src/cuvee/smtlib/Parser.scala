@@ -64,7 +64,6 @@ class Parser(init: State) {
       case App(Id("get-model")) => GetModel
       case App(Id("labels"))    => Labels
 
-      case App(Id("get-assertions")) => GetAssertions
       case App(Id("check-sat"))      => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
