@@ -19,6 +19,18 @@ package object cuvee {
     }
   }
 
+  def undefined(implicit
+      file: sourcecode.File,
+      line: sourcecode.Line,
+      enclosing: sourcecode.Enclosing,
+      name: sourcecode.Name
+  ) = {
+    println("internal error: an implementation is missing")
+    println("  "+ file.value + ":" + line.value)
+    println("  in " + enclosing.value)
+    error("missing implementation: " + enclosing.value)
+  }
+
   val sub = "₀₁₂₃₄₅₆₇₈₉"
   implicit class StringOps(self: String) {
     def prime = self + "'"

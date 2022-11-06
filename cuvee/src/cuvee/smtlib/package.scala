@@ -120,13 +120,13 @@ package object smtlib {
     def model(): Model = {
       write(GetModel)
       // parser.model(read())
-      ???
+      cuvee.undefined
     }
 
     def assertions(): Assertions = {
       write(GetAssertions)
       // parser.assertions(read())
-      ???
+      cuvee.undefined
     }
   }
 

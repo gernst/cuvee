@@ -38,7 +38,7 @@ object Type extends Alpha[Type, Param] {
       case (_, p2: Param) if su contains p2 =>
         unify(typ1, su(p2), su)
       case (p1: Param, _) if p1 in typ2 =>
-        ???
+        cuvee.undefined
         backtrack("recursive unification, " + p1 + " in " + typ2)
       case (p1: Param, _) =>
         su + (p1 -> typ2)
@@ -231,8 +231,8 @@ case class Prod(args: List[Type]) extends Type {
   def subst(su: Map[Param, Type]) =
     Prod(args subst su)
 
-  def sexpr = ???
-  def bexpr = ???
+  def sexpr = cuvee.undefined
+  def bexpr = cuvee.undefined
   override def toString =
     args.mkString("(", " * ", ")")
 }
@@ -246,8 +246,8 @@ case class Sum(args: List[Type]) extends Type {
   def subst(su: Map[Param, Type]) =
     Sum(args subst su)
 
-  def sexpr = ???
-  def bexpr = ???
+  def sexpr = cuvee.undefined
+  def bexpr = cuvee.undefined
   override def toString =
     args.mkString("(", " + ", ")")
 }

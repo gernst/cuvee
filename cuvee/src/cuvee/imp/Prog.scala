@@ -55,7 +55,7 @@ case object Dia extends Modality {
 case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
   def free = prog.read ++ post.free // XXX: overapproximation
   def rename(re: Map[Var, Var]) = Post(how, prog replace re, post rename re)
-  def subst(su: Map[Id, Expr]) = ???
+  def subst(su: Map[Id, Expr]) = cuvee.undefined
   override def toString = Printer.post(how, prog, post)
 } */
 
@@ -149,7 +149,7 @@ object Assign extends ((List[Var], List[Expr]) => Assign) {
       "mismatches between number of variables and right-hand-side expressions in assignment"
     )
 
-    ???
+    cuvee.undefined
   }
 }
 

@@ -38,7 +38,8 @@ procedure compare(a: [int]elem, m: int, b: [int]elem, n: int)
         decreases (m + n) - (i + j);
         invariant 0 <= i && i <= m
                && 0 <= j && j <= n;
-        summary   r <==> filter(tolist(a, old(i), m)) == filter(tolist(b, old(j), n));
+        invariant filter(tolist(a, i, m)) == filter(tolist(b, j, n)) <==> filter(tolist(a, 0, m)) == filter(tolist(b, 0, n));
+        // summary   r <==> filter(tolist(a, old(i), m)) == filter(tolist(b, old(j), n));
     {
         if(i == m && j == n)              { r := true; break; }
         else if (i < m && !isdigit(a[i])) { i := i + 1; }

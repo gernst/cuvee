@@ -46,7 +46,7 @@ sealed trait Ctrl extends Cmd
 
 case object Labels extends Cmd {
   def sexpr = List("labels")
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 
 case class SetLogic(logic: String) extends Ctrl {
@@ -85,29 +85,29 @@ case class SetInfo(attr: String, arg: Option[Any]) extends Ctrl {
 
 case class Push(depth: Int) extends Ctrl {
   def sexpr = List("push", depth)
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 
 case class Pop(depth: Int) extends Ctrl {
   def sexpr = List("pop", depth)
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 
 case object GetAssertions extends Cmd {
   def sexpr = List("get-assertions")
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 case object GetModel extends Cmd {
   def sexpr = List("get-model")
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 case object Exit extends Ctrl {
   def sexpr = List("exit")
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 case object Reset extends Ctrl {
   def sexpr = List("reset")
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 
 case class Assert(expr: Expr) extends Cmd {
@@ -126,7 +126,7 @@ case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
 
 case object CheckSat extends Cmd {
   def sexpr = List("check-sat")
-  def bexpr = ???
+  def bexpr = cuvee.undefined
 }
 
 case class DeclareSort(name: Name, arity: Int) extends Decl {
@@ -135,7 +135,7 @@ case class DeclareSort(name: Name, arity: Int) extends Decl {
 }
 case class DefineSort(name: Name, args: List[Param], body: Type) extends Decl {
   def sexpr = List("define-sort", name, args, body)
-  def bexpr = ??? // TODO: Is this right?
+  def bexpr = cuvee.undefined // TODO: Is this right?
 }
 
 case class DeclareFun(name: Name, args: List[Type], res: Type) extends Decl {
@@ -193,8 +193,8 @@ case class DeclareProc(
     in: List[Type],
     out: List[Type]
 ) extends Decl {
-  def sexpr = ???
-  def bexpr = ???
+  def sexpr = cuvee.undefined
+  def bexpr = cuvee.undefined
 }
 
 case class DefineProc(
@@ -204,6 +204,6 @@ case class DefineProc(
     spec: Option[Spec],
     body: Prog
 ) extends Decl {
-  def sexpr = ???
-  def bexpr = ???
+  def sexpr = cuvee.undefined
+  def bexpr = cuvee.undefined
 }

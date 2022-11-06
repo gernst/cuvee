@@ -83,7 +83,7 @@ class Parser(init: State) {
       
       case App(Id("exit"))      =>
         println("!!! exit in parser")
-        ???
+        cuvee.undefined
         Exit
 
       case App(Id("assert"), phi) =>

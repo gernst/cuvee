@@ -122,6 +122,6 @@ object Solver {
     def ack(cmd: Cmd) = Success
     def check() = Unknown
     def model() = cuvee.error("no model")
-    def assertions() = ???
+    def assertions() = cuvee.undefined
   }
 }
