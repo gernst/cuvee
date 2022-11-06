@@ -20,6 +20,8 @@ object Printer extends cuvee.util.Printer {
     case f: Float  => List(f.toString)
     // Name
     case n: Name => List(n.toLabel)
+    // Props
+    case p: Prop => (p.bexpr map (_.toString))
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax => lines(s.bexpr)
     // String (= Id)
