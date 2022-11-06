@@ -26,19 +26,19 @@ object Simplify {
 
   // TODO: maybe simplify should be part of Prop and expr, because this sucks:
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]]): Prop = prop match {
-    case Atom(expr) => atom(simplify(expr, rules))
+    case Atom(expr, _) => atom(simplify(expr, rules))
     case Disj(xs, neg, pos) =>
       disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
     case Conj(xs, neg) => conj(xs, neg map (simplify(_, rules)))
   }
 
   def simplify(prop: Pos, rules: Map[Fun, List[Rule]]): Pos = prop match {
-    case Atom(expr)    => atom(simplify(expr, rules))
+    case Atom(expr, _)    => atom(simplify(expr, rules))
     case Conj(xs, neg) => conj(xs, neg map (simplify(_, rules)))
   }
 
   def simplify(prop: Neg, rules: Map[Fun, List[Rule]]): Neg = prop match {
-    case Atom(expr) => atom(simplify(expr, rules))
+    case Atom(expr, _) => atom(simplify(expr, rules))
     case Disj(xs, neg, pos) =>
       disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
   }

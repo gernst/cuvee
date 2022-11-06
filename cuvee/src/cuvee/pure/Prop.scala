@@ -2,6 +2,7 @@ package cuvee.pure
 
 import cuvee.sexpr
 import cuvee.boogie
+import cuvee.smtlib.Model
 
 sealed trait Prop extends sexpr.Syntax with boogie.Syntax {
   def toExpr: Expr
@@ -23,7 +24,7 @@ sealed trait Neg extends Prop {
 // the outer context will collapse to that result
 
 // atomics should not have inner propositional structure
-case class Atom(expr: Expr) extends Pos with Neg {
+case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
   // def text = Printer.atom(expr)
   def bound = Set()
   def toExpr = expr
@@ -224,9 +225,9 @@ object Disj {
         show(rest, xs, neg, pos ++ List(prop))
       case (expr @ Exists(_, _)) :: rest =>
         Conj.from(expr) match {
-          case Atom(False) =>
+          case Atom(False, _) =>
             show(rest, xs, neg, pos)
-          case prop @ Atom(True) =>
+          case prop @ Atom(True, _) =>
             prop
           case prop =>
             show(rest, xs, neg, pos ++ List(prop))
@@ -282,9 +283,9 @@ object Conj {
       xs: List[Var],
       neg: List[Neg]
   ): Pos = first match {
-    case Atom(True) =>
+    case Atom(True, _) =>
       Atom(False)
-    case Atom(False) =>
+    case Atom(False, _) =>
       avoid(rest, todo, xs, neg)
     case _ =>
       avoid(rest, todo, xs, neg ++ List(first))
@@ -330,9 +331,9 @@ object Conj {
       xs: List[Var],
       neg: List[Neg]
   ): Pos = first match {
-    case Atom(False) =>
+    case Atom(False, _) =>
       Atom(False)
-    case Atom(True) =>
+    case Atom(True, _) =>
       show(todo, xs, neg)
     case _ =>
       show(todo, xs, neg ++ List(first))

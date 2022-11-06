@@ -17,7 +17,7 @@ class Prove(solver: Solver) {
   }
 
   def prove(atom: Atom): Atom = atom match {
-    case Atom(phi) =>
+    case Atom(phi, _) =>
       solver scoped {
         solver.assert(!phi)
         val status = solver.check()
@@ -90,7 +90,7 @@ class Prove(solver: Solver) {
 
     case first :: rest =>
       prove(first) match {
-        case first_ @ Atom(False) =>
+        case first_ @ Atom(False, _) =>
           disj(rest)
 
         case first_ =>
@@ -108,7 +108,7 @@ class Prove(solver: Solver) {
 
     case first :: rest =>
       prove(first) match {
-        case first_ @ Atom(True) =>
+        case first_ @ Atom(True, _) =>
           conj(rest)
 
         case first_ =>
