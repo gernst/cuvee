@@ -35,6 +35,15 @@ case object Unsat extends IsSat { def sexpr = "unknown" }
 case class Model(defs: List[DefineFun]) extends Res {
   def sexpr = "model" :: defs
 
+  def rename(re: Map[Var, Var]): Model = {
+    val defs_ = defs map {
+      case DefineFun(name, formals, res, body, rec) =>
+        val name_ = re get(Var(name, res)) map (_.name) getOrElse name
+        DefineFun(name_, formals map (_ rename re), res, body rename re, rec)
+    }
+    Model(defs_)
+  }
+
   override def toString() : String = {
     var result = defs map (d => d.name + " = " + d.body.toString)
     result.mkString("model (", ", ", ")")

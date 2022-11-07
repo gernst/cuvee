@@ -29,7 +29,7 @@ case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
   def bound = Set()
   def toExpr = expr
   def rename(re: Map[Var, Var]) =
-    Atom(expr rename re)
+    Atom(expr rename re, cex map (_ rename re))
   def subst(su: Map[Var, Expr]) =
     Atom(expr subst su)
   def sexpr = expr.sexpr

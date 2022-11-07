@@ -24,8 +24,7 @@ class Prove(solver: Solver) {
 
         status match {
           case Sat =>
-            println(solver.model)
-            atom
+            Atom(phi, Some(solver.model))
           case Unsat =>
             Atom(True)
         }
