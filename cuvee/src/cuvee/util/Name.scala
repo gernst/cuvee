@@ -23,7 +23,16 @@ case class Name(name: String, index: Option[Int] = None) {
 }
 
 object Name extends (String => Name) {
-  implicit def stringToName(name: String): Name = Name(name, None)
+  implicit def stringToName(name: String): Name = {
+    val idx = name lastIndexOf '$'
+    if (idx < 0)
+      Name(name, None)
+    else
+      name splitAt idx match {
+        case (name_, id) =>
+          Name(name_, id.substring(1).toIntOption)
+      }
+  }
   implicit def stringRenameToNameRename(f: String => String): (Name => Name) =
     name => name.withName(f(name.name))
 
