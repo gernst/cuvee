@@ -146,7 +146,7 @@ object Parser {
     case name =>
       error(s"unknown variable: ${name.toString}")
   }
-
+  
   def make_bind: ((String, (List[Var], Expr)) => Expr) = {
     case (name, (bound, body)) =>
       typing.bind(name, bound, body, Sort.bool)

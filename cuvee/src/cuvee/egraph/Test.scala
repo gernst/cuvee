@@ -22,7 +22,7 @@ object Test {
     val xs = Var("xs", list_a)
     val ys = Var("ys", list_a)
 
-    val nil = Const(Fun.nil, list_a)
+    val nil = App(Fun.nil, list_a)
 
     val id = Fun("id", List(a), List(a), a)
     val append = Fun("append", List(a), List(list_a, list_a), list_a)
@@ -88,7 +88,7 @@ object Test {
     val x = Var("x", a)
     val y = Var("y", a)
 
-    val nil = Const(Fun.nil, list_a)
+    val nil = App(Fun.nil, list_a)
     val cons = Fun.cons
 
     val id = Fun("id", List(a), List(a), a)

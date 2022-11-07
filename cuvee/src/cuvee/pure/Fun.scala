@@ -44,8 +44,7 @@ case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
     "unbound parameters " + (res.free -- bound)
   )
 
-  def rename(f: Name => Name)
-    = Fun(f(name), params, args, res)
+  def rename(f: Name => Name) = Fun(f(name), params, args, res)
 
   def apply(args: Expr*) =
     App(this, args.toList)
@@ -85,9 +84,8 @@ object Fun {
   import Sort.bool
   import Sort.int
 
-  val unary: ((Name, List[Param], Type, Type) => Fun) = {
-    case (name, params, arg, res) =>
-      Fun(name, params, List(arg), res)
+  val unary: ((Name, List[Param], Type, Type) => Fun) = { case (name, params, arg, res) =>
+    Fun(name, params, List(arg), res)
   }
 
   val a = Param("a")
@@ -99,6 +97,7 @@ object Fun {
   val eq_ = Fun("=", List(a), List(a, a), bool)
   val ite = Fun("ite", List(a), List(bool, a, a), a)
 
+  val const = Fun("const", List(a, b), List(b), array_a_b)
   val select = Fun("select", List(a, b), List(array_a_b, a), b)
   val store = Fun("store", List(a, b), List(array_a_b, a, b), array_a_b)
 

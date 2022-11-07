@@ -46,6 +46,7 @@ object State {
     st.fun("ite", List(a), List(Bool, a, a), a)
 
     val ar = array(a, b)
+    st.fun("const", List(a, b), List(b), ar)
     st.fun("select", List(a, b), List(ar, a), b)
     st.fun("store", List(a, b), List(ar, a, b), ar)
 
@@ -257,14 +258,22 @@ class State(
       Pre(Note(expr.expr, attr))
     }
 
-    def app(name: Name, args: List[Pre]) = {
+    def app(name: Name, args: List[Pre], res: Option[Type] = None) = {
       val arity = args.length
       val fun = funs(name, arity)
       val inst = fun.generic
       val exprs = args map (_.expr)
+
       cuvee.trace("cannot apply " + fun + " to " + args) {
         unify(inst.args, exprs.types)
       }
+
+      for (typ <- res) {
+        cuvee.trace("cannot cast " + fun + " to " + typ) {
+          unify(inst.res, typ)
+        }
+      }
+
       Pre(App(inst, exprs))
     }
 

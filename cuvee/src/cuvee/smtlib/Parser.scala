@@ -80,8 +80,8 @@ class Parser(init: State) {
       case App(Id("reset")) =>
         stack = List(init)
         Reset
-      
-      case App(Id("exit"))      =>
+
+      case App(Id("exit")) =>
         println("!!! exit in parser")
         cuvee.undefined
         Exit
@@ -316,29 +316,31 @@ class Parser(init: State) {
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))
 
-        case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
-          app(name, exprs(args.toList, ctx, scope))
-
         case App(Id("let"), App(bound @ _*), arg) =>
           val eqs = leteqs(bound.toList, ctx, scope)
           val xs = eqs map (_._1)
           val body = expr(arg, ctx, scope ++ xs.pairs)
           let(eqs, body)
 
-        case App(Id(name), App(bound @ _*), arg)
-            if name == "exists" | name == "forall" =>
+        case App(Id("lambda"), App(bound), arg) =>
+          val x @ Var(name, dom) = formal(bound, ctx)
+          val body = expr(arg, ctx, scope + (name -> dom))
+          bind(name.toLabel, List(x), body, array(dom, body.typ))
+
+        case App(Id("match"), arg, App(cs @ _*)) =>
+          match_(expr(arg, ctx, scope), cases(cs.toList, ctx, scope))
+
+        case App(Id(name), App(bound @ _*), arg) if name == "exists" | name == "forall" =>
           val xs = formals(bound.toList, ctx)
           val body = expr(arg, ctx, scope ++ xs.pairs)
           check(body, bool)
           bind(name, xs, body, bool)
 
-        case App(Id(name), App(bound), arg) if name == "lambda" =>
-          val x @ Var(name, dom) = formal(bound, ctx)
-          val body = expr(arg, ctx, scope + (name -> dom))
-          bind(name.toLabel, List(x), body, array(dom, body.typ))
+        case App(App(Id("as"), Id(name), from), args @ _*) if st.funs contains (name, args.length) =>
+          app(name, exprs(args.toList, ctx, scope), Some(typ(from, ctx)))
 
-        case App(Id(name), arg, App(cs @ _*)) if name == "match" =>
-          match_(expr(arg, ctx, scope), cases(cs.toList, ctx, scope))
+        case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
+          app(name, exprs(args.toList, ctx, scope))
 
         case _ =>
           error("invalid expression: " + from)

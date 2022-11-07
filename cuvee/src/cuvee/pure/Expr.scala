@@ -290,6 +290,7 @@ object Old extends Sugar.unary(Fun.old) {
   }
 }
 
+object Const extends Sugar.unary(Fun.const)
 object Select extends Sugar.binary(Fun.select)
 object Store extends Sugar.ternary(Fun.store)
 
@@ -359,27 +360,6 @@ case class Tuple(args: List[Expr]) extends Expr {
     args.mkString("(", ", ", ")")
 }
 
-object Const {
-  def apply(fun: Fun, typ: Type): App = {
-    require(
-      fun.args.isEmpty,
-      "cannot instantiate non-constant" + fun
-    )
-
-    val su = Type.bind(fun.res, typ) or {
-      error("cannot cast " + fun + " to " + typ)
-    }
-
-    val ps = fun.params filterNot su.contains
-    require(
-      ps.isEmpty,
-      "unbound params casting " + fun + " to " + typ + ": " + ps
-    )
-
-    App(Inst(fun, su), Nil)
-  }
-}
-
 object App extends ((Inst, List[Expr]) => App) {
   def apply(fun: Fun, args: List[Expr]): App = {
     require(
@@ -398,6 +378,25 @@ object App extends ((Inst, List[Expr]) => App) {
     )
 
     App(Inst(fun, su), args)
+  }
+
+  def apply(fun: Fun, typ: Type): App = {
+    require(
+      fun.args.isEmpty,
+      "cannot instantiate non-constant" + fun
+    )
+
+    val su = Type.bind(fun.res, typ) or {
+      error("cannot cast " + fun + " to " + typ)
+    }
+
+    val ps = fun.params filterNot su.contains
+    require(
+      ps.isEmpty,
+      "unbound params casting " + fun + " to " + typ + ": " + ps
+    )
+
+    App(Inst(fun, su), Nil)
   }
 
   // def apply(fun: Fun, inst: List[Type], args: List[Expr]): App = {
@@ -441,6 +440,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   def sexpr = this match {
     case And(phis)         => "and" :: phis
     case Or(phis)          => "or" :: phis
+    case Const(arg)        => List(List("as", "const", typ), arg)
     case _ if args.isEmpty => inst
     case _                 => inst :: args
   }
