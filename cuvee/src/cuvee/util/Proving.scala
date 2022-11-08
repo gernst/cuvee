@@ -5,7 +5,7 @@ import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.pure._
 import cuvee.State
-import cuvee.smtlib.Lemma
+import cuvee.smtlib._
 
 object Proving {
   var debug = false
@@ -106,6 +106,13 @@ object Proving {
       case None => prop_
     }
 
+    // TODO: Think of a good way to hand the models back to the upstream caller
+    val models = collectModels(prop__)
+    if (models.nonEmpty)
+      println("models")
+      for (model <- models)
+        println("  " + model)
+
     // Call the simplifier
     val simp = Simplify.simplify(prop__, rules)
     if (debug)
@@ -133,5 +140,11 @@ object Proving {
 
     // Return whatever remained
     simp
+  }
+
+  def collectModels(prop : Prop): List[Model] = prop match {
+    case Atom(expr, cex) => cex.toList
+    case Conj(xs, neg) => neg flatMap collectModels
+    case Disj(xs, neg, pos) => (neg flatMap collectModels) ++ (pos flatMap collectModels)
   }
 }
