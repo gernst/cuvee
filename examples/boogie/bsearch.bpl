@@ -50,7 +50,7 @@ procedure bsearch_summary(x: int, a: [int]int, n: int)
     while(l < r)
         decreases r - l;
         invariant 0 <= l && l <= r && r <= n && !found;
-        summary   found <==> contains(x, a, old(l), old(r));
+        summary   final(found) <==> contains(x, a, l, r);
     {
         var m: int := (l + r) / 2;
 

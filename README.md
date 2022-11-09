@@ -7,3 +7,7 @@ but accepts a subset of the [Boogie language](https://github.com/boogie-org), to
 Running:
 
     ./Cuvee.sh -help
+
+Please see examples in
+
+    `examples/boogie`

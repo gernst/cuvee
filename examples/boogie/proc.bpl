@@ -41,7 +41,7 @@ procedure summary1() {
 
     while(a > 0)
         decreases a;
-        summary   b == old(a + b);
+        summary   final(b) == a + b;
         invariant a >= 0;
     {
         a := a - 1;
@@ -74,7 +74,7 @@ procedure lsearch(x: int, a: [int]int, n: int)
         //    invariant old(a[k])   == a[k] if earlier(a[k] == a'[k]) for all earlier transitions
         //    summary   final(a[k]) == a[k] if later(a[k] == a'[k]) for all later transitions
 
-        summary   r <==> old(contains(x, a, i, n));
+        summary   final(r) <==> contains(x, a, i, n);
     {
         if(x == a[i]) {
             r := true;

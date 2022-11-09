@@ -225,21 +225,15 @@ object Parser {
 
   val final_to_old: (Expr => Expr) = (expr: Expr) =>
     expr match {
+      case l: Lit =>
+        l
       case x: Var =>
         Old(x)
       case Final(expr) =>
         expr
       case App(inst, args) =>
         App(inst, args map final_to_old)
-    }
-
-  val old_to_final: (Expr => Expr) = (expr: Expr) =>
-    expr match {
-      case Old(expr) =>
-        expr
-      case x: Var =>
-        Final(x)
-      case App(inst, args) =>
-        App(inst, args map old_to_final)
+      case Bind(quant, formals, body, typ) =>
+        Bind(quant, formals, final_to_old(body), typ)
     }
 }

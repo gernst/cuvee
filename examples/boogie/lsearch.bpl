@@ -45,7 +45,7 @@ procedure lsearch_summary(x: elem, a: [int]elem, n: int)
         // which is *easier* to generalize automatically from i == 0 initially,
         // however, in this variant, we need to know that found == false finally,
         // such that the postcondition collapses as shown:
-        summary !contains(x, a, old(i), n);
+        summary !contains(x, a, i, n);
     {
         if(a[i] == x) {
             found := true;
@@ -75,7 +75,7 @@ procedure lsearch_summary_break(x: elem, a: [int]elem, n: int)
         // such that we have to explicitly track this fact in the invariant
         invariant 0 <= i && i <= n && !found;
         // as a consequence, the summary becomes very similar to the postcondition
-        summary found <==> contains(x, a, old(i), n);
+        summary final(found) <==> contains(x, a, i, n);
     {
         if(a[i] == x) {
             // note we break here:
