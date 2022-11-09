@@ -20,7 +20,7 @@ object Eval {
         scope(x)
 
       case x: Var =>
-        error("undefined program variable: " + x + " in " + st.keys.mkString(" "))
+        error("undefined program variable: " + x + " in state " + st.keys.mkString(" ") + " and scope " + scope.keys.mkString(" "))
 
       case _: Lit =>
         expr
@@ -44,7 +44,7 @@ object Eval {
         })
 
         val xs_ = xs rename re
-        val body_ = eval(body, su, st, old)
+        val body_ = eval(body, scope ++ su, st, old)
         Bind(quant, xs_, body_, typ)
     }
 
@@ -182,7 +182,8 @@ object Eval {
         )
 
         // variables modified by the loop
-        val xs0 = body.mod.toList
+        val xm = body.mod
+        val xs0 = xm.toList
         val (xs1, re) = havoc(xs0)
 
         var sum = sum_
@@ -201,7 +202,7 @@ object Eval {
           // println(chi)
 
           val un =
-            for ((x, e) <- st if xs0 contains x)
+            for ((x, e) <- st if (xm contains x) && (e.free disjoint xm))
               yield e -> Old(x)
 
           chi = chi bottomup {
@@ -212,6 +213,8 @@ object Eval {
           }
 
           def old_to_final(expr: Expr): Expr = expr match {
+            case l: Lit =>
+              l
             case Old(expr) =>
               expr
             case x: Var if xs0 contains x =>
@@ -220,6 +223,8 @@ object Eval {
               x
             case App(inst, args) =>
               App(inst, args map old_to_final)
+            case Bind(quant, formals, body, typ) =>
+              Bind(quant, formals, old_to_final(body), typ)
           }
 
           println("inferred summary:")
@@ -227,7 +232,7 @@ object Eval {
           import cuvee.boogie.printer
           for (line <- chi_.lines)
             println("  " + line)
-            println()
+          println()
 
           sum = sum && chi
         }

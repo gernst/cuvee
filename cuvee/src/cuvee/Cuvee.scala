@@ -153,7 +153,7 @@ class Cuvee {
     val rules = Rewrite.from(cmds, state)
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
-    def prove(phi: Expr, tactic: Option[Tactic]) {
+    def prove(phi: Expr, tactic: Option[Tactic]) = {
       // Proving.show(Disj.from(phi), tactic)(
       //   state,
       //   solver,
@@ -167,6 +167,9 @@ class Cuvee {
         val cmd = Lemma(phi_, None)
         for (line <- cmd.lines)
           println(line)
+        false
+      } else {
+        true
       }
     }
 
@@ -187,7 +190,9 @@ class Cuvee {
 
         val phi = Forall(xs, pre ==> Eval.wp_proc(WP, body, st, post_))
 
-        prove(phi, tactic = None)
+        val ok = prove(phi, tactic = None)
+        if(ok)
+          println("verified: " + name)
 
       case ctrl: Ctrl =>
       // solver.control(ctrl)

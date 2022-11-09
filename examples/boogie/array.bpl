@@ -25,7 +25,7 @@ procedure zero_sm(b: [int]int, n: int)
         decreases n - i;
         invariant 0 <= i && i <= n;
         summary (forall k: int :: i <= k && k < n ==> final(b[k]) == 0) &&
-                (forall k: int :: 0 <= k && k < i ==> final(b[k]) ==  b[k]);
+                (forall k: int :: 0 <= k && k < i ==> final(b[k]) == b[k]);
     {
         b := b[i := 0]; // b[i] is modified in any iteration
         i := i + 1;

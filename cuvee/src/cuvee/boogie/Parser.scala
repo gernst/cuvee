@@ -223,17 +223,21 @@ object Parser {
     else Some(merge(specs))
   }
 
-  val final_to_old: (Expr => Expr) = (expr: Expr) =>
-    expr match {
-      case l: Lit =>
-        l
-      case x: Var =>
-        Old(x)
-      case Final(expr) =>
-        expr
-      case App(inst, args) =>
-        App(inst, args map final_to_old)
-      case Bind(quant, formals, body, typ) =>
-        Bind(quant, formals, final_to_old(body), typ)
-    }
+  val final_to_old: (Expr => Expr) =
+    (expr: Expr) => final_to_old_(expr, Set())
+
+  def final_to_old_(expr: Expr, bound: Set[Var]): Expr = expr match {
+    case l: Lit =>
+      l
+    case x: Var if !(bound contains x) =>
+      Old(x)
+    case x: Var =>
+      x
+    case Final(expr) =>
+      expr
+    case App(inst, args) =>
+      App(inst, args map (final_to_old_(_, bound)))
+    case Bind(quant, formals, body, typ) =>
+      Bind(quant, formals, final_to_old_(body, bound ++ formals), typ)
+  }
 }
