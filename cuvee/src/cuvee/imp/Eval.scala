@@ -4,6 +4,8 @@ import cuvee.error
 import cuvee.pure._
 
 object Eval {
+  var infer = false
+
   def eval(
       expr: Expr,
       scope: Map[Var, Expr],
@@ -83,12 +85,12 @@ object Eval {
       no_ret
     )
   }
-  
-    def wp_proc(
+
+  def wp_proc(
       how: Modality,
       prog: Prog,
       st: Map[Var, Expr],
-      post: Expr,
+      post: Expr
   ): Expr = {
     val old = List(st)
 
@@ -173,7 +175,7 @@ object Eval {
 
         how split (test_, left_, right_)
 
-      case While(test, body, term, inv, sum, frames) :: rest =>
+      case While(test, body, term, inv, sum_, frames) :: rest =>
         require(
           how != Dia,
           "while within diamond: reachability not implemented"
@@ -183,11 +185,52 @@ object Eval {
         val xs0 = body.mod.toList
         val (xs1, re) = havoc(xs0)
 
+        var sum = sum_
+
         // Prepare some states:
         // 0. current state at loop entry
         // 1. arbitrary state at loop head before some iteration
         val st0 = st
         val st1 = assign(st, xs0, xs1)
+
+        if (infer) {
+          val sti = Expr.id(st.keys)
+          var chi = wp(how, rest, cont, scope, sti, old, post, brk, ret)
+          // println(chi)
+          chi = Simplify.simplify(chi, Map())
+          // println(chi)
+
+          val un =
+            for ((x, e) <- st if xs0 contains x)
+              yield e -> Old(x)
+
+          chi = chi bottomup {
+            case e if un contains e =>
+              un(e)
+            case e =>
+              e
+          }
+
+          def old_to_final(expr: Expr): Expr = expr match {
+            case Old(expr) =>
+              expr
+            case x: Var if xs0 contains x =>
+              Final(x)
+            case x: Var =>
+              x
+            case App(inst, args) =>
+              App(inst, args map old_to_final)
+          }
+
+          println("inferred summary:")
+          val chi_ = old_to_final(chi)
+          import cuvee.boogie.printer
+          for (line <- chi_.lines)
+            println("  " + line)
+            println()
+
+          sum = sum && chi
+        }
 
         // invariant to show at loop head upon entry
         val inv0 = eval(inv, scope, st0, st0 :: old)

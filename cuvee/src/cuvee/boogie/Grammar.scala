@@ -18,18 +18,18 @@ object Grammar {
   def ret[A](a: A) =
     new arse.Parser.Accept[A, Token](a)
 
-  def parens[A](p: Parser[A, Token])   = "(" ~ p ~ ")"
-  def braces[A](p: Parser[A, Token])   = "{" ~ p ~ "}"
+  def parens[A](p: Parser[A, Token]) = "(" ~ p ~ ")"
+  def braces[A](p: Parser[A, Token]) = "{" ~ p ~ "}"
   def brackets[A](p: Parser[A, Token]) = "[" ~ p ~ "]"
-  def angle[A](p: Parser[A, Token])    = la ~ p ~ ra
+  def angle[A](p: Parser[A, Token]) = la ~ p ~ ra
 
   def none[A](p: Parser[A, Token]) = p map { a => None }
   def some[A](p: Parser[A, Token]) = p map { a => Some(a) }
 
-  def make_int: (String => BigInt)   = text => BigInt(text)
+  def make_int: (String => BigInt) = text => BigInt(text)
   def make_int_lit: (String => Expr) = text => Lit(make_int(text), Sort.int)
 
-  val num  = P(make_int_lit(number))
+  val num = P(make_int_lit(number))
   val int_ = P(make_int(number))
 
   val name = P(Name(id))
@@ -37,14 +37,14 @@ object Grammar {
   val la = just(op filter (_ == "<"))
   val ra = just(op filter (_ == ">"))
 
-  val con  = P(state.cons(name))
-  val gen  = P(Param.from(name))
+  val con = P(state.cons(name))
+  val gen = P(Param.from(name))
   val gens = P(angle(gen ~* ",") | ret(Nil))
 
   def typ(implicit ctx: Map[Name, Param]): Parser[Type, Token] =
     P(int | bool | real | array | sort)
 
-  val int  = P(Sort.int("int"))
+  val int = P(Sort.int("int"))
   val bool = P(Sort.bool("bool"))
   val real = P(Sort.real("real"))
 
@@ -154,36 +154,32 @@ object Grammar {
 
   def havoc(kw: String)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Spec.havoc(kw ~ (var_ ~+ ",") ~ ";"))
+
   def assume(
       kw: String
   )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Spec.assume(kw ~ formula ~ ";"))
+
+  def assume_final_to_old(
+      kw: String
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Spec.assume(kw ~ final_to_old(formula) ~ ";"))
+
   def assert(
       kw: String
   )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Spec.assert(kw ~ formula ~ ";"))
+
   def decreases(
       kw: String
   )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(kw ~ expr(Sort.int) ~ ";")
 
-  val merge = (specs: List[Spec]) => {
-    val xs   = specs flatMap (_.xs)
-    val pre  = And(specs map (_.pre))
-    val post = And(specs map (_.post))
-    Spec(xs, pre, post)
-  }
-
-  val maybe_merge = (specs: List[Spec]) => {
-    if (specs.isEmpty) None
-    else Some(merge(specs))
-  }
-
   def spec(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(assert("assert") | assume("assume") | havoc("havoc"))
 
   def loop_spec(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(assert("invariant") | assume("summary"))
+    P(assert("invariant") | assume_final_to_old("summary"))
 
   def proc_spec(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(assert("requires") | assume("ensures") | havoc("modifies"))
@@ -221,8 +217,8 @@ object Grammar {
     (sig: (List[Var], List[Var])) => {
       // import toplevel.scope
 
-      val (in, out)      = sig
-      val bound          = in ++ out
+      val (in, out) = sig
+      val bound = in ++ out
       implicit val scope = toplevel.scope ++ bound.asScope
 
       val body = None(";") | some(block)
@@ -282,10 +278,10 @@ object Grammar {
 
   def constrs(lhs: (Name, List[Param])) = {
     val ctx: Map[Name, Param] = Map()
-    val (dt, params)          = lhs
-    val arity                 = params.length
+    val (dt, params) = lhs
+    val arity = params.length
     state.con(dt, arity)
-    val res   = state.sort(dt, params)
+    val res = state.sort(dt, params)
     val inner = constr(params, res, ctx ++ params.asContext)
     inner ~* "|"
   }
@@ -300,12 +296,12 @@ object Grammar {
     // Check if name identifies a constructor of the correct type
     case name if state.constrs exists (_.name == name) =>
       val sort = typ.asInstanceOf[Sort]
-      val dt   = state.datatypes(sort.con.name)
+      val dt = state.datatypes(sort.con.name)
 
       dt.constrs.find(_._1.name == name) match {
         case None => cuvee.error("Could not find constructor")
         case Some((con, _)) =>
-          val su   = Type.bind(con.res, typ)
+          val su = Type.bind(con.res, typ)
           val inst = Inst(con, su)
 
           val mkapp: (List[Expr] => Expr) = l => App(inst, l)

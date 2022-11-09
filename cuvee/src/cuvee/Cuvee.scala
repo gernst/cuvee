@@ -51,6 +51,9 @@ class Cuvee {
     }),
     "-rewrite" -> ("apply structurally recursive axioms as rewrite rules", () => {
       this.rewrite = true
+    }),
+    "-infer" -> ("guess some obvious loop summaries", () => {
+      Eval.infer = true
     })
   )
 
@@ -151,19 +154,20 @@ class Cuvee {
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
     def prove(phi: Expr, tactic: Option[Tactic]) {
-      Proving.show(Disj.from(phi), tactic)(
-        state,
-        solver,
-        prover,
-        printer,
-        safe
-      )
-      // val phi_ = Simplify.simplify(phi, safe)
-      // if (!solver.isTrue(phi)) {
-      //   val cmd = Lemma(phi_, None)
-      //   for (line <- cmd.lines)
-      //     println(line)
-      // }
+      // Proving.show(Disj.from(phi), tactic)(
+      //   state,
+      //   solver,
+      //   prover,
+      //   printer,
+      //   safe
+      // )
+      if (!solver.isTrue(phi)) {
+        val prove = new ProveSimple(solver)
+        val phi_ = Simplify.simplify(prove.prove(phi), safe)
+        val cmd = Lemma(phi_, None)
+        for (line <- cmd.lines)
+          println(line)
+      }
     }
 
     def exec(cmd: Cmd) = cmd match {

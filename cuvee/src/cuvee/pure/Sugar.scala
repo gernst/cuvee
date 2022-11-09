@@ -23,8 +23,7 @@ object Assoc {
 }
 
 object Sugar {
-  class binder(val quant: Quant, val typ: Type)
-      extends ((List[Var], Expr) => Expr) {
+  class binder(val quant: Quant, val typ: Type) extends ((List[Var], Expr) => Expr) {
     def unapply(expr: Bind) =
       expr match {
         case Bind(`quant`, formals, body, `typ`) => Some((formals, body))
@@ -49,6 +48,12 @@ object Sugar {
 
     def apply(arg: Expr) = {
       App(fun, List(arg))
+    }
+  }
+
+  class pointwise(fun: Fun) extends unary(fun) {
+    def apply(exprs: List[Expr]) = {
+      exprs map this
     }
   }
 
@@ -86,11 +91,9 @@ object Sugar {
 
     def flatten(expr: Expr): List[Expr] =
       expr match {
-        case App(inst, List(arg1, arg2))
-            if inst.fun == fun && assoc == Assoc.left =>
+        case App(inst, List(arg1, arg2)) if inst.fun == fun && assoc == Assoc.left =>
           flatten(arg1) ++ List(arg2)
-        case App(inst, List(arg1, arg2))
-            if inst.fun == fun && assoc == Assoc.right =>
+        case App(inst, List(arg1, arg2)) if inst.fun == fun && assoc == Assoc.right =>
           List(arg1) ++ flatten(arg2)
         case _ =>
           List(expr)

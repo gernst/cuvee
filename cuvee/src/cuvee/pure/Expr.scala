@@ -55,7 +55,7 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
       case Bind(quant, formals, body, typ) =>
-        println("here: " + this)
+        // println("here: " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
     }
   }
@@ -284,11 +284,8 @@ case class Lit(any: Any, typ: Type) extends Expr {
 object Eq extends Sugar.binary(Fun.eq_)
 object Ite extends Sugar.ternary(Fun.ite)
 
-object Old extends Sugar.unary(Fun.old) {
-  def apply(exprs: List[Expr]) = {
-    exprs map this
-  }
-}
+object Old extends Sugar.pointwise(Fun.old)
+object Final extends Sugar.pointwise(Fun.fin)
 
 object Const extends Sugar.unary(Fun.const)
 object Select extends Sugar.binary(Fun.select)
@@ -449,8 +446,8 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     // Constants
     case App(inst, Nil) => List(inst.toString)
     // Logical connectives
-    case And(phis) => phis intersperse ("(", " and ", ")")
-    case Or(phis)  => phis intersperse ("(", " or ", ")")
+    case And(phis) => phis intersperse ("(", " && ", ")")
+    case Or(phis)  => phis intersperse ("(", " || ", ")")
     // Iff (<==>), needs special handling, as this is also represented by "=" internally
     case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
       List(lhs, " ", "<==>", " ", rhs)

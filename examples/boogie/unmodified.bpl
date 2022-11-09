@@ -29,11 +29,15 @@ procedure unmodified(a: [int]int, n: int)
         decreases n - i;
         invariant 0 <= i && i <= n;
 
-        invariant I(old(a), old(i), a, i, n);
+        // invariant I(old(a), old(i), a, i, n);
 
         // This summary can be constructed automatically from a transition invariant old(i) <= i
         // and by noticing that the array is modified at exactly i == k
         // summary U(old(a), old(i), a, i, n);
+
+        invariant forall k: int ::
+            (forall i_ : int :: 0 <= i_ && i_ < i ==> k != i_) // !(0 <= k && k < i)
+                ==> a[k] == old(a[k]);
     {
         a := a[i := 0];
         i := i + 1;

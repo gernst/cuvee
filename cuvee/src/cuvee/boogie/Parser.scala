@@ -44,6 +44,7 @@ object Parser {
 
   val a = Param("a")
   val old = state.fun("old", List(a), List(a), a)
+  val fin = state.fun("final", List(a), List(a), a)
 
   val translate = Map(
     "<==>" -> "=",
@@ -146,10 +147,9 @@ object Parser {
     case name =>
       error(s"unknown variable: ${name.toString}")
   }
-  
-  def make_bind: ((String, (List[Var], Expr)) => Expr) = {
-    case (name, (bound, body)) =>
-      typing.bind(name, bound, body, Sort.bool)
+
+  def make_bind: ((String, (List[Var], Expr)) => Expr) = { case (name, (bound, body)) =>
+    typing.bind(name, bound, body, Sort.bool)
   }
 
   val define_sort: ((Name, List[Param], Option[Type]) => Cmd) = {
@@ -187,8 +187,7 @@ object Parser {
       DefineProc(name, in, out, spec, body)
   }
 
-  def make_constr
-      : ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {
+  def make_constr: ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {
     case (name, params, sels, res) =>
       // declare the constructor
       state.fun(name, params, sels map (_.res), res)
@@ -211,4 +210,36 @@ object Parser {
   val make_script: (List[Cmd] => (List[Cmd], State)) = { case cmds =>
     (cmds, state)
   }
+
+  val merge = (specs: List[Spec]) => {
+    val xs = specs flatMap (_.xs)
+    val pre = And(specs map (_.pre))
+    val post = And(specs map (_.post))
+    Spec(xs, pre, post)
+  }
+
+  val maybe_merge = (specs: List[Spec]) => {
+    if (specs.isEmpty) None
+    else Some(merge(specs))
+  }
+
+  val final_to_old: (Expr => Expr) = (expr: Expr) =>
+    expr match {
+      case x: Var =>
+        Old(x)
+      case Final(expr) =>
+        expr
+      case App(inst, args) =>
+        App(inst, args map final_to_old)
+    }
+
+  val old_to_final: (Expr => Expr) = (expr: Expr) =>
+    expr match {
+      case Old(expr) =>
+        expr
+      case x: Var =>
+        Final(x)
+      case App(inst, args) =>
+        App(inst, args map old_to_final)
+    }
 }

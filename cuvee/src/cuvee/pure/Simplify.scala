@@ -87,7 +87,7 @@ object Simplify {
       case (True, _)       => psi
       case (_, False)      => not(phi)
       case _ if phi == psi => True
-      case _               => Imp(phi, psi)
+      case _               => Eq(phi, psi)
     }
   }
 

@@ -4,7 +4,6 @@ import cuvee.pure._
 import cuvee.util.Name
 
 object Skip extends Block(Nil)
-object Old extends Sugar.unary(old)
 
 sealed trait Modality /* extends ((Prog, Expr) => Expr) */ {
   def spec(xs: List[Var], pre: Expr, post: Expr): Expr
