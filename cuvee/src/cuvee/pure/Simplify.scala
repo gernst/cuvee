@@ -10,6 +10,7 @@ object Simplify {
     case Exists(vars, phi) => exists(vars, simplify(phi, rules))
     case Eq(left, right) if left.typ == Sort.bool => eqv(simplify(left, rules), simplify(right, rules))
     case Eq(left, right)   => eq(simplify(left, rules), simplify(right, rules))
+    case Bind(quant, formals, body, typ) => bind(quant, formals, simplify(body, rules), typ)
 
     case App(inst, args) if rules.nonEmpty =>
       // println(" try rewriting: " + expr + " with rules: " + rules)
@@ -56,6 +57,13 @@ object Simplify {
         Eq(left, right)
     }
   }
+
+  def bind(quant: Quant, formals: List[Var], body: Expr, typ: Type) = {
+    val formals_ = formals filter body.free
+    if(formals_.isEmpty) body
+    else Bind(quant, formals_, body, typ)
+  }
+
 
   def and(phis: List[Expr]): Expr = {
     val phis_ = And.flatten(phis)

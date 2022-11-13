@@ -165,6 +165,7 @@ case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
   def mod = xs.toSet
   def read = pre.free ++ (post.free -- mod)
   def breaks = false
+  
   def replace(re: Map[Var, Var]) =
     Spec(xs rename re, pre rename re, post rename re)
 }

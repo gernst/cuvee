@@ -51,9 +51,6 @@ class Cuvee {
     }),
     "-rewrite" -> ("apply structurally recursive axioms as rewrite rules", () => {
       this.rewrite = true
-    }),
-    "-infer" -> ("guess some obvious loop summaries", () => {
-      Eval.infer = true
     })
   )
 
@@ -188,7 +185,8 @@ class Cuvee {
         val post_ = post subst su
         val st = Expr.id(xs)
 
-        val phi = Forall(xs, pre ==> Eval.wp_proc(WP, body, st, post_))
+        val eval = new Eval(state)
+        val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
 
         val ok = prove(phi, tactic = None)
         if(ok)

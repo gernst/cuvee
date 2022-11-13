@@ -178,11 +178,11 @@ object Parser {
 
   val define_proc: ((Name, ((List[Var], List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
     case (name, ((in, out), (spec, None))) =>
-      state.proc(name, Nil, in.types, out.types, spec)
+      state.proc(name, Nil, in, out, spec)
       DeclareProc(name, in.types, out.types)
 
     case (name, ((in, out), (spec, Some(body)))) =>
-      state.proc(name, Nil, in.types, out.types, spec)
+      state.proc(name, Nil, in, out, spec)
       state.procdef(name, in, out, body)
       DefineProc(name, in, out, spec, body)
   }

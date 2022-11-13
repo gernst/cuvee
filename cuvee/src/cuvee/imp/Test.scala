@@ -21,7 +21,8 @@ object Test {
     val xs = List(x, y)
     val st = Expr.id(xs)
 
-    val phi = Forall(xs, pre ==> Eval.wp(WP, prog, st, post, List(st)))
+    val eval = new Eval(State.default)
+    val phi = Forall(xs, pre ==> eval.wp(WP, prog, st, post, List(st)))
 
     val solver = z3(State.default)
 

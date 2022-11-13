@@ -1,8 +1,7 @@
 procedure init(z: int, n: int)
     returns (a: [int]int)
     requires 0 <= n;
-    ensures  forall k: int ::
-                0 <= k && k < n ==> a[k] == z;
+    ensures  forall k: int :: 0 <= k && k < n ==> a[k] == z;
 {
     var i: int := 0;
 

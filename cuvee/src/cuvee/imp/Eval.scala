@@ -2,9 +2,14 @@ package cuvee.imp
 
 import cuvee.error
 import cuvee.pure._
+import cuvee.State
 
 object Eval {
-  var infer = false
+  var infer: Set[String] = Set()
+}
+
+class Eval(state: State) {
+  import Eval.infer
 
   def eval(
       expr: Expr,
@@ -166,6 +171,22 @@ object Eval {
 
         phi_ && how.spec(xs_, psi_, chi)
 
+      case Call(name, in, out) :: rest =>
+        require(state.procs contains name, "unknown procedure: " + name)
+
+        val Proc(_, params, xs, zs, spec) = state procs name
+
+        spec match {
+          case None =>
+            cuvee.error("inlining procedures not implemented, consider adding a contract to: " + name)
+
+          case Some(Spec(mod, phi, psi)) =>
+            val su = Expr.subst(xs, in)
+            val re = Expr.subst(zs, out)
+            val spec_ = Spec(mod, phi subst su, psi subst (su ++ re))
+            wp(how, spec_ :: rest, cont, scope, st, old, post, brk, ret)
+        }
+
       case If(test, left, right) :: rest =>
         val test_ = test subst st
         val left_ =
@@ -193,50 +214,7 @@ object Eval {
         // 1. arbitrary state at loop head before some iteration
         val st0 = st
         val st1 = assign(st, xs0, xs1)
-
-        if (infer) {
-          val sti = Expr.id(st.keys)
-          var chi = wp(how, rest, cont, scope, sti, old, post, brk, ret)
-          // println(chi)
-          chi = Simplify.simplify(chi, Map())
-          // println(chi)
-
-          val un =
-            for ((x, e) <- st if (xm contains x) && (e.free disjoint xm))
-              yield e -> Old(x)
-
-          chi = chi bottomup {
-            case e if un contains e =>
-              un(e)
-            case e =>
-              e
-          }
-
-          def old_to_final(expr: Expr): Expr = expr match {
-            case l: Lit =>
-              l
-            case Old(expr) =>
-              expr
-            case x: Var if xs0 contains x =>
-              Final(x)
-            case x: Var =>
-              x
-            case App(inst, args) =>
-              App(inst, args map old_to_final)
-            case Bind(quant, formals, body, typ) =>
-              Bind(quant, formals, old_to_final(body), typ)
-          }
-
-          println("inferred summary:")
-          val chi_ = old_to_final(chi)
-          import cuvee.boogie.printer
-          for (line <- chi_.lines)
-            println("  " + line)
-          println()
-
-          sum = sum && chi
-        }
-
+        
         // invariant to show at loop head upon entry
         val inv0 = eval(inv, scope, st0, st0 :: old)
 

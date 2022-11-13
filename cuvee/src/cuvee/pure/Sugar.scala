@@ -33,7 +33,7 @@ object Sugar {
     def apply(formals: List[Var], body: Expr) = {
       val formals_ = formals filter body.free
       if (formals_.isEmpty) body
-      else Bind(quant, formals, body, typ)
+      else Bind(quant, formals_, body, typ)
     }
   }
 
