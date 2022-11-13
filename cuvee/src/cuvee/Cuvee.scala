@@ -26,6 +26,7 @@ object Cuvee extends Main {
 class Cuvee {
   var state = State.default
   var cmds: List[Cmd] = Nil
+  var prove: String = "default"
   var rewrite: Boolean = false
 
   implicit var printer: Printer = cuvee.smtlib.printer
@@ -51,6 +52,15 @@ class Cuvee {
     }),
     "-rewrite" -> ("apply structurally recursive axioms as rewrite rules", () => {
       this.rewrite = true
+    }),
+    "-prove" -> ("prove goals using default prover", () => {
+      this.prove = "default"
+    }),
+    "-prove:none" -> ("do not attempt to prove goals", () => {
+      this.prove = "none"
+    }),
+    "-prove:simple" -> ("prove goals using simple structural prover", () => {
+      this.prove = "simple"
     })
   )
 
@@ -70,10 +80,6 @@ class Cuvee {
       case first :: rest if options contains first =>
         val (_, action) = options(first)
         action()
-        configure(rest)
-
-      case "-rewrite" :: rest =>
-        rewrite = true
         configure(rest)
 
       case path :: rest if cmds.nonEmpty =>
@@ -150,24 +156,37 @@ class Cuvee {
     val rules = Rewrite.from(cmds, state)
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
-    def prove(phi: Expr, tactic: Option[Tactic]) = {
-      // Proving.show(Disj.from(phi), tactic)(
-      //   state,
-      //   solver,
-      //   prover,
-      //   printer,
-      //   safe
-      // )
-      if (!solver.isTrue(phi)) {
-        val prove = new ProveSimple(solver)
-        val phi_ = Simplify.simplify(prove.prove(phi), safe)
-        val cmd = Lemma(phi_, None)
+    def maybeProve(phi: Expr, tactic: Option[Tactic]): Boolean = prove match {
+      case "default" =>
+        val result = Proving.show(Disj.from(phi), tactic)(
+          state,
+          solver,
+          prover,
+          printer,
+          safe
+        )
+
+        result == Atom(True)
+
+      case "simple" =>
+        if (!solver.isTrue(phi)) {
+          val prove = new ProveSimple(solver)
+          val phi_ = Simplify.simplify(prove.prove(phi), safe)
+          val cmd = Lemma(phi_, None)
+          for (line <- cmd.lines)
+            println(line)
+          false
+        } else {
+          true
+        }
+
+      case "none" =>
+        val cmd = Lemma(phi, None)
         for (line <- cmd.lines)
           println(line)
+
         false
-      } else {
-        true
-      }
+
     }
 
     def exec(cmd: Cmd) = cmd match {
@@ -188,8 +207,8 @@ class Cuvee {
         val eval = new Eval(state)
         val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
 
-        val ok = prove(phi, tactic = None)
-        if(ok)
+        val ok = maybeProve(phi, tactic = None)
+        if (ok)
           println("verified: " + name)
 
       case ctrl: Ctrl =>
@@ -206,7 +225,7 @@ class Cuvee {
         // println()
         // println("================  LEMMA  ================")
         // println("show:  " + expr)
-        prove(phi, tactic)
+        maybeProve(phi, tactic)
 
         // In any case, assert the lemma, so that its statement is available in later proofs
         solver.assert(phi)
