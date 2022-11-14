@@ -56,13 +56,12 @@ object Proving {
       prover: Prove,
       rules: Map[Fun, List[Rule]]
   ): Prop = {
-    def indent(depth: Int, indentStr: String = "  "): String = {
-      indentStr * depth
-    }
+    def indent(depth: Int, indentStr: String = "  "): String = indentStr * depth
 
     if (debug) {
       println(indent(depth) + "---  PROOF OBLIGATION ---")
       println(indent(depth) + "prop:     " + prop.toExpr)
+      println(indent(depth) + "comp:     " + Rating.complexity(prop.toExpr))
     }
 
     // Call the prover, except if instructed by the NoAuto tactic *not* to do so.
