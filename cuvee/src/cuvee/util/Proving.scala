@@ -108,10 +108,6 @@ object Proving {
 
     // TODO: Think of a good way to hand the models back to the upstream caller
     val models = collectModels(prop__)
-    if (models.nonEmpty)
-      println("models")
-      for (model <- models)
-        println("  " + model)
 
     // Call the simplifier
     val simp = Simplify.simplify(prop__, rules)
@@ -130,6 +126,11 @@ object Proving {
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
           )
+
+        if (models.nonEmpty)
+          println("models")
+          for (model <- models)
+            println("  " + model)
 
       case goal =>
         if (debug)

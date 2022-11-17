@@ -1,5 +1,7 @@
 package cuvee.pure
 
+import cuvee.smtlib.Model
+
 object Simplify {
   def simplify(expr: Expr, rules: Map[Fun, List[Rule]]): Expr = expr match {
     case And(phis)         => and(simplify(phis, rules))
@@ -26,19 +28,19 @@ object Simplify {
 
   // TODO: maybe simplify should be part of Prop and expr, because this sucks:
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]]): Prop = prop match {
-    case Atom(expr, _) => atom(simplify(expr, rules))
+    case Atom(expr, model) => atom(simplify(expr, rules), model)
     case Disj(xs, neg, pos) =>
       disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
     case Conj(xs, neg) => conj(xs, neg map (simplify(_, rules)))
   }
 
   def simplify(prop: Pos, rules: Map[Fun, List[Rule]]): Pos = prop match {
-    case Atom(expr, _)    => atom(simplify(expr, rules))
+    case Atom(expr, model)    => atom(simplify(expr, rules), model)
     case Conj(xs, neg) => conj(xs, neg map (simplify(_, rules)))
   }
 
   def simplify(prop: Neg, rules: Map[Fun, List[Rule]]): Neg = prop match {
-    case Atom(expr, _) => atom(simplify(expr, rules))
+    case Atom(expr, model) => atom(simplify(expr, rules), model)
     case Disj(xs, neg, pos) =>
       disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
   }
@@ -116,8 +118,8 @@ object Simplify {
     Exists(bound, psi) // simplified by quant.apply already
   }
 
-  def atom(expr: Expr) = {
-    Atom(simplify(expr, Map()))
+  def atom(expr: Expr, model: Option[Model] = None) = {
+    Atom(simplify(expr, Map()), model)
   }
 
   def disj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {

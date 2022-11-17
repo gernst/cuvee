@@ -82,7 +82,7 @@ class Parser(scanner: Scanner) {
     buf.toList
   }
 
-  def eof() {
+  def eof(): Unit = {
     check(Tok.eof)
   }
 

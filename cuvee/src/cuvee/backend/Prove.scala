@@ -27,6 +27,8 @@ class Prove(solver: Solver) {
             Atom(phi, Some(solver.model))
           case Unsat =>
             Atom(True)
+          case Unknown =>
+            Atom(phi)
         }
       }
   }

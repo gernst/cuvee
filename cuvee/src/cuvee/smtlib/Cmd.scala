@@ -39,7 +39,7 @@ case class Model(defs: List[DefineFun]) extends Res {
     val defs_ = defs map {
       case DefineFun(name, formals, res, body, rec) =>
         val name_ = re get(Var(name, res)) map (_.name) getOrElse name
-        DefineFun(name_, formals map (_ rename re), res, body rename re, rec)
+        DefineFun(name_, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
