@@ -13,7 +13,7 @@ object Rating {
         case Forall(xs, expr) => xs.length + complexity(expr)
         case Exists(xs, expr) => xs.length + complexity(expr)
         case Var(_, _) => 2
-        case App(inst, args) => 4
+        case App(inst, args) => 16
         case _ => cuvee.error("Can't evaluate the complexity of " + expr)
     }
 }

@@ -85,8 +85,23 @@ object Proving {
         (tactic, res)
     }
 
+    // If there is no tactic given, suggest one
+    val tactic__ = tactic_ match {
+      case Some(value) => Some(value)
+      case None => 
+        val suggestions = Suggest.suggest(state, prop_)
+
+        if (suggestions.nonEmpty) {
+          val choice = CLI.askChoices("Do you want to apply one of the following tactics?", suggestions, default=Some(-1), printfn = (str => print(indent(depth + 1) + str)))
+          println(f">>> $choice")
+          choice
+        } else {
+          None
+        }
+    }
+
     // Apply the tactic `tactic_`
-    val prop__ = tactic_ match {
+    val prop__ = tactic__ match {
       case Some(tactic_) =>
         if (debug)
           println(indent(depth) + "tactic:   " + tactic)

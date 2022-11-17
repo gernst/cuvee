@@ -34,7 +34,14 @@ trait Suggest {
   def suggest(state: State, goal: Prop): List[Tactic]
 }
 
-class TacticNotApplicableException(s:String) extends Exception(s){}
+object Suggest extends Suggest {
+  val suggesters: List[Suggest] = List(Induction, Unfold)
+
+  def suggest(state: State, goal: Prop): List[Tactic] =
+    suggesters flatMap (_.suggest(state, goal))
+}
+
+class TacticNotApplicableException(s: String) extends Exception(s){}
 
 case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
 
@@ -65,8 +72,11 @@ object Induction
     extends ((Var, List[(Expr, Tactic)]) => Induction)
     with Suggest {
 
-  // TODO: Suggest doing induction over top level disj variables
-  def suggest(state: State, goal: Prop): List[Tactic] = Nil
+  def suggest(state: State, goal: Prop): List[Tactic] = goal match {
+    case Disj(xs, neg, pos) =>
+      xs map (Induction(_, Nil))
+    case _ => Nil
+  }
 }
 
 case class Induction(variable: Var, cases: List[(Expr, Tactic)])
@@ -78,6 +88,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
         throw new TacticNotApplicableException("Only Disj supported in induction tactic")
       case Disj(xs, _, _) if !(xs contains variable) =>
         throw new TacticNotApplicableException(f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier")
+      case _ => ()
     }
 
     // First determine the variable's datatype
