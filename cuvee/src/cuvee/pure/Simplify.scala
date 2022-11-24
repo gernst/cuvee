@@ -125,9 +125,7 @@ object Simplify {
   }
 
   def disj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
-    val neg_ = neg map (_.toExpr)
-    val pos_ = pos map (_.toExpr)
-    Disj.from(xs, neg_, pos_)
+    Disj.from(xs, neg, pos)
   }
 
   def conj(xs: List[Var], neg: List[Neg]): Pos = {
