@@ -106,13 +106,10 @@ object Proving {
       case None => prop_
     }
 
-    // TODO: Think of a good way to hand the models back to the upstream caller
-    val models = collectModels(prop__)
-
-    // Call the simplifier
+    // Simplify the result
     val simp = Simplify.simplify(prop__, rules)
     if (debug)
-      println(indent(depth) + "simp:     " + simp.toExpr)
+      println(indent(depth) + "simp:     " + simp)
 
     simp match {
       case Atom(True, _) =>
@@ -122,17 +119,18 @@ object Proving {
           )
 
       case Atom(False, _) =>
+        if (!debug)
+          println(indent(depth) + "simp:     " + simp)
+
         if (debug)
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
           )
 
-        if (models.nonEmpty)
-          println("models")
-          for (model <- models)
-            println("  " + model)
-
       case goal =>
+        if (!debug)
+          println(indent(depth) + "simp:     " + simp)
+
         if (debug)
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
@@ -141,11 +139,5 @@ object Proving {
 
     // Return whatever remained
     simp
-  }
-
-  def collectModels(prop : Prop): List[Model] = prop match {
-    case Atom(expr, cex) => cex.toList
-    case Conj(xs, neg) => neg flatMap collectModels
-    case Disj(xs, neg, pos) => (neg flatMap collectModels) ++ (pos flatMap collectModels)
   }
 }
