@@ -135,6 +135,12 @@ object Simplify {
     Conj.from(xs, neg_)
   }
 
+  def prop_(p: Prop): Prop = p match {
+    case Atom(expr, cex) => atom(expr, cex)
+    case Disj(xs, neg, pos) => disj_(xs, neg, pos)
+    case Conj(xs, neg) => conj_(xs, neg)
+  }
+
   def disj_(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
     val neg_ = neg filter (_ != Atom(True))
     val pos_ = pos filter (_ != Atom(False))

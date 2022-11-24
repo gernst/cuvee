@@ -39,7 +39,7 @@ class Prove(solver: Solver) {
 
     case Conj(Nil, neg) =>
       val neg_ = conj(neg)
-      Conj(Nil, neg_)
+      Simplify.conj_(Nil, neg_)
 
     case conj: Conj =>
       prove(Atom(conj.toExpr))
@@ -80,7 +80,7 @@ class Prove(solver: Solver) {
           // will succeed anyway if the assumptions are already inconsistent
           val pos__ = disj(pos_)
           // undo the renaming
-          Disj(xs, neg_ map (_ rename re_), pos__ map (_ rename re_))
+          Simplify.disj_(xs, neg_ map (_ rename re_), pos__ map (_ rename re_))
         }
       }
   }
