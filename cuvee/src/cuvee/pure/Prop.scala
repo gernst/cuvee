@@ -25,6 +25,8 @@ sealed trait Neg extends Prop {
 
 // atomics should not have inner propositional structure
 case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
+  require(cex.isEmpty || (expr != True && expr != False), "Atoms with True / False must not carry a model")
+
   // def text = Printer.atom(expr)
   def bound = Set()
   def toExpr = expr
@@ -244,7 +246,9 @@ object Disj {
     }
   }
 
-  def from(xs: List[Var], neg: List[Prop], pos: List[Prop])(implicit s: DummyImplicit): Neg =
+  def from(
+    xs: List[Var], neg: List[Prop], pos: List[Prop]
+  )(implicit s: DummyImplicit): Neg =
     Disj.assume(neg, pos, xs, Nil, Nil)
 
   def assume(
@@ -257,30 +261,24 @@ object Disj {
     that match {
       case Nil =>
         show(todo, xs, neg, pos)
-      // TODO: I guess, we don't need models *here*
+
       case Atom(True, _) :: rest =>
         assume(rest, todo, xs, neg, pos)
       case Atom(False, _) :: rest =>
         Atom.t
+      case (atom: Atom) :: rest =>
+        assume(rest, todo, xs, neg ++ List(atom), pos)
 
-      // TODO: This … seems wrong?
       case (disj @ Disj(xs_, neg_, pos_)) :: rest =>
         assume(rest, todo, xs, neg ++ List(disj), pos)
 
-      case Conj(Nil, phis) :: rest =>
-        assume(phis ++ rest, todo, xs, neg, pos)
-
       case (conj @ Conj(xs_, _)) :: rest =>
-        // I'm not sure this is correct?
-        val ys = xs filter Set(xs_)
+        val ys = xs intersect xs_
         val re = Expr.fresh(ys)
 
         val Conj(zs, neg_) = conj.rename(re)
 
         assume(neg_ ++ rest, todo, xs ++ zs, neg, pos)
-
-      case (atom @ Atom(_, _)) :: rest =>
-        assume(rest, todo, xs, neg ++ List(atom), pos)
     }
   }
 
@@ -293,26 +291,24 @@ object Disj {
     todo match {
       case Nil =>
         Disj(xs, neg, pos)
-      // TODO: I guess, we don't need models *here*
+
       case Atom(False, _) :: rest =>
         show(rest, xs, neg, pos)
       case Atom(True, _) :: rest =>
         Atom.t
-      case (conj @ Conj(_, _)) :: rest =>
+      case (phi: Atom) :: rest =>
+        show(rest, xs, neg, pos ++ List(phi))
+
+      case (conj: Conj) :: rest =>
         show(rest, xs, neg, pos ++ List(conj))
 
-      // How do we refresh the variables here?
       case (disj @ Disj(xs_, _, _)) :: rest =>
-        // I'm not sure this is correct?
-        val ys = xs filter Set(xs_)
+        val ys = xs intersect xs_
         val re = Expr.fresh(ys)
 
         val Disj(zs, neg_, pos_) = disj.rename(re)
 
         assume(neg_, pos_ ++ rest, zs ++ xs, neg, pos)
-
-      case (phi @ Atom(_, _)) :: rest =>
-        show(rest, xs, neg, pos ++ List(phi))
     }
   }
 }
