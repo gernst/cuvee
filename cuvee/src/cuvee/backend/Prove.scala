@@ -2,6 +2,7 @@ package cuvee.backend
 
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
+import cuvee.smtlib._
 
 /** This class
   *
@@ -16,11 +17,20 @@ class Prove(solver: Solver) {
   }
 
   def prove(atom: Atom): Atom = atom match {
-    case Atom(phi) =>
-      if (solver.isTrue(phi))
-        Atom(True)
-      else
-        atom
+    case Atom(phi, _) =>
+      solver scoped {
+        solver.assert(!phi)
+        val status = solver.check()
+
+        status match {
+          case Sat =>
+            Atom(phi, Some(solver.model))
+          case Unsat =>
+            Atom(True)
+          case Unknown =>
+            Atom(phi)
+        }
+      }
   }
 
   def prove(pos: Pos): Pos = pos match {
@@ -29,7 +39,7 @@ class Prove(solver: Solver) {
 
     case Conj(Nil, neg) =>
       val neg_ = conj(neg)
-      Conj(Nil, neg_)
+      Simplify.conj_(Nil, neg_)
 
     case conj: Conj =>
       prove(Atom(conj.toExpr))
@@ -70,7 +80,7 @@ class Prove(solver: Solver) {
           // will succeed anyway if the assumptions are already inconsistent
           val pos__ = disj(pos_)
           // undo the renaming
-          Disj(xs, neg_ map (_ rename re_), pos__ map (_ rename re_))
+          Simplify.disj_(xs, neg_ map (_ rename re_), pos__ map (_ rename re_))
         }
       }
   }
@@ -81,7 +91,7 @@ class Prove(solver: Solver) {
 
     case first :: rest =>
       prove(first) match {
-        case first_ @ Atom(False) =>
+        case first_ @ Atom(False, _) =>
           disj(rest)
 
         case first_ =>
@@ -99,7 +109,7 @@ class Prove(solver: Solver) {
 
     case first :: rest =>
       prove(first) match {
-        case first_ @ Atom(True) =>
+        case first_ @ Atom(True, _) =>
           conj(rest)
 
         case first_ =>

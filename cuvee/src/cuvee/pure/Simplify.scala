@@ -1,5 +1,7 @@
 package cuvee.pure
 
+import cuvee.smtlib.Model
+
 object Simplify {
   def simplify(expr: Expr, rules: Map[Fun, List[Rule]]): Expr = expr match {
     case And(phis)         => and(simplify(phis, rules))
@@ -26,19 +28,22 @@ object Simplify {
 
   // TODO: maybe simplify should be part of Prop and expr, because this sucks:
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]]): Prop = prop match {
-    case Atom(expr) => atom(simplify(expr, rules))
+    case Atom(expr, model) =>
+      atom(simplify(expr, rules), model)
     case Disj(xs, neg, pos) =>
       disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
-    case Conj(xs, neg) => conj(xs, neg map (simplify(_, rules)))
+    case Conj(xs, neg) =>
+      conj(xs, neg map (simplify(_, rules)))
   }
 
   def simplify(prop: Pos, rules: Map[Fun, List[Rule]]): Pos = prop match {
-    case Atom(expr)    => atom(simplify(expr, rules))
+    case Atom(expr, model)    => atom(simplify(expr, rules), model)
     case Conj(xs, neg) => conj(xs, neg map (simplify(_, rules)))
   }
 
   def simplify(prop: Neg, rules: Map[Fun, List[Rule]]): Neg = prop match {
-    case Atom(expr) => atom(simplify(expr, rules))
+    case Atom(expr, model) =>
+      atom(simplify(expr, rules), model)
     case Disj(xs, neg, pos) =>
       disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
   }
@@ -63,7 +68,6 @@ object Simplify {
     if(formals_.isEmpty) body
     else Bind(quant, formals_, body, typ)
   }
-
 
   def and(phis: List[Expr]): Expr = {
     val phis_ = And.flatten(phis)
@@ -116,19 +120,23 @@ object Simplify {
     Exists(bound, psi) // simplified by quant.apply already
   }
 
-  def atom(expr: Expr) = {
-    Atom(simplify(expr, Map()))
+  def atom(expr: Expr, model: Option[Model] = None) = {
+    Atom(simplify(expr, Map()), model)
   }
 
   def disj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
-    val neg_ = neg map (_.toExpr)
-    val pos_ = pos map (_.toExpr)
-    Disj.from(xs, neg_, pos_)
+    Disj.from(xs, neg, pos)
   }
 
   def conj(xs: List[Var], neg: List[Neg]): Pos = {
     val neg_ = neg map (_.toExpr)
     Conj.from(xs, neg_)
+  }
+
+  def prop_(p: Prop): Prop = p match {
+    case Atom(expr, cex) => atom(expr, cex)
+    case Disj(xs, neg, pos) => disj_(xs, neg, pos)
+    case Conj(xs, neg) => conj_(xs, neg)
   }
 
   def disj_(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
@@ -140,8 +148,7 @@ object Simplify {
     if (pos_ contains Atom.t)
       return Atom.t
 
-    // TODO:
-    // special case when we collapse to a single pos without bound vars
+    // TODO: special case when we collapse to a single pos without bound vars
     // remove irrelevant bound vars
 
     Disj(xs, neg_, pos_)

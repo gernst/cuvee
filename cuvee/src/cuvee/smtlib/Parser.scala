@@ -64,7 +64,6 @@ class Parser(init: State) {
       case App(Id("get-model")) => GetModel
       case App(Id("labels"))    => Labels
 
-      case App(Id("get-assertions")) => GetAssertions
       case App(Id("check-sat"))      => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
@@ -244,6 +243,18 @@ class Parser(init: State) {
 
   def cmds(from: List[Expr]): List[Cmd] =
     from map cmd
+
+  def model(from: Expr): List[DefineFun] =
+    from match {
+      case App(defs @ _*) =>
+        for (App(Id("define-fun"), Id(name), App(args @ _*), res, body) <- defs.toList) yield {
+          val formals_ = formals(args.toList)
+          val res_ = typ(res)
+          val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
+          DefineFun(name, formals_, res_, body_, false)
+        }
+      case _ => cuvee.error("Unexpected format in model response")
+    }
 
   def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
     from map (formal(_, ctx))

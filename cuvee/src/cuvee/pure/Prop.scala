@@ -2,6 +2,7 @@ package cuvee.pure
 
 import cuvee.sexpr
 import cuvee.boogie
+import cuvee.smtlib.Model
 
 sealed trait Prop extends sexpr.Syntax with boogie.Syntax {
   def toExpr: Expr
@@ -23,16 +24,18 @@ sealed trait Neg extends Prop {
 // the outer context will collapse to that result
 
 // atomics should not have inner propositional structure
-case class Atom(expr: Expr) extends Pos with Neg {
+case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
+  require(cex.isEmpty || (expr != True && expr != False), "Atoms with True / False must not carry a model")
+
   // def text = Printer.atom(expr)
   def bound = Set()
   def toExpr = expr
   def rename(re: Map[Var, Var]) =
-    Atom(expr rename re)
+    Atom(expr rename re, cex map (_ rename re))
   def subst(su: Map[Var, Expr]) =
     Atom(expr subst su)
   def sexpr = expr.sexpr
-  def bexpr = expr.bexpr
+  def bexpr = List(expr.bexpr.mkString(""), "  counterexample: " + cex.map(_.toString).getOrElse(""))
 }
 
 object Atom {
@@ -73,11 +76,11 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
         yield "  " + x.name.toLabel + ": " + x.typ
 
     val assms =
-      for (phi <- neg; line <- phi.toExpr.lines(cuvee.boogie.printer))
+      for (phi <- neg; line <- phi.bexpr)
         yield "  " + line
 
     val concls =
-      for (phi <- pos; line <- phi.toExpr.lines(cuvee.boogie.printer))
+      for (phi <- pos; line <- phi.bexpr)
         yield "  " + line
 
     if (bound.nonEmpty)
@@ -131,7 +134,7 @@ case class Conj(xs: List[Var], neg: List[Neg])
     val indent = if (bound.isEmpty) "" else "  "
 
     val concls =
-      for (phi <- neg; line <- phi.toExpr.lines(cuvee.boogie.printer))
+      for (phi <- neg; line <- phi.bexpr)
         yield indent + line
 
     if (bound.nonEmpty)
@@ -224,9 +227,9 @@ object Disj {
         show(rest, xs, neg, pos ++ List(prop))
       case (expr @ Exists(_, _)) :: rest =>
         Conj.from(expr) match {
-          case Atom(False) =>
+          case Atom(False, _) =>
             show(rest, xs, neg, pos)
-          case prop @ Atom(True) =>
+          case prop @ Atom(True, _) =>
             prop
           case prop =>
             show(rest, xs, neg, pos ++ List(prop))
@@ -242,6 +245,72 @@ object Disj {
         show(rest, xs, neg, pos ++ List(Atom(phi)))
     }
   }
+
+  def from(
+    xs: List[Var], neg: List[Prop], pos: List[Prop]
+  )(implicit s: DummyImplicit): Neg =
+    Disj.assume(neg, pos, xs, Nil, Nil)
+
+  def assume(
+    that: List[Prop],
+    todo: List[Prop],
+    xs: List[Var],
+    neg: List[Neg],
+    pos: List[Pos]
+  )(implicit s: DummyImplicit): Neg = {
+    that match {
+      case Nil =>
+        show(todo, xs, neg, pos)
+
+      case Atom(True, _) :: rest =>
+        assume(rest, todo, xs, neg, pos)
+      case Atom(False, _) :: rest =>
+        Atom.t
+      case (atom: Atom) :: rest =>
+        assume(rest, todo, xs, neg ++ List(atom), pos)
+
+      case (disj @ Disj(xs_, neg_, pos_)) :: rest =>
+        assume(rest, todo, xs, neg ++ List(disj), pos)
+
+      case (conj @ Conj(xs_, _)) :: rest =>
+        val ys = xs intersect xs_
+        val re = Expr.fresh(ys)
+
+        val Conj(zs, neg_) = conj.rename(re)
+
+        assume(neg_ ++ rest, todo, xs ++ zs, neg, pos)
+    }
+  }
+
+  def show(
+    todo: List[Prop],
+    xs: List[Var],
+    neg: List[Neg],
+    pos: List[Pos]
+  )(implicit s: DummyImplicit): Neg = {
+    todo match {
+      case Nil =>
+        Disj(xs, neg, pos)
+
+      case Atom(False, _) :: rest =>
+        show(rest, xs, neg, pos)
+      case Atom(True, _) :: rest =>
+        Atom.t
+      case (phi: Atom) :: rest =>
+        show(rest, xs, neg, pos ++ List(phi))
+
+      case (conj: Conj) :: rest =>
+        show(rest, xs, neg, pos ++ List(conj))
+
+      case (disj @ Disj(xs_, _, _)) :: rest =>
+        val ys = xs intersect xs_
+        val re = Expr.fresh(ys)
+
+        val Disj(zs, neg_, pos_) = disj.rename(re)
+
+        assume(neg_, pos_ ++ rest, zs ++ xs, neg, pos)
+    }
+  }
 }
 
 object Conj {
@@ -250,7 +319,6 @@ object Conj {
 
   def from(exprs: List[Expr]) =
     Conj.show(exprs, Nil, Nil)
-
 
   def from(xs: List[Var], neg: List[Expr]) =
     Conj.show(neg, xs, Nil)
@@ -282,9 +350,9 @@ object Conj {
       xs: List[Var],
       neg: List[Neg]
   ): Pos = first match {
-    case Atom(True) =>
+    case Atom(True, _) =>
       Atom(False)
-    case Atom(False) =>
+    case Atom(False, _) =>
       avoid(rest, todo, xs, neg)
     case _ =>
       avoid(rest, todo, xs, neg ++ List(first))
@@ -330,9 +398,9 @@ object Conj {
       xs: List[Var],
       neg: List[Neg]
   ): Pos = first match {
-    case Atom(False) =>
+    case Atom(False, _) =>
       Atom(False)
-    case Atom(True) =>
+    case Atom(True, _) =>
       show(todo, xs, neg)
     case _ =>
       show(todo, xs, neg ++ List(first))

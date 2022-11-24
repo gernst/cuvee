@@ -5,7 +5,7 @@ import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.pure._
 import cuvee.State
-import cuvee.smtlib.Lemma
+import cuvee.smtlib._
 
 object Proving {
   var debug = false
@@ -19,11 +19,11 @@ object Proving {
   ): Prop = {
     val res = rec(prop, tactic, 1)(state, solver, prover, rules)
     res match {
-      case Atom(True) | Disj(_, _, List(Atom(True))) =>
+      case Atom(True, _) | Disj(_, _, List(Atom(True, _))) =>
         // hack around incomplete simplification
         if (debug)
           println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
-      case Atom(False) =>
+      case Atom(False, _) =>
         if (debug)
           println(
             "\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!"
@@ -106,25 +106,31 @@ object Proving {
       case None => prop_
     }
 
-    // Call the simplifier
+    // Simplify the result
     val simp = Simplify.simplify(prop__, rules)
     if (debug)
-      println(indent(depth) + "simp:     " + simp.toExpr)
+      println(indent(depth) + "simp:     " + simp)
 
     simp match {
-      case Atom(True) =>
+      case Atom(True, _) =>
         if (debug)
           println(
             indent(depth) + f"\u001b[92m✔\u001b[0m Goal found to be `true`"
           )
 
-      case Atom(False) =>
+      case Atom(False, _) =>
+        if (!debug)
+          println(indent(depth) + "simp:     " + simp)
+
         if (debug)
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
           )
 
       case goal =>
+        if (!debug)
+          println(indent(depth) + "simp:     " + simp)
+
         if (debug)
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"

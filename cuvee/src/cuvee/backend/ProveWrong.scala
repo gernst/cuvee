@@ -14,10 +14,10 @@ class ProveWrong(solver: Solver) {
     // println("trying: " + atom.expr + " == " + expect)
 
     atom match {
-      case Atom(phi) if expect && solver.isTrue(phi) =>
+      case Atom(phi, _) if expect && solver.isTrue(phi) =>
         Atom(True)
 
-      case Atom(phi) if !expect && solver.isFalse(phi) =>
+      case Atom(phi, _) if !expect && solver.isFalse(phi) =>
         Atom(False)
 
       case _ =>

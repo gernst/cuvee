@@ -32,12 +32,22 @@ case object Sat extends IsSat { def sexpr = "sat" }
 case object Unknown extends IsSat { def sexpr = "unsat" }
 case object Unsat extends IsSat { def sexpr = "unknown" }
 
-case class Assertions(exprs: List[Expr]) extends Res {
-  def sexpr = "assertions" :: exprs
-}
-
 case class Model(defs: List[DefineFun]) extends Res {
   def sexpr = "model" :: defs
+
+  def rename(re: Map[Var, Var]): Model = {
+    val defs_ = defs map {
+      case DefineFun(name, formals, res, body, rec) =>
+        val name_ = re get(Var(name, res)) map (_.name) getOrElse name
+        DefineFun(name_, formals rename re, res, body rename re, rec)
+    }
+    Model(defs_)
+  }
+
+  override def toString() : String = {
+    var result = defs map (d => d.name + " = " + d.body.toString)
+    result.mkString("model (", ", ", ")")
+  }
 }
 
 sealed trait Cmd extends sexpr.Syntax with boogie.Syntax
@@ -93,10 +103,6 @@ case class Pop(depth: Int) extends Ctrl {
   def bexpr = cuvee.undefined
 }
 
-case object GetAssertions extends Cmd {
-  def sexpr = List("get-assertions")
-  def bexpr = cuvee.undefined
-}
 case object GetModel extends Cmd {
   def sexpr = List("get-model")
   def bexpr = cuvee.undefined
