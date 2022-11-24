@@ -35,7 +35,7 @@ case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
   def subst(su: Map[Var, Expr]) =
     Atom(expr subst su)
   def sexpr = expr.sexpr
-  def bexpr = expr.bexpr
+  def bexpr = List(expr.bexpr.mkString(""), "  counterexample: " + cex.map(_.toString).getOrElse(""))
 }
 
 object Atom {
@@ -76,11 +76,11 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
         yield "  " + x.name.toLabel + ": " + x.typ
 
     val assms =
-      for (phi <- neg; line <- phi.toExpr.lines(cuvee.boogie.printer))
+      for (phi <- neg; line <- phi.bexpr)
         yield "  " + line
 
     val concls =
-      for (phi <- pos; line <- phi.toExpr.lines(cuvee.boogie.printer))
+      for (phi <- pos; line <- phi.bexpr)
         yield "  " + line
 
     if (bound.nonEmpty)
@@ -134,7 +134,7 @@ case class Conj(xs: List[Var], neg: List[Neg])
     val indent = if (bound.isEmpty) "" else "  "
 
     val concls =
-      for (phi <- neg; line <- phi.toExpr.lines(cuvee.boogie.printer))
+      for (phi <- neg; line <- phi.bexpr)
         yield indent + line
 
     if (bound.nonEmpty)
@@ -319,7 +319,6 @@ object Conj {
 
   def from(exprs: List[Expr]) =
     Conj.show(exprs, Nil, Nil)
-
 
   def from(xs: List[Var], neg: List[Expr]) =
     Conj.show(neg, xs, Nil)
