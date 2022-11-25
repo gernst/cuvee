@@ -281,7 +281,6 @@ class Parser(init: State) {
               st.fun(name, Nil, formals_.types, res_)
               val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
               st.fundef(name, formals_, body_)
-              println("defined: " + name)
               DefineFun(name, formals_, res_, body_, false)
             }
 

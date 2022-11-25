@@ -252,7 +252,7 @@ class Eval(state: State) {
           val sum2k = eval(sum, scope, stk, st2 :: old)
 
           // possibly add termination condition
-          val term2 = if (how == WP) {
+          val term2 = if (how != Box) {
             val test2 = test subst st2
             val term1 = eval(term, scope, st1, st0 :: old)
             val term2 = eval(term, scope, st2, st0 :: old)
