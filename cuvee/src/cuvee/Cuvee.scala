@@ -156,6 +156,14 @@ class Cuvee {
     val rules = Rewrite.from(cmds, state)
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
+    def maybeEval(expr: Expr): Expr = if (expr.hasModalities) {
+      val eval = new Eval(state)
+      val expr_ = eval(expr)
+      expr_
+    } else {
+      expr
+    }
+
     def maybeProve(phi: Expr, tactic: Option[Tactic]): Boolean = prove match {
       case "default" =>
         val result = Proving.show(Disj.from(phi), tactic)(
@@ -181,9 +189,14 @@ class Cuvee {
         }
 
       case "none" =>
-        val cmd = Lemma(phi, None)
+        val cmd = Lemma(Simplify.simplify(phi, Map()), None)
         for (line <- cmd.lines)
           println(line)
+
+        // val prop = Disj.from(phi)
+        // println(prop)
+        // for (line <- prop.lines)
+        //   println(line)
 
         false
 
@@ -219,16 +232,23 @@ class Cuvee {
 
       case Assert(phi) =>
         // println("axiom " + phi)
-        solver.assert(phi)
+
+        // compute weakest precondition modalities
+        val phi_ = maybeEval(phi)
+        solver.assert(phi_)
 
       case Lemma(phi, tactic) =>
         // println()
         // println("================  LEMMA  ================")
         // println("show:  " + expr)
-        maybeProve(phi, tactic)
+
+        // compute weakest precondition modalities
+        val phi_ = maybeEval(phi)
+
+        maybeProve(phi_, tactic)
 
         // In any case, assert the lemma, so that its statement is available in later proofs
-        solver.assert(phi)
+        solver.assert(phi_)
 
       case Labels =>
       // val result = solver.labels()

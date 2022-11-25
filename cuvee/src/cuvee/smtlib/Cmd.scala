@@ -32,8 +32,8 @@ case object Sat extends IsSat { def sexpr = "sat" }
 case object Unknown extends IsSat { def sexpr = "unsat" }
 case object Unsat extends IsSat { def sexpr = "unknown" }
 
-case class Model(defs: List[DefineFun]) extends Res {
-  def sexpr = "model" :: defs
+case class Model(decls : List[DeclareFun], defs: List[DefineFun]) extends Res {
+  def sexpr = "model" :: decls ::: defs
 
   def rename(re: Map[Var, Var]): Model = {
     val defs_ = defs map {
@@ -41,7 +41,7 @@ case class Model(defs: List[DefineFun]) extends Res {
         val name_ = re get(Var(name, res)) map (_.name) getOrElse name
         DefineFun(name_, formals rename re, res, body rename re, rec)
     }
-    Model(defs_)
+    Model(decls, defs_)
   }
 
   override def toString() : String = {

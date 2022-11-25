@@ -3,6 +3,7 @@ package cuvee
 import cuvee.util.Name
 import cuvee.pure._
 import cuvee.imp._
+import scala.collection.immutable
 
 object State {
   def empty =
@@ -148,7 +149,7 @@ class State(
     val arity = args.length
     require(funs contains (name, arity), "function not declared: " + name)
     if (fundefs contains (name, arity))
-      require(fundefs(name, arity) == (args, body), "function already defined")
+      require(fundefs(name, arity) == (args, body), "function already defined: " + name + " as " + fundefs(name, arity))
     fundefs += ((name, arity) -> (args, body))
   }
 
@@ -254,6 +255,15 @@ class State(
       app("ite", List(test, left, right))
     }
 
+    def commutative(fun: Name, neutral: Expr, args: List[Pre]): Pre = args match {
+      case Nil       => Pre(True)
+      case List(arg) => arg
+      case _ =>
+        args reduce { (a, b) =>
+          app(fun, List(a, b))
+        }
+    }
+
     def note(expr: Pre, attr: List[sexpr.Expr]) = {
       Pre(Note(expr.expr, attr))
     }
@@ -301,6 +311,7 @@ class State(
 
     def distinct(args: List[Pre]) = {
       val exprs = args map (_.expr)
+      // XXX: uh, all should have the same type!
       Pre(Distinct(exprs))
     }
 

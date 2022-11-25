@@ -17,6 +17,23 @@ class Parser(init: State) {
   var stack = List(init)
   def st = stack.head
 
+  def scoped[A](f: => A) = {
+    try {
+      push(1)
+      f
+    } finally {
+      pop(1)
+    }
+  }
+
+  def push(n: Int) {
+    stack = List.tabulate(n)(_ => stack.head.copy()) ++ stack
+  }
+
+  def pop(n: Int) {
+    stack = stack drop n
+  }
+
   val int = st.sort("Int")
   val bool = st.sort("Bool")
   val real = st.sort("Real")
@@ -64,16 +81,16 @@ class Parser(init: State) {
       case App(Id("get-model")) => GetModel
       case App(Id("labels"))    => Labels
 
-      case App(Id("check-sat"))      => CheckSat
+      case App(Id("check-sat")) => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
         val n = digits.toInt
-        stack = List.tabulate(n)(_ => stack.head) ++ stack
+        push(n)
         Push(n)
 
       case App(Id("pop"), Lit.num(digits)) =>
         val n = digits.toInt
-        stack = stack drop n
+        pop(n)
         Pop(n)
 
       case App(Id("reset")) =>
@@ -244,16 +261,34 @@ class Parser(init: State) {
   def cmds(from: List[Expr]): List[Cmd] =
     from map cmd
 
-  def model(from: Expr): List[DefineFun] =
+  def model(from: Expr): (List[DeclareFun], List[DefineFun]) =
     from match {
-      case App(defs @ _*) =>
-        for (App(Id("define-fun"), Id(name), App(args @ _*), res, body) <- defs.toList) yield {
-          val formals_ = formals(args.toList)
-          val res_ = typ(res)
-          val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
-          DefineFun(name, formals_, res_, body_, false)
-        }
-      case _ => cuvee.error("Unexpected format in model response")
+      case App(from @ _*) =>
+        val decls =
+          for (App(Id("declare-fun"), Id(name), App(args @ _*), res) <- from.toList)
+            yield {
+              val args_ = types(args.toList)
+              val res_ = typ(res)
+              st.fun(name, Nil, args_, res_)
+              DeclareFun(name, args_, res_)
+            }
+
+        val defs =
+          for (App(Id("define-fun"), Id(name), App(args @ _*), res, body) <- from.toList)
+            yield {
+              val formals_ = formals(args.toList)
+              val res_ = typ(res)
+              st.fun(name, Nil, formals_.types, res_)
+              val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
+              st.fundef(name, formals_, body_)
+              println("defined: " + name)
+              DefineFun(name, formals_, res_, body_, false)
+            }
+
+        (decls, defs)
+
+      case _ =>
+        cuvee.error("Unexpected format in model response")
     }
 
   def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
@@ -324,6 +359,12 @@ class Parser(init: State) {
         case App(Id("!"), from, rest @ _*) =>
           note(expr(from, ctx, scope), rest.toList)
 
+        case App(Id("and"), rest @ _*) =>
+          commutative("and", cuvee.pure.True, exprs(rest.toList, ctx, scope))
+
+        case App(Id("or"), rest @ _*) =>
+          commutative("or", cuvee.pure.False, exprs(rest.toList, ctx, scope))
+
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))
 
@@ -347,7 +388,8 @@ class Parser(init: State) {
           check(body, bool)
           bind(name, xs, body, bool)
 
-        case App(App(Id("as"), Id(name), from), args @ _*) if st.funs contains (name, args.length) =>
+        case App(App(Id("as"), Id(name), from), args @ _*)
+            if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope), Some(typ(from, ctx)))
 
         case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>

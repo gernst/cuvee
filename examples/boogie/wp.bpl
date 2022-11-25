@@ -1,3 +1,7 @@
+lemma
+  forall x: int, x_: int ::
+    {if(x <= x) { x := -x; }} (x == x_);
+
 type state;
 
 function P(s: state): bool;
@@ -9,9 +13,8 @@ function d(s: state): int;
 function t(s: state): bool;
 function B(s: state, s: state): bool;
 
-procedure loop()
-{
-    var s: state;
+lemma
+  < var s: state;
     assume P(s);
 
     while(t(s))
@@ -23,6 +26,6 @@ procedure loop()
         assume B(s, s_);
         s := s_;
     }
-
+    
     assert Q(s);
-}
+    > true;

@@ -7,10 +7,13 @@ import cuvee.boogie
 import cuvee.sexpr
 import cuvee.util.Alpha
 import cuvee.util.Name
+import cuvee.imp.Modality
+import cuvee.imp.Prog
 
 sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
   def funs: Set[Fun]
   def typ: Type
+  def hasModalities: Boolean
   def inst(su: Map[Param, Type]): Expr
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr
 
@@ -204,6 +207,8 @@ class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
     exprs map (_.typ)
   def funs =
     Set(exprs flatMap (_.funs): _*)
+  def hasModalities =
+    exprs exists (_.hasModalities)
   def inst(su: Map[Param, Type]) =
     exprs map (_ inst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
@@ -212,6 +217,8 @@ class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
 
 case class Var(name: Name, typ: Type) extends Expr with Expr.x {
   def funs = Set()
+  def hasModalities = false
+
   def fresh(index: Int): Var =
     Var(name.withIndex(index), typ)
   def inst(su: Map[Param, Type]) =
@@ -270,6 +277,7 @@ class VarSet(vars: Set[Var]) {
 case class Lit(any: Any, typ: Type) extends Expr {
   def funs = Set()
   def free = Set()
+  def hasModalities = false
   def rename(re: Map[Var, Var]) = this
   def subst(su: Map[Var, Expr]) = this
   def inst(su: Map[Param, Type]) = this
@@ -319,6 +327,7 @@ object Exists extends Sugar.binder(Quant.exists, Sort.bool)
 case class In(k: Int, arg: Expr, typ: Type) extends Expr {
   def funs = arg.funs
   def free = arg.free
+  def hasModalities = arg.hasModalities
   def rename(re: Map[Var, Var]) =
     In(k, arg rename re, typ)
   def subst(su: Map[Var, Expr]) =
@@ -337,10 +346,30 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
   }
 }
 
+case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
+  def typ = Sort.bool
+  def funs = prog.funs ++ post.funs
+  def free = prog.read ++ post.free // XXX: overapproximation
+  def hasModalities = true
+  def rename(re: Map[Var, Var]) = Post(how, prog replace re, post rename re)
+  def subst(su: Map[Var, Expr]) = cuvee.undefined
+
+  def inst(su: Map[Param, Type]) = {
+    // cuvee.undefined
+    this
+  }
+
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) = cuvee.undefined
+  // override def toString = ???
+  def sexpr = ???
+  def bexpr = ???
+}
+
 case class Tuple(args: List[Expr]) extends Expr {
   val typ = Prod(args.types)
   def funs = args.funs
   def free = args.free
+  def hasModalities = args.hasModalities
   def rename(re: Map[Var, Var]) =
     Tuple(args rename re)
   def subst(su: Map[Var, Expr]) =
@@ -419,6 +448,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   def funs = args.funs + inst.fun
   def fun = inst.fun
   def typ = inst.res
+  def hasModalities = args.hasModalities
   // val su = Type.subst(fun.params, inst)
 
   // not satisified during parser typecheck
@@ -501,6 +531,7 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   def funs = body.funs
   def free = body.free -- formals
   def bound = Set(formals: _*)
+  def hasModalities = body.hasModalities
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Bind(quant, formals rename a, body rename re, typ)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
@@ -523,11 +554,13 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     }
 
     List(
+      "(",
       quant.name,
       " ",
       new cuvee.ListOps(formals_) intersperse (", "),
       " :: ",
-      body
+      body,
+      ")"
     )
   }
 
@@ -538,16 +571,17 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
 class CaseList(cases: List[Case]) {
   def free = Set(cases flatMap (_.free): _*)
   def funs = Set(cases flatMap (_.funs): _*)
+  def hasModalities = cases exists (_.hasModalities)
   def rename(re: Map[Var, Var]) = cases map (_ rename re)
   def subst(su: Map[Var, Expr]) = cases map (_ subst su)
   def inst(su: Map[Param, Type]) = cases map (_ inst su)
 }
 
 case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with sexpr.Syntax {
-
   def funs = pat.funs ++ expr.funs
   def bound = pat.free
   def free = expr.free -- pat.free
+  def hasModalities = expr.hasModalities
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Case(pat rename a, expr rename re)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
@@ -562,6 +596,7 @@ case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with sexpr.Syntax
 case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
   def funs = expr.funs ++ cases.funs
   def free = expr.free ++ cases.free
+  def hasModalities = expr.hasModalities || cases.hasModalities
   def rename(re: Map[Var, Var]) =
     Match(expr rename re, cases rename re, typ)
   def subst(su: Map[Var, Expr]) =
@@ -578,6 +613,7 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
 class LetEqList(eqs: List[LetEq]) {
   def vars = eqs map (_.x)
   def args = eqs map (_.e)
+  def hasModalities = eqs.exists(_.hasModalities)
   def bound = Set(eqs map (_.bound): _*)
   def free = Set(eqs flatMap (_.free): _*)
   def funs = Set(eqs flatMap (_.funs): _*)
@@ -590,6 +626,7 @@ case class LetEq(x: Var, e: Expr) extends sexpr.Syntax with boogie.Syntax {
   def bound = x
   def free = e.free
   def funs = e.funs
+  def hasModalities = e.hasModalities
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     LetEq(x rename a, e rename re)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
@@ -605,6 +642,7 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
   def free = eqs.free ++ (body.free -- bound)
   def funs = eqs.funs ++ body.funs
   def typ = body.typ
+  def hasModalities = eqs.hasModalities || body.hasModalities
 
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Let(eqs rename (a, re), body rename re)
@@ -625,6 +663,7 @@ case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
 
   def free = expr.free
   def funs = expr.funs
+  def hasModalities = expr.hasModalities
 
   def rename(re: Map[Var, Var]) =
     Note(expr rename re, attr)
@@ -645,6 +684,7 @@ case class Distinct(exprs: List[Expr]) extends Expr {
 
   def free = exprs.free
   def funs = exprs.funs
+  def hasModalities = exprs.hasModalities
 
   def rename(re: Map[Var, Var]) =
     Distinct(exprs rename re)

@@ -19,10 +19,11 @@ object Test {
     val prog = While(Zero < x, body, term, inv, sum, Nil)
 
     val xs = List(x, y)
+    val scope = Map[Var, Var]()
     val st = Expr.id(xs)
 
     val eval = new Eval(State.default)
-    val phi = Forall(xs, pre ==> eval.wp(WP, prog, st, post, List(st)))
+    val phi = Forall(xs, pre ==> eval.wp(WP, prog, scope, st, post, List(st)))
 
     val solver = z3(State.default)
 

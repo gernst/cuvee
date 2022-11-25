@@ -35,7 +35,7 @@ package object smtlib {
       "--incremental",
       "--increment-triggers"
     )
-    
+
   def cvc5(st: State, timeout: Int = 1000) =
     new solver(
       st,
@@ -69,7 +69,7 @@ package object smtlib {
     def model() = {
       for (line <- GetModel.lines)
         out println line
-      Model(Nil)
+      Model(Nil, Nil)
     }
   }
 
@@ -80,7 +80,7 @@ package object smtlib {
   class solver(st: State, cmd: String*) extends Solver {
     val (out, in, err, proc) = Tool.pipe(cmd: _*)
 
-    val parser = new Parser(st)
+    val parser = new Parser(st.copy())
     val res = sexpr.iterator(in)
 
     require(control(PrintSuccess) == Success)
@@ -88,7 +88,7 @@ package object smtlib {
     def write(cmd: Cmd) {
       for (line <- cmd.lines) {
         out.println(line)
-        if(solver.debug)
+        if (solver.debug)
           println("> " + line)
       }
       out.flush()
@@ -96,7 +96,7 @@ package object smtlib {
 
     def read() = {
       val line = res.next()
-      if(solver.debug)
+      if (solver.debug)
         println("< " + line)
       line
     }
@@ -112,8 +112,10 @@ package object smtlib {
     }
 
     def model(): Model = {
+      // Note: do not scope parser, may depend on prior SAT results and models
       write(GetModel)
-      Model(parser.model(read()))
+      val (decls, defs) = parser.model(read())
+      Model(decls, defs)
     }
   }
 

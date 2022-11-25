@@ -77,7 +77,7 @@ object Grammar {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | ite | bind | map | app)
+      P(parens(expr) | wp | num | ite | bind | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~* ",") | ret(Nil))
@@ -103,6 +103,9 @@ object Grammar {
       P(zip(app ~ access.*))
     def ite(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(Ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
+
+    def wp(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(WP(braces(block) ~ formula) | Box(brackets(block) ~ formula) | Dia(angle(block) ~ formula))
 
     def scoped_expr(
         bound: List[Var]
@@ -144,13 +147,13 @@ object Grammar {
     Break("break" ~ ";") | Return("return" ~ ";")
 
   def else_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    block | if_
+    braces(block) | if_
 
   def if_(implicit
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Prog, Token] =
-    P(If("if" ~ parens(formula) ~ block ~ ("else" ~ else_).?))
+    P(If("if" ~ parens(formula) ~ braces(block) ~ ("else" ~ else_).?))
 
   def havoc(kw: String)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Spec.havoc(kw ~ (var_ ~+ ",") ~ ";"))
@@ -187,7 +190,7 @@ object Grammar {
   def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
     val head =
       "while" ~ parens(formula) ~ decreases("decreases").? ~ merge(loop_spec.*)
-    P(While(head ~ block))
+    P(While(head ~ braces(block)))
   }
 
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
@@ -199,7 +202,7 @@ object Grammar {
   // TODO: we can narrow the type of expr to that of the corresponding var
 
   val block_end =
-    "}" ~ ret(Nil)
+    ret(Nil)
 
   def block_local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     (local ::@ (prog => block_(scope ++ prog.xs.asScope, ctx)))
@@ -208,10 +211,10 @@ object Grammar {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[List[Prog], Token] =
-    P(block_end | block_local | (prog :: block_))
+    P(block_local | (prog :: block_) | block_end)
 
   def block(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    Block("{" ~ block_)
+    Block(block_)
 
   def scoped_body(implicit ctx: Map[Name, Param]) =
     (sig: (List[Var], List[Var])) => {
@@ -221,7 +224,7 @@ object Grammar {
       val bound = in ++ out
       implicit val scope = toplevel.scope ++ bound.asScope
 
-      val body = None(";") | some(block)
+      val body = None(";") | some(braces(block))
 
       maybe_merge(proc_spec.*) ~ body
     }

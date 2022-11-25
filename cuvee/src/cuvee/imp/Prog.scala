@@ -5,25 +5,21 @@ import cuvee.util.Name
 
 object Skip extends Block(Nil)
 
-sealed trait Modality /* extends ((Prog, Expr) => Expr) */ {
+sealed trait Modality extends ((Prog, Expr) => Expr) {
   def spec(xs: List[Var], pre: Expr, post: Expr): Expr
   def split(cond: Expr, left: Expr, right: Expr): Expr
 
-  // def apply(prog: Prog, post: Expr) = {
-  //   Post(this, prog, post)
-  // }
+  def apply(body: Prog, post: Expr) = {
+    Post(this, body, post)
+  }
 
-  // def apply(body: Body, post: Expr) = {
-  //   quant(body.locals, Post(this, body.prog, post))
-  // }
-
-  // def unapply(expr: Post) =
-  //   expr match {
-  //     case Post(how, prog, post) if how == this =>
-  //       Some((prog, post))
-  //     case _ =>
-  //       None
-  //   }
+  def unapply(expr: Post) =
+    expr match {
+      case Post(how, prog, post) if how == this =>
+        Some((prog, post))
+      case _ =>
+        None
+    }
 }
 
 case object Box extends Modality {
@@ -50,15 +46,8 @@ case object Dia extends Modality {
     (cond && left) || (!cond && right)
 }
 
-/*
-case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
-  def free = prog.read ++ post.free // XXX: overapproximation
-  def rename(re: Map[Var, Var]) = Post(how, prog replace re, post rename re)
-  def subst(su: Map[Id, Expr]) = cuvee.undefined
-  override def toString = Printer.post(how, prog, post)
-} */
-
 sealed trait Prog {
+  def funs: Set[Fun] = ???
   def mod: Set[Var]
   def read: Set[Var]
   def breaks: Boolean

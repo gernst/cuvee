@@ -11,6 +11,9 @@ object Eval {
 class Eval(state: State) {
   import Eval.infer
 
+  def apply(expr: Expr) =
+    eval(expr, Map(), Map(), Nil)
+
   def eval(
       expr: Expr,
       scope: Map[Var, Expr],
@@ -25,7 +28,11 @@ class Eval(state: State) {
         scope(x)
 
       case x: Var =>
-        error("undefined program variable: " + x + " in state " + st.keys.mkString(" ") + " and scope " + scope.keys.mkString(" "))
+        error(
+          "undefined program variable: " + x + " in state " + st.keys.mkString(
+            " "
+          ) + " and scope " + scope.keys.mkString(" ")
+        )
 
       case _: Lit =>
         expr
@@ -47,10 +54,15 @@ class Eval(state: State) {
           case x if re contains x => (x, re(x))
           case x                  => (x, x)
         })
+        // println("eval " + bind + " adding " + su)
 
         val xs_ = xs rename re
         val body_ = eval(body, scope ++ su, st, old)
         Bind(quant, xs_, body_, typ)
+
+      case Post(how, prog, post) =>
+        // println("eval " + prog + " in " + scope)
+        wp(how, prog, scope, st, post)
     }
 
   def havoc(xs: List[Var]) = {
@@ -74,6 +86,7 @@ class Eval(state: State) {
   def wp(
       how: Modality,
       prog: Prog,
+      scope: Map[Var, Expr],
       st: Map[Var, Expr],
       post: Expr,
       old: List[Map[Var, Expr]] = Nil
@@ -82,10 +95,10 @@ class Eval(state: State) {
       how,
       List(prog),
       Nil,
-      Map(),
+      scope,
       st,
       old,
-      eval(post, Map(), _, old),
+      eval(post, scope, _, old),
       no_brk,
       no_ret
     )
@@ -178,7 +191,9 @@ class Eval(state: State) {
 
         spec match {
           case None =>
-            cuvee.error("inlining procedures not implemented, consider adding a contract to: " + name)
+            cuvee.error(
+              "inlining procedures not implemented, consider adding a contract to: " + name
+            )
 
           case Some(Spec(mod, phi, psi)) =>
             val su = Expr.subst(xs, in)
@@ -197,10 +212,10 @@ class Eval(state: State) {
         how split (test_, left_, right_)
 
       case While(test, body, term, inv, sum_, frames) :: rest =>
-        require(
-          how != Dia,
-          "while within diamond: reachability not implemented"
-        )
+        // require(
+        //   how != Dia,
+        //   "while within diamond: reachability not implemented"
+        // )
 
         // variables modified by the loop
         val xm = body.mod
@@ -214,7 +229,7 @@ class Eval(state: State) {
         // 1. arbitrary state at loop head before some iteration
         val st0 = st
         val st1 = assign(st, xs0, xs1)
-        
+
         // invariant to show at loop head upon entry
         val inv0 = eval(inv, scope, st0, st0 :: old)
 
