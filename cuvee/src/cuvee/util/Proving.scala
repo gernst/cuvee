@@ -61,7 +61,7 @@ object Proving {
     if (debug) {
       println(indent(depth) + "---  PROOF OBLIGATION ---")
       println(indent(depth) + "prop:     " + prop.toExpr)
-      println(indent(depth) + "comp:     " + Rating.complexity(prop.toExpr))
+      println(indent(depth) + "comp:     " + Rating.complexity(prop))
     }
 
     // Call the prover, except if instructed by the NoAuto tactic *not* to do so.
