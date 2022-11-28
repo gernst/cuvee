@@ -76,8 +76,14 @@ object Induction
 
   def suggest(state: State, goal: Prop): List[Tactic] = goal match {
     case Disj(xs, neg, pos) =>
-      xs map (Induction(_, Nil))
+      for (x <- xs if getDatatype(x)(state).isDefined)
+        yield Induction(x, Nil)
     case _ => Nil
+  }
+
+  def getDatatype(variable: Var)(implicit state: State): Option[Datatype] = {
+    val sort = variable.typ.asInstanceOf[Sort]
+    state.datatypes.get(sort.con.name)
   }
 }
 
@@ -95,7 +101,8 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
 
     // First determine the variable's datatype
     val sort = variable.typ.asInstanceOf[Sort]
-    val dt = state.datatypes(sort.con.name)
+    val dt = Induction.getDatatype(variable)(state).getOrElse(
+                throw new TacticNotApplicableException(f"Can't apply induction to variable $variable, as it has no associated data type"))
 
     assert(dt.params.length == sort.args.length)
     val su = dt.params.zip(sort.args).toMap
