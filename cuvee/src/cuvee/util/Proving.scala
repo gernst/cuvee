@@ -19,11 +19,11 @@ object Proving {
   ): Prop = {
     val res = rec(prop, tactic, 1)(state, solver, prover, rules)
     res match {
-      case Atom(True, _) | Disj(_, _, List(Atom(True, _))) =>
+      case Atom.t | Disj(_, _, List(Atom.t)) =>
         // hack around incomplete simplification
         if (debug)
           println("\u001b[92m✔\u001b[0m Lemma proved successfully!")
-      case Atom(False, _) =>
+      case Atom.f =>
         if (debug)
           println(
             "\u001b[91m✘\u001b[0m The lemma is false and cannot be proven!"
@@ -81,14 +81,18 @@ object Proving {
         if (debug)
           println(indent(depth) + "new goal: " + res.toExpr)
 
+        // Simplify the result
+        val simp = Simplify.simplify(res, rules)
+
         // Set tactic_ to whatever tactic was beforehand
-        (tactic, res)
+        (tactic, simp)
     }
 
+    // TODO: Only suggest a tactic, when the 
     // If there is no tactic given, suggest one
     val tactic__ = tactic_ match {
       case Some(value) => Some(value)
-      case None => 
+      case None =>
         val suggestions = Suggest.suggest(state, prop_)
 
         if (suggestions.nonEmpty) {
@@ -124,13 +128,13 @@ object Proving {
       println(indent(depth) + "simp:     " + simp)
 
     simp match {
-      case Atom(True, _) =>
+      case Atom.t =>
         if (debug)
           println(
             indent(depth) + f"\u001b[92m✔\u001b[0m Goal found to be `true`"
           )
 
-      case Atom(False, _) =>
+      case Atom.f =>
         if (!debug)
           println(indent(depth) + "simp:     " + simp)
 

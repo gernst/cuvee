@@ -37,8 +37,10 @@ trait Suggest {
 object Suggest extends Suggest {
   val suggesters: List[Suggest] = List(Induction, Unfold)
 
-  def suggest(state: State, goal: Prop): List[Tactic] =
-    suggesters flatMap (_.suggest(state, goal))
+  def suggest(state: State, goal: Prop): List[Tactic] = goal match {
+    case Atom.t | Atom.f => Nil
+    case goal => suggesters flatMap (_.suggest(state, goal))
+  }
 }
 
 class TacticNotApplicableException(s: String) extends Exception(s){}
