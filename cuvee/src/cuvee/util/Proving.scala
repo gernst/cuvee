@@ -97,7 +97,6 @@ object Proving {
 
         if (suggestions.nonEmpty) {
           val choice = CLI.askChoices("Do you want to apply one of the following tactics?", suggestions, default=Some(-1), printfn = (str => print(indent(depth + 1) + str)))
-          println(f">>> $choice")
           choice
         } else {
           None

@@ -14,15 +14,15 @@ object CLI {
       printfn(f"$desc\n")
       if (!mustChoose)
         if (default.getOrElse(0) < 0)
-          printfn(f"< n>  None\n")
+          printfn(f"[ N]  None\n")
         else
-          printfn(f"[ n]  None\n")
+          printfn(f"( n)  None\n")
 
       for ((choice, idx) <- choices.zipWithIndex)
         if (default == Some(idx))
-          printfn(f"<$idx%2d>  ${choice}\n")
-        else
           printfn(f"[$idx%2d]  ${choice}\n")
+        else
+          printfn(f"($idx%2d)  ${choice}\n")
 
       printfn("Your choice: ")
       scala.Console.flush()
