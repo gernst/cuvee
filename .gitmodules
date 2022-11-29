@@ -1,7 +1,4 @@
-[submodule "arse"]
-	path = easyparse
-	url = git@github.com:gernst/arse.git
-	branch = stream
 [submodule "easyparse"]
 	path = easyparse
-	url = ./easyparse
+	url = git@github.com:gernst/easyparse.git
+	branch = main
