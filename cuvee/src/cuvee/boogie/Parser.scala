@@ -1,6 +1,6 @@
 package cuvee.boogie
 
-import arse._
+import easyparse._
 
 import scala.util.DynamicVariable
 

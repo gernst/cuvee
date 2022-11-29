@@ -1,6 +1,6 @@
 package cuvee.sexpr
 
-import arse._
+import easyparse._
 
 sealed trait Expr extends cuvee.sexpr.Syntax {
   def apply(index: Int) =

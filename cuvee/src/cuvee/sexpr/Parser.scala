@@ -9,10 +9,10 @@ import java.io.FileReader
 import cuvee.error
 
 object Parser_ {
-  import arse._
-  import arse.implicits._
+  import easyparse._
+  import easyparse.implicits._
 
-  val expr: arse.Parser[Expr, Token] =
+  val expr: easyparse.Parser[Expr, Token] =
     P(app | atom)
 
   val atom = tok[Token] collect { case atom: Atom =>
@@ -24,7 +24,7 @@ object Parser_ {
 }
 
 class Parser(scanner: Scanner) {
-  import arse.Token
+  import easyparse.Token
 
   var _tok: Token = null
   var _peek: Token = null

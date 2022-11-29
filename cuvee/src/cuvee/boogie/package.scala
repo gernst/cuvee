@@ -5,7 +5,7 @@ import cuvee.util.Name
 import cuvee.smtlib._
 import java.io.FileReader
 import java.io.Reader
-import arse.Token
+import easyparse.Token
 import scala.collection.mutable.ListBuffer
 import cuvee.sexpr.Tok
 

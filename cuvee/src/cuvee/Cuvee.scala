@@ -94,7 +94,7 @@ class Cuvee {
           state = state_
           cmds = cmds_
         } catch {
-          case error: arse.Error =>
+          case error: easyparse.Error =>
             println(error)
         }
         configure(rest)
@@ -106,7 +106,7 @@ class Cuvee {
           state = state_
           cmds = cmds_
         } catch {
-          case error: arse.Error =>
+          case error: easyparse.Error =>
             println(error)
         }
         configure(rest)
