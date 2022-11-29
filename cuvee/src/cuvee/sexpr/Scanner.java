@@ -547,7 +547,7 @@ public class Scanner {
    * @return the next token.
    * @exception java.io.IOException if any I/O-Error occurs.
    */
-  public arse.Token next() throws java.io.IOException {
+  public easyparse.Token next() throws java.io.IOException {
     int zzInput;
     int zzAction;
 

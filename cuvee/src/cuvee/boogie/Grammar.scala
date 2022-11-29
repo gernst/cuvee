@@ -1,7 +1,7 @@
 package cuvee.boogie
 
-import arse._
-import arse.implicits._
+import easyparse._
+import easyparse.implicits._
 
 import cuvee.util.Name
 import cuvee.pure._
@@ -11,12 +11,12 @@ import cuvee.smtlib.Assert
 import cuvee.smtlib.Lemma
 
 object Grammar {
-  import arse.implicits._
+  import easyparse.implicits._
   import cuvee.boogie.Parser._
 
   // shadow existing definition for T = Token
   def ret[A](a: A) =
-    new arse.Parser.Accept[A, Token](a)
+    new easyparse.Parser.Accept[A, Token](a)
 
   def parens[A](p: Parser[A, Token]) = "(" ~ p ~ ")"
   def braces[A](p: Parser[A, Token]) = "{" ~ p ~ "}"

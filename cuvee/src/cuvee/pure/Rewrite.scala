@@ -9,7 +9,7 @@ import cuvee.State
 import cuvee.smtlib.DefineFun
 import cuvee.util.Fix
 import cuvee.smtlib.DeclareFun
-import arse.Backtrack
+import easyparse.Backtrack
 
 object Rewrite {
   val MaxDepth = 20

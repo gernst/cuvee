@@ -122,7 +122,7 @@ object RewriteAll {
             all.distinct */
       }
     } catch { // Control#or is shadowed by Expr#or
-      case arse.Backtrack(_) =>
+      case easyparse.Backtrack(_) =>
         Nil
     }
   }

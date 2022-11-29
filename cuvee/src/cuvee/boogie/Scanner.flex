@@ -5,7 +5,7 @@ package cuvee.boogie;
 %public
 %class Scanner
 %function next
-%type arse.Token
+%type easyparse.Token
 
 %line
 %column
