@@ -10,6 +10,8 @@ import cuvee.smtlib._
 object Proving {
   var debug = false
 
+  var suggestTactics: Boolean = false
+
   def show(prop: Prop, tactic: Option[Tactic])(implicit
       state: State,
       solver: Solver,
@@ -88,26 +90,34 @@ object Proving {
         (tactic, simp)
     }
 
-    // TODO: Only suggest a tactic, when the 
     // If there is no tactic given, suggest one
     val tactic__ = tactic_ match {
-      case Some(value) => Some(value)
-      case None =>
+      case None if suggestTactics =>
+        // Get suggestions
         val suggestions = Suggest.suggest(state, prop_)
 
         if (suggestions.nonEmpty) {
-          val choice = CLI.askChoices("Do you want to apply one of the following tactics?", suggestions, default=Some(-1), printfn = (str => print(indent(depth + 1) + str)))
+          println(indent(depth) + "goal:     " + prop_)
+
+          val choice = CLI.askChoices(
+            "Do you want to apply one of the following tactics?",
+            suggestions,
+            default = Some(-1),
+            printfn = (str => print(indent(depth + 1) + str))
+          )
           choice
         } else {
           None
         }
+
+      case t => t
     }
 
     // Apply the tactic `tactic_`
     val prop__ = tactic__ match {
       case Some(tactic_) =>
         if (debug)
-          println(indent(depth) + "tactic:   " + tactic)
+          println(indent(depth) + "tactic:   " + tactic_)
 
         // Apply the tactic and get the remaining subgoals that we need to prove
         val goals = tactic_.apply(state, prop)

@@ -61,6 +61,9 @@ class Cuvee {
     }),
     "-prove:simple" -> ("prove goals using simple structural prover", () => {
       this.prove = "simple"
+    }),
+    "-tactics:suggest" -> ("suggest tactics applicable to the current goal", () => {
+      cuvee.util.Proving.suggestTactics = true
     })
   )
 

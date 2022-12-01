@@ -9,7 +9,8 @@ import cuvee.smtlib._
 import cuvee.util.Name
 
 /** Represents an instance of a tactic, possibly with arguments.
-  * It may be applied to a proof obligation.
+  * 
+  * An instance of this trait may be applied to a proof obligation.
   */
 trait Tactic {
 
@@ -33,6 +34,14 @@ trait Tactic {
   */
 trait Suggest {
 
+  /** Suggest some tactics that could be applied for the given `state` and
+    * `goal`
+    *
+    * @param state
+    * @param goal
+    * @return
+    *   List of tactics that are applicable for the given state and goal
+    */
   def suggest(state: State, goal: Prop): List[Tactic]
 }
 
