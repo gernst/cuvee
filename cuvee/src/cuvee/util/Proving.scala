@@ -59,8 +59,6 @@ object Proving {
       prover: Prove,
       rules: Map[Fun, List[Rule]]
   ): Prop = {
-    def indent(depth: Int, indentStr: String = "  "): String = indentStr * depth
-
     if (debug) {
       println(indent(depth) + "---  PROOF OBLIGATION ---")
       println(indent(depth) + "prop:     " + prop.toExpr)
@@ -79,16 +77,10 @@ object Proving {
         (tactic, prop)
 
       case _ =>
-        // Call prover
-        val res = prover.prove(prop)
-        if (debug)
-          println(indent(depth) + "new goal: " + res.toExpr)
-
-        // Simplify the result
-        val simp = Simplify.simplify(res, rules)
+        val res = proveAndSimplify(prop, prover, debug, depth)
 
         // Set tactic_ to whatever tactic was beforehand
-        (tactic, simp)
+        (tactic, res)
     }
 
     // If there is no tactic given, suggest one
@@ -176,4 +168,25 @@ object Proving {
     // Return whatever remained
     simp
   }
+
+  def proveAndSimplify(
+      prop: Prop,
+      prover: Prove,
+      debug: Boolean = false,
+      depth: Int = 0
+  )(implicit rules: Map[Fun, List[Rule]] = Map()): Prop = {
+    // Call prover
+    val res = prover.prove(prop)
+    if (debug)
+      println(indent(depth) + "new goal: " + res.toExpr)
+
+    // Simplify the result
+    val simp = Simplify.simplify(res, rules)
+    if (debug)
+      println(indent(depth) + "simp:     " + simp.toExpr)
+
+    simp
+  }
+
+  private[this] def indent(depth: Int, indentStr: String = "  "): String = indentStr * depth
 }

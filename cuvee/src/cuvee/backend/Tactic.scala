@@ -141,8 +141,13 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
 
     // First determine the variable's datatype
     val sort = variable.typ.asInstanceOf[Sort]
-    val dt = Induction.getDatatype(variable)(state).getOrElse(
-                throw new TacticNotApplicableException(f"Can't apply induction to variable $variable, as it has no associated data type"))
+    val dt = state.datatypes
+      .get(sort.con.name)
+      .getOrElse(
+        throw new TacticNotApplicableException(
+          f"Can't apply induction to variable $variable, as it has no associated data type"
+        )
+      )
 
     assert(dt.params.length == sort.args.length)
     val su = dt.params.zip(sort.args).toMap
@@ -196,6 +201,57 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
         (new_goal, con_tactics.get(inst) map (_._2))
       })
       .toList
+  }
+
+  override def makesProgress(
+      state: State,
+      goal: Prop
+  )(implicit
+      prover: Prove
+  ): Option[Int] = {
+    // Determine the variable's datatype
+    val sort = variable.typ.asInstanceOf[Sort]
+    val dt = state.datatypes
+      .get(sort.con.name)
+      .getOrElse(
+        throw new TacticNotApplicableException(
+          f"Can't apply induction to variable $variable, as it has no associated data type"
+        )
+      )
+
+    val su = dt.params.zip(sort.args).toMap
+    val insts = dt.constrs map (c => Inst(c._1, su))
+
+    // Determine the non-recursive constructors and their indices in the list of generated cases
+    val baseCases = insts.zipWithIndex.filterNot { case (i, _) =>
+      i.args.contains(i.res)
+    }
+
+    // TODO da: do we want to check for *all* base cases being closed, or does it suffice, if *some* are solved automatically?
+    // Check whether the goals of all resulting base cases can be proved automatically
+    val baseIndices = baseCases map (_._2)
+
+    // Apply the tactic
+    val goals = apply(state, goal)
+    val baseGoals = baseIndices map (goals(_))
+
+    val success = baseGoals forall { case (goal, _) =>
+      Proving.proveAndSimplify(goal, prover) == Atom.t
+    }
+
+    success match {
+      case true =>
+        // Determine the progress we've made
+        // As we know that the base cases can be proven automatically, the remaining complexity is given only by the remaining cases
+        val originalComplexity = Rating.complexity(goal)
+        val remainingComplexity = goals.zipWithIndex
+          .filterNot(baseIndices.contains)
+          .map(p => Rating.complexity(p._1._1))
+          .sum
+
+        Some(originalComplexity - remainingComplexity)
+      case _ => None
+    }
   }
 }
 
