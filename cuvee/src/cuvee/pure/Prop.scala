@@ -35,7 +35,10 @@ case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
   def subst(su: Map[Var, Expr]) =
     Atom(expr subst su)
   def sexpr = expr.sexpr
-  def bexpr = List(expr.bexpr.mkString(""), "  counterexample: " + cex.map(_.toString).getOrElse(""))
+  def bexpr = cex match {
+    case Some(cex) => List(expr.bexpr.mkString(""), "  counterexample: " + cex.toString)
+    case None => List(expr.bexpr.mkString(""))
+  }
 }
 
 object Atom {
