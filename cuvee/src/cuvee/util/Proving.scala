@@ -11,6 +11,7 @@ object Proving {
   var debug = false
 
   var suggestTactics: Boolean = false
+  var applyTactics: Boolean = false
 
   def show(prop: Prop, tactic: Option[Tactic])(implicit
       state: State,
@@ -92,6 +93,16 @@ object Proving {
 
     // If there is no tactic given, suggest one
     val tactic__ = tactic_ match {
+      case None if applyTactics =>
+        // Get suggestions
+        val suggestions = Suggest.suggest(state, prop_)
+
+        val foo =
+          for (tac <- suggestions ; prog <- tac.makesProgress(state, prop_))
+            yield (tac, prog)
+
+        None
+
       case None if suggestTactics =>
         // Get suggestions
         val suggestions = Suggest.suggest(state, prop_)

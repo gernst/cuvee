@@ -7,6 +7,8 @@ import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.util.Name
+import cuvee.util.Rating
+import cuvee.util.Proving
 
 /** Represents an instance of a tactic, possibly with arguments.
   * 
@@ -27,6 +29,29 @@ trait Tactic {
     "if the tactic is not applicable to the given goal and state"
   )
   def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])]
+
+  // TODO da: Does the current implementation work for most / some cases?
+  /** Heuristic that tries to determine whether a tactic application that
+    * produced the given `cases` made progress.
+    *
+    * When the application is deemed successful, this method returns
+    *
+    * This default implementation only measures whether the sum of the cases'
+    * complexities is strictly lower than the complexity of the original goal.
+    */
+  def makesProgress(state: State, goal: Prop)(implicit
+      prover: Prove
+  ): Option[Int] = {
+    val orig = Rating.complexity(goal)
+    val cases = apply(state, goal)
+
+    val snew = cases.map(c => Rating.complexity(c._1)).sum
+
+    if (snew < orig)
+      Some(orig - snew)
+    else
+      None
+  }
 }
 
 /** A trait that allows some implementation to suggest a tactic that may be
