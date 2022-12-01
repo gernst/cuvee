@@ -22,7 +22,9 @@ trait Tactic {
     *   formula corresponding to the subgoal and tactic? is an optional tactic
     *   to prove the subgoal.
     */
-  @throws[TacticNotApplicableException]("if the tactic is not applicable to the given goal and state")
+  @throws[TacticNotApplicableException](
+    "if the tactic is not applicable to the given goal and state"
+  )
   def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])]
 }
 
@@ -39,11 +41,11 @@ object Suggest extends Suggest {
 
   def suggest(state: State, goal: Prop): List[Tactic] = goal match {
     case Atom.t | Atom.f => Nil
-    case goal => suggesters flatMap (_.suggest(state, goal))
+    case goal            => suggesters flatMap (_.suggest(state, goal))
   }
 }
 
-class TacticNotApplicableException(s: String) extends Exception(s){}
+class TacticNotApplicableException(s: String) extends Exception(s) {}
 
 case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
 
@@ -93,9 +95,13 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
   def apply(state: State, goal: Prop) = {
     goal match {
       case Atom(_, _) | Conj(_, _) =>
-        throw new TacticNotApplicableException("Only Disj supported in induction tactic")
+        throw new TacticNotApplicableException(
+          "Only Disj supported in induction tactic"
+        )
       case Disj(xs, _, _) if !(xs contains variable) =>
-        throw new TacticNotApplicableException(f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier")
+        throw new TacticNotApplicableException(
+          f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier"
+        )
       case _ => ()
     }
 
@@ -161,7 +167,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
 
 case class Show(
     prop: Expr,
-    tactic : Option[Tactic],
+    tactic: Option[Tactic],
     cont: Option[Tactic]
 ) extends Tactic {
 
@@ -229,7 +235,7 @@ case class Unfold(
   *
   * @param tactic
   */
-case class NoAuto(tactic : Tactic) extends Tactic {
+case class NoAuto(tactic: Tactic) extends Tactic {
 
   def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])] =
     tactic.apply(state, goal)

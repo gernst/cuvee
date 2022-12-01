@@ -38,7 +38,6 @@ object CLI {
       result = input.toIntOption
         .filter(i => 0 <= i && i < choices.length)
         .map(idx => choices(idx))
-
     } while (result.isEmpty)
 
     result
