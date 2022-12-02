@@ -81,31 +81,33 @@ object Proving {
       case _ => prop = proveAndSimplify(prop, prover, debug, depth)
     }
 
-    // If there is no tactic given, suggest one
-    if (tactic.isEmpty && applyTactics) {
+    // If there is no tactic and suggestion / automatic application is enabled,
+    // try to find an applicable tactic.
+    if (tactic.isEmpty && (suggestTactics || applyTactics)) {
       // Get suggestions
       val suggestions = Suggest.suggest(state, prop)
 
-      val foo =
-        for (tac <- suggestions ; prog <- tac.makesProgress(state, prop))
-          yield (tac, prog)
+      // If there is no tactic given, find one that could be used automatically
+      if (applyTactics) {
+        val candidates =
+          for (tac <- suggestions ; prog <- tac.makesProgress(state, prop))
+            yield (tac, prog)
 
-      None
-    }
+        tactic = candidates.maxByOption(_._2).map(_._1)
+      }
 
-    if (tactic.isEmpty && suggestTactics) {
-      // Get suggestions
-      val suggestions = Suggest.suggest(state, prop)
+      // Suggest tactics. If a tactic for automatic application was found, make this the default
+      if (suggestTactics) {
+        if (suggestions.nonEmpty) {
+          println(indent(depth) + "goal:     " + prop)
 
-      if (suggestions.nonEmpty) {
-        println(indent(depth) + "goal:     " + prop)
-
-        tactic = CLI.askChoices(
-          "Do you want to apply one of the following tactics?",
-          suggestions,
-          default = Some(-1),
-          printfn = (str => print(indent(depth + 1) + str))
-        )
+          tactic = CLI.askChoices(
+            "Do you want to apply one of the following tactics?",
+            suggestions,
+            default = Some(suggestions.indexOf(tactic.getOrElse(None))),
+            printfn = (str => print(indent(depth + 1) + str))
+          )
+        }
       }
     }
 
