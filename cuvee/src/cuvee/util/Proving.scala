@@ -53,12 +53,15 @@ object Proving {
     res
   }
 
-  def rec(prop: Prop, tactic: Option[Tactic], depth: Int = 0)(implicit
+  def rec(prop_ : Prop, tactic_ : Option[Tactic], depth: Int = 0)(implicit
       state: State,
       solver: Solver,
       prover: Prove,
       rules: Map[Fun, List[Rule]]
   ): Prop = {
+    var prop: Prop = prop_
+    var tactic: Option[Tactic] = tactic_
+
     if (debug) {
       println(indent(depth) + "---  PROOF OBLIGATION ---")
       println(indent(depth) + "prop:     " + prop.toExpr)
@@ -66,76 +69,67 @@ object Proving {
     }
 
     // Call the prover, except if instructed by the NoAuto tactic *not* to do so.
-    // Sets `tactic_` to an `Option[Tactic]` of the tactic that should be applied to the remaining goal (if any)
-    val (tactic_, prop_) = tactic match {
-      case Some(NoAuto(tactic_)) =>
-        // Skip the prover call and execute the inner tactic directly
-        (Some(tactic_), prop)
+    // Sets `tactic` to an `Option[Tactic]` of the tactic that should be applied to the remaining goal (if any)
+    tactic match {
+      // Skip the prover call and execute the inner tactic directly
+      case Some(NoAuto(inner)) => tactic = Some(inner)
 
       // Also, skip the prover call, if the next tactic on the "prover blacklist", that follows.
-      case Some(Induction(_, _)) | Some(Show(_, _, _)) =>
-        (tactic, prop)
+      case Some(Induction(_, _)) | Some(Show(_, _, _)) => ()
 
-      case _ =>
-        val res = proveAndSimplify(prop, prover, debug, depth)
-
-        // Set tactic_ to whatever tactic was beforehand
-        (tactic, res)
+      // Otherwise, rewrite prop by applying the prover and simplifying
+      case _ => prop = proveAndSimplify(prop, prover, debug, depth)
     }
 
     // If there is no tactic given, suggest one
-    val tactic__ = tactic_ match {
-      case None if applyTactics =>
-        // Get suggestions
-        val suggestions = Suggest.suggest(state, prop_)
+    if (tactic.isEmpty && applyTactics) {
+      // Get suggestions
+      val suggestions = Suggest.suggest(state, prop)
 
-        val foo =
-          for (tac <- suggestions ; prog <- tac.makesProgress(state, prop_))
-            yield (tac, prog)
+      val foo =
+        for (tac <- suggestions ; prog <- tac.makesProgress(state, prop))
+          yield (tac, prog)
 
-        None
+      None
+    }
 
-      case None if suggestTactics =>
-        // Get suggestions
-        val suggestions = Suggest.suggest(state, prop_)
+    if (tactic.isEmpty && suggestTactics) {
+      // Get suggestions
+      val suggestions = Suggest.suggest(state, prop)
 
-        if (suggestions.nonEmpty) {
-          println(indent(depth) + "goal:     " + prop_)
+      if (suggestions.nonEmpty) {
+        println(indent(depth) + "goal:     " + prop)
 
-          val choice = CLI.askChoices(
-            "Do you want to apply one of the following tactics?",
-            suggestions,
-            default = Some(-1),
-            printfn = (str => print(indent(depth + 1) + str))
-          )
-          choice
-        } else {
-          None
-        }
-
-      case t => t
+        tactic = CLI.askChoices(
+          "Do you want to apply one of the following tactics?",
+          suggestions,
+          default = Some(-1),
+          printfn = (str => print(indent(depth + 1) + str))
+        )
+      }
     }
 
     // Apply the tactic `tactic_`
-    val prop__ = tactic__ match {
-      case Some(tactic_) =>
-        if (debug)
-          println(indent(depth) + "tactic:   " + tactic_)
+    if (tactic.isDefined)
+    {
+      val tactic_ = tactic.get
 
-        // Apply the tactic and get the remaining subgoals that we need to prove
-        val goals = tactic_.apply(state, prop)
+      if (debug)
+        println(indent(depth) + "tactic:   " + tactic_)
 
-        (goals map ({ case (prop_, tactic_) =>
-          rec(prop_, tactic_, depth + 1)
-        }) filter (_ != Atom(True))) match {
-          case Nil             => Atom(True)
-          case remaining_goals => Conj.from(remaining_goals map (_.toExpr))
-        }
-      case None => prop_
+      // Apply the tactic and get the remaining subgoals that we need to prove
+      val goals = tactic_.apply(state, prop)
+
+      prop = (goals map ({ case (prop, tactic) =>
+        rec(prop, tactic, depth + 1)
+      }) filter (_ != Atom(True))) match {
+        case Nil             => Atom(True)
+        case remaining_goals => Conj.from(remaining_goals map (_.toExpr))
+      }
     }
 
     // Simplify the result
-    val simp = Simplify.simplify(prop__, rules)
+    val simp = Simplify.simplify(prop, rules)
     if (debug)
       println(indent(depth) + "simp:     " + simp)
 
