@@ -75,7 +75,9 @@ object Parser {
       )
       val fun = state funs (name, arity)
       val inst = fun.generic
+
       unify(inst.args, args.types)
+
       App(inst, args)
     }
 
@@ -111,7 +113,7 @@ object Parser {
 
   def make_op: ((String, List[Expr]) => Expr) = {
     case ("!=", List(arg1, arg2)) =>
-      Not(Eq(arg1, arg2))
+      make_not(make_eq(arg1, arg2))
 
     case (name, args) if translate contains name =>
       val name_ = translate(name)
@@ -134,9 +136,10 @@ object Parser {
     case (name, Nil) if scope contains name =>
       scope(name)
     case (name, args) if state.funs contains (name, args.length) =>
+      // println("apply " + name + " to " + args)
       typing.app(name, args)
     case (name, Nil) =>
-      error("unknown variable or constant: " + name)
+      error("unknown variable or constant: " + name + " in " + scope)
     case (name, args) =>
       error("unknown function: " + name + " with arity " + args.length)
   }
@@ -151,6 +154,17 @@ object Parser {
   def make_bind: ((String, (List[Var], Expr)) => Expr) = { case (name, (bound, body)) =>
     typing.bind(name, bound, body, Sort.bool)
   }
+
+  def make_not =
+    (arg: Expr) => typing.app("not", List(arg))
+  def make_eq =
+    (left: Expr, right: Expr) => typing.app("=", List(left, right))
+  def make_select =
+    (base: Expr, index: Expr) => typing.app("select", List(base, index))
+  def make_store =
+    (base: Expr, index: Expr, value: Expr) => typing.app("store", List(base, index, value))
+  def make_ite =
+    (test: Expr, left: Expr, right: Expr) => typing.app("ite", List(test, left, right))
 
   val define_sort: ((Name, List[Param], Option[Type]) => Cmd) = {
     case (name, params, None) =>

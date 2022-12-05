@@ -70,17 +70,17 @@ object Grammar {
     def expr(implicit
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
-    ): Parser[Expr, Token] =
+    ): Parser[Expr, Token] = 
       M(inner, op, make_op, syntax)
 
     def inner(implicit
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | ite | bind | map | app)
+      P(parens(expr) | num | ite | bind | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(parens(expr ~* ",") | ret(Nil))
+      P(parens(expr ~+ ",") | ret(Nil))
 
     def app(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_app(scope)(name ~ args))
@@ -94,15 +94,15 @@ object Grammar {
       case (base, Nil) =>
         base
       case (base, (index, None) :: rest) =>
-        zip(Select(base, index), rest)
+        zip(make_select(base, index), rest)
       case (base, (index, Some(value)) :: rest) =>
-        zip(Store(base, index, value), rest)
+        zip(make_store(base, index, value), rest)
     }
 
     def map(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(zip(app ~ access.*))
     def ite(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(Ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
+      P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
 
     def scoped_expr(
         bound: List[Var]

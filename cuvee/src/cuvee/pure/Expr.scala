@@ -363,18 +363,29 @@ object App extends ((Inst, List[Expr]) => App) {
       fun.params.isEmpty || args.nonEmpty,
       "cannot instantiate constant " + fun
     )
-    val su = Type.binds(fun.args, args.types) or {
+
+    val inst = fun.generic
+
+    // println("infer: " + fun + " to " + (args map (_.typ)))
+    // println(inst.ty)
+    // println(inst.args, args.types, inst.ty)
+    val su = Type.binds(inst.args, args.types) or {
       error("cannot apply " + fun + " to " + args)
     }
+    // println("result: " + su)
 
-    val ps = fun.params filterNot su.contains
+    val ps = inst.ty filterNot {
+      case (a, b: Param) => su contains b
+    }
 
     require(
       ps.isEmpty,
       "unbound params applying " + fun + " to " + args + ": " + ps
     )
 
-    App(Inst(fun, su), args)
+    val expr = App(inst, args)
+
+    expr inst su
   }
 
   def apply(fun: Fun, typ: Type): App = {

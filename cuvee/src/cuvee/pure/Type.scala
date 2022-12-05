@@ -76,11 +76,13 @@ object Type extends Alpha[Type, Param] {
       su: Map[Param, Type] = Map()
   ): Map[Param, Type] = {
     (typ1, typ2) match {
-      case (p1: Param, _) if su contains p1 =>
-        if (su(p1) != typ2) {
-          backtrack("cannot bind " + su(p1) + " to " + typ2)
-        }
+      case _ if typ1 == typ2 =>
         su
+      case (p1: Param, _) if su contains p1 =>
+        unify(su(p1), typ2, su)
+      case (p1: Param, _) if p1 in typ2 =>
+        cuvee.undefined
+        backtrack("recursive unification, " + p1 + " in " + typ2)
       case (p1: Param, _) =>
         su + (p1 -> typ2)
       case (Prod(args1), Prod(args2)) =>
@@ -142,17 +144,17 @@ object Type extends Alpha[Type, Param] {
 }
 
 class ParamList(params: List[Param]) extends Type.xs(params) {
-  def names = params map { case Param(name, None) => name }
-  def asContext = params map { case p @ Param(name, typ) => name -> p }
+  def names = params map { case Param(name) => name }
+  def asContext = params map { case p @ Param(name) => name -> p }
 }
 
 class TypeList(types: List[Type]) extends Type.terms(types)
 
-case class Param(name: Name, index: Option[Int] = None)
+case class Param(name: Name)
     extends Type
     with Type.x {
   def fresh(index: Int) =
-    Param(name, Some(index))
+    Param(name withIndex index)
 
   def in(typ: Type): Boolean = {
     typ match {
@@ -180,8 +182,9 @@ object Param {
   val from: (Name => Param) =
     name => Param(name)
 
-  def fresh(name: String) =
-    Param(name, Some(Type.nextIndex))
+  def fresh(name: Name) = {
+    Param(name withIndex Type.nextIndex)
+  }
 }
 
 case class Con(name: Name, arity: Int) {
