@@ -35,7 +35,10 @@ case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
   def subst(su: Map[Var, Expr]) =
     Atom(expr subst su)
   def sexpr = expr.sexpr
-  def bexpr = List(expr.bexpr.mkString(""), "  counterexample: " + cex.map(_.toString).getOrElse(""))
+  def bexpr = cex match {
+    case Some(cex) => List(expr.bexpr.mkString(""), "  counterexample: " + cex.toString)
+    case None => List(expr.bexpr.mkString(""))
+  }
 }
 
 object Atom {
@@ -103,13 +106,13 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
 }
 
 // represents
-//   exists xs. /\{neg} /\ /\{not pos}
+//   exists xs. /\{neg}
 case class Conj(xs: List[Var], neg: List[Neg])
     extends Pos
     with Expr.bind[Conj] {
   require(xs == xs.distinct)
 
-  // def text = Printer.Conj(xs, neg, pos)
+  // def text = Printer.Conj(xs, neg)
   def bound = xs.toSet
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Conj(xs rename a, neg map (_ rename re))

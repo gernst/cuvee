@@ -44,7 +44,7 @@ procedure bsearch_summary(x: int, a: [int]int, n: int)
 {
     var l: int := 0;
     var r: int := n;
-    
+
     found := false;
 
     while(l < r)
