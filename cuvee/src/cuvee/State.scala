@@ -258,6 +258,15 @@ class State(
       Pre(Note(expr.expr, attr))
     }
 
+    def commutative(fun: Name, neutral: Pre, args: List[Pre]): Pre = args match {
+      case Nil       => neutral
+      case List(arg) => arg
+      case _ =>
+        args reduce { (a, b) =>
+          app(fun, List(a, b))
+        }
+    }
+
     def app(name: Name, args: List[Pre], res: Option[Type] = None) = {
       val arity = args.length
       val fun = funs(name, arity)

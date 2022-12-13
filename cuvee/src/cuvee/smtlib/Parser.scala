@@ -64,7 +64,7 @@ class Parser(init: State) {
       case App(Id("get-model")) => GetModel
       case App(Id("labels"))    => Labels
 
-      case App(Id("check-sat"))      => CheckSat
+      case App(Id("check-sat")) => CheckSat
 
       case App(Id("push"), Lit.num(digits)) =>
         val n = digits.toInt
@@ -327,6 +327,12 @@ class Parser(init: State) {
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))
 
+        case App(Id("and"), rest @ _*) =>
+          commutative("and", const("true"), exprs(rest.toList, ctx, scope))
+
+        case App(Id("or"), rest @ _*) =>
+          commutative("or", const("false"), exprs(rest.toList, ctx, scope))
+
         case App(Id("let"), App(bound @ _*), arg) =>
           val eqs = leteqs(bound.toList, ctx, scope)
           val xs = eqs map (_._1)
@@ -347,7 +353,8 @@ class Parser(init: State) {
           check(body, bool)
           bind(name, xs, body, bool)
 
-        case App(App(Id("as"), Id(name), from), args @ _*) if st.funs contains (name, args.length) =>
+        case App(App(Id("as"), Id(name), from), args @ _*)
+            if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope), Some(typ(from, ctx)))
 
         case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
