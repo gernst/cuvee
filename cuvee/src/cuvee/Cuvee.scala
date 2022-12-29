@@ -62,6 +62,9 @@ class Cuvee {
     "-prove:simple" -> ("prove goals using simple structural prover", () => {
       this.prove = "simple"
     }),
+    "-prove:bimodal" -> ("prove goals using the bimodal prover", () => {
+      this.prove = "bimodal"
+    }),
     "-tactics:suggest" -> ("suggest tactics applicable to the current goal", () => {
       cuvee.util.Proving.suggestTactics = true
     }),
@@ -162,6 +165,18 @@ class Cuvee {
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
     def maybeProve(phi: Expr, tactic: Option[Tactic]): Boolean = prove match {
+      case "bimodal" =>
+        val prover = new BimodalProver(solver)
+        val result = Proving.show(Disj.from(phi), tactic)(
+          state,
+          solver,
+          prover,
+          printer,
+          safe
+        )
+
+        result == Atom.t
+
       case "default" =>
         val prover = new MonomodalProver(solver)
         val result = Proving.show(Disj.from(phi), tactic)(
@@ -172,7 +187,7 @@ class Cuvee {
           safe
         )
 
-        result == Atom(True)
+        result == Atom.t
 
       case "simple" =>
         if (!solver.isTrue(phi)) {

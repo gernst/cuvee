@@ -89,7 +89,7 @@ class BimodalProver(solver: Solver) extends Prover {
           solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
 
         // Filter out redundant assumptions, always expect true
-        val neg__ = neg // conj(neg_, expect)
+        val neg__ = neg_ // conj(neg_, expect)
 
         // Add assumptions to the solver
         for (phi <- neg__)
