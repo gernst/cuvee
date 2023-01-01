@@ -134,7 +134,7 @@ case class Conj(xs: List[Var], neg: List[Neg])
       for (x <- xs)
         yield "  " + x.name.toLabel + ": " + x.typ
 
-    val indent = if (bound.isEmpty) "" else "  "
+    val indent = "  " + (if (bound.isEmpty) "" else "  ")
 
     val concls =
       for (phi <- neg; line <- phi.bexpr)
@@ -144,7 +144,10 @@ case class Conj(xs: List[Var], neg: List[Neg])
       result ++= List("exists") ++ bound
 
     if (concls.size == 1)
-      result ++= concls
+      result ++= List("show") ++ concls
+
+    if (concls.size > 1)
+      result ++= List("show all of") ++ concls
 
     result
   }
