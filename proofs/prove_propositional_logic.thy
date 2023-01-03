@@ -196,33 +196,48 @@ proof (induction \<Gamma> f rule: prove_disprove.induct)
 next
   case (4 \<Gamma> \<phi>)
   then show ?case
-    apply simp
-    try
-    sorry
+    by (simp, cases "disprove \<Gamma> \<phi>" rule: not.cases) auto
 next
   case (5 \<Gamma> \<phi> \<psi>)
   then show ?case
-    sorry
+    by (simp, cases "(prove \<Gamma> \<phi>, prove (\<phi>#\<Gamma>) \<psi>)" rule: and'.cases)
+      fastforce+
 next
   case (6 \<Gamma> \<phi> \<psi>)
-  then show ?case sorry
+  then show ?case
+    by (simp, cases "(prove \<Gamma> \<phi>, prove (\<phi>#\<Gamma>) \<psi>)" rule: imp.cases)
+      fastforce+
 next
   case (7 \<Gamma> \<phi> \<psi>)
-  then show ?case sorry
+  then show ?case
+    apply auto
+    apply (cases "(disprove \<Gamma> \<phi>, disprove (formula.Not \<phi>#\<Gamma>) \<psi>)" rule: or.cases)
+                        apply fastforce+
+    sorry
 next
   case (10 \<Gamma> a)
   then show ?case
     by (simp, metis)
 next
   case (11 \<Gamma> \<phi>)
-  then show ?case sorry
+  then show ?case
+    by (simp, cases "prove \<Gamma> \<phi>" rule: not.cases) auto
 next
   case (12 \<Gamma> \<phi> \<psi>)
-  then show ?case sorry
+  then show ?case
+    apply auto
+    apply (cases "(prove \<Gamma> \<phi>, prove (Not \<phi>#\<Gamma>) \<psi>)" rule: and'.cases)
+                        apply fastforce+
+    
+    sorry
 next
   case (13 \<Gamma> \<phi> \<psi>)
-  then show ?case sorry
+  then show ?case
+    by (simp, cases "(prove \<Gamma> \<phi>, disprove (\<phi>#\<Gamma>) \<psi>)" rule: imp.cases)
+      fastforce+
 next
   case (14 \<Gamma> \<phi> \<psi>)
-  then show ?case sorry
+  then show ?case
+    by (simp, cases "(disprove \<Gamma> \<phi>, disprove (Not \<phi>#\<Gamma>) \<psi>)" rule: or.cases)
+      fastforce+
 qed auto
