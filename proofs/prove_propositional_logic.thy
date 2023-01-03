@@ -179,10 +179,8 @@ lemma size_decreases:
     auto
 
 fun size' :: "bool \<Rightarrow> 'a formula \<Rightarrow> nat"  where
-  "size' True  T         = 0" |
-  "size' False F         = 0" |
-  "size' False T         = 1" |
-  "size' True  F         = 1" |
+  "size' b T         = (if b then 1 else 0)" |
+  "size' b F         = (if b then 0 else 1)" |
   "size' b     (Atom a)  = 1" |
   "size' b     (Not p)   = 1 + (size' (\<not> b) p)" |
   "size' b     (And p q) = 1 + (size' True  p) + (size' True  q)" |
@@ -213,6 +211,8 @@ qed
 
 lemma size'_atom[intro]:
   "size' b (Atom a) \<le> n \<Longrightarrow> size' b (atom \<Gamma> a c) \<le> n"
+  by (cases c, auto)+
+
   (* by auto  \<leftarrow> Doesn't work at all, though I hoped it could use the previous lemma. *)
   (* Also, I thought this would be easy, since size' b (Atom a) = 1, so I expected that the goal should end up being "size' b (atom \<Gamma> a c) \<le> 1" or something similar. *)
   (* proof (simp add: size'_def) (* Here, I get an error: Undefined fact: "size'_def"\<^here>  *) *)
@@ -252,46 +252,16 @@ proof -
   qed
 qed *)
 
-(* trying to follow p. 24 of the Isar/Isabelle reference manual *)
-proof -
-  consider (zero) "size' b (atom \<Gamma> a c) = 0" | (one) "size' b (atom \<Gamma> a c) = 1"
-    by auto
-  then have "size' b (atom \<Gamma> a c) \<le> 1"
-  proof cases
-    case zero
-    then show ?thesis by auto
-  next
-    case one
-    then show ?thesis by auto
-  qed
-  have "size' b (Atom a) = 1" by simp
-  hence "1 \<le> n" sorry
-  then have "size' b (atom \<Gamma> a c) \<le> n" sorry
-  (* And here, this is the RHS of the implicaiton, which I'd wanna use here. *sigh* *)
-
 (* bailing out here :/ *)
 
 lemma size'_not[intro]:
   "size' b (Not p) \<le> n \<Longrightarrow> size' b (not p) \<le> n"
-proof (cases b)
-  case True
-  then show ?thesis
-  (* then show "size' True (Not p) \<le> n \<Longrightarrow> size' True (not p) \<le> n"  \<leftarrow> This seemed reasonable at first, but doesn't work *)
-    (* Here, I seem to have lost the antecedent from the implication :/ *)
-    (* using assm(s)  doesn't work, as the LHS doesn't seem to be in the context anymore? Where'd it go?
-       I am under the impression that it was removed by the `then show ?thesis` part, however, I don't know why.
-       According to the manual, ?thesis should be the *unchanged* goal statement?
-    *)
-    apply (simp)
-    
-    sorry
-next
-  case False
-  then show ?thesis sorry
-qed
+  by (cases p, auto)+
 
 lemma size'_and[intro]:
   "size' b (And p q) \<le> n \<Longrightarrow> size' b (and' p q) \<le> n"
+  apply (cases "(p, q)" rule: and'.cases)
+  apply auto
   sorry
 
 lemma size'_or[intro]:
