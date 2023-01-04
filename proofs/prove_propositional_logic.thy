@@ -90,6 +90,16 @@ lemma and_T[simp]:
   "and' p T = p"
   by (cases p) auto
 
+lemma and_shortcut:
+  assumes "\<And> q. \<lbrakk>(F,q) = x; and' F q = F\<rbrakk> \<Longrightarrow> P"
+  assumes "\<And> q. \<lbrakk>(T,q) = x; and' T q = q\<rbrakk> \<Longrightarrow> P"
+  assumes "\<And> p. \<lbrakk>(p,F) = x; p \<noteq> F; p \<noteq> T; and' p F = F\<rbrakk> \<Longrightarrow> P"
+  assumes "\<And> p. \<lbrakk>(p,T) = x; p \<noteq> F; p \<noteq> T; and' p T = p\<rbrakk> \<Longrightarrow> P"
+  assumes "\<And> p q. \<lbrakk>(p,q) = x; p \<noteq> F; p \<noteq> T; q \<noteq> F; q \<noteq> F; and' p q = And p q\<rbrakk> \<Longrightarrow> P"
+  shows "P"
+  using assms
+  by (cases "x" rule: and'.cases) auto
+
 lemma holds_or[simp]:
   "holds (or p q) v = holds (Or p q) v"
   apply (cases p)
@@ -217,7 +227,6 @@ next
   case (6 \<Gamma> \<phi> \<psi>)
   then show ?case
     apply auto
-    thm or_shortcut
     apply (cases "(disprove \<Gamma> \<phi>, disprove (formula.Not \<phi>#\<Gamma>) \<psi>)" rule: or_shortcut)
     using 6 apply fastforce+
     apply simp
@@ -248,10 +257,18 @@ next
   case (12 \<Gamma> \<phi> \<psi>)
   then show ?case
     apply auto
-    apply (cases "(prove \<Gamma> \<phi>, prove (Not \<phi>#\<Gamma>) \<psi>)" rule: and'.cases)
-                        apply fastforce+
-    
-    sorry
+    apply (cases "(prove \<Gamma> \<phi>, prove (\<phi> # \<Gamma>) \<psi>)" rule: and_shortcut)
+    using 12 apply fastforce+
+    using 12(3) apply simp
+    apply (cases "\<forall>v. (\<forall>p\<in>set \<Gamma>. holds p v) \<longrightarrow> holds \<phi> v \<longrightarrow> \<not> holds \<psi> v")
+    using 12(1,2,4) apply auto
+     apply (rule add_less_le_mono)
+    apply simp
+    using size_decreases apply blast
+    apply (rule add_le_less_mono)
+    using size_decreases apply blast
+    apply simp
+    done
 next
   case (13 \<Gamma> \<phi> \<psi>)
   then show ?case
