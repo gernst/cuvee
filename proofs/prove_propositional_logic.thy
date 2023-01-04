@@ -6,17 +6,17 @@ datatype 'a formula
   = Atom "'a set"
   | T | F
   | Not   "'a formula"
-  | Imp   "'a formula" "'a formula"
   | And   "'a formula" "'a formula"
   | Or    "'a formula" "'a formula"
+  | Imp   "'a formula" "'a formula"
 
 fun holds  :: "'a formula \<Rightarrow> 'a \<Rightarrow> bool" where
   "holds T v = True" | "holds F v = False" |
   "holds (Atom a)    v = (v \<in> a)" |
   "holds (Not \<phi>)     v = (\<not> holds \<phi> v)" |
-  "holds (Imp \<phi> \<psi>)   v = (holds \<phi> v \<longrightarrow> holds \<psi> v)" |
   "holds (And \<phi> \<psi>)   v = (holds \<phi> v \<and> holds \<psi> v)" |
-  "holds (Or  \<phi> \<psi>)   v = (holds \<phi> v \<or> holds \<psi> v)"
+  "holds (Or  \<phi> \<psi>)   v = (holds \<phi> v \<or> holds \<psi> v)" |
+  "holds (Imp \<phi> \<psi>)   v = (holds \<phi> v \<longrightarrow> holds \<psi> v)"
 
 fun entails where
   "entails \<Gamma> q = (\<forall> v. (\<forall> p \<in> set \<Gamma>. holds p v) \<longrightarrow> holds q v)"
@@ -120,9 +120,9 @@ fun prove and disprove where
   "prove \<Gamma> (Atom a)  = (if (entails \<Gamma> (Atom a)) then T else (Atom a))" |
   "prove \<Gamma> (Not \<phi>)   = not  (disprove \<Gamma> \<phi>)" |
   "prove \<Gamma> (And \<phi> \<psi>) = and' (prove \<Gamma> \<phi>)    (prove (\<phi>#\<Gamma>) \<psi>)" |
-  "prove \<Gamma> (Imp \<phi> \<psi>) = imp  (prove \<Gamma> \<phi>)    (prove (\<phi>#\<Gamma>) \<psi>)" |
   "prove \<Gamma> (Or  \<phi> \<psi>) = or (or (disprove \<Gamma> \<phi>) (disprove (Not \<phi>#\<Gamma>) \<psi>))
-                           (if entails \<Gamma> (Or \<phi> \<psi>) then T else F)" |
+                           (if entails \<Gamma> (Or \<phi> \<psi>) then T else F)" | (* to work with prove and associativity *)
+  "prove \<Gamma> (Imp \<phi> \<psi>) = imp  (prove \<Gamma> \<phi>)    (prove (\<phi>#\<Gamma>) \<psi>)" |
   
   "disprove \<Gamma> F = F" |
   "disprove \<Gamma> T = (if (entails \<Gamma> F) then F else T)" |
@@ -130,8 +130,8 @@ fun prove and disprove where
   "disprove \<Gamma> (Not \<phi>)   = not  (prove \<Gamma> \<phi>)" |
   "disprove \<Gamma> (And \<phi> \<psi>) = and' (and' (prove \<Gamma> \<phi>) (prove (\<phi>#\<Gamma>) \<psi>))
                                 (if entails \<Gamma> (Not (And \<phi> \<psi>)) then F else T)" |
-  "disprove \<Gamma> (Imp \<phi> \<psi>) = imp  (prove \<Gamma> \<phi>)    (disprove (\<phi>#\<Gamma>) \<psi>)" |
-  "disprove \<Gamma> (Or  \<phi> \<psi>) = or   (disprove \<Gamma> \<phi>) (disprove (Not \<phi>#\<Gamma>) \<psi>)" (* to work with prove and associativity *)
+  "disprove \<Gamma> (Or  \<phi> \<psi>) = or   (disprove \<Gamma> \<phi>) (disprove (Not \<phi>#\<Gamma>) \<psi>)" |
+  "disprove \<Gamma> (Imp \<phi> \<psi>) = imp  (prove \<Gamma> \<phi>)    (disprove (\<phi>#\<Gamma>) \<psi>)"
 
 lemma prove_sound[simp]:
   assumes "\<forall> p \<in> set \<Gamma>. holds p v"
@@ -161,15 +161,15 @@ fun size :: "'a formula \<Rightarrow> nat"  where
   "size (Atom a)  = 1" |
   "size (Not \<phi>)   = 1 + (size \<phi>)" |
   "size (And \<phi> \<psi>) = 1 + (size \<phi>) + (size \<psi>)" |
-  "size (Imp \<phi> \<psi>) = 1 + (size \<phi>) + (size \<psi>)" |
-  "size (Or  \<phi> \<psi>) = 1 + (size \<phi>) + (size \<psi>)"
+  "size (Or  \<phi> \<psi>) = 1 + (size \<phi>) + (size \<psi>)" |
+  "size (Imp \<phi> \<psi>) = 1 + (size \<phi>) + (size \<psi>)"
 
 lemma size_not[intro]:
   "size (Not p) \<le> n \<Longrightarrow> size (not p) \<le> n"
   by (cases p, auto)
 
-lemma size_imp[intro]:
-  "size (Imp p q) \<le> n \<Longrightarrow> size (imp p q) \<le> n"
+lemma size_and[intro]:
+  "size (And p q) \<le> n \<Longrightarrow> size (and' p q) \<le> n"
   apply (cases p)
   by (cases q, auto)+
 
@@ -178,8 +178,8 @@ lemma size_or[intro]:
   apply (cases p)
   by (cases q, auto)+
 
-lemma size_and[intro]:
-  "size (And p q) \<le> n \<Longrightarrow> size (and' p q) \<le> n"
+lemma size_imp[intro]:
+  "size (Imp p q) \<le> n \<Longrightarrow> size (imp p q) \<le> n"
   apply (cases p)
   by (cases q, auto)+
 
@@ -216,19 +216,14 @@ next
 next
   case (6 \<Gamma> \<phi> \<psi>)
   then show ?case
-    by (simp, cases "(prove \<Gamma> \<phi>, prove (\<phi>#\<Gamma>) \<psi>)" rule: imp.cases)
-      fastforce+
-next
-  case (7 \<Gamma> \<phi> \<psi>)
-  show ?case
     apply auto
     thm or_shortcut
     apply (cases "(disprove \<Gamma> \<phi>, disprove (formula.Not \<phi>#\<Gamma>) \<psi>)" rule: or_shortcut)
-    using 7 apply fastforce+
+    using 6 apply fastforce+
     apply simp
-    using 7(3) apply simp
+    using 6(3) apply simp
     apply (cases "\<forall>v. (\<forall>p\<in>set \<Gamma>. holds p v) \<longrightarrow> holds \<phi> v \<or> holds \<psi> v")
-    using 7(1,2,4) apply auto
+    using 6(1,2,4) apply auto
      apply (rule add_less_le_mono)
     apply simp
     using size_decreases apply blast
@@ -236,6 +231,11 @@ next
     using size_decreases apply blast
     apply simp
     done
+next
+  case (7 \<Gamma> \<phi> \<psi>)
+  then show ?case
+    by (simp, cases "(prove \<Gamma> \<phi>, prove (\<phi>#\<Gamma>) \<psi>)" rule: imp.cases)
+      fastforce+
 next
   case (10 \<Gamma> a)
   then show ?case
@@ -255,11 +255,11 @@ next
 next
   case (13 \<Gamma> \<phi> \<psi>)
   then show ?case
-    by (simp, cases "(prove \<Gamma> \<phi>, disprove (\<phi>#\<Gamma>) \<psi>)" rule: imp.cases)
+    by (simp, cases "(disprove \<Gamma> \<phi>, disprove (Not \<phi>#\<Gamma>) \<psi>)" rule: or_shortcut)
       fastforce+
 next
   case (14 \<Gamma> \<phi> \<psi>)
   then show ?case
-    by (simp, cases "(disprove \<Gamma> \<phi>, disprove (Not \<phi>#\<Gamma>) \<psi>)" rule: or.cases)
+    by (simp, cases "(prove \<Gamma> \<phi>, disprove (\<phi>#\<Gamma>) \<psi>)" rule: imp.cases, simp_all)
       fastforce+
 qed auto
