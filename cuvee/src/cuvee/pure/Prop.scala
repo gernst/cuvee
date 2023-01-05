@@ -92,13 +92,13 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     if (assms.nonEmpty)
       result ++= List("assume") ++ assms
 
-    if (concls.isEmpty)
+    if (pos.isEmpty)
       result ++= List("show contradiction")
 
-    if (concls.size == 1)
+    if (pos.size == 1)
       result ++= List("show") ++ concls
 
-    if (concls.size > 1)
+    if (pos.size > 1)
       result ++= List("show one of") ++ concls
 
     result
@@ -143,10 +143,10 @@ case class Conj(xs: List[Var], neg: List[Neg])
     if (bound.nonEmpty)
       result ++= List("exists") ++ bound
 
-    if (concls.size == 1)
+    if (neg.size == 1)
       result ++= List("show") ++ concls
 
-    if (concls.size > 1)
+    if (neg.size > 1)
       result ++= List("show all of") ++ concls
 
     result
