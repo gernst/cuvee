@@ -10,6 +10,16 @@ sealed trait Prop extends sexpr.Syntax with boogie.Syntax {
   def subst(su: Map[Var, Expr]): Prop
 }
 
+object Prop {
+  def from(expr: Expr) = Disj.from(expr) match {
+    case atom @ Atom(_, _) => atom
+    // In case the expression could have been written as just a Conj,
+    // we'll get the sequence {} => { conj }, extract the conj and return it:
+    case Disj(Nil, Nil, conj :: Nil) => conj
+    case disj => disj
+  }
+}
+
 sealed trait Pos extends Prop {
   def rename(re: Map[Var, Var]): Pos
   def subst(su: Map[Var, Expr]): Pos
