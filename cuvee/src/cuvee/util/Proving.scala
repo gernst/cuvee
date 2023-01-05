@@ -65,7 +65,7 @@ object Proving {
     if (debug) {
       println(indent(depth) + "---  PROOF OBLIGATION ---")
       println(indent(depth) + "prop:     " + prop.toExpr)
-      println(indent(depth) + "comp:     " + Rating.complexity(prop))
+      println(indent(depth) + "size:     " + Rating.size(prop))
     }
 
     // Call the prover, except if instructed by the NoAuto tactic *not* to do so.
@@ -179,7 +179,7 @@ object Proving {
     // Simplify the result
     val simp = Simplify.simplify(res, rules)
     if (debug)
-      println(indent(depth) + "simp:     " + simp.toExpr)
+      println(indent(depth) + "simp:     " + simp)
 
     simp
   }
