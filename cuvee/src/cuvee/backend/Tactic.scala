@@ -244,7 +244,6 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
       i.args.contains(i.res)
     }
 
-    // TODO da: do we want to check for *all* base cases being closed, or does it suffice, if *some* are solved automatically?
     // Check whether the goals of all resulting base cases can be proved automatically
     val baseIndices = baseCases map (_._2)
 
@@ -296,9 +295,47 @@ object Unfold
     extends ((Name, Option[List[BigInt]], Option[Tactic]) => Unfold)
     with Suggest {
 
-  // TODO: Consider suggesting unfolding of defined functions?
-  def suggest(state: State, goal: Prop): List[Tactic] = Nil
+  /** Suggest to unfold definitions.
+    *
+    * This function produces suggestions for unfolding definitions.
+    * If a function / constant occurs more than once in the goal, unfolding
+    * every ocurrence is suggested, as well as unfolding all occurrences.
+    *
+    * @param state
+    * @param goal
+    * @return
+    */
+  def suggest(state: State, goal: Prop): List[Tactic] = {
+    // First, find all unfoldable functions in the goal
+    val expr = goal.toExpr
 
+    var functions = collection.mutable.Map[Name, Int]()
+
+    expr.topdown {
+      case app @ App(inst, args)
+          if state.fundefs.contains((inst.fun.name, args.length)) => {
+        val name = inst.fun.name
+        val (_, body) = state.fundefs((inst.fun.name, args.length))
+
+        // In case of a recursive definition, bail out
+        if (!body.funs.contains(inst.fun))
+          functions.update(name, functions.getOrElse(name, 0) + 1)
+
+        app
+      }
+      case e => e
+    }
+
+    // Generate the tactic suggestions for the unfoldable functions
+    functions.flatMap { case (fn, cnt) =>
+      if (cnt == 1)
+        List(Unfold(fn, Some(List(1)), None))
+      else
+        (1 to cnt).map(i => 
+          Unfold(fn, Some(List(i)), None)
+        ) :+ Unfold(fn, None, None)
+    }.toList
+  }
 }
 
 case class Unfold(
