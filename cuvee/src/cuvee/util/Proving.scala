@@ -93,7 +93,7 @@ object Proving {
       // If there is no tactic given, find one that could be used automatically
       if (applyTactics) {
         val candidates =
-          for (tac <- suggestions ; prog <- tac.makesProgress(state, prop))
+          for (tac <- suggestions; prog <- tac.makesProgress(state, prop))
             yield (tac, prog)
 
         tactic = candidates.maxByOption(_._2).map(_._1)
@@ -115,8 +115,7 @@ object Proving {
     }
 
     // Apply the tactic `tactic_`
-    if (tactic.isDefined)
-    {
+    if (tactic.isDefined) {
       val tactic_ = tactic.get
 
       if (debug)
@@ -187,5 +186,6 @@ object Proving {
     simp
   }
 
-  private[this] def indent(depth: Int, indentStr: String = "  "): String = indentStr * depth
+  private[this] def indent(depth: Int, indentStr: String = "  "): String =
+    indentStr * depth
 }
