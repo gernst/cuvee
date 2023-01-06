@@ -10,8 +10,7 @@ import cuvee.util.Alpha
 
 sealed trait Type extends Type.term with sexpr.Syntax with boogie.Syntax {}
 
-case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
-    extends sexpr.Syntax {
+case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends sexpr.Syntax {
   def sexpr = {
     val constrs_ = for ((k, sels) <- constrs) yield {
       val sels_ = for (sel <- sels) yield {
@@ -29,6 +28,20 @@ case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
 }
 
 object Type extends Alpha[Type, Param] {
+  def prune(su: Map[Param, Type]): Map[Param, Type] = {
+    for ((p, t) <- su)
+      yield (p, prune(t, su))
+  }
+
+  def prune(typ: Type, su: Map[Param, Type]): Type = typ match {
+    case p: Param if su contains p =>
+      prune(su(p), su)
+    case p: Param =>
+      p
+    case Sort(con, args) =>
+      Sort(con, args map (prune(_, su)))
+  }
+
   def unify(typ1: Type, typ2: Type, su: Map[Param, Type]): Map[Param, Type] = {
     (typ1, typ2) match {
       case _ if typ1 == typ2 =>
@@ -150,9 +163,7 @@ class ParamList(params: List[Param]) extends Type.xs(params) {
 
 class TypeList(types: List[Type]) extends Type.terms(types)
 
-case class Param(name: Name)
-    extends Type
-    with Type.x {
+case class Param(name: Name) extends Type with Type.x {
   def fresh(index: Int) =
     Param(name withIndex index)
 
@@ -274,7 +285,7 @@ object Sort extends ((Con, List[Type]) => Sort) {
 
   def sum(as: List[Type]) =
     as match {
-      case Nil => error("cannot form empty sum (SMT-LIB types are inhabitated)")
+      case Nil     => error("cannot form empty sum (SMT-LIB types are inhabitated)")
       case List(a) => a
       case _       => Sum(as)
     }

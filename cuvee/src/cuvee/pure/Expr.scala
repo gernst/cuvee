@@ -358,6 +358,12 @@ case class Tuple(args: List[Expr]) extends Expr {
 }
 
 object App extends ((Inst, List[Expr]) => App) {
+  def apply(inst: Inst, args: List[Expr]): App = {
+    require(inst.args == args.types,
+      "cannot apply " + inst.fun + " with " + inst.args + " to " + args + " with " + args.types)
+    new App(inst, args)
+  }
+
   def apply(fun: Fun, args: List[Expr]): App = {
     require(
       fun.params.isEmpty || args.nonEmpty,
@@ -383,7 +389,7 @@ object App extends ((Inst, List[Expr]) => App) {
       "unbound params applying " + fun + " to " + args + ": " + ps
     )
 
-    val expr = App(inst, args)
+    val expr = new App(inst, args)
 
     expr inst su
   }
@@ -404,7 +410,7 @@ object App extends ((Inst, List[Expr]) => App) {
       "unbound params casting " + fun + " to " + typ + ": " + ps
     )
 
-    App(Inst(fun, su), Nil)
+    new App(Inst(fun, su), Nil)
   }
 
   // def apply(fun: Fun, inst: List[Type], args: List[Expr]): App = {

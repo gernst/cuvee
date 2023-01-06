@@ -191,7 +191,13 @@ class State(
 
     case class Pre(private[Exprs] val expr: Expr) {
       def typ = expr.typ // leaky
-      def resolve = expr inst su
+      
+      def resolve = {
+        val su_ = Type.prune(su)
+        trace("resolving " + expr + " with " + su) {
+          expr inst su_
+        }
+      }
     }
 
     def unify(typ1: Type, typ2: Type) {
@@ -283,7 +289,8 @@ class State(
         }
       }
 
-      Pre(App(inst, exprs))
+      // bypass type check
+      Pre(new App(inst, exprs))
     }
 
     def match_(arg: Pre, cases: List[(Pre, Pre)]) = {
