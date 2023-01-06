@@ -68,6 +68,18 @@ trait Suggest {
     *   List of tactics that are applicable for the given state and goal
     */
   def suggest(state: State, goal: Prop): List[Tactic]
+
+  /** Suggest some tactics that could be automatically applied for the given
+    * `state` and `goal`.
+    *
+    * By default, this returns the same tactics as `suggest`.
+    *
+    * @param state
+    * @param goal
+    * @return
+    *   List of tactics that are applicable for the given state and goal
+    */
+  def autoSuggest(state: State, goal: Prop): List[Tactic] = suggest(state, goal)
 }
 
 object Suggest extends Suggest {
@@ -76,6 +88,11 @@ object Suggest extends Suggest {
   def suggest(state: State, goal: Prop): List[Tactic] = goal match {
     case Atom.t | Atom.f => Nil
     case goal            => suggesters flatMap (_.suggest(state, goal))
+  }
+
+  override def autoSuggest(state: State, goal: Prop): List[Tactic] = goal match {
+    case Atom.t | Atom.f => Nil
+    case goal            => suggesters flatMap (_.autoSuggest(state, goal))
   }
 }
 
