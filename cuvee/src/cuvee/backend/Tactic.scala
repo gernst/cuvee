@@ -337,6 +337,22 @@ object Unfold
         ) :+ Unfold(fn, None, None)
     }.toList
   }
+
+  /** Suggest definitions to automatically unfold.
+    *
+    * Here we reduce the suggestions from `suggest` to those, in which we have a
+    * predicate that we unfold.
+    *
+    * @param state
+    * @param goal
+    * @return
+    */
+  override def autoSuggest(state: State, goal: Prop): List[Tactic] = {
+    val suggestions = suggest(state, goal) map (t => t.asInstanceOf[Unfold])
+    // At this point we know that the function exists, so we can request the definition from the state
+    // and filter for unfodings of predicates
+    suggestions filter (t => state.funs(t.target).res == Sort.bool)
+  }
 }
 
 case class Unfold(
