@@ -292,7 +292,7 @@ case class Show(
 }
 
 object Unfold
-    extends ((Name, Option[List[BigInt]], Option[Tactic]) => Unfold)
+    extends (((Name, Int), Option[List[BigInt]], Option[Tactic]) => Unfold)
     with Suggest {
 
   /** Suggest to unfold definitions.
@@ -309,17 +309,18 @@ object Unfold
     // First, find all unfoldable functions in the goal
     val expr = goal.toExpr
 
-    var functions = collection.mutable.Map[Name, Int]()
+    var functions = collection.mutable.Map[(Name, Int), Int]()
 
     expr.topdown {
       case app @ App(inst, args)
           if state.fundefs.contains((inst.fun.name, args.length)) => {
         val name = inst.fun.name
-        val (_, body) = state.fundefs((inst.fun.name, args.length))
+        val arity = args.length
+        val (_, body) = state.fundefs((name, arity))
 
         // In case of a recursive definition, bail out
         if (!body.funs.contains(inst.fun))
-          functions.update(name, functions.getOrElse(name, 0) + 1)
+          functions.update((name, arity), functions.getOrElse((name, arity), 0) + 1)
 
         app
       }
@@ -339,7 +340,7 @@ object Unfold
 }
 
 case class Unfold(
-    target: Name,
+    target: (Name, Int),
     places: Option[List[BigInt]],
     cont: Option[Tactic]
 ) extends Tactic {
@@ -351,17 +352,14 @@ case class Unfold(
     var i = 0
 
     val goal_ = expr.topdown {
-      case e @ App(inst, args) if inst.fun.name == target =>
+      case e @ App(inst, args) if (inst.fun.name, args.length) == target =>
         i += 1
 
         if (places.isDefined && !places.get.contains(i)) {
           e
         } else {
-          val arity = args.length
-          val (params, body) = state.fundefs((target, arity))
-
+          val (params, body) = state.fundefs(target)
           val su = params.zip(args).toMap
-
           body.subst(su)
         }
 
