@@ -385,6 +385,21 @@ case class Unfold(
 
     List((Disj.from(goal_), cont))
   }
+
+  override def makesProgress(state: State, goal: Prop)(implicit prover: Prove): Option[Int] = {
+    // Tentatively apply every suggested unfolding of predicates
+    val result = apply(state, goal)
+    // We know that the applying the tactic yields exactly one subgoal (see above)
+    val new_goal = result.head._1
+    val goal_p = prover.prove(new_goal)
+
+    val diff = Rating.size(new_goal)(state) - Rating.size(goal_p)(state)
+
+    if (diff > 0)
+      Some(diff)
+    else
+      None
+  }
 }
 
 /** This "tactic" is actually just a wrapper for another tactic. It serves to
