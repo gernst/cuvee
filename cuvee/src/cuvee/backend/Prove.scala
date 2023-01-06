@@ -42,7 +42,8 @@ class Prove(solver: Solver) {
       Simplify.conj_(Nil, neg_)
 
     case conj: Conj =>
-      prove(Atom(conj.toExpr))
+      val asAtom = Atom(conj.toExpr)
+      Conj.from(prove(asAtom).toExpr)
   }
 
   def prove(neg: Neg): Neg = neg match {
