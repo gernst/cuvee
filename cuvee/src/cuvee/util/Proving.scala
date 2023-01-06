@@ -86,7 +86,7 @@ object Proving {
     if (tactic.isEmpty && (suggestTactics || applyTactics)) {
       // Get suggestions
       val suggestions = applyTactics match {
-        case true  => Suggest.autoSuggest(state, prop)
+        case true  => Suggest.suggestAuto(state, prop)
         case false => Suggest.suggest(state, prop)
       }
 

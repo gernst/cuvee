@@ -79,7 +79,7 @@ trait Suggest {
     * @return
     *   List of tactics that are applicable for the given state and goal
     */
-  def autoSuggest(state: State, goal: Prop): List[Tactic] = suggest(state, goal)
+  def suggestAuto(state: State, goal: Prop): List[Tactic] = suggest(state, goal)
 }
 
 object Suggest extends Suggest {
@@ -90,9 +90,9 @@ object Suggest extends Suggest {
     case goal            => suggesters flatMap (_.suggest(state, goal))
   }
 
-  override def autoSuggest(state: State, goal: Prop): List[Tactic] = goal match {
+  override def suggestAuto(state: State, goal: Prop): List[Tactic] = goal match {
     case Atom.t | Atom.f => Nil
-    case goal            => suggesters flatMap (_.autoSuggest(state, goal))
+    case goal            => suggesters flatMap (_.suggestAuto(state, goal))
   }
 }
 
@@ -347,7 +347,7 @@ object Unfold
     * @param goal
     * @return
     */
-  override def autoSuggest(state: State, goal: Prop): List[Tactic] = {
+  override def suggestAuto(state: State, goal: Prop): List[Tactic] = {
     val suggestions = suggest(state, goal) map (t => t.asInstanceOf[Unfold])
     // At this point we know that the function exists, so we can request the definition from the state
     // and filter for unfodings of predicates
