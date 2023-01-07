@@ -476,4 +476,102 @@ object Conj {
     }
   }
 
+  def from(
+    xs: List[Var], neg: List[Prop]
+  )(implicit s: DummyImplicit): Pos =
+    Conj.show(neg, xs, Nil)
+
+  def avoid(
+      first: Neg,
+      rest: List[Prop],
+      todo: List[Prop],
+      xs: List[Var],
+      neg: List[Neg]
+  )(implicit s: DummyImplicit): Pos = first match {
+    case Atom.t =>
+      Atom.f
+    case Atom.f =>
+      avoid(rest, todo, xs, neg)
+    case _ =>
+      avoid(rest, todo, xs, neg ++ List(first))
+  }
+
+  def avoid(
+      that: List[Prop],
+      todo: List[Prop],
+      xs: List[Var],
+      neg: List[Neg]
+  )(implicit s: DummyImplicit): Pos = {
+    that match {
+      case Nil =>
+        show(todo, xs, neg)
+
+      case Atom.f :: rest =>
+        show(rest, xs, neg)
+      case Atom.t :: rest =>
+        Atom.f
+
+      case (phi: Atom) :: rest =>
+        // !phi = phi ==> False = Disj([], [phi], [])
+        val nphi = Disj.from(Nil, List(phi), Nil)
+        avoid(rest, todo, xs, neg ++ List(nphi))
+
+      case (disj @ Disj(xs_, _, _)) :: rest =>
+        val ys = xs intersect xs_
+        val re = Expr.fresh(ys)
+
+        val Disj(zs, neg_, pos_) = disj.rename(re)
+        avoid(pos_ ++ rest, neg_ ++ todo, xs ++ zs, neg)
+
+      case (conj: Conj) :: rest =>
+        val prop = Disj.assume(List(conj), Nil, Nil, Nil, Nil)
+        avoid(prop, rest, todo, xs, neg)
+    }
+  }
+
+  def show(
+      first: Neg,
+      todo: List[Prop],
+      xs: List[Var],
+      neg: List[Neg]
+  )(implicit s: DummyImplicit): Pos = first match {
+    case Atom.f =>
+      Atom.f
+    case Atom.t =>
+      show(todo, xs, neg)
+    case _ =>
+      show(todo, xs, neg ++ List(first))
+  }
+
+  def show(
+      todo: List[Prop],
+      xs: List[Var],
+      neg: List[Neg]
+  )(implicit s: DummyImplicit): Pos = {
+    todo match {
+      case Nil if neg.isEmpty =>
+        Atom.t
+
+      case Nil =>
+        Conj(xs, neg)
+
+      case Atom.t :: rest =>
+        show(rest, xs, neg)
+      case Atom.f :: rest =>
+        Atom.f
+      case (atom: Atom) :: rest =>
+        show(rest, xs, neg ++ List(atom))
+
+      case (disj: Disj) :: rest =>
+        show(disj, rest, xs, neg)
+
+      case (conj @ Conj(xs_, _)) :: rest =>
+        val ys = xs intersect xs_
+        val re = Expr.fresh(ys)
+
+        val Conj(zs, neg_) = conj.rename(re)
+
+        show(neg_ ++ rest, xs ++ zs, neg)
+    }
+  }
 }
