@@ -144,6 +144,23 @@ object Parser {
       error("unknown function: " + name + " with arity " + args.length)
   }
 
+  val make_fun_ref: ((Name, Option[BigInt]) => (Name, Int)) = {
+    // Names may become non-unique in the future. Thus make it possible to specify the arity
+    // of a function.
+    case (name, Some(arity)) =>
+      (name, arity.toInt)
+
+    case (name, None) =>
+      val candidates = state.funs.filter(_._1._1 == name)
+
+      if (candidates.size < 1)
+        error(f"No function named ${name} found.")
+      if (candidates.size > 1)
+        error(f"Multiple functions named ${name} found. Please specify the arity as follows: ${name}[<arity>]")
+
+      candidates.keys.head
+  }
+
   def make_var(scope: Map[Name, Var]): (Name => Var) = {
     case name if scope contains name =>
       scope(name)

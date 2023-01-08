@@ -10,6 +10,16 @@ sealed trait Prop extends sexpr.Syntax with boogie.Syntax {
   def subst(su: Map[Var, Expr]): Prop
 }
 
+object Prop {
+  def from(expr: Expr) = Disj.from(expr) match {
+    case atom @ Atom(_, _) => atom
+    // In case the expression could have been written as just a Conj,
+    // we'll get the sequence {} => { conj }, extract the conj and return it:
+    case Disj(Nil, Nil, conj :: Nil) => conj
+    case disj => disj
+  }
+}
+
 sealed trait Pos extends Prop {
   def rename(re: Map[Var, Var]): Pos
   def subst(su: Map[Var, Expr]): Pos
@@ -92,13 +102,13 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     if (assms.nonEmpty)
       result ++= List("assume") ++ assms
 
-    if (concls.isEmpty)
+    if (pos.isEmpty)
       result ++= List("show contradiction")
 
-    if (concls.size == 1)
+    if (pos.size == 1)
       result ++= List("show") ++ concls
 
-    if (concls.size > 1)
+    if (pos.size > 1)
       result ++= List("show one of") ++ concls
 
     result
@@ -143,10 +153,10 @@ case class Conj(xs: List[Var], neg: List[Neg])
     if (bound.nonEmpty)
       result ++= List("exists") ++ bound
 
-    if (concls.size == 1)
+    if (neg.size == 1)
       result ++= List("show") ++ concls
 
-    if (concls.size > 1)
+    if (neg.size > 1)
       result ++= List("show all of") ++ concls
 
     result

@@ -346,7 +346,7 @@ object Grammar {
 
   // UNFOLD
   def unfold(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Unfold("unfold" ~ name ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?))
+    P(Unfold("unfold" ~ make_fun_ref(name ~ ("[" ~ int_ ~ "]").?) ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?))
 
   // NOAUTO
   def noauto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =

@@ -68,6 +68,18 @@ trait Suggest {
     *   List of tactics that are applicable for the given state and goal
     */
   def suggest(state: State, goal: Prop): List[Tactic]
+
+  /** Suggest some tactics that could be automatically applied for the given
+    * `state` and `goal`.
+    *
+    * By default, this returns the same tactics as `suggest`.
+    *
+    * @param state
+    * @param goal
+    * @return
+    *   List of tactics that are applicable for the given state and goal
+    */
+  def suggestAuto(state: State, goal: Prop): List[Tactic] = suggest(state, goal)
 }
 
 object Suggest extends Suggest {
@@ -76,6 +88,11 @@ object Suggest extends Suggest {
   def suggest(state: State, goal: Prop): List[Tactic] = goal match {
     case Atom.t | Atom.f => Nil
     case goal            => suggesters flatMap (_.suggest(state, goal))
+  }
+
+  override def suggestAuto(state: State, goal: Prop): List[Tactic] = goal match {
+    case Atom.t | Atom.f => Nil
+    case goal            => suggesters flatMap (_.suggestAuto(state, goal))
   }
 }
 
@@ -227,7 +244,6 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
       i.args.contains(i.res)
     }
 
-    // TODO da: do we want to check for *all* base cases being closed, or does it suffice, if *some* are solved automatically?
     // Check whether the goals of all resulting base cases can be proved automatically
     val baseIndices = baseCases map (_._2)
 
@@ -276,16 +292,71 @@ case class Show(
 }
 
 object Unfold
-    extends ((Name, Option[List[BigInt]], Option[Tactic]) => Unfold)
+    extends (((Name, Int), Option[List[BigInt]], Option[Tactic]) => Unfold)
     with Suggest {
 
-  // TODO: Consider suggesting unfolding of defined functions?
-  def suggest(state: State, goal: Prop): List[Tactic] = Nil
+  /** Suggest to unfold definitions.
+    *
+    * This function produces suggestions for unfolding definitions.
+    * If a function / constant occurs more than once in the goal, unfolding
+    * every ocurrence is suggested, as well as unfolding all occurrences.
+    *
+    * @param state
+    * @param goal
+    * @return
+    */
+  def suggest(state: State, goal: Prop): List[Tactic] = {
+    // First, find all unfoldable functions in the goal
+    val expr = goal.toExpr
 
+    var functions = collection.mutable.Map[(Name, Int), Int]()
+
+    expr.topdown {
+      case app @ App(inst, args)
+          if state.fundefs.contains((inst.fun.name, args.length)) => {
+        val name = inst.fun.name
+        val arity = args.length
+        val (_, body) = state.fundefs((name, arity))
+
+        // In case of a recursive definition, bail out
+        if (!body.funs.contains(inst.fun))
+          functions.update((name, arity), functions.getOrElse((name, arity), 0) + 1)
+
+        app
+      }
+      case e => e
+    }
+
+    // Generate the tactic suggestions for the unfoldable functions
+    functions.flatMap { case (fn, cnt) =>
+      if (cnt == 1)
+        List(Unfold(fn, Some(List(1)), None))
+      else
+        (1 to cnt).map(i => 
+          Unfold(fn, Some(List(i)), None)
+        ) :+ Unfold(fn, None, None)
+    }.toList
+  }
+
+  /** Suggest definitions to automatically unfold.
+    *
+    * Here we reduce the suggestions from `suggest` to those, in which we have a
+    * predicate that we unfold.
+    *
+    * @param state
+    * @param goal
+    * @return
+    */
+  override def suggestAuto(state: State, goal: Prop): List[Tactic] = {
+    val suggestions = suggest(state, goal) map (t => t.asInstanceOf[Unfold])
+    // At this point we know that the function exists, so we can request the definition from the state
+    // and filter for unfodings of predicates
+    suggestions filter (t => state.funs(t.target).res == Sort.bool)
+  }
 }
 
 case class Unfold(
-    target: Name,
+    target: (Name, Int),
     places: Option[List[BigInt]],
     cont: Option[Tactic]
 ) extends Tactic {
@@ -297,17 +368,14 @@ case class Unfold(
     var i = 0
 
     val goal_ = expr.topdown {
-      case e @ App(inst, args) if inst.fun.name == target =>
+      case e @ App(inst, args) if (inst.fun.name, args.length) == target =>
         i += 1
 
         if (places.isDefined && !places.get.contains(i)) {
           e
         } else {
-          val arity = args.length
-          val (params, body) = state.fundefs((target, arity))
-
+          val (params, body) = state.fundefs(target)
           val su = params.zip(args).toMap
-
           body.subst(su)
         }
 
@@ -316,6 +384,21 @@ case class Unfold(
     }
 
     List((Disj.from(goal_), cont))
+  }
+
+  override def makesProgress(state: State, goal: Prop)(implicit prover: Prove): Option[Int] = {
+    // Tentatively apply every suggested unfolding of predicates
+    val result = apply(state, goal)
+    // We know that the applying the tactic yields exactly one subgoal (see above)
+    val new_goal = result.head._1
+    val goal_p = prover.prove(new_goal)
+
+    val diff = Rating.size(new_goal)(state) - Rating.size(goal_p)(state)
+
+    if (diff > 0)
+      Some(diff)
+    else
+      None
   }
 }
 

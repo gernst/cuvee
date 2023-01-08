@@ -65,7 +65,7 @@ object Proving {
     if (debug) {
       println(indent(depth) + "---  PROOF OBLIGATION ---")
       println(indent(depth) + "prop:     " + prop.toExpr)
-      println(indent(depth) + "comp:     " + Rating.complexity(prop))
+      println(indent(depth) + "size:     " + Rating.size(prop))
     }
 
     // Call the prover, except if instructed by the NoAuto tactic *not* to do so.
@@ -85,12 +85,15 @@ object Proving {
     // try to find an applicable tactic.
     if (tactic.isEmpty && (suggestTactics || applyTactics)) {
       // Get suggestions
-      val suggestions = Suggest.suggest(state, prop)
+      val suggestions = suggestTactics match {
+        case true  => Suggest.suggest(state, prop)
+        case false => Suggest.suggestAuto(state, prop)
+      }
 
       // If there is no tactic given, find one that could be used automatically
       if (applyTactics) {
         val candidates =
-          for (tac <- suggestions ; prog <- tac.makesProgress(state, prop))
+          for (tac <- suggestions; prog <- tac.makesProgress(state, prop))
             yield (tac, prog)
 
         tactic = candidates.maxByOption(_._2).map(_._1)
@@ -112,8 +115,7 @@ object Proving {
     }
 
     // Apply the tactic `tactic_`
-    if (tactic.isDefined)
-    {
+    if (tactic.isDefined) {
       val tactic_ = tactic.get
 
       if (debug)
@@ -179,10 +181,11 @@ object Proving {
     // Simplify the result
     val simp = Simplify.simplify(res, rules)
     if (debug)
-      println(indent(depth) + "simp:     " + simp.toExpr)
+      println(indent(depth) + "simp:     " + simp)
 
     simp
   }
 
-  private[this] def indent(depth: Int, indentStr: String = "  "): String = indentStr * depth
+  private[this] def indent(depth: Int, indentStr: String = "  "): String =
+    indentStr * depth
 }
