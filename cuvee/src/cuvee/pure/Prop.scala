@@ -507,7 +507,7 @@ object Conj {
         show(todo, xs, neg)
 
       case Atom.f :: rest =>
-        show(rest, xs, neg)
+        avoid(rest, todo, xs, neg)
       case Atom.t :: rest =>
         Atom.f
 
