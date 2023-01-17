@@ -13,7 +13,7 @@ object Prover {
     val solver = z3(state)
     val prover = new Prove(solver)
 
-    val atomNames = for (id <- (1 to atomCnt).toList) yield Name("x", Some(id))
+    val atomNames = List.tabulate(atomCnt)(i => Name("x", Some(i)))
     val atoms =
       for (name <- atomNames)
         yield App(Inst(Fun(name, Nil, Nil, Sort.bool), Map.empty), Nil)
@@ -25,7 +25,7 @@ object Prover {
       for (phi <- Generator.propositionalExprs(atoms, depth)) {
         val res = prover.prove(Prop.from(phi))
 
-        val equiv = makeIff(phi, res.toExpr)
+        val equiv = Eq(phi, res.toExpr)
         assert(
           solver.isTrue(equiv),
           f"Solver found that ${res} is not equivalent to to prover input ${phi}."
@@ -33,6 +33,4 @@ object Prover {
       }
     })
   }
-
-  def makeIff(phi: Expr, psi: Expr): Expr = And(Imp(phi, psi), Imp(psi, phi))
 }
