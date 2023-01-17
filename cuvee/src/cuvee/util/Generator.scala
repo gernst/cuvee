@@ -3,31 +3,31 @@ package cuvee.util
 import cuvee.pure._
 
 object Generator {
+  val ops: List[(Expr, Expr) => Expr] = List(
+    (a: Expr, b: Expr) => And(a, b),
+    (a: Expr, b: Expr) => Or(a, b),
+    Imp,
+    ((arg: Expr, _: Expr) => Not(arg))
+  )
+
   /** This function generates
     */
-  def propositionalExprs(atoms: List[Expr], depth: Int, exactDepth: Boolean = false): Iterable[Expr] = depth match {
-    case _ if depth <= 0 => atoms
+  def propositionalExprs(
+      atoms: List[Expr],
+      depth: Int,
+      exactDepth: Boolean = false
+  ): Iterable[Expr] = depth match {
+    case _ if depth <= 0 => atoms.view
     case i =>
-        var out: List[Expr] = List()
+      val extra = exactDepth match {
+        case true  => atoms
+        case false => Nil
+      }
 
-        // If we want to produce propositional formulas of depth *up to* depth, 
-        if (!exactDepth)
-            out ++= atoms
-
-        for (
-            a <- Generator.propositionalExprs(atoms, depth - 1, exactDepth)
-        ) {
-            // Unary operators
-            out :+= Not(a)
-
-            // Binary operators
-            for (b <- Generator.propositionalExprs(atoms, depth - 1, exactDepth)) {
-                out :+= And(a, b)
-                out :+= Or(a, b)
-                out :+= Imp(a, b)
-            }
-        }
-
-        out
+      for (
+        a <- extra.view ++ Generator.propositionalExprs(atoms, depth - 1, exactDepth);
+        b <- extra.view ++ Generator.propositionalExprs(atoms, depth - 1, exactDepth);
+        op <- ops.view
+      ) yield op(a, b)
   }
 }
