@@ -15,3 +15,11 @@ object cuvee extends ScalaModule {
 
   def mainClass = Some("cuvee.Cuvee")
 }
+
+
+object tests extends ScalaModule {
+  def scalaVersion = cuvee.scalaVersion
+  def forkArgs = cuvee.forkArgs
+  def moduleDeps = Seq(cuvee)
+  def mainClass = Some("tests.Tests")
+}
