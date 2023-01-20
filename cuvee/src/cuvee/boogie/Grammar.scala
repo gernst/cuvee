@@ -191,11 +191,11 @@ object Grammar {
   }
 
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";")
+    P(Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
 
   def local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";")
+    P(Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
 
   val block_end =
@@ -211,7 +211,7 @@ object Grammar {
     P(block_end | block_local | (prog :: block_))
 
   def block(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    Block("{" ~ block_)
+    P(Block("{" ~ block_))
 
   def scoped_body(implicit ctx: Map[Name, Param]) =
     (sig: (List[Var], List[Var])) => {
