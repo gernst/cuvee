@@ -78,7 +78,7 @@ object Parser {
 
       unify(inst.args, args.types)
 
-      App(inst, args)
+      new App(inst, args)
     }
 
     def bind(
@@ -93,13 +93,14 @@ object Parser {
     }
 
     def resolved(arg: Expr) = {
-      arg inst value
+      val su = Type.prune(value)
+      arg inst su
     }
 
     def checked(arg: Expr, typ: Type) = {
       trace("checking\n  " + arg + ":\n    " + typ) {
         unify(arg.typ, typ)
-        arg inst value
+        resolved(arg)
       }
     }
   }
@@ -156,7 +157,9 @@ object Parser {
       if (candidates.size < 1)
         error(f"No function named ${name} found.")
       if (candidates.size > 1)
-        error(f"Multiple functions named ${name} found. Please specify the arity as follows: ${name}[<arity>]")
+        error(
+          f"Multiple functions named ${name} found. Please specify the arity as follows: ${name}[<arity>]"
+        )
 
       candidates.keys.head
   }
