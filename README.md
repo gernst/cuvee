@@ -6,7 +6,7 @@ but accepts a subset of the [Boogie language](https://github.com/boogie-org), to
 
 Setup:
 
-    git submodule init
+    git submodule update --init
 
 Running:
 
@@ -57,19 +57,19 @@ by triggering and then merging the respective equations into their congruence da
 Interactive theorem provers like Isabelle, however, instead rewrite goals
 with those equations that make good simplification rules.
 For some cases such rewrites are *always* desirable (cf. recursive list functions),
-and Cuvée can detect and apply definitions automaticaly.
+and Cuvée can detect and apply definitions automatically.
 
 A similar situation occurs with the question of unfolding non-recursive definitions,
 such as containment of an element in an array range:
 
     contains(x, a, l, r) <==> exists k. l <= k < r && a[k] == x
 
-Consider for example the folllwing two lemmas
+Consider for example the following two lemmas
 
     contains(x, a, l1, r1) ==> contains(x, a, l2, r2)
     contains(x, a1, l, r)  ==> contains(x, a2, l, r)
 
-which schematically reflect typical conditions from the correctnes of array algorithms
+which schematically reflect typical conditions from the correctness of array algorithms
 (e.g. index computations resp. array modifications).
 If such a proof fails to verify one is interested in automatically pinpointing why.
 Here, the first condition fails for those k from the definition of `contains`
@@ -77,7 +77,7 @@ which are not in the overlap of the two ranges.
 The second condition fails if `a1` and `a2` differ in an index that is in the range `l..r`.
 Note that the concrete models produced by the SMT solver reflect this high-level
 intuition only to a very limited degree. Cuvée will be able to automatically produce these
-via an abductive inverence, backed by SMT reasoning and heuristics
+via an abductive inference, backed by SMT reasoning and heuristics
 while at the same time keeping the general structure of the proof goal intact.
 
 Note, this is work in progress.
@@ -86,7 +86,7 @@ Note, this is work in progress.
 
 Cuvée implements a simple imperative language with procedures very similar to that of Boogie,
 but it supports no `goto`, only structured control flow.
-The translations to verificaion conditions is done by weakest-precondition like operators,
+The translations to verification conditions is done by weakest-precondition like operators,
 which are reflected in the logic. There are three modalities, weakest precondition,
 weakest liberal precondition, and weakest possible precondition (i.e. existence of a run),
 where the latter two coincide with box and diamond from Dynamic Logic (on branch `wp`).
@@ -109,4 +109,4 @@ Note, not all of these are developed in this public repository.
 - proof scripts that interleave with a high-degree of automation
 - experiments Horn-clause encodings
 - inference of loop specifications (contracts with invariants and summaries)
-- automatic induction wiht generalization and lemma inference
+- automatic induction with generalization and lemma inference
