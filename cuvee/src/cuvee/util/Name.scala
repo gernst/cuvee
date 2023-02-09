@@ -30,7 +30,12 @@ object Name extends (String => Name) {
     else
       name splitAt idx match {
         case (name_, id) =>
-          Name(name_, id.substring(1).toIntOption)
+          id.substring(1).toIntOption match {
+            case Some(index) =>
+              Name(name_, Some(index))
+            case None => 
+              Name(name, None)
+          }
       }
   }
   implicit def stringRenameToNameRename(f: String => String): (Name => Name) =

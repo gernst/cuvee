@@ -44,7 +44,7 @@ class Parser(init: State) {
         error("invalid status: " + from)
     }
 
-  def cmd(from: Expr): Cmd =
+  def cmd(from: Expr): Cmd = cuvee.trace("bad command: " + from) {
     from match {
       case App(Id("set-logic"), Id(logic)) =>
         SetLogic(logic)
@@ -147,6 +147,7 @@ class Parser(init: State) {
       case _ =>
         error("invalid command: " + from)
     }
+  }
 
   def datatypes(
       decls: List[(Name, Int)],
