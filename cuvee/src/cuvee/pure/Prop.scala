@@ -384,7 +384,7 @@ object Conj {
       case Nil =>
         show(todo, xs, neg)
       case False :: rest =>
-        show(rest, xs, neg)
+        avoid(rest, todo, xs, neg)
       case True :: rest =>
         Atom(False)
       case Not(phi) :: rest =>
