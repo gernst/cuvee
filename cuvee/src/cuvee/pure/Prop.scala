@@ -230,6 +230,8 @@ object Disj {
       pos: List[Pos]
   ): Neg = {
     todo match {
+      case Nil if neg == Nil && pos == Nil =>
+        Atom.f
       case Nil =>
         Disj(xs, neg, pos)
       case False :: rest =>
@@ -314,6 +316,9 @@ object Disj {
         Atom.t
       case (phi: Atom) :: rest =>
         show(rest, xs, neg, pos ++ List(phi))
+
+      case (Conj(Nil, Disj(ys, neg_, pos_) :: Nil)) :: Nil if pos == Nil =>
+        Disj(xs ++ ys, neg_ ++ neg, pos_)
 
       case (conj: Conj) :: rest =>
         show(rest, xs, neg, pos ++ List(conj))
