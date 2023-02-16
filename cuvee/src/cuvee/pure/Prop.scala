@@ -209,6 +209,9 @@ object Disj {
       case (expr @ Exists(_, _)) :: rest =>
         val Exists(ys, body) = expr refresh xs
         assume(body :: rest, todo, xs ++ ys, neg, pos)
+      case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
+        show(And(Imp(phi, psi), Imp(psi, phi)) :: rest, xs, neg, pos)
+        assume(And(Imp(phi, psi), Imp(psi, phi)) :: rest, todo, xs, neg, pos)
       case Imp(phi, psi) :: rest =>
         val prop = assume(List(phi), List(psi), Nil, Nil, Nil)
         assume(rest, todo, xs, neg ++ List(prop), pos)
@@ -252,6 +255,8 @@ object Disj {
           case prop =>
             show(rest, xs, neg, pos ++ List(prop))
         }
+      case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
+        show(And(Imp(phi, psi), Imp(psi, phi)) :: rest, xs, neg, pos)
       case Imp(phi, psi) :: rest =>
         assume(List(phi), psi :: rest, xs, neg, pos)
       case Or(phis) :: rest =>
@@ -403,6 +408,8 @@ object Conj {
         avoid(prop, rest, todo, xs, neg)
       case Imp(phi, psi) :: rest =>
         avoid(psi :: rest, phi :: todo, xs, neg)
+      case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
+        avoid(And(Imp(phi, psi), Imp(psi, phi)) :: rest, todo, xs, neg)
       case Or(phis) :: rest =>
         avoid(phis ++ rest, todo, xs, neg)
       case (expr @ Forall(_, _)) :: rest =>
@@ -451,6 +458,8 @@ object Conj {
       case Imp(phi, psi) :: rest =>
         val prop = Disj.assume(List(phi), List(psi), Nil, Nil, Nil)
         show(prop, rest, xs, neg)
+      case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
+        show(Imp(phi, psi) :: Imp(psi, phi) :: rest, xs, neg)
       case Or(phis) :: rest =>
         val prop = Disj.show(phis, Nil, Nil, Nil)
         show(prop, rest, xs, neg)
