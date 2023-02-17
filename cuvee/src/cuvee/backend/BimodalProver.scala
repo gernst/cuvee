@@ -17,10 +17,10 @@ class BimodalProver(solver: Solver) extends Prover {
 
     atom match {
       case Atom(phi, _) if expect && solver.isTrue(phi) =>
-        Atom(True)
+        Atom.t
 
       case Atom(phi, _) if !expect && solver.isFalse(phi) =>
-        Atom(False)
+        Atom.f
 
       case _ =>
         atom
@@ -100,7 +100,7 @@ class BimodalProver(solver: Solver) extends Prover {
 
         val res = pos__ match {
           case Nil =>
-            Atom(False)
+            Atom.f
           case _ if pos__ contains Atom.t =>
             Atom.t
           case _ =>
