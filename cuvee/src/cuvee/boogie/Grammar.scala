@@ -348,6 +348,9 @@ object Grammar {
   def unfold(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Unfold("unfold" ~ make_fun_ref(name ~ ("[" ~ int_ ~ "]").?) ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?))
 
+  // AUTO
+  def auto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = "auto" ~ ret(Auto)
+
   // NOAUTO
   def noauto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(NoAuto("noauto" ~ tactic))
@@ -357,7 +360,7 @@ object Grammar {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Tactic, Token] =
-    P(sorry | show | induction | unfold | noauto);
+    P(sorry | show | induction | unfold | auto | noauto);
 
   def scoped_tactic(
       phi: Expr
