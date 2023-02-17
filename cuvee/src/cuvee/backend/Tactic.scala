@@ -40,7 +40,7 @@ trait Tactic {
     * complexities is strictly lower than the complexity of the original goal.
     */
   def makesProgress(state: State, goal: Prop)(implicit
-      prover: Prove
+      prover: Prover
   ): Option[Int] = {
     val orig = Rating.complexity(goal)
     val cases = apply(state, goal)
@@ -224,7 +224,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
       state: State,
       goal: Prop
   )(implicit
-      prover: Prove
+      prover: Prover
   ): Option[Int] = {
     // Determine the variable's datatype
     val sort = variable.typ.asInstanceOf[Sort]
@@ -386,7 +386,7 @@ case class Unfold(
     List((Disj.from(goal_), cont))
   }
 
-  override def makesProgress(state: State, goal: Prop)(implicit prover: Prove): Option[Int] = {
+  override def makesProgress(state: State, goal: Prop)(implicit prover: Prover): Option[Int] = {
     // Tentatively apply every suggested unfolding of predicates
     val result = apply(state, goal)
     // We know that the applying the tactic yields exactly one subgoal (see above)

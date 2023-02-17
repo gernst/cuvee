@@ -3,7 +3,12 @@ package cuvee.backend
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
-class SimpleProver(solver: Solver) {
+class SimpleProver(solver: Solver) extends Prover {
+  def prove(prop: Prop): Prop = {
+    val expr = prop.toExpr
+    Disj.from(prove(expr))
+  }
+
   def prove(expr: Expr): Expr = expr match {
     case And(phis) =>
       Simplify.and(phis map prove)

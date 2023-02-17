@@ -16,7 +16,7 @@ object Proving {
   def show(prop: Prop, tactic: Option[Tactic])(implicit
       state: State,
       solver: Solver,
-      prover: Prove,
+      prover: Prover,
       printer: Printer,
       rules: Map[Fun, List[Rule]] = Map()
   ): Prop = {
@@ -56,7 +56,7 @@ object Proving {
   def rec(prop_ : Prop, tactic_ : Option[Tactic], depth: Int = 0)(implicit
       state: State,
       solver: Solver,
-      prover: Prove,
+      prover: Prover,
       rules: Map[Fun, List[Rule]]
   ): Prop = {
     var prop: Prop = prop_
@@ -169,7 +169,7 @@ object Proving {
 
   def proveAndSimplify(
       prop: Prop,
-      prover: Prove,
+      prover: Prover,
       debug: Boolean = false,
       depth: Int = 0
   )(implicit rules: Map[Fun, List[Rule]] = Map()): Prop = {
