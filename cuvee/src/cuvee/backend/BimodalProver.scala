@@ -3,7 +3,7 @@ package cuvee.backend
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
-class ProveWrong(solver: Solver) {
+class BimodalProver(solver: Solver) {
   def prove(prop: Prop, expect: Boolean = true): Prop = prop match {
     case atom: Atom => prove(atom, expect)
     case neg: Neg   => prove(neg, expect)

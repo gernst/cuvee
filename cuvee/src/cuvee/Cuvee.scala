@@ -158,12 +158,12 @@ class Cuvee {
 
     solver.exec(SetOption("produce-models", true))
 
-    val prover = new Prove(solver)
     val rules = Rewrite.from(cmds, state)
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
     def maybeProve(phi: Expr, tactic: Option[Tactic]): Boolean = prove match {
       case "default" =>
+        val prover = new MonomodalProver(solver)
         val result = Proving.show(Disj.from(phi), tactic)(
           state,
           solver,
@@ -176,8 +176,8 @@ class Cuvee {
 
       case "simple" =>
         if (!solver.isTrue(phi)) {
-          val prove = new ProveSimple(solver)
-          val phi_ = Simplify.simplify(prove.prove(phi), safe)
+          val prover = new SimpleProver(solver)
+          val phi_ = Simplify.simplify(prover.prove(phi), safe)
           val cmd = Lemma(phi_, None)
           for (line <- cmd.lines)
             println(line)
