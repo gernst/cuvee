@@ -2,6 +2,8 @@ theory prove_propositional_logic
   imports Main
 begin
 
+(* Define the formalization of propositional logic *)
+
 datatype 'a formula
   = Atom "'a set"
   | T | F
@@ -20,6 +22,8 @@ fun holds  :: "'a formula \<Rightarrow> 'a \<Rightarrow> bool" where
 
 fun entails where
   "entails \<Gamma> q = (\<forall> v. (\<forall> p \<in> set \<Gamma>. holds p v) \<longrightarrow> holds q v)"
+
+(* "smart constructors" that implement the simplification rules *)
 
 fun tt :: "'a formula list \<Rightarrow> bool \<Rightarrow> 'a formula" where
   "tt \<Gamma> True  = T" |
@@ -44,6 +48,8 @@ fun and' :: "'a formula \<Rightarrow> 'a formula \<Rightarrow> 'a formula" where
 
 fun or :: "'a formula \<Rightarrow> 'a formula \<Rightarrow> 'a formula" where
   "or   F p = p" | "or   T p = T" | "or   p T = T" | "or   p F = p" | "or   p q = Or p q"
+
+(* helper lemmas, marked as simplification rules, so that they are used in the proofs that follow *)
 
 lemma holds_tt[simp]:
   assumes "\<forall> p \<in> set \<Gamma>. holds p v"
@@ -123,6 +129,7 @@ lemma or_shortcut:
   using assms
   by (cases "x" rule: or.cases) auto
 
+(* Define the prove / disprove functions, which are given by the "simplification strategy" *)
 
 fun prove and disprove where
   "prove \<Gamma> F = (if (entails \<Gamma> F) then T else F)" |
@@ -143,6 +150,8 @@ fun prove and disprove where
   "disprove \<Gamma> (Or  \<phi> \<psi>) = or   (disprove \<Gamma> \<phi>) (disprove (Not \<phi>#\<Gamma>) \<psi>)" |
   "disprove \<Gamma> (Imp \<phi> \<psi>) = imp  (prove \<Gamma> \<phi>)    (disprove (\<phi>#\<Gamma>) \<psi>)"
 
+(* Prove soundness and completeness *)
+
 lemma prove_sound[simp]:
   assumes "\<forall> p \<in> set \<Gamma>. holds p v"
   shows "holds (prove \<Gamma> q) v = holds q v" and
@@ -157,6 +166,8 @@ lemma prove_complete:
   by (induction q arbitrary: \<Gamma>)
      auto
 
+(* Completeness cases for elements of the context *)
+
 corollary prove_known_T[simp]:
   shows "A \<in> set \<Gamma> \<Longrightarrow> prove \<Gamma> A = T"
   by (rule prove_complete) auto
@@ -165,6 +176,7 @@ corollary prove_known_F[simp]:
   shows "(Not A) \<in> set \<Gamma> \<Longrightarrow> disprove \<Gamma> A = F"
   by (rule prove_complete) auto
 
+(* Definition of a size function *)
 fun size :: "'a formula \<Rightarrow> nat"  where
   "size T         = 0" |
   "size F         = 0" |
@@ -174,6 +186,7 @@ fun size :: "'a formula \<Rightarrow> nat"  where
   "size (Or  \<phi> \<psi>) = 1 + (size \<phi>) + (size \<psi>)" |
   "size (Imp \<phi> \<psi>) = 1 + (size \<phi>) + (size \<psi>)"
 
+(* Helper lemmas to use in the automated proofs *)
 lemma size_not[intro]:
   "size (Not p) \<le> n \<Longrightarrow> size (not p) \<le> n"
   by (cases p, auto)
@@ -193,17 +206,27 @@ lemma size_imp[intro]:
   apply (cases p)
   by (cases q, auto)+
 
-lemma size_decreases:
-  shows "size (prove \<Gamma> f)    \<le> size f"
-    and "size (disprove \<Gamma> f) \<le> size f"
-  by (induction \<Gamma> f rule: prove_disprove.induct)
-    auto
+(* Predicate: formula does not contain a boolean literal *)
 
 fun tf_free :: "'a formula \<Rightarrow> bool" where
   "tf_free T = False" | "tf_free F = False" |
   "tf_free (Atom a) = True" |
   "tf_free (Not p) = tf_free p" | "tf_free (And p q) = (tf_free p & tf_free q)" |
   "tf_free (Or p q) = (tf_free p & tf_free q)" | "tf_free (Imp p q) = (tf_free p & tf_free q)"
+
+(* Lemma stating that that formulas don't "grow" when using the prove / disprove functions *)
+
+lemma size_decreases:
+  shows "size (prove \<Gamma> f)    \<le> size f"
+    and "size (disprove \<Gamma> f) \<le> size f"
+  by (induction \<Gamma> f rule: prove_disprove.induct)
+    auto
+
+(*
+  A formula that does not contain a boolean literal decreases in size if and only if it was changed,
+  i.e. simplified, by the prove / disprove algorithms.
+  (The converse direction follows immediately; if the result is smaller, it cannot be the input.)
+ *)
 
 lemma size_decreases_strictly:
   assumes "tf_free f"
