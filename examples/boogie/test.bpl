@@ -31,3 +31,7 @@ const bits: [int] bool;
 function isSorted (list: [int] int, len: int) : bool {
   forall i: int :: 0 <= i && i + 1 < len ==> list[i] <= list[i + 1]
 }
+
+function f(i: int): int {
+  if(i > 0) then f(i - 1) else 0
+}

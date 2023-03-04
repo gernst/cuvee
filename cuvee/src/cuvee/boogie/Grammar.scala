@@ -233,15 +233,15 @@ object Grammar {
     P(((parens(formals) ~ maybe_returns) ~@ scoped_body))
   }
 
-  def typed_rhs(bound: List[Var])(implicit ctx: Map[Name, Param]) =
-    (typ: Type) => {
-      val scope: Map[Name, Var] = Map()
-      None(";") | some(braces(expr(typ)(scope ++ bound.asScope, ctx)))
-    }
+  def rhs(implicit ctx: Map[Name, Param]) =
+    (sig: (Name ~ List[Var] ~ Type)) => {
+      // register the function name here to allow for recursive definitions
+      val (name ~ bound ~ res) = sig
+      state.fun(name, Nil, bound.types, res)
 
-  def scoped_rhs(bound: List[Var])(implicit ctx: Map[Name, Param]) = {
-    ":" ~ typ ~@ typed_rhs(bound)
-  }
+      val scope: Map[Name, Var] = Map()
+      None(";") | some(braces(expr(res)(scope ++ bound.asScope, ctx)))
+    }
 
   val axiom = {
     import toplevel.scope
@@ -251,12 +251,12 @@ object Grammar {
 
   val constdef = {
     import toplevel.ctx
-    P(define_fun("const" ~ name ~ (ret(Nil: List[Var]) ~@ scoped_rhs)))
+    P(define_fun("const" ~ name ~ ret(Nil: List[Var]) ~ ":" ~ typ ~@ rhs))
   }
 
   val fundef = {
     import toplevel.ctx
-    P(define_fun("function" ~ name ~ (parens(formals) ~@ scoped_rhs)))
+    P(define_fun("function" ~ name ~ parens(formals) ~ ":" ~ typ ~@ rhs))
   }
 
   val procdef = {
