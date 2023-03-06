@@ -114,7 +114,7 @@ object Proving {
       }
     }
 
-    // Apply the tactic `tactic_`
+    // Apply the tactic in `tactic`
     if (tactic.isDefined) {
       val tactic_ = tactic.get
 

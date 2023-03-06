@@ -402,6 +402,18 @@ case class Unfold(
   }
 }
 
+/** This "tactic" only returns the original goal with no tactic.
+  * It can be used to make it explicit, where goals shall be closed automatically.
+  *
+  * @param tactic
+  */
+object Auto extends Tactic {
+
+  def apply(state: State, goal: Prop): List[(Prop, Option[Tactic])] =
+    List((goal, None))
+}
+
+
 /** This "tactic" is actually just a wrapper for another tactic. It serves to
   * signal that no automatic proving attempt shall happen, before the contained
   * tactic has been applied.
