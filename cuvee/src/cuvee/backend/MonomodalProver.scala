@@ -9,7 +9,7 @@ import cuvee.smtlib._
   * @param solver
   *   SMT solver to use to check expressions
   */
-class Prove(solver: Solver) {
+class MonomodalProver(solver: Solver) extends Prover {
   def prove(prop: Prop): Prop = prop match {
     case atom: Atom => prove(atom)
     case neg: Neg   => prove(neg)

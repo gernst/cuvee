@@ -3,8 +3,10 @@ package cuvee.backend
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
-class ProveWrong(solver: Solver) {
-  def prove(prop: Prop, expect: Boolean = true): Prop = prop match {
+class BimodalProver(solver: Solver) extends Prover {
+  def prove(prop: Prop): Prop = prove(prop, true);
+
+  def prove(prop: Prop, expect: Boolean): Prop = prop match {
     case atom: Atom => prove(atom, expect)
     case neg: Neg   => prove(neg, expect)
     case pos: Pos   => prove(pos, expect)
@@ -15,10 +17,10 @@ class ProveWrong(solver: Solver) {
 
     atom match {
       case Atom(phi, _) if expect && solver.isTrue(phi) =>
-        Atom(True)
+        Atom.t
 
       case Atom(phi, _) if !expect && solver.isFalse(phi) =>
-        Atom(False)
+        Atom.f
 
       case _ =>
         atom
@@ -87,7 +89,7 @@ class ProveWrong(solver: Solver) {
           solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
 
         // Filter out redundant assumptions, always expect true
-        val neg__ = neg // conj(neg_, expect)
+        val neg__ = neg_ // conj(neg_, expect)
 
         // Add assumptions to the solver
         for (phi <- neg__)
@@ -98,7 +100,7 @@ class ProveWrong(solver: Solver) {
 
         val res = pos__ match {
           case Nil =>
-            Atom(False)
+            Atom.f
           case _ if pos__ contains Atom.t =>
             Atom.t
           case _ =>
