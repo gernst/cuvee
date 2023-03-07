@@ -210,7 +210,6 @@ object Disj {
         val Exists(ys, body) = expr refresh xs
         assume(body :: rest, todo, xs ++ ys, neg, pos)
       case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
-        show(And(Imp(phi, psi), Imp(psi, phi)) :: rest, xs, neg, pos)
         assume(And(Imp(phi, psi), Imp(psi, phi)) :: rest, todo, xs, neg, pos)
       case Imp(phi, psi) :: rest =>
         val prop = assume(List(phi), List(psi), Nil, Nil, Nil)
