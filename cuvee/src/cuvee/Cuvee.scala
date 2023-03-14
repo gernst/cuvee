@@ -246,10 +246,11 @@ class Cuvee {
         // println()
         // println("================  LEMMA  ================")
         // println("show:  " + expr)
-        maybeProve(phi, tactic)
+        val ok = maybeProve(phi, tactic)
 
-        // In any case, assert the lemma, so that its statement is available in later proofs
-        solver.assert(phi)
+        // Assert the lemma for later proofs, if it was successfully verified.
+        if (ok)
+          solver.assert(phi)
 
       case Labels =>
       // val result = solver.labels()
