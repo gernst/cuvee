@@ -84,32 +84,36 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
 
   def bexpr = {
     var result: List[String] = Nil
+    var started: Boolean = false
     val bound =
       for (x <- xs)
-        yield "  " + x.name.toLabel + ": " + x.typ
+        yield "|   " + x.name.toLabel + ": " + x.typ
 
     val assms =
       for (phi <- neg; line <- phi.bexpr)
-        yield "  " + line
+        yield "|   " + line
 
     val concls =
       for (phi <- pos; line <- phi.bexpr)
-        yield "  " + line
+        yield "|   " + line
 
     if (bound.nonEmpty)
-      result ++= List("forall") ++ bound
+      result ++= List("| forall") ++ bound
 
     if (assms.nonEmpty)
-      result ++= List("assume") ++ assms
+      result ++= List("| assume") ++ assms
 
     if (pos.isEmpty)
-      result ++= List("show contradiction")
+      result ++= List("| show contradiction")
 
     if (pos.size == 1)
-      result ++= List("show") ++ concls
+      result ++= List("| show") ++ concls
 
     if (pos.size > 1)
-      result ++= List("show one of") ++ concls
+      result ++= List("| show one of") ++ concls
+
+    // 
+    result = result.updated(0, result(0).patch(0, "+", 1))
 
     result
   }
@@ -142,22 +146,24 @@ case class Conj(xs: List[Var], neg: List[Neg])
 
     val bound =
       for (x <- xs)
-        yield "  " + x.name.toLabel + ": " + x.typ
+        yield "|   " + x.name.toLabel + ": " + x.typ
 
-    val indent = "  " + (if (bound.isEmpty) "" else "  ")
+    val indent = "|   " + (if (bound.isEmpty) "" else "  ")
 
     val concls =
       for (phi <- neg; line <- phi.bexpr)
         yield indent + line
 
     if (bound.nonEmpty)
-      result ++= List("exists") ++ bound
+      result ++= List("| exists") ++ bound
 
     if (neg.size == 1)
-      result ++= List("show") ++ concls
+      result ++= List("| show") ++ concls
 
     if (neg.size > 1)
-      result ++= List("show all of") ++ concls
+      result ++= List("| show all of") ++ concls
+
+    result = result.updated(0, result(0).patch(0, "+", 1))
 
     result
   }
