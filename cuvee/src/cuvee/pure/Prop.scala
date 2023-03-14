@@ -327,11 +327,13 @@ object Disj {
       case (phi: Atom) :: rest =>
         show(rest, xs, neg, pos ++ List(phi))
 
-      case (Conj(Nil, Disj(ys, neg_, pos_) :: Nil)) :: Nil if pos == Nil =>
-        Disj(xs ++ ys, neg_ ++ neg, pos_)
+      case (Conj(Nil, (disj @ Disj(xs_, _, _)) :: Nil)) :: rest =>
+        val ys = xs intersect xs_
+        val re = Expr.fresh(ys)
 
-      case (conj: Conj) :: rest =>
-        show(rest, xs, neg, pos ++ List(conj))
+        val Disj(zs, neg_, pos_) = disj.rename(re)
+
+        assume(neg_, pos_ ++ rest, zs ++ xs, neg, pos)
 
       case (disj @ Disj(xs_, _, _)) :: rest =>
         val ys = xs intersect xs_
@@ -340,6 +342,9 @@ object Disj {
         val Disj(zs, neg_, pos_) = disj.rename(re)
 
         assume(neg_, pos_ ++ rest, zs ++ xs, neg, pos)
+
+      case (conj: Conj) :: rest =>
+        show(rest, xs, neg, pos ++ List(conj))
     }
   }
 }
@@ -562,8 +567,14 @@ object Conj {
       case (atom: Atom) :: rest =>
         show(rest, xs, neg ++ List(atom))
 
-      case (disj: Disj) :: rest =>
-        show(disj, rest, xs, neg)
+
+      case Disj(Nil, Nil, (conj @ Conj(xs_, _)) :: Nil) :: rest =>
+        val ys = xs intersect xs_
+        val re = Expr.fresh(ys)
+
+        val Conj(zs, neg_) = conj.rename(re)
+
+        show(neg_ ++ rest, xs ++ zs, neg)
 
       case (conj @ Conj(xs_, _)) :: rest =>
         val ys = xs intersect xs_
@@ -572,6 +583,10 @@ object Conj {
         val Conj(zs, neg_) = conj.rename(re)
 
         show(neg_ ++ rest, xs ++ zs, neg)
+
+
+      case (disj: Disj) :: rest =>
+        show(disj, rest, xs, neg)
     }
   }
 }
