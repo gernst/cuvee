@@ -87,7 +87,7 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     var started: Boolean = false
     val bound =
       for (x <- xs)
-        yield "|   " + x.name.toLabel + ": " + x.typ
+        yield "|   " + x.name.toString + ": " + x.typ
 
     val assms =
       for (phi <- neg; line <- phi.bexpr)
@@ -146,7 +146,7 @@ case class Conj(xs: List[Var], neg: List[Neg])
 
     val bound =
       for (x <- xs)
-        yield "|   " + x.name.toLabel + ": " + x.typ
+        yield "|   " + x.name.toString + ": " + x.typ
 
     val indent = "|   " + (if (bound.isEmpty) "" else "  ")
 
