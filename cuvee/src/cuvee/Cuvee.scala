@@ -127,34 +127,6 @@ class Cuvee {
     }
   }
 
-  // TODO: Figure out, whether or how to integrate these commands
-  // def old_run(cmds: List[Cmd], state: State, solver: Solver) {
-  //   cmds match {
-  //     case Assert(Not(phi)) :: rest =>
-  //       println("lemma")
-  //       for (line <- phi.lines)
-  //         println(line)
-  //       val phi_ = show(phi, state, solver)
-  //       solver.assert(Not(phi))
-  //       run(rest, state, solver)
-
-  //     case (cmd @ Lemma(phi, None)) :: rest if false =>
-  //       val phi_ = show(phi, state, solver)
-  //       run(rest, state, solver)
-
-  //     case (cmd @ Lemma(phi, None)) :: rest =>
-  //       val prove = new ProveSimple(solver)
-  //       val phi_ = prove.prove(phi)
-
-  //       if (!solver.isTrue(phi_)) {
-  //         for (line <- phi_.lines)
-  //           println(line)
-  //       }
-
-  //       run(rest, state, solver)
-
-  //   }
-  // }
 
   def run(cmds: List[Cmd], state: State, solver: Solver) {
     // assert(cmds.nonEmpty, "No file was parsed")
