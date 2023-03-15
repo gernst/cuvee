@@ -102,7 +102,11 @@ object Proving {
       // Suggest tactics. If a tactic for automatic application was found, make this the default
       if (suggestTactics) {
         if (suggestions.nonEmpty) {
-          println(indent(depth) + "goal:     " + prop)
+          val lines = cuvee.boogie.printer.lines(prop)
+
+          println(indent(depth + 1) + "current goal:")
+          for (line <- lines)
+            println(indent(depth + 1) + "  " + line)
 
           tactic = CLI.askChoices(
             "Do you want to apply one of the following tactics?",
