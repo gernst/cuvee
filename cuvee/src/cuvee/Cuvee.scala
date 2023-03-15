@@ -201,8 +201,12 @@ class Cuvee {
         val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
 
         val ok = maybeProve(phi, tactic = None)
-        if (ok)
-          println("verified: " + name)
+        if (ok) {
+          solver.assert(phi)
+          println(f"\u001b[92m✔\u001b[0m procedure ${name} verified successfully.\n\n")
+        } else {
+          println(f"\u001b[91m✘\u001b[0m procedure ${name} could not be verified!\n\n")
+        }
 
       case ctrl: Ctrl =>
       // solver.control(ctrl)
@@ -221,8 +225,12 @@ class Cuvee {
         val ok = maybeProve(phi, tactic)
 
         // Assert the lemma for later proofs, if it was successfully verified.
-        if (ok)
+        if (ok) {
           solver.assert(phi)
+          println(f"\u001b[92m✔\u001b[0m lemma ${phi} proved successfully.\n\n")
+        } else {
+          println(f"\u001b[91m✘\u001b[0m lemma ${phi} could not be shown!\n\n")
+        }
 
       case Labels =>
       // val result = solver.labels()
