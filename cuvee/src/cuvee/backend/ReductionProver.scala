@@ -1,7 +1,7 @@
 package cuvee.backend
 
 import cuvee.pure._
-import cuvee.smtlib.DeclareFun
+import cuvee.smtlib._
 
 class ReductionProver(solver: Solver) extends Prover {
   def prove(prop: Prop): Prop = reduce(prop, true);
@@ -14,14 +14,35 @@ class ReductionProver(solver: Solver) extends Prover {
 
   def reduce(atom: Atom, expect: Boolean): Atom = {
     atom match {
-      case Atom(phi, _) if expect && solver.isTrue(phi) =>
-        Atom.t
+      // Shortcut, if formula is already true / false
+      case Atom.t if expect => Atom.t
+      case Atom.f if !expect => Atom.f
 
-      case Atom(phi, _) if !expect && solver.isFalse(phi) =>
-        Atom.f
+      // Try to prove the atom
+      case Atom(phi, _) if expect =>
+        solver.scoped {
+          solver.assert(!phi)
 
-      case _ =>
-        atom
+          solver.check() match {
+            case Sat =>
+              Atom(phi, Some(solver.model()))
+            case Unsat => Atom.t
+            case Unknown => atom
+          }
+        }
+
+      // Try to disprove the atom
+      case Atom(phi, _) if !expect =>
+        solver.scoped {
+          solver.assert(phi)
+
+          solver.check() match {
+            case Sat =>
+              Atom(phi, Some(solver.model()))
+            case Unsat => Atom.f
+            case Unknown => atom
+          }
+        }
     }
   }
 
