@@ -329,7 +329,7 @@ case class In(k: Int, arg: Expr, typ: Type) extends Expr {
     In(k, arg inst (ty, su), typ subst ty)
 
   def sexpr = cuvee.undefined
-  def bexpr = cuvee.undefined /// TODO Daniel thinks that this is not part of boogie.
+  def bexpr = cuvee.undefined
 
   override def toString = {
     import cuvee.StringOps

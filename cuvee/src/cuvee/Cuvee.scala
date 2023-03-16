@@ -62,8 +62,11 @@ class Cuvee {
     "-prove:simple" -> ("prove goals using simple structural prover", () => {
       this.prove = "simple"
     }),
-    "-prove:bimodal" -> ("prove goals using the bimodal prover", () => {
-      this.prove = "bimodal"
+    "-prove:reduce" -> ("prove goals using the reduction prover (default)", () => {
+      this.prove = "reduce"
+    }),
+    "-prove:positive" -> ("prove goals using the monomodal / poisitive polarity prover", () => {
+      this.prove = "positive"
     }),
     "-tactics:suggest" -> ("suggest tactics applicable to the current goal", () => {
       cuvee.util.Proving.suggestTactics = true
@@ -137,8 +140,8 @@ class Cuvee {
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
     def maybeProve(phi: Expr, tactic: Option[Tactic]): Boolean = prove match {
-      case "bimodal" =>
-        val prover = new BimodalProver(solver)
+      case "default" | "reduce" =>
+        val prover = new ReductionProver(solver)
         val result = Proving.show(Disj.from(phi), tactic)(
           state,
           solver,
@@ -149,8 +152,8 @@ class Cuvee {
 
         result == Atom.t
 
-      case "default" =>
-        val prover = new MonomodalProver(solver)
+      case "positive" =>
+        val prover = new PositiveProver(solver)
         val result = Proving.show(Disj.from(phi), tactic)(
           state,
           solver,

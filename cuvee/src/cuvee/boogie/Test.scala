@@ -20,7 +20,7 @@ object Test extends Main {
     val slv = z3(st)
     // val slv = new Sink.tee(z3(st), stdout)
 
-    val prover = new MonomodalProver(slv)
+    val prover = new PositiveProver(slv)
 
     for (cmd ← cmds) {
       cmd match {

@@ -3,7 +3,7 @@ package cuvee.backend
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
-class BimodalProver(solver: Solver) extends Prover {
+class ReductionProver(solver: Solver) extends Prover {
   def prove(prop: Prop): Prop = prove(prop, true);
 
   def prove(prop: Prop, expect: Boolean): Prop = prop match {
@@ -44,12 +44,17 @@ class BimodalProver(solver: Solver) extends Prover {
       }
 
     case Conj(xs, neg) =>
+      // A Conj contains variables quantified by a exists quantifier (conj.xs).
+      // Below, we'll split those variables from their declaration in the quantifier.
+
+      // Decide how to rename the quantified variables
       val re = Expr.fresh(xs)
       val re_ = re map (_.swap)
 
       val xs_ = xs rename re
       val neg_ = neg map (_ rename re)
 
+      // Filter out redundant elements
       val neg__ = conj(neg_, expect)
 
       val res = neg__ match {
@@ -58,9 +63,11 @@ class BimodalProver(solver: Solver) extends Prover {
         case _ if neg__ contains Atom.f =>
           Atom.f
         case _ =>
+          // Undo the substitution
           Conj(xs, neg__ map (_ rename re_))
       }
 
+      // Return the result
       if (xs.nonEmpty && expect && solver.isTrue(res.toExpr)) {
         Atom.t
       } else {
@@ -76,6 +83,7 @@ class BimodalProver(solver: Solver) extends Prover {
       solver.scoped {
         // A Disj contains variables quantified by a forall quantifier (disj.xs).
         // Below, we'll split those variables from their declaration in the quantifier.
+
         // Decide how to rename the quantified variables
         val re = Expr.fresh(xs)
         val re_ = re map (_.swap)
@@ -108,6 +116,7 @@ class BimodalProver(solver: Solver) extends Prover {
             Disj(xs, neg__ map (_ rename re_), pos__ map (_ rename re_))
         }
 
+        // Return the result
         if (xs.nonEmpty && !expect && solver.isFalse(res.toExpr)) {
           Atom.f
         } else {
