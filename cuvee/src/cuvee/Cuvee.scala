@@ -211,20 +211,13 @@ class Cuvee {
           println(f"\u001b[91m✘\u001b[0m procedure ${name} could not be verified!\n\n")
         }
 
-      case ctrl: Ctrl =>
-      // solver.control(ctrl)
-
       case decl: Decl =>
         solver.declare(decl)
 
       case Assert(phi) =>
-        // println("axiom " + phi)
         solver.assert(phi)
 
       case Lemma(phi, tactic) =>
-        // println()
-        // println("================  LEMMA  ================")
-        // println("show:  " + expr)
         val ok = maybeProve(phi, tactic)
 
         // Assert the lemma for later proofs, if it was successfully verified.
@@ -234,9 +227,6 @@ class Cuvee {
         } else {
           println(f"\u001b[91m✘\u001b[0m lemma ${phi} could not be shown!\n\n")
         }
-
-      case Labels =>
-      // val result = solver.labels()
 
       case CheckSat =>
         val result = solver.check()
