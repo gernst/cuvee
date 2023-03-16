@@ -107,9 +107,10 @@ object Proving {
           println(indent(depth + 1) + "current goal:")
           for (line <- lines)
             println(indent(depth + 1) + "  " + line)
+          println()
 
           tactic = CLI.askChoices(
-            "Do you want to apply one of the following tactics?",
+            "Do you want to apply one of the following tactics? [  ] = default",
             suggestions,
             default = Some(suggestions.indexOf(tactic.getOrElse(None))),
             printfn = (str => print(indent(depth + 1) + str))
