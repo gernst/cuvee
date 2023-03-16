@@ -74,9 +74,6 @@ object Proving {
       // Skip the prover call and execute the inner tactic directly
       case Some(NoAuto(inner)) => tactic = Some(inner)
 
-      // Also, skip the prover call, if the next tactic on the "prover blacklist", that follows.
-      case Some(Induction(_, _)) | Some(Show(_, _, _)) => ()
-
       // Otherwise, rewrite prop by applying the prover and simplifying
       case _ => prop = proveAndSimplify(prop, prover, debug, depth)
     }
