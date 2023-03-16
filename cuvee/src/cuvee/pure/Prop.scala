@@ -270,7 +270,7 @@ object Disj {
         val Forall(ys, body) = expr refresh xs
         show(body :: rest, xs ++ ys, neg, pos)
       case phi :: rest =>
-        show(rest, xs, neg, pos ++ List(Atom(phi)))
+        show(rest, xs, neg, pos ++ List(Conj(Nil, List(Atom(phi)))))
     }
   }
 
