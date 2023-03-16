@@ -4,17 +4,15 @@ import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 
 class ReductionProver(solver: Solver) extends Prover {
-  def prove(prop: Prop): Prop = prove(prop, true);
+  def prove(prop: Prop): Prop = reduce(prop, true);
 
-  def prove(prop: Prop, expect: Boolean): Prop = prop match {
-    case atom: Atom => prove(atom, expect)
-    case neg: Neg   => prove(neg, expect)
-    case pos: Pos   => prove(pos, expect)
+  def reduce(prop: Prop, expect: Boolean): Prop = prop match {
+    case atom: Atom => reduce(atom, expect)
+    case neg: Neg   => reduce(neg, expect)
+    case pos: Pos   => reduce(pos, expect)
   }
 
-  def prove(atom: Atom, expect: Boolean): Atom = {
-    // println("trying: " + atom.expr + " == " + expect)
-
+  def reduce(atom: Atom, expect: Boolean): Atom = {
     atom match {
       case Atom(phi, _) if expect && solver.isTrue(phi) =>
         Atom.t
@@ -27,9 +25,9 @@ class ReductionProver(solver: Solver) extends Prover {
     }
   }
 
-  def prove(pos: Pos, expect: Boolean): Pos = pos match {
+  def reduce(pos: Pos, expect: Boolean): Pos = pos match {
     case atom: Atom =>
-      prove(atom, expect)
+      reduce(atom, expect)
 
     case Conj(Nil, neg) =>
       val neg_ = conj(neg, expect)
@@ -47,7 +45,7 @@ class ReductionProver(solver: Solver) extends Prover {
       // A Conj contains variables quantified by a exists quantifier (conj.xs).
       // Below, we'll split those variables from their declaration in the quantifier.
 
-      // Decide how to rename the quantified variables
+      // Substitute the bound variables with *fresh* variables
       val re = Expr.fresh(xs)
       val re_ = re map (_.swap)
 
@@ -75,16 +73,16 @@ class ReductionProver(solver: Solver) extends Prover {
       }
   }
 
-  def prove(neg: Neg, expect: Boolean): Neg = neg match {
+  def reduce(neg: Neg, expect: Boolean): Neg = neg match {
     case atom: Atom =>
-      prove(atom, expect)
+      reduce(atom, expect)
 
     case Disj(xs, neg, pos) =>
       solver.scoped {
         // A Disj contains variables quantified by a forall quantifier (disj.xs).
         // Below, we'll split those variables from their declaration in the quantifier.
 
-        // Decide how to rename the quantified variables
+        // Substitute the bound variables with *fresh* variables
         val re = Expr.fresh(xs)
         val re_ = re map (_.swap)
 
@@ -133,7 +131,7 @@ class ReductionProver(solver: Solver) extends Prover {
       Nil
 
     case first :: rest =>
-      prove(first, expect = false) match {
+      reduce(first, expect = false) match {
         case Atom.f =>
           disj(rest, expect)
 
@@ -153,7 +151,7 @@ class ReductionProver(solver: Solver) extends Prover {
       Nil
 
     case first :: rest =>
-      prove(first, expect = true) match {
+      reduce(first, expect = true) match {
         case Atom.t =>
           conj(rest, expect)
 
