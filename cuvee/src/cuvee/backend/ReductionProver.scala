@@ -159,7 +159,7 @@ class ReductionProver(solver: Solver) extends Prover {
         case first_ =>
           solver.scoped {
             solver.assert(!first_.toExpr)
-            first :: disj(rest, expect)
+            first_ :: disj(rest, expect)
           }
       }
   }
@@ -179,7 +179,7 @@ class ReductionProver(solver: Solver) extends Prover {
         case first_ =>
           solver.scoped {
             solver.assert(first_.toExpr)
-            first :: conj(rest, expect)
+            first_ :: conj(rest, expect)
           }
       }
   }
