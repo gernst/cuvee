@@ -484,6 +484,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case UMinus(term) => List("-", "(", term, ")")
     // Map access
     case Select(arr, idx) => List(arr, "[", idx, "]")
+    case Store(arr, idx, newval) => List(arr, "[", idx, ":=", newval, "]")
     // Applications (i.e. function calls)
     case App(_, args)      => inst :: (args intersperse ("(", ", ", ")"))
     case _ if args.isEmpty => List(inst)
