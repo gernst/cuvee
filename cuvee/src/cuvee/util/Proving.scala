@@ -37,7 +37,6 @@ object Proving {
         println("lemma")
         for (line <- lines)
           println("  " + line)
-        println("  sorry")
         println()
 
       case remaining =>
@@ -147,21 +146,15 @@ object Proving {
           )
 
       case Atom.f =>
-        if (!debug)
-          println(indent(depth) + "simp:     " + simp)
-
         if (debug)
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
           )
 
       case goal =>
-        if (!debug)
-          println(indent(depth) + "simp:     " + simp)
-
         if (debug)
           println(
-            indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
+            indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} by reduction"
           )
     }
 
