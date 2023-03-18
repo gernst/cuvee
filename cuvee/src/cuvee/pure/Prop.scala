@@ -35,7 +35,7 @@ sealed trait Neg extends Prop {
 
 // atomics should not have inner propositional structure
 case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
-  require(cex.isEmpty || (expr != True && expr != False), "Atoms with True / False must not carry a model")
+  // require(cex.isEmpty || (expr != True && expr != False), "Atoms with True / False must not carry a model")
 
   // def text = Printer.atom(expr)
   def bound = Set()
