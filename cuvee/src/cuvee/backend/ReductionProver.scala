@@ -63,34 +63,40 @@ class ReductionProver(solver: Solver) extends Prover {
       }
 
     case Conj(xs, neg) =>
-      // A Conj contains variables quantified by a exists quantifier (conj.xs).
-      // Below, we'll split those variables from their declaration in the quantifier.
+      solver.scoped {
+        // A Conj contains variables quantified by a exists quantifier (conj.xs).
+        // Below, we'll split those variables from their declaration in the quantifier.
 
-      // Substitute the bound variables with *fresh* variables
-      val re = Expr.fresh(xs)
-      val re_ = re map (_.swap)
+        // Substitute the bound variables with *fresh* variables
+        val re = Expr.fresh(xs)
+        val re_ = re map (_.swap)
 
-      val xs_ = xs rename re
-      val neg_ = neg map (_ rename re)
+        val xs_ = xs rename re
+        val neg_ = neg map (_ rename re)
 
-      // Filter out redundant elements
-      val neg__ = conj(neg_, expect)
+        // Declare the variables from the exists-quantifier
+        for (x <- xs_)
+          solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
 
-      val res = neg__ match {
-        case Nil =>
+        // Filter out redundant elements
+        val neg__ = conj(neg_, expect)
+
+        val res = neg__ match {
+          case Nil =>
+            Atom.t
+          case _ if neg__ contains Atom.f =>
+            Atom.f
+          case _ =>
+            // Undo the substitution
+            Conj(xs, neg__ map (_ rename re_))
+        }
+
+        // Return the result
+        if (xs.nonEmpty && expect && solver.isTrue(res.toExpr)) {
           Atom.t
-        case _ if neg__ contains Atom.f =>
-          Atom.f
-        case _ =>
-          // Undo the substitution
-          Conj(xs, neg__ map (_ rename re_))
-      }
-
-      // Return the result
-      if (xs.nonEmpty && expect && solver.isTrue(res.toExpr)) {
-        Atom.t
-      } else {
-        res
+        } else {
+          res
+        }
       }
   }
 
