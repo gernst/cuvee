@@ -1,4 +1,4 @@
-theory prove_propositional_logic
+theory reduce_propositional_logic
   imports Main
 begin
 
