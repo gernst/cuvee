@@ -455,8 +455,9 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case And(phis)         => "and" :: phis
     case Or(phis)          => "or" :: phis
     case Const(arg)        => List(List("as", "const", typ), arg)
-    case _ if args.isEmpty => inst
-    case _                 => inst :: args
+    case _ if args.isEmpty && inst.params.nonEmpty => inst
+    case _ if args.isEmpty => inst.fun.name
+    case _                 => inst.fun.name :: args
   }
 
   def bexpr = this match {
