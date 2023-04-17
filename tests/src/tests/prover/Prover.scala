@@ -1,17 +1,17 @@
 package tests.prover
 
-import cuvee.backend.Prove
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.util.Generator
 import cuvee.util.Name
 import cuvee.State
+import cuvee.backend.PositiveProver
 
 object Prover {
   def run(atomCnt: Int, depth: Int) {
     var state = State.default
     val solver = z3(state)
-    val prover = new Prove(solver)
+    val prover = new PositiveProver(solver)
 
     val atomNames = List.tabulate(atomCnt)(i => Name("x", Some(i)))
     val atoms =

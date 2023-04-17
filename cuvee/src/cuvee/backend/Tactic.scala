@@ -45,7 +45,7 @@ trait Tactic {
     val orig = Rating.complexity(goal)
     val cases = apply(state, goal)
 
-    val snew = cases.map(c => Rating.complexity(c._1)).sum
+    val snew = cases.map(c => Rating.complexity(c._1)).max
 
     if (snew < orig)
       Some(orig - snew)
@@ -263,7 +263,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
         val remainingComplexity = goals.zipWithIndex
           .filterNot(baseIndices.contains)
           .map(p => Rating.complexity(p._1._1))
-          .sum
+          .max
 
         Some(originalComplexity - remainingComplexity)
       case _ => None

@@ -12,7 +12,6 @@ object Tool {
   }
 
   def pipe(cmd: String*) = {
-    println("$ " + cmd.mkString(" "))
     val builder = new ProcessBuilder(cmd: _*)
     val proc = builder.start()
     val in = new PrintStream(proc.getOutputStream())
