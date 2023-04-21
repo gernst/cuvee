@@ -1,4 +1,4 @@
-package cuvee.a
+package cuvee.lemmas
 
 import cuvee.error
 import cuvee.State
@@ -58,14 +58,6 @@ case class C(args: List[Expr], guard: List[Expr], body: Expr) {
         false
     }
 
-  def canon(x: Name) = {
-    val xs = vars(args)
-    val ys = xs.distinct
-    val zs = Expr.vars(x, ys.types)
-    val re = Expr.subst(ys, zs)
-    this rename re
-  }
-
   override def toString = {
     if (guard.isEmpty)
       args.mkString("case ", ", ", "") + "  = " + body
@@ -117,13 +109,13 @@ case class Def(fun: Fun, cases: List[C]) {
     }
   }
 
-  object Norm {
-    def unapply(c: C) = {
-      val C(args, guard, body) = c
-      val ((d, r), (as, bs, cs)) = Split.split(fun, body)
-      Some((args, guard, as, bs, cs, d))
-    }
-  }
+  // object Norm {
+  //   def unapply(c: C) = {
+  //     val C(args, guard, body) = c
+  //     val ((d, r), (as, bs, cs)) = Split.split(fun, body)
+  //     Some((args, guard, as, bs, cs, d))
+  //   }
+  // }
 
   def rename(re: Name => Name): Def = {
     val fun_ = fun rename re

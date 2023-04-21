@@ -12,6 +12,8 @@ case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie
     "some uninstantiated parameters " + ty.keySet + " for " + fun
   )
 
+  def arity =
+    fun.arity
   def params =
     fun.params subst ty
   def args =
@@ -34,6 +36,7 @@ case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie
 
 case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
   def bound = params.toSet
+  def arity = args.length
 
   require(
     args.free subsetOf bound,
@@ -45,10 +48,15 @@ case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
     "unbound parameters " + (res.free -- bound)
   )
 
-  def rename(f: Name => Name) = Fun(f(name), params, args, res)
+  def rename(f: Name => Name) =
+    Fun(f(name), params, args, res)
 
   def apply(args: Expr*) =
     App(this, args.toList)
+
+  def default = {
+    Inst(this, Type.id(params))
+  }
 
   def generic = {
     Inst(this, Type.fresh(params))
@@ -67,6 +75,10 @@ case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
       true
     case App(_, args) =>
       args exists (this in _)
+  }
+
+  def in(that: List[Expr]): Boolean = {
+    that exists (this in _)
   }
 
   override def toString = (params, args) match {
@@ -128,5 +140,24 @@ object Fun {
   val lt = Fun("<", Nil, List(int, int), bool)
   val gt = Fun(">", Nil, List(int, int), bool)
 
-  def main(args: Array[String]) {}
+  val builtin = Set(
+    eq_,
+    ite,
+    select,
+    store,
+    true_,
+    false_,
+    not,
+    and,
+    or,
+    imp,
+    uminus,
+    plus,
+    minus,
+    times,
+    le,
+    ge,
+    lt,
+    gt
+  )
 }

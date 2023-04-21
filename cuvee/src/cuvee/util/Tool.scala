@@ -32,4 +32,11 @@ object Tool {
   def withTimeout[A](ms: Long, default: => A)(a: => A) = {
     Try(Await.result(Future(a), ms.milliseconds)).getOrElse(default)
   }
+
+  def time[A](a: => A): (Long, A) = {
+    val start = System.currentTimeMillis()
+    val r = a
+    val end = System.currentTimeMillis()
+    (end - start, r)
+  }
 }

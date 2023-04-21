@@ -16,9 +16,18 @@ case class Rule(
     "rule " + this + " not type correct: " + lhs.typ + ", " + rhs.typ
   )
 
-  
+  require(
+    rhs.free subsetOf lhs.free,
+    "rule lhs " + lhs + " does not bind " + (rhs.free -- lhs.free) + " in rhs" + rhs
+  )
+
+  require(
+    cond.free subsetOf lhs.free,
+    "rule lhs " + lhs + " does not bind " + (cond.free -- lhs.free) + " in guard " + cond
+  )
+
   val vars = lhs.free.toList
-  def funs = rhs.funs
+  def funs = lhs.funs ++ rhs.funs ++ cond.funs
 
   def canFlip = rhs match {
     case _: App =>
@@ -58,7 +67,7 @@ case class Rule(
 
   override def toString = {
     var res = lhs + " = " + rhs
-    var pres = And.flatten(cond)
+    var pres = And.flattenStrong(cond)
     pres ++= avoid map { case (x, e) => (x !== e) }
 
     if (pres.nonEmpty)
@@ -70,7 +79,7 @@ case class Rule(
 
 object Rules {
   var ite = true
-  var shortcut = false
+  var shortcut = true
 
   def from(
       xs: List[Var],
@@ -109,6 +118,12 @@ object Rules {
         val l = from(xs, test && guard, lhs, True, ok)
         val r = from(xs, Not(test) && guard, lhs, expr, ok)
         l ++ r
+
+      case Or(List(test1, test2, expr)) if shortcut => // TODO: generalize
+        val a = from(xs, test1 && guard, lhs, True, ok)
+        val b = from(xs, Not(test1) && test2 && guard, lhs, expr, ok)
+        val c = from(xs, Not(test1) && Not(test2) && guard, lhs, expr, ok)
+        a ++ b ++ c
 
       case And(List(test, expr)) if shortcut => // TODO: generalize
         val l = from(xs, test && guard, lhs, expr, ok)

@@ -117,6 +117,16 @@ object Sugar {
           List(expr)
       }
 
+    def flattenStrong(expr: Expr): List[Expr] =
+      expr match {
+        case App(inst, args) if inst.fun == fun =>
+          args flatMap flattenStrong
+        case `neutral` =>
+          Nil
+        case _ =>
+          List(expr)
+      }
+
     def apply(arg1: Expr, arg2: Expr): Expr = {
       App(fun, List(arg1, arg2))
     }

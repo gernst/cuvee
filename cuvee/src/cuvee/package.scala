@@ -74,6 +74,9 @@ package object cuvee {
 
     def intersperse[B >: A](left: B, inner: B, right: B): List[B] =
       left :: (self intersperse inner) ::: List(right)
+
+    def removed(pos: Int) =
+      self.patch(pos, Nil, 1)
   }
 
   implicit class ListMapOps[A, B](self: List[Map[A, B]]) {

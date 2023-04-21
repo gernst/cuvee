@@ -55,9 +55,21 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
       case Bind(quant, formals, body, typ) =>
-        // println("here: " + this)
+        println("recursive map at bind, beware! " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
     }
+  }
+
+  def reduce[A](g: (A, A) => A)(f: Expr => A): A = this match {
+    case lit: Lit =>
+      f(lit)
+    case id: Var =>
+      f(id)
+    case App(inst, args) =>
+      val as = f(this) :: (args map (_.reduce(g)(f)))
+      as reduce g
+    case Bind(quant, formals, body, typ) =>
+      g(f(this), body.reduce(g)(f))
   }
 
   def replace(f: Fun, g: Fun) = bottomup {
@@ -85,13 +97,15 @@ object Expr extends Alpha[Expr, Var] {
   val boogieInfix =
     boogie.Grammar.syntax.infix_ops.keySet
 
-  def fresh(name: Name, typ: Type): Var =
+  def fresh(name: Name, typ: Type): Var = {
     Var(name.withIndex(nextIndex), typ)
+  }
 
-  def fresh(names: List[Name], types: List[Type]): List[Var] =
+  def fresh(names: List[Name], types: List[Type]): List[Var] = {
     names zip types map { case (name, typ) =>
       Var(name.withIndex(nextIndex), typ)
     }
+  }
 
   def vars(name: Name, types: List[Type]) = {
     for ((t, i) <- types.zipWithIndex)
@@ -132,8 +146,7 @@ object Expr extends Alpha[Expr, Var] {
         (ty, su)
       case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
         val ty_ = Type.unify(inst1.args, inst1.res, inst2.args, inst2.res, ty)
-        val su_ = unify(pats, args, ty_, su)
-        (ty_, su_)
+        unify(pats, args, ty_, su)
       case _ =>
         backtrack("cannot bind " + pat + " to " + arg)
     }
@@ -144,10 +157,10 @@ object Expr extends Alpha[Expr, Var] {
       args: List[Expr],
       ty: Map[Param, Type],
       su: Map[Var, Expr]
-  ): Map[Var, Expr] = {
+  ): (Map[Param, Type], Map[Var, Expr]) = {
     (pats, args) match {
       case (Nil, Nil) =>
-        su
+        (ty, su)
       case (pat :: pats, arg :: args) =>
         val (ty_, su_) = unify(pat, arg, ty, su)
         unify(pats, args, ty_, su_)
@@ -237,6 +250,8 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
         this == that
       case App(_, args) =>
         args exists (this in _)
+      case _: Lit =>
+        false
       case _ =>
         cuvee.undefined
     }
@@ -308,6 +323,18 @@ object DivBy extends Sugar.associative(Fun.div, Assoc.left)
 object Mod extends Sugar.associative(Fun.mod, Assoc.left)
 // object Exp extends Sugar.associative(Fun.exp, Assoc.right)
 
+object Succ {
+  def apply(expr: Expr) = {
+    Plus(expr, One)
+  }
+
+  def unapply(expr: Expr) = expr match {
+    case Plus(List(arg, One)) => Some(arg)
+    case Plus(List(One, arg)) => Some(arg)
+    case _                    => None
+  }
+}
+
 object Lt extends Sugar.binary(Fun.lt)
 object Le extends Sugar.binary(Fun.le)
 object Gt extends Sugar.binary(Fun.gt)
@@ -359,8 +386,10 @@ case class Tuple(args: List[Expr]) extends Expr {
 
 object App extends ((Inst, List[Expr]) => App) {
   def apply(inst: Inst, args: List[Expr]): App = {
-    require(inst.args == args.types,
-      "cannot apply " + inst.fun + " with " + inst.args + " to " + args + " with " + args.types)
+    require(
+      inst.args == args.types,
+      "cannot apply " + inst.fun + " with " + inst.args + " to " + args + " with " + args.types
+    )
     new App(inst, args)
   }
 
@@ -375,13 +404,15 @@ object App extends ((Inst, List[Expr]) => App) {
     // println("infer: " + fun + " to " + (args map (_.typ)))
     // println(inst.ty)
     // println(inst.args, args.types, inst.ty)
-    val su = Type.binds(inst.args, args.types) or {
+    val su = trace("typing failed: " + fun + " " + args.mkString(", ") + ": " + args.types.mkString(", ")) {
+      Type.binds(inst.args, args.types) or {
       error("cannot apply " + fun + " to " + args)
     }
+  }
     // println("result: " + su)
 
-    val ps = inst.ty filterNot {
-      case (a, b: Param) => su contains b
+    val ps = inst.ty filterNot { case (a, b: Param) =>
+      su contains b
     }
 
     require(

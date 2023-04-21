@@ -94,7 +94,7 @@ object Type extends Alpha[Type, Param] {
       case (p1: Param, _) if su contains p1 =>
         unify(su(p1), typ2, su)
       case (p1: Param, _) if p1 in typ2 =>
-        cuvee.undefined
+        // cuvee.undefined
         backtrack("recursive unification, " + p1 + " in " + typ2)
       case (p1: Param, _) =>
         su + (p1 -> typ2)

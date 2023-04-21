@@ -12,7 +12,9 @@ import cuvee.smtlib.DeclareFun
 import easyparse.Backtrack
 
 object Rewrite {
-  val MaxDepth = 20
+  val MaxDepth = 10
+
+  case class RewriteDepthExceeded(exprs: List[Expr]) extends Exception
 
   def from(
       cmd: Cmd,
@@ -107,12 +109,13 @@ object Rewrite {
     Rule(lhs_, rhs_, cond_, avoid_)
   }
 
-  def rewrite(expr: Expr, rules: Map[Fun, List[Rule]], depth: Int = 0): Expr = {
+  def rewrite(expr: Expr, rules: Map[Fun, List[Rule]], depth: Int = 0): Expr = try {
     expr bottomup {
       case self if depth > MaxDepth =>
-        println("max rewriting depth reached: " + self)
-        self
+        // println("max rewriting depth reached: " + self)
+        // self
       // error("max rewriting depth reached " + self)
+      throw RewriteDepthExceeded(List(self))
 
       case self @ App(inst, args) =>
         app(self, inst.fun, args, rules, depth)
@@ -120,6 +123,9 @@ object Rewrite {
       case self =>
         self
     }
+  } catch {
+    case RewriteDepthExceeded(exprs) =>
+      throw RewriteDepthExceeded(expr :: exprs)
   }
 
   def rewrites(
@@ -138,6 +144,7 @@ object Rewrite {
       depth: Int
   ): Expr = {
     if (rules contains fun) {
+      // println("  rewriting " + expr + "  with " + rules(fun))
       val _expr = rewrite(expr, fun, rules(fun), rules, depth)
       _expr
     } else {
@@ -186,6 +193,7 @@ object Rewrite {
           }
         } catch {
           case _: Backtrack =>
+            // println("  not applying " + rule + "  to " + expr)
             rewrite(expr, fun, rest, rules, depth)
         }
 

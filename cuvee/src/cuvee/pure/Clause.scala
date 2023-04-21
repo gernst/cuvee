@@ -17,11 +17,21 @@ object Clause {
       case _          => Forall(xs, Imp(And(ant), suc))
     }
 
+  def apply(xs: List[Var], ant: Expr, suc: Expr) =
+    (xs, ant) match {
+      case (Nil, True) => suc
+      case (Nil, _)   => Imp(ant, suc)
+      case (_, True)   => Forall(xs, suc)
+      case _          => Forall(xs, Imp(ant, suc))
+    }
+
   def unapply(expr: Expr) =
     expr match {
       case Forall(xs, Imp(And(ant), suc)) => Some((xs, ant, suc))
+      case Forall(xs, Imp(ant, suc))      => Some((xs, List(ant), suc))
       case Forall(xs, suc)                => Some((xs, Nil, suc))
       case Imp(And(ant), suc)             => Some((Nil, ant, suc))
+      case Imp(ant, suc)                  => Some((Nil, List(ant), suc))
       case _                              => Some((Nil, Nil, expr))
     }
 }
