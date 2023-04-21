@@ -1,4 +1,4 @@
-theory prove_propositional_logic
+theory reduce_propositional_logic
   imports Main
 begin
 
@@ -25,14 +25,6 @@ fun entails where
 
 (* "smart constructors" that implement the simplification rules *)
 
-fun tt :: "'a formula list \<Rightarrow> bool \<Rightarrow> 'a formula" where
-  "tt \<Gamma> True  = T" |
-  "tt \<Gamma> False = (if (entails \<Gamma> (Not T)) then F else T)"
-
-fun ff :: "'a formula list \<Rightarrow> bool \<Rightarrow> 'a formula" where
-  "ff \<Gamma> True  = (if (entails \<Gamma> F) then T else F)" |
-  "ff \<Gamma> False = F"
-
 fun atom :: "'a formula list \<Rightarrow> 'a set \<Rightarrow> bool \<Rightarrow> 'a formula" where
   "atom \<Gamma> a True  = (if (entails \<Gamma> (Atom a)) then T else Atom a)" |
   "atom \<Gamma> a False = (if (entails \<Gamma> (Not (Atom a))) then F else Atom a)"
@@ -50,16 +42,6 @@ fun or :: "'a formula \<Rightarrow> 'a formula \<Rightarrow> 'a formula" where
   "or   F p = p" | "or   T p = T" | "or   p T = T" | "or   p F = p" | "or   p q = Or p q"
 
 (* helper lemmas, marked as simplification rules, so that they are used in the proofs that follow *)
-
-lemma holds_tt[simp]:
-  assumes "\<forall> p \<in> set \<Gamma>. holds p v"
-  shows   "holds (tt \<Gamma> b) v = holds T v"
-  using assms by (cases b) auto
-
-lemma holds_ff[simp]:
-  assumes "\<forall> p \<in> set \<Gamma>. holds p v"
-  shows   "holds (ff \<Gamma> b) v = holds F v"
-  using assms by (cases b) auto
 
 lemma holds_atom[simp]:
   assumes "\<forall> p \<in> set \<Gamma>. holds p v"

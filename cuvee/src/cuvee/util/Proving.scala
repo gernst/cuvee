@@ -37,7 +37,6 @@ object Proving {
         println("lemma")
         for (line <- lines)
           println("  " + line)
-        println("  sorry")
         println()
 
       case remaining =>
@@ -74,9 +73,6 @@ object Proving {
       // Skip the prover call and execute the inner tactic directly
       case Some(NoAuto(inner)) => tactic = Some(inner)
 
-      // Also, skip the prover call, if the next tactic on the "prover blacklist", that follows.
-      case Some(Induction(_, _)) | Some(Show(_, _, _)) => ()
-
       // Otherwise, rewrite prop by applying the prover and simplifying
       case _ => prop = proveAndSimplify(prop, prover, debug, depth)
     }
@@ -102,10 +98,15 @@ object Proving {
       // Suggest tactics. If a tactic for automatic application was found, make this the default
       if (suggestTactics) {
         if (suggestions.nonEmpty) {
-          println(indent(depth) + "goal:     " + prop)
+          val lines = cuvee.boogie.printer.lines(prop)
+
+          println(indent(depth + 1) + "current goal:")
+          for (line <- lines)
+            println(indent(depth + 1) + "  " + line)
+          println()
 
           tactic = CLI.askChoices(
-            "Do you want to apply one of the following tactics?",
+            "Do you want to apply one of the following tactics? [  ] = default",
             suggestions,
             default = Some(suggestions.indexOf(tactic.getOrElse(None))),
             printfn = (str => print(indent(depth + 1) + str))
@@ -145,21 +146,15 @@ object Proving {
           )
 
       case Atom.f =>
-        if (!debug)
-          println(indent(depth) + "simp:     " + simp)
-
         if (debug)
           println(
             indent(depth) + f"\u001b[91m✘\u001b[0m Goal found to be `false`"
           )
 
       case goal =>
-        if (!debug)
-          println(indent(depth) + "simp:     " + simp)
-
         if (debug)
           println(
-            indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} automatically"
+            indent(depth) + f"\u001b[91m✘\u001b[0m Could not show goal ${prop.toExpr} by reduction"
           )
     }
 

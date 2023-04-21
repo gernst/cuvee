@@ -62,8 +62,11 @@ class Cuvee {
     "-prove:simple" -> ("prove goals using simple structural prover", () => {
       this.prove = "simple"
     }),
-    "-prove:bimodal" -> ("prove goals using the bimodal prover", () => {
-      this.prove = "bimodal"
+    "-prove:reduce" -> ("prove goals using the reduction prover (default)", () => {
+      this.prove = "reduce"
+    }),
+    "-prove:positive" -> ("prove goals using the monomodal / poisitive polarity prover", () => {
+      this.prove = "positive"
     }),
     "-tactics:suggest" -> ("suggest tactics applicable to the current goal", () => {
       cuvee.util.Proving.suggestTactics = true
@@ -127,34 +130,6 @@ class Cuvee {
     }
   }
 
-  // TODO: Figure out, whether or how to integrate these commands
-  // def old_run(cmds: List[Cmd], state: State, solver: Solver) {
-  //   cmds match {
-  //     case Assert(Not(phi)) :: rest =>
-  //       println("lemma")
-  //       for (line <- phi.lines)
-  //         println(line)
-  //       val phi_ = show(phi, state, solver)
-  //       solver.assert(Not(phi))
-  //       run(rest, state, solver)
-
-  //     case (cmd @ Lemma(phi, None)) :: rest if false =>
-  //       val phi_ = show(phi, state, solver)
-  //       run(rest, state, solver)
-
-  //     case (cmd @ Lemma(phi, None)) :: rest =>
-  //       val prove = new ProveSimple(solver)
-  //       val phi_ = prove.prove(phi)
-
-  //       if (!solver.isTrue(phi_)) {
-  //         for (line <- phi_.lines)
-  //           println(line)
-  //       }
-
-  //       run(rest, state, solver)
-
-  //   }
-  // }
 
   def run(cmds: List[Cmd], state: State, solver: Solver) {
     // assert(cmds.nonEmpty, "No file was parsed")
@@ -165,8 +140,8 @@ class Cuvee {
     val safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
     def maybeProve(phi: Expr, tactic: Option[Tactic]): Boolean = prove match {
-      case "bimodal" =>
-        val prover = new BimodalProver(solver)
+      case "default" | "reduce" =>
+        val prover = new ReductionProver(solver)
         val result = Proving.show(Disj.from(phi), tactic)(
           state,
           solver,
@@ -177,8 +152,8 @@ class Cuvee {
 
         result == Atom.t
 
-      case "default" =>
-        val prover = new MonomodalProver(solver)
+      case "positive" =>
+        val prover = new PositiveProver(solver)
         val result = Proving.show(Disj.from(phi), tactic)(
           state,
           solver,
@@ -229,30 +204,29 @@ class Cuvee {
         val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
 
         val ok = maybeProve(phi, tactic = None)
-        if (ok)
-          println("verified: " + name)
-
-      case ctrl: Ctrl =>
-      // solver.control(ctrl)
+        if (ok) {
+          solver.assert(phi)
+          println(f"\u001b[92m✔\u001b[0m procedure ${name} verified successfully.\n\n")
+        } else {
+          println(f"\u001b[91m✘\u001b[0m procedure ${name} could not be verified!\n\n")
+        }
 
       case decl: Decl =>
         solver.declare(decl)
 
       case Assert(phi) =>
-        // println("axiom " + phi)
         solver.assert(phi)
 
       case Lemma(phi, tactic) =>
-        // println()
-        // println("================  LEMMA  ================")
-        // println("show:  " + expr)
-        maybeProve(phi, tactic)
+        val ok = maybeProve(phi, tactic)
 
-        // In any case, assert the lemma, so that its statement is available in later proofs
-        solver.assert(phi)
-
-      case Labels =>
-      // val result = solver.labels()
+        // Assert the lemma for later proofs, if it was successfully verified.
+        if (ok) {
+          solver.assert(phi)
+          println(f"\u001b[92m✔\u001b[0m lemma ${phi} proved successfully.\n\n")
+        } else {
+          println(f"\u001b[91m✘\u001b[0m lemma ${phi} could not be shown!\n\n")
+        }
 
       case CheckSat =>
         val result = solver.check()
