@@ -11,10 +11,6 @@ import cuvee.util.Proving
 import cuvee.util.Printer
 import cuvee.imp.Spec
 
-object fastexp extends Run(Cuvee, "examples/fastexp.smt2")
-object list extends Run(Cuvee, "examples/case_studies/list.bpl")
-object debug extends Run(Cuvee, "-rewrite", "debug.bpl")
-
 object Cuvee extends Main {
   def main(args: Array[String]) {
     val c = new Cuvee
