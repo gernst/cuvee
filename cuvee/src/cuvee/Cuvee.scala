@@ -15,7 +15,7 @@ object Cuvee extends Main {
   def main(args: Array[String]) {
     val c = new Cuvee
     c.configure(args.toList)
-    c.run(c.cmds, c.state, z3(c.state))
+    c.run(c.cmds, c.state, z3(c.state, timeout=1000))
   }
 }
 
@@ -57,6 +57,9 @@ class Cuvee {
     }),
     "-prove:simple" -> ("prove goals using simple structural prover", () => {
       this.prove = "simple"
+    }),
+    "-prove:smt" -> ("prove goals by a plain SMT query prover", () => {
+      this.prove = "smt"
     }),
     "-prove:reduce" -> ("prove goals using the reduction prover (default)", () => {
       this.prove = "reduce"
@@ -133,7 +136,7 @@ class Cuvee {
     solver.exec(SetOption("produce-models", true))
 
     val rules = Rewrite.from(cmds, state)
-    val safe = Rewrite.safe(rules, state) groupBy (_.fun)
+    var safe = Rewrite.safe(rules, state) groupBy (_.fun)
 
     def maybeProve(phi: Expr, tactic: Option[Tactic]): Boolean = prove match {
       case "default" | "reduce" =>
@@ -161,17 +164,28 @@ class Cuvee {
         result == Atom.t
 
       case "simple" =>
-        if (!solver.isTrue(phi)) {
-          val prover = new SimpleProver(solver)
-          val phi_ = Simplify.simplify(prover.prove(phi), safe)
-          val cmd = Lemma(phi_, None)
+        val prover = new SimpleProver(solver)
+        val result = Proving.show(Disj.from(phi), tactic)(
+          state,
+          solver,
+          prover,
+          printer,
+          safe
+        )
+
+        result == Atom.t
+
+      case "smt" =>
+        val phi_ = Simplify.simplify(phi, safe)
+        if(!solver.isTrue(phi_)) {
+          val cmd = Lemma(phi, None)
           for (line <- cmd.lines)
             println(line)
           false
         } else {
           true
         }
-
+          
       case "none" =>
         val cmd = Lemma(phi, None)
         for (line <- cmd.lines)
@@ -219,6 +233,12 @@ class Cuvee {
         // Assert the lemma for later proofs, if it was successfully verified.
         if (ok) {
           solver.assert(phi)
+
+
+          val add = Rules.from(phi, state.constrs)
+          safe = Rewrite.safe(rules ++ add, state) groupBy (_.fun)
+          // println("adding rule: " + add)
+
           println(f"\u001b[92m✔\u001b[0m lemma ${phi} proved successfully.\n\n")
         } else {
           println(f"\u001b[91m✘\u001b[0m lemma ${phi} could not be shown!\n\n")

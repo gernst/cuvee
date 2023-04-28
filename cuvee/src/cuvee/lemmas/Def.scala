@@ -251,26 +251,26 @@ object Def {
   // it forgets variable names,
   // function name and order of arguments for recursive calls,
   // as well as all type instances
-  def hash(f: Fun, e: Expr): Int = e match {
+  def hash(f: Set[Fun], e: Expr): Int = e match {
     case x: Var =>
       varSeed
     case l: Lit =>
       l.hashCode
-    case App(Inst(`f`, _), args) =>
+    case App(Inst(g, _), args) if f contains g =>
       MurmurHash3.unorderedHash(hash(f, args))
     case App(Inst(g, _), args) =>
       MurmurHash3.orderedHash(hash(f, args), g.name.hashCode)
   }
 
-  def hash(f: Fun, es: List[Expr]): List[Int] = {
+  def hash(f: Set[Fun], es: List[Expr]): List[Int] = {
     es map (hash(f, _))
   }
 
-  def hashs(f: Fun, es: List[Expr]): Int = {
+  def hashs(f: Set[Fun], es: List[Expr]): Int = {
     MurmurHash3.orderedHash(es map (hash(f, _)))
   }
 
-  def hash(f: Fun, c: C): Int = c match {
+  def hash(f: Set[Fun], c: C): Int = c match {
     case C(args, guard, body) =>
       val h1 = hash(f, body)
       val h2 = MurmurHash3.unorderedHash(hash(f, args), h1)
@@ -280,6 +280,6 @@ object Def {
 
   def hash(df: Def): Int = df match {
     case Def(f, cases) =>
-      MurmurHash3.unorderedHash(cases map (hash(f, _)))
+      MurmurHash3.unorderedHash(cases map (hash(Set(f), _)))
   }
 }

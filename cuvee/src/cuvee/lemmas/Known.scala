@@ -103,9 +103,17 @@ object Known {
       // println(df.fun.name + "#" + Def.hash(df) + " ?= " + dg.fun.name + "#" + Def.hash(dg))
       // val x = cuvee.keyedPairings(fcases, gcases, key(f), key(g), prio)
       // val y = check(x)
+      val fg = Set(f, g)
 
-      val fcases_ = fcases.sortBy(Def.hash(f, _))
-      val gcases_ = gcases.sortBy(Def.hash(g, _))
+      val fcases_ = fcases.sortBy(Def.hash(fg, _))
+      val gcases_ = gcases.sortBy(Def.hash(fg, _))
+
+      // use this code to debug hash code problems
+      // println("======================")
+      // println("comparing: " + f.name + "  and  " + g.name)
+      // println(fcases map (Def.hash(fg, _)))
+      // println(gcases map (Def.hash(fg, _)))
+      // println("======================")
 
       val F = f.args.zipWithIndex.sortBy { case (t, i) =>
         Def.hash(t) -> foo(f, i, fcases_)

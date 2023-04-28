@@ -6,7 +6,11 @@ import cuvee.pure._
 import cuvee.util.Run
 import cuvee.util.Main
 
-object isaplanner1 extends Run(Test, "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_01.smt2")
+object isaplanner1
+    extends Run(
+      Test,
+      "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_01.smt2"
+    )
 
 object assoc extends Run(Test, "examples/boogie/assoc.bpl")
 object length extends Run(Test, "examples/smtlib/length.smt2")
@@ -21,6 +25,8 @@ object remove extends Run(Test, "examples/smtlib/remove.smt2")
 object tree extends Run(Test, "examples/boogie/tree.bpl")
 object tree2 extends Run(Test, "examples/boogie/tree-update.bpl")
 object debug extends Run(Test, "examples/boogie/tree-debug.bpl")
+
+object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 
 object Test extends Main {
   var out: PrintStream = null
@@ -45,6 +51,7 @@ object Test extends Main {
 
         for (cmd <- cmds) cmd match {
           case SetLogic(_) =>
+          case Lemma(_, _) =>
           case _ =>
             solver.exec(cmd)
         }

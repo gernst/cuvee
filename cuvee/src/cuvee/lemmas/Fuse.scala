@@ -168,10 +168,10 @@ object Fuse {
         if (su(x) == gbody) {
           List((gargs, su))
         } else {
-          // println("; cannot expose " + x + " over " + gbody)
-          // println("; already bound to " + su(x))
-          // println("; " + fg)
-          // println()
+          println("; cannot expose " + x + " over " + gbody)
+          println("; already bound to " + su(x))
+          println("; " + fg)
+          println()
           throw CannotFuse
         }
 
@@ -217,7 +217,7 @@ object Fuse {
         List((args_, su))
 
       case _ =>
-        // println("cannot expose " + fpat + " over " + gbody + " for " + fg)
+        println("cannot expose " + fpat + " over " + gbody + " for " + fg)
         throw CannotFuse
     }
 

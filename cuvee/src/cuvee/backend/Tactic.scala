@@ -147,7 +147,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
     goal match {
       case Atom(_, _) | Conj(_, _) =>
         throw new TacticNotApplicableException(
-          "Only Disj supported in induction tactic"
+          "Only Disj supported in induction tactic, got:" + goal
         )
       case Disj(xs, _, _) if !(xs contains variable) =>
         throw new TacticNotApplicableException(
