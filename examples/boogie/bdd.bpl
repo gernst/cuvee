@@ -75,9 +75,9 @@ proof induction m {
         induction n // nested induction
 };
 
-function sorted(a: [int]int): bool {
-    forall i: int, j: int ::
-        i < j ==> a[i] < a[j]
+function index(a: [int]int): bool {
+    forall x: int, y: int ::
+        a[x] == a[y] <==> x == y
 }
 
 // Ordered BDDs are formalized by mapping variables to a strongly monotonic counter (via arrays a).
@@ -95,18 +95,18 @@ axiom forall u: int, a: [int]int, x: int, l: node, r: node ::
 // this is a helper lemma --- it is a bit suspicous that it goes through without induction,
 // but it seems that it sufficies to unroll ordered once only
 lemma forall a: [int]int, u: int, w: int, n: node ::
-    sorted(a) && ordered(u, a, n) && w <= u
+    index(a) && ordered(u, a, n) && w <= u
         ==> ordered(w, a, n);
 
 // Task 4 a:
 lemma forall a: [int]int, u: int, n: node ::
-    sorted(a) && ordered(u, a, n)
+    index(a) && ordered(u, a, n)
         ==> ordered(u, a, neg(n))
 proof induction n;
 
 // Task 4 b:
 lemma forall a: [int]int, u: int, m: node, n: node ::
-    sorted(a) && ordered(u, a, m) && ordered(u, a, n)
+    index(a) && ordered(u, a, m) && ordered(u, a, n)
         ==> ordered(u, a, conj(m, n))
 proof induction m {
     case Node(mx, ml, mr) =>
