@@ -94,8 +94,8 @@ case class Def(fun: Fun, cases: List[C]) {
     decl :: axioms
 
   def decl = {
-    val Fun(name, Nil, args, res) = fun
-    DeclareFun(name, args, res)
+    val Fun(name, params, args, res) = fun
+    DeclareFun(name, params, args, res)
   }
 
   def axioms = {

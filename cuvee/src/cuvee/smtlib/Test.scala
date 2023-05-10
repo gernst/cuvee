@@ -27,7 +27,7 @@ object Test extends Main {
 
     val cmds = List(
       SetOption("produce-models", "true"),
-      DeclareFun("x", List(), Sort.int),
+      DeclareFun("x", Nil, Nil, Sort.int),
       CheckSat
     )
 

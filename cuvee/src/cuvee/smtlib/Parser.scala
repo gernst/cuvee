@@ -106,13 +106,13 @@ class Parser(init: State) {
         val args_ = Nil
         val res_ = typ(res)
         st.fun(name, Nil, args_, res_)
-        DeclareFun(name, args_, res_)
+        DeclareFun(name, Nil, args_, res_)
 
       case App(Id("declare-fun"), Id(name), App(args @ _*), res) =>
         val args_ = types(args.toList)
         val res_ = typ(res)
         st.fun(name, Nil, args_, res_)
-        DeclareFun(name, args_, res_)
+        DeclareFun(name, Nil, args_, res_)
 
       case App(Id(cmd), Id(name), App(args @ _*), res, body)
           if cmd == "define-fun" || cmd == "define-fun-rec" =>
@@ -123,7 +123,7 @@ class Parser(init: State) {
         val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
         st.fundef(name, formals_, body_)
 
-        DefineFun(name, formals_, res_, body_, cmd == "define-fun-rec")
+        DefineFun(name, Nil, formals_, res_, body_, cmd == "define-fun-rec")
 
       case App(
             Id("declare-datatype"),
@@ -252,7 +252,7 @@ class Parser(init: State) {
           val formals_ = formals(args.toList)
           val res_ = typ(res)
           val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
-          DefineFun(name, formals_, res_, body_, false)
+          DefineFun(name, Nil, formals_, res_, body_, false)
         }
       case _ => cuvee.error("Unexpected format in model response")
     }

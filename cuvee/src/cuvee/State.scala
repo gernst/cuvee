@@ -190,8 +190,8 @@ class State(
     var su: Map[Param, Type] = Map()
 
     case class Pre(private[Exprs] val expr: Expr) {
-      def typ = expr.typ // leaky
-      
+      def typ = expr.typ // leaky, used for lambdas
+
       def resolve = {
         val su_ = Type.prune(su)
         trace("resolving " + expr + " with " + su) {

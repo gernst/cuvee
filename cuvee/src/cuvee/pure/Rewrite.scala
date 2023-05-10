@@ -26,7 +26,7 @@ object Rewrite {
     cmd match {
       case Assert(expr) if assert =>
         Rules.from(expr, ok)
-      case DefineFun(name, xs, _, body, rec) if define =>
+      case DefineFun(name, params, xs, _, body, rec) if define =>
         val fun = st.funs(name, xs.length)
         Rules.from(fun, xs, body, ok)
       case _ =>
@@ -41,7 +41,7 @@ object Rewrite {
       define: Boolean = true
   ): List[Rule] = {
     val ok =
-      for (DeclareFun(name, args, res) <- cmds)
+      for (DeclareFun(name, params, args, res) <- cmds)
         yield st.funs(name, args.length)
 
     for (

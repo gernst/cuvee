@@ -37,9 +37,9 @@ case class Model(defs: List[DefineFun]) extends Res {
 
   def rename(re: Map[Var, Var]): Model = {
     val defs_ = defs map {
-      case DefineFun(name, formals, res, body, rec) =>
+      case DefineFun(name, params, formals, res, body, rec) =>
         val name_ = re get(Var(name, res)) map (_.name) getOrElse name
-        DefineFun(name_, formals rename re, res, body rename re, rec)
+        DefineFun(name_, params, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
@@ -121,7 +121,7 @@ case class Assert(expr: Expr) extends Cmd {
   def bexpr = List("assert", " ", expr, ";")
 }
 
-// This is not actually a feature of SMTLIB's
+// This is not actually a feature of SMT-LIB
 case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
   def sexpr = List("lemma", expr)
   def bexpr = tactic match {
@@ -144,18 +144,21 @@ case class DefineSort(name: Name, args: List[Param], body: Type) extends Decl {
   def bexpr = cuvee.undefined // TODO: Is this right?
 }
 
-case class DeclareFun(name: Name, args: List[Type], res: Type) extends Decl {
+case class DeclareFun(name: Name, params: List[Param], args: List[Type], res: Type) extends Decl {
+  require(params.isEmpty, "generic functions are currently not supported")
   def sexpr = List("declare-fun", name, args, res)
   def bexpr = List("function", " ", name, "(", args, ")", ":", res)
 }
 
 case class DefineFun(
     name: Name,
+    params: List[Param], 
     formals: List[Var],
     res: Type,
     body: Expr,
     rec: Boolean
 ) extends Decl {
+  require(params.isEmpty, "generic functions are currently not supported")
   def sexpr = List(
     if (rec) "define-fun-rec" else "define-fun",
     name,

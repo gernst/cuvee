@@ -26,10 +26,10 @@ package object lemmas {
     }
 
     val decl =
-      for (DeclareFun(name, args, res) <- cmds)
+      for (DeclareFun(name, params, args, res) <- cmds)
         yield st.funs(name, args.length)
     val defn =
-      for (DefineFun(name, args, res, _, _) <- cmds)
+      for (DefineFun(name, params, args, res, _, _) <- cmds)
         yield st.funs(name, args.length)
 
     val eqs0 =
@@ -41,7 +41,7 @@ package object lemmas {
 
     val eqs1 =
       for (
-        DefineFun(name, formals, res, body, _) <- cmds;
+        DefineFun(name, params, formals, res, body, _) <- cmds;
         fun = st.funs(name, formals.length);
         eq <- Rules.from(fun, formals, body, defn.toSet)
       )
@@ -50,12 +50,12 @@ package object lemmas {
     val eqs = eqs0 ++ eqs1
 
     val decls1 =
-      for (decl @ DeclareFun(_, _, _) <- cmds)
+      for (decl @ DeclareFun(_, _, _, _) <- cmds)
         yield decl
 
     val decls2 =
-      for (DefineFun(name, args, res, _, _) <- cmds)
-        yield DeclareFun(name, args.types, res)
+      for (DefineFun(name, params, args, res, _, _) <- cmds)
+        yield DeclareFun(name, params, args.types, res)
 
     val dfs =
       for ((fun, stuff) <- eqs.groupBy(_.fun))

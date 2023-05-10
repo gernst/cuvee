@@ -29,7 +29,7 @@ class SimpleProver(solver: Solver) extends Prover {
         val body_ = body rename re
 
         for (Var(name, typ) <- xs_) {
-          val cmd = DeclareFun(name, Nil, typ)
+          val cmd = DeclareFun(name, Nil, Nil, typ)
           solver.declare(cmd)
         }
 

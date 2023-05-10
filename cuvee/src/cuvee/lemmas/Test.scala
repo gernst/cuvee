@@ -24,7 +24,7 @@ object list extends Run(Test, "examples/smtlib/list-defs.smt2")
 object remove extends Run(Test, "examples/smtlib/remove.smt2")
 object tree extends Run(Test, "examples/boogie/tree.bpl")
 object tree2 extends Run(Test, "examples/boogie/tree-update.bpl")
-object debug extends Run(Test, "examples/boogie/tree-debug.bpl")
+object debug extends Run(Test, "debug.bpl")
 
 object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 

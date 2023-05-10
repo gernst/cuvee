@@ -76,7 +76,7 @@ class ReductionProver(solver: Solver) extends Prover {
 
         // Declare the variables from the exists-quantifier
         for (x <- xs_)
-          solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
+          solver.declare(DeclareFun(x.sexpr, Nil, Nil, x.typ))
 
         // Filter out redundant elements
         val neg__ = conj(neg_, expect)
@@ -119,7 +119,7 @@ class ReductionProver(solver: Solver) extends Prover {
 
         // Declare the variables from the forall-quantifier
         for (x <- xs_)
-          solver.declare(DeclareFun(x.sexpr, Nil, x.typ))
+          solver.declare(DeclareFun(x.sexpr, Nil, Nil, x.typ))
 
         // Filter out redundant assumptions, always expect true
         val neg__ = neg_ // conj(neg_, expect)

@@ -27,8 +27,8 @@ case class Query(b: Fun, oplus: Fun, rest: List[Fun], base: Expr, conds: List[Ex
 
   def cmds = {
     val decls =
-      for (Fun(name, Nil, args, res) <- funs)
-        yield DeclareFun(name, args, res)
+      for (Fun(name, params, args, res) <- funs)
+        yield DeclareFun(name, params, args, res)
 
     val conds =
       for (phi <- constraints)
@@ -235,7 +235,7 @@ object AdtInd {
       val n_ = Name(n)
       // println(n_)
       val f = Fun(n_, Nil, List(sort, sort), Sort.bool)
-      val decl = DeclareFun(n_, List(sort, sort), Sort.bool)
+      val decl = DeclareFun(n_, Nil, List(sort, sort), Sort.bool)
       val defn = Assert(Forall(List(x, y), Eq(App(f, List(x, y)), Eq(x, y))))
       (decl, defn) -> (n, cuvee.sexpr.Id("="))
     }
@@ -383,7 +383,7 @@ object AdtInd {
             }
 
             val eqs =
-              for (DefineFun(name, xs, res, rhs, false) <- res)
+              for (DefineFun(name, params, xs, res, rhs, false) <- res)
                 yield {
                   val fun = st1 funs (name, xs.length)
                   val lhs = App(fun, xs)

@@ -20,7 +20,7 @@ object Prover {
 
     solver.scoped({
       for (atom <- atomNames)
-        solver.declare(DeclareFun(atom, Nil, Sort.bool))
+        solver.declare(DeclareFun(atom, Nil, Nil, Sort.bool))
 
       for (phi <- Generator.propositionalExprs(atoms, depth)) {
         val res = prover.prove(Prop.from(phi))
