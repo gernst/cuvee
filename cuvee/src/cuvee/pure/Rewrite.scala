@@ -1,7 +1,6 @@
 package cuvee.pure
 
 import cuvee.error
-import cuvee.backtrack
 import cuvee.sexpr.Syntax
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Cmd
@@ -13,6 +12,8 @@ import easyparse.Backtrack
 
 object Rewrite {
   val MaxDepth = 10
+
+  case object PremiseNotValid extends Exception
 
   case class RewriteDepthExceeded(exprs: List[Expr]) extends Exception
 
@@ -173,8 +174,9 @@ object Rewrite {
           val (ty, su) = Expr.bind(pat, expr)
 
           val _cond = cond // simplify(cond subst env, ctx, st)
+
           if (_cond != True)
-            backtrack("side-condition not satisfied " + _cond)
+            throw PremiseNotValid // ("side-condition not satisfied " + _cond)
 
           val dont = avoid exists { case (a, b) =>
             (a inst (ty, su)) == (b inst (ty, su))
@@ -192,7 +194,7 @@ object Rewrite {
             rewrite(rhs_, rules, depth + 1)
           }
         } catch {
-          case _: Backtrack =>
+          case PremiseNotValid | _: Type.CannotBind =>
             // println("  not applying " + rule + "  to " + expr)
             rewrite(expr, fun, rest, rules, depth)
         }

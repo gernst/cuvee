@@ -1,7 +1,6 @@
 package cuvee.pure
 
 import cuvee.StringOps
-import cuvee.backtrack
 import cuvee.error
 import cuvee.sexpr
 import cuvee.boogie
@@ -28,6 +27,9 @@ case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extend
 }
 
 object Type extends Alpha[Type, Param] {
+  case class CannotUnify(reason: String) extends Exception
+  case class CannotBind(reason: String) extends Exception
+
   def prune(su: Map[Param, Type]): Map[Param, Type] = {
     for ((p, t) <- su)
       yield (p, prune(t, su))
@@ -52,7 +54,7 @@ object Type extends Alpha[Type, Param] {
         unify(typ1, su(p2), su)
       case (p1: Param, _) if p1 in typ2 =>
         cuvee.undefined
-        backtrack("recursive unification, " + p1 + " in " + typ2)
+        throw CannotUnify("recursive unification, " + p1 + " in " + typ2)
       case (p1: Param, _) =>
         su + (p1 -> typ2)
       case (_, p2: Param) =>
@@ -64,7 +66,7 @@ object Type extends Alpha[Type, Param] {
       case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
         unify(args1, args2, su)
       case _ =>
-        backtrack("cannot unify " + typ1 + " and " + typ2)
+        throw CannotUnify("cannot unify incompatible " + typ1 + " and " + typ2)
     }
   }
 
@@ -79,33 +81,7 @@ object Type extends Alpha[Type, Param] {
       case (typ1 :: types1, typ2 :: types2) =>
         unify(types1, types2, unify(typ1, typ2, su))
       case _ =>
-        backtrack("cannot unify " + types1 + " and " + types2)
-    }
-  }
-
-  def bind(
-      typ1: Type,
-      typ2: Type,
-      su: Map[Param, Type] = Map()
-  ): Map[Param, Type] = {
-    (typ1, typ2) match {
-      case _ if typ1 == typ2 =>
-        su
-      case (p1: Param, _) if su contains p1 =>
-        unify(su(p1), typ2, su)
-      case (p1: Param, _) if p1 in typ2 =>
-        // cuvee.undefined
-        backtrack("recursive unification, " + p1 + " in " + typ2)
-      case (p1: Param, _) =>
-        su + (p1 -> typ2)
-      case (Prod(args1), Prod(args2)) =>
-        binds(args1, args2, su)
-      case (Sum(args1), Sum(args2)) =>
-        binds(args1, args2, su)
-      case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
-        binds(args1, args2, su)
-      case _ =>
-        backtrack("cannot bind " + typ1 + " to " + typ2)
+        throw CannotUnify("cannot unify incompatible " + types1 + " and " + types2)
     }
   }
 
@@ -117,6 +93,27 @@ object Type extends Alpha[Type, Param] {
       su: Map[Param, Type]
   ): Map[Param, Type] = {
     unify(types1, types2, unify(res1, res2, su))
+  }
+
+  def bind(
+      typ1: Type,
+      typ2: Type,
+      su: Map[Param, Type] = Map()
+  ): Map[Param, Type] = {
+    (typ1, typ2) match {
+      case _ if typ1 == typ2 =>
+        su
+      case (p1: Param, _) =>
+        su + (p1 -> typ2)
+      case (Prod(args1), Prod(args2)) =>
+        binds(args1, args2, su)
+      case (Sum(args1), Sum(args2)) =>
+        binds(args1, args2, su)
+      case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
+        binds(args1, args2, su)
+      case _ =>
+        throw CannotBind("cannot bind " + typ1 + " to " + typ2)
+    }
   }
 
   def binds(
@@ -140,7 +137,7 @@ object Type extends Alpha[Type, Param] {
       case (typ1 :: types1, typ2 :: types2) =>
         binds(types1, types2, bind(typ1, typ2, su))
       case _ =>
-        backtrack("cannot bind " + types1 + " to " + types2)
+        throw CannotBind("cannot bind " + types1 + " to " + types2)
     }
   }
 

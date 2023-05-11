@@ -1,13 +1,6 @@
 import scala.annotation.tailrec
 
 package object cuvee {
-  def backtrack(message: String) = {
-    // println("backtracking: " + message)
-    easyparse.backtrack(message)
-  }
-
-  implicit def toControl[A](first: A) = new easyparse.Control(first)
-
   def error(msg: => String) = {
     require(false, msg)
     ???

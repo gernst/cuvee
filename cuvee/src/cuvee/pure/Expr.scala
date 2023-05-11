@@ -1,7 +1,6 @@
 package cuvee.pure
 
 import cuvee.error
-import cuvee.backtrack
 import cuvee.trace
 import cuvee.boogie
 import cuvee.sexpr
@@ -92,6 +91,9 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
 }
 
 object Expr extends Alpha[Expr, Var] {
+  case class CannotUnify(reason: String) extends Exception
+  case class CannotBind(reason: String) extends Exception
+
   val infix =
     Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
   val boogieInfix =
@@ -129,7 +131,8 @@ object Expr extends Alpha[Expr, Var] {
     }
   }
 
-  def unify(
+  // code below is a broken adaption from bind(...)
+  /* def unify(
       pat: Expr,
       arg: Expr,
       ty: Map[Param, Type] = Map(),
@@ -137,9 +140,17 @@ object Expr extends Alpha[Expr, Var] {
   ): (Map[Param, Type], Map[Var, Expr]) = {
     (pat, arg) match {
       case (x: Var, _) if su contains x =>
+        unify(su(x), arg, su)
         if (su(x) != arg)
-          backtrack("cannot bind " + su(x) + " to " + arg)
+          throw CannotUnify("cannot re-bind " + su(x) + " to " + arg)
         (ty, su)
+
+
+      case (p1: Param, _) if su contains p1 =>
+        unify(su(p1), typ2, su)
+      case (_, p2: Param) if su contains p2 =>
+        unify(typ1, su(p2), su)
+
       case (x: Var, _) =>
         (ty, su + (x -> arg))
       case (a: Lit, b: Lit) if a == b =>
@@ -148,7 +159,7 @@ object Expr extends Alpha[Expr, Var] {
         val ty_ = Type.unify(inst1.args, inst1.res, inst2.args, inst2.res, ty)
         unify(pats, args, ty_, su)
       case _ =>
-        backtrack("cannot bind " + pat + " to " + arg)
+        throw CannotUnify("cannot unify " + pat + " with " + arg)
     }
   }
 
@@ -165,9 +176,9 @@ object Expr extends Alpha[Expr, Var] {
         val (ty_, su_) = unify(pat, arg, ty, su)
         unify(pats, args, ty_, su_)
       case _ =>
-        backtrack("cannot unify " + pats + " with " + args)
+        throw CannotUnify("cannot unify " + pats + " with " + args)
     }
-  }
+  } */
 
   def bind(
       pat: Expr,
@@ -178,7 +189,7 @@ object Expr extends Alpha[Expr, Var] {
     (pat, arg) match {
       case (x: Var, _) if su contains x =>
         if (su(x) != arg)
-          backtrack("cannot bind " + su(x) + " to " + arg)
+          throw CannotBind("cannot bind " + su(x) + " to " + arg)
         (ty, su)
       case (x: Var, _) =>
         val ty_ = Type.bind(x.typ, arg.typ, ty)
@@ -190,7 +201,7 @@ object Expr extends Alpha[Expr, Var] {
         val su_ = bind(pats, args, ty_, su)
         (ty_, su_)
       case _ =>
-        backtrack("cannot bind " + pat + " to " + arg)
+        throw CannotBind("cannot bind " + pat + " to " + arg)
     }
   }
 
@@ -207,7 +218,7 @@ object Expr extends Alpha[Expr, Var] {
         val (ty_, su_) = bind(pat, arg, ty, su)
         bind(pats, args, ty_, su_)
       case _ =>
-        backtrack("cannot bind " + pats + " to " + args)
+        throw CannotBind("cannot bind " + pats + " to " + args)
     }
   }
 }
@@ -404,11 +415,11 @@ object App extends ((Inst, List[Expr]) => App) {
     // println("infer: " + fun + " to " + (args map (_.typ)))
     // println(inst.ty)
     // println(inst.args, args.types, inst.ty)
-    val su = trace("typing failed: " + fun + " " + args.mkString(", ") + ": " + args.types.mkString(", ")) {
-      Type.binds(inst.args, args.types) or {
-      error("cannot apply " + fun + " to " + args)
+    val su = trace(
+      "typing failed: " + fun + " " + args.mkString(", ") + ": " + args.types.mkString(", ")
+    ) {
+      Type.binds(inst.args, args.types)
     }
-  }
     // println("result: " + su)
 
     val ps = inst.ty filterNot { case (a, b: Param) =>
@@ -430,9 +441,10 @@ object App extends ((Inst, List[Expr]) => App) {
       fun.args.isEmpty,
       "cannot instantiate non-constant" + fun
     )
-
-    val su = Type.bind(fun.res, typ) or {
-      error("cannot cast " + fun + " to " + typ)
+    val su = trace(
+      "typing failed: " + fun + " as " + typ
+    ) {
+      Type.bind(fun.res, typ)
     }
 
     val ps = fun.params filterNot su.contains
@@ -483,12 +495,15 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     App(inst subst ty, args inst (ty, su))
 
   def sexpr = this match {
-    case And(phis)         => "and" :: phis
-    case Or(phis)          => "or" :: phis
-    case Const(arg)        => List(List("as", "const", typ), arg)
+    case And(phis)  => "and" :: phis
+    case Or(phis)   => "or" :: phis
+    case Const(arg) => List(List("as", "const", typ), arg)
+
     case _ if args.isEmpty && inst.params.nonEmpty => inst
+
     case _ if args.isEmpty => inst.fun.name
-    case _                 => inst.fun.name :: args
+
+    case _ => inst.fun.name :: args
   }
 
   def bexpr = this match {
@@ -515,7 +530,7 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case Not(psi)     => List("!", "(", psi, ")")
     case UMinus(term) => List("-", "(", term, ")")
     // Map access
-    case Select(arr, idx) => List(arr, "[", idx, "]")
+    case Select(arr, idx)        => List(arr, "[", idx, "]")
     case Store(arr, idx, newval) => List(arr, "[", idx, ":=", newval, "]")
     // Applications (i.e. function calls)
     case App(_, args)      => inst :: (args intersperse ("(", ", ", ")"))

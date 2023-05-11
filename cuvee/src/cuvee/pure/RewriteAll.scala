@@ -1,13 +1,13 @@
 package cuvee.pure
 
 import cuvee.error
-import cuvee.backtrack
-import cuvee.toControl
 import cuvee.sexpr.Syntax
 import cuvee.smtlib.Assert
 
 object RewriteAll {
   val MaxDepth = 20
+
+  import Rewrite.PremiseNotValid
 
   def rewriteAll(rule: Rule, rules: Map[Fun, List[Rule]]): List[Rule] = {
     val Rule(lhs, rhs, cond, avoid) = rule
@@ -97,7 +97,7 @@ object RewriteAll {
 
       val _cond = cond // simplify(cond subst env, ctx, st)
       if (_cond != True)
-        backtrack("side-condition not satisfied " + _cond)
+        throw PremiseNotValid
 
       val dont = avoid exists { case (a, b) =>
         (a subst su) == (b subst su)
@@ -121,8 +121,8 @@ object RewriteAll {
             val all = rec ++ others // here keep only fully rewritten terms
             all.distinct */
       }
-    } catch { // Control#or is shadowed by Expr#or
-      case easyparse.Backtrack(_) =>
+    } catch {
+      case PremiseNotValid | _: Type.CannotBind =>
         Nil
     }
   }

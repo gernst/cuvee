@@ -1,8 +1,6 @@
 package cuvee.lemmas
 
 import cuvee.StringOps
-import cuvee.backtrack
-import cuvee.toControl
 import cuvee.pure._
 import cuvee.State
 import cuvee.util.Name

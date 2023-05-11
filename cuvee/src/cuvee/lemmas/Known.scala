@@ -2,8 +2,6 @@ package cuvee.lemmas
 
 import easyparse.Control
 import cuvee.pure._
-import cuvee.backtrack
-import easyparse.Backtrack
 import cuvee.util.Matching
 
 object Known {
@@ -155,7 +153,7 @@ object Known {
             None
           }
         } catch {
-          case _: Backtrack =>
+          case _: Type.CannotBind =>
             if (debug)
               println("failed to match types: " + f.name + " and " + g.name)
             None
