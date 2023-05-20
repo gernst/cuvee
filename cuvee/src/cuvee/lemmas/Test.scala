@@ -14,6 +14,7 @@ object isaplanner1
 
 object assoc extends Run(Test, "examples/boogie/assoc.bpl")
 object length extends Run(Test, "examples/smtlib/length.smt2")
+object nat extends Run(Test, "examples/boogie/nat.bpl")
 object sum extends Run(Test, "examples/boogie/sum.bpl")
 object length_nat extends Run(Test, "-use:AdtInd", "examples/smtlib/length-nat.smt2")
 object length_ extends Run(Test, "-use:AdtInd", "-no:Internal", "examples/smtlib/length.smt2")

@@ -23,7 +23,9 @@ object Tok {
   val rp = KW(")")
   def kw(n: String) = KW(n) // parser
 
-  val eof = new Token {}
+  val eof = new Token {
+    override def toString(): String = "eof"
+  }
 }
 
 object Lit {

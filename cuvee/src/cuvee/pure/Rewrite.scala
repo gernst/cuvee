@@ -194,7 +194,7 @@ object Rewrite {
             rewrite(rhs_, rules, depth + 1)
           }
         } catch {
-          case PremiseNotValid | _: Type.CannotBind =>
+          case PremiseNotValid | _: Expr.CannotBind =>
             // println("  not applying " + rule + "  to " + expr)
             rewrite(expr, fun, rest, rules, depth)
         }

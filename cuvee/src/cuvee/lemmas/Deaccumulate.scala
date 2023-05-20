@@ -479,7 +479,7 @@ object Deaccumulate {
       val ty = Type.bind(inst.res, typ)
       LazyList((inst subst ty))
     } catch {
-      case e: easyparse.Backtrack =>
+      case e: Type.CannotBind =>
         LazyList()
     }
   }

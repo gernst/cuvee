@@ -91,8 +91,13 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
 }
 
 object Expr extends Alpha[Expr, Var] {
-  case class CannotUnify(reason: String) extends Exception
-  case class CannotBind(reason: String) extends Exception
+  case class CannotUnify(reason: String) extends Exception {
+    override def toString = reason
+  }
+
+  case class CannotBind(reason: String) extends Exception {
+    override def toString = reason
+  }
 
   val infix =
     Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")

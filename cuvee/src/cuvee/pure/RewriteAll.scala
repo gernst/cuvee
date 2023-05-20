@@ -122,7 +122,7 @@ object RewriteAll {
             all.distinct */
       }
     } catch {
-      case PremiseNotValid | _: Type.CannotBind =>
+      case PremiseNotValid | _: Expr.CannotBind =>
         Nil
     }
   }

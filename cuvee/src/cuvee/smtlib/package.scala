@@ -84,6 +84,10 @@ package object smtlib {
     val res = sexpr.iterator(in)
 
     require(control(PrintSuccess) == Success)
+    
+    def destroy() {
+      proc.destroy()
+    }
 
     def write(cmd: Cmd) {
       for (line <- cmd.lines) {

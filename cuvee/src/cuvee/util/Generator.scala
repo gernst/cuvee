@@ -30,4 +30,5 @@ object Generator {
         op <- ops.view
       ) yield op(a, b)
   }
+  
 }
