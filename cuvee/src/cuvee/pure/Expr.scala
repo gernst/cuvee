@@ -312,7 +312,18 @@ case class Lit(any: Any, typ: Type) extends Expr {
   override def toString = any.toString
 }
 
-object Eq extends Sugar.binary(Fun.eq_)
+object Eq extends Sugar.binary(Fun.eq_) {
+  def apply(left: List[Expr], right: List[Expr]): List[Expr] = {
+    require(
+      left.length == right.length,
+      "invalid equation between mismatching arguments: " + left + " and " + right
+    )
+
+    for ((a, b) <- left zip right)
+      yield Eq(a, b)
+  }
+}
+
 object Ite extends Sugar.ternary(Fun.ite)
 
 object Old extends Sugar.pointwise(Fun.old)

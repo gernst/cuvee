@@ -18,12 +18,12 @@ sealed trait Ack extends Res
 case object Success extends Ack { def sexpr = "success" }
 case object Unsupported extends Ack { def sexpr = "unsupported" }
 
-case class Error(info: List[Any]) extends Exception with Ack with IsSat {
+case class Error(info: List[Any]) extends Exception with Res {
   def sexpr = "error" :: info
 }
 
 object Error extends (List[Any] => Error) {
-  def apply(info: List[Any]): Error = {
+  def apply(info: List[Any]): Nothing = {
     throw new Error(info)
   }
 }
@@ -145,7 +145,7 @@ case class DefineSort(name: Name, args: List[Param], body: Type) extends Decl {
 }
 
 case class DeclareFun(name: Name, params: List[Param], args: List[Type], res: Type) extends Decl {
-  require(params.isEmpty, "generic functions are currently not supported")
+  // require(params.isEmpty, "generic functions are currently not supported")
   def sexpr = List("declare-fun", name, args, res)
   def bexpr = List("function", " ", name, "(", args, ")", ":", res)
 }

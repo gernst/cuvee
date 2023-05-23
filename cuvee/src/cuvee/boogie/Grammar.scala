@@ -70,7 +70,7 @@ object Grammar {
     def expr(implicit
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
-    ): Parser[Expr, Token] = 
+    ): Parser[Expr, Token] =
       M(inner, op, make_op, syntax)
 
     def inner(implicit
@@ -233,14 +233,21 @@ object Grammar {
     P(((parens(formals) ~ maybe_returns) ~@ scoped_body))
   }
 
-  def rhs(implicit ctx: Map[Name, Param]) =
-    (sig: (Name ~ List[Var] ~ Type)) => {
+  def rhs(name: Name, params: List[Param])(implicit ctx: Map[Name, Param]) =
+    (sig: (List[Var] ~ Type)) => {
       // register the function name here to allow for recursive definitions
-      val (name ~ bound ~ res) = sig
-      state.fun(name, Nil, bound.types, res)
+      val (bound ~ res) = sig
+      state.fun(name, params, bound.types, res)
 
       val scope: Map[Name, Var] = Map()
       None(";") | some(braces(expr(res)(scope ++ bound.asScope, ctx)))
+    }
+
+  def gen_rhs(xs: Map[Name, Param] => Parser[List[Var], Token]) =
+    (from: (Name ~ List[Param])) => {
+      val (name ~ params) = from
+      implicit val ctx = Map(params.asContext: _*)
+      xs(ctx) ~ ":" ~ typ ~@ rhs(name, params)
     }
 
   val axiom = {
@@ -249,15 +256,21 @@ object Grammar {
     P(Assert("axiom" ~ formula ~ ";"))
   }
 
-  val constdef = {
-    import toplevel.ctx
-    P(define_fun("const" ~ name ~ ret(Nil: List[Var]) ~ ":" ~ typ ~@ rhs))
-  }
+  val constdef =
+    P(define_fun("const" ~ name ~ gens ~@ gen_rhs(ctx => ret(Nil))))
 
-  val fundef = {
-    import toplevel.ctx
-    P(define_fun("function" ~ name ~ parens(formals) ~ ":" ~ typ ~@ rhs))
-  }
+  val fundef =
+    P(define_fun("function" ~ name ~ gens ~@ gen_rhs(ctx => parens(formals(ctx)))))
+
+  // val constdef = {
+  //   import toplevel.ctx
+  //   P(define_fun("const" ~ name ~ ret(Nil: List[Var]) ~ ":" ~ typ ~@ rhs))
+  // }
+
+  // val fundef = {
+  //   import toplevel.ctx
+  //   P(define_fun("function" ~ name ~ parens(formals) ~ ":" ~ typ ~@ rhs))
+  // }
 
   val procdef = {
     import toplevel.ctx
@@ -346,7 +359,13 @@ object Grammar {
 
   // UNFOLD
   def unfold(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Unfold("unfold" ~ make_fun_ref(name ~ ("[" ~ int_ ~ "]").?) ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?))
+    P(
+      Unfold(
+        "unfold" ~ make_fun_ref(
+          name ~ ("[" ~ int_ ~ "]").?
+        ) ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?
+      )
+    )
 
   // AUTO
   def auto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = "auto" ~ ret(Auto)

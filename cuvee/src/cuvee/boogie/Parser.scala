@@ -199,15 +199,15 @@ object Parser {
       DefineSort(name, params, typ)
   }
 
-  val define_fun: ((Name ~ List[Var] ~ Type ~ Option[Expr]) => Cmd) = {
-    case (name ~ args ~ typ, None) =>
+  val define_fun: ((Name ~ List[Param] ~ (List[Var] ~ Type ~ Option[Expr])) => Cmd) = {
+    case (name ~ params ~ (args ~ typ ~ None)) =>
       // state.fun(name, Nil, args.types, typ)
-      DeclareFun(name, Nil, args.types, typ)
+      DeclareFun(name, params, args.types, typ)
 
-    case (name ~ args ~ typ ~ Some(body)) =>
+    case (name ~ params ~ (args ~ typ ~ Some(body))) =>
       // state.fun(name, Nil, args.types, typ)
       state.fundef(name, args, body)
-      DefineFun(name, Nil, args, typ, body, body.funs exists (_.name == name))
+      DefineFun(name, params, args, typ, body, body.funs exists (_.name == name))
   }
 
   val define_proc: ((Name, ((List[Var], List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
