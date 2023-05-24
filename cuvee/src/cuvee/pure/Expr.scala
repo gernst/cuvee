@@ -313,6 +313,11 @@ case class Lit(any: Any, typ: Type) extends Expr {
 }
 
 object Eq extends Sugar.binary(Fun.eq_) {
+  def apply(pairs: Iterable[(Expr, Expr)]): List[Expr] = {
+    for ((a, b) <- pairs.toList)
+      yield Eq(a, b)
+  }
+  
   def apply(left: List[Expr], right: List[Expr]): List[Expr] = {
     require(
       left.length == right.length,
