@@ -14,13 +14,13 @@ object isaplanner1
 
 object poly extends Run(Test, "examples/boogie/poly.bpl")
 object assoc extends Run(Test, "examples/boogie/assoc.bpl")
-object length extends Run(Test, "examples/smtlib/length.smt2")
+object length extends Run(Test, "examples/boogie/list.bpl")
 object nat extends Run(Test, "examples/boogie/nat.bpl")
 object layout extends Run(Test, "examples/boogie/layout.bpl")
 object sum extends Run(Test, "examples/boogie/sum.bpl")
 object length_nat extends Run(Test, "-use:AdtInd", "examples/smtlib/length-nat.smt2")
 object length_ extends Run(Test, "-use:AdtInd", "-no:Internal", "examples/smtlib/length.smt2")
-object reverse extends Run(Test, /* "-use:AdtInd", */ "examples/smtlib/reverse.smt2")
+object reverse extends Run(Test, /* "-use:AdtInd", */ "examples/boogie/reverse.bpl")
 // object replace extends Run(Test, "examples/smtlib/replace.smt2")
 object contains extends Run(Test, "examples/smtlib/contains_only.smt2")
 object list extends Run(Test, "examples/smtlib/list-defs.smt2")
@@ -67,6 +67,14 @@ object Test extends Main {
         lemmas.useInternal = useInternal
         lemmas.useAdtInd = useAdtInd
 
+        for (
+          Lemma(phi, _) <- cmds;
+          eq <- Rules.from(phi, lemmas.original)
+        ) {
+          println("assuming lemma: " + eq)
+          lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
+        }
+
         for (df <- defs) {
           lemmas.define(df)
           lemmas.deaccumulate(df)
@@ -90,6 +98,9 @@ object Test extends Main {
         println("--------")
         lemmas.show()
         println("--------")
+
+        solver.exec(Exit)
+        solver.destroy()
       } catch {
         case e: cuvee.smtlib.Error =>
           println(e.info)

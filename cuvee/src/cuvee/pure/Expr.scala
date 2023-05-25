@@ -602,6 +602,11 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     rename(re)
   }
 
+  def refreshAll = {
+    val re = Expr.fresh(formals)
+    rename(re)
+  }
+
   def sexpr = List(quant.name, formals.asFormals, body)
   def bexpr = {
     val formals_ = formals map { case x =>

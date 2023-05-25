@@ -109,7 +109,7 @@ object Fuse {
 
         for (
           C(fargs, fguard, fbody) <- fcases_;
-          (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody, constrs)
+          (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody, constrs, rules)
         ) yield {
           val args = fargs patch (pos, gargs_, 1)
           val guard = (fguard subst su) ++ gguard
@@ -161,6 +161,7 @@ object Fuse {
       gargs: List[Expr],
       gbody: Expr,
       constrs: Set[Fun],
+      rules: Map[Fun, List[Rule]],
       su: Map[Var, Expr] = Map()
   ): List[(List[Expr], Map[Var, Expr])] =
     (fpat, gbody) match {
@@ -191,14 +192,14 @@ object Fuse {
       case (App(inst1, fpats), App(inst2, gexprs)) if constrs contains inst2.fun =>
         if (inst1.fun == inst2.fun) {
           require(inst1 == inst2, "not implemented: fusing of polymorphic functions")
-          expose(f, g, fg, fpats, gargs, gexprs, constrs, su)
+          expose(f, g, fg, fpats, gargs, gexprs, constrs, rules, su)
         } else {
           // println("refute exposing " + pat + " over " + d)
           Nil
         }
 
       case (Succ(fpat), Succ(gexpr)) =>
-        expose(f, g, fg, fpat, gargs, gexpr, constrs, su)
+        expose(f, g, fg, fpat, gargs, gexpr, constrs, rules, su)
 
       // case (_, App(fun2, _, ds)) if defs contains fun2 =>
       //   println("; cannot expose " + pat + " over " + fun2)
@@ -217,8 +218,18 @@ object Fuse {
         List((args_, su))
 
       case _ =>
+        val gbody_ = Simplify.simplify(gbody, rules)
+        if (gbody_ != gbody) {
+          println("simplified " + gbody + " to " + gbody_)
+          expose(f, g, fg, fpat, gargs, gbody_, constrs, rules, su)
+        } else {
         println("cannot expose " + fpat + " over " + gbody + " for " + fg)
-        throw CannotFuse
+          throw CannotFuse
+        }
+
+      // case _ =>
+      //   println("cannot expose " + fpat + " over " + gbody + " for " + fg)
+      //   throw CannotFuse
     }
 
   def expose(
@@ -229,6 +240,7 @@ object Fuse {
       args0: List[Expr],
       exprs: List[Expr],
       constrs: Set[Fun],
+      rules: Map[Fun, List[Rule]],
       su0: Map[Var, Expr]
   ): List[(List[Expr], Map[Var, Expr])] =
     (pats, exprs) match {
@@ -237,8 +249,8 @@ object Fuse {
 
       case (pat :: pats, first :: rest) =>
         for (
-          (args1, su1) <- expose(f, g, fg, pat, args0, first, constrs, su0);
-          (args2, su2) <- expose(f, g, fg, pats, args1, rest, constrs, su1)
+          (args1, su1) <- expose(f, g, fg, pat, args0, first, constrs, rules, su0);
+          (args2, su2) <- expose(f, g, fg, pats, args1, rest, constrs, rules, su1)
         )
           yield (args2, su2)
     }
@@ -274,7 +286,8 @@ object Fuse {
           case _ =>
             val expr = App(f, args_)
             val expr_ = Simplify.simplify(expr, rules)
-            if(expr != expr_) {
+            if (expr != expr_) {
+              println("simplified " + expr + " to " + expr_)
               recurse(f, g, fg, pos, expr_, su, rules)
             } else if (isFused(f, g, expr_)) {
               expr_
