@@ -18,9 +18,11 @@ object Deaccumulate {
   case class G(f: Fun, args: List[Var], body: Expr) extends Cond(3)
   case class B(b: Fun, args: List[Var], l: Expr, r: Expr, g: Expr) extends Cond(4)
 
-  def mayDeaccumulateAt(df: Def) = {
+  def mayDeaccumulateAt(df: Def) = if(df.isRecursive) {
     for ((_, pos) <- df.fun.args.zipWithIndex if isAccumulator(df, pos))
       yield pos
+  } else {
+    Nil
   }
 
   // this is partly a heuristic which arguments may be worthy of deaccumulation;

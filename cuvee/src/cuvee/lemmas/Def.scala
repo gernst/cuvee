@@ -204,6 +204,10 @@ case class Def(fun: Fun, cases: List[C]) {
       }
     }
   }
+
+  def isRecursive = {
+    cases exists (_ isRecursive fun)
+  }
 }
 
 object Def {
