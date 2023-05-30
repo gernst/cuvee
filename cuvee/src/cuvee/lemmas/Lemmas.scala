@@ -5,6 +5,7 @@ import cuvee.State
 import cuvee.backend.Solver
 import cuvee.smtlib._
 import cuvee.util.Tool
+import cuvee.util.Name
 
 class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
   var useAdtInd = false
@@ -88,6 +89,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   def addLemma(origin: String, lhs: Expr, rhs: Expr, cond: Expr = True) {
     val eq = Rule(lhs, rhs, cond)
     maybeAddNeutral(eq)
+    println("adding lemma: " + eq)
     lemmas = (origin, eq) :: lemmas
   }
 
@@ -95,11 +97,15 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     val eq = Rule(lhs, rhs)
     replace = eq :: replace
 
-    lemmas = lemmas flatMap { case (origin, Rule(lhs, rhs, cond, avoid)) =>
+    lemmas = lemmas flatMap { case (origin, eq @ Rule(lhs, rhs, cond, avoid)) =>
       val rhs_ = Simplify.simplify(rhs, replace.groupBy(_.fun))
 
       if (lhs == rhs_) Nil
-      else List((origin, Rule(lhs, rhs_, cond, avoid)))
+      else {
+        val eq_ = Rule(lhs, rhs_, cond, avoid)
+        println("simplified lemma: " + eq + " to " + eq_)
+        List((origin, eq_))
+      }
     }
   }
 
@@ -157,10 +163,11 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   def cleanup() {
     val rw1 = rules
 
-    lemmas = for ((origin, Rule(lhs, rhs, cond, avoid)) <- lemmas) yield {
+    lemmas = for ((origin, eq @ Rule(lhs, rhs, cond, avoid)) <- lemmas) yield {
       val rhs_ = Simplify.simplify(rhs, rw1)
       val cond_ = Simplify.simplify(cond, rw1)
       val eq_ = Rule(lhs, rhs_, cond_, avoid)
+      println("simplified lemma: " + eq + " to " + eq_)
       (origin, eq_)
     }
 
@@ -240,7 +247,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
           if (!solved && useInternal) {
             catchRewritingDepthExceeded {
-              // println("trying to solve query for: " + df_.fun)
+              println("trying to solve query for: " + df_.fun)
               val solutions =
                 Deaccumulate.solve(
                   solver,
@@ -254,6 +261,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
               // println("done")
 
               var iterator = Option(solutions)
+              var counter = 0
 
               // for ((funs, rest, rules_) <- solutions) {
               while (iterator.nonEmpty) {
@@ -269,6 +277,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
                   case Some((funs, rest, rules_)) =>
                     iterator = Some(solutions.tail)
+                    counter += 1
 
                     if (rest.isEmpty) {
                       val model = rules_.filter(unknowns contains _._1)
@@ -276,8 +285,24 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                       // for((_, eqs) <- model; eq <- eqs)
                       //   println(eq)
                       val df__ = df_ simplify model
+                      val f__ = df__.fun
+                      val n = f__.name.name
+
+                      def xxx(name: Name) = name match {
+                        case Name(`n`, None) =>
+                          Name(n, Some(counter))
+                        case _ =>
+                          name
+                      }
+                      // make sure we have unique function names for the deaccumulated function if there are more than one solution
+                      val f__i = f__ rename xxx
+
+                      println("rename " + f__ + " to " + f__i)
+
+                      val df__i = df__ rename xxx
+
                       // println("simplified definition: " + df__)
-                      val rhs_ = Simplify.simplify(rhs, model)
+                      val rhs_ = Simplify.simplify(rhs, model) replace (f__, f__i)
                       println(" == " + rhs_)
                       // println("success: " + first)
                       addLemma("internal (" + ms + "ms)", lhs, rhs_)
@@ -285,8 +310,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                       solved = true
 
                       // trigger further processing of synthetic function df__ independently
-                      val xs = Expr.vars("x", df__.fun.args)
-                      todo { Recognize(None, App(df__.fun, xs), df__, xs) }
+                      val xs = Expr.vars("x", f__i.args)
+                      todo { Recognize(None, App(f__i, xs), df__i, xs) }
                     }
                 }
               }
@@ -352,14 +377,17 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
         case Recognize(asLemma, lhs, df, args) =>
+          println()
+          println("given definition")
+          println(df)
           print("recognize " + lhs)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
             Unused.unused(df simplify normalize, args)
           }
 
-          val rhs1 = Trivial.constant(df_, args_)
-          val rhs2 = Trivial.identity(df_, args_)
+          val rhs1 = Trivial.constant(df_, args_) map ((_, "constant"))
+          val rhs2 = Trivial.identity(df_, args_) map ((_, "identity"))
 
           // note we assume that definitions get simplified in the mean time
           // between rounds, to make use of new lemmas found
@@ -367,13 +395,14 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             val rhs = App(Inst(dg.fun, ty), perm map args_)
             assert(!(original contains df.fun))
             drop(df_)
-            rhs
+            (rhs, "as " + dg.fun)
           }
 
           val all = rhs1 ++ rhs2 ++ rhs3
 
-          for (rhs <- all) {
-            println(" == " + rhs)
+          for ((rhs, why) <- all) {
+            println(" == " + rhs + " (" + why + ")")
+
             replaceBy(lhs, rhs)
 
             for (origin <- asLemma)

@@ -267,13 +267,13 @@ object Deaccumulate {
             yield {
               val xs = Expr.vars("x", o.args)
               val (eq1, eq2) = op(o, b, xs)
-              // println("  neutral: " + eq1)
-              // println("  neutral: " + eq2)
+              println("  neutral: " + eq1)
+              println("  neutral: " + eq2)
               rules + (b -> List(eq1)) + (o -> List(eq2))
             }
 
-        // if (rulelists.isEmpty)
-        //   println("no known neutral element for: " + o)
+        if (rulelists.isEmpty)
+          println("no known neutral element for: " + o)
 
         for (
           rules_ <- rulelists;
@@ -297,7 +297,7 @@ object Deaccumulate {
         require(!(rules contains f), "unexpected existing rule for " + f)
 
         val eq = Rule(App(f, args), body)
-        // println("  adding: " + eq)
+        println("  adding: " + eq)
         val rules_ = rules + (f -> List(eq))
         solve(solver, consts, funs, datatypes, unknowns - f, Nil, rest, easy, guess, hard, rules_)
 
@@ -385,7 +385,7 @@ object Deaccumulate {
         require(!(rules contains f), "unexpected existing rule for " + f)
 
         val eq = List(Rule(App(f, args), body))
-        // println("  guessing: " + eq)
+        println("  guessing: " + eq)
         val rules_ = rules + (f -> eq)
         val first =
           solve(solver, consts, funs, datatypes, unknowns - f, Nil, Nil, Nil, rest, hard, rules_)
@@ -402,7 +402,7 @@ object Deaccumulate {
           val eqs =
             for ((expr, _) <- enumerate(funs, consts, b.res, Map(zs map { (_, 3) }: _*), 4)) yield {
               val eq = Rule(App(b, zs), expr)
-              // println("  adding: " + eq)
+              println("  adding: " + eq)
               val rules_ = rules + (b -> List(eq))
               // val lhs_ = Simplify.simplify(lhs, rules_)
               // val rhs_ = Simplify.simplify(rhs, rules_)
@@ -432,7 +432,7 @@ object Deaccumulate {
           val eq_ = Simplify.simplify(eq, rules)
           println("cannot solve hard query solve for: " + b)
           // rules map println
-          // println("  " + eq)
+          println("  " + eq)
           println("  " + eq_ + " (simplified)")
 
           for (

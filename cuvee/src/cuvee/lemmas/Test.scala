@@ -12,6 +12,7 @@ object isaplanner1
       "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_01.smt2"
     )
 
+object debug_smt2 extends Run(Test, "debug.smt2")
 object poly extends Run(Test, "examples/boogie/poly.bpl")
 object assoc extends Run(Test, "examples/boogie/assoc.bpl")
 object length extends Run(Test, "examples/boogie/list.bpl")

@@ -237,6 +237,8 @@ class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
     exprs map (_ inst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     exprs map (_ inst (ty, su))
+  def replace(f: Fun, g: Fun) =
+    exprs map (_ replace (f, g))
 }
 
 case class Var(name: Name, typ: Type) extends Expr with Expr.x {
@@ -317,7 +319,7 @@ object Eq extends Sugar.binary(Fun.eq_) {
     for ((a, b) <- pairs.toList)
       yield Eq(a, b)
   }
-  
+
   def apply(left: List[Expr], right: List[Expr]): List[Expr] = {
     require(
       left.length == right.length,

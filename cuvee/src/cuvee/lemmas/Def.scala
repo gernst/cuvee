@@ -16,6 +16,10 @@ case class C(args: List[Expr], guard: List[Expr], body: Expr) {
   require(body.free subsetOf args.free, this + " does not bind: " + (body.free -- args.free))
   require(guard.free subsetOf args.free, this + " does not bind: " + (guard.free -- args.free))
 
+  def replace(f: Fun, g: Fun) = {
+    C(args replace (f,g), guard replace (f,g), body replace (f,g))
+  }
+
   def rename(re: Map[Var, Var]) = {
     C(args rename re, guard rename re, body rename re)
   }
