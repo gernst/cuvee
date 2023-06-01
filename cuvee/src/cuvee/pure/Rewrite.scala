@@ -9,6 +9,11 @@ import cuvee.smtlib.DefineFun
 import cuvee.util.Fix
 import cuvee.smtlib.DeclareFun
 import easyparse.Backtrack
+import cuvee.backend.Solver
+import cuvee.smtlib.Ack
+import cuvee.smtlib.Model
+import cuvee.smtlib.IsSat
+import cuvee.smtlib.Success
 
 object Rewrite {
   val MaxDepth = 10
@@ -115,8 +120,8 @@ object Rewrite {
       case self if depth > MaxDepth =>
         // println("max rewriting depth reached: " + self)
         // self
-      // error("max rewriting depth reached " + self)
-      throw RewriteDepthExceeded(List(self))
+        // error("max rewriting depth reached " + self)
+        throw RewriteDepthExceeded(List(self))
 
       case self @ App(inst, args) =>
         app(self, inst.fun, args, rules, depth)

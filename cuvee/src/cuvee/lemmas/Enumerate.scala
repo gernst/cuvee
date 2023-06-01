@@ -22,8 +22,9 @@ object Enumerate extends Main {
       lhs: Expr,
       repeat: Int,
       depth: Int,
+      rws: Map[Fun, List[Rule]],
       st: State
-  ) = {
+  ) {
 
     val free = lhs.free.toList
     val vars = Map(free map (_ -> repeat): _*)
@@ -31,26 +32,58 @@ object Enumerate extends Main {
 
     var results: Set[Expr] = Set()
 
-    for ((rhs, _) <- candidates) {
+    for ((rhs, _) <- candidates if lhs != rhs) {
       val goal = Forall(free.toList, Eq(lhs, rhs))
-      print("candidate: " + goal)
+      // print("candidate: " + goal)
 
-      val proved = solver.check(Not(goal)) match {
-        case Unknown =>
-          proveWithInduction(solver, goal, st.datatypes) exists { case (x, status) =>
-            status == Unsat
-          }
-        case Unsat => true
-        case _     => false
+      // val proved = solver.check(Not(goal)) match {
+      //   case Unknown =>
+      //     proveWithInduction(solver, goal, st.datatypes) exists { case (x, status) =>
+      //       status == Unsat
+      //     }
+      //   case Unsat => true
+      //   case _     => false
+      // }
+
+      val proved = inductions(goal, st.datatypes) exists { case (x, goal) =>
+        Simplify.simplify(goal, rws, st.constrs) match {
+          case True =>
+            true
+          case res =>
+            // if(solver.isTrue(goal))
+            //   println("missed: " + res)
+            false
+        }
       }
 
       if (proved) {
-        println(" proved!")
+        // println(" proved!")
+        println("proved: " + goal)
         results += goal
       } else {
-        println(" discarded.")
+        println("discarded: " + goal)
+        // println(" discarded.")
       }
     }
+  }
+
+  def findEqual(
+      solver: Solver,
+      funs: LazyList[Fun],
+      consts: LazyList[Expr],
+      f: Fun,
+      g: Fun,
+      i: Int,
+      repeat: Int,
+      depth: Int,
+      rws: Map[Fun, List[Rule]],
+      st: State
+  ) {
+    val xs = Expr.vars("x", f.args)
+    val ys = Expr.vars("y", g.args)
+    val lhs = App(f, xs updated (i, App(g, ys)))
+
+    findEqual(solver, funs, consts, lhs, repeat, depth, rws, st)
   }
 
   def main(args: Array[String]) {
@@ -84,6 +117,20 @@ object Enumerate extends Main {
     val y = Var("y", nat)
     val z = Var("z", nat)
 
-    findEqual(solver, funs, consts, add(x, add(y, z)), 1, 3, st)
+    val rules = Rewrite.from(cmds, st)
+    val rws = rules groupBy (_.fun)
+
+    val repeat = 1
+    val depth = 3
+
+    // findEqual(solver, funs, consts, add(x, add(y, z)), 1, 3, rws, st)
+
+    for (
+      f <- all;
+      g <- all;
+      (typ, pos) <- f.args.zipWithIndex if typ == g.res
+    ) {
+      findEqual(solver, funs, consts, f, g, pos, repeat, depth, rws, st)
+    }
   }
 }

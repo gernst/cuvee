@@ -102,6 +102,7 @@ object AdtInd {
       oplus_! : Fun,
       unknowns: Set[Fun],
       all: List[Deaccumulate.Cond],
+      st: State,
       known: Map[Fun, List[Rule]]
   ): Option[(Query, List[Rule])] = {
     import Deaccumulate._
@@ -126,9 +127,11 @@ object AdtInd {
           case List(B(body, xs, App(_, App(_, ys) :: args), r, g)) =>
             val b = body rename (_ => "b")
             val oplus = oplus_! rename (_ => "oplus")
-
+            ???
             None
+
           case _ =>
+            ???
             None
         }
 
@@ -158,21 +161,21 @@ object AdtInd {
         val rw = known ++ rules.groupBy(_.fun)
 
         val hard = for (B(b, args, lhs, rhs, guard) <- all) yield {
-          val lhs_ = Simplify.simplify(lhs, rw) topdown {
+          val lhs_ = Simplify.simplify(lhs, rw, st.constrs) topdown {
             case expr if abs contains expr =>
               abs(expr)
             case expr =>
               expr
           }
 
-          val rhs_ = Simplify.simplify(rhs, rw) topdown {
+          val rhs_ = Simplify.simplify(rhs, rw, st.constrs) topdown {
             case expr if abs contains expr =>
               abs(expr)
             case expr =>
               expr
           }
 
-          val guard_ = Simplify.simplify(guard, rw)
+          val guard_ = Simplify.simplify(guard, rw, st.constrs)
           (b, Clause(args ++ as, guard_, Eq(rhs_, lhs_)))
         }
 
@@ -186,6 +189,7 @@ object AdtInd {
         Some((q, recover))
 
       case _ =>
+        ???
         None
     }
   }
@@ -329,6 +333,7 @@ object AdtInd {
       val args = if (cached) cat else ind
       val dump = if (cached) NO else log(file + ".out")
 
+      println("running: " + args.mkString(" "))
       val (in, out, err, proc) =
         Tool.pipe(args: _*)
 

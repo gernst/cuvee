@@ -176,7 +176,7 @@ class Cuvee {
         result == Atom.t
 
       case "smt" =>
-        val phi_ = Simplify.simplify(phi, safe)
+        val phi_ = Simplify.simplify(phi, safe, state.constrs)
         if(!solver.isTrue(phi_)) {
           val cmd = Lemma(phi, None)
           for (line <- cmd.lines)

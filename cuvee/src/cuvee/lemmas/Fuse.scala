@@ -113,7 +113,7 @@ object Fuse {
         ) yield {
           val args = fargs patch (pos, gargs_, 1)
           val guard = (fguard subst su) ++ gguard
-          val body_ = recurse(f, g, fg, pos, fbody, su, rules) // fbody subst su
+          val body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
           C(args, guard, body_)
         }
     }
@@ -218,7 +218,7 @@ object Fuse {
         List((args_, su))
 
       case _ =>
-        val gbody_ = Simplify.simplify(gbody, rules)
+        val gbody_ = Simplify.simplify(gbody, rules, constrs)
         if (gbody_ != gbody) {
           println("simplified " + gbody + " to " + gbody_)
           expose(f, g, fg, fpat, gargs, gbody_, constrs, rules, su)
@@ -263,6 +263,7 @@ object Fuse {
       pos: Int,
       body: Expr,
       su: Map[Var, Expr],
+      constrs: Set[Fun],
       rules: Map[Fun, List[Rule]]
   ): Expr =
     body match {
@@ -273,7 +274,7 @@ object Fuse {
       case l: Lit =>
         l
       case App(Inst(`f`, _), args) =>
-        val args_ = args map (recurse(f, g, fg, pos, _, su, rules))
+        val args_ = args map (recurse(f, g, fg, pos, _, su, constrs, rules))
         args_(pos) match {
           case App(Inst(`g`, _), args) =>
             val res = App(fg, args_ patch (pos, args, 1))
@@ -285,10 +286,10 @@ object Fuse {
           //   throw CannotFuse
           case _ =>
             val expr = App(f, args_)
-            val expr_ = Simplify.simplify(expr, rules)
+            val expr_ = Simplify.simplify(expr, rules, constrs)
             if (expr != expr_) {
               println("simplified " + expr + " to " + expr_)
-              recurse(f, g, fg, pos, expr_, su, rules)
+              recurse(f, g, fg, pos, expr_, su, constrs, rules)
             } else if (isFused(f, g, expr_)) {
               expr_
             } else {
@@ -297,7 +298,7 @@ object Fuse {
             }
         }
       case App(h, args) =>
-        val args_ = args map (recurse(f, g, fg, pos, _, su, rules))
+        val args_ = args map (recurse(f, g, fg, pos, _, su, constrs, rules))
         App(h, args_)
     }
 

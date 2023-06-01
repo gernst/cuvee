@@ -323,9 +323,9 @@ object Deaccumulate {
         // println("  using rules")
         // for((_, eqs) <-rules; eq <- eqs)
         //   println("    " + eq)
-        val lhs_ = Simplify.simplify(lhs, rules)
-        val rhs_ = Simplify.simplify(rhs, rules)
-        val guard_ = Simplify.simplify(guard, rules)
+        val lhs_ = Simplify.simplify(lhs, rules, Set())
+        val rhs_ = Simplify.simplify(rhs, rules, Set())
+        val guard_ = Simplify.simplify(guard, rules, Set())
         val xs = lhs_.free ++ rhs_.free ++ guard_.free
         val phi = Forall(xs.toList, Imp(guard_, Eq(lhs_, rhs_)))
 
@@ -431,7 +431,7 @@ object Deaccumulate {
         } else {
 
           val eq = Rule(lhs, rhs, guard)
-          val eq_ = Simplify.simplify(eq, rules)
+          val eq_ = Simplify.simplify(eq, rules, Set())
           println("cannot solve hard query solve for: " + b)
           // rules map println
           println("  " + eq)

@@ -3,74 +3,93 @@ package cuvee.pure
 import cuvee.smtlib.Model
 
 object Simplify {
-  def simplify(rule: Rule, rules: Map[Fun, List[Rule]]): Rule = {
+  def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
     val Rule(lhs, rhs, cond, avoid) = rule
-    val lhs_ = simplify(lhs, rules)
-    val rhs_ = simplify(rhs, rules)
-    val cond_ = simplify(cond, rules)
-    val avoid_ = avoid map { case (x, e) => (x, simplify(e, rules)) }
+    val lhs_ = simplify(lhs, rules, constrs)
+    val rhs_ = simplify(rhs, rules, constrs)
+    val cond_ = simplify(cond, rules, constrs)
+    val avoid_ = avoid map { case (x, e) => (x, simplify(e, rules, constrs)) }
     Rule(lhs_, rhs_, cond_, avoid_)
   }
 
-  def simplify(expr: Expr, rules: Map[Fun, List[Rule]]): Expr = expr match {
-    case And(phis)         => and(simplify(phis, rules))
-    case Or(phis)          => or(simplify(phis, rules))
-    case Not(phi)          => not(simplify(phi, rules))
-    case Imp(phi, psi)     => imp(simplify(phi, rules), simplify(psi, rules))
-    case Forall(vars, phi) => forall(vars, simplify(phi, rules))
-    case Exists(vars, phi) => exists(vars, simplify(phi, rules))
+  def simplify(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr match {
+    case And(phis)         => and(simplify(phis, rules, constrs))
+    case Or(phis)          => or(simplify(phis, rules, constrs))
+    case Not(phi)          => not(simplify(phi, rules, constrs))
+    case Imp(phi, psi)     => imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
+    case Forall(vars, phi) => forall(vars, simplify(phi, rules, constrs))
+    case Exists(vars, phi) => exists(vars, simplify(phi, rules, constrs))
+
     case Eq(left, right) if left.typ == Sort.bool =>
-      eqv(simplify(left, rules), simplify(right, rules))
-    case Eq(left, right)                 => eq(simplify(left, rules), simplify(right, rules))
-    case Bind(quant, formals, body, typ) => bind(quant, formals, simplify(body, rules), typ)
+      eqv(simplify(left, rules, constrs), simplify(right, rules, constrs))
+
+    case Eq(left, right) =>
+      eq(simplify(left, rules, constrs), simplify(right, rules, constrs), rules, constrs)
+
+    case Bind(quant, formals, body, typ) =>
+      bind(quant, formals, simplify(body, rules, constrs), typ)
 
     case App(inst, args) if rules.nonEmpty =>
-      // println(" try rewriting: " + expr + " with rules: " + rules)
+      // println(" try rewriting: " + expr + " with rules: " + rules, constrs)
       val args_ = Rewrite.rewrites(args, rules)
       val expr_ = App(inst, args_)
       // println(" args: " + args_)
       val res_ = Rewrite.app(expr_, inst.fun, args_, rules, depth = 0)
       if (expr != res_)
-        simplify(res_, rules)
+        simplify(res_, rules, constrs)
       else
         res_
-    // Rewrite.rewrite(expr, rules)
+    // Rewrite.rewrite(expr, rules, constrs)
 
     case _ =>
       expr
   }
 
   // TODO: maybe simplify should be part of Prop and expr, because this sucks:
-  def simplify(prop: Prop, rules: Map[Fun, List[Rule]]): Prop = prop match {
+  def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
     case Atom(expr, model) =>
-      atom(simplify(expr, rules), model)
+      atom(simplify(expr, rules, constrs), model)
     case Disj(xs, neg, pos) =>
-      disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
+      disj(xs, neg map (simplify(_, rules, constrs)), pos map (simplify(_, rules, constrs)))
     case Conj(xs, neg) =>
-      conj(xs, neg map (simplify(_, rules)))
+      conj(xs, neg map (simplify(_, rules, constrs)))
   }
 
-  def simplify(prop: Pos, rules: Map[Fun, List[Rule]]): Pos = prop match {
-    case Atom(expr, model) => atom(simplify(expr, rules), model)
-    case Conj(xs, neg)     => conj(xs, neg map (simplify(_, rules)))
+  def simplify(prop: Pos, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Pos = prop match {
+    case Atom(expr, model) => atom(simplify(expr, rules, constrs), model)
+    case Conj(xs, neg)     => conj(xs, neg map (simplify(_, rules, constrs)))
   }
 
-  def simplify(prop: Neg, rules: Map[Fun, List[Rule]]): Neg = prop match {
+  def simplify(prop: Neg, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Neg = prop match {
     case Atom(expr, model) =>
-      atom(simplify(expr, rules), model)
+      atom(simplify(expr, rules, constrs), model)
     case Disj(xs, neg, pos) =>
-      disj(xs, neg map (simplify(_, rules)), pos map (simplify(_, rules)))
+      disj(xs, neg map (simplify(_, rules, constrs)), pos map (simplify(_, rules, constrs)))
   }
 
-  def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]]): List[Expr] = {
+  def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Expr] = {
     for (expr <- exprs)
-      yield simplify(expr, rules)
+      yield simplify(expr, rules, constrs)
   }
 
-  def eq(left: Expr, right: Expr) = {
+  def eq(left: Expr, right: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = {
     (left, right) match {
       case _ if left == right =>
         True
+
+      case (App(Inst(f, _), la), App(Inst(g, _), ra))
+          if (constrs contains f) && (constrs contains g) =>
+        if (f == g) {
+          // unpack arguments as equations
+          val eqs =
+            for ((l, r) <- (la zip ra))
+              yield eq(l, r, rules, constrs)
+
+          and(simplify(eqs, rules, constrs))
+        } else {
+          // data types are freely generated, so constructors never overlap
+          False
+        }
 
       case _ =>
         Eq(left, right)
@@ -135,7 +154,7 @@ object Simplify {
   }
 
   def atom(expr: Expr, model: Option[Model] = None) = {
-    Atom(simplify(expr, Map()), model)
+    Atom(simplify(expr, Map(), Set()), model)
   }
 
   def disj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {

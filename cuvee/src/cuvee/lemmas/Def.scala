@@ -151,12 +151,12 @@ case class Def(fun: Fun, cases: List[C]) {
     Def(fun, cases_)
   }
 
-  def simplify(rules: Map[Fun, List[Rule]]) = {
+  def simplify(rules: Map[Fun, List[Rule]], constrs: Set[Fun]) = {
     val cases_ =
       for (C(args, guard, body) <- cases)
         yield {
-          val guard_ = Simplify.simplify(guard, rules)
-          val body_ = Simplify.simplify(body, rules)
+          val guard_ = Simplify.simplify(guard, rules, constrs)
+          val body_ = Simplify.simplify(body, rules, constrs)
           C(args, guard_, body_)
         }
 

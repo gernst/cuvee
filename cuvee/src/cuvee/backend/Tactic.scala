@@ -101,7 +101,7 @@ class TacticNotApplicableException(s: String) extends Exception(s) {}
 case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
 
   def apply(state: State, goal: Prop) = {
-    val goal_ = Simplify.simplify(goal, rules)
+    val goal_ = Simplify.simplify(goal, rules, state.constrs)
 
     goal_ match {
       case Atom.t =>
@@ -252,7 +252,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
     val baseGoals = baseIndices map (goals(_))
 
     val success = baseGoals forall { case (goal, _) =>
-      Proving.proveAndSimplify(goal, prover) == Atom.t
+      Proving.proveAndSimplify(goal, prover, state) == Atom.t
     }
 
     success match {

@@ -12,6 +12,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   var useInternal = true
   AdtInd.cached = false
 
+  val constrs = st.constrs
+
   // these are the operations that may fail
   sealed trait Pending
 
@@ -98,7 +100,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     replace = eq :: replace
 
     lemmas = lemmas flatMap { case (origin, eq @ Rule(lhs, rhs, cond, avoid)) =>
-      val rhs_ = Simplify.simplify(rhs, replace.groupBy(_.fun))
+      val rhs_ = Simplify.simplify(rhs, replace.groupBy(_.fun), constrs)
 
       if (lhs == rhs_) Nil
       else {
@@ -164,8 +166,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     val rw1 = rules
 
     lemmas = for ((origin, eq @ Rule(lhs, rhs, cond, avoid)) <- lemmas) yield {
-      val rhs_ = Simplify.simplify(rhs, rw1)
-      val cond_ = Simplify.simplify(cond, rw1)
+      val rhs_ = Simplify.simplify(rhs, rw1, constrs)
+      val cond_ = Simplify.simplify(cond, rw1, constrs)
       val eq_ = Rule(lhs, rhs_, cond_, avoid)
       println("simplified lemma: " + eq + " to " + eq_)
       (origin, eq_)
@@ -177,7 +179,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
     definitions =
       for (df <- definitions)
-        yield df.simplify(rw2)
+        yield df.simplify(rw2, constrs)
   }
 
   def next() {
@@ -284,7 +286,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                       // println("model: ")
                       // for((_, eqs) <- model; eq <- eqs)
                       //   println(eq)
-                      val df__ = df_ simplify model
+                      val df__ = df_ simplify (model, constrs)
                       val f__ = df__.fun
                       val n = f__.name.name
 
@@ -302,7 +304,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                       val df__i = df__ rename xxx
 
                       // println("simplified definition: " + df__)
-                      val rhs_ = Simplify.simplify(rhs, model) replace (f__, f__i)
+                      val rhs_ = Simplify.simplify(rhs, model, constrs) replace (f__, f__i)
                       println(" == " + rhs_)
                       // println("success: " + first)
                       addLemma("internal (" + ms + "ms)", lhs, rhs_)
@@ -319,12 +321,12 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
           if (!solved && useAdtInd) {
-            AdtInd.toQuery(oplus, unknowns.toSet, conds, normalize) match {
+            AdtInd.toQuery(oplus, unknowns.toSet, conds, st, normalize) match {
               case None =>
-              // println("translating problem into AdtInd currently not implemented")
+                println("translating problem into AdtInd currently not implemented")
 
               case Some((q, recover)) =>
-                // println("trying AdtInd")
+                println("trying AdtInd")
 
                 val eq = Rule(lhs, rhs)
 
@@ -349,9 +351,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                   println()
 
                   val model = (recover ++ rules).groupBy(_.fun)
-                  val df__ = df_ simplify model
+                  val df__ = df_ simplify (model, constrs)
                   // println("simplified definition: " + df__)
-                  val rhs_ = Simplify.simplify(rhs, model)
+                  val rhs_ = Simplify.simplify(rhs, model, constrs)
                   println(" == " + rhs_)
                   // println("success: " + first)
                   addLemma("internal", lhs, rhs_)
@@ -383,7 +385,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           print("recognize " + lhs)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
-            Unused.unused(df simplify normalize, args)
+            Unused.unused(df simplify (normalize, constrs), args)
           }
 
           val rhs1 = Trivial.constant(df_, args_) map ((_, "constant"))

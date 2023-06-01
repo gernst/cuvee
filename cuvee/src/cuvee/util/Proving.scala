@@ -74,7 +74,7 @@ object Proving {
       case Some(NoAuto(inner)) => tactic = Some(inner)
 
       // Otherwise, rewrite prop by applying the prover and simplifying
-      case _ => prop = proveAndSimplify(prop, prover, debug, depth)
+      case _ => prop = proveAndSimplify(prop, prover, state, debug, depth)
     }
 
     // If there is no tactic and suggestion / automatic application is enabled,
@@ -134,7 +134,7 @@ object Proving {
     }
 
     // Simplify the result
-    val simp = Simplify.simplify(prop, rules)
+    val simp = Simplify.simplify(prop, rules, state.constrs)
     if (debug)
       println(indent(depth) + "simp:     " + simp)
 
@@ -165,6 +165,7 @@ object Proving {
   def proveAndSimplify(
       prop: Prop,
       prover: Prover,
+      state: State,
       debug: Boolean = false,
       depth: Int = 0
   )(implicit rules: Map[Fun, List[Rule]] = Map()): Prop = {
@@ -174,7 +175,7 @@ object Proving {
       println(indent(depth) + "new goal: " + res.toExpr)
 
     // Simplify the result
-    val simp = Simplify.simplify(res, rules)
+    val simp = Simplify.simplify(res, rules, state.constrs)
     if (debug)
       println(indent(depth) + "simp:     " + simp)
 
