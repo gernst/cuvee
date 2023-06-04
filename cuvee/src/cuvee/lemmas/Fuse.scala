@@ -76,15 +76,69 @@ object Fuse {
       pos: Int,
       constrs: Set[Fun],
       rules: Map[Fun, List[Rule]]
+  ): List[C] = {
+    val xs = Expr.vars("x", f.args)
+    val ys = Expr.vars("y", g.args)
+    val lhs = App(f, xs updated (pos, App(g, ys)))
+    val rhs = App(fg, xs patch (pos, ys, 1))
+    val eq = Rule(lhs, rhs)
+
+    val rules_ =
+      if (rules contains f)
+        rules + (f -> (eq :: rules(f)))
+      else
+        rules + (f -> List(eq))
+
+    val C(gargs, gguard, gbody) = gcase
+
+    val body = App(f, xs updated (pos, gbody))
+    val body_ = Simplify.simplify(body, rules_, constrs)
+
+    if (isFused(f, g, body_)) {
+      val args = xs patch (pos, gargs, 1)
+      val guard = gguard
+      println("body:  " + body)
+      println("body_: " + body_)
+      println("args:  " + args)
+      println("guard: " + guard)
+      println()
+      List(C(args, guard, body_))
+    } else {
+      val fpats = fcases flatMap (_.args)
+      val critical = gcase.args.free & fpats.free
+      val re = Expr.fresh(critical)
+      val fcases_ = fcases map (_ rename re)
+
+      for (
+        C(fargs, fguard, fbody) <- fcases_;
+        (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody, constrs, rules)
+      ) yield {
+        val args = fargs patch (pos, gargs_, 1)
+        val guard = (fguard subst su) ++ gguard
+        val body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
+        C(args, guard, body_)
+      }
+    }
+  }
+
+  def fuse_(
+      f: Fun,
+      g: Fun,
+      fg: Fun,
+      fcases: List[C],
+      gcase: C,
+      pos: Int,
+      constrs: Set[Fun],
+      rules: Map[Fun, List[Rule]]
   ): List[C] =
     gcase match {
-      // if the case of g is a variable only,
+      // if the case of g is non-recursive in g,
       // then do not take it apart according to the cases of f,
       // instead simply wrap it into f
-      case C(gargs, gguard, x: Var) =>
+      case C(gargs, gguard, gbody) if !(g in gbody) =>
         val fargs = Expr.vars("x", f.args)
         val args = fargs patch (pos, gargs, 1)
-        val recs = fargs updated (pos, x)
+        val recs = fargs updated (pos, gbody)
         val guard = gguard
         val body = App(f, recs)
         List(C(args, guard, body))
@@ -220,10 +274,10 @@ object Fuse {
       case _ =>
         val gbody_ = Simplify.simplify(gbody, rules, constrs)
         if (gbody_ != gbody) {
-          println("simplified " + gbody + " to " + gbody_)
+          // println("simplified " + gbody + " to " + gbody_)
           expose(f, g, fg, fpat, gargs, gbody_, constrs, rules, su)
         } else {
-        println("cannot expose " + fpat + " over " + gbody + " for " + fg)
+          println("cannot expose " + fpat + " over " + gbody + " for " + fg)
           throw CannotFuse
         }
 

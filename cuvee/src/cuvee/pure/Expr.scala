@@ -95,8 +95,9 @@ object Expr extends Alpha[Expr, Var] {
     override def toString = reason
   }
 
-  case class CannotBind(reason: String) extends Exception {
-    override def toString = reason
+  case class CannotBind(pat: Expr, arg: Expr, ty: Map[Param, Type], su: Map[Var, Expr])
+      extends Exception {
+    override def toString = "cannot bind " + pat + " to " + arg
   }
 
   val infix =
@@ -194,7 +195,7 @@ object Expr extends Alpha[Expr, Var] {
     (pat, arg) match {
       case (x: Var, _) if su contains x =>
         if (su(x) != arg)
-          throw CannotBind("cannot bind " + su(x) + " to " + arg)
+          throw CannotBind(pat, arg, ty, su)
         (ty, su)
       case (x: Var, _) =>
         val ty_ = Type.bind(x.typ, arg.typ, ty)
@@ -206,7 +207,7 @@ object Expr extends Alpha[Expr, Var] {
         val su_ = bind(pats, args, ty_, su)
         (ty_, su_)
       case _ =>
-        throw CannotBind("cannot bind " + pat + " to " + arg)
+        throw CannotBind(pat, arg, ty, su)
     }
   }
 
@@ -222,8 +223,6 @@ object Expr extends Alpha[Expr, Var] {
       case (pat :: pats, arg :: args) =>
         val (ty_, su_) = bind(pat, arg, ty, su)
         bind(pats, args, ty_, su_)
-      case _ =>
-        throw CannotBind("cannot bind " + pats + " to " + args)
     }
   }
 }
