@@ -236,6 +236,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
         case DeaccumulateAt(lhs, df, xs, pos, again) if !(deaccumulated contains ((df.fun, pos))) =>
+          println()
           print("deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")"))
           val (df_, rhs, oplus, unknowns, eqs, conds) =
             Deaccumulate.deaccumulateAt(df, xs, pos, df.staticArgs)

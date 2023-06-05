@@ -91,30 +91,33 @@ object Fuse {
 
     val C(gargs, gguard, gbody) = gcase
 
-    val body = App(f, xs updated (pos, gbody))
-    val body_ = Simplify.simplify(body, rules_, constrs)
+    val gbody_ = Simplify.simplify(gbody, rules_, constrs)
+    val args = xs updated (pos, gbody_)
+    val body = App(f, args)
+    val body_ = Rewrite.app(body, f, args, rules_)
 
     if (isFused(f, g, body_)) {
       val args = xs patch (pos, gargs, 1)
       val guard = gguard
-      println("body:  " + body)
-      println("body_: " + body_)
-      println("args:  " + args)
-      println("guard: " + guard)
-      println()
+      // println("gbody:  " + gbody)
+      // println("body:  " + body)
+      // println("body_: " + body_)
+      // println("args:  " + args)
+      // println("guard: " + guard)
+      // println()
       List(C(args, guard, body_))
     } else {
       val fpats = fcases flatMap (_.args)
-      val critical = gcase.args.free & fpats.free
+      val critical = gargs.free & fpats.free
       val re = Expr.fresh(critical)
       val fcases_ = fcases map (_ rename re)
 
       for (
         C(fargs, fguard, fbody) <- fcases_;
-        (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody, constrs, rules)
+        (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody_, constrs, rules)
       ) yield {
         val args = fargs patch (pos, gargs_, 1)
-        val guard = (fguard subst su) ++ gguard
+        val guard = (fguard ++ gguard) subst su
         val body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
         C(args, guard, body_)
       }

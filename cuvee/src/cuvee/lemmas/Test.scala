@@ -15,7 +15,7 @@ object isaplanner1
 object debug_smt2 extends Run(Test, "debug.smt2")
 object poly extends Run(Test, "examples/boogie/poly.bpl")
 object assoc extends Run(Test, "examples/boogie/assoc.bpl")
-object length extends Run(Test, "examples/boogie/list.bpl")
+object length extends Run(Test, "examples/boogie/length.bpl")
 object nat extends Run(Test, "examples/boogie/nat.bpl")
 object layout extends Run(Test, "examples/boogie/layout.bpl")
 object sum extends Run(Test, "examples/boogie/sum.bpl")

@@ -147,7 +147,7 @@ object Rewrite {
       fun: Fun,
       args: List[Expr],
       rules: Map[Fun, List[Rule]],
-      depth: Int
+      depth: Int = 0
   ): Expr = {
     if (rules contains fun) {
       // println("  rewriting " + expr + "  with " + rules(fun))
