@@ -72,7 +72,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     val rw2 = definitions flatMap (_.rules)
     val rw3 = lemmas map (_._2)
     val rw4 = recover
-    val rws = rw1 ++ rw2 ++ rw3 ++ rw4
+    var rws = rw1 ++ rw2 ++ rw3 ++ rw4
+    // rws = rws filterNot { case Rule(lhs, rhs, cond, avoid) => lhs == rhs }
     rws.groupBy(_.fun)
   }
 
@@ -100,7 +101,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     replace = eq :: replace
 
     lemmas = lemmas flatMap { case (origin, eq @ Rule(lhs, rhs, cond, avoid)) =>
-      val rhs_ = Simplify.simplify(rhs, replace.groupBy(_.fun), constrs)
+      val rhs_ = catchRewritingDepthExceeded {
+        Simplify.simplify(rhs, replace.groupBy(_.fun), constrs)
+      }
 
       if (lhs == rhs_) Nil
       else {
@@ -165,13 +168,15 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   def cleanup() {
     val rw1 = rules
 
-    lemmas = for ((origin, eq @ Rule(lhs, rhs, cond, avoid)) <- lemmas) yield {
-      val rhs_ = Simplify.simplify(rhs, rw1, constrs)
-      val cond_ = Simplify.simplify(cond, rw1, constrs)
-      val eq_ = Rule(lhs, rhs_, cond_, avoid)
-      // println("simplified lemma: " + eq + " to " + eq_)
-      (origin, eq_)
-    }
+    lemmas =
+      for ((origin, eq @ Rule(lhs, rhs, cond, avoid)) <- lemmas)
+        yield catchRewritingDepthExceeded {
+          val rhs_ = Simplify.simplify(rhs, rw1, constrs)
+          val cond_ = Simplify.simplify(cond, rw1, constrs)
+          val eq_ = Rule(lhs, rhs_, cond_, avoid)
+          // println("simplified lemma: " + eq + " to " + eq_)
+          (origin, eq_)
+        }
 
     lemmas = lemmas.distinct
 
@@ -179,7 +184,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
     definitions =
       for (df <- definitions)
-        yield df.simplify(rw2, constrs)
+        yield catchRewritingDepthExceeded {
+          df.simplify(rw2, constrs)
+        }
   }
 
   def next() {
@@ -240,10 +247,38 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           val (df_, rhs, oplus, unknowns, eqs, conds) =
             Deaccumulate.deaccumulateAt(df, xs, pos, df.staticArgs)
 
-          val consts = LazyList() // LazyList(Zero, One, True, False)
-          val funs0 =
-            LazyList() // LazyList(Fun.eq_, Fun.plus, Fun.minus, Fun.times, Fun.uminus, Fun.and, Fun.or)
-          val funs1 = original.to(LazyList)
+          val consts = LazyList[Expr]()
+          // val consts = LazyList(Zero, One, True, False)
+
+          // val funs0 = LazyList[Fun]()
+          // val funs0 = LazyList(Fun.eq_, Fun.plus, Fun.minus, Fun.times, Fun.uminus, Fun.and, Fun.or)
+
+          val funs0 = st.constrs.to(LazyList)
+
+          val x = definitions filter (original contains _.fun) map (_.fun)
+          val funs1 = x.to(LazyList)
+
+            val funs = funs0 ++ funs1
+            
+          if (false) {
+            println("goal: " + lhs + " == " + rhs)
+            println("constants for deaccumulation synthesis")
+            for (cst <- consts)
+              println("  " + cst)
+            println("extra functions for deaccumulation synthesis")
+            for (fun <- funs0)
+              println("  " + fun)
+            println("original for deaccumulation synthesis")
+            for (fun <- funs1)
+              println("  " + fun)
+            println("solving")
+            for (eq <- eqs)
+              println(eq)
+            println("conds")
+            for (eq <- conds)
+              println(eq)
+
+          }
 
           var solved = false
 
@@ -255,7 +290,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                 Deaccumulate.solve(
                   solver,
                   consts,
-                  funs0 ++ funs1,
+                  funs,
                   st.datatypes,
                   unknowns.toSet,
                   conds,
@@ -357,7 +392,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                   val rhs_ = Simplify.simplify(rhs, model, constrs)
                   println(" == " + rhs_)
                   // println("success: " + first)
-                  addLemma("internal", lhs, rhs_)
+                  addLemma("AdtInd", lhs, rhs_)
                   // println("added lemma")
                   solved = true
 
@@ -429,7 +464,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
               todo {
                 // try deaccumulating but don't chain this query, it depends on the one above
                 for (pos <- Deaccumulate.mayDeaccumulateAt(df_))
-                  yield DeaccumulateAt(lhs, df_, args_, pos, again = false)
+                  yield DeaccumulateAt(lhs, df_, args_, pos, again = true)
               }
             }
           }
@@ -444,7 +479,10 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     import Deaccumulate.neutral
 
     eq match {
-      case Rule(App(f, List(e, y: Var)), z, True, _) if y == z && e.free.isEmpty =>
+      // don't add neutral laws for synthetic functions,
+      // this unfortunately can lead to rewriting loops (example append:0:reverse)
+      case Rule(App(f, List(e, y: Var)), z, True, _)
+          if (original contains f.fun) && y == z && e.free.isEmpty =>
         val rule =
           (o: Fun, b: Fun, xs: List[Var]) => {
             val eq1 = Rule(b(), e)
@@ -457,7 +495,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
         val old = neutral(key)
         neutral += key -> old.prepended(rule)
 
-      case Rule(App(f, List(x: Var, e)), z, True, _) if x == z && e.free.isEmpty =>
+      case Rule(App(f, List(x: Var, e)), z, True, _)
+          if (original contains f.fun) && x == z && e.free.isEmpty =>
         val rule =
           (o: Fun, b: Fun, xs: List[Var]) => {
             val eq1 = Rule(b(), e)
@@ -479,10 +518,20 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     try {
       f
     } catch {
-      case e @ Rewrite.RewriteDepthExceeded(trace) =>
+      case e @ Rewrite.RewriteDepthExceeded(trace, rules) =>
+        println("rewriting depth exceeded")
+        println()
+
         println("trace:")
         for (expr <- trace)
           println("  " + expr)
+        println()
+        println("rewrite rules:")
+        for ((fun, eqs) <- rules) {
+          println("  " + fun)
+          for (eq <- eqs)
+            println("    " + eq)
+        }
         println()
 
         println("replace:")
@@ -497,6 +546,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
         println("recover:")
         for (eq <- recover)
           println("  " + eq)
+
+        e.printStackTrace()
 
         throw e
     }

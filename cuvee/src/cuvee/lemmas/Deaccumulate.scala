@@ -12,12 +12,15 @@ object Deaccumulate {
   // case object CannotDeaccumulate extends Exception
   var debug = false
 
+  var heuristics = 0
+
   class Cond(val prio: Int)
   case class N(o: Fun, b: Fun) extends Cond(0)
   case class D(f: Fun, args: List[Var], body: Expr) extends Cond(1)
   case class A(l: Expr, r: Expr, g: Expr) extends Cond(2)
   case class G(f: Fun, args: List[Var], body: Expr) extends Cond(3)
-  case class B(b: Fun, args: List[Var], l: Expr, r: Expr, g: Expr) extends Cond(4)
+  case class B(formals: List[Var], b: Fun, args: List[Var], l: Expr, r: Expr, g: Expr)
+      extends Cond(4)
 
   def mayDeaccumulateAt(df: Def) = if (df.isRecursive) {
     for ((_, pos) <- df.fun.args.zipWithIndex if isAccumulator(df, pos))
@@ -109,11 +112,9 @@ object Deaccumulate {
 
             val body_ = b()
 
+            // TODO: rename static globals in the lifted body
             val eq1 = Rule(⊙(body_, z), z)
-            val eq2 = Rule(
-              App(⊕, List(y, u) ++ zs),
-              ⊙(y, body)
-            ) // TODO: rename static globals in the lifted body
+            val eq2 = Rule(App(⊕, List(y, u) ++ zs), ⊙(y, body))
             val cs_ = C(args_, guard, body_)
 
             (cs_, List(b, ⊙), (List(eq1, eq2), List(N(⊙, b), D(⊕, List(y, u) ++ zs, ⊙(y, body)))))
@@ -153,16 +154,16 @@ object Deaccumulate {
               if (recs.nonEmpty && (static contains pos) && (orig_.free subsetOf args_.free)) {
                 // offer a guess here that the body will remain unchanged, not useful for reverse:0:append
                 val guess = G(b, xs_ ++ ys, lhs)
-                val cond = B(b, vs, rhs, lhs subst su, And(guard))
+                val cond = B(vs, b, xs_ ++ ys, rhs, lhs subst su, And(guard))
                 List(guess, cond)
               } else if (recs.length == 1 && u.typ == res) { // direct accumulator
                 val List((y, args)) = recs
                 val acc = args(pos) subst Map(u -> y)
                 val guess = G(b, xs_ ++ ys, acc)
-                val cond = B(b, vs, rhs, lhs subst su, And(guard))
+                val cond = B(vs, b, xs_ ++ ys, rhs, lhs subst su, And(guard))
                 List(guess, cond)
               } else {
-                val cond = B(b, vs, rhs, lhs subst su, And(guard))
+                val cond = B(vs, b, xs_ ++ ys, rhs, lhs subst su, And(guard))
                 List(cond)
               }
 
@@ -278,7 +279,7 @@ object Deaccumulate {
             }
 
         if (rulelists.isEmpty)
-          if(debug)
+          if (debug)
             println("no known neutral element for: " + o)
 
         for (
@@ -303,8 +304,8 @@ object Deaccumulate {
         require(!(rules contains f), "unexpected existing rule for " + f)
 
         val eq = Rule(App(f, args), body)
-        if (debug)
-          println("  adding: " + eq)
+        // if (debug)
+        //   println("  defining: " + eq)
         val rules_ = rules + (f -> List(eq))
         solve(solver, consts, funs, datatypes, unknowns - f, Nil, rest, easy, guess, hard, rules_)
 
@@ -326,28 +327,35 @@ object Deaccumulate {
 
       case (Nil, Nil, (cond @ A(lhs, rhs, guard)) :: rest, _, _) =>
         // println("  using rules")
-        // for((_, eqs) <-rules; eq <- eqs)
+        // for((_, eqs) <- rules; eq <- eqs)
         //   println("    " + eq)
-        val lhs_ = Simplify.simplify(lhs, rules, Set())
-        val rhs_ = Simplify.simplify(rhs, rules, Set())
-        val guard_ = Simplify.simplify(guard, rules, Set())
-        val xs = lhs_.free ++ rhs_.free ++ guard_.free
-        val phi = Forall(xs.toList, Imp(guard_, Eq(lhs_, rhs_)))
-
         // println("consider: " + eq)
-        if (debug)
-          print("proving:  " + phi + " ... ")
+        // if (debug)
 
         val success =
           try {
-            val a = solver.isTrue(phi)
-            val b = a || false // cuvee.a.Prove.holdsByInduction(solver, phi, datatypes)
-            if (b && !a) println("proved by induction: " + phi)
+            val lhs_ = Simplify.simplify(lhs, rules, Set())
+            val rhs_ = Simplify.simplify(rhs, rules, Set())
+            val guard_ = Simplify.simplify(guard, rules, Set())
+
+            val xs = lhs_.free ++ rhs_.free ++ guard_.free
+            val phi = Forall(xs.toList, Imp(guard_, Eq(lhs_, rhs_)))
+            if (debug)
+              print("proving:  " + phi + " ... ")
+
+            val s = lhs_ == rhs_
+            val a = false // solver.isTrue(phi)
+            val b = s || a // || cuvee.a.Prove.holdsByInduction(solver, phi, datatypes)
+            if (b && !s && !a) println("proved by induction: " + phi)
             b
           } catch {
             case e: cuvee.smtlib.Error =>
               if (debug)
                 println(e.info)
+              false
+            case e: Exception =>
+              if (debug)
+                e.printStackTrace()
               false
           }
 
@@ -377,7 +385,7 @@ object Deaccumulate {
           LazyList()
         }
 
-      case (Nil, Nil, Nil, guess, B(b, _, lhs, rhs, guard) :: rest) if !(unknowns contains b) =>
+      case (Nil, Nil, Nil, guess, B(xs, b, _, lhs, rhs, guard) :: rest) if !(unknowns contains b) =>
         solve(
           solver,
           consts,
@@ -409,18 +417,22 @@ object Deaccumulate {
       case (Nil, Nil, Nil, G(f, args, body) :: rest, hard) =>
         solve(solver, consts, funs, datatypes, unknowns, Nil, Nil, Nil, guess, hard, rules)
 
-      case (Nil, Nil, Nil, Nil, B(b, zs, lhs, rhs, guard) :: rest) =>
+      case (Nil, Nil, Nil, Nil, (first @ B(xs, b, zs, lhs, rhs, guard)) :: rest) =>
+        val Depth = 2
+        val MaxVar = 1
+
         if (false) {
           val eqs =
-            for ((expr, _) <- enumerate(funs, consts, b.res, Map(zs map { (_, 3) }: _*), 4)) yield {
-              val eq = Rule(App(b, zs), expr)
-              if (debug)
-                println("  adding: " + eq)
-              val rules_ = rules + (b -> List(eq))
-              // val lhs_ = Simplify.simplify(lhs, rules_)
-              // val rhs_ = Simplify.simplify(rhs, rules_)
-              (lhs, rhs, rules_)
-            }
+            for ((expr, _) <- enumerate(funs, consts, b.res, Map(zs map (_ -> MaxVar): _*), Depth))
+              yield {
+                val eq = Rule(App(b, zs), expr)
+                if (debug)
+                  println("  trying: " + eq)
+                val rules_ = rules + (b -> List(eq))
+                // val lhs_ = Simplify.simplify(lhs, rules_, constrs)
+                // val rhs_ = Simplify.simplify(rhs, rules_, constrs)
+                (lhs, rhs, rules_)
+              }
 
           for (
             (lhs, rhs, rules_) <- eqs;
@@ -440,7 +452,6 @@ object Deaccumulate {
           )
             yield result
         } else {
-
           val eq = Rule(lhs, rhs, guard)
           val eq_ = Simplify.simplify(eq, rules, Set())
           if (debug) {

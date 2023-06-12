@@ -117,14 +117,14 @@ object AdtInd {
         require(hard.nonEmpty, "empty deaccumulation query: " + all)
 
         val (base, rec) = hard partition {
-          case B(body, xs, App(`oplus_!`, App(body_, ys) :: args), r, g) if body == body_.fun =>
+          case B(xs, body, args, App(`oplus_!`, App(body_, ys) :: _), r, g) if body == body_.fun =>
             true
           case _ =>
             false
         }
 
         base match {
-          case List(B(body, xs, App(_, App(_, ys) :: args), r, g)) =>
+          case List(B(xs, body, args, App(_, App(_, ys) :: _), r, g)) =>
             val b = body rename (_ => "b")
             val oplus = oplus_! rename (_ => "oplus")
             ???
@@ -160,7 +160,7 @@ object AdtInd {
 
         val rw = known ++ rules.groupBy(_.fun)
 
-        val hard = for (B(b, args, lhs, rhs, guard) <- all) yield {
+        val hard = for (B(xs, b, args, lhs, rhs, guard) <- all) yield {
           val lhs_ = Simplify.simplify(lhs, rw, st.constrs) topdown {
             case expr if abs contains expr =>
               abs(expr)

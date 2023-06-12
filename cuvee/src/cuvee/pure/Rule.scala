@@ -18,7 +18,7 @@ case class Rule(
 
   require(
     rhs.free subsetOf lhs.free,
-    "rule lhs " + lhs + " does not bind " + (rhs.free -- lhs.free) + " in rhs" + rhs
+    "rule lhs " + lhs + " does not bind " + (rhs.free -- lhs.free) + " in rhs " + rhs
   )
 
   require(

@@ -20,7 +20,7 @@ object Rewrite {
 
   case object PremiseNotValid extends Exception
 
-  case class RewriteDepthExceeded(exprs: List[Expr]) extends Exception
+  case class RewriteDepthExceeded(exprs: List[Expr], rules: Map[Fun, List[Rule]]) extends Exception
 
   def from(
       cmd: Cmd,
@@ -121,7 +121,7 @@ object Rewrite {
         // println("max rewriting depth reached: " + self)
         // self
         // error("max rewriting depth reached " + self)
-        throw RewriteDepthExceeded(List(self))
+        throw RewriteDepthExceeded(List(self), rules)
 
       case self @ App(inst, args) =>
         app(self, inst.fun, args, rules, depth)
@@ -130,8 +130,8 @@ object Rewrite {
         self
     }
   } catch {
-    case RewriteDepthExceeded(exprs) =>
-      throw RewriteDepthExceeded(expr :: exprs)
+    case RewriteDepthExceeded(exprs, rules) =>
+      throw RewriteDepthExceeded(expr :: exprs, rules)
   }
 
   def rewrites(

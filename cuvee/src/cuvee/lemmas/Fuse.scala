@@ -6,6 +6,8 @@ import cuvee.util.Name
 import cuvee.StringOps
 
 object Fuse {
+  var debug = false
+
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
       (typ, pos) <- df.fun.args.zipWithIndex
@@ -91,7 +93,13 @@ object Fuse {
 
     val C(gargs, gguard, gbody) = gcase
 
-    val gbody_ = Simplify.simplify(gbody, rules_, constrs)
+    // Note: this is *not* using the additional rule,
+    // because we want to connect the *outer* occurrence of f,
+    // not just any other that happens to be part of gbody,
+    // as it happens for append.reverse when reverse's body
+    // is defined by or normalized to append(reverse(xs), cons(x, nil))
+    val gbody_ = Simplify.simplify(gbody, rules, constrs)
+
     val args = xs updated (pos, gbody_)
     val body = App(f, args)
     val body_ = Rewrite.app(body, f, args, rules_)
@@ -99,12 +107,14 @@ object Fuse {
     if (isFused(f, g, body_)) {
       val args = xs patch (pos, gargs, 1)
       val guard = gguard
-      // println("gbody:  " + gbody)
-      // println("body:  " + body)
-      // println("body_: " + body_)
-      // println("args:  " + args)
-      // println("guard: " + guard)
-      // println()
+      // if (debug) {
+      //   println("gbody:  " + gbody)
+      //   println("body:  " + body)
+      //   println("body_: " + body_)
+      //   println("args:  " + args)
+      //   println("guard: " + guard)
+      //   println()
+      // }
       List(C(args, guard, body_))
     } else {
       val fpats = fcases flatMap (_.args)
@@ -277,10 +287,12 @@ object Fuse {
       case _ =>
         val gbody_ = Simplify.simplify(gbody, rules, constrs)
         if (gbody_ != gbody) {
-          // println("simplified " + gbody + " to " + gbody_)
+          if (debug)
+            println("simplified " + gbody + " to " + gbody_)
           expose(f, g, fg, fpat, gargs, gbody_, constrs, rules, su)
         } else {
-          // println("cannot expose " + fpat + " over " + gbody + " for " + fg)
+          if (debug)
+            println("cannot expose " + fpat + " over " + gbody + " for " + fg)
           throw CannotFuse
         }
 
@@ -345,12 +357,14 @@ object Fuse {
             val expr = App(f, args_)
             val expr_ = Simplify.simplify(expr, rules, constrs)
             if (expr != expr_) {
-              // println("simplified " + expr + " to " + expr_)
+              if (debug)
+                println("simplified " + expr + " to " + expr_)
               recurse(f, g, fg, pos, expr_, su, constrs, rules)
             } else if (isFused(f, g, expr_)) {
               expr_
             } else {
-              // println("not in fused form for " + fg + ": " + expr_)
+              if (debug)
+                println("not in fused form for " + fg + ": " + expr_)
               throw CannotFuse
             }
         }
