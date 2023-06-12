@@ -280,7 +280,7 @@ object Fuse {
           // println("simplified " + gbody + " to " + gbody_)
           expose(f, g, fg, fpat, gargs, gbody_, constrs, rules, su)
         } else {
-          println("cannot expose " + fpat + " over " + gbody + " for " + fg)
+          // println("cannot expose " + fpat + " over " + gbody + " for " + fg)
           throw CannotFuse
         }
 
@@ -345,7 +345,7 @@ object Fuse {
             val expr = App(f, args_)
             val expr_ = Simplify.simplify(expr, rules, constrs)
             if (expr != expr_) {
-              println("simplified " + expr + " to " + expr_)
+              // println("simplified " + expr + " to " + expr_)
               recurse(f, g, fg, pos, expr_, su, constrs, rules)
             } else if (isFused(f, g, expr_)) {
               expr_

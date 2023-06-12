@@ -174,9 +174,9 @@ object Known {
 
         case None =>
           if (Def.hash(df) == Def.hash(dg)) {
-            println(
-              "  potentially missed equivalence " + f.name + " == " + g.name
-            )
+            // println(
+            //   "  potentially missed equivalence " + f.name + " == " + g.name
+            // )
             // println("  definitions are structurally similar when ignoring variable names")
             // println(df)
             // println(dg)

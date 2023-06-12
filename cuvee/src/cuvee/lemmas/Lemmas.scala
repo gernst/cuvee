@@ -91,7 +91,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   def addLemma(origin: String, lhs: Expr, rhs: Expr, cond: Expr = True) {
     val eq = Rule(lhs, rhs, cond)
     maybeAddNeutral(eq)
-    println("adding lemma: " + eq)
+    // println("adding lemma: " + eq)
     lemmas = (origin, eq) :: lemmas
   }
 
@@ -105,7 +105,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
       if (lhs == rhs_) Nil
       else {
         val eq_ = Rule(lhs, rhs_, cond, avoid)
-        println("simplified lemma: " + eq + " to " + eq_)
+        // println("simplified lemma: " + eq + " to " + eq_)
         List((origin, eq_))
       }
     }
@@ -169,7 +169,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
       val rhs_ = Simplify.simplify(rhs, rw1, constrs)
       val cond_ = Simplify.simplify(cond, rw1, constrs)
       val eq_ = Rule(lhs, rhs_, cond_, avoid)
-      println("simplified lemma: " + eq + " to " + eq_)
+      // println("simplified lemma: " + eq + " to " + eq_)
       (origin, eq_)
     }
 
@@ -236,7 +236,6 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
         case DeaccumulateAt(lhs, df, xs, pos, again) if !(deaccumulated contains ((df.fun, pos))) =>
-          println()
           print("deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")"))
           val (df_, rhs, oplus, unknowns, eqs, conds) =
             Deaccumulate.deaccumulateAt(df, xs, pos, df.staticArgs)
@@ -250,7 +249,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
           if (!solved && useInternal) {
             catchRewritingDepthExceeded {
-              println("trying to solve query for: " + df_.fun)
+              // println("trying to solve query for: " + df_.fun)
+
               val solutions =
                 Deaccumulate.solve(
                   solver,
@@ -300,7 +300,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                       // make sure we have unique function names for the deaccumulated function if there are more than one solution
                       val f__i = f__ rename xxx
 
-                      println("rename " + f__ + " to " + f__i)
+                      // println("rename " + f__ + " to " + f__i)
 
                       val df__i = df__ rename xxx
 
@@ -327,7 +327,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                 println("translating problem into AdtInd currently not implemented")
 
               case Some((q, recover)) =>
-                println("trying AdtInd")
+                // println("trying AdtInd")
 
                 val eq = Rule(lhs, rhs)
 
@@ -346,9 +346,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
                 println("AdtInd produced the following solutions:")
                 for ((rules, k) <- stuff.zipWithIndex) {
-                  println("  solution " + k)
-                  for (eq <- rules)
-                    println("   " + eq)
+                  // println("  solution " + k)
+                  // for (eq <- rules)
+                  //   println("   " + eq)
                   println()
 
                   val model = (recover ++ rules).groupBy(_.fun)
@@ -370,19 +370,18 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
           if (!solved) {
             println(" failed")
-            for (fun <- unknowns)
-              println("  " + fun)
-            for (eq <- eqs)
-              println("  " + eq)
-            println()
+            // for (fun <- unknowns)
+            //   println("  " + fun)
+            // for (eq <- eqs)
+            //   println("  " + eq)
+            // println()
             if (again)
               retry(first)
           }
 
         case Recognize(asLemma, lhs, df, args) =>
-          println()
-          println("given definition")
-          println(df)
+          // println("given definition")
+          // println(df)
           print("recognize " + lhs)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
@@ -453,7 +452,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             (eq1, eq2)
           }
 
-        println("  left-neutral rule: " + eq)
+        println("left-neutral: " + eq)
         val key = (f.args, f.res)
         val old = neutral(key)
         neutral += key -> old.prepended(rule)
@@ -466,7 +465,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             (eq1, eq2)
           }
 
-        println("  right-neutral rule: " + eq)
+        println("right-neutral: " + eq)
         val key = (f.args.reverse, f.res)
         val old = neutral(key)
         neutral += key -> old.prepended(rule)

@@ -10,6 +10,7 @@ import cuvee.smtlib.Unsat
 
 object Deaccumulate {
   // case object CannotDeaccumulate extends Exception
+  var debug = false
 
   class Cond(val prio: Int)
   case class N(o: Fun, b: Fun) extends Cond(0)
@@ -18,7 +19,7 @@ object Deaccumulate {
   case class G(f: Fun, args: List[Var], body: Expr) extends Cond(3)
   case class B(b: Fun, args: List[Var], l: Expr, r: Expr, g: Expr) extends Cond(4)
 
-  def mayDeaccumulateAt(df: Def) = if(df.isRecursive) {
+  def mayDeaccumulateAt(df: Def) = if (df.isRecursive) {
     for ((_, pos) <- df.fun.args.zipWithIndex if isAccumulator(df, pos))
       yield pos
   } else {
@@ -174,7 +175,7 @@ object Deaccumulate {
 
     val df_ = Def(f_, cases_)
 
-    val rhs = App(⊕, List( App(f_, args removed pos), args(pos)) ++ args_)
+    val rhs = App(⊕, List(App(f_, args removed pos), args(pos)) ++ args_)
 
     (df_, rhs, ⊕, ⊕ :: bs.flatten, eqs.flatten, conds.flatten)
   }
@@ -269,13 +270,16 @@ object Deaccumulate {
             yield {
               val xs = Expr.vars("x", o.args)
               val (eq1, eq2) = op(o, b, xs)
-              println("  neutral: " + eq1)
-              println("  neutral: " + eq2)
+              if (debug) {
+                println("  neutral: " + eq1)
+                println("  neutral: " + eq2)
+              }
               rules + (b -> List(eq1)) + (o -> List(eq2))
             }
 
         if (rulelists.isEmpty)
-          println("no known neutral element for: " + o)
+          if(debug)
+            println("no known neutral element for: " + o)
 
         for (
           rules_ <- rulelists;
@@ -299,7 +303,8 @@ object Deaccumulate {
         require(!(rules contains f), "unexpected existing rule for " + f)
 
         val eq = Rule(App(f, args), body)
-        println("  adding: " + eq)
+        if (debug)
+          println("  adding: " + eq)
         val rules_ = rules + (f -> List(eq))
         solve(solver, consts, funs, datatypes, unknowns - f, Nil, rest, easy, guess, hard, rules_)
 
@@ -330,25 +335,29 @@ object Deaccumulate {
         val phi = Forall(xs.toList, Imp(guard_, Eq(lhs_, rhs_)))
 
         // println("consider: " + eq)
-        print("proving:  " + phi + " ... ")
+        if (debug)
+          print("proving:  " + phi + " ... ")
 
         val success =
           try {
             val a = solver.isTrue(phi)
             val b = a || false // cuvee.a.Prove.holdsByInduction(solver, phi, datatypes)
-            if(b && !a) println("proved by induction: " + phi)
+            if (b && !a) println("proved by induction: " + phi)
             b
           } catch {
             case e: cuvee.smtlib.Error =>
-              println(e.info)
+              if (debug)
+                println(e.info)
               false
           }
 
         if (success) {
-          println(" success.")
+          if (debug)
+            println(" success.")
           solve(solver, consts, funs, datatypes, unknowns, Nil, Nil, rest, guess, hard, rules)
         } else {
-          println(" unknown.")
+          if (debug)
+            println(" unknown.")
 
           // for (
           //   (unknowns_, todo, rules) <- solve(
@@ -387,7 +396,8 @@ object Deaccumulate {
         require(!(rules contains f), "unexpected existing rule for " + f)
 
         val eq = List(Rule(App(f, args), body))
-        println("  guessing: " + eq)
+        if (debug)
+          println("  guessing: " + eq)
         val rules_ = rules + (f -> eq)
         val first =
           solve(solver, consts, funs, datatypes, unknowns - f, Nil, Nil, Nil, rest, hard, rules_)
@@ -404,7 +414,8 @@ object Deaccumulate {
           val eqs =
             for ((expr, _) <- enumerate(funs, consts, b.res, Map(zs map { (_, 3) }: _*), 4)) yield {
               val eq = Rule(App(b, zs), expr)
-              println("  adding: " + eq)
+              if (debug)
+                println("  adding: " + eq)
               val rules_ = rules + (b -> List(eq))
               // val lhs_ = Simplify.simplify(lhs, rules_)
               // val rhs_ = Simplify.simplify(rhs, rules_)
@@ -432,10 +443,12 @@ object Deaccumulate {
 
           val eq = Rule(lhs, rhs, guard)
           val eq_ = Simplify.simplify(eq, rules, Set())
-          println("cannot solve hard query solve for: " + b)
-          // rules map println
-          println("  " + eq)
-          println("  " + eq_ + " (simplified)")
+          if (debug) {
+            println("cannot solve hard query solve for: " + b)
+            // rules map println
+            println("  " + eq)
+            println("  " + eq_ + " (simplified)")
+          }
 
           for (
             (unknowns_, todo, rules) <- solve(
