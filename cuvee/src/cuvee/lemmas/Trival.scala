@@ -7,11 +7,13 @@ object Trivial {
     val Def(f, cases) = df
 
     val ok = cases forall {
-      case C(List(x: Var), Nil, y) if x == y => // TODO: cannot recognize complete guard splits
+      case C(List(Zero), Nil, Zero) =>
         true
       case C(List(Succ(m)), Nil, Succ(n)) if m == n =>
         true
       case C(List(Succ(m)), Nil, Succ(App(Inst(`f`, _), List(n)))) if m == n =>
+        true
+      case C(List(x: Var), Nil, y) if x == y => // TODO: cannot recognize complete guard splits
         true
       case C(List(App(c, xs)), Nil, App(d, es)) if c == d => // TODO: assumes c is a constructor
         (xs zip es) forall {
