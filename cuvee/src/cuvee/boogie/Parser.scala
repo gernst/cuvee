@@ -76,7 +76,9 @@ object Parser {
       val fun = state funs (name, arity)
       val inst = fun.generic
 
-      unify(inst.args, args.types)
+      trace("cannot apply " + inst + " to " + args) {
+        unify(inst.args, args.types)
+      }
 
       new App(inst, args)
     }
