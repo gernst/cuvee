@@ -243,7 +243,6 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
         case DeaccumulateAt(lhs, df, xs, pos, again) if !(deaccumulated contains ((df.fun, pos))) =>
-          print("deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")"))
           val (df_, rhs, oplus, unknowns, eqs, conds) =
             Deaccumulate.deaccumulateAt(df, xs, pos, df.staticArgs)
 
@@ -341,6 +340,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
                       // println("simplified definition: " + df__)
                       val rhs_ = Simplify.simplify(rhs, model, constrs) replace (f__, f__i)
+          print("deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")"))
                       println(" == " + rhs_)
                       // println("success: " + first)
                       addLemma("internal (" + ms + "ms)", lhs, rhs_)
@@ -348,8 +348,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                       solved = true
 
                       // trigger further processing of synthetic function df__ independently
-                      val xs = Expr.vars("x", f__i.args)
-                      todo { Recognize(None, App(f__i, xs), df__i, xs) }
+                      val ys = Expr.vars("x", f__i.args)
+                      todo { Recognize(None, App(f__i, ys), df__i, ys) }
                     }
                 }
               }
@@ -390,6 +390,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                   val df__ = df_ simplify (model, constrs)
                   // println("simplified definition: " + df__)
                   val rhs_ = Simplify.simplify(rhs, model, constrs)
+          print("deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")"))
                   println(" == " + rhs_)
                   // println("success: " + first)
                   addLemma("AdtInd", lhs, rhs_)
@@ -397,8 +398,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                   solved = true
 
                   // trigger further processing of synthetic function df__ independently
-                  val xs = Expr.vars("x", df__.fun.args)
-                  todo { Recognize(None, App(df__.fun, xs), df__, xs) }
+                  val ys = Expr.vars("x", df__.fun.args)
+                  todo { Recognize(None, App(df__.fun, ys), df__, ys) }
                 }
             }
           }

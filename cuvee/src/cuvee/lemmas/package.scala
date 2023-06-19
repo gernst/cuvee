@@ -91,7 +91,11 @@ package object lemmas {
     new PrintStream(new FileOutputStream(file))
   }
 
-  val NO = new PrintStream(OutputStream.nullOutputStream())
+  object nullOutputStream extends OutputStream {
+    def write(b: Int) {}
+  }
+
+  val NO = new PrintStream(nullOutputStream)
 
   /** The default printer to use: Prints s-expressions */
   implicit val printer: cuvee.util.Printer = cuvee.sexpr.Printer

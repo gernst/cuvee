@@ -39,18 +39,25 @@ object Trivial {
   def constant(df: Def, args: List[Expr]): List[Expr] = {
     val Def(f, cases) = df
     val static = df.staticArgs
+    val us = static map args
 
     val stuff = cases map {
-      case C(args, guard, x: Var) => // x is static
-        val ok = static find { (i: Int) => args(i) == x }
-        ok match {
-          case None =>
-            (false, None)
-          case Some(i) =>
-            (true, Some(i))
-        }
-      case C(args, guard, App(Inst(`f`, _), _)) => // tail-recursive
+      // tail-recursive cases are okay,
+      // note that we have already checked that static arguments don'th change in the call
+      case C(args, guard, App(Inst(`f`, _), _)) =>
         (true, None)
+
+      // base cases
+      case c @ C(args, guard, body) if !c.isRecursive(f) =>
+        val xs = body.free
+        val as = static map args
+        val ys = as.free
+
+        val re = Expr.subst(as map { case x: Var => x }, us)
+        val body_ = body subst re
+
+        (xs subsetOf ys, Some(body_))
+
       case cs =>
         (false, None)
     }
@@ -59,9 +66,9 @@ object Trivial {
     val ok = oks.forall(b => b)
     val is = is_.flatten
 
-    (ok, is) match {
-      case (true, List(i)) =>
-        List(args(i))
+    (ok, is.distinct) match {
+      case (true, List(arg)) =>
+        List(arg)
       case _ =>
         List()
     }
