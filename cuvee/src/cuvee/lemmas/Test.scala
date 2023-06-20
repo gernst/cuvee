@@ -6,11 +6,13 @@ import cuvee.pure._
 import cuvee.util.Run
 import cuvee.util.Main
 
-object isaplanner1
+object isaplanner
     extends Run(
       Test,
-      "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_01.smt2"
+      "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_52.smt2"
     )
+
+object isaplanner_prop52 extends Run(Test, "examples/smtlib/prop_52.smt2")
 
 object append extends Run(Test, "-rounds", "1", "examples/boogie/append.bpl")
 

@@ -6,7 +6,7 @@ import cuvee.util.Name
 import cuvee.StringOps
 
 object Fuse {
-  var debug = false
+  var debug = true
 
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
@@ -38,7 +38,7 @@ object Fuse {
     val args = f.args patch (pos, g.args, 1)
     val res = f.res
     val fg = Fun(name, params.distinct, args, res)
-    // print("fusing " + name)
+    println("fusing " + name)
 
     try {
       val cases =
@@ -103,6 +103,12 @@ object Fuse {
     val args = xs updated (pos, gbody_)
     val body = App(f, args)
     val body_ = Rewrite.app(body, f, args, rules_)
+        // println("gbody:  " + gbody)
+        // println("gbody_:  " + gbody_)
+        // println("body:  " + body)
+        // println("body_: " + body_)
+        // println("args:  " + args)
+        // println()
 
     if (isFused(f, g, body_)) {
       val args = xs patch (pos, gargs, 1)

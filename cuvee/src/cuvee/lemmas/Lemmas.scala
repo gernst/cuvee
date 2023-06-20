@@ -10,23 +10,31 @@ import cuvee.util.Name
 class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
   var useAdtInd = false
   var useInternal = true
+  var printTiming = false // may be undesirable if counting duplicates
   AdtInd.cached = false
 
   val constrs = st.constrs
 
   // these are the operations that may fail
-  sealed trait Pending
+  sealed trait Pending {
+    def key: Name
+  }
+
+  implicit class PendingList(ps: List[Pending]) {
+    def keys = ps map (_.key)
+  }
 
   // request to fuse f:pos:g and generate lemma lhs == f:pos:g(xs patch (pos ys))
   case class FuseAt(lhs: Expr, df: Def, xs: List[Expr], dg: Def, ys: List[Expr], pos: Int)
       extends Pending {
+    def key = df.fun.name
     override def toString = "fuse " + Fuse.fused(df.fun.name, dg.fun.name, pos)
   }
 
   // request to deaccumulate f at pos into f' and generate lemma lhs == e?(f'(xs removed pos), xs)
   case class DeaccumulateAt(lhs: Expr, df: Def, xs: List[Expr], pos: Int, again: Boolean)
       extends Pending {
-
+    def key = df.fun.name
     override def toString = "deaccumulate " + Deaccumulate.deaccumulated(df.fun.name, pos)
   }
 
@@ -35,6 +43,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   case class Recognize(asLemma: Option[String], lhs: Expr, df: Def, args: List[Expr])
       extends Pending {
     require(!(original contains df.fun))
+    def key = df.fun.name
     override def toString = "recognize " + df.fun.name
   }
 
@@ -49,6 +58,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   var failed: List[Pending] = Nil
 
   var definitions: List[Def] = Nil
+
+  var candidates: List[(String, Rule)] = Nil
   var lemmas: List[(String, Rule)] = Nil
 
   var replace: List[Rule] = Nil
@@ -59,7 +70,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     val rw1 = replace
     val rw2 = definitions flatMap (_.rules)
     val rw3 = lemmas collect {
-      case (fun, eq) if eq.funs subsetOf original =>
+      case (why, eq) if eq.funs subsetOf original =>
         eq
     }
     val rws = rw1 ++ rw2 ++ rw3
@@ -78,7 +89,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   }
 
   def todo(add: Pending) {
-    pending = pending ++ List(add)
+    todo(List(add))
   }
 
   def todo(add: List[Pending]) {
@@ -86,7 +97,11 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   }
 
   def retry(add: Pending) {
-    failed = failed ++ List(add)
+    retry(List(add))
+  }
+
+  def retry(add: List[Pending]) {
+    failed = failed ++ add
   }
 
   def addLemma(origin: String, lhs: Expr, rhs: Expr, cond: Expr = True) {
@@ -228,17 +243,16 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
       first match {
         case FuseAt(lhs, df, xs, dg, ys, pos) if !(fused contains ((df.fun, dg.fun, pos))) =>
-          print("fuse " + lhs)
           Fuse.fuseAt(df, xs, dg, ys, pos, st.constrs, normalize) match {
             case None =>
-              println(" failed")
+              println("fuse " + lhs + " failed")
               retry(first)
 
             case Some((dfg, zs)) =>
               fused += ((df.fun, dg.fun, pos))
               val rhs = App(dfg.fun, zs)
               recoverBy(rhs, lhs)
-              println(" == " + rhs)
+              println("fuse " + lhs + " == " + rhs)
               todo { Recognize(Some("fused"), lhs, dfg, zs) }
           }
 
@@ -257,8 +271,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           val x = definitions filter (original contains _.fun) map (_.fun)
           val funs1 = x.to(LazyList)
 
-            val funs = funs0 ++ funs1
-            
+          val funs = funs0 ++ funs1
+
           if (false) {
             println("goal: " + lhs + " == " + rhs)
             println("constants for deaccumulation synthesis")
@@ -340,10 +354,17 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
                       // println("simplified definition: " + df__)
                       val rhs_ = Simplify.simplify(rhs, model, constrs) replace (f__, f__i)
-          print("deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")"))
+                      print(
+                        "deaccumulate " + df.fun.name + xs
+                          .updated(pos, "_")
+                          .mkString("(", ", ", ")")
+                      )
                       println(" == " + rhs_)
                       // println("success: " + first)
-                      addLemma("internal (" + ms + "ms)", lhs, rhs_)
+                      if (printTiming)
+                        addLemma("internal (" + ms + "ms)", lhs, rhs_)
+                      else
+                        addLemma("internal", lhs, rhs_)
                       // println("added lemma")
                       solved = true
 
@@ -390,7 +411,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                   val df__ = df_ simplify (model, constrs)
                   // println("simplified definition: " + df__)
                   val rhs_ = Simplify.simplify(rhs, model, constrs)
-          print("deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")"))
+                  print(
+                    "deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")")
+                  )
                   println(" == " + rhs_)
                   // println("success: " + first)
                   addLemma("AdtInd", lhs, rhs_)
@@ -405,7 +428,10 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
           if (!solved) {
-            println(" failed")
+            print(
+              "deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")")
+            )
+            println("  failed")
             // for (fun <- unknowns)
             //   println("  " + fun)
             // for (eq <- eqs)
