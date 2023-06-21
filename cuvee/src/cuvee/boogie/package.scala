@@ -8,6 +8,7 @@ import java.io.Reader
 import easyparse.Token
 import scala.collection.mutable.ListBuffer
 import cuvee.sexpr.Tok
+import cuvee.pipe.Source
 
 package object boogie {
   def scan(file: String): Seq[Token] = {
@@ -27,6 +28,19 @@ package object boogie {
     implicit val ctx: Map[Name, Param] = Map()
     implicit val scope: Map[Name, Var] = Map()
     Grammar.script.parseAll(in)
+  }
+
+  def source(path: String) = new Source {
+    val from = {
+      implicit val ctx: Map[Name, Param] = Map()
+      implicit val scope: Map[Name, Var] = Map()
+      val reader = new FileReader(path)
+      val in = cuvee.boogie.scan(reader)
+      cuvee.boogie.Grammar.cmd.iterator(in)
+    }
+
+    def hasNext: Boolean = from.hasNext
+    def next(): Cmd = from.next()
   }
 
   class ScannerIterator(scanner: boogie.Scanner) extends Iterator[Token] {

@@ -7,6 +7,10 @@ import cuvee.util.Tool
 import cuvee.backend.Solver
 import java.io.BufferedReader
 import cuvee.sexpr.Printer
+import java.io.FileReader
+import cuvee.pipe.Source
+import java.io.InputStreamReader
+import java.io.Reader
 
 package object smtlib {
   def parse(file: String): (List[Cmd], State) = {
@@ -20,6 +24,18 @@ package object smtlib {
     val parser = new Parser(st)
     val res = parser.cmds(from)
     res
+  }
+
+  def source() : Source = source(new InputStreamReader(System.in))
+  def source(path: String): Source  = source(new FileReader(path))
+
+  def source(reader: Reader): Source  = new Source {
+    val from = cuvee.sexpr.iterator(reader)
+    val init = State.default
+    val parser = new cuvee.smtlib.Parser(init)
+
+    def hasNext = from.hasNext
+    def next() = parser.cmd(from.next())
   }
 
   def z3(st: State, timeout: Int = 1000) =
