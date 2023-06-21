@@ -235,9 +235,9 @@ class Parser(init: State) {
       case Id(name) if ctx contains name =>
         Param(name)
       case Id(name) =>
-        st.sort(name)
+        st.typ(name)
       case App(Id(name), args @ _*) =>
-        st.sort(name, types(args.toList, ctx))
+        st.typ(name, types(args.toList, ctx))
       case _ =>
         error("invalid type: " + from)
     }

@@ -98,8 +98,9 @@ class State(
       fundefs: Map[(Name, Int), (List[Var], Expr)] = fundefs,
       procs: Map[Name, Proc] = procs,
       procdefs: Map[Name, (List[Var], List[Var], Prog)] = procdefs
-  ) =
+  ) = {
     new State(cons, condefs, datatypes, funs, fundefs, procs, procdefs)
+  }
 
   def param(name: Name): Param = {
     Param(name)
@@ -159,31 +160,43 @@ class State(
       out: List[Var],
       spec: Option[Spec]
   ): Proc = {
-    // require(
-    //   !(procs contains name),
-    //   "procedure already declared: " + name
-    // )
+    require(
+      !(procs contains name),
+      "procedure already declared: " + name
+    )
     val proc = Proc(name, params, in, out, spec)
     procs += (name -> proc)
     proc
   }
 
   def procdef(name: Name, in: List[Var], out: List[Var], body: Prog): Unit = {
-    // require(
-    //   !(procdefs contains name),
-    //   "procedure already defined: " + name
-    // )
+    require(
+      !(procdefs contains name),
+      "procedure already defined: " + name
+    )
     procdefs += (name -> (in, out, body))
   }
 
   def sort(name: Name, args: List[Type] = Nil): Sort = {
     require(cons contains name, "type constructor not declared: " + name)
+
     val con = cons(name)
     require(
       con.arity == args.length,
       "arity mismatch: " + con + " and args: " + args
     )
+
     Sort(con, args)
+  }
+
+  def typ(name: Name, args: List[Type] = Nil): Type = {
+    if (condefs contains name) {
+      val (params, typ) = condefs(name)
+      val su = Type.subst(params, args)
+      typ subst su
+    } else {
+      sort(name, args)
+    }
   }
 
   class Exprs {
@@ -304,15 +317,6 @@ class State(
             Case(pat.expr, res.expr)
           }
       Pre(Match(expr, body, typ))
-    }
-
-    def in(k: Int, arg: Pre, typ: Type) = {
-      Pre(In(k, arg.expr, typ))
-    }
-
-    def tuple(args: List[Pre]) = {
-      val exprs = args map (_.expr)
-      Pre(Tuple(exprs))
     }
 
     def distinct(args: List[Pre]) = {

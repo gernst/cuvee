@@ -59,10 +59,6 @@ object Type extends Alpha[Type, Param] {
         su + (p1 -> typ2)
       case (_, p2: Param) =>
         unify(p2, typ1, su)
-      case (Prod(args1), Prod(args2)) =>
-        unify(args1, args2, su)
-      case (Sum(args1), Sum(args2)) =>
-        unify(args1, args2, su)
       case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
         unify(args1, args2, su)
       case _ =>
@@ -105,10 +101,6 @@ object Type extends Alpha[Type, Param] {
         su
       case (p1: Param, _) =>
         su + (p1 -> typ2)
-      case (Prod(args1), Prod(args2)) =>
-        binds(args1, args2, su)
-      case (Sum(args1), Sum(args2)) =>
-        binds(args1, args2, su)
       case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
         binds(args1, args2, su)
       case _ =>
@@ -170,10 +162,6 @@ case class Param(name: Name) extends Type with Type.x {
         return this == that
       case Sort(_, args) =>
         args exists (this in _)
-      case Prod(args) =>
-        args exists (this in _)
-      case Sum(args) =>
-        args exists (this in _)
     }
   }
 
@@ -233,36 +221,6 @@ case class Sort(con: Con, args: List[Type]) extends Type {
       con.name.toString + args.mkString("[", ", ", "]")
 }
 
-case class Prod(args: List[Type]) extends Type {
-  def free = args.free
-
-  def rename(re: Map[Param, Param]) =
-    Prod(args rename re)
-
-  def subst(su: Map[Param, Type]) =
-    Prod(args subst su)
-
-  def sexpr = cuvee.undefined
-  def bexpr = cuvee.undefined
-  override def toString =
-    args.mkString("(", " * ", ")")
-}
-
-case class Sum(args: List[Type]) extends Type {
-  def free = args.free
-
-  def rename(re: Map[Param, Param]) =
-    Sum(args rename re)
-
-  def subst(su: Map[Param, Type]) =
-    Sum(args subst su)
-
-  def sexpr = cuvee.undefined
-  def bexpr = cuvee.undefined
-  override def toString =
-    args.mkString("(", " + ", ")")
-}
-
 object Sort extends ((Con, List[Type]) => Sort) {
   val bool = Sort(Con.bool, Nil)
   val int = Sort(Con.int, Nil)
@@ -273,17 +231,4 @@ object Sort extends ((Con, List[Type]) => Sort) {
 
   val array: ((Type, Type) => Type) =
     (a: Type, b: Type) => Sort(Con.array, List(a, b))
-
-  def prod(as: List[Type]) =
-    as match {
-      case List(a) => a
-      case _       => Prod(as)
-    }
-
-  def sum(as: List[Type]) =
-    as match {
-      case Nil     => error("cannot form empty sum (SMT-LIB types are inhabitated)")
-      case List(a) => a
-      case _       => Sum(as)
-    }
 }

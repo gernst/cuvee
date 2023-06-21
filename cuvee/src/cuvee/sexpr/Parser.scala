@@ -89,7 +89,7 @@ class Parser(scanner: Scanner) {
   // only one instance per parser
   object iterator extends Iterator[Expr] {
     def hasNext = {
-      peek == Tok.eof
+      peek != Tok.eof
     }
 
     def next() = {

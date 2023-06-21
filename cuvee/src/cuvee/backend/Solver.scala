@@ -5,7 +5,7 @@ import cuvee.smtlib._
 import java.io.BufferedReader
 import java.io.PrintStream
 
-trait Sink {
+trait Solver {
   // unsafe on commands that don't ack
   def ack(cmd: Cmd): Ack
 
@@ -56,31 +56,7 @@ trait Sink {
     assert(phi)
     check()
   }
-}
 
-object Sink {
-  class tee(primary: Solver, secondary: Sink*) extends Solver {
-    def ack(cmd: Cmd) = {
-      for (that <- secondary)
-        that ack cmd
-      primary ack cmd
-    }
-
-    def check() = {
-      for (that <- secondary)
-        that.check()
-      primary.check()
-    }
-
-    def model() = {
-      for (that <- secondary)
-        that.model()
-      primary.model()
-    }
-  }
-}
-
-trait Solver extends Sink {
   def isTrue(phi: Expr) =
     (phi == True) || isUnsat(!phi)
 

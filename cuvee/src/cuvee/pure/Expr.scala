@@ -120,23 +120,6 @@ object Expr extends Alpha[Expr, Var] {
       yield Var(name.withIndex(i), t)
   }
 
-  // mirror Sort.prod
-  def tuple(es: List[Expr]) = es match {
-    case List(e) => e
-    case _       => Tuple(es)
-  }
-
-  def in(k: Int, arg: Expr, res: Type) = {
-    res match {
-      case Sum(args) if 0 <= k && k < args.length =>
-        In(k, arg, res)
-      case _ if k == 0 =>
-        arg
-      case _ =>
-        error("undefined: " + k + "th injection into " + res)
-    }
-  }
-
   // code below is a broken adaption from bind(...)
   /* def unify(
       pat: Expr,
@@ -375,47 +358,6 @@ object Ge extends Sugar.binary(Fun.ge)
 
 object Forall extends Sugar.binder(Quant.forall, Sort.bool)
 object Exists extends Sugar.binder(Quant.exists, Sort.bool)
-
-case class In(k: Int, arg: Expr, typ: Type) extends Expr {
-  def funs = arg.funs
-  def free = arg.free
-  def rename(re: Map[Var, Var]) =
-    In(k, arg rename re, typ)
-  def subst(su: Map[Var, Expr]) =
-    In(k, arg subst su, typ)
-  def inst(su: Map[Param, Type]) =
-    In(k, arg inst su, typ)
-  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    In(k, arg inst (ty, su), typ subst ty)
-
-  def sexpr = cuvee.undefined
-  def bexpr = cuvee.undefined
-
-  override def toString = {
-    import cuvee.StringOps
-    ("in" __ k) + "(" + arg + ")"
-  }
-}
-
-case class Tuple(args: List[Expr]) extends Expr {
-  val typ = Prod(args.types)
-  def funs = args.funs
-  def free = args.free
-  def rename(re: Map[Var, Var]) =
-    Tuple(args rename re)
-  def subst(su: Map[Var, Expr]) =
-    Tuple(args subst su)
-  def inst(su: Map[Param, Type]) =
-    Tuple(args inst su)
-  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    Tuple(args inst (ty, su))
-
-  def sexpr = cuvee.undefined
-  def bexpr = cuvee.undefined // Not part of Boogie
-
-  override def toString =
-    args.mkString("(", ", ", ")")
-}
 
 object App extends ((Inst, List[Expr]) => App) {
   def apply(inst: Inst, args: List[Expr]): App = {

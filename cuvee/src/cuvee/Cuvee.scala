@@ -10,12 +10,33 @@ import cuvee.util.Run
 import cuvee.util.Proving
 import cuvee.util.Printer
 import cuvee.imp.Spec
+import cuvee.pipe.Stage
+
+object eval extends Stage {
+  def copy = this
+
+  def apply(cmd: Cmd): Cmd = cmd match {
+    case Assert(expr) =>
+      ???
+  }
+
+  def apply(cmds: List[Cmd]): List[Cmd] = cmds flatMap {
+    case DeclareProc(name, in, out) =>
+      Nil
+    case cmd =>
+      List(apply(cmd))
+  }
+
+  def apply(cmds: List[Cmd], check: Cmd): (List[Cmd], Cmd) = {
+    (apply(cmds), apply(check))
+  }
+}
 
 object Cuvee extends Main {
   def main(args: Array[String]) {
     val c = new Cuvee
     c.configure(args.toList)
-    c.run(c.cmds, c.state, z3(c.state, timeout=1000))
+    c.run(c.cmds, c.state, z3(c.state, timeout = 1000))
   }
 }
 
@@ -129,7 +150,6 @@ class Cuvee {
     }
   }
 
-
   def run(cmds: List[Cmd], state: State, solver: Solver) {
     // assert(cmds.nonEmpty, "No file was parsed")
 
@@ -177,7 +197,7 @@ class Cuvee {
 
       case "smt" =>
         val phi_ = Simplify.simplify(phi, safe, state.constrs)
-        if(!solver.isTrue(phi_)) {
+        if (!solver.isTrue(phi_)) {
           val cmd = Lemma(phi, None)
           for (line <- cmd.lines)
             println(line)
@@ -185,7 +205,7 @@ class Cuvee {
         } else {
           true
         }
-          
+
       case "none" =>
         val cmd = Lemma(phi, None)
         for (line <- cmd.lines)
@@ -233,7 +253,6 @@ class Cuvee {
         // Assert the lemma for later proofs, if it was successfully verified.
         if (ok) {
           solver.assert(phi)
-
 
           val add = Rules.from(phi, state.constrs)
           safe = Rewrite.safe(rules ++ add, state) groupBy (_.fun)

@@ -5,7 +5,6 @@ import java.io.PrintStream
 import cuvee.pure.Expr
 import cuvee.util.Tool
 import cuvee.backend.Solver
-import cuvee.backend.Sink
 import java.io.BufferedReader
 import cuvee.sexpr.Printer
 
@@ -46,32 +45,7 @@ package object smtlib {
       "--increment-triggers"
     )
 
-  def echo(st: State) = new solver(st, "echo", "unsat")
-
   val PrintSuccess = SetOption("print-success", "true")
-
-  object stdout extends print(System.out)
-  object stderr extends print(System.err)
-
-  class print(out: PrintStream) extends Sink {
-    def ack(cmd: Cmd) = {
-      for (line <- cmd.lines)
-        out println line
-      Success
-    }
-
-    def check() = {
-      for (line <- CheckSat.lines)
-        out println line
-      Unknown
-    }
-
-    def model() = {
-      for (line <- GetModel.lines)
-        out println line
-      Model(Nil)
-    }
-  }
 
   object solver {
     var debug = false

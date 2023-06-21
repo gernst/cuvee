@@ -7,7 +7,6 @@ import cuvee.sexpr
 import java.io.FileReader
 import cuvee.util.Run
 import java.io.StringReader
-import cuvee.backend.Sink
 
 object Test extends Main {
   def foo(args: Array[String]) {
