@@ -6,6 +6,7 @@ import cuvee.backend.Solver
 import cuvee.smtlib._
 import cuvee.util.Tool
 import cuvee.util.Name
+import cuvee.backend.InductiveProver
 
 class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
   var useAdtInd = false
@@ -499,6 +500,67 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
         case _ =>
           println("skipping: " + first)
       }
+    }
+  }
+
+  def findNeutral(funs: Iterable[Fun]) {
+    for (f <- funs) (f.args, f.res) match {
+      case (List(left, right), res @ Sort(Con(name, _), _)) if st.datatypes contains name =>
+        val dt = st datatypes name
+
+        def holds(phi: Expr, x: Var) = x.typ match {
+          case Sort(Con(name, _), _) if st.datatypes contains name =>
+            val dt = st datatypes name
+            val ind = InductiveProver.induction(phi, x, dt)
+            var a = solver.isTrue(phi)
+            val b = solver.isTrue(ind)
+            if(!a && b) {
+              val Forall(xs, Eq(lhs, rhs)) = phi
+              addLemma("neutral", lhs, rhs)
+            }
+            val ok = a || b
+            // println("trying " + phi + " with induction: " + ok)
+            ok
+
+          case _ =>
+            val ok = solver.isTrue(phi)
+            // println("trying " + phi + ": " + ok)
+            ok
+        }
+
+        val base =
+          for ((c, Nil) <- dt.constrs)
+            yield App(c, res)
+
+        if (left == res && right == res) {
+          val x = Var("x", right)
+
+          for (c <- base) {
+            val lhs = App(f, List(c, x))
+            val rhs = x
+            val eq = Forall(List(x), Eq(lhs, rhs))
+
+            if (holds(eq, x)) {
+              maybeAddNeutral(Rule(lhs, rhs))
+            }
+          }
+        }
+
+        if (left == res && right == res) {
+          val x = Var("x", left)
+
+          for (c <- base) {
+            val lhs = App(f, List(x, c))
+            val rhs = x
+            val eq = Forall(List(x), Eq(lhs, rhs))
+
+            if (holds(eq, x)) {
+              maybeAddNeutral(Rule(lhs, rhs))
+            }
+          }
+        }
+
+      case _ =>
     }
   }
 

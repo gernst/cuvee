@@ -64,8 +64,9 @@ object Test extends Main {
         val solver = cuvee.smtlib.z3(st, 100)
 
         for (cmd <- cmds) cmd match {
-          case SetLogic(_) =>
-          case Lemma(_, _) =>
+          case SetLogic(_)      =>
+          case Lemma(_, _)      =>
+          case Assert(Not(phi)) =>
           case _ =>
             solver.exec(cmd)
         }
@@ -85,6 +86,8 @@ object Test extends Main {
           lemmas.addLemma("provided", lhs, rhs, cond)
           // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
         }
+
+        lemmas.findNeutral(defs map (_.fun))
 
         for (df <- defs) {
           lemmas.define(df)
@@ -111,6 +114,7 @@ object Test extends Main {
         case e: cuvee.smtlib.Error =>
           println(e.info)
         case e: Exception =>
+          e.printStackTrace()
           println(e)
       }
     }
