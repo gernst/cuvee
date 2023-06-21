@@ -212,15 +212,15 @@ object Parser {
       DefineFun(name, params, args, typ, body, body.funs exists (_.name == name))
   }
 
-  val define_proc: ((Name, ((List[Var], List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
-    case (name, ((in, out), (spec, None))) =>
+  val define_proc: ((Name ~ List[Param], ((List[Var], List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
+    case (name ~ params, ((in, out), (spec, None))) =>
       state.proc(name, Nil, in, out, spec)
-      DeclareProc(name, in.types, out.types)
+      DeclareProc(name, Nil, in, out, spec)
 
-    case (name, ((in, out), (spec, Some(body)))) =>
+    case (name ~ params, ((in, out), (spec, Some(body)))) =>
       state.proc(name, Nil, in, out, spec)
       state.procdef(name, in, out, body)
-      DefineProc(name, in, out, spec, body)
+      DefineProc(name, Nil, in, out, spec, body)
   }
 
   def make_constr: ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {

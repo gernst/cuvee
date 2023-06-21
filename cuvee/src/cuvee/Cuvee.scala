@@ -21,7 +21,7 @@ object eval extends Stage {
   }
 
   def apply(cmds: List[Cmd]): List[Cmd] = cmds flatMap {
-    case DeclareProc(name, in, out) =>
+    case DeclareProc(name, params, in, out, spec) =>
       Nil
     case cmd =>
       List(apply(cmd))
@@ -216,9 +216,9 @@ class Cuvee {
     }
 
     def exec(cmd: Cmd) = cmd match {
-      case DeclareProc(name, in, out) =>
+      case DeclareProc(name, params, in, out, spec) =>
 
-      case DefineProc(name, in, out, spec, body) =>
+      case DefineProc(name, params, in, out, spec, body) =>
         val (ys, pre, post) = spec match {
           case None                      => (Nil, True, True)
           case Some(Spec(xs, pre, post)) => (xs, pre, post)

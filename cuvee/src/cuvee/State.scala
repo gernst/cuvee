@@ -3,6 +3,7 @@ package cuvee
 import cuvee.util.Name
 import cuvee.pure._
 import cuvee.imp._
+import cuvee.smtlib.Cmd
 
 object State {
   def empty =
@@ -69,6 +70,43 @@ object State {
     st.fun(">=", Nil, List(Int, Int), Bool)
     st.fun("<", Nil, List(Int, Int), Bool)
     st.fun(">", Nil, List(Int, Int), Bool)
+
+    st
+  }
+
+  // contruct state from scatch, given a list of commands
+  def apply(cmds: List[Cmd]): State = {
+    import cuvee.smtlib._
+
+    val st = default
+
+    cmds foreach {
+      case DeclareSort(name, arity) =>
+        st.con(name, arity)
+      case DefineSort(name, params, body) =>
+        st.con(name, params.length)
+        st.condef(name, params, body)
+
+      case DeclareFun(name, params, args, res) =>
+        st.fun(name, params, args, res)
+      case DefineFun(name, params, formals, res, body, rec) =>
+        st.fun(name, params, formals.types, res)
+        st.fundef(name, formals, body)
+
+      case DeclareDatatypes(arities, dts) =>
+        for ((name, arity) <- arities)
+          st.con(name, arity)
+        for (((name, _), dt) <- arities zip dts)
+          st.datatype(name, dt)
+
+      case DeclareProc(name, params, in, out, spec) =>
+        st.proc(name, params, in, out, spec)
+      case DefineProc(name, params, in, out, spec, body) =>
+        st.proc(name, params, in, out, spec)
+        st.procdef(name, in, out, body)
+
+      case _ =>
+    }
 
     st
   }
@@ -145,12 +183,12 @@ class State(
     fun
   }
 
-  def fundef(name: Name, args: List[Var], body: Expr): Unit = {
-    val arity = args.length
+  def fundef(name: Name, formals: List[Var], body: Expr): Unit = {
+    val arity = formals.length
     require(funs contains (name, arity), "function not declared: " + name)
     if (fundefs contains (name, arity))
-      require(fundefs(name, arity) == (args, body), "function already defined")
-    fundefs += ((name, arity) -> (args, body))
+      require(fundefs(name, arity) == (formals, body), "function already defined")
+    fundefs += ((name, arity) -> (formals, body))
   }
 
   def proc(

@@ -272,10 +272,15 @@ object Grammar {
   //   P(define_fun("function" ~ name ~ parens(formals) ~ ":" ~ typ ~@ rhs))
   // }
 
-  val procdef = {
-    import toplevel.ctx
-    P(define_proc("procedure" ~ name ~ proc))
-  }
+  def gen_proc[A] =
+    (from: (Name ~ List[Param])) => {
+      val (name ~ params) = from
+      implicit val ctx = Map(params.asContext: _*)
+      proc(ctx)
+    }
+
+  val procdef =
+    P(define_proc("procedure" ~ name ~ gens ~@ gen_proc))
 
   def sortdef(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(define_sort("type" ~ name ~ gens ~ ("=" ~ typ).? ~ ";"))

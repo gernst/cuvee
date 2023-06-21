@@ -36,15 +36,14 @@ case class Model(defs: List[DefineFun]) extends Res {
   def sexpr = "model" :: defs
 
   def rename(re: Map[Var, Var]): Model = {
-    val defs_ = defs map {
-      case DefineFun(name, params, formals, res, body, rec) =>
-        val name_ = re get(Var(name, res)) map (_.name) getOrElse name
-        DefineFun(name_, params, formals rename re, res, body rename re, rec)
+    val defs_ = defs map { case DefineFun(name, params, formals, res, body, rec) =>
+      val name_ = re get (Var(name, res)) map (_.name) getOrElse name
+      DefineFun(name_, params, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
 
-  override def toString() : String = {
+  override def toString(): String = {
     var result = defs map (d => d.name + " = " + d.body.toString)
     result.mkString("model (", ", ", ")")
   }
@@ -139,8 +138,8 @@ case class DeclareSort(name: Name, arity: Int) extends Decl {
   def sexpr = List("declare-sort", name, arity)
   def bexpr = List("type", " ", name, ";")
 }
-case class DefineSort(name: Name, args: List[Param], body: Type) extends Decl {
-  def sexpr = List("define-sort", name, args, body)
+case class DefineSort(name: Name, params: List[Param], body: Type) extends Decl {
+  def sexpr = List("define-sort", name, params, body)
   def bexpr = cuvee.undefined // TODO: Is this right?
 }
 
@@ -152,7 +151,7 @@ case class DeclareFun(name: Name, params: List[Param], args: List[Type], res: Ty
 
 case class DefineFun(
     name: Name,
-    params: List[Param], 
+    params: List[Param],
     formals: List[Var],
     res: Type,
     body: Expr,
@@ -184,23 +183,25 @@ case class DefineFun(
   )
 }
 
-case class DeclareDatatypes(arities: List[(Name, Int)], cmds: List[Datatype]) extends Decl {
-  def sexpr = List("declare-datatypes", arities, cmds)
+case class DeclareDatatypes(arities: List[(Name, Int)], datatypes: List[Datatype]) extends Decl {
+  def sexpr = List("declare-datatypes", arities, datatypes)
   def bexpr = List(
     "/* ",
     "declare-datatypes",
     " arities: ",
     arities,
     ", commands: ",
-    cmds,
+    datatypes,
     "*/"
   ) // What should we do here?
 }
 
 case class DeclareProc(
     name: Name,
-    in: List[Type],
-    out: List[Type]
+    params: List[Param],
+    in: List[Var],
+    out: List[Var],
+    spec: Option[Spec],
 ) extends Decl {
   def sexpr = cuvee.undefined
   def bexpr = cuvee.undefined
@@ -208,6 +209,7 @@ case class DeclareProc(
 
 case class DefineProc(
     name: Name,
+    params: List[Param],
     in: List[Var],
     out: List[Var],
     spec: Option[Spec],
