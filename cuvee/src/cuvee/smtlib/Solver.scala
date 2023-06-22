@@ -12,47 +12,37 @@ import cuvee.pipe.Source
 import java.io.Reader
 import cuvee.pure.True
 import cuvee.pipe.Sink
-import cuvee.pipe.Stateful
 
 trait Solver extends Sink {
   // unsafe on commands that don't ack
   def ack(cmd: Cmd): Ack
 
   def check(): IsSat
-  def model(): Model
+  def model(state: State): Model
 
-  def exec(cmd: Cmd): Res =
+  def exec(cmd: Cmd, state: State): Res =
     cmd match {
-      case cmd: Ctrl =>
-        control(cmd)
-      case cmd: Decl =>
-        declare(cmd)
-      case assert: Assert =>
-        ack(assert)
       case CheckSat =>
         check()
       case GetModel =>
-        model()
+        model(state)
+      case cmd =>
+        ack(cmd)
     }
-
-  def control(cmd: Ctrl) =
-    ack(cmd)
-
-  def declare(cmd: Decl) =
-    ack(cmd)
 
   def assert(expr: Expr) =
     ack(Assert(expr))
 
   def assert(exprs: List[Expr]): Any = {
-    for (expr <- exprs) assert(expr)
+    for (expr <- exprs)
+      assert(expr)
   }
 
   def push() =
-    control(Push(1))
+    ack(Push(1))
 
   def pop() =
-    control(Pop(1))
+    ack(Pop(1))
 
   def scoped[A](f: => A) = try {
     push()
@@ -99,9 +89,9 @@ object Solver {
   object dummy extends Solver {
     def ack(cmd: Cmd) = Success
     def check() = Unknown
-    def model() = cuvee.error("no model")
+    def model(state: State) = cuvee.error("no model")
   }
-  
+
   def z3(timeout: Int = 1000) =
     new solver("z3", "-t:" + timeout, "-in")
 
@@ -113,7 +103,7 @@ object Solver {
       "--incremental",
       "--increment-triggers"
     )
-    
+
   def cvc5(timeout: Int = 1000) =
     new solver(
       "cvc5",
@@ -125,14 +115,13 @@ object Solver {
 
   val PrintSuccess = SetOption("print-success", "true")
 
-  class solver(cmd: String*) extends Solver with Stateful {
+  class solver(cmd: String*) extends Solver {
     val (out, in, err, proc) = Tool.pipe(cmd: _*)
 
-    val parser = new Parser(state)
     val res = cuvee.sexpr.iterator(in)
 
-    require(control(PrintSuccess) == Success)
-    
+    require(ack(PrintSuccess) == Success)
+
     def destroy() {
       proc.destroy()
     }
@@ -140,7 +129,7 @@ object Solver {
     def write(cmd: Cmd) {
       for (line <- cmd.lines) {
         out.println(line)
-        if(debug)
+        if (debug)
           println("> " + line)
       }
       out.flush()
@@ -148,23 +137,24 @@ object Solver {
 
     def read() = {
       val line = res.next()
-      if(debug)
+      if (debug)
         println("< " + line)
       line
     }
 
     def ack(cmd: Cmd): Ack = {
       write(cmd)
-      parser.ack(read())
+      Parser.ack(read())
     }
 
     def check(): IsSat = {
       write(CheckSat)
-      parser.issat(read())
+      Parser.issat(read())
     }
 
-    def model(): Model = {
+    def model(state: State): Model = {
       write(GetModel)
+      val parser = new Parser(state)
       Model(parser.model(read()))
     }
   }

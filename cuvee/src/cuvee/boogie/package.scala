@@ -24,7 +24,7 @@ package object boogie {
 
   def parse(file: String): (List[Cmd], State) = {
     val in = scan(file)
-    
+
     implicit val ctx: Map[Name, Param] = Map()
     implicit val scope: Map[Name, Var] = Map()
     Grammar.script.parseAll(in)
@@ -39,8 +39,12 @@ package object boogie {
       cuvee.boogie.Grammar.cmd.iterator(in)
     }
 
-    def hasNext: Boolean = from.hasNext
-    def next(): Cmd = from.next()
+    def hasNext = from.hasNext
+    def next() = {
+      val cmd = from.next()
+      val state = cuvee.boogie.Parser.state
+      (cmd, state)
+    }
   }
 
   class ScannerIterator(scanner: boogie.Scanner) extends Iterator[Token] {
@@ -70,7 +74,7 @@ package object boogie {
       token != None
     }
   }
-  
+
   /** The default printer to use: Prints s-expressions */
   implicit val printer: cuvee.util.Printer = Printer
 }

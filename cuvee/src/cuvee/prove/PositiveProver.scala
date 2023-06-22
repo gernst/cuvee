@@ -3,6 +3,7 @@ package cuvee.prove
 import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 import cuvee.smtlib._
+import cuvee.State
 
 /** This class
   *
@@ -10,13 +11,13 @@ import cuvee.smtlib._
   *   SMT solver to use to check expressions
   */
 class PositiveProver(solver: Solver) extends Prover {
-  def reduce(prop: Prop): Prop = prop match {
-    case atom: Atom => prove(atom)
-    case neg: Neg   => prove(neg)
-    case pos: Pos   => prove(pos)
+  def reduce(prop: Prop, state: State): Prop = prop match {
+    case atom: Atom => prove(atom, state)
+    case neg: Neg   => prove(neg, state)
+    case pos: Pos   => prove(pos, state)
   }
 
-  def prove(atom: Atom): Atom = atom match {
+  def prove(atom: Atom, state: State): Atom = atom match {
     case Atom(phi, _) =>
       solver scoped {
         solver.assert(!phi)
@@ -24,7 +25,7 @@ class PositiveProver(solver: Solver) extends Prover {
 
         status match {
           case Sat =>
-            Atom(phi, Some(solver.model))
+            Atom(phi, Some(solver.model(state)))
           case Unsat =>
             Atom(True)
           case Unknown =>
@@ -33,22 +34,22 @@ class PositiveProver(solver: Solver) extends Prover {
       }
   }
 
-  def prove(pos: Pos): Pos = pos match {
+  def prove(pos: Pos, state: State): Pos = pos match {
     case atom: Atom =>
-      prove(atom)
+      prove(atom, state)
 
     case Conj(Nil, neg) =>
-      val neg_ = conj(neg)
+      val neg_ = conj(neg, state)
       Simplify.conj_(Nil, neg_)
 
     case conj: Conj =>
       val asAtom = Atom(conj.toExpr)
-      Conj.from(prove(asAtom).toExpr)
+      Conj.from(prove(asAtom, state).toExpr)
   }
 
-  def prove(neg: Neg): Neg = neg match {
+  def prove(neg: Neg, state: State): Neg = neg match {
     case atom: Atom =>
-      prove(atom)
+      prove(atom, state)
 
     // forall xs. /\ {ant} ==> \/ {suc}
     case Disj(xs, neg, pos) =>
@@ -65,7 +66,7 @@ class PositiveProver(solver: Solver) extends Prover {
 
         // Declare the variables from the forall-quantifier
         for (x <- xs_)
-          solver.declare(DeclareFun(x.sexpr, Nil, Nil, x.typ))
+          solver.ack(DeclareFun(x.sexpr, Nil, Nil, x.typ))
 
         for (phi <- neg_)
           solver.assert(phi.toExpr)
@@ -79,46 +80,46 @@ class PositiveProver(solver: Solver) extends Prover {
         } else {
           // Otherwise: Attempt to prove one formula of the succedent,
           // will succeed anyway if the assumptions are already inconsistent
-          val pos__ = disj(pos_)
+          val pos__ = disj(pos_, state)
           // undo the renaming
           Simplify.disj_(xs, neg_ map (_ rename re_), pos__ map (_ rename re_))
         }
       }
   }
 
-  def disj(suc: List[Pos]): List[Pos] = suc match {
+  def disj(suc: List[Pos], state: State): List[Pos] = suc match {
     case Nil =>
       Nil
 
     case first :: rest =>
-      prove(first) match {
+      prove(first, state) match {
         case first_ @ Atom(False, _) =>
-          disj(rest)
+          disj(rest, state)
 
         case first_ =>
           solver.scoped {
             // justification: A \/ B  <==>  (A \/ (!A ==> B))
             solver.assert(!first_.toExpr)
-            first_ :: disj(rest)
+            first_ :: disj(rest, state)
           }
       }
   }
 
-  def conj(ant: List[Neg]): List[Neg] = ant match {
+  def conj(ant: List[Neg], state: State): List[Neg] = ant match {
     case Nil =>
       Nil
 
     case first :: rest =>
-      prove(first) match {
+      prove(first, state) match {
         case first_ @ Atom(True, _) =>
-          conj(rest)
+          conj(rest, state)
 
         case first_ =>
           // TODO: check if we need to scope this
           solver.scoped {
             // justification: A /\ B  <==>  (A /\ (A ==> B))
             solver.assert(first_.toExpr)
-            first_ :: conj(rest)
+            first_ :: conj(rest, state)
           }
       }
   }

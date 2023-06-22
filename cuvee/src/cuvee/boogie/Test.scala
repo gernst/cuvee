@@ -24,7 +24,7 @@ object Test extends Main {
 
     for (cmd ← cmds) {
       cmd match {
-        case decl: Decl => slv.declare(decl)
+        case decl: Decl => slv.ack(decl)
         case Assert(Not(phi)) => {
           println("proving: " + phi)
           println("---------------  lines  ---------------")
@@ -36,7 +36,7 @@ object Test extends Main {
           println("---------------  prove  ---------------")
           val disj = Disj.from(phi);
           println(disj)
-          val disj_ = prover.prove(disj)
+          val disj_ = prover.prove(disj, null)
           println(disj_)
           println(disj_.toExpr)
           // println("-------------  disprove  --------------")

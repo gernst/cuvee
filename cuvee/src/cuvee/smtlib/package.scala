@@ -30,7 +30,11 @@ package object smtlib {
     val parser = new cuvee.smtlib.Parser(init)
 
     def hasNext = from.hasNext
-    def next() = parser.cmd(from.next())
+
+    def next() = { 
+      val cmd = parser.cmd(from.next)
+      (cmd, parser.st)
+    }
   }
 
   /** The default printer to use: Prints s-expressions */

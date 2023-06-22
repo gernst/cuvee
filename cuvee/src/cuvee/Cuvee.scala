@@ -1,6 +1,5 @@
 package cuvee
 
-import cuvee.backend._
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.imp.Eval
@@ -133,7 +132,7 @@ class Cuvee {
   def run(cmds: List[Cmd], state: State, solver: Solver) {
     // assert(cmds.nonEmpty, "No file was parsed")
 
-    solver.exec(SetOption("produce-models", true))
+    solver.ack(SetOption("produce-models", true))
 
     val rules = Rewrite.from(cmds, state)
     var safe = Rewrite.safe(rules, state) groupBy (_.fun)
@@ -222,7 +221,7 @@ class Cuvee {
         }
 
       case decl: Decl =>
-        solver.declare(decl)
+        solver.ack(decl)
 
       case Assert(phi) =>
         solver.assert(phi)

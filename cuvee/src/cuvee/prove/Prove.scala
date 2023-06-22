@@ -8,55 +8,56 @@ import cuvee.smtlib.Lemma
 import cuvee.pure._
 import cuvee.sub
 
-class Prove(state: State = State.default, prover: Prover) extends Stage {
-  def copy() = new Prove(state.copy(), prover)
+class Prove(prover: Prover) extends Stage {
+  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+    val cmds_ = cmds flatMap {
+      case Lemma(expr, tactic, assert) =>
+        val goal = Disj.from(expr)
+        for (goal_ <- reduce(goal, tactic, state))
+          yield Lemma(goal_.toExpr, None, assert)
 
-  def apply(prefix: List[Cmd], cmds: List[Cmd]): List[Cmd] = cmds map {
-    case Lemma(expr, tactic, assert) =>
-      val goal = Disj.from(expr)
-      val goal_ = reduce(goal, tactic)
-      val expr_ = goal_.toExpr
-      Lemma(expr_, None, assert)
+      case cmd =>
+        List(cmd)
+    }
 
-    case cmd =>
-      cmd
+    (cmds_, Some(state))
   }
 
   def auto(goal: Prop) = {
-    prover.reduce(goal)
+    prover.reduce(goal, null)
   }
 
-  def reduce(goal: Prop, tactic: Option[Tactic]): Prop = tactic match {
+  def reduce(goal: Prop, tactic: Option[Tactic], state: State): List[Prop] = tactic match {
     case None =>
-      auto(goal)
+      List(auto(goal))
 
     case Some(tactic) =>
-      reduce(goal, tactic)
+      reduce(goal, tactic, state)
   }
 
-  def reduce(goal: Prop, tactic: Tactic): Prop = tactic match {
+  def reduce(goal: Prop, tactic: Tactic, state: State): List[Prop] = tactic match {
     case NoAuto(tactic) =>
-      noauto(goal, tactic)
+      noauto(goal, tactic, state)
 
     case Auto =>
-      auto(goal)
+      List(auto(goal))
 
     case _ =>
-      noauto(auto(goal), tactic)
+      noauto(auto(goal), tactic, state)
   }
 
-  def noauto(goal: Prop, tactic: Tactic): Prop = tactic match {
+  def noauto(goal: Prop, tactic: Tactic, state: State): List[Prop] = tactic match {
     case NoAuto(tactic) =>
-      noauto(goal, tactic) // yeah, you can write noauto twice
+      noauto(goal, tactic, state) // yeah, you can write noauto twice
 
     case Auto =>
       ??? // should never happen
 
     case _ =>
-      val goals_ =
-        for ((subgoal, subtactic) <- tactic.apply(state, goal))
-          yield reduce(subgoal, subtactic)
-
-      Conj.show(goals_, Nil, Nil)
+      for (
+        (subgoal, subtactic) <- tactic.apply(state, goal);
+        goal_ <- reduce(subgoal, subtactic, state)
+      )
+        yield goal_
   }
 }

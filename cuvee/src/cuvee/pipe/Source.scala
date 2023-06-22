@@ -9,7 +9,8 @@ import cuvee.pure.Var
 import java.io.FileReader
 import java.io.InputStreamReader
 
-trait Source extends Iterator[Cmd] {
+// the returned state is *after* considering the returned command
+trait Source extends Iterator[(Cmd, State)] {
   def hasNext: Boolean
-  def next(): Cmd
+  def next(): (Cmd, State)
 }

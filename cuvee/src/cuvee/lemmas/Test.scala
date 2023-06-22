@@ -68,7 +68,7 @@ object Test extends Main {
           case _: Lemma      =>
           case Assert(Not(phi)) =>
           case _ =>
-            solver.exec(cmd)
+            solver.ack(cmd)
         }
 
         val goals =
@@ -108,7 +108,7 @@ object Test extends Main {
           lemmas.next()
         }
 
-        solver.exec(Exit)
+        solver.ack(Exit)
         solver.destroy()
       } catch {
         case e: cuvee.smtlib.Error =>

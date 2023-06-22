@@ -31,7 +31,7 @@ object Test extends Main {
     )
 
     for (cmd <- cmds) {
-      val res = solver.exec(cmd)
+      val res = solver.exec(cmd, st)
       println(res)
     }
   }

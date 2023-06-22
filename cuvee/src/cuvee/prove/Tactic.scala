@@ -374,7 +374,7 @@ case class Unfold(
     val result = apply(state, goal)
     // We know that the applying the tactic yields exactly one subgoal (see above)
     val new_goal = result.head._1
-    val goal_p = prover.reduce(new_goal)
+    val goal_p = prover.reduce(new_goal, null)
 
     val diff = Rating.size(new_goal)(state) - Rating.size(goal_p)(state)
 

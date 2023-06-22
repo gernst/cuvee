@@ -2,17 +2,18 @@ package cuvee.prove
 
 import cuvee.pure._
 import cuvee.smtlib._
+import cuvee.State
 
 class ReductionProver(solver: Solver) extends Prover {
-  def reduce(prop: Prop): Prop = reduce(prop, true);
+  def reduce(prop: Prop, state: State): Prop = reduce(prop, true, state);
 
-  def reduce(prop: Prop, expect: Boolean): Prop = prop match {
-    case atom: Atom => reduce(atom, expect)
-    case neg: Neg   => reduce(neg, expect)
-    case pos: Pos   => reduce(pos, expect)
+  def reduce(prop: Prop, expect: Boolean, state: State): Prop = prop match {
+    case atom: Atom => reduce(atom, expect, state)
+    case neg: Neg   => reduce(neg, expect, state)
+    case pos: Pos   => reduce(pos, expect, state)
   }
 
-  def reduce(atom: Atom, expect: Boolean): Atom = {
+  def reduce(atom: Atom, expect: Boolean, state: State): Atom = {
     atom match {
       // Shortcut, if formula is already true / false
       case Atom.t if expect => Atom.t
@@ -25,7 +26,7 @@ class ReductionProver(solver: Solver) extends Prover {
 
           solver.check() match {
             case Sat =>
-              Atom(phi, Some(solver.model()))
+              Atom(phi, Some(solver.model(state)))
             case Unsat => Atom.t
             case Unknown => atom
           }
@@ -38,7 +39,7 @@ class ReductionProver(solver: Solver) extends Prover {
 
           solver.check() match {
             case Sat =>
-              Atom(phi, Some(solver.model()))
+              Atom(phi, Some(solver.model(state)))
             case Unsat => Atom.f
             case Unknown => atom
           }
@@ -76,7 +77,7 @@ class ReductionProver(solver: Solver) extends Prover {
 
         // Declare the variables from the exists-quantifier
         for (x <- xs_)
-          solver.declare(DeclareFun(x.sexpr, Nil, Nil, x.typ))
+          solver.ack(DeclareFun(x.sexpr, Nil, Nil, x.typ))
 
         // Filter out redundant elements
         val neg__ = conj(neg_, expect)
@@ -119,7 +120,7 @@ class ReductionProver(solver: Solver) extends Prover {
 
         // Declare the variables from the forall-quantifier
         for (x <- xs_)
-          solver.declare(DeclareFun(x.sexpr, Nil, Nil, x.typ))
+          solver.ack(DeclareFun(x.sexpr, Nil, Nil, x.typ))
 
         // Filter out redundant assumptions, always expect true
         val neg__ = neg_ // conj(neg_, expect)

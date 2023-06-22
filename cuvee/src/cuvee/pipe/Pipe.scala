@@ -6,8 +6,8 @@ import cuvee.State
 
 object Pipe {
   def run(source: Source, sink: Sink, report: Report) {
-    for (cmd <- source) {
-      report { sink(cmd) }
+    for ((cmd, state) <- source) {
+      report { sink(cmd, state) }
     }
   }
 }
@@ -20,12 +20,20 @@ object Pipe {
 // as long as copy produces an independent copy.
 
 trait Stage {
-  def copy(): Stage
+  // need to override for stateful components
+  def copy(): Stage = this
 
   // executed with every check-sat/lemma command
   // returns the potentially modified script + an optional check command that
   // is then finally suggested to the backend sink
-  def apply(prefix: List[Cmd], cmds: List[Cmd]): List[Cmd]
+
+  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], Option[State])
+
+  def apply(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], State) = {
+    val (cmds_, state_) = transform(prefix, cmds, state)
+    val state__ = state_.getOrElse { state.added(cmds_) }
+    (cmds_, state__)
+  }
 }
 
 class Incremental(stage: Stage, sink: Sink) extends Sink {
@@ -44,32 +52,32 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
     add
   }
 
-  def exec(cmd: Cmd) = cmd match {
+  def exec(cmd: Cmd, state: State) = cmd match {
     case Push(n) =>
       val add = List.tabulate(n) { _ => stack.head.copy }
       stack = add ++ stack
-      sink(cmd)
+      sink(cmd, state)
 
     case Pop(n) =>
       stack = stack drop n
-      sink(cmd)
+      sink(cmd, state)
 
     // check-sat simply flushes
     case CheckSat =>
-      val cmds = stage(top.prefix, flush())
-      for (cmd <- cmds) sink(cmd)
-      sink(cmd)
+      val (cmds, state_) = stage(top.prefix, flush(), state)
+      for (cmd <- cmds) sink(cmd, state_)
+      sink(cmd, state_)
 
     case Lemma(expr, tactic, assert) =>
       pending = cmd :: pending
-      val cmds = stage(top.prefix, flush())
-      for (cmd <- cmds) sink(cmd)
+      val (cmds, state_) = stage(top.prefix, flush(), state)
+      for (cmd <- cmds) sink(cmd, state_)
       Success
 
     case GetModel =>
       // assume here that the model is provided always by the backend,
       // perhaps we can find some more flexible option in the future.
-      sink(cmd)
+      sink(cmd, state)
 
     case _ =>
       pending = cmd :: pending

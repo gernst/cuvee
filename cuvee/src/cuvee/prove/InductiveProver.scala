@@ -25,7 +25,7 @@ object InductiveProver {
     val solver = Solver.z3()
 
     for (cmd <- prelude)
-      solver.exec(cmd)
+      solver.ack(cmd)
 
     // println("   " + goal)
     val result = solver.check(Not(goal))
@@ -44,7 +44,7 @@ object InductiveProver {
 
     try {
       for (cmd <- prelude) {
-        solver.exec(cmd)
+        solver.ack(cmd)
       }
 
       proveWithInduction(solver, goal, datatypes)

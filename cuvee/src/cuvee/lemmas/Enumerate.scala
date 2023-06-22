@@ -93,7 +93,7 @@ object Enumerate extends Main {
     val solver = Solver.z3(timeout = 100)
 
     for (cmd <- cmds)
-      solver.exec(cmd)
+      solver.ack(cmd)
 
     val all = cmds collect {
       case DeclareFun(name, params, args, res) =>

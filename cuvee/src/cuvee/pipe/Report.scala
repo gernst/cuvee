@@ -15,7 +15,8 @@ trait Report {
       report(e)
 
     case e: Exception =>
-      report(new Error(List("internal error", e.getMessage())))
+      // report(new Error(List("internal error", e.getMessage())))
+      e.printStackTrace()
   }
 }
 

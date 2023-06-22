@@ -12,17 +12,7 @@ import cuvee.util.Name
 import cuvee.sexpr._
 import cuvee.pure.LetEq
 
-class Parser(init: State) {
-  // import st._
-  var stack = List(init)
-  def st = stack.head
-
-  val int = st.sort("Int")
-  val bool = st.sort("Bool")
-  val real = st.sort("Real")
-
-  val ctx0: Set[Name] = Set()
-
+object Parser {
   def ack(from: Expr): Ack =
     from match {
       case Id("success") =>
@@ -43,6 +33,18 @@ class Parser(init: State) {
       case _ =>
         error("invalid status: " + from)
     }
+}
+
+class Parser(init: State) {
+  // import st._
+  var stack = List(init)
+  def st = stack.head
+
+  val int = st.sort("Int")
+  val bool = st.sort("Bool")
+  val real = st.sort("Real")
+
+  val ctx0: Set[Name] = Set()
 
   def cmd(from: Expr): Cmd = cuvee.trace("bad command: " + from) {
     from match {

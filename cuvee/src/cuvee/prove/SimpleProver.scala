@@ -2,9 +2,10 @@ package cuvee.prove
 
 import cuvee.pure._
 import cuvee.smtlib._
+import cuvee.State
 
 class SimpleProver(solver: Solver) extends Prover {
-  def reduce(prop: Prop): Prop = {
+  def reduce(prop: Prop, state: State): Prop = {
     val expr = prop.toExpr
     Disj.from(reduce(expr))
   }
@@ -30,7 +31,7 @@ class SimpleProver(solver: Solver) extends Prover {
 
         for (Var(name, typ) <- xs_) {
           val cmd = DeclareFun(name, Nil, Nil, typ)
-          solver.declare(cmd)
+          solver.ack(cmd)
         }
 
         val body__ = reduce(body_)

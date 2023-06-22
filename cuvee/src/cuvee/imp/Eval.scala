@@ -6,62 +6,49 @@ import cuvee.State
 import cuvee.pipe.Stage
 import cuvee.smtlib._
 
-object Eval {
-  var infer: Set[String] = Set()
+object Eval extends Stage {
+  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+    val eval = new Eval(state)
+
+    val cmds_ = cmds flatMap {
+      case Assert(expr) =>
+        List(Assert(eval.eval(expr)))
+
+      case Lemma(expr, tactic, assert) =>
+        List(Lemma(eval.eval(expr), tactic, assert))
+
+      case DefineFun(name, params, formals, res, body, rec) =>
+        val scope = Expr.id(formals)
+        List(DefineFun(name, params, formals, res, eval.eval(body, scope), rec))
+
+      case DeclareProc(name, params, in, out, spec) =>
+        Nil
+
+      case DefineProc(name, params, in, out, Nil, body) =>
+        Nil
+
+      case DefineProc(name, params, in, out, Some(Spec(globals, pre, post)), body) =>
+        val su = Expr.subst(in, Old(in))
+        val xs = in ++ out ++ globals
+        val post_ = post subst su
+
+        val scope = Map()
+        val st = Expr.id(xs)
+        val old = List(st)
+
+        val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
+        List(Lemma(phi, None, false))
+
+      case cmd =>
+        List(cmd)
+    }
+
+    // we modify the signature by removing procedures
+    (cmds_, None)
+  }
 }
 
-class Eval(state: State = State.default) extends Stage {
-  import Eval.infer
-
-  def copy() = new Eval(state.copy())
-
-  def apply(prefix: List[Cmd], cmds: List[Cmd]): List[Cmd] = cmds flatMap {
-    case Assert(expr) =>
-      List(Assert(eval(expr)))
-
-    case Lemma(expr, tactic, assert) =>
-      List(Lemma(eval(expr), tactic, assert))
-
-    case DefineFun(name, params, formals, res, body, rec) =>
-      val scope = Expr.id(formals)
-      List(DefineFun(name, params, formals, res, eval(body, scope), rec))
-
-    case DeclareProc(name, params, in, out, spec) =>
-      Nil
-
-    case DefineProc(name, params, in, out, Nil, body) =>
-      Nil
-
-    case DefineProc(name, params, in, out, Some(Spec(globals, pre, post)), body) =>
-      val su = Expr.subst(in, Old(in))
-      val xs = in ++ out ++ globals
-      val post_ = post subst su
-
-      val scope = Map()
-      val st = Expr.id(xs)
-      val old = List(st)
-
-      val phi = Forall(xs, pre ==> wp_proc(WP, body, st, post_))
-      List(Lemma(phi, None, false))
-
-    case cmd =>
-      List(cmd)
-  }
-
-  def apply(cmd: Cmd): Cmd = cmd match {
-    case Assert(expr) =>
-      val expr_ = eval(expr, Map(), Map(), List())
-      Assert(expr_)
-
-    case Lemma(expr, tactic, assert) =>
-      val expr_ = eval(expr, Map(), Map(), List())
-      Lemma(expr_, tactic, assert)
-
-    // TODO: function definitions perhaps?
-    case _ =>
-      cmd
-  }
-
+class Eval(state: State = State.default) {
   def eval(
       expr: Expr,
       scope: Map[Var, Expr] = Map(),
