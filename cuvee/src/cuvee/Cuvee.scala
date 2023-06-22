@@ -36,7 +36,7 @@ object Cuvee extends Main {
   def main(args: Array[String]) {
     val c = new Cuvee
     c.configure(args.toList)
-    c.run(c.cmds, c.state, z3(c.state, timeout = 1000))
+    c.run(c.cmds, c.state, Solver.z3(timeout = 1000))
   }
 }
 
@@ -53,7 +53,7 @@ class Cuvee {
       ("show help text", () => { help() }),
     "-debug:solver" ->
       ("show information on the interaction with the backend", () => {
-        cuvee.smtlib.solver.debug = true
+        cuvee.smtlib.Solver.debug = true
       }),
     "-debug:scanner" -> ("show list of parsed tokens (SMT-LIB only)", () => {
       cuvee.sexpr.debug = true

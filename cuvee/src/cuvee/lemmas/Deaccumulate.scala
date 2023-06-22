@@ -3,7 +3,7 @@ package cuvee.lemmas
 import cuvee.pure._
 import cuvee.util.Name
 import cuvee.smtlib.Model
-import cuvee.backend.Solver
+import cuvee.smtlib.Solver
 import cuvee.State
 import cuvee.backend.Builtin
 import cuvee.smtlib.Unsat

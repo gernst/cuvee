@@ -3,7 +3,7 @@ package cuvee
 import cuvee.util.Name
 import cuvee.pure._
 import cuvee.imp._
-import cuvee.smtlib.Cmd
+import cuvee.smtlib._
 
 object State {
   def empty =
@@ -76,38 +76,9 @@ object State {
 
   // contruct state from scatch, given a list of commands
   def apply(cmds: List[Cmd]): State = {
-    import cuvee.smtlib._
-
     val st = default
-
-    cmds foreach {
-      case DeclareSort(name, arity) =>
-        st.con(name, arity)
-      case DefineSort(name, params, body) =>
-        st.con(name, params.length)
-        st.condef(name, params, body)
-
-      case DeclareFun(name, params, args, res) =>
-        st.fun(name, params, args, res)
-      case DefineFun(name, params, formals, res, body, rec) =>
-        st.fun(name, params, formals.types, res)
-        st.fundef(name, formals, body)
-
-      case DeclareDatatypes(arities, dts) =>
-        for ((name, arity) <- arities)
-          st.con(name, arity)
-        for (((name, _), dt) <- arities zip dts)
-          st.datatype(name, dt)
-
-      case DeclareProc(name, params, in, out, spec) =>
-        st.proc(name, params, in, out, spec)
-      case DefineProc(name, params, in, out, spec, body) =>
-        st.proc(name, params, in, out, spec)
-        st.procdef(name, in, out, body)
-
-      case _ =>
-    }
-
+    for (cmd <- cmds)
+      st.add(cmd)
     st
   }
 }
@@ -367,5 +338,33 @@ class State(
         unify(arg.expr.typ, typ)
       }
     }
+  }
+
+  def add(cmd: Cmd) = cmd match {
+    case DeclareSort(name, arity) =>
+      con(name, arity)
+    case DefineSort(name, params, body) =>
+      con(name, params.length)
+      condef(name, params, body)
+
+    case DeclareFun(name, params, args, res) =>
+      fun(name, params, args, res)
+    case DefineFun(name, params, formals, res, body, rec) =>
+      fun(name, params, formals.types, res)
+      fundef(name, formals, body)
+
+    case DeclareDatatypes(arities, dts) =>
+      for ((name, arity) <- arities)
+        con(name, arity)
+      for (((name, _), dt) <- arities zip dts)
+        datatype(name, dt)
+
+    case DeclareProc(name, params, in, out, spec) =>
+      proc(name, params, in, out, spec)
+    case DefineProc(name, params, in, out, spec, body) =>
+      proc(name, params, in, out, spec)
+      procdef(name, in, out, body)
+
+    case _ =>
   }
 }

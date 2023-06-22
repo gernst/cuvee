@@ -1,5 +1,6 @@
 package cuvee.backend
 
+import cuvee.smtlib.Solver
 import cuvee.pure.Prop
 
 trait Prover {

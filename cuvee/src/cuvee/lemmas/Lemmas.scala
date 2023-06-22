@@ -2,7 +2,6 @@ package cuvee.lemmas
 
 import cuvee.pure._
 import cuvee.State
-import cuvee.backend.Solver
 import cuvee.smtlib._
 import cuvee.util.Tool
 import cuvee.util.Name

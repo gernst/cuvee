@@ -61,7 +61,7 @@ object Test extends Main {
         val (decls, defs, cmds, st) = read(file)
         println(file)
 
-        val solver = cuvee.smtlib.z3(st, 100)
+        val solver = Solver.z3(100)
 
         for (cmd <- cmds) cmd match {
           case SetLogic(_)      =>

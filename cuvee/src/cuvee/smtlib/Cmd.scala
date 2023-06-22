@@ -29,8 +29,8 @@ object Error extends (List[Any] => Error) {
 }
 
 case object Sat extends IsSat { def sexpr = "sat" }
-case object Unknown extends IsSat { def sexpr = "unsat" }
-case object Unsat extends IsSat { def sexpr = "unknown" }
+case object Unknown extends IsSat { def sexpr = "unknown" }
+case object Unsat extends IsSat { def sexpr = "unsat" }
 
 case class Model(defs: List[DefineFun]) extends Res {
   def sexpr = "model" :: defs
@@ -120,7 +120,7 @@ case class Assert(expr: Expr) extends Cmd {
   def bexpr = List("assert", " ", expr, ";")
 }
 
-// This is not actually a feature of SMT-LIB
+// This is part neither of SMT-LIB nor of Boogie (but we support it there).
 case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
   def sexpr = List("lemma", expr)
   def bexpr = tactic match {
@@ -201,7 +201,7 @@ case class DeclareProc(
     params: List[Param],
     in: List[Var],
     out: List[Var],
-    spec: Option[Spec],
+    spec: Option[Spec]
 ) extends Decl {
   def sexpr = cuvee.undefined
   def bexpr = cuvee.undefined

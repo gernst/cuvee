@@ -10,7 +10,7 @@ import cuvee.backend.PositiveProver
 object Prover {
   def run(atomCnt: Int, depth: Int) {
     var state = State.default
-    val solver = z3(state)
+    val solver = Solver.z3()
     val prover = new PositiveProver(solver)
 
     val atomNames = List.tabulate(atomCnt)(i => Name("x", Some(i)))

@@ -2,18 +2,9 @@ package cuvee.pure
 
 import cuvee.error
 import cuvee.sexpr.Syntax
-import cuvee.smtlib.Assert
-import cuvee.smtlib.Cmd
 import cuvee.State
-import cuvee.smtlib.DefineFun
 import cuvee.util.Fix
-import cuvee.smtlib.DeclareFun
-import easyparse.Backtrack
-import cuvee.backend.Solver
-import cuvee.smtlib.Ack
-import cuvee.smtlib.Model
-import cuvee.smtlib.IsSat
-import cuvee.smtlib.Success
+import cuvee.smtlib._
 
 object Rewrite {
   val MaxDepth = 10

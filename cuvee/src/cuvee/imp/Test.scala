@@ -24,7 +24,7 @@ object Test {
     val eval = new Eval(State.default)
     val phi = Forall(xs, pre ==> eval.wp(WP, prog, st, post, List(st)))
 
-    val solver = z3(State.default)
+    val solver = Solver.z3()
 
     for (line <- phi.lines)
       println(line)

@@ -1,7 +1,7 @@
 package cuvee.backend
 
 import cuvee.pure._
-import cuvee.smtlib.DeclareFun
+import cuvee.smtlib._
 
 class SimpleProver(solver: Solver) extends Prover {
   def prove(prop: Prop): Prop = {

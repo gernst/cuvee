@@ -22,7 +22,7 @@ object Test extends Main {
 
   def main(args: Array[String]): Unit = {
     val st = State.default
-    val solver = z3(st)
+    val solver = Solver.z3()
 
     val cmds = List(
       SetOption("produce-models", "true"),

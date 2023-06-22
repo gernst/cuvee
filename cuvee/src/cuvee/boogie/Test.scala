@@ -17,7 +17,7 @@ object Test extends Main {
   def run(cmds: List[Cmd], st: State) {
     import cuvee.sexpr.Printer
 
-    val slv = z3(st)
+    val slv = Solver.z3()
     // val slv = new Sink.tee(z3(st), stdout)
 
     val prover = new PositiveProver(slv)

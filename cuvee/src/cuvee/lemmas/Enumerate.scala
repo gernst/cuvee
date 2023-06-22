@@ -6,7 +6,6 @@ import cuvee.backend.InductiveProver
 import cuvee.smtlib._
 import cuvee.util.Main
 import cuvee.util.Run
-import cuvee.backend.Solver
 
 object enat extends Run(Enumerate, "examples/boogie/nat.bpl")
 
@@ -91,7 +90,7 @@ object Enumerate extends Main {
     val (decls, defs, cmds, st) = read(file)
     println(file)
 
-    val solver = z3(State.default, timeout = 100)
+    val solver = Solver.z3(timeout = 100)
 
     for (cmd <- cmds)
       solver.exec(cmd)

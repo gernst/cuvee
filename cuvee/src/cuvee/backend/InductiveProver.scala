@@ -4,7 +4,7 @@ import cuvee.State
 import cuvee.util.Name
 import cuvee.pure._
 import cuvee.smtlib._
-import cuvee.backend.Solver
+
 
 object InductiveProver {
   def holds(prelude: List[Cmd], goal: Expr) = {
@@ -22,7 +22,7 @@ object InductiveProver {
   }
 
   def prove(prelude: List[Cmd], goal: Expr): IsSat = {
-    val solver = z3(State.default)
+    val solver = Solver.z3()
 
     for (cmd <- prelude)
       solver.exec(cmd)
@@ -40,7 +40,7 @@ object InductiveProver {
       goal: Expr,
       datatypes: Map[Name, Datatype]
   ): LazyList[(Var, IsSat)] = {
-    val solver = z3(State.default)
+    val solver = Solver.z3()
 
     try {
       for (cmd <- prelude) {
