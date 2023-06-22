@@ -13,10 +13,11 @@ class Prove(prover: Prover) extends Stage {
     val cmds_ = cmds flatMap {
       case Lemma(expr, tactic, assert) =>
         val goal = Disj.from(expr)
-        for (goal_ <- reduce(goal, tactic, state))
+        for (goal_ <- reduce(goal, tactic, state) if goal_ != Atom.t)
           yield Lemma(goal_.toExpr, None, assert)
 
       case cmd =>
+        prover.exec(cmd)
         List(cmd)
     }
 
@@ -37,6 +38,9 @@ class Prove(prover: Prover) extends Stage {
 
   def reduce(goal: Prop, tactic: Tactic, state: State): List[Prop] = tactic match {
     case NoAuto(tactic) =>
+      noauto(goal, tactic, state)
+
+    case _: Induction | _: Show =>
       noauto(goal, tactic, state)
 
     case Auto =>

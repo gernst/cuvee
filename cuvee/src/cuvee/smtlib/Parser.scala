@@ -17,6 +17,8 @@ object Parser {
     from match {
       case Id("success") =>
         Success
+      case Id("unsupported") =>
+        Unsupported
       case App(Id("error"), args @ _*) =>
         Error(args.toList)
       case _ =>

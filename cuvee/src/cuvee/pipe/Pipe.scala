@@ -29,7 +29,7 @@ trait Stage {
 
   def transform(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], Option[State])
 
-  def apply(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], State) = {
+  def apply(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
     val (cmds_, state_) = transform(prefix, cmds, state)
     val state__ = state_.getOrElse { state.added(cmds_) }
     (cmds_, state__)

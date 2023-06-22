@@ -81,9 +81,9 @@ object Config {
     var sink: Sink = null
     sink = config.sink(config.printer)
 
-    // val solver = Solver.z3()
-    // val prover = new SimpleProver(solver)
-    sink = new Incremental(new Prove(Prover.dummy), sink)
+    val solver = Solver.z3()
+    val prover = Prover.fromSolver(solver)
+    sink = new Incremental(new Prove(prover), sink)
 
     val report = config.report(config.printer)
     (file, source, sink, report)

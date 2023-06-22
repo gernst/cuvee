@@ -11,6 +11,10 @@ import cuvee.State
   *   SMT solver to use to check expressions
   */
 class PositiveProver(solver: Solver) extends Prover {
+  def exec(cmd: Cmd) {
+    solver.ack(cmd)
+  }
+
   def reduce(prop: Prop, state: State): Prop = prop match {
     case atom: Atom => prove(atom, state)
     case neg: Neg   => prove(neg, state)

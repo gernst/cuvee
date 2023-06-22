@@ -5,6 +5,10 @@ import cuvee.smtlib._
 import cuvee.State
 
 class ReductionProver(solver: Solver) extends Prover {
+    def exec(cmd: Cmd) {
+    solver.ack(cmd)
+  }
+  
   def reduce(prop: Prop, state: State): Prop = reduce(prop, true, state);
 
   def reduce(prop: Prop, expect: Boolean, state: State): Prop = prop match {

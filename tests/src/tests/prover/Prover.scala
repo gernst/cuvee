@@ -20,10 +20,10 @@ object Prover {
 
     solver.scoped({
       for (atom <- atomNames)
-        solver.declare(DeclareFun(atom, Nil, Nil, Sort.bool))
+        solver.ack(DeclareFun(atom, Nil, Nil, Sort.bool))
 
       for (phi <- Generator.propositionalExprs(atoms, depth)) {
-        val res = prover.reduce(Prop.from(phi))
+        val res = prover.reduce(Prop.from(phi), state)
 
         val equiv = Eq(phi, res.toExpr)
         assert(
