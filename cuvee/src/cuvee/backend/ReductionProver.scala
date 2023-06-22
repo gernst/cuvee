@@ -4,7 +4,7 @@ import cuvee.pure._
 import cuvee.smtlib._
 
 class ReductionProver(solver: Solver) extends Prover {
-  def prove(prop: Prop): Prop = reduce(prop, true);
+  def reduce(prop: Prop): Prop = reduce(prop, true);
 
   def reduce(prop: Prop, expect: Boolean): Prop = prop match {
     case atom: Atom => reduce(atom, expect)

@@ -12,7 +12,7 @@ import cuvee.pipe.Source
 import java.io.Reader
 import cuvee.pure.True
 import cuvee.pipe.Sink
-import cuvee.pipe.TrackState
+import cuvee.pipe.Stateful
 
 trait Solver extends Sink {
   // unsafe on commands that don't ack
@@ -125,7 +125,7 @@ object Solver {
 
   val PrintSuccess = SetOption("print-success", "true")
 
-  class solver(cmd: String*) extends Solver with TrackState {
+  class solver(cmd: String*) extends Solver with Stateful {
     val (out, in, err, proc) = Tool.pipe(cmd: _*)
 
     val parser = new Parser(state)
@@ -138,8 +138,6 @@ object Solver {
     }
 
     def write(cmd: Cmd) {
-      track(cmd)
-
       for (line <- cmd.lines) {
         out.println(line)
         if(debug)

@@ -170,7 +170,7 @@ object Proving {
       depth: Int = 0
   )(implicit rules: Map[Fun, List[Rule]] = Map()): Prop = {
     // Call prover
-    val res = prover.prove(prop)
+    val res = prover.reduce(prop)
     if (debug)
       println(indent(depth) + "new goal: " + res.toExpr)
 

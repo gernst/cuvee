@@ -29,8 +29,8 @@ object Error extends (List[Any] => Error) {
 }
 
 case object Sat extends IsSat { def sexpr = "sat" }
-case object Unknown extends IsSat { def sexpr = "unknown" }
 case object Unsat extends IsSat { def sexpr = "unsat" }
+case object Unknown extends IsSat { def sexpr = "unknown" }
 
 case class Model(defs: List[DefineFun]) extends Res {
   def sexpr = "model" :: defs

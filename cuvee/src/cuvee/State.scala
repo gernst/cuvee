@@ -77,8 +77,7 @@ object State {
   // contruct state from scatch, given a list of commands
   def apply(cmds: List[Cmd]): State = {
     val st = default
-    for (cmd <- cmds)
-      st.add(cmd)
+    st.add(cmds)
     st
   }
 }
@@ -338,6 +337,11 @@ class State(
         unify(arg.expr.typ, typ)
       }
     }
+  }
+
+  def add(cmds: List[Cmd]) {
+    for (cmd <- cmds)
+      add(cmd)
   }
 
   def add(cmd: Cmd) = cmd match {

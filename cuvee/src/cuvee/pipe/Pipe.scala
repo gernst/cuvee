@@ -7,7 +7,7 @@ import cuvee.State
 object Pipe {
   def run(source: Source, sink: Sink, report: Report) {
     for (cmd <- source) {
-      report { sink.exec(cmd) }
+      report { sink(cmd) }
     }
   }
 }
@@ -20,53 +20,56 @@ object Pipe {
 // as long as copy produces an independent copy.
 
 trait Stage {
-  def copy: Stage
+  def copy(): Stage
 
   // executed with every check-sat/lemma command
   // returns the potentially modified script + an optional check command that
   // is then finally suggested to the backend sink
-  def apply(cmds: List[Cmd], check: Cmd): (List[Cmd], Cmd)
+  def apply(prefix: List[Cmd], cmds: List[Cmd]): List[Cmd]
 }
 
-class Pipe(sink: Sink, stages: Stage*) extends Sink {
-  // Note to self: if we want to keep the respective fixed prefixes, it needs to be per stage
-  case class Entry(stages: List[Stage]) {
-    def copy = Entry(stages map (_.copy))
+class Incremental(stage: Stage, sink: Sink) extends Sink {
+  class Entry(var prefix: List[Cmd], val stage: Stage) {
+    def copy() = new Entry(prefix, stage.copy())
   }
 
-  var stack = List(Entry(stages.toList))
+  var stack = List(new Entry(Nil, stage))
+  def top = stack.head
+
   var pending: List[Cmd] = Nil
 
-  def flush(cmds: List[Cmd], check: Cmd, stages: List[Stage]): (List[Cmd], Cmd) =
-    stages match {
-      case Nil =>
-        (cmds, check)
-
-      case stage :: rest =>
-        val (cmds_, check_) = stage.apply(cmds, check)
-        flush(cmds, check, rest)
-    }
+  def flush() = {
+    val add = pending.reverse
+    pending = Nil
+    add
+  }
 
   def exec(cmd: Cmd) = cmd match {
     case Push(n) =>
       val add = List.tabulate(n) { _ => stack.head.copy }
       stack = add ++ stack
-      sink.exec(cmd)
+      sink(cmd)
 
     case Pop(n) =>
       stack = stack drop n
-      sink.exec(cmd)
+      sink(cmd)
 
-    case CheckSat | _: Lemma =>
-      val (cmds, check) = flush(pending.reverse, cmd, stack.head.stages)
-      for (cmd <- cmds)
-        sink.exec(cmd)
-      sink.exec(check)
+    // check-sat simply flushes
+    case CheckSat =>
+      val cmds = stage(top.prefix, flush())
+      for (cmd <- cmds) sink(cmd)
+      sink(cmd)
+
+    case Lemma(expr, tactic) =>
+      pending = cmd :: pending
+      val cmds = stage(top.prefix, flush())
+      for (cmd <- cmds) sink(cmd)
+      Success
 
     case GetModel =>
       // assume here that the model is provided always by the backend,
       // perhaps we can find some more flexible option in the future.
-      sink.exec(cmd)
+      sink(cmd)
 
     case _ =>
       pending = cmd :: pending

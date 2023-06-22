@@ -12,26 +12,6 @@ import cuvee.util.Printer
 import cuvee.imp.Spec
 import cuvee.pipe.Stage
 
-object eval extends Stage {
-  def copy = this
-
-  def apply(cmd: Cmd): Cmd = cmd match {
-    case Assert(expr) =>
-      ???
-  }
-
-  def apply(cmds: List[Cmd]): List[Cmd] = cmds flatMap {
-    case DeclareProc(name, params, in, out, spec) =>
-      Nil
-    case cmd =>
-      List(apply(cmd))
-  }
-
-  def apply(cmds: List[Cmd], check: Cmd): (List[Cmd], Cmd) = {
-    (apply(cmds), apply(check))
-  }
-}
-
 object Cuvee extends Main {
   def main(args: Array[String]) {
     val c = new Cuvee

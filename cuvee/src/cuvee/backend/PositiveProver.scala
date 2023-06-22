@@ -10,7 +10,7 @@ import cuvee.smtlib._
   *   SMT solver to use to check expressions
   */
 class PositiveProver(solver: Solver) extends Prover {
-  def prove(prop: Prop): Prop = prop match {
+  def reduce(prop: Prop): Prop = prop match {
     case atom: Atom => prove(atom)
     case neg: Neg   => prove(neg)
     case pos: Pos   => prove(pos)

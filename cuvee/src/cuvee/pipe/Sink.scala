@@ -12,27 +12,51 @@ import cuvee.util.Printer
 import cuvee.State
 
 trait Sink {
-  def exec(cmd: Cmd): Res
+  // avoid external calls
+  protected def exec(cmd: Cmd): Res
+
+  // this is the interface to use by clients
+  def apply(cmd: Cmd): Res = {
+    exec(cmd)
+  }
 }
 
-trait TrackState {
-  var stack = List(State.default)
-  var state = stack.head
+trait Stateful {
+  this: Sink =>
 
-  def track(cmd: Cmd): Cmd = {
+  class Entry(var rcmds: List[Cmd], val state: State) {
+    def copy() = {
+      new Entry(rcmds, state.copy())
+    }
+
+    def add(cmd: Cmd) {
+      state.add(cmd)
+      rcmds = cmd :: rcmds
+    }
+  }
+
+  var stack = List(new Entry(Nil, State.default))
+
+  def top = stack.head
+  def state = top.state
+  def cmds = top.rcmds.reverse
+
+  def exec(cmd: Cmd): Res
+
+  override def apply(cmd: Cmd): Res = {
     cmd match {
       case Push(n) =>
-        val add = List.tabulate(n) { _ => state.copy() }
+        val add = List.tabulate(n) { _ => top.copy() }
         stack = add ++ stack
-        cmd
+        exec(cmd)
 
       case Pop(n) =>
         stack = stack drop n
-        cmd
+        exec(cmd)
 
       case _ =>
-        state.add(cmd)
-        cmd
+        top.add(cmd)
+        exec(cmd)
     }
   }
 }

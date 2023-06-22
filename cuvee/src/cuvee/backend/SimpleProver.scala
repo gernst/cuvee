@@ -4,19 +4,19 @@ import cuvee.pure._
 import cuvee.smtlib._
 
 class SimpleProver(solver: Solver) extends Prover {
-  def prove(prop: Prop): Prop = {
+  def reduce(prop: Prop): Prop = {
     val expr = prop.toExpr
-    Disj.from(prove(expr))
+    Disj.from(reduce(expr))
   }
 
-  def prove(expr: Expr): Expr = expr match {
+  def reduce(expr: Expr): Expr = expr match {
     case And(phis) =>
-      Simplify.and(phis map prove)
+      Simplify.and(phis map reduce)
 
     case Imp(phi, psi) =>
       solver.scoped {
         solver.assert(phi)
-        val psi_ = prove(psi)
+        val psi_ = reduce(psi)
         Simplify.imp(phi, psi_)
       }
 
@@ -33,7 +33,7 @@ class SimpleProver(solver: Solver) extends Prover {
           solver.declare(cmd)
         }
 
-        val body__ = prove(body_)
+        val body__ = reduce(body_)
 
         Forall(xs, body__ rename re_)
       }

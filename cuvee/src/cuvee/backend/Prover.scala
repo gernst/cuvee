@@ -4,7 +4,7 @@ import cuvee.smtlib.Solver
 import cuvee.pure.Prop
 
 trait Prover {
-  def prove(prop: Prop): Prop;
+  def reduce(prop: Prop): Prop;
 }
 
 object Prover {

@@ -3,55 +3,111 @@ package cuvee.imp
 import cuvee.error
 import cuvee.pure._
 import cuvee.State
+import cuvee.pipe.Stage
+import cuvee.smtlib._
 
 object Eval {
   var infer: Set[String] = Set()
 }
 
-class Eval(state: State) {
+class Eval(state: State = State.default) extends Stage {
   import Eval.infer
+
+  def copy() = new Eval(state.copy())
+
+  def apply(prefix: List[Cmd], cmds: List[Cmd]): List[Cmd] = {
+    cmds flatMap {
+      case Assert(expr) =>
+        List(Assert(eval(expr)))
+
+      case Lemma(expr, tactic) =>
+        List(Lemma(eval(expr), tactic))
+
+      case DefineFun(name, params, formals, res, body, rec) =>
+        val scope = Expr.id(formals)
+        List(DefineFun(name, params, formals, res, eval(body, scope), rec))
+
+      case DeclareProc(name, params, in, out, spec) =>
+        Nil
+
+      case DefineProc(name, params, in, out, Nil, body) =>
+        Nil
+
+      case DefineProc(name, params, in, out, Some(Spec(globals, pre, post)), body) =>
+        val su = Expr.subst(in, Old(in))
+        val xs = in ++ out ++ globals
+        val post_ = post subst su
+
+        val scope = Map()
+        val st = Expr.id(xs)
+        val old = List(st)
+
+        val phi = Forall(xs, pre ==> wp_proc(WP, body, st, post_))
+        List(Lemma(phi, None))
+
+      case cmd =>
+        List(cmd)
+    }
+  }
+
+  def apply(cmd: Cmd): Cmd = cmd match {
+    case Assert(expr) =>
+      val expr_ = eval(expr, Map(), Map(), List())
+      Assert(expr_)
+
+    case Lemma(expr, tactic) =>
+      val expr_ = eval(expr, Map(), Map(), List())
+      Lemma(expr_, tactic)
+
+    // TODO: function definitions perhaps?
+    case _ =>
+      cmd
+  }
 
   def eval(
       expr: Expr,
-      scope: Map[Var, Expr],
-      st: Map[Var, Expr],
-      old: List[Map[Var, Expr]]
-  ): Expr =
-    expr match {
-      case x: Var if (st contains x) =>
-        st(x)
+      scope: Map[Var, Expr] = Map(),
+      st: Map[Var, Expr] = Map(),
+      old: List[Map[Var, Expr]] = Nil
+  ): Expr = expr match {
+    case x: Var if (st contains x) =>
+      st(x)
 
-      case x: Var if (scope contains x) =>
-        scope(x)
+    case x: Var if (scope contains x) =>
+      scope(x)
 
-      case x: Var =>
-        error("undefined program variable: " + x + " in state " + st.keys.mkString(" ") + " and scope " + scope.keys.mkString(" "))
+    case x: Var =>
+      error(
+        "undefined program variable: " + x + " in state " + st.keys.mkString(
+          " "
+        ) + " and scope " + scope.keys.mkString(" ")
+      )
 
-      case _: Lit =>
-        expr
+    case _: Lit =>
+      expr
 
-      case Old(expr) =>
-        require(
-          old.nonEmpty,
-          "cannot evaluate old expression, no previous state(s) given"
-        )
-        eval(expr, scope, old.head, old.tail)
+    case Old(expr) =>
+      require(
+        old.nonEmpty,
+        "cannot evaluate old expression, no previous state(s) given"
+      )
+      eval(expr, scope, old.head, old.tail)
 
-      case App(inst, args) =>
-        val args_ = args map (eval(_, scope, st, old))
-        App(inst, args_)
+    case App(inst, args) =>
+      val args_ = args map (eval(_, scope, st, old))
+      App(inst, args_)
 
-      case bind @ Bind(quant, xs, body, typ) =>
-        val re = bind.avoid(Expr.free(st))
-        val su = Expr.subst(xs map {
-          case x if re contains x => (x, re(x))
-          case x                  => (x, x)
-        })
+    case bind @ Bind(quant, xs, body, typ) =>
+      val re = bind.avoid(Expr.free(st))
+      val su = Expr.subst(xs map {
+        case x if re contains x => (x, re(x))
+        case x                  => (x, x)
+      })
 
-        val xs_ = xs rename re
-        val body_ = eval(body, scope ++ su, st, old)
-        Bind(quant, xs_, body_, typ)
-    }
+      val xs_ = xs rename re
+      val body_ = eval(body, scope ++ su, st, old)
+      Bind(quant, xs_, body_, typ)
+  }
 
   def havoc(xs: List[Var]) = {
     val re = Expr.fresh(xs)
@@ -178,7 +234,9 @@ class Eval(state: State) {
 
         spec match {
           case None =>
-            cuvee.error("inlining procedures not implemented, consider adding a contract to: " + name)
+            cuvee.error(
+              "inlining procedures not implemented, consider adding a contract to: " + name
+            )
 
           case Some(Spec(mod, phi, psi)) =>
             val su = Expr.subst(xs, in)
@@ -214,7 +272,7 @@ class Eval(state: State) {
         // 1. arbitrary state at loop head before some iteration
         val st0 = st
         val st1 = assign(st, xs0, xs1)
-        
+
         // invariant to show at loop head upon entry
         val inv0 = eval(inv, scope, st0, st0 :: old)
 
