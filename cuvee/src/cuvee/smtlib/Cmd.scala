@@ -121,13 +121,19 @@ case class Assert(expr: Expr) extends Cmd {
 }
 
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
-case class Lemma(expr: Expr, tactic: Option[Tactic]) extends Cmd {
+case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean) extends Cmd {
   def sexpr = List("lemma", expr)
   def bexpr = tactic match {
     case None         => List("lemma", " ", expr, ";")
     case Some(tactic) => List("lemma", " ", expr, "proof", tactic, ";")
   }
 }
+
+// object Lemma extends ((Expr, Option[Tactic]) => Lemma) {
+//   def apply(expr: Expr, tactic: Option[Tactic]): Lemma = {
+//     Lemma(expr, tactic, true)
+//   }
+// }
 
 case object CheckSat extends Cmd {
   def sexpr = List("check-sat")

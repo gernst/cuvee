@@ -401,7 +401,7 @@ object Grammar {
   }
 
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";"))
+    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(true)))
 
   val datadef =
     P(make_datatype(("data" ~ name ~ gens ~ "=") ~@ constrs ~ ";"))

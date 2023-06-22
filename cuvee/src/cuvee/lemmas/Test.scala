@@ -65,7 +65,7 @@ object Test extends Main {
 
         for (cmd <- cmds) cmd match {
           case SetLogic(_)      =>
-          case Lemma(_, _)      =>
+          case _: Lemma      =>
           case Assert(Not(phi)) =>
           case _ =>
             solver.exec(cmd)
@@ -80,7 +80,7 @@ object Test extends Main {
         lemmas.useAdtInd = useAdtInd
 
         for (
-          Lemma(phi, _) <- cmds;
+          Lemma(phi, _, _) <- cmds;
           Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
         ) {
           lemmas.addLemma("provided", lhs, rhs, cond)

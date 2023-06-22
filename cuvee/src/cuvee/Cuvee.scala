@@ -178,7 +178,7 @@ class Cuvee {
       case "smt" =>
         val phi_ = Simplify.simplify(phi, safe, state.constrs)
         if (!solver.isTrue(phi_)) {
-          val cmd = Lemma(phi, None)
+          val cmd = Lemma(phi, None, false)
           for (line <- cmd.lines)
             println(line)
           false
@@ -187,7 +187,7 @@ class Cuvee {
         }
 
       case "none" =>
-        val cmd = Lemma(phi, None)
+        val cmd = Lemma(phi, None, false)
         for (line <- cmd.lines)
           println(line)
 
@@ -227,12 +227,13 @@ class Cuvee {
       case Assert(phi) =>
         solver.assert(phi)
 
-      case Lemma(phi, tactic) =>
+      case Lemma(phi, tactic, assert) =>
         val ok = maybeProve(phi, tactic)
 
         // Assert the lemma for later proofs, if it was successfully verified.
         if (ok) {
-          solver.assert(phi)
+          if(assert)
+            solver.assert(phi)
 
           val add = Rules.from(phi, state.constrs)
           safe = Rewrite.safe(rules ++ add, state) groupBy (_.fun)

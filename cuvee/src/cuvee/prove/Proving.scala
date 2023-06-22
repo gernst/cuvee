@@ -45,7 +45,7 @@ object Proving {
           println(
             "\u001b[91m⚠\u001b[0m Some subgoals could not be proven! Remaining combined goal: " + remaining
           )
-        val cmd = Lemma(remaining.toExpr, None);
+        val cmd = Lemma(remaining.toExpr, None, false);
         for (line <- cmd.lines)
           println(line)
     }

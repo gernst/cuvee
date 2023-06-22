@@ -6,7 +6,6 @@ import scala.util.DynamicVariable
 
 import cuvee._
 import cuvee.State
-import cuvee.backend._
 import cuvee.pure._
 import cuvee.imp._
 import cuvee.util.Name

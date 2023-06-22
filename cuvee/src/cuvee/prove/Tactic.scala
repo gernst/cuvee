@@ -98,24 +98,7 @@ object Suggest extends Suggest {
 
 class TacticNotApplicableException(s: String) extends Exception(s) {}
 
-case class Builtin(rules: Map[Fun, List[Rule]], solver: Solver) extends Tactic {
-
-  def apply(state: State, goal: Prop) = {
-    val goal_ = Simplify.simplify(goal, rules, state.constrs)
-
-    goal_ match {
-      case Atom.t =>
-        Nil
-      case Atom.f =>
-        throw new TacticNotApplicableException("not solvable")
-      case _ =>
-        List(goal -> None)
-    }
-  }
-}
-
 case object Sorry extends Tactic {
-
   def apply(state: State, goal: Prop) = {
     // Currently a no-op
     println("\u001b[93m⚠\u001b[0m Use of the \u001b[93msorry\u001b[0m tactic!")

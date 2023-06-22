@@ -5,7 +5,7 @@ import cuvee.smtlib._
 import cuvee.util.Generator
 import cuvee.util.Name
 import cuvee.State
-import cuvee.backend.PositiveProver
+import cuvee.prove.PositiveProver
 
 object Prover {
   def run(atomCnt: Int, depth: Int) {

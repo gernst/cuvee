@@ -60,7 +60,7 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
       for (cmd <- cmds) sink(cmd)
       sink(cmd)
 
-    case Lemma(expr, tactic) =>
+    case Lemma(expr, tactic, assert) =>
       pending = cmd :: pending
       val cmds = stage(top.prefix, flush())
       for (cmd <- cmds) sink(cmd)
