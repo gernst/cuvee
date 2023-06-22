@@ -1,4 +1,4 @@
-package cuvee.backend
+package cuvee.prove
 
 import cuvee.smtlib.Solver
 import cuvee.pure.Prop

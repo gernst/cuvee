@@ -1,11 +1,12 @@
-package cuvee.util
+package cuvee.prove
 
-import cuvee.backend._
 import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.pure._
 import cuvee.State
 import cuvee.smtlib._
+import cuvee.util.Printer
+import cuvee.util.CLI
 
 object Proving {
   var debug = false

@@ -4,7 +4,7 @@ import cuvee.util.Main
 import cuvee.util.Run
 
 import cuvee.State
-import cuvee.backend._
+import cuvee.prove._
 import cuvee.pure._
 import cuvee.smtlib._
 

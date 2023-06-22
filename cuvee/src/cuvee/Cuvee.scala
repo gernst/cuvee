@@ -7,7 +7,7 @@ import cuvee.imp.Eval
 import cuvee.imp.WP
 import cuvee.util.Main
 import cuvee.util.Run
-import cuvee.util.Proving
+import cuvee.prove._
 import cuvee.util.Printer
 import cuvee.imp.Spec
 import cuvee.pipe.Stage
@@ -39,7 +39,7 @@ class Cuvee {
       cuvee.sexpr.debug = true
     }),
     "-debug:prover" -> ("show details about proof steps and tactic applications", () => {
-      cuvee.util.Proving.debug = true
+      cuvee.prove.Proving.debug = true
     }),
     "-print:smtlib" -> ("override printer to output SMT-LIB format", () => {
       this.printer = cuvee.smtlib.printer
@@ -69,10 +69,10 @@ class Cuvee {
       this.prove = "positive"
     }),
     "-tactics:suggest" -> ("suggest tactics applicable to the current goal", () => {
-      cuvee.util.Proving.suggestTactics = true
+      cuvee.prove.Proving.suggestTactics = true
     }),
     "-tactics:apply" -> ("apply a suggested tactic if no tactic was specified by the user ", () => {
-      cuvee.util.Proving.applyTactics = true
+      cuvee.prove.Proving.applyTactics = true
     })
   )
 

@@ -5,7 +5,6 @@ import cuvee.util.Name
 import cuvee.smtlib.Model
 import cuvee.smtlib.Solver
 import cuvee.State
-import cuvee.backend.Builtin
 import cuvee.smtlib.Unsat
 
 object Deaccumulate {

@@ -1,4 +1,4 @@
-package cuvee.util
+package cuvee.prove
 
 import cuvee.pure._
 import cuvee.State

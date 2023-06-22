@@ -2,7 +2,7 @@ package cuvee.lemmas
 
 import cuvee.pure._
 import cuvee.State
-import cuvee.backend.InductiveProver
+import cuvee.prove.InductiveProver
 import cuvee.smtlib._
 import cuvee.util.Main
 import cuvee.util.Run

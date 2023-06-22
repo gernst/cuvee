@@ -5,7 +5,7 @@ import cuvee.pure._
 import cuvee.boogie
 import cuvee.sexpr
 import scala.reflect.ClassTag
-import cuvee.backend.Tactic
+import cuvee.prove.Tactic
 import cuvee.imp.Prog
 import cuvee.util.Name
 import cuvee.imp.Spec

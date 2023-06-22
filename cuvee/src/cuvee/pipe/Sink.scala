@@ -5,7 +5,6 @@ import cuvee.util.Name
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.imp._
-import cuvee.backend.Tactic
 import cuvee.util.Tool
 import java.io.PrintStream
 import cuvee.util.Printer

@@ -5,7 +5,7 @@ import cuvee.State
 import cuvee.smtlib._
 import cuvee.util.Tool
 import cuvee.util.Name
-import cuvee.backend.InductiveProver
+import cuvee.prove.InductiveProver
 
 class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
   var useAdtInd = false

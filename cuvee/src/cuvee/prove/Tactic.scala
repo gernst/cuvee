@@ -1,4 +1,4 @@
-package cuvee.backend
+package cuvee.prove
 
 import scala.annotation.varargs
 import scala.language.postfixOps
@@ -7,8 +7,8 @@ import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.util.Name
-import cuvee.util.Rating
-import cuvee.util.Proving
+import cuvee.prove.Rating
+import cuvee.prove.Proving
 
 /** Represents an instance of a tactic, possibly with arguments.
   * 

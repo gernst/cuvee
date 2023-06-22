@@ -6,7 +6,7 @@ import easyparse.implicits._
 import cuvee.util.Name
 import cuvee.pure._
 import cuvee.imp._
-import cuvee.backend._
+import cuvee.prove._
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Lemma
 
