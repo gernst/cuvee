@@ -48,7 +48,7 @@ object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 
 object Test extends Main {
   var out: PrintStream = null
-  var rounds = 3
+  var rounds = 1
   var useAdtInd = false
   var useInternal = true
   // cuvee.smtlib.solver.debug = true
@@ -98,6 +98,7 @@ object Test extends Main {
         for (df <- defs) {
           lemmas.define(df)
           lemmas.deaccumulate(df)
+          lemmas.recognizeConditional(df)
         }
 
         for (df <- defs; dg <- defs) {

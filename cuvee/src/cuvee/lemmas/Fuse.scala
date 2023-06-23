@@ -38,7 +38,7 @@ object Fuse {
     val args = f.args patch (pos, g.args, 1)
     val res = f.res
     val fg = Fun(name, params.distinct, args, res)
-    println("fusing " + name)
+    // println("fusing " + name)
 
     try {
       val cases =

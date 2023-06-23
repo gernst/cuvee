@@ -380,7 +380,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                           .mkString("(", ", ", ")")
                       )
                       println(" == " + rhs_)
-                      println("  model: " + model)
+                      // println("  model: " + model)
                       // println("success: " + first)
                       if (printTiming)
                         addLemma("internal (" + ms + "ms)", lhs, rhs_)

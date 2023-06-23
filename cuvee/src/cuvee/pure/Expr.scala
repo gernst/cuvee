@@ -378,7 +378,7 @@ case class Is(arg: Expr, fun: Fun) extends Expr {
   def bexpr = cuvee.undefined /// TODO Daniel thinks that this is not part of boogie.
 
   override def toString = {
-    arg + " is " + fun
+    arg + " is " + fun.name
   }
 }
 
