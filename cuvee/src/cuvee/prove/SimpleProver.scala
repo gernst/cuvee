@@ -5,8 +5,8 @@ import cuvee.smtlib._
 import cuvee.State
 
 class SimpleProver(solver: Solver) extends Prover {
-  def exec(cmd: Cmd) {
-    solver.ack(cmd)
+  def exec(cmd: Cmd, state: State) {
+    solver.exec(cmd, state)
   }
 
   def reduce(prop: Prop, state: State): Prop = {

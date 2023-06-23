@@ -17,7 +17,7 @@ class Prove(prover: Prover) extends Stage {
           yield Lemma(goal_.toExpr, None, assert)
 
       case cmd =>
-        prover.exec(cmd)
+        prover.exec(cmd, state)
         List(cmd)
     }
 

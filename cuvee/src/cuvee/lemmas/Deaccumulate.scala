@@ -478,8 +478,8 @@ object Deaccumulate {
             yield (unknowns_, eq_ :: todo, rules)
         }
     }
-
-  var neutral = {
+  
+  val defaultNeutral = {
     val int: Type = Sort.int // cast to Type
     val bool: Type = Sort.bool
 
@@ -497,6 +497,8 @@ object Deaccumulate {
 
     known.withDefaultValue(LazyList.empty)
   }
+  
+  var neutral = defaultNeutral
 
   def select(fun: Fun, typ: Type) = {
     try {

@@ -6,6 +6,13 @@ import cuvee.smtlib._
 import cuvee.util.Tool
 import cuvee.util.Name
 import cuvee.prove.InductiveProver
+import cuvee.pipe.Stage
+
+object Lemmas extends Stage {
+  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], Option[State]) = {
+    ???
+  }
+}
 
 class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
   var useAdtInd = false
@@ -16,13 +23,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   val constrs = st.constrs
 
   // these are the operations that may fail
-  sealed trait Pending {
-    def key: Name
-  }
-
-  implicit class PendingList(ps: List[Pending]) {
-    def keys = ps map (_.key)
-  }
+  sealed trait Pending
 
   // request to fuse f:pos:g and generate lemma lhs == f:pos:g(xs patch (pos ys))
   case class FuseAt(lhs: Expr, df: Def, xs: List[Expr], dg: Def, ys: List[Expr], pos: Int)
@@ -360,6 +361,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                           .mkString("(", ", ", ")")
                       )
                       println(" == " + rhs_)
+                      println("  model: " + model)
                       // println("success: " + first)
                       if (printTiming)
                         addLemma("internal (" + ms + "ms)", lhs, rhs_)
@@ -513,7 +515,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             val ind = InductiveProver.induction(phi, x, dt)
             var a = solver.isTrue(phi)
             val b = solver.isTrue(ind)
-            if(!a && b) {
+            if (!a && b) {
               val Forall(xs, Eq(lhs, rhs)) = phi
               addLemma("neutral", lhs, rhs)
             }
@@ -563,6 +565,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     }
   }
 
+  var leftNeutrals: Set[(Fun, Expr)] = Set()
+  var rightNeutrals: Set[(Fun, Expr)] = Set()
+
   def maybeAddNeutral(eq: Rule) {
     import Deaccumulate.neutral
 
@@ -578,10 +583,13 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             (eq1, eq2)
           }
 
-        println("left-neutral: " + eq)
-        val key = (f.args, f.res)
-        val old = neutral(key)
-        neutral += key -> old.prepended(rule)
+        if (!(leftNeutrals contains (f.fun, e))) {
+          println("left-neutral: " + eq)
+          leftNeutrals += ((f.fun, e))
+          val key = (f.args, f.res)
+          val old = neutral(key)
+          neutral += key -> old.prepended(rule)
+        }
 
       case Rule(App(f, List(x: Var, e)), z, True, _)
           if (original contains f.fun) && x == z && e.free.isEmpty =>
@@ -592,10 +600,13 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             (eq1, eq2)
           }
 
-        println("right-neutral: " + eq)
-        val key = (f.args.reverse, f.res)
-        val old = neutral(key)
-        neutral += key -> old.prepended(rule)
+        if (!(rightNeutrals contains (f.fun, e))) {
+          println("right-neutral: " + eq)
+          rightNeutrals += ((f.fun, e))
+          val key = (f.args.reverse, f.res)
+          val old = neutral(key)
+          neutral += key -> old.prepended(rule)
+        }
 
       case _ =>
       // println("  not a neutral rule: " + eq)

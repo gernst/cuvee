@@ -10,7 +10,7 @@ object Fuse {
 
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
-      (typ, pos) <- df.fun.args.zipWithIndex
+      (typ, pos) <- df.fun.args.zipWithIndex if dg.isRecursive
       if typ == dg.fun.res && isMatchingPosition(df, pos)
     )
       yield pos

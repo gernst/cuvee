@@ -7,18 +7,21 @@ import cuvee.smtlib.Cmd
 import cuvee.pure.Atom
 
 trait Prover {
-  def exec(cmd: Cmd)
+  def exec(cmd: Cmd, state: State)
   def reduce(prop: Prop, state: State): Prop
 }
 
 object Prover {
   object dummy extends Prover {
-    def exec(cmd: Cmd) {}
+    def exec(cmd: Cmd, state: State) {}
     def reduce(prop: Prop, state: State) = prop
   }
 
   def fromSolver(solver: Solver) = new Prover {
-    def exec(cmd: Cmd) { solver.ack(cmd) }
+    def exec(cmd: Cmd, state: State) {
+      solver.exec(cmd, state)
+    }
+
     def reduce(prop: Prop, state: State) = {
       val phi = prop.toExpr
       // print("proving " + phi)

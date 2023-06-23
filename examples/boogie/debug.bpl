@@ -1,21 +1,11 @@
-type elem;
-data list<a> = nil | cons(head: a, tail: list<a>);
+data nat
+  = zero | succ(pred: nat);
 
-function length(xs: list<elem>): int;
+function minus(x: nat, y: nat): nat;
 
-const n: int;
-
-axiom
-  length(nil) == 0;
-axiom forall x: elem, xs: list<elem> ::
-  length(cons(x,xs)) == length(xs) + 1;
-
-lemma forall xs: list<elem> ::
-  length(xs) >= n
-proof
-  induction xs;
-
-procedure zero(b: [int]int, n: int)
-{
-    assume 0 <= n;
-}
+axiom forall y: nat ::
+  minus(zero, y) == zero;
+axiom forall z: nat ::
+  minus(succ(z), zero) == succ(z);
+axiom forall z: nat, y2: nat ::
+  minus(succ(z), succ(y2)) == minus(z, y2);

@@ -9,12 +9,17 @@ import cuvee.util.Main
 object isaplanner
     extends Run(
       Test,
-      "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_52.smt2"
+      "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_83.smt2"
     )
 
+object tip2015_mod_same
+    extends Run(
+      Test,
+      "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/tip2015/mod_same.smt2"
+    )
 object isaplanner_prop52 extends Run(Test, "examples/smtlib/prop_52.smt2")
 
-object append extends Run(Test, "-rounds", "1", "examples/boogie/append.bpl")
+object append extends Run(Test, "examples/boogie/append.bpl")
 
 object debug_smt2 extends Run(Test, "debug.smt2")
 object poly extends Run(Test, "examples/boogie/poly.bpl")
@@ -37,7 +42,7 @@ object list extends Run(Test, "examples/smtlib/list-defs.smt2")
 object remove extends Run(Test, "examples/smtlib/remove.smt2")
 object tree extends Run(Test, "examples/boogie/tree.bpl")
 object tree2 extends Run(Test, "examples/boogie/tree-update.bpl")
-object debug extends Run(Test, "debug.bpl")
+object debug extends Run(Test, "examples/boogie/debug.bpl")
 
 object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 
@@ -62,13 +67,14 @@ object Test extends Main {
         println(file)
 
         val solver = Solver.z3(100)
+        Deaccumulate.neutral = Deaccumulate.defaultNeutral
 
         for (cmd <- cmds) cmd match {
           case SetLogic(_)      =>
-          case _: Lemma      =>
+          case _: Lemma         =>
           case Assert(Not(phi)) =>
           case _ =>
-            solver.ack(cmd)
+            solver.exec(cmd, null)
         }
 
         val goals =
