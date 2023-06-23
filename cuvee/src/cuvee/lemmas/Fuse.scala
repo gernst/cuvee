@@ -256,9 +256,13 @@ object Fuse {
         if (any1 == any2) List((gargs, su))
         else Nil
 
-      case (True | False, _) =>
-        if (fpat == gbody) List((gargs, su))
-        else Nil
+      // case (True, Or(args)) =>
+      //   args flatMap { expose(f, g, fg, fpat, gargs, _, constrs, rules, su) }
+
+      // case (False, Or(args)) =>
+      //   require(args.length == 2, "fusing over boolean operators currently only supported for binary occurrences")
+        
+      //   ???
 
       // constructor match: we can recurse into the arguments
       // Note: pat should only have constructors in function position
@@ -285,6 +289,7 @@ object Fuse {
         println(
           "instantiating unconstrained argument " + x + " at " + pos + " of " + g.name + " with " + fpat
         )
+        println("need to clarify when this can happen, please contact the developers :)")
         // TODO: clarify when this can happen!!
         ???
         val args_ = gargs updated (pos, fpat)

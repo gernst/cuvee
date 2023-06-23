@@ -39,7 +39,7 @@ object reverse
 // object replace extends Run(Test, "examples/smtlib/replace.smt2")
 object contains extends Run(Test, "examples/smtlib/contains_only.smt2")
 object list extends Run(Test, "examples/smtlib/list-defs.smt2")
-object remove extends Run(Test, "examples/smtlib/remove.smt2")
+object remove extends Run(Test, "-use:shortcut", "examples/smtlib/remove.smt2")
 object tree extends Run(Test, "examples/boogie/tree.bpl")
 object tree2 extends Run(Test, "examples/boogie/tree-update.bpl")
 object debug extends Run(Test, "examples/boogie/debug.bpl")
@@ -54,12 +54,11 @@ object Test extends Main {
   // cuvee.smtlib.solver.debug = true
 
   def main(args: Array[String]) {
+    Rules.shortcut = false
     val files = configure(args.toList)
 
     if (out == null)
       out = log("log.txt")
-
-    Rules.shortcut = false
 
     for (file <- files) {
       try {
@@ -137,6 +136,10 @@ object Test extends Main {
 
     case "-use:AdtInd" :: rest =>
       useAdtInd = true
+      configure(rest)
+
+    case "-use:shortcut" :: rest =>
+      Rules.shortcut = true
       configure(rest)
 
     case "-no:Internal" :: rest =>
