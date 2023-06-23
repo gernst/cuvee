@@ -71,6 +71,9 @@ class Eval(state: State = State.default) {
     case _: Lit =>
       expr
 
+    case Is(arg, fun) =>
+      Is(eval(arg, scope, st, old), fun)
+
     case Old(expr) =>
       require(
         old.nonEmpty,

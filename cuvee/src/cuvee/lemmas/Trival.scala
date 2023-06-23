@@ -36,6 +36,25 @@ object Trivial {
     }
   }
 
+  def selectsConstructors(df: Def, args: List[Expr]): List[Expr] = {
+    val Def(f, cases) = df
+    val tests = cases map {
+      case C(List(App(c, xs)), guard, body)
+          if (xs forall (_.isInstanceOf[Var])) && (body == True || body == False) =>
+        Some(body, Is(args(0), c.fun))
+
+      case _ =>
+        None
+    }
+
+    if (tests forall (_.nonEmpty)) {
+      val trues = tests collect { case Some((True, expr)) => expr }
+      List(Or(trues))
+    } else {
+      Nil
+    }
+  }
+
   def constant(df: Def, args: List[Expr]): List[Expr] = {
     val Def(f, cases) = df
     val static = df.staticArgs

@@ -48,6 +48,12 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     override def toString = "recognize " + df.fun.name
   }
 
+  //case class RecognizeConditional(df: Def, lhs: Expr, recogArg: List[Expr])
+  case class RecognizeConditional(df: Def)
+      extends Pending{
+    override def toString = "recognize conditional " + df.fun.name
+  }
+
   var original: Set[Fun] = st.funs.values.toSet
   var deaccumulated: Set[(Fun, Int)] = Set()
   var fused: Set[(Fun, Fun, Int)] = Set()
@@ -105,11 +111,14 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     failed = failed ++ add
   }
 
-  def addLemma(origin: String, lhs: Expr, rhs: Expr, cond: Expr = True) {
-    val eq = Rule(lhs, rhs, cond)
+  def addLemma(origin: String, eq: Rule) {
     maybeAddNeutral(eq)
     // println("adding lemma: " + eq)
     lemmas = (origin, eq) :: lemmas
+  }
+
+  def addLemma(origin: String, lhs: Expr, rhs: Expr, cond: Expr = True) {
+    addLemma(origin, Rule(lhs, rhs, cond))
   }
 
   def replaceBy(lhs: Expr, rhs: Expr) {
@@ -173,6 +182,12 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     }
   }
 
+  def recognizeConditional(df: Def) {
+      todo {
+        RecognizeConditional(df)
+      }
+    }
+
   def drop(df: Def) {
     definitions = definitions filterNot (_ == df)
     require(
@@ -194,7 +209,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           (origin, eq_)
         }
 
-    lemmas = lemmas.distinct
+    lemmas = lemmas.distinct filterNot {
+      _._2.cond == False
+    }
 
     val rw2 = lemmas.map(_._2).groupBy(_.fun)
 
@@ -254,7 +271,9 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
               val rhs = App(dfg.fun, zs)
               recoverBy(rhs, lhs)
               println("fuse " + lhs + " == " + rhs)
+              // println(dfg)
               todo { Recognize(Some("fused"), lhs, dfg, zs) }
+              // todo {RecognizeConditional(dfg)}
           }
 
         case DeaccumulateAt(lhs, df, xs, pos, again) if !(deaccumulated contains ((df.fun, pos))) =>
@@ -373,6 +392,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                       // trigger further processing of synthetic function df__ independently
                       val ys = Expr.vars("x", f__i.args)
                       todo { Recognize(None, App(f__i, ys), df__i, ys) }
+                      // todo {RecognizeConditional(df__i)}
                     }
                 }
               }
@@ -452,19 +472,22 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             Unused.unused(df simplify (normalize, constrs), args)
           }
 
+          //todo {RecognizeConditional(df_)}
+
           val rhs1 = Trivial.constant(df_, args_) map ((_, "constant"))
           val rhs2 = Trivial.identity(df_, args_) map ((_, "identity"))
+          val rhs3 = Trivial.selectsConstructors(df_, args_) map ((_, "constructors"))
 
           // note we assume that definitions get simplified in the mean time
           // between rounds, to make use of new lemmas found
-          val rhs3 = for ((dg, ty, perm) <- Known.known(df_, definitions)) yield {
+          val rhs4 = for ((dg, ty, perm) <- Known.known(df_, definitions)) yield {
             val rhs = App(Inst(dg.fun, ty), perm map args_)
             assert(!(original contains df.fun))
             drop(df_)
             (rhs, "as " + dg.fun)
           }
 
-          val all = rhs1 ++ rhs2 ++ rhs3
+          val all = rhs1 ++ rhs2 ++ rhs3 ++ rhs4
 
           for ((rhs, why) <- all) {
             println(" == " + rhs + " (" + why + ")")
@@ -496,6 +519,19 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
                   yield DeaccumulateAt(lhs, df_, args_, pos, again = true)
               }
             }
+          }
+        
+        //case RecognizeConditional(df, lhs, recogArg) => 
+        case RecognizeConditional(df) => 
+          val Def(fun,cases) = df
+          println("recognize conditionally " + fun.name)
+          val idConditions = Conditional.checkIdentityWithParamPicksAndGuard(df)
+          for ((rule,preCondDef) <- idConditions) {
+            addLemma("conditional identity", rule)
+            val pre = preCondDef.fun
+            val xs = Expr.vars("x", pre.args)
+            val lhs = App(pre, xs)
+            todo{ Recognize(None, lhs, preCondDef, xs) }
           }
 
         case _ =>

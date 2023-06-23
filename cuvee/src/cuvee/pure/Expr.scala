@@ -51,6 +51,8 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
         g(lit)
       case id: Var =>
         g(id)
+      case Is(arg, fun) =>
+        g(Is(arg map (f, g), fun))
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
       case Bind(quant, formals, body, typ) =>
@@ -358,6 +360,27 @@ object Ge extends Sugar.binary(Fun.ge)
 
 object Forall extends Sugar.binder(Quant.forall, Sort.bool)
 object Exists extends Sugar.binder(Quant.exists, Sort.bool)
+
+case class Is(arg: Expr, fun: Fun) extends Expr {
+  def typ = Sort.bool
+  def funs = arg.funs
+  def free = arg.free
+  def rename(re: Map[Var, Var]) =
+    Is(arg rename re, fun)
+  def subst(su: Map[Var, Expr]) =
+    Is(arg subst su, fun)
+  def inst(su: Map[Param, Type]) =
+    Is(arg inst su, fun)
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    Is(arg inst (ty, su), fun)
+
+  def sexpr = List(List("_", "is", fun.name), arg)
+  def bexpr = cuvee.undefined /// TODO Daniel thinks that this is not part of boogie.
+
+  override def toString = {
+    arg + " is " + fun
+  }
+}
 
 object App extends ((Inst, List[Expr]) => App) {
   def apply(inst: Inst, args: List[Expr]): App = {
