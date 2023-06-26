@@ -62,13 +62,8 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
       stack = stack drop n
       sink(cmd, state)
 
-    // check-sat simply flushes
-    case CheckSat =>
-      val (cmds, state_) = stage(top.prefix, flush(), state)
-      for (cmd <- cmds) sink(cmd, state_)
-      sink(cmd, state_)
-
-    case Lemma(expr, tactic, assert) =>
+    // some of these flush, TODO: add this cmd as separate param?
+    case CheckSat | _: Lemma =>
       pending = cmd :: pending
       val (cmds, state_) = stage(top.prefix, flush(), state)
       for (cmd <- cmds) sink(cmd, state_)
