@@ -514,6 +514,10 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
               }
 
               todo {
+                RecognizeConditional(df_)
+              }
+
+              todo {
                 // try deaccumulating but don't chain this query, it depends on the one above
                 for (pos <- Deaccumulate.mayDeaccumulateAt(df_))
                   yield DeaccumulateAt(lhs, df_, args_, pos, again = true)

@@ -19,6 +19,20 @@
 (declare-fun append ((Lst Elem) (Lst Elem)) (Lst Elem))
 (declare-fun remove (Elem (Lst Elem)) (Lst Elem))
 (declare-fun filter ((Array Elem Bool) (Lst Elem)) (Lst Elem))
+(declare-fun leq (Int Int) Bool)
+
+(assert
+  (forall ((n Int))
+    (= (leq 0 n)
+       true)))
+(assert
+  (forall ((m Int) (n Int))
+    (= (leq (+ m 1) n)
+       false)))
+(assert
+  (forall ((m Int) (n Int))
+    (= (leq (+ m 1) (+ n 1))
+       (leq m n))))
 
 (assert
   (=

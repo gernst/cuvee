@@ -3,10 +3,10 @@
 (declare-datatypes
   ((Nat 0))
   (((zero) (succ (pred Nat)))))
-  
+
 (declare-datatypes
   ((Lst 1))
-  ((par (A) ((nil) (cons A (tail (Lst A)))))))
+  ((par (a) ((nil) (cons (head a) (tail (Lst a)))))))
 
 (declare-fun map ((Array Elem Elem) (Lst Elem)) (Lst Elem))
 (declare-fun take (Nat (Lst Elem)) (Lst Elem))

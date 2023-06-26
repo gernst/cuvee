@@ -32,16 +32,19 @@ object Conditional {
         yield checkCaseAgainstIdentAt(c, pos, recfunc) match {
           // case (false,Nil) => false
           case None =>
-            false -> C(caseargs, caseguard, False)
+            (false, false, C(caseargs, caseguard, False))
 
           case Some(recarglists) =>
             val recs = recarglists map (App(prefun, _))
-            true -> C(caseargs, caseguard, And(recs))
+            val rec = c.isRecursive(recfunc)
+            (!rec, rec, C(caseargs, caseguard, And(recs)))
         }
 
-    val (kept, precases) = stuff.unzip
+    val (base, recs, precases) = stuff.unzip3
+    val nbase = base.count(b => b)
+    val nrecs = recs.count(b => b)
 
-    if (kept exists (b => b)) {
+    if (nbase > 0 && nrecs > 0) {
       val xs = Expr.vars("x", recfuncargs)
       val cond = App(prefun, xs)
       val lhs = App(recfunc, xs)
