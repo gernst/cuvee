@@ -7,10 +7,16 @@ import cuvee.util.Tool
 import cuvee.util.Name
 import cuvee.prove.InductiveProver
 import cuvee.pipe.Stage
+import cuvee.lemmas.prepare
 
 object Lemmas extends Stage {
-  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], Option[State]) = {
-    ???
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+    val (decls, defs) = prepare(cmds, state)
+    val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)
+    val add =
+      for ((origin, rule) <- results)
+        yield Lemma(rule.toExpr, None, true)
+    cmds ++ add
   }
 }
 
@@ -48,9 +54,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     override def toString = "recognize " + df.fun.name
   }
 
-  //case class RecognizeConditional(df: Def, lhs: Expr, recogArg: List[Expr])
-  case class RecognizeConditional(df: Def)
-      extends Pending{
+  // case class RecognizeConditional(df: Def, lhs: Expr, recogArg: List[Expr])
+  case class RecognizeConditional(df: Def) extends Pending {
     override def toString = "recognize conditional " + df.fun.name
   }
 
@@ -183,10 +188,10 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   }
 
   def recognizeConditional(df: Def) {
-      todo {
-        RecognizeConditional(df)
-      }
+    todo {
+      RecognizeConditional(df)
     }
+  }
 
   def drop(df: Def) {
     definitions = definitions filterNot (_ == df)
@@ -273,7 +278,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
               println("fuse " + lhs + " == " + rhs)
               // println(dfg)
               todo { Recognize(Some("fused"), lhs, dfg, zs) }
-              // todo {RecognizeConditional(dfg)}
+            // todo {RecognizeConditional(dfg)}
           }
 
         case DeaccumulateAt(lhs, df, xs, pos, again) if !(deaccumulated contains ((df.fun, pos))) =>
@@ -472,7 +477,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             Unused.unused(df simplify (normalize, constrs), args)
           }
 
-          //todo {RecognizeConditional(df_)}
+          // todo {RecognizeConditional(df_)}
 
           val rhs1 = Trivial.constant(df_, args_) map ((_, "constant"))
           val rhs2 = Trivial.identity(df_, args_) map ((_, "identity"))
@@ -524,18 +529,18 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
               }
             }
           }
-        
-        //case RecognizeConditional(df, lhs, recogArg) => 
-        case RecognizeConditional(df) => 
-          val Def(fun,cases) = df
+
+        // case RecognizeConditional(df, lhs, recogArg) =>
+        case RecognizeConditional(df) =>
+          val Def(fun, cases) = df
           println("recognize conditionally " + fun.name)
           val idConditions = Conditional.checkIdentityWithParamPicksAndGuard(df)
-          for ((rule,preCondDef) <- idConditions) {
+          for ((rule, preCondDef) <- idConditions) {
             addLemma("conditional identity", rule)
             val pre = preCondDef.fun
             val xs = Expr.vars("x", pre.args)
             val lhs = App(pre, xs)
-            todo{ Recognize(None, lhs, preCondDef, xs) }
+            todo { Recognize(None, lhs, preCondDef, xs) }
           }
 
         case _ =>

@@ -9,8 +9,8 @@ import cuvee.pure._
 import cuvee.sub
 
 class Prove(prover: Prover) extends Stage {
-  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
-    val cmds_ = cmds flatMap {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+    cmds flatMap {
       case Lemma(expr, tactic, assert) =>
         val goal = Disj.from(expr)
         for (goal_ <- reduce(goal, tactic, state) if goal_ != Atom.t)
@@ -20,8 +20,6 @@ class Prove(prover: Prover) extends Stage {
         prover.exec(cmd, state)
         List(cmd)
     }
-
-    (cmds_, Some(state))
   }
 
   def auto(goal: Prop) = {

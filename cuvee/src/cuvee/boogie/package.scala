@@ -39,12 +39,9 @@ package object boogie {
       cuvee.boogie.Grammar.cmd.iterator(in)
     }
 
+    def state = cuvee.boogie.Parser.state
     def hasNext = from.hasNext
-    def next() = {
-      val cmd = from.next()
-      val state = cuvee.boogie.Parser.state
-      (cmd, state)
-    }
+    def next() = from.next()
   }
 
   class ScannerIterator(scanner: boogie.Scanner) extends Iterator[Token] {

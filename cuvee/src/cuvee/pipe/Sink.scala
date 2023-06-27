@@ -12,12 +12,8 @@ import cuvee.State
 
 trait Sink {
   // avoid external calls
-  protected def exec(cmd: Cmd, state: State): Res
-
-  // this is the interface to use by clients
-  def apply(cmd: Cmd, state: State): Res = {
-    exec(cmd, state)
-  }
+  def exec(cmd: Cmd, state: State): Res
+  def done(state: State)
 }
 
 object Sink {
@@ -25,6 +21,8 @@ object Sink {
   def stderr(implicit printer: Printer) = new print(System.err)
 
   class print(stream: PrintStream)(implicit printer: Printer) extends Sink {
+    def done(state: State) {}
+
     def exec(cmd: Cmd, state: State): Res = {
       for (line <- cmd.lines)
         stream.println(line)
@@ -38,6 +36,12 @@ object Sink {
   }
 
   class tee(primary: Sink, secondary: Sink*) extends Sink {
+    def done(state: State) = {
+      for (that <- secondary)
+        that.done(state)
+      primary.done(state)
+    }
+
     def exec(cmd: Cmd, state: State) = {
       for (that <- secondary)
         that.exec(cmd, state)

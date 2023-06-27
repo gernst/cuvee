@@ -7,10 +7,10 @@ import cuvee.pipe.Stage
 import cuvee.smtlib._
 
 object Eval extends Stage {
-  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
     val eval = new Eval(state)
 
-    val cmds_ = cmds flatMap {
+    cmds flatMap {
       case Assert(expr) =>
         List(Assert(eval.eval(expr)))
 
@@ -42,9 +42,6 @@ object Eval extends Stage {
       case cmd =>
         List(cmd)
     }
-
-    // we modify the signature by removing procedures
-    (cmds_, None)
   }
 }
 

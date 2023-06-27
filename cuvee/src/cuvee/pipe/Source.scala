@@ -10,7 +10,8 @@ import java.io.FileReader
 import java.io.InputStreamReader
 
 // the returned state is *after* considering the returned command
-trait Source extends Iterator[(Cmd, State)] {
+trait Source extends Iterator[Cmd] {
+  def state: State
   def hasNext: Boolean
-  def next(): (Cmd, State)
+  def next(): Cmd
 }

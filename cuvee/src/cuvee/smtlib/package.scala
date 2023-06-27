@@ -6,7 +6,6 @@ import java.io.Reader
 import java.io.FileReader
 import cuvee.sexpr.Printer
 
-
 package object smtlib {
   def parse(file: String): (List[Cmd], State) = {
     val from = sexpr.parse(file)
@@ -21,20 +20,17 @@ package object smtlib {
     res
   }
 
-  def source() : Source = source(new InputStreamReader(System.in))
-  def source(path: String): Source  = source(new FileReader(path))
+  def source(): Source = source(new InputStreamReader(System.in))
+  def source(path: String): Source = source(new FileReader(path))
 
-  def source(reader: Reader): Source  = new Source {
+  def source(reader: Reader): Source = new Source {
     val from = cuvee.sexpr.iterator(reader)
     val init = State.default
     val parser = new cuvee.smtlib.Parser(init)
 
+    def state = parser.st
     def hasNext = from.hasNext
-
-    def next() = { 
-      val cmd = parser.cmd(from.next)
-      (cmd, parser.st)
-    }
+    def next() = parser.cmd(from.next)
   }
 
   /** The default printer to use: Prints s-expressions */

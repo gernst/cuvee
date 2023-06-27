@@ -87,7 +87,8 @@ object Enumerate extends Main {
 
   def main(args: Array[String]) {
     val Array(file) = args
-    val (decls, defs, cmds, st) = read(file)
+    val (cmds, st) = read(file)
+    val (decls, defs) = prepare(cmds, st)
     println(file)
 
     val solver = Solver.z3(timeout = 100)
