@@ -12,14 +12,8 @@ import cuvee.State
 
 trait Sink {
   // avoid external calls
-  protected def exec(cmd: Cmd, state: State): Res
-
+  def exec(cmd: Cmd, state: State): Res
   def done(state: State)
-
-  // this is the interface to use by clients
-  def apply(cmd: Cmd, state: State): Res = {
-    exec(cmd, state)
-  }
 }
 
 object Sink {

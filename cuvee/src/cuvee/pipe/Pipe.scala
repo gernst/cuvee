@@ -7,7 +7,7 @@ import cuvee.State
 object Pipe {
   def run(source: Source, sink: Sink, report: Report) {
     for (cmd <- source) {
-      report { sink(cmd, source.state) }
+      report { sink.exec(cmd, source.state) }
     }
 
     sink.done(source.state)
@@ -50,7 +50,7 @@ class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends S
     out add cmds
 
     for (cmd <- cmds)
-      sink(cmd, out)
+      sink.exec(cmd, out)
 
     pending = Nil
   }
@@ -59,21 +59,21 @@ class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends S
     case Push(n) =>
       val add = List.tabulate(n) { _ => stack.head.copy }
       stack = add ++ stack
-      sink(cmd, out)
+      sink.exec(cmd, out)
 
     case Pop(n) =>
       stack = stack drop n
-      sink(cmd, out)
+      sink.exec(cmd, out)
 
     // check-sat flushes, lemmas don't
     case CheckSat =>
       flush(in)
-      sink(cmd, out)
+      sink.exec(cmd, out)
 
     case GetModel =>
       // assume here that the model is provided always by the backend,
       // perhaps we can find some more flexible option in the future.
-      sink(cmd, out)
+      sink.exec(cmd, out)
 
     case _ =>
       pending = cmd :: pending
