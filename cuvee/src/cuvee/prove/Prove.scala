@@ -11,7 +11,7 @@ import cuvee.sub
 class Prove(prover: Prover) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
     cmds flatMap {
-      case Lemma(expr, tactic, assert) =>
+      case cmd@Lemma(expr, tactic, assert) =>
         val goal = Disj.from(expr)
         for (goal_ <- reduce(goal, tactic, state) if goal_ != Atom.t)
           yield Lemma(goal_.toExpr, None, assert)
@@ -23,6 +23,7 @@ class Prove(prover: Prover) extends Stage {
   }
 
   def auto(goal: Prop) = {
+    println(goal)
     prover.reduce(goal, null)
   }
 

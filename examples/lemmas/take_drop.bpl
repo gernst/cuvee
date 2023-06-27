@@ -17,6 +17,13 @@ function take(n: nat, xs: list<elem>): list<elem>;
 function drop(n: nat, xs: list<elem>): list<elem>;
 function map (f: [elem]elem, xs: list<elem>): list<elem>;
 
+function append(xs: list<elem>, ys: list<elem>): list<elem>;
+axiom forall ys: list<elem> ::
+  append(nil, ys) == ys;
+axiom forall x: elem, xs: list<elem>, ys: list<elem> ::
+  append(cons(x,xs), ys) == cons(x, append(xs, ys));
+
+
 axiom
   length(nil) == zero;
 axiom forall x: elem, xs: list<elem> ::
@@ -40,3 +47,7 @@ axiom forall f: [elem]elem ::
   map(f, nil) == nil;
 axiom forall f: [elem]elem, y: elem, ys: list<elem> ::
   map(f, cons(y, ys)) == cons(f[y], map(f, ys));
+
+lemma forall n: nat, xs: list<elem> ::
+  append(take(n, xs), drop(n, xs)) == xs
+proof induction xs;

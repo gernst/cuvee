@@ -47,6 +47,7 @@ object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 object append extends Run(Test, "examples/lemmas/append.bpl")
 object remove extends Run(Test, "-use:shortcut", "examples/lemmas/remove.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
+object filter extends Run(Test,  "-use:shortcut","examples/lemmas/filter.bpl")
 
 object nat extends Run(Test, "examples/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "examples/lemmas/list.bpl")

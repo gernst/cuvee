@@ -36,6 +36,7 @@ object Trivial {
     }
   }
 
+
   def selectsConstructors(df: Def, args: List[Expr]): List[Expr] = {
     val Def(f, cases) = df
     val tests = cases map {

@@ -16,7 +16,7 @@ class Config {
   var sink: (Printer => Sink) = Sink.stdout(_)
   var report: (Printer => Report) = Report.stderr(_)
 
-  var prove = false
+  var prove = "none"
   var lemmas = false
 
   def option(name: String, help: String)(action: => Unit) = {
@@ -47,8 +47,11 @@ class Config {
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
     },
-    option("-prove", "prove lemmas") {
-      prove = true
+    option("-prove:z3", "prove lemmas") {
+      prove = "z3"
+    },
+    option("-prove:dump", "prove lemmas") {
+      prove = "dump"
     },
     option("-lemmas", "infer lemmas") {
       lemmas = true
@@ -95,10 +98,17 @@ object Config {
       sink = new Incremental(Lemmas, sink)
     }
 
-    if (config.prove) {
-      val solver = Solver.z3()
-      val prover = Prover.fromSolver(solver)
-      sink = new Incremental(new Prove(prover), sink)
+    config.prove match {
+      case "z3" =>
+        val solver = Solver.z3()
+        val prover = Prover.fromSolver(solver)
+        sink = new Incremental(new Prove(prover), sink)
+
+      case "dump" =>
+        val prover = Prover.dump("./lemma")
+        sink = new Incremental(new Prove(prover), sink)
+
+      case _ =>
     }
 
     val report = config.report(config.printer)
