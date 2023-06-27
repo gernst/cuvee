@@ -9,7 +9,7 @@ import cuvee.prove.InductiveProver
 import cuvee.pipe.Stage
 
 object Lemmas extends Stage {
-  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], Option[State]) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
     ???
   }
 }

@@ -87,6 +87,7 @@ object Solver {
   var debug = false
 
   object dummy extends Solver {
+    def done(state: State) {}
     def ack(cmd: Cmd) = Success
     def check() = Unknown
     def model(state: State) = cuvee.error("no model")
@@ -121,6 +122,10 @@ object Solver {
     val res = cuvee.sexpr.iterator(in)
 
     require(ack(PrintSuccess) == Success)
+
+    def done(state: State) {
+      destroy()
+    }
 
     def destroy() {
       proc.destroy()

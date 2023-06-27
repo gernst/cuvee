@@ -6,9 +6,11 @@ import cuvee.State
 
 object Pipe {
   def run(source: Source, sink: Sink, report: Report) {
-    for ((cmd, state) <- source) {
-      report { sink(cmd, state) }
+    for (cmd <- source) {
+      report { sink(cmd, source.state) }
     }
+
+    sink.done(source.state)
   }
 }
 
@@ -23,56 +25,55 @@ trait Stage {
   // need to override for stateful components
   def copy(): Stage = this
 
-  // executed with every check-sat/lemma command
-  // returns the potentially modified script + an optional check command that
-  // is then finally suggested to the backend sink
-
-  def transform(prefix: List[Cmd], cmds: List[Cmd], state: State): (List[Cmd], Option[State])
-
-  def apply(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
-    val (cmds_, state_) = transform(prefix, cmds, state)
-    val state__ = state_.getOrElse { state.added(cmds_) }
-    (cmds_, state__)
-  }
+  // executed with every check-sat command (but not lemmas, they just return success or not)
+  def exec(prefix: List[Cmd], cmds: List[Cmd], in: State): List[Cmd]
 }
 
-class Incremental(stage: Stage, sink: Sink) extends Sink {
-  class Entry(var prefix: List[Cmd], val stage: Stage) {
-    def copy() = new Entry(prefix, stage.copy())
+class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends Sink {
+  class Entry(var prefix: List[Cmd], val stage: Stage, val state: State) {
+    def copy() = new Entry(prefix, stage.copy(), out.copy())
   }
 
-  var stack = List(new Entry(Nil, stage))
+  var stack = List(new Entry(Nil, stage, State.default))
   def top = stack.head
+  def out = top.state
 
   var pending: List[Cmd] = Nil
 
-  def flush() = {
-    val add = pending.reverse
-    pending = Nil
-    add
+  def done(state: State) {
+    if (flushDone)
+      flush(state)
   }
 
-  def exec(cmd: Cmd, state: State) = cmd match {
+  def flush(in: State) {
+    val cmds = stage.exec(top.prefix, pending.reverse, in)
+    out add cmds
+
+    for (cmd <- cmds)
+      sink(cmd, out)
+
+    pending = Nil
+  }
+
+  def exec(cmd: Cmd, in: State) = cmd match {
     case Push(n) =>
       val add = List.tabulate(n) { _ => stack.head.copy }
       stack = add ++ stack
-      sink(cmd, state)
+      sink(cmd, out)
 
     case Pop(n) =>
       stack = stack drop n
-      sink(cmd, state)
+      sink(cmd, out)
 
-    // some of these flush, TODO: add this cmd as separate param?
-    case CheckSat | _: Lemma =>
-      pending = cmd :: pending
-      val (cmds, state_) = stage(top.prefix, flush(), state)
-      for (cmd <- cmds) sink(cmd, state_)
-      Success
+    // check-sat flushes, lemmas don't
+    case CheckSat =>
+      flush(in)
+      sink(cmd, out)
 
     case GetModel =>
       // assume here that the model is provided always by the backend,
       // perhaps we can find some more flexible option in the future.
-      sink(cmd, state)
+      sink(cmd, out)
 
     case _ =>
       pending = cmd :: pending
