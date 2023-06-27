@@ -343,7 +343,7 @@ object Deaccumulate {
               print("proving:  " + phi + " ... ")
 
             val s = lhs_ == rhs_
-            val a = s // || solver.isTrue(phi)
+            val a = s || solver.isTrue(phi)
             val b = a // || cuvee.a.Prove.holdsByInduction(solver, phi, datatypes)
             if (b && !s && !a) println("proved by induction: " + phi)
             b

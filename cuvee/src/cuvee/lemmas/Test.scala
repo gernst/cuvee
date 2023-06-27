@@ -25,7 +25,6 @@ object debug_smt2 extends Run(Test, "debug.smt2")
 object poly extends Run(Test, "examples/boogie/poly.bpl")
 object assoc extends Run(Test, "examples/boogie/assoc.bpl")
 object length extends Run(Test, "examples/boogie/length.bpl")
-object nat extends Run(Test, "examples/lemmas/nat.bpl")
 object layout extends Run(Test, "examples/boogie/layout.bpl")
 object sum extends Run(Test, "examples/boogie/sum.bpl")
 object length_nat extends Run(Test, "-use:AdtInd", "examples/smtlib/length-nat.smt2")
@@ -38,9 +37,6 @@ object reverse
     )
 // object replace extends Run(Test, "examples/smtlib/replace.smt2")
 object contains extends Run(Test, "examples/smtlib/contains_only.smt2")
-object list extends Run(Test, "-use:shortcut", "examples/lemmas/list.bpl")
-object remove extends Run(Test, "-use:shortcut", "examples/lemmas/remove.bpl")
-object tree extends Run(Test, "examples/boogie/tree.bpl")
 object tree2 extends Run(Test, "examples/boogie/tree-update.bpl")
 object debug extends Run(Test, "examples/boogie/debug.bpl")
 
@@ -48,8 +44,12 @@ object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 
 
 object append extends Run(Test, "examples/lemmas/append.bpl")
-
+object remove extends Run(Test, "-use:shortcut", "examples/lemmas/remove.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
+
+object nat extends Run(Test, "examples/lemmas/nat.bpl")
+object list extends Run(Test, "-use:shortcut", "examples/lemmas/list.bpl")
+object tree extends Run(Test, "examples/lemmas/tree.bpl")
 
 object Test extends Main {
   var out: PrintStream = null
