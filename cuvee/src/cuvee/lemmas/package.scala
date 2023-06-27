@@ -9,15 +9,16 @@ import cuvee.sexpr.Syntax
 import java.io.OutputStream
 
 package object lemmas {
-  def read(file: String): (List[DeclareFun], List[Def], List[Cmd], State) = {
-    val (cmds, st) =
-      if (file endsWith ".smt2")
-        smtlib.parse(file)
-      else if (file endsWith ".bpl")
-        boogie.parse(file)
-      else
-        cuvee.error("unknown file format: " + file)
+  def read(file: String) = {
+    if (file endsWith ".smt2")
+      smtlib.parse(file)
+    else if (file endsWith ".bpl")
+      boogie.parse(file)
+    else
+      cuvee.error("unknown file format: " + file)
+  }
 
+  def prepare(cmds: List[Cmd], st: State) = {
     for (
       DeclareDatatypes(arities, dts) <- cmds;
       ((name, arity), dt) <- arities zip dts
@@ -66,7 +67,7 @@ package object lemmas {
           Def(fun, cases)
         }
 
-    (decls1 ++ decls2, dfs.toList, cmds, st)
+    (decls1 ++ decls2, dfs.toList)
   }
 
   def dump(out: PrintStream, syntax: Syntax, comment: Boolean = false) {

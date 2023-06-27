@@ -5,6 +5,7 @@ import cuvee.smtlib._
 import cuvee.pure._
 import cuvee.util.Run
 import cuvee.util.Main
+import cuvee.State
 
 object isaplanner
     extends Run(
@@ -53,6 +54,62 @@ object Test extends Main {
   var useInternal = true
   // cuvee.smtlib.solver.debug = true
 
+  def run(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State) = {
+    val solver = Solver.z3(100)
+    Deaccumulate.neutral = Deaccumulate.defaultNeutral
+
+    for (cmd <- cmds) cmd match {
+      case SetLogic(_)      =>
+      case _: Lemma         =>
+      case Assert(Not(phi)) =>
+      case _ =>
+        solver.exec(cmd, null)
+    }
+
+    val goals =
+      for ((Assert(Not(phi))) <- cmds)
+        yield phi
+
+    val lemmas = new Lemmas(decls, cmds, defs, st, solver)
+    lemmas.useInternal = useInternal
+    lemmas.useAdtInd = useAdtInd
+
+    for (
+      Lemma(phi, _, _) <- cmds;
+      Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
+    ) {
+      lemmas.addLemma("provided", lhs, rhs, cond)
+      // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
+    }
+
+    lemmas.findNeutral(defs map (_.fun))
+
+    for (df <- defs) {
+      lemmas.define(df)
+      lemmas.deaccumulate(df)
+      lemmas.recognizeConditional(df)
+    }
+
+    for (df <- defs; dg <- defs) {
+      lemmas.fuse(df, dg)
+    }
+
+    for (i <- 0 until rounds) {
+      lemmas.round()
+      lemmas.cleanup()
+      println("--------")
+      lemmas.show()
+      println("--------")
+
+      lemmas.next()
+    }
+
+    solver.ack(Exit)
+    solver.destroy()
+
+    lemmas.lemmas
+  }
+
   def main(args: Array[String]) {
     Rules.shortcut = false
     val files = configure(args.toList)
@@ -62,60 +119,10 @@ object Test extends Main {
 
     for (file <- files) {
       try {
-        val (decls, defs, cmds, st) = read(file)
+        val (cmds, st) = read(file)
+        val (decls, defs) = prepare(cmds, st)
         println(file)
-
-        val solver = Solver.z3(100)
-        Deaccumulate.neutral = Deaccumulate.defaultNeutral
-
-        for (cmd <- cmds) cmd match {
-          case SetLogic(_)      =>
-          case _: Lemma         =>
-          case Assert(Not(phi)) =>
-          case _ =>
-            solver.exec(cmd, null)
-        }
-
-        val goals =
-          for ((Assert(Not(phi))) <- cmds)
-            yield phi
-
-        val lemmas = new Lemmas(decls, cmds, defs, st, solver)
-        lemmas.useInternal = useInternal
-        lemmas.useAdtInd = useAdtInd
-
-        for (
-          Lemma(phi, _, _) <- cmds;
-          Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
-        ) {
-          lemmas.addLemma("provided", lhs, rhs, cond)
-          // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
-        }
-
-        lemmas.findNeutral(defs map (_.fun))
-
-        for (df <- defs) {
-          lemmas.define(df)
-          lemmas.deaccumulate(df)
-          lemmas.recognizeConditional(df)
-        }
-
-        for (df <- defs; dg <- defs) {
-          lemmas.fuse(df, dg)
-        }
-
-        for (i <- 0 until rounds) {
-          lemmas.round()
-          lemmas.cleanup()
-          println("--------")
-          lemmas.show()
-          println("--------")
-
-          lemmas.next()
-        }
-
-        solver.ack(Exit)
-        solver.destroy()
+        run(decls, cmds, defs, st)
       } catch {
         case e: cuvee.smtlib.Error =>
           println(e.info)
