@@ -18,6 +18,7 @@ class Config {
 
   var prove = "none"
   var lemmas = false
+  var induct = false
 
   def option(name: String, help: String)(action: => Unit) = {
     name -> (help, () => action)
@@ -47,14 +48,23 @@ class Config {
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
     },
+    // option("-print:none", "suppress output") {
+    //   printer = Printer.dummy
+    // },
     option("-prove:z3", "prove lemmas") {
       prove = "z3"
     },
     option("-prove:dump", "prove lemmas") {
       prove = "dump"
     },
+    option("-prove:dummy", "just apply tactics to lemmas") {
+      prove = "dummy"
+    },
     option("-lemmas", "infer lemmas") {
       lemmas = true
+    },
+    option("-prove:induct", "prove by trying automatic induction") {
+      induct = true
     }
   )
 
@@ -101,7 +111,12 @@ object Config {
     config.prove match {
       case "z3" =>
         val solver = Solver.z3()
-        val prover = Prover.fromSolver(solver)
+        val prover = Prover.fromSolver(solver, config.induct)
+        sink = new Incremental(new Prove(prover), sink)
+
+      case "dummy" =>
+        val solver = Solver.dummy
+        val prover = Prover.fromSolver(solver, config.induct)
         sink = new Incremental(new Prove(prover), sink)
 
       case "dump" =>

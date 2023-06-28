@@ -36,8 +36,8 @@ object Conditional {
 
           case Some(recarglists) =>
             val recs = recarglists map (App(prefun, _))
-            val rec = if(c.isRecursive(recfunc)) 1 else 0
-            (1-rec, rec, C(caseargs, caseguard, And(recs)))
+            val rec = if (c.isRecursive(recfunc)) 1 else 0
+            (1 - rec, rec, C(caseargs, caseguard, And(recs)))
         }
 
     val (base, recs, precases) = stuff.unzip3
@@ -100,6 +100,89 @@ object Conditional {
 
       case other =>
         None
+    }
+  }
+
+  def checkIsDefConstant(df: Def): Option[(Rule, Def)] = {
+    var Def(f, cases) = df
+    checkCasesAsConstantAndGeneratePre(cases, f, df.staticArgs)
+  }
+
+  def checkCasesAsConstantAndGeneratePre(
+      cases: List[C],
+      recfunc: Fun,
+      static: List[Int]
+  ): Option[(Rule, Def)] = {
+    var Fun(recfuncname, recfuncparams, recfuncargs, recfuncret) = recfunc
+    var prefun = Fun(Name(recfuncname + "_const?"), recfuncparams, recfuncargs, Sort.bool)
+
+    val xs = Expr.vars("x", recfuncargs)
+    val bs = static map xs
+
+    var recNrecPreCaseConstPart =
+      for (c @ C(caseargs, caseguard, casebody) <- cases)
+        yield checkCaseAsConstant(c, recfunc, static, bs) match {
+          case (Some(Nil), Some(constpart)) =>
+            ((true, false), C(caseargs, caseguard, True), Some(constpart))
+          case (Some(recargs), None) =>
+            val reccall = App(prefun, recargs)
+            ((false, true), C(caseargs, caseguard, reccall), None)
+          case other =>
+            ((false, false), C(caseargs, caseguard, False), None)
+        }
+    val (baserecs, precases, constparts) = recNrecPreCaseConstPart.unzip3
+    val (base, recs) = baserecs.unzip
+    val nbase = base.count(b => b)
+    val nrecs = recs.count(b => b)
+
+    val constpart = constparts.flatten
+
+    constpart.distinct match {
+      case List(arg) =>
+        if (nbase > 0 && nrecs > 0) {
+          val cond = App(prefun, xs)
+          val lhs = App(recfunc, xs)
+          val rhs = arg
+          val eq = Rule(lhs, rhs, cond)
+          val defpre = Def(prefun, precases)
+          Some((eq, defpre))
+        } else {
+          None
+        }
+      case other => None
+    }
+  }
+
+  def checkCaseAsConstant(
+      c: C,
+      recfunc: Fun,
+      static: List[Int],
+      recargsToStatic: List[Var]
+  ): (Option[List[Expr]], Option[Expr]) = {
+
+    val isConstantRecArgsConstPart = c match {
+      case c @ C(args, guard, App(Inst(`recfunc`, _), recargs)) =>
+        true -> (Some(recargs), None)
+      case c @ C(args, guard, body) if !c.isRecursive(recfunc) =>
+        val xs = body.free
+        val as = static map args
+        val ys = as.free
+
+        val re = Expr.subst(as map { case x: Var => x }, recargsToStatic)
+        val constPart = body subst re
+        if (xs subsetOf ys) {
+          true -> (Some(Nil), Some(constPart))
+        } else {
+          false -> (None, None)
+        }
+      case other => false -> (None, None)
+    }
+
+    val (isConstant, (recargs, constPart)) = isConstantRecArgsConstPart
+    if (isConstant) {
+      (recargs, constPart)
+    } else {
+      (None, None)
     }
   }
 }

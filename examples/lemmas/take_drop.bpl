@@ -3,7 +3,15 @@ data nat = zero | succ(pred: nat);
 type elem;
 data list<a> = nil | cons(head: a, tail: list<a>);
 
+function sub(m: nat, n: nat): nat;
 function leq(m: nat, n: nat): bool;
+
+axiom forall m: nat ::
+  sub(m, zero) == m;
+axiom forall m: nat, n: nat ::
+  sub(zero, succ(n)) == zero;
+axiom forall m: nat, n: nat ::
+  sub(succ(m), succ(n)) == sub(m, n);
 
 axiom forall n: nat ::
   leq(zero, n) == true;
@@ -50,4 +58,8 @@ axiom forall f: [elem]elem, y: elem, ys: list<elem> ::
 
 lemma forall n: nat, xs: list<elem> ::
   append(take(n, xs), drop(n, xs)) == xs
+proof induction xs;
+
+lemma forall n: nat, xs: list<elem> ::
+  length(drop(n, xs)) == sub(length(xs), n)
 proof induction xs;

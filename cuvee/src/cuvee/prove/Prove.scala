@@ -7,14 +7,20 @@ import cuvee.smtlib.Lemma
 
 import cuvee.pure._
 import cuvee.sub
+import cuvee.smtlib.Assert
 
-class Prove(prover: Prover) extends Stage {
+class Prove(prover: Prover, proveNegatedAsserts: Boolean = true) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
     cmds flatMap {
-      case cmd@Lemma(expr, tactic, assert) =>
+      case cmd @ Lemma(expr, tactic, assert) =>
         val goal = Disj.from(expr)
         for (goal_ <- reduce(goal, tactic, state) if goal_ != Atom.t)
           yield Lemma(goal_.toExpr, None, assert)
+
+      case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
+        val goal = Disj.from(expr)
+        for (goal_ <- reduce(goal, None, state))
+          yield Assert(Not(goal_.toExpr))
 
       case cmd =>
         prover.exec(cmd, state)
@@ -22,14 +28,13 @@ class Prove(prover: Prover) extends Stage {
     }
   }
 
-  def auto(goal: Prop) = {
-    println(goal)
-    prover.reduce(goal, null)
+  def auto(goal: Prop, state: State) = {
+    prover.reduce(goal, state)
   }
 
   def reduce(goal: Prop, tactic: Option[Tactic], state: State): List[Prop] = tactic match {
     case None =>
-      List(auto(goal))
+      List(auto(goal, state))
 
     case Some(tactic) =>
       reduce(goal, tactic, state)
@@ -43,10 +48,13 @@ class Prove(prover: Prover) extends Stage {
       noauto(goal, tactic, state)
 
     case Auto =>
-      List(auto(goal))
+      List(auto(goal, state))
+
+    case Sorry =>
+      List(goal)
 
     case _ =>
-      noauto(auto(goal), tactic, state)
+      noauto(auto(goal, state), tactic, state)
   }
 
   def noauto(goal: Prop, tactic: Tactic, state: State): List[Prop] = tactic match {

@@ -9,6 +9,9 @@ function contains(x: elem, xs: list<elem>): bool;
 function remove(x: elem, xs: list<elem>): list<elem>;
 function count(x: elem, xs: list<elem>): int;
 
+lemma forall n: int ::
+  n - 0 == n;
+
 axiom forall x: elem ::
   contains(x, nil) == false;
 axiom forall x: elem, y: elem, ys: list<elem> ::

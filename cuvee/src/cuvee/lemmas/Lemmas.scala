@@ -10,13 +10,22 @@ import cuvee.pipe.Stage
 import cuvee.lemmas.prepare
 
 object Lemmas extends Stage {
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = if (cmds.nonEmpty) {
     val (decls, defs) = prepare(cmds, state)
     val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)
+    val known = state.funs.values.toSet
     val add =
-      for ((origin, rule) <- results)
+      for ((origin, rule) <- results if (origin != "provided") && (rule.funs subsetOf known))
         yield Lemma(rule.toExpr, None, true)
-    cmds ++ add
+    val (pre,post) = cmds partition {
+      case Assert(Not(expr)) => 
+        false
+      case _ =>
+        true
+    }
+    pre ++ add ++ post
+  } else {
+    cmds
   }
 }
 
@@ -533,9 +542,14 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
         // case RecognizeConditional(df, lhs, recogArg) =>
         case RecognizeConditional(df) =>
           val Def(fun, cases) = df
+
           println("recognize conditionally " + fun.name)
-          val idConditions = Conditional.checkIdentityWithParamPicksAndGuard(df)
-          for ((rule, preCondDef) <- idConditions) {
+
+          val ids = Conditional.checkIdentityWithParamPicksAndGuard(df)
+          val const = Conditional.checkIsDefConstant(df)
+          val all = ids ++ const
+
+          for ((rule, preCondDef) <- all) {
             addLemma("conditional identity", rule)
             val pre = preCondDef.fun
             val xs = Expr.vars("x", pre.args)

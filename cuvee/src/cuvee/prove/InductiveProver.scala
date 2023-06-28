@@ -5,7 +5,6 @@ import cuvee.util.Name
 import cuvee.pure._
 import cuvee.smtlib._
 
-
 object InductiveProver {
   def holds(prelude: List[Cmd], goal: Expr) = {
     prove(prelude, goal) == Unsat
@@ -17,6 +16,16 @@ object InductiveProver {
       datatypes: Map[Name, Datatype]
   ) = {
     proveWithInduction(prelude, goal, datatypes) exists { case (x, issat) =>
+      issat == Unsat
+    }
+  }
+
+  def holdsByInduction(
+      solver: Solver,
+      goal: Expr,
+      datatypes: Map[Name, Datatype]
+  ) = {
+    proveWithInduction(solver, goal, datatypes) exists { case (x, issat) =>
       issat == Unsat
     }
   }
@@ -49,8 +58,8 @@ object InductiveProver {
 
       proveWithInduction(solver, goal, datatypes)
     } finally {
-    //   solver.exec(Exit)
-    //   solver.destroy()
+      //   solver.exec(Exit)
+      //   solver.destroy()
     }
   }
 
@@ -73,7 +82,6 @@ object InductiveProver {
       datatypes: Map[Name, Datatype]
   ): List[(Var, Datatype)] = {
     val Clause(formals, ant, suc) = phi
-
     for (xt @ Var(x, Sort(con, args)) <- formals if datatypes contains con.name)
       yield (xt, datatypes(con.name))
   }

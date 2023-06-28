@@ -143,8 +143,19 @@ class Parser(init: State) {
         val List(dt) = datatypes(List(decl), List(from))
         DeclareDatatypes(List(decl), List(dt))
 
+      // benchmarks-dtt format
+      case App(Id("declare-datatypes"), App(), App(froms @ _*)) =>
+        val stuff = froms map { case App(Id(name), constrs @ _*) =>
+          ((Name(name), 0), App(constrs: _*))
+        }
+
+        val (decls, froms_) = stuff.unzip
+        val dts = datatypes(decls.toList, froms_.toList)
+        DeclareDatatypes(decls.toList, dts)
+
       case App(Id("declare-datatypes"), App(names @ _*), App(froms @ _*)) =>
         val decls = arities(names.toList)
+        require(decls.length == froms.length, "invalid datatype specification: " + from)
         val dts = datatypes(decls, froms.toList)
         DeclareDatatypes(decls, dts)
 
@@ -161,7 +172,11 @@ class Parser(init: State) {
       st.con(name, arity)
 
     for (((name, arity), from) <- decls zip froms)
-      yield datatype(name, arity, from)
+      yield {
+        val dt = datatype(name, arity, from)
+        st.datatype(name, dt)
+        dt
+      }
   }
 
   def sel(params: List[Param], in: Sort, from: Expr, ctx: Set[Name]): Fun =

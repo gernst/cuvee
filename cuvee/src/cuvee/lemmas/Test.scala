@@ -117,6 +117,7 @@ object Test extends Main {
   }
 
   def main(args: Array[String]) {
+    Rules.ite = false
     Rules.shortcut = false
     val files = configure(args.toList)
 

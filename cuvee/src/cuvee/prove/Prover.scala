@@ -23,7 +23,7 @@ object Prover {
     def reduce(prop: Prop, state: State) = prop
   }
 
-  def fromSolver(solver: Solver) = new Prover {
+  def fromSolver(solver: Solver, useInduction: Boolean = false) = new Prover {
     def exec(cmd: Cmd, state: State) {
       solver.exec(cmd, state)
     }
@@ -33,6 +33,8 @@ object Prover {
       // print("proving " + phi)
       if (solver.isTrue(phi)) {
         // println("success!")
+        Atom.t
+      } else if(useInduction && InductiveProver.holdsByInduction(solver, phi, state.datatypes)) {
         Atom.t
       } else {
         // println("unknown.")
@@ -48,13 +50,11 @@ object Prover {
     val prelude = ListBuffer[Cmd]()
 
     def exec(cmd: Cmd, state: State) {
-      println("exec: " + cmd)
       prelude += cmd
     }
 
     def reduce(prop: Prop, state: State) = {
       val file = prefix + next + ".smt2"
-      println(file + " " + prop)
       val stream = new PrintStream(new FileOutputStream(file))
       val sink = new Sink.print(stream)
 

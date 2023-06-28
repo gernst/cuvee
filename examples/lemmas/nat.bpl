@@ -20,6 +20,8 @@ axiom forall m: nat, n: nat ::
 
 axiom forall m: nat ::
   sub(m, zero) == m;
+axiom forall n: nat ::
+  sub(zero, succ(n)) == zero;
 axiom forall m: nat, n: nat ::
   sub(succ(m), succ(n)) == sub(m, n);
 
@@ -27,3 +29,6 @@ axiom forall n: nat ::
   mul(zero, n) == zero;
 axiom forall m: nat, n: nat ::
   mul(succ(m), n) == add(n, mul(m, n));
+
+lemma forall n: nat ::
+  sub(zero, n) == zero;
