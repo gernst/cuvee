@@ -43,11 +43,10 @@ object debug extends Run(Test, "examples/boogie/debug.bpl")
 
 object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 
-
 object append extends Run(Test, "examples/lemmas/append.bpl")
 object remove extends Run(Test, "-use:shortcut", "examples/lemmas/remove.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
-object filter extends Run(Test,  "-use:shortcut","examples/lemmas/filter.bpl")
+object filter extends Run(Test, "-use:shortcut", "examples/lemmas/filter.bpl")
 
 object nat extends Run(Test, "examples/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "examples/lemmas/list.bpl")
@@ -61,7 +60,7 @@ object Test extends Main {
   // cuvee.smtlib.solver.debug = true
 
   def run(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State) = {
-    val solver = Solver.z3(100)
+    implicit val solver = Solver.z3(100)
     Deaccumulate.neutral = Deaccumulate.defaultNeutral
 
     for (cmd <- cmds) cmd match {
@@ -101,10 +100,18 @@ object Test extends Main {
     }
 
     for (i <- 0 until rounds) {
+      val before = lemmas.lemmas map (_._2.toExpr) filter (_.funs subsetOf lemmas.original)
       lemmas.round()
       lemmas.cleanup()
+      val after = lemmas.lemmas map (_._2.toExpr) filter (_.funs subsetOf lemmas.original)
       println("--------")
       lemmas.show()
+
+      import cuvee.util.TheoryComparison
+      println("merit of this round: ")
+      println(after)
+      println(before)
+      println(before % after)
       println("--------")
 
       lemmas.next()
@@ -117,7 +124,7 @@ object Test extends Main {
   }
 
   def main(args: Array[String]) {
-    Rules.ite = false
+    Rules.ite = true
     Rules.shortcut = false
     val files = configure(args.toList)
 

@@ -393,6 +393,7 @@ class Parser(init: State) {
           (const(name), Map()) // TODO: do proper type checking in this function
 
         case App(Id(name), args @ _*) =>
+          ??? // need to make function generic!
           val fun = st funs (name, args.length)
           var scope: Map[Name, Type] = Map()
           val args_ = (args.toList zip fun.args) map { case (Id(name), typ) =>
