@@ -40,23 +40,27 @@ object TheSy {
         val from = cuvee.sexpr.parse(new StringReader(rest))
         val eq = parser.rule(from)
         val expr = eq.toExpr
+        
+        lemmas = expr :: lemmas
 
-        if (solver.isTrue(expr)) {
-          print("trivial: ")
-        } else
-          solver.scoped {
-            solver.assert(lemmas)
-            if (solver.isTrue(expr))
-              print("implied: ")
-            else
-              print("lemma:   ")
+        // if (solver.isTrue(expr)) {
+        //   print("trivial: ")
+        // } else
+        //   solver.scoped {
+        //     solver.assert(lemmas)
+        //     if (solver.isTrue(expr))
+        //       print("implied: ")
+        //     else
+        //       print("lemma:   ")
 
-          }
-        println(eq)
+        //   }
+        // println(eq)
       }
 
       line = in.readLine()
     }
+
+    lemmas.reverse
   }
 
   def apply(file: String) {

@@ -15,7 +15,7 @@ package object cuvee {
         throw t
     }
   }
-
+  
   def undefined(implicit
       file: sourcecode.File,
       line: sourcecode.Line,
