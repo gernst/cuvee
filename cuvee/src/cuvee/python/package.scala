@@ -86,6 +86,7 @@ package object python {
       state.procdef(name.name, in, out, method._2);
       DefineProc(
         name.name,
+        param,
         in,
         out,
         method._1,
