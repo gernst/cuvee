@@ -14,37 +14,8 @@ import cuvee.pure.Param
 import cuvee.pure.Is
 import cuvee.pure.Exists
 
-object cExpr {
-  val pyAdd = state.funs("pyAdd", 2)
-  val pySub = state.funs("pySub", 2)
-  val pyNegate = state.funs("pyNegate", 1)
-  val pyTimes = state.funs("pyTimes", 2)
-  val pyFloorDiv = state.funs("pyFloorDiv", 2)
-  // TODO only support if boogie has this operator
-  // val pyPow = state.funs("pyPow", 2)
-  val pyMod = state.funs("pyMod", 2)
-
-  val pyEquals = state.funs("pyEquals", 2)
-  val pyGreaterThan = state.funs("pyGreaterThan", 2)
-  val pyGreaterEquals = state.funs("pyGreaterEquals", 2)
-  val pyLessThan = state.funs("pyLessThan", 2)
-  val pyLessEquals = state.funs("pyLessEquals", 2)
-
-  object pyAnd
-      extends Sugar.commutative(state.funs("pyAnd", 2), pyTrue(), Assoc.right)
-  object pyOr
-      extends Sugar.commutative(state.funs("pyOr", 2), pyFalse(), Assoc.right)
-
-  val pyNot = state.funs("pyNot", 1)
-  val pyImplies = state.funs("pyImplies", 2)
-  val pyIte = state.funs("pyIte", 3)
-
-  val pyIn = state.funs("pyIn", 2)
-  val pySelect = state.funs("pySelect", 2)
-  val pyStore = state.funs("pyStore", 3)
-  val pySlice = state.funs("pySlice", 3)
-  val pyConcat = state.funs("pyConcat", 3)
-  val pyShift = state.funs("pyShift", 2)
+class Exprs(val sig: Signature) {
+  import sig._
 
   /** Maps pythonparse.Ast.expr to fitting cuvee.pure.Expr
     *

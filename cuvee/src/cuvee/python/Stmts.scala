@@ -14,30 +14,48 @@ import cuvee.imp.While
 import cuvee.imp.If
 import cuvee.imp.Call
 import cuvee.imp.Assign
+import cuvee.smtlib.DefineProc
+import cuvee.pure.Param
+import cuvee.smtlib.Cmd
 
-object spec {
+class Stmts(val exprs: Exprs) {
+  import exprs.sig._
+  import exprs.pymap
+
+  def createCmd(stmt: Ast.stmt): List[Cmd] = stmt match {
+    case Ast.stmt.ImportFrom(module, _, _) if module == Option(Ast.identifier("help_methods")) =>
+      Nil
+
+    case Ast.stmt.FunctionDef(name, args, stmts, _) =>
+      val in = input(args)
+      val out = List(pyResult) // Stmt.output(body)
+      val (spec, prog) = body(stmts, in)
+      val param = List(Param(name.name))
+      state.proc(name.name, param, in, out, spec)
+      state.procdef(name.name, in, out, prog)
+
+      val cmd = DefineProc(
+        name.name,
+        param,
+        in,
+        out,
+        spec,
+        prog
+      )
+
+      List(cmd)
+      
+    case Ast.stmt.ClassDef(name, bases, body, _) =>
+      cuvee.undefined
+
+    case _ =>
+      cuvee.undefined
+  }
+
   def input(args: Ast.arguments): List[Var] = {
     args.args.collect {
       case Ast.expr.Name(id, _) if id.name != "self" => Var(id.name, value)
     }.toList
-  }
-
-  def output(body: Seq[Ast.stmt]): List[Var] = {
-    if (existsReturn(body)) List(pyResult) else Nil
-  }
-
-  def existsReturn(body: Seq[Ast.stmt]): Boolean = body match {
-    case Nil                        => false
-    case Ast.stmt.Return(_) :: next => true
-    case Ast.stmt.While(_, bd, orelse) :: next =>
-      existsReturn(bd.toList) || existsReturn(orelse.toList) || existsReturn(
-        next
-      )
-    case Ast.stmt.If(_, bd, orelse) :: next =>
-      existsReturn(bd.toList) || existsReturn(orelse.toList) || existsReturn(
-        next
-      )
-    case _ :: next => existsReturn(next)
   }
 
   // Spec(xs: List[Var], pre: Expr, post: Expr) in imp/Prog.scala
@@ -72,27 +90,28 @@ object spec {
             Ast.expr.Call(Ast.expr.Name(id, _), Seq(arg), _, _, _)
           ) :: next if id.name == "requires" =>
         val (vars, pre, post, remnant) = getSpec(next, in)
-        (vars, pyIsTrue(cExpr.pymap(arg)) :: pre, post, remnant)
+        (vars, pyIsTrue(pymap(arg)) :: pre, post, remnant)
       case Ast.stmt.Expr(
             Ast.expr.Call(Ast.expr.Name(id, _), Seq(arg), _, _, _)
           ) :: next if id.name == "ensures" =>
         val (vars, pre, post, remnant) = getSpec(next, in)
-        (vars, pre, pyIsTrue(cExpr.pymap(arg)) :: post, remnant)
+        (vars, pre, pyIsTrue(pymap(arg)) :: post, remnant)
       case head :: next =>
         val (vars, pre, post, remnant) = getSpec(next, in)
         (vars, pre, post, stmts(head) :: remnant)
     }
 
+    // change result to List[Prog]
   def stmts(stmt: Ast.stmt): Prog = stmt match {
     case Nil                      => Skip
-    case Ast.stmt.Assert(test, _) => Spec.assert(pyIsTrue(cExpr.pymap(test)))
+    case Ast.stmt.Assert(test, _) => Spec.assert(pyIsTrue(pymap(test)))
     case Ast.stmt.Assign(Seq(Ast.expr.Name(id, _)), values) =>
-      Assign(List(Var(id.name, value)), List(cExpr.pymap(values)))
+      Assign(List(Var(id.name, value)), List(pymap(values)))
     case Ast.stmt.Assign(
           Seq(Ast.expr.Name(idOut, _)),
           Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _)
         ) if id.name != "len" =>
-      Call(id.name, args.map(cExpr.pymap).toList, List(Var(idOut.name, value)))
+      Call(id.name, args.map(pymap).toList, List(Var(idOut.name, value)))
     case Ast.stmt.Assign(
           Seq(
             Ast.expr.Attribute(
@@ -103,7 +122,7 @@ object spec {
           ),
           values
         ) =>
-      Assign(List(Var("self." + attr.name, value)), List(cExpr.pymap(values)))
+      Assign(List(Var("self." + attr.name, value)), List(pymap(values)))
     case Ast.stmt.Assign(
           Seq(
             Ast.expr.Subscript(
@@ -121,10 +140,10 @@ object spec {
       Assign(
         List(Var("self." + attr.name, value)),
         List(
-          cExpr.pyStore(
+          pyStore(
             Var("self." + attr.name, value),
-            cExpr.pymap(i),
-            cExpr.pymap(values)
+            pymap(i),
+            pymap(values)
           )
         )
       )
@@ -135,10 +154,10 @@ object spec {
       Assign(
         List(Var(id.name, value)),
         List(
-          cExpr.pyStore(
+          pyStore(
             Var(id.name, value),
-            cExpr.pymap(i),
-            cExpr.pymap(values)
+            pymap(i),
+            pymap(values)
           )
         )
       )
@@ -146,24 +165,26 @@ object spec {
     case Ast.stmt.Return(
           Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))
         ) =>
-      Call(id.name, args.map(cExpr.pymap).toList, List(pyResult))
+      Call(id.name, args.map(pymap).toList, List(pyResult))
+      // TODO: actually return!
     case Ast.stmt.Return(Some(value)) =>
-      Assign(List(pyResult), List(cExpr.pymap(value)))
+      Assign(List(pyResult), List(pymap(value)))
+      // TODO: actually return!
     case Ast.stmt.Expr(Ast.expr.Call(name, Seq(args), _, _, _)) =>
       name match {
         case Ast.expr.Name(Ast.identifier("assume"), _) =>
-          Spec.assume(pyIsTrue(cExpr.pymap(args)))
+          Spec.assume(pyIsTrue(pymap(args)))
         case Ast.expr.Attribute(
               Ast.expr.Name(Ast.identifier("self"), _),
               attr,
               _
             ) =>
-          Call(attr.name, Seq(args).map(cExpr.pymap).toList, Nil)
+          Call(attr.name, Seq(args).map(pymap).toList, Nil)
         case _ => cuvee.undefined
       }
     case Ast.stmt.If(test, body, orelse) =>
       If(
-        pyIsTrue(cExpr.pymap(test)),
+        pyIsTrue(pymap(test)),
         Block(body.map(stmts).toList),
         Block(orelse.map(stmts).toList)
       )
@@ -175,7 +196,7 @@ object spec {
         println("decrease: " + And(decrease))
         While(
           // test: Expr,
-          pyIsTrue(cExpr.pymap(test)),
+          pyIsTrue(pymap(test)),
           // body: Prog,
           Block(remnant),
           // term: Expr,
@@ -191,7 +212,7 @@ object spec {
         Block(
           List(
             While(
-              pyIsTrue(cExpr.pymap(test)),
+              pyIsTrue(pymap(test)),
               Block(remnant),
               And(decrease),
               if (inv.isEmpty) And(pre) else And(inv),
@@ -199,7 +220,7 @@ object spec {
               Nil
             ),
             If(
-              Not(pyIsTrue(cExpr.pymap(test))),
+              Not(pyIsTrue(pymap(test))),
               Block(orelse.map(stmts).toList),
               Skip
             )
@@ -222,16 +243,16 @@ object spec {
         id.name match {
           case "invariant" =>
             val (inv, pre, post, decrease, remnant) = getInv(next)
-            (pyIsTrue(cExpr.pymap(arg)) :: inv, pre, post, decrease, remnant)
+            (pyIsTrue(pymap(arg)) :: inv, pre, post, decrease, remnant)
           case "requires" =>
             val (inv, pre, post, decrease, remnant) = getInv(next)
-            (inv, pyIsTrue(cExpr.pymap(arg)) :: pre, post, decrease, remnant)
+            (inv, pyIsTrue(pymap(arg)) :: pre, post, decrease, remnant)
           case "ensures" =>
             val (inv, pre, post, decrease, remnant) = getInv(next)
-            (inv, pre, pyIsTrue(cExpr.pymap(arg)) :: post, decrease, remnant)
+            (inv, pre, pyIsTrue(pymap(arg)) :: post, decrease, remnant)
           case "termination" =>
             val (inv, pre, post, decrease, remnant) = getInv(next)
-            (inv, pre, post, pyGetInt(cExpr.pymap(arg)) :: decrease, remnant)
+            (inv, pre, post, pyGetInt(pymap(arg)) :: decrease, remnant)
         }
       case head :: next =>
         val (inv, pre, post, decrease, remnant) = getInv(next)

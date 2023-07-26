@@ -6,101 +6,50 @@ import cuvee.smtlib.Cmd
 import cuvee.pure.Datatype
 import cuvee.pure.Var
 import cuvee.pure.Param
+import cuvee.pipe.Source
+import java.io.InputStreamReader
+import java.io.FileReader
+import java.io.Reader
+import java.io.BufferedReader
 
 package object python {
   val (prelude, state) = cuvee.boogie.parse("cuvee/src/cuvee/python/python.bpl")
-
-  val value = state.sort("pyValue")
-  val pyNone = state.funs("pyNone", 0)
-
-  val int = state.sort("Int")
-  val pyInt = state.funs("pyInt", 1)
-  val pyGetInt = state.funs("pyGetInt", 1)
-
-  val bool = state.sort("Bool")
-  val pyBool = state.funs("pyBool", 1)
-  val pyGetBool = state.funs("pyGetBool", 1)
-
-  val pyIsTrue = state.funs("pyIsTrue", 1)
-  val pyTrue = state.funs("pyTrue", 0)
-  val pyFalse = state.funs("pyFalse", 0)
-  val pyDefaultArray = state.funs("pyDefaultArray", 0)
-
-  val pyArray = state.funs("pyArray", 2)
-  val pyGetLength = state.funs("pyGetLength", 1)
-  val pyGetArray = state.funs("pyGetValues", 1)
 
   val a = Param("a")
   val old = state.fun("old", List(a), List(a), a)
   val fin = state.fun("final", List(a), List(a), a)
 
-  val constrs = List(
-    (pyNone, Nil),
-    (pyInt, List(pyGetInt)),
-    (pyBool, List(pyGetBool)),
-    (pyArray, List(pyGetArray, pyGetLength))
-  )
+  def parse(lines: String): List[Ast.stmt] = {
+    import fastparse._
+    val parser: P[_] => P[Any] = pythonparse.Statements.file_input(_)
 
-  val dt = Datatype(Nil, constrs)
-  state.datatype("pyValue", dt) // register the datatype
-
-  val pyResult = Var("pyResult", value)
-
-  def parse(file: String): (List[Cmd], List[Cmd], State) = {
-    val source = scala.io.Source.fromFile(file)
-    val lines =
-      try source.mkString
-      finally source.close()
-
-    val parser = new Parser()
-    val stmts = parser.parsePython(lines)
-
-    /*for (stmt <- stmts) // DEBUG
-      println(stmt)
-    println()*/
-
-    val cmds: List[Cmd] = createCmds(stmts)
-
-    object fooSource {
-      val iterator = cmds.iterator
-      def state = python.state
-      def next = iterator.next
-      def hasNext = iterator.hasNext
+    fastparse.parse(lines, parser) match {
+      case fastparse.Parsed.Success(value: Seq[Ast.stmt], index) =>
+        value.toList
+      case fastparse.Parsed.Failure(label, index, extra) =>
+        throw new RuntimeException("Parse Error")
     }
-
-    /*for (cmd <- cmds) // DEBUG
-      println(cmd)
-    println()*/
-
-    (prelude, cmds, state)
   }
 
-  def createCmds(stmts: Seq[Ast.stmt]): List[Cmd] = stmts match {
-    case Nil => List.empty[Cmd]
-    case Ast.stmt.ImportFrom(module, _, _) :: next
-        if module == Option(Ast.identifier("help_methods")) =>
-      createCmds(next)
-    case head :: next => getCmd(head) :: createCmds(next)
-  }
+  def source(path: String): Source = new Source {
+    val source = scala.io.Source.fromFile(path)
+    val lines = source.mkString
 
-  def getCmd(stmt: Ast.stmt): Cmd = stmt match {
-    case Ast.stmt.FunctionDef(name, args, body, _) =>
-      val in = spec.input(args)
-      val out = spec.output(body)
-      val method = spec.body(body, in)
-      val param = List(Param(name.name))
-      state.proc(name.name, param, in, out, method._1);
-      state.procdef(name.name, in, out, method._2);
-      DefineProc(
-        name.name,
-        param,
-        in,
-        out,
-        method._1,
-        method._2
+    val py = parse(lines)
+
+    val sig = new Signature(python.state.copy())
+    val exprs = new Exprs(sig)
+    val stmts = new Stmts(exprs)
+
+    val it =
+      for (
+        stmt <- py.iterator;
+        cmd <- stmts.createCmd(stmt)
       )
-    case Ast.stmt.ClassDef(name, bases, body, _) =>
-      cuvee.undefined
-    case _ => cuvee.undefined
+        yield cmd
+
+    def state = python.state
+    def next() = it.next()
+    def hasNext = it.hasNext
   }
 }
