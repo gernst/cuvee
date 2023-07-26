@@ -61,6 +61,13 @@ package object python {
 
     val cmds: List[Cmd] = createCmds(stmts)
 
+    object fooSource {
+      val iterator = cmds.iterator
+      def state = python.state
+      def next = iterator.next
+      def hasNext = iterator.hasNext
+    }
+
     /*for (cmd <- cmds) // DEBUG
       println(cmd)
     println()*/
