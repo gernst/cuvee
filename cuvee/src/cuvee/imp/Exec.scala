@@ -1,6 +1,7 @@
 package cuvee.imp
 
 import cuvee.pure._
+import cuvee.smtlib.Assert
 
 sealed trait Conf
 
@@ -108,7 +109,7 @@ class Exec(evals: Eval) {
         val right_ = exec(right, cont, fresh, path ++ List(!test_), scope, st, old)
         left_ ++ right_
 
-      case While(test, body, term, inv, sum, frames) :: rest =>
+      case While(test, body, term, inv, True, frames) :: rest =>
         // variables modified by the loop
         val xm = body.mod
         val xs0 = xm.toList
@@ -119,14 +120,59 @@ class Exec(evals: Eval) {
         // 1. arbitrary state at loop head before some iteration
         val st0 = st
         val st1 = assign(st, xs0, xs1)
+        val old_ = st0 :: old
 
         // invariant to show at loop head upon entry
-        val inv0 = eval(inv, scope, st0, st0 :: old)
+        val inv0 = eval(inv, scope, st0, old_)
 
         // test and invariant at loop head before some iteration
         val test1 = test subst st1
-        val inv1 = eval(inv, scope, st1, st0 :: old)
+        val inv1 = eval(inv, scope, st1, old_)
 
+        // path condition with the invariant at an arbitrary state
+        val path_ = path ++ List(inv1)
+
+        // assertion for invariant on loop entry
+        val init = Asserted(fresh, path, inv0)
+
+        // final states of executing an arbitrary loop iteration
+        val body_ = exec(body, Nil, fresh, path_ ++ List(test1), scope, st1, old_)
+
+        // TODO: here can be a loop that goes through body_, for example like this
+        //       which collects some additional information from
+        //       the relation between st1 and st2
+        for(Stopped(fresh, path, st2) <- body_) {
+
+        }
+
+        // now collect all successor states which don't break out of the loop
+        val step = body_ flatMap {
+          // keep assertions inside the body for later
+          case conf: Asserted =>
+            List(conf)
+
+          // similarly, propagate returns
+          case conf: Returned =>
+            List(conf)
+
+          // breaking out of the loop just continues after the loop,
+          // similarly to rest_ above but from that intermediate state
+          case Breaked(fresh, path, st2) =>
+            exec(rest, cont, fresh, path, scope, st2, old_)
+
+          // regular executions of the body just need to theck the invariant
+          case Stopped(fresh, path, st2) =>
+            val inv2 = eval(inv, scope, st2, old_)
+            List(Asserted(fresh, path, inv2))
+        }
+
+        // final states of executing the rest of the program after the loop
+        val exit = exec(rest, cont, fresh, path_ ++ List(!test1), scope, st1, old_)
+
+        // collect the assertion and all potential outcomes
+        List(init) ++ step ++ exit
+
+      case While(test, body, term, inv, sum, frames) :: rest =>
         ???
     }
   }
