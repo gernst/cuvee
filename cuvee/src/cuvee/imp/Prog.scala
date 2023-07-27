@@ -61,18 +61,23 @@ case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
 sealed trait Prog {
   def mod: Set[Var]
   def read: Set[Var]
+  def local: Set[Var]
   def breaks: Boolean
   def replace(re: Map[Var, Var]): Prog
 }
 
 class ProgList(progs: List[Prog]) {
+  def mod = Set(progs flatMap (_.mod): _*)
+  def read = Set(progs flatMap (_.read): _*)
   def breaks = progs exists (_.breaks)
+  def local = Set(progs flatMap (_.local): _*)
   def replace(re: Map[Var, Var]) = progs map (_ replace re)
 }
 
 case class Block(progs: List[Prog]) extends Prog {
-  def mod = Set(progs flatMap (_.mod): _*)
-  def read = Set(progs flatMap (_.read): _*)
+  def mod = progs.mod
+  def read = progs.read
+  def local = Set() // no *exposed* locals
   def breaks = progs.breaks
   def replace(re: Map[Var, Var]) = Block(progs replace re)
 }
@@ -80,6 +85,7 @@ case class Block(progs: List[Prog]) extends Prog {
 case object Break extends Prog {
   def mod = Set()
   def read = Set()
+  def local = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
 }
@@ -87,6 +93,7 @@ case object Break extends Prog {
 case object Return extends Prog {
   def mod = Set()
   def read = Set()
+  def local = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
 }
@@ -107,6 +114,7 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
 
   def mod = Set() // Note: all new!
   def read = rhs.free
+  def local = xs.toSet
   def breaks = false
   def replace(re: Map[Var, Var]) = Local(xs rename re, rhs rename re)
 }
@@ -130,6 +138,7 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
 
   def mod = Set(xs: _*)
   def read = rhs.free
+  def local = Set()
   def breaks = false
   def replace(re: Map[Var, Var]) = Assign(xs rename re, rhs rename re)
 }
@@ -164,8 +173,9 @@ case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
 
   def mod = xs.toSet
   def read = pre.free ++ (post.free -- mod)
+  def local = Set()
   def breaks = false
-  
+
   def replace(re: Map[Var, Var]) =
     Spec(xs rename re, pre rename re, post rename re)
 }
@@ -184,6 +194,7 @@ case class If(test: Expr, left: Prog, right: Prog) extends Prog {
 
   def mod = left.mod ++ right.mod
   def read = test.free ++ left.read ++ right.read
+  def local = left.local ++ right.local
   def breaks = left.breaks || right.breaks
   def replace(re: Map[Var, Var]) =
     If(test rename re, left replace re, right replace re)
@@ -233,6 +244,7 @@ case class While(
 
   def mod = body.mod
   def read = test.free ++ term.free ++ inv.free ++ sum.free ++ body.read
+  def local = body.local
   def breaks = false
   def replace(re: Map[Var, Var]) =
     While(
@@ -273,6 +285,7 @@ case class Call(name: Name, in: List[Expr], out: List[Var]) extends Prog {
 
   def mod = out.toSet
   def read = in.free
+  def local = Set()
   def breaks = false
   def replace(re: Map[Var, Var]) =
     Call(name, in rename re, out rename re)

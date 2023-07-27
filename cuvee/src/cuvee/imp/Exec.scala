@@ -11,30 +11,18 @@ case class Returned(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) e
 case class Breaked(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Conf
 case class Stopped(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Conf
 
-class Exec(evals: Eval) {
+class Exec(val evals: Eval) {
   import evals.state
   import evals.havoc
   import evals.assign
   import evals.eval
 
   def exec(
-      prog: Prog, // current block, affected by local variables
-      cont: List[List[Prog]], // anything after the current block
-      fresh: List[Var], // any new variables introduced
-      path: List[Expr], // current path condition
-      scope: Map[Var, Expr], // assignment of logical variables (why needed?)
-      st: Map[Var, Expr], // all program variables
-      old: List[Map[Var, Expr]]
-  ): List[Conf] = {
-    exec(List(prog), cont, fresh, path, scope, st, old)
-  }
-
-  def exec(
       progs: List[Prog], // current block, affected by local variables
       cont: List[List[Prog]], // anything after the current block
       fresh: List[Var], // any new variables introduced
       path: List[Expr], // current path condition
-      scope: Map[Var, Expr], // assignment of logical variables (why needed?)
+      scope: Map[Var, Expr], // assignment of logical variables, perhaps renaming to avoid clashes
       st: Map[Var, Expr], // all program variables
       old: List[Map[Var, Expr]]
   ): List[Conf] = {
@@ -63,12 +51,11 @@ class Exec(evals: Eval) {
         val (ys, zs) = xs partition st.contains
         val (ys_, re) = havoc(ys)
         val xs_ = ys_ ++ zs
-        val fresh_ = fresh ++ xs_
         val rest_ = rest replace re
         val init_ = if (init.isEmpty) xs_ else init subst st
         val st_ = assign(st, xs_, init_)
 
-        exec(rest_, cont, fresh_, path, scope, st_, old)
+        exec(rest_, cont, fresh, path, scope, st_, old)
 
       case Assign(xs, rhs) :: rest =>
         val rhs_ = rhs subst st // don't use eval, old is specification-only
@@ -105,8 +92,8 @@ class Exec(evals: Eval) {
 
       case If(test, left, right) :: rest =>
         val test_ = test subst st
-        val left_ = exec(left, cont, fresh, path ++ List(test_), scope, st, old)
-        val right_ = exec(right, cont, fresh, path ++ List(!test_), scope, st, old)
+        val left_ = exec(List(left), cont, fresh, path ++ List(test_), scope, st, old)
+        val right_ = exec(List(right), cont, fresh, path ++ List(!test_), scope, st, old)
         left_ ++ right_
 
       case While(test, body, term, inv, True, frames) :: rest =>
@@ -136,7 +123,7 @@ class Exec(evals: Eval) {
         val init = Asserted(fresh, path, inv0)
 
         // final states of executing an arbitrary loop iteration
-        val body_ = exec(body, Nil, fresh, path_ ++ List(test1), scope, st1, old_)
+        val body_ = exec(List(body), Nil, fresh, path_ ++ List(test1), scope, st1, old_)
 
         // TODO: here can be a loop that goes through body_, for example like this
         //       which collects some additional information from

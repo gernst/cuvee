@@ -83,6 +83,7 @@ class Eval(val state: State = State.default) {
       App(inst, args_)
 
     case bind @ Bind(quant, xs, body, typ) =>
+      // TODO: check if we need to avoid prior logical variables, too?
       val re = bind.avoid(Expr.free(st))
       val su = Expr.subst(xs map {
         case x if re contains x => (x, re(x))
