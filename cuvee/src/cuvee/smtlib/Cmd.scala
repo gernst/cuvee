@@ -209,7 +209,13 @@ case class DeclareProc(
     out: List[Var],
     spec: Option[Spec]
 ) extends Decl {
-  def sexpr = cuvee.undefined
+  def sexpr = (params, spec) match {
+    case (Nil, None) =>
+      List("declare-proc", in.asFormals, out.asFormals)
+    case (Nil, Some(spec)) =>
+      List("declare-proc", in.asFormals, out.asFormals) // TODO: print spec
+  }
+
   def bexpr = cuvee.undefined
 }
 
@@ -221,6 +227,12 @@ case class DefineProc(
     spec: Option[Spec],
     body: Prog
 ) extends Decl {
-  def sexpr = cuvee.undefined
+  def sexpr = (params, spec) match {
+    case (Nil, None) =>
+      List("define-proc", in.asFormals, out.asFormals, body)
+    case (Nil, Some(spec)) =>
+      List("define-proc", in.asFormals, out.asFormals, body) // TODO: print spec
+  }
+
   def bexpr = cuvee.undefined
 }

@@ -1,6 +1,7 @@
 package cuvee.imp
 
 import cuvee.pure._
+import cuvee.sexpr
 import cuvee.util.Name
 
 object Skip extends Block(Nil)
@@ -58,7 +59,7 @@ case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
   override def toString = Printer.post(how, prog, post)
 } */
 
-sealed trait Prog {
+sealed trait Prog extends sexpr.Syntax {
   def mod: Set[Var]
   def read: Set[Var]
   def local: Set[Var]
@@ -80,6 +81,7 @@ case class Block(progs: List[Prog]) extends Prog {
   def local = Set() // no *exposed* locals
   def breaks = progs.breaks
   def replace(re: Map[Var, Var]) = Block(progs replace re)
+  def sexpr = "block" :: progs
 }
 
 case object Break extends Prog {
@@ -88,6 +90,7 @@ case object Break extends Prog {
   def local = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
+  def sexpr = "break"
 }
 
 case object Return extends Prog {
@@ -96,6 +99,7 @@ case object Return extends Prog {
   def local = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
+  def sexpr = "return"
 }
 
 case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
@@ -117,6 +121,8 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
   def local = xs.toSet
   def breaks = false
   def replace(re: Map[Var, Var]) = Local(xs rename re, rhs rename re)
+
+  def sexpr = List("local", (xs.asFormals zip rhs))
 }
 
 object Local extends ((List[Var], Option[List[Expr]]) => Local) {
@@ -141,6 +147,8 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
   def local = Set()
   def breaks = false
   def replace(re: Map[Var, Var]) = Assign(xs rename re, rhs rename re)
+
+  def sexpr = List("assign", xs zip rhs)
 }
 
 object Assign extends ((List[Var], List[Expr]) => Assign) {
@@ -178,6 +186,8 @@ case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
 
   def replace(re: Map[Var, Var]) =
     Spec(xs rename re, pre rename re, post rename re)
+
+  def sexpr = List("spec", xs, pre, post)
 }
 
 object Spec extends ((List[Var], Expr, Expr) => Spec) {
@@ -198,6 +208,8 @@ case class If(test: Expr, left: Prog, right: Prog) extends Prog {
   def breaks = left.breaks || right.breaks
   def replace(re: Map[Var, Var]) =
     If(test rename re, left replace re, right replace re)
+
+  def sexpr = List("id", test, left, right)
 }
 
 object If extends ((Expr, Prog, Option[Prog]) => If) {
@@ -255,6 +267,8 @@ case class While(
       sum rename re,
       frames map (_ rename re)
     )
+
+  def sexpr = List("while", test, body, ":invariant", inv, ":summary", sum)
 }
 
 object While
@@ -289,6 +303,9 @@ case class Call(name: Name, in: List[Expr], out: List[Var]) extends Prog {
   def breaks = false
   def replace(re: Map[Var, Var]) =
     Call(name, in rename re, out rename re)
+
+
+  def sexpr = List("call", name, in, out)
 }
 
 /*

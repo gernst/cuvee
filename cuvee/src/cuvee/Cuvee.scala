@@ -7,6 +7,8 @@ import cuvee.prove.Prove
 import cuvee.prove.SimpleProver
 import cuvee.prove.Prover
 import cuvee.lemmas.Lemmas
+import cuvee.imp.Eval
+import cuvee.imp.Annotate
 
 class Config {
   var file: Option[String] = None
@@ -16,8 +18,12 @@ class Config {
   var sink: (Printer => Sink) = Sink.stdout(_)
   var report: (Printer => Report) = Report.stderr(_)
 
-  var prove = "none"
+  var eval = false
+  var annotate = false
+
   var lemmas = false
+
+  var prove = "none"
   var induct = false
 
   def option(name: String, help: String)(action: => Unit) = {
@@ -63,6 +69,12 @@ class Config {
     option("-lemmas", "infer lemmas") {
       lemmas = true
     },
+    option("-eval", "evaluate correctness of programs to expressions") {
+      eval = true
+    },
+    option("-annotate", "infer loop annotations") {
+      annotate = true
+    },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
     }
@@ -105,6 +117,14 @@ object Config {
 
     var sink: Sink = null
     sink = config.sink(config.printer)
+
+    if(config.annotate) {
+      sink = new Incremental(Annotate, sink)
+    }
+
+    if(config.eval) {
+      sink = new Incremental(Eval, sink)
+    }
 
     if (config.lemmas) {
       sink = new Incremental(Lemmas, sink)
