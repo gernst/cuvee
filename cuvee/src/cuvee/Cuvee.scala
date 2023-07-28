@@ -118,18 +118,6 @@ object Config {
     var sink: Sink = null
     sink = config.sink(config.printer)
 
-    if(config.annotate) {
-      sink = new Incremental(Annotate, sink)
-    }
-
-    if(config.eval) {
-      sink = new Incremental(Eval, sink)
-    }
-
-    if (config.lemmas) {
-      sink = new Incremental(Lemmas, sink)
-    }
-
     config.prove match {
       case "z3" =>
         val solver = Solver.z3()
@@ -147,6 +135,20 @@ object Config {
 
       case _ =>
     }
+
+    if (config.lemmas) {
+      sink = new Incremental(Lemmas, sink)
+    }
+
+    if(config.eval) {
+      sink = new Incremental(Eval, sink)
+    }
+
+    if(config.annotate) {
+      sink = new Incremental(Annotate, sink)
+    }
+
+    // println("pipeline: " + sink)
 
     val report = config.report(config.printer)
     (file, source, sink, report)

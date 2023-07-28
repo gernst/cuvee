@@ -8,8 +8,6 @@ object Annotate extends Stage {
   case class State(path: List[Expr], vars: Map[Var, Expr])
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: cuvee.State) = {
-    val eval = new Eval(state)
-
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
         val proc = Proc(name, params, in, out, spec)
