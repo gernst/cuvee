@@ -212,8 +212,17 @@ case class DeclareProc(
   def sexpr = (params, spec) match {
     case (Nil, None) =>
       List("declare-proc", in.asFormals, out.asFormals)
-    case (Nil, Some(spec)) =>
-      List("declare-proc", in.asFormals, out.asFormals) // TODO: print spec
+    case (Nil, Some(Spec(mod, pre, post))) =>
+      List(
+        "declare-proc",
+        in.asFormals,
+        out.asFormals,
+        ":modfies",
+        mod,
+        ":precondition",
+        pre,
+        ":postcondition" + post
+      )
   }
 
   def bexpr = cuvee.undefined
@@ -230,8 +239,19 @@ case class DefineProc(
   def sexpr = (params, spec) match {
     case (Nil, None) =>
       List("define-proc", in.asFormals, out.asFormals, body)
-    case (Nil, Some(spec)) =>
-      List("define-proc", in.asFormals, out.asFormals, body) // TODO: print spec
+    case (Nil, Some(Spec(mod, pre, post))) =>
+      List(
+        "declare-proc",
+        in.asFormals,
+        out.asFormals,
+        ":modfies",
+        mod,
+        ":precondition",
+        pre,
+        ":postcondition" + post,
+        body
+      )
+
   }
 
   def bexpr = cuvee.undefined
