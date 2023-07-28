@@ -148,14 +148,20 @@ object Annotate extends Stage {
 
       case While(test, body, term, inv, sum, frames) =>
         val mod = body.mod
+        val via = havoc(from, mod)
+
+        val before = assume(from, inv && test)
+        val (body_, after) = annotate(before, body)
+
+        // HERE: after are all states reachable from before,
+        //       such that before -- body -> after is exactly one arbitrary loop iteration
 
         // TODO: compute some new invariants here
         val inv_ = inv
 
-        val prog_ = While(test, body, term, inv_, sum, frames)
+        val prog_ = While(test, body_, term, inv_, sum, frames)
 
         // prepare states after the loop
-        val via = havoc(from, mod)
         val to = assume(from, inv_ && !test)
         (prog_, to)
     }
