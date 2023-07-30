@@ -59,7 +59,6 @@ class Stmts(val exprs: Exprs) {
     }.toList
   }
 
-  // Spec(xs: List[Var], pre: Expr, post: Expr) in imp/Prog.scala
   def body(body: Seq[Ast.stmt], in: List[Var]): (Option[Spec], Prog) = {
     val (vars, pre, post, remnant) = getSpec(body, in)
     val spec = Spec(vars, And(pre), And(post))
@@ -82,10 +81,10 @@ class Stmts(val exprs: Exprs) {
             Var(id.name, value) :: vars,
             pre,
             post,
-            stmts(assign.head) :: remnant
+            stmts(assign.head) ++ remnant
           )
         } else {
-          (vars, pre, post, stmts(assign.head) :: remnant)
+          (vars, pre, post, stmts(assign.head) ++ remnant)
         }
       case Ast.stmt.Expr(
             Ast.expr.Call(Ast.expr.Name(id, _), Seq(arg), _, _, _)
@@ -99,20 +98,19 @@ class Stmts(val exprs: Exprs) {
         (vars, pre, pyIsTrue(pymap(arg)) :: post, remnant)
       case head :: next =>
         val (vars, pre, post, remnant) = getSpec(next, in)
-        (vars, pre, post, stmts(head) :: remnant)
+        (vars, pre, post, stmts(head) ++ remnant)
     }
 
-  // change result to List[Prog]
-  def stmts(stmt: Ast.stmt): Prog = stmt match {
-    case Nil                      => Skip
-    case Ast.stmt.Assert(test, _) => Spec.assert(pyIsTrue(pymap(test)))
+  def stmts(stmt: Ast.stmt): List[Prog] = stmt match {
+    case Nil                      => List(Skip)
+    case Ast.stmt.Assert(test, _) => List(Spec.assert(pyIsTrue(pymap(test))))
     case Ast.stmt.Assign(Seq(Ast.expr.Name(id, _)), values) =>
-      Assign(List(Var(id.name, value)), List(pymap(values)))
+      List(Assign(List(Var(id.name, value)), List(pymap(values))))
     case Ast.stmt.Assign(
           Seq(Ast.expr.Name(idOut, _)),
           Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _)
         ) if id.name != "len" =>
-      Call(id.name, args.map(pymap).toList, List(Var(idOut.name, value)))
+      List(Call(id.name, args.map(pymap).toList, List(Var(idOut.name, value))))
     case Ast.stmt.Assign(
           Seq(
             Ast.expr.Attribute(
@@ -123,7 +121,7 @@ class Stmts(val exprs: Exprs) {
           ),
           values
         ) =>
-      Assign(List(Var("self." + attr.name, value)), List(pymap(values)))
+      List(Assign(List(Var("self." + attr.name, value)), List(pymap(values))))
     case Ast.stmt.Assign(
           Seq(
             Ast.expr.Subscript(
@@ -138,13 +136,15 @@ class Stmts(val exprs: Exprs) {
           ),
           values
         ) =>
-      Assign(
-        List(Var("self." + attr.name, value)),
-        List(
-          pyStore(
-            Var("self." + attr.name, value),
-            pymap(i),
-            pymap(values)
+      List(
+        Assign(
+          List(Var("self." + attr.name, value)),
+          List(
+            pyStore(
+              Var("self." + attr.name, value),
+              pymap(i),
+              pymap(values)
+            )
           )
         )
       )
@@ -152,84 +152,88 @@ class Stmts(val exprs: Exprs) {
           Seq(Ast.expr.Subscript(Ast.expr.Name(id, _), Ast.slice.Index(i), _)),
           values
         ) =>
-      Assign(
-        List(Var(id.name, value)),
-        List(
-          pyStore(
-            Var(id.name, value),
-            pymap(i),
-            pymap(values)
+      List(
+        Assign(
+          List(Var(id.name, value)),
+          List(
+            pyStore(
+              Var(id.name, value),
+              pymap(i),
+              pymap(values)
+            )
           )
         )
       )
-
     case Ast.stmt.Return(
           Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))
         ) =>
-      Call(id.name, args.map(pymap).toList, List(pyResult))
+      List(Call(id.name, args.map(pymap).toList, List(pyResult)))
     // TODO: actually return!
     case Ast.stmt.Return(Some(value)) =>
-      Assign(List(pyResult), List(pymap(value)))
+      List(Assign(List(pyResult), List(pymap(value))))
     // TODO: actually return!
     case Ast.stmt.Expr(Ast.expr.Call(name, Seq(args), _, _, _)) =>
       name match {
         case Ast.expr.Name(Ast.identifier("assume"), _) =>
-          Spec.assume(pyIsTrue(pymap(args)))
+          List(Spec.assume(pyIsTrue(pymap(args))))
         case Ast.expr.Attribute(
               Ast.expr.Name(Ast.identifier("self"), _),
               attr,
               _
             ) =>
-          Call(attr.name, Seq(args).map(pymap).toList, Nil)
+          List(Call(attr.name, Seq(args).map(pymap).toList, Nil))
         case _ => cuvee.undefined
       }
     case Ast.stmt.If(test, body, orelse) =>
-      If(
-        pyIsTrue(pymap(test)),
-        Block(body.map(stmts).toList),
-        Block(orelse.map(stmts).toList)
+      List(
+        If(
+          pyIsTrue(pymap(test)),
+          Block(body.flatMap(stmts).toList),
+          Block(orelse.flatMap(stmts).toList)
+        )
       )
     case Ast.stmt.While(test, body, orelse) =>
       val (inv, pre, post, decrease, remnant) = getInv(body)
-      println("While")
-      println(inv, pre, post, decrease, remnant)
       if (orelse.isEmpty) {
-        println("decrease: " + And(decrease))
-        While(
-          // test: Expr,
-          pyIsTrue(pymap(test)),
-          // body: Prog,
-          Block(remnant),
-          // term: Expr,
-          And(decrease),
-          // inv: Expr,
-          if (inv.isEmpty) And(pre) else And(inv),
-          // sum: Expr,
-          pyIsTrue(pyNone()),
-          // frames: List[Frame]
-          Nil
+        List(
+          While(
+            // test: Expr,
+            pyIsTrue(pymap(test)),
+            // body: Prog,
+            Block(remnant),
+            // term: Expr,
+            And(decrease),
+            // inv: Expr,
+            if (inv.isEmpty) And(pre) else And(inv),
+            // sum: Expr,
+            pyIsTrue(pyNone()),
+            // frames: List[Frame]
+            Nil
+          )
         )
       } else {
-        Block(
-          List(
-            While(
-              pyIsTrue(pymap(test)),
-              Block(remnant),
-              And(decrease),
-              if (inv.isEmpty) And(pre) else And(inv),
-              pyIsTrue(pyNone()),
-              Nil
-            ),
-            If(
-              Not(pyIsTrue(pymap(test))),
-              Block(orelse.map(stmts).toList),
-              Skip
+        List(
+          Block(
+            List(
+              While(
+                pyIsTrue(pymap(test)),
+                Block(remnant),
+                And(decrease),
+                if (inv.isEmpty) And(pre) else And(inv),
+                pyIsTrue(pyNone()),
+                Nil
+              ),
+              If(
+                Not(pyIsTrue(pymap(test))),
+                Block(orelse.flatMap(stmts).toList),
+                Skip
+              )
             )
           )
         )
       }
-    case Ast.stmt.Break => Break
-    case Ast.stmt.Pass  => Skip
+    case Ast.stmt.Break => List(Break)
+    case Ast.stmt.Pass  => List(Skip)
     case _              => cuvee.undefined
   }
 
@@ -257,6 +261,6 @@ class Stmts(val exprs: Exprs) {
         }
       case head :: next =>
         val (inv, pre, post, decrease, remnant) = getInv(next)
-        (inv, pre, post, decrease, stmts(head) :: remnant)
+        (inv, pre, post, decrease, stmts(head) ++ remnant)
     }
 }
