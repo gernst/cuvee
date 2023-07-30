@@ -28,7 +28,6 @@ class Signature(state: State) {
   val pyGetLength = state.funs("pyGetLength", 1)
   val pyGetArray = state.funs("pyGetValues", 1)
 
-
   val pyAdd = state.funs("pyAdd", 2)
   val pySub = state.funs("pySub", 2)
   val pyNegate = state.funs("pyNegate", 1)
@@ -60,3 +59,4 @@ class Signature(state: State) {
   val pyConcat = state.funs("pyConcat", 3)
   val pyShift = state.funs("pyShift", 2)
 }
+

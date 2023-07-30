@@ -23,7 +23,8 @@ class Stmts(val exprs: Exprs) {
   import exprs.pymap
 
   def createCmd(stmt: Ast.stmt): List[Cmd] = stmt match {
-    case Ast.stmt.ImportFrom(module, _, _) if module == Option(Ast.identifier("help_methods")) =>
+    case Ast.stmt.ImportFrom(module, _, _)
+        if module == Option(Ast.identifier("help_methods")) =>
       Nil
 
     case Ast.stmt.FunctionDef(name, args, stmts, _) =>
@@ -44,7 +45,7 @@ class Stmts(val exprs: Exprs) {
       )
 
       List(cmd)
-      
+
     case Ast.stmt.ClassDef(name, bases, body, _) =>
       cuvee.undefined
 
@@ -101,7 +102,7 @@ class Stmts(val exprs: Exprs) {
         (vars, pre, post, stmts(head) :: remnant)
     }
 
-    // change result to List[Prog]
+  // change result to List[Prog]
   def stmts(stmt: Ast.stmt): Prog = stmt match {
     case Nil                      => Skip
     case Ast.stmt.Assert(test, _) => Spec.assert(pyIsTrue(pymap(test)))
@@ -166,10 +167,10 @@ class Stmts(val exprs: Exprs) {
           Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))
         ) =>
       Call(id.name, args.map(pymap).toList, List(pyResult))
-      // TODO: actually return!
+    // TODO: actually return!
     case Ast.stmt.Return(Some(value)) =>
       Assign(List(pyResult), List(pymap(value)))
-      // TODO: actually return!
+    // TODO: actually return!
     case Ast.stmt.Expr(Ast.expr.Call(name, Seq(args), _, _, _)) =>
       name match {
         case Ast.expr.Name(Ast.identifier("assume"), _) =>
