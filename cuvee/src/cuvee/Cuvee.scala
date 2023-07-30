@@ -86,6 +86,8 @@ class Config {
       } else if (path endsWith ".smt2") {
         printer = smtlib.printer
         source = smtlib.source(path)
+      } else if (path endsWith ".py") {
+        source = python.source(path)
       } else if (path endsWith ".th") {
         source = thesy.source(path)
       } else {
