@@ -17,6 +17,7 @@ import cuvee.imp.Assign
 import cuvee.smtlib.DefineProc
 import cuvee.pure.Param
 import cuvee.smtlib.Cmd
+import cuvee.imp.Return
 
 class Stmts(val exprs: Exprs) {
   import exprs.sig._
@@ -164,14 +165,13 @@ class Stmts(val exprs: Exprs) {
           )
         )
       )
+    // TODO is this correct?
     case Ast.stmt.Return(
           Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))
         ) =>
-      List(Call(id.name, args.map(pymap).toList, List(pyResult)))
-    // TODO: actually return!
+      List(Call(id.name, args.map(pymap).toList, List(pyResult)), Return)
     case Ast.stmt.Return(Some(value)) =>
-      List(Assign(List(pyResult), List(pymap(value))))
-    // TODO: actually return!
+      List(Assign(List(pyResult), List(pymap(value))), Return)
     case Ast.stmt.Expr(Ast.expr.Call(name, Seq(args), _, _, _)) =>
       name match {
         case Ast.expr.Name(Ast.identifier("assume"), _) =>
