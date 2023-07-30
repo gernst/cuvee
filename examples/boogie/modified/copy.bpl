@@ -4,8 +4,8 @@ procedure copy(n: int, b: [int]int)
 {
   var i: int := 0;
 
-  var M: [int]bool;
-  assume forall x: int :: M[x] == false;
+  //var M: [int]bool;
+  //assume forall x: int :: M[x] == false;
 
   while(i < n)
     decreases n - i;
@@ -16,7 +16,7 @@ procedure copy(n: int, b: [int]int)
     //    M[x]  ==> exists i_: int :: x == i_ && a[x] == b[x];
   {
     a := a[i := b[i]];
-    M := M[i := true];
+    //M := M[i := true];
     i := i + 1;
   }
   //assert forall x: int :: 
