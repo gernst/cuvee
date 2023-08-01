@@ -122,35 +122,33 @@ object Expr extends Alpha[Expr, Var] {
       yield Var(name.withIndex(i), t)
   }
 
-  // code below is a broken adaption from bind(...)
-  /* def unify(
-      pat: Expr,
-      arg: Expr,
+  def unify(
+      expr1: Expr,
+      expr2: Expr,
       ty: Map[Param, Type] = Map(),
       su: Map[Var, Expr] = Map()
   ): (Map[Param, Type], Map[Var, Expr]) = {
-    (pat, arg) match {
-      case (x: Var, _) if su contains x =>
-        unify(su(x), arg, su)
-        if (su(x) != arg)
-          throw CannotUnify("cannot re-bind " + su(x) + " to " + arg)
+    (expr1, expr2) match {
+      case _ if expr1 == expr2 =>
         (ty, su)
-
-
-      case (p1: Param, _) if su contains p1 =>
-        unify(su(p1), typ2, su)
-      case (_, p2: Param) if su contains p2 =>
-        unify(typ1, su(p2), su)
-
-      case (x: Var, _) =>
-        (ty, su + (x -> arg))
-      case (a: Lit, b: Lit) if a == b =>
-        (ty, su)
-      case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
+      case (x1: Var, _) if su contains x1 =>
+        unify(su(x1), expr2, ty, su)
+      case (_, x2: Var) if su contains x2 =>
+        unify(expr2, su(x2), ty, su)
+      case (x1: Var, _) if x1 in expr2 =>
+        cuvee.undefined
+        throw CannotUnify("recursive unification, " + x1 + " in " + expr2)
+      case (x1: Var, _) =>
+        val ty_ = Type.unify(x1.typ, expr2.typ, ty)
+        val su_ = su + (x1 -> expr2)
+        (ty_, su_)
+      case (_, x2: Var) =>
+        unify(x2, expr1, ty, su)
+      case (App(inst1, args1), App(inst2, args2)) if inst1.fun == inst2.fun =>
         val ty_ = Type.unify(inst1.args, inst1.res, inst2.args, inst2.res, ty)
-        unify(pats, args, ty_, su)
+        unify(args1, args2, ty_, su)
       case _ =>
-        throw CannotUnify("cannot unify " + pat + " with " + arg)
+        throw CannotUnify("cannot unify " + expr1 + " with " + expr2)
     }
   }
 
@@ -169,7 +167,7 @@ object Expr extends Alpha[Expr, Var] {
       case _ =>
         throw CannotUnify("cannot unify " + pats + " with " + args)
     }
-  } */
+  }
 
   def bind(
       pat: Expr,
