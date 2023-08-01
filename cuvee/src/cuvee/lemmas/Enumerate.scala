@@ -8,6 +8,7 @@ import cuvee.util.Main
 import cuvee.util.Run
 
 object enat extends Run(Enumerate, "examples/boogie/nat.bpl")
+object elength extends Run(Enumerate, "examples/boogie/length.bpl")
 
 object Enumerate extends Main {
   import InductiveProver._
@@ -26,10 +27,11 @@ object Enumerate extends Main {
   ) {
 
     val free = lhs.free.toList
-    val vars = Map(free map (_ -> repeat): _*)
-    val candidates = Deaccumulate.enumerate(funs, consts, lhs.typ, vars, depth)
+    val base = Map(free ++ consts map (_ -> repeat): _*)
+    val candidates = Deaccumulate.enumerate(lhs.typ, funs, base, depth)
 
     var results: Set[Expr] = Set()
+    println("trying " + lhs)
 
     for ((rhs, _) <- candidates if lhs != rhs) {
       val goal = Forall(free.toList, Eq(lhs, rhs))
@@ -49,9 +51,11 @@ object Enumerate extends Main {
           case True =>
             true
           case res =>
-            // if(solver.isTrue(goal))
-            //   println("missed: " + res)
-            false
+            // if (solver.isTrue(res))
+            //   // println("missed: " + res)
+            //   true
+            // else
+              false
         }
       }
 
@@ -60,7 +64,7 @@ object Enumerate extends Main {
         println("proved: " + goal)
         results += goal
       } else {
-        println("discarded: " + goal)
+        // println("discarded: " + goal)
         // println(" discarded.")
       }
     }
@@ -91,31 +95,35 @@ object Enumerate extends Main {
     val (decls, defs) = prepare(cmds, st)
     println(file)
 
-    val solver = Solver.z3(timeout = 100)
+    val solver = Solver.z3(timeout = 50)
 
     for (cmd <- cmds)
       solver.ack(cmd)
 
-    val all = cmds collect {
+    // TODO: add data type constructors
+    val all_ = cmds collect {
       case DeclareFun(name, params, args, res) =>
-        st.funs(name, args.length)
+        List(st.funs(name, args.length) -> true)
 
       case DefineFun(name, params, formals, res, body, rec) =>
-        st.funs(name, formals.length)
+        List(st.funs(name, formals.length) -> true)
+
+      case DeclareDatatypes(_, datatypes) =>
+        for (
+          dt <- datatypes;
+          (constr, _) <- dt.constrs
+        )
+          yield constr -> false
     }
 
-    val funs = LazyList(all: _*)
-    val consts = LazyList()
+    val (constfuns, nonconstfuns) = all_.flatten.partition {
+      case (fun, _) =>
+        fun.arity == 0 && fun.params.isEmpty
+    }
 
-    val nat = st.sort("nat")
-
-    val add = st.funs("add", 2)
-    val mul = st.funs("mul", 2)
-    val sub = st.funs("sub", 2)
-
-    val x = Var("x", nat)
-    val y = Var("y", nat)
-    val z = Var("z", nat)
+    val extra = LazyList(st.funs("+", 2))
+    val funs = LazyList(nonconstfuns map (_._1): _*)
+    val consts = LazyList(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
 
     val rules = Rewrite.from(cmds, st)
     val rws = rules groupBy (_.fun)
@@ -126,11 +134,11 @@ object Enumerate extends Main {
     // findEqual(solver, funs, consts, add(x, add(y, z)), 1, 3, rws, st)
 
     for (
-      f <- all;
-      g <- all;
+      (f, true) <- nonconstfuns;
+      (g, true) <- nonconstfuns;
       (typ, pos) <- f.args.zipWithIndex if typ == g.res
     ) {
-      findEqual(solver, funs, consts, f, g, pos, repeat, depth, rws, st)
+      findEqual(solver, funs ++ extra, consts, f, g, pos, repeat, depth, rws, st)
     }
   }
 }

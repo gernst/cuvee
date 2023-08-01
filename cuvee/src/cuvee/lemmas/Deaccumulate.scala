@@ -421,8 +421,9 @@ object Deaccumulate {
         val MaxVar = 1
 
         if (false) {
+          cuvee.error("add consts!")
           val eqs =
-            for ((expr, _) <- enumerate(funs, consts, b.res, Map(zs map (_ -> MaxVar): _*), Depth))
+            for ((expr, _) <- enumerate(b.res, funs, Map(zs map (_ -> MaxVar): _*), Depth))
               yield {
                 val eq = Rule(App(b, zs), expr)
                 if (debug)
@@ -512,41 +513,35 @@ object Deaccumulate {
   }
 
   def enumerate(
-      funs: LazyList[Fun],
-      consts: LazyList[Expr],
       types: List[Type],
-      zs0: Map[Var, Int],
+      funs: LazyList[Fun],
+      base0: Map[Expr, Int],
       depth: Int
-  ): LazyList[(List[Expr], Map[Var, Int])] = types match {
+  ): LazyList[(List[Expr], Map[Expr, Int])] = types match {
     case Nil =>
-      LazyList((Nil, zs0))
+      LazyList((Nil, base0))
 
     case typ :: rest =>
       for (
-        (expr, zs1) <- enumerate(funs, consts, typ, zs0, depth);
-        (exprs, zs2) <- enumerate(funs, consts, rest, zs1, depth)
+        (expr, base1) <- enumerate(typ, funs, base0, depth);
+        (exprs, base2) <- enumerate(rest, funs, base1, depth)
       )
-        yield (expr :: exprs, zs2)
+        yield (expr :: exprs, base2)
   }
 
   def enumerate(
-      funs: LazyList[Fun],
-      consts: LazyList[Expr],
       typ: Type,
-      zs: Map[Var, Int],
+      funs: LazyList[Fun],
+      base: Map[Expr, Int],
       depth: Int
-  ): LazyList[(Expr, Map[Var, Int])] = if (depth == 0) {
+  ): LazyList[(Expr, Map[Expr, Int])] = if (depth == 0) {
     LazyList()
   } else {
     val first =
       LazyList.from(
-        for ((z, k) <- zs if z.typ == typ && k > 0)
-          yield (z, zs + (z -> (k - 1)))
+        for ((z, k) <- base if z.typ == typ && k > 0)
+          yield (z, base + (z -> (k - 1)))
       )
-
-    val second =
-      for (c <- consts if c.typ == typ)
-        yield (c, zs)
 
     val next =
       for (
@@ -555,14 +550,14 @@ object Deaccumulate {
       )
         yield inst
 
-    val third =
+    val second =
       for (
         inst <- next;
-        (args, zs_) <- enumerate(funs, consts, inst.args, zs, depth - 1)
+        (args, base_) <- enumerate(inst.args, funs, base, depth - 1)
       )
-        yield (App(inst, args), zs_)
+        yield (App(inst, args), base_)
 
-    first ++ second ++ third
+    first ++ second
   }
 }
 
@@ -572,18 +567,16 @@ object Foo {
 
     val zs =
       Map(
-        Var("x", Sort.int) -> 1,
-        Var("y", Sort.int) -> 1
+        (Var("x", Sort.int): Expr) -> 1,
+        (Var("y", Sort.int): Expr) -> 1,
+        True -> 1,
+        False -> 1,
+        Zero -> 1,
+        One -> 1,
       )
 
-    val cs = LazyList(
-      True,
-      False,
-      Zero,
-      One
-    )
 
-    val results = Deaccumulate.enumerate(st.funs.values.to(LazyList), cs, Sort.int, zs, 3)
+    val results = Deaccumulate.enumerate(Sort.int, st.funs.values.to(LazyList), zs, 3)
 
     for (result <- results)
       println(result)
