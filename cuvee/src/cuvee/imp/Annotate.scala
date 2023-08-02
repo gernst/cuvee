@@ -112,7 +112,9 @@ object Annotate extends Stage {
         (first, assign(from, xs, rhs))
 
       case (first @ Spec(xs, phi, psi)) =>
-        cuvee.error("assume/assert currently not supported during annotation generation")
+        cuvee.error(
+          "assume/assert currently not supported during annotation generation"
+        )
 
       //   val (xs_, re) = havoc(xs)
       //   val st_ = assign(st, xs, xs_)
@@ -122,7 +124,9 @@ object Annotate extends Stage {
       //   (first, List(Stopped(fresh, path ++ List(psi_), st_)))
 
       case Call(name, in, out) =>
-        cuvee.error("calls currently not supported during annotation generation")
+        cuvee.error(
+          "calls currently not supported during annotation generation"
+        )
       //   require(state.procs contains name, "unknown procedure: " + name)
       //   val Proc(_, params, xs, zs, spec) = state procs name
 
@@ -148,19 +152,56 @@ object Annotate extends Stage {
         val mod = body.mod
         val via = havoc(from, mod)
 
-        val before = assume(from, inv && test)
+        val before = assume(via, inv && test)
         val (body_, after) = annotate(before, body)
 
         // HERE: after are all states reachable from before,
         //       such that before -- body -> after is exactly one arbitrary loop iteration
 
         // TODO: compute some new invariants here
-        val inv_ = inv
+
+        val x = Var("x", Sort.int)
+        val i_ = Var("i_", Sort.int)
+
+        def modify(a: Expr, idx: Expr, rhs: Expr): Expr = a match {
+          // TODO old for array in rhs
+          case Var(name, typ)                    => (Select(a, idx) === rhs)
+          case Store(a_, idx_, _) if idx == idx_ => modify(a_, idx, rhs)
+          case Store(a_, idx_, rhs_) =>
+            modify(a_, idx, rhs) && modify(a_, idx_, rhs_)
+        }
+
+        def isModifiedArray(a: Var) = a.typ match {
+          case Sort(Con.array, args) if mod.contains(a) => true
+          case _                                        => false
+        }
+
+        val how = for (st1 <- before; st2 <- after) yield {
+          val modified =
+            for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
+              expr_ match {
+                case Store(a, idx, rhs) => println(expr_); modify(a, idx, rhs)
+              }
+            }
+
+          val concl = i_ === x && And(modified.toList)
+          val exists = Exists(List(i_), concl)
+
+          Forall(List(x), exists)
+        }
+
+        val inv_ = inv && And(how) // TODO
 
         val prog_ = While(test, body_, term, inv_, sum, frames)
 
         // prepare states after the loop
-        val to = assume(from, inv_ && !test)
+        // from or via here?
+        val to = assume(via, inv_ && !test)
+        /*
+        println("prog_ " + prog_)
+        println("to " + to)
+        println()
+         */
         (prog_, to)
     }
   }
