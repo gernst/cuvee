@@ -5,27 +5,27 @@ procedure init_multiple(n: int)
   var i:   int := 0;
   var sum: int := 0;
 
-  var M: [int]bool;
-  assume forall x: int :: M[x] == false;
+  //var M: [int]bool;
+  //assume forall x: int :: M[x] == false;
 
   while (i < n)
     decreases n - i;
     invariant 0 <= i && i <= n;
-    invariant forall x: int ::
-        M[x] <==> exists i_: int :: x == i_ && 0 <= i_ && i_ < i;
-    invariant forall x: int ::
-        M[x]  ==> exists i_: int :: x == i_ && a[x] == 0;
+    //invariant forall x: int ::
+    //    M[x] <==> exists i_: int :: x == i_ && 0 <= i_ && i_ < i;
+    //invariant forall x: int ::
+    //    M[x]  ==> exists i_: int :: x == i_ && a[x] == 0;
   {
     a := a[i := 0];
-    M := M[i := true];
+    //M := M[i := true];
     i := i + 1;
   }
-  assert forall x: int ::
-      M[x] ==> exists i_: int :: x == i_ && a[x] == 0;
+  //assert forall x: int ::
+  //    M[x] ==> exists i_: int :: x == i_ && a[x] == 0;
 
 
-  var N: [int]bool;
-  assume forall x: int :: N[x] == false;
+  //var N: [int]bool;
+  //assume forall x: int :: N[x] == false;
 
   var tmp: int := 0;
 
@@ -33,17 +33,17 @@ procedure init_multiple(n: int)
   while (i < n)
     decreases n - i;
     invariant 0 <= i && i <= n;
-    invariant forall x: int ::
-        N[x] <==> exists i_: int :: 
-            x == n - i_ - 1 && 0 <= i_ && i_ < i;
-    invariant forall x: int ::
-        N[x]  ==> exists i_: int :: 
-            x == n - i_ - 1 && b[x] == i_;
+    //invariant forall x: int ::
+    //    N[x] <==> exists i_: int :: 
+    //        x == n - i_ - 1 && 0 <= i_ && i_ < i;
+    //invariant forall x: int ::
+    //    N[x]  ==> exists i_: int :: 
+    //        x == n - i_ - 1 && b[x] == i_;
   {
     tmp := n - i - 1; // for whatever reason: 
     // cuvee does not want this arithmetik direktly in the assignment
     b   := b[tmp := i];
-    N   := N[tmp := true];
+    //N   := N[tmp := true];
     i   := i + 1;
   }
 

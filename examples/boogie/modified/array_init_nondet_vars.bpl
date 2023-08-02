@@ -2,6 +2,7 @@ procedure array_init_nondet_vars(n: int)
   returns (a: [int]int)
   requires 0 < n;
 {
+  // will currently not work cause: assume in while
   var i: int := 1;
 
   var j: int;

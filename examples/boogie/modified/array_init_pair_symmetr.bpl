@@ -2,6 +2,7 @@ procedure array_init_pair_symmetr(n: int)
   returns (a: [int]int, b: [int]int, c: [int]int)
   requires 0 <= n;
 {
+  // will currently not work cause: assume in while
   var i: int := 0;
 
   var M: [int]bool;

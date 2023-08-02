@@ -2,19 +2,20 @@ procedure array_init_var_plus_ind2(n: int)
   returns (a: [int]int)
   requires 0 <= n;
 {
+  // will currently not work cause: stop not initialized
   var i: int := 0;
 
   var j: int := 0;
   var k: int := 0;
 
-  var M: [int]bool;
-  assume forall x: int :: M[x] == false;
+  //var M: [int]bool;
+  //assume forall x: int :: M[x] == false;
 
   while(i < n)
     decreases n - i;
     invariant 0 <= i && i <= n;
-    invariant forall x: int :: M[x] <==> exists i_: int :: x == i_ && 0 <= i_ && i_ < i;
-    invariant forall x: int :: M[x]  ==> exists i_: int :: x == i_ && exists j_: int :: j == j_ && a[x] == j_;
+    //invariant forall x: int :: M[x] <==> exists i_: int :: x == i_ && 0 <= i_ && i_ < i;
+    //invariant forall x: int :: M[x]  ==> exists i_: int :: x == i_ && exists j_: int :: j == j_ && a[x] == j_;
   {
     var stop: int;
     if(stop != 0)
@@ -22,7 +23,7 @@ procedure array_init_var_plus_ind2(n: int)
     else 
     {
     a := a[i := j];
-    M := M[i := true];
+    //M := M[i := true];
     j := j + i;
     k := k - i;
     i := i + 1;
