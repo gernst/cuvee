@@ -163,9 +163,15 @@ object Annotate extends Stage {
         val x = Var("x", Sort.int)
         val i_ = Var("i_", Sort.int)
 
+        def getRhs(rhs: Expr): Expr = rhs match {
+          case Var(name, typ) => rhs
+          case Lit(any, typ)  => rhs
+          case Select(a, idx) => Select(Old(a), idx)
+        }
+
         def modify(a: Expr, idx: Expr, rhs: Expr): Expr = a match {
-          // TODO old for array in rhs
-          case Var(name, typ)                    => (Select(a, idx) === rhs)
+          case Var(name, typ) =>
+            Select(a, idx) === getRhs(rhs)
           case Store(a_, idx_, _) if idx == idx_ => modify(a_, idx, rhs)
           case Store(a_, idx_, rhs_) =>
             modify(a_, idx, rhs) && modify(a_, idx_, rhs_)
@@ -180,7 +186,7 @@ object Annotate extends Stage {
           val modified =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
-                case Store(a, idx, rhs) => println(expr_); modify(a, idx, rhs)
+                case Store(a, idx, rhs) => modify(a, idx, rhs)
               }
             }
 
