@@ -23,11 +23,13 @@ axiom forall a: [int]pyValue, n: int ::
     pyIsTrue(pyArray(a, n)) 
       == (n != 0);
 
+
 function toInt(b: bool): int {
   if b
   then 1
   else 0
 }
+
 
 function pyIte(x: pyValue, y: pyValue, z: pyValue): pyValue;
 axiom forall x: pyValue, y: pyValue, z: pyValue ::
@@ -35,7 +37,6 @@ axiom forall x: pyValue, y: pyValue, z: pyValue ::
     == if   pyIsTrue(x)
        then y
        else z;
-
 
 function pyAnd(x: pyValue, y: pyValue): pyValue {
     pyIte(x, y, x)
@@ -109,6 +110,7 @@ axiom forall a: [int]pyValue, n: int, b: bool ::
 
 
 function pyLessThan(x: pyValue, y: pyValue): pyValue;
+
 function pyLessEquals(x: pyValue, y: pyValue): pyValue;
 
 function pyGreaterThan(x: pyValue, y: pyValue): pyValue {
@@ -118,7 +120,6 @@ function pyGreaterThan(x: pyValue, y: pyValue): pyValue {
 function pyGreaterEquals(x: pyValue, y: pyValue): pyValue {
   pyLessEquals(y, x)
 }
-
 axiom forall i: int, j: int ::
   pyLessThan(pyInt(i), pyInt(j)) 
     == pyBool(i < j);
@@ -141,7 +142,6 @@ axiom forall b: bool, i: int ::
 axiom forall i: int, b: bool ::
   pyLessThan(pyInt(i), pyBool(b)) 
     == pyBool(i < toInt(b));
-
 axiom forall i: int, j: int ::
   pyLessEquals(pyInt(i), pyInt(j)) 
     == pyBool(i <= j);
@@ -172,13 +172,11 @@ axiom forall a: [int]pyValue, n: int, e: pyValue ::
     == pyBool(exists k: int :: 0 <= k && k < n
                         && pyGetBool(pyEquals(a[k], e)));
 
-
 function pySelect(x: pyValue, y: pyValue): pyValue;
 axiom forall a: [int]pyValue, n: int, i: int ::
   0 <= i && i < n ==> 
     pySelect(pyArray(a, n), pyInt(i)) 
       == a[i];
-
 
 function pyStore(x: pyValue, y: pyValue, z: pyValue): pyValue;
 axiom forall a: [int]pyValue, n: int, i: int, z: pyValue ::
@@ -186,13 +184,11 @@ axiom forall a: [int]pyValue, n: int, i: int, z: pyValue ::
     pyStore(pyArray(a, n), pyInt(i), z) 
       == pyArray(a[i := z], n);
 
-
 function pyShift(a: [int]pyValue, o: int): [int]pyValue;
 axiom forall a: [int]pyValue, 
              o: int, k: int ::
   pyShift(a, o)[k]
     == a[k + o];
-
 
 function pyConcat(a1: [int]pyValue, n1: int,
                   a2: [int]pyValue): [int]pyValue;
@@ -204,7 +200,6 @@ axiom forall a1: [int]pyValue, n1: int,
         then  a1[k]
         else  a2[k - n1];
 
-
 function pyReplicate(a: [int]pyValue, n: int, k: int): [int]pyValue;
 axiom forall a: [int]pyValue, n: int ::
   pyReplicate(a, n, 0)
@@ -213,7 +208,6 @@ axiom forall a: [int]pyValue, n: int, k: int ::
   k > 0 ==> 
     pyReplicate(a, n, k) 
       == pyConcat(a, n, pyReplicate(a, n, k - 1));
-
 
 function pySlice(a: pyValue, l: pyValue, m: pyValue): pyValue;
 axiom forall a: [int]pyValue, n: int, l: int, m: int ::
@@ -339,6 +333,20 @@ axiom forall b: bool, i: int ::
   pyFloorDiv(pyBool(b), pyInt(i))
     == pyInt(toInt(b) / i);
 
+function pyMod(x: pyValue, y:pyValue): pyValue;
+axiom forall i: int, j: int ::
+  pyMod(pyInt(i), pyInt(j))
+    == pyInt(i % j);
+axiom forall a: bool, b: bool ::
+  pyMod(pyBool(a), pyBool(b))
+    == pyInt(toInt(a) % toInt(b));
+axiom forall b: bool, i: int ::
+  pyMod(pyBool(b), pyInt(i))
+    == pyInt(toInt(b) % i);
+axiom forall i: int, b: bool ::
+  pyMod(pyInt(i), pyBool(b))
+    == pyInt(i % toInt(b));
+
 // TODO: only support if SMT-LIB has a pow operator (perhaps "exp"), and if so, check Fun.exp, Exp in Expr.scala
 //function pyPow(x: pyValue, y:pyValue): pyValue;
 //axiom forall i: int, j: int ::
@@ -353,17 +361,3 @@ axiom forall b: bool, i: int ::
 //axiom forall i: int, b: bool ::
 //  pyPow(pyInt(i), pyBool(b))
 //    == pyInt(i ??? toInt(b));
-
-function pyMod(x: pyValue, y:pyValue): pyValue;
-axiom forall i: int, j: int ::
-  pyMod(pyInt(i), pyInt(j))
-    == pyInt(i % j);
-axiom forall a: bool, b: bool ::
-  pyMod(pyBool(a), pyBool(b))
-    == pyInt(toInt(a) % toInt(b));
-axiom forall b: bool, i: int ::
-  pyMod(pyBool(b), pyInt(i))
-    == pyInt(toInt(b) % i);
-axiom forall i: int, b: bool ::
-  pyMod(pyInt(i), pyBool(b))
-    == pyInt(i % toInt(b));
