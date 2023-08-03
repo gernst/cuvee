@@ -207,11 +207,11 @@ object Annotate extends Stage {
         def getRhs(rhs: Expr): Expr = rhs match {
           case Var(name, typ) => rhs
           case Lit(any, typ)  => rhs
-          case Select(b, idx) => Select(Old(b), idx)
+          case Select(b, idx) => Select(Old(b), idx) // TODO: not correct, don't use old here
         }
 
         def modify(a: Expr, idx: Expr, rhs: Expr): Expr = a match {
-          case Var(name, typ) => Select(a, idx) === getRhs(rhs)
+          case Var(name, typ) => Select(a, idx) === rhs // getRhs(rhs)
           case Store(a_, idx_, _) if idx == idx_ => modify(a_, idx, rhs)
           case Store(a_, idx_, rhs_) =>
             modify(a_, idx, rhs) && modify(a_, idx_, rhs_)
@@ -230,6 +230,12 @@ object Annotate extends Stage {
 
           prem ==> concl
         }
+
+
+        // TODO: how to rename variables
+        val j = Var("j", Sort.int)
+        val re = Expr.subst(i_ -> j)
+        val renamed_inv = inv rename re
 
         val inv_ = inv && And(which) && And(how)
 
