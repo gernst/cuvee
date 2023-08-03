@@ -10,15 +10,67 @@ import cuvee.pipe.Stage
 import cuvee.lemmas.prepare
 
 object Lemmas extends Stage {
+  val rounds = 3
+
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = if (cmds.nonEmpty) {
     val (decls, defs) = prepare(cmds, state)
-    val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)
+    // val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)
+
+    implicit val solver = Solver.z3(100)
+    Deaccumulate.neutral = Deaccumulate.defaultNeutral
+
+    for (cmd <- cmds) cmd match {
+      case SetLogic(_)      =>
+      case _: Lemma         =>
+      case Assert(Not(phi)) =>
+      case _ =>
+        solver.exec(cmd, null)
+    }
+
+    val goals =
+      for ((Assert(Not(phi))) <- cmds)
+        yield phi
+
+    val lemmas = new Lemmas(decls, cmds, defs, state, solver)
+
+    for (
+      Lemma(phi, _, _) <- cmds;
+      Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
+    ) {
+      lemmas.addLemma("provided", lhs, rhs, cond)
+      // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
+    }
+
+    lemmas.findNeutral(defs map (_.fun))
+
+    for (df <- defs) {
+      lemmas.define(df)
+      lemmas.deaccumulate(df)
+      lemmas.recognizeConditional(df)
+    }
+
+    for (df <- defs; dg <- defs) {
+      lemmas.fuse(df, dg)
+    }
+
+    for (i <- 0 until rounds) {
+      lemmas.round()
+      lemmas.cleanup()
+      lemmas.next()
+    }
+
+    val results = lemmas.lemmas
+
+    solver.ack(Exit)
+    solver.destroy()
+
     val known = state.funs.values.toSet
     val add =
       for ((origin, rule) <- results if (origin != "provided") && (rule.funs subsetOf known))
         yield Lemma(rule.toExpr, None, true)
-    val (pre,post) = cmds partition {
-      case Assert(Not(expr)) => 
+
+    val (pre, post) = cmds partition {
+      case Assert(Not(expr)) =>
         false
       case _ =>
         true
@@ -34,6 +86,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   var useInternal = true
   var printTiming = false // may be undesirable if counting duplicates
   AdtInd.cached = false
+
+  var debug = false
 
   val constrs = st.constrs
 
@@ -137,11 +191,20 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
   def replaceBy(lhs: Expr, rhs: Expr) {
     val eq = Rule(lhs, rhs)
+    println("replace by: " + eq)
     replace = eq :: replace
+    val re = replace.groupBy(_.fun)
+
+    recover = recover map {
+      case Rule(lhs, rhs, cond, avoid) => 
+        val lhs_ = Simplify.simplify(lhs, re, constrs)
+        println(lhs + "~>" + lhs_)
+        Rule(lhs_, rhs, cond, avoid)
+    }
 
     lemmas = lemmas flatMap { case (origin, eq @ Rule(lhs, rhs, cond, avoid)) =>
       val rhs_ = catchRewritingDepthExceeded {
-        Simplify.simplify(rhs, replace.groupBy(_.fun), constrs)
+        Simplify.simplify(rhs, re, constrs)
       }
 
       if (lhs == rhs_) Nil
@@ -277,14 +340,16 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
         case FuseAt(lhs, df, xs, dg, ys, pos) if !(fused contains ((df.fun, dg.fun, pos))) =>
           Fuse.fuseAt(df, xs, dg, ys, pos, st.constrs, normalize) match {
             case None =>
-              println("fuse " + lhs + " failed")
+              if (debug)
+                println("fuse " + lhs + " failed")
               retry(first)
 
             case Some((dfg, zs)) =>
               fused += ((df.fun, dg.fun, pos))
               val rhs = App(dfg.fun, zs)
               recoverBy(rhs, lhs)
-              println("fuse " + lhs + " == " + rhs)
+              if (debug)
+                println("fuse " + lhs + " == " + rhs)
               // println(dfg)
               todo { Recognize(Some("fused"), lhs, dfg, zs) }
             // todo {RecognizeConditional(dfg)}
@@ -388,12 +453,14 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
                       // println("simplified definition: " + df__)
                       val rhs_ = Simplify.simplify(rhs, model, constrs) replace (f__, f__i)
-                      print(
-                        "deaccumulate " + df.fun.name + xs
-                          .updated(pos, "_")
-                          .mkString("(", ", ", ")")
-                      )
-                      println(" == " + rhs_)
+                      if (debug)
+                        print(
+                          "deaccumulate " + df.fun.name + xs
+                            .updated(pos, "_")
+                            .mkString("(", ", ", ")")
+                        )
+                      if (debug)
+                        println(" == " + rhs_)
                       // println("  model: " + model)
                       // println("success: " + first)
                       if (printTiming)
@@ -464,10 +531,12 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
           if (!solved) {
-            print(
-              "deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")")
-            )
-            println("  failed")
+            if (debug)
+              print(
+                "deaccumulate " + df.fun.name + xs.updated(pos, "_").mkString("(", ", ", ")")
+              )
+            if (debug)
+              println("  failed")
             // for (fun <- unknowns)
             //   println("  " + fun)
             // for (eq <- eqs)
@@ -480,7 +549,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
         case Recognize(asLemma, lhs, df, args) =>
           // println("given definition")
           // println(df)
-          print("recognize " + lhs)
+          if (debug)
+            print("recognize " + lhs)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
             Unused.unused(df simplify (normalize, constrs), args)
@@ -504,7 +574,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           val all = rhs1 ++ rhs2 ++ rhs3 ++ rhs4
 
           for ((rhs, why) <- all) {
-            println(" == " + rhs + " (" + why + ")")
+            if (debug)
+              println(" == " + rhs + " (" + why + ")")
 
             replaceBy(lhs, rhs)
 
@@ -515,9 +586,11 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           if (all.isEmpty) {
             if (definitions exists (_.fun == df_.fun)) {
               // note this definition may have been simplified
-              println(" exists")
+              if (debug)
+                println(" exists")
             } else {
-              println(" new")
+              if (debug)
+                println(" new")
               // to be able to recognize duplicate synthetic functions
               define(df_)
 
@@ -542,8 +615,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
         // case RecognizeConditional(df, lhs, recogArg) =>
         case RecognizeConditional(df) =>
           val Def(fun, cases) = df
-
-          println("recognize conditionally " + fun.name)
+          if (debug)
+            println("recognize conditionally " + fun.name)
 
           val ids = Conditional.checkIdentityWithParamPicksAndGuard(df)
           val const = Conditional.checkIsDefConstant(df)
@@ -558,7 +631,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
         case _ =>
-          println("skipping: " + first)
+          if (debug)
+            println("skipping: " + first)
       }
     }
   }
@@ -643,7 +717,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
         if (!(leftNeutrals contains (f.fun, e))) {
-          println("left-neutral: " + eq)
+          if (debug)
+            println("left-neutral: " + eq)
           leftNeutrals += ((f.fun, e))
           val key = (f.args, f.res)
           val old = neutral(key)
@@ -660,7 +735,8 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           }
 
         if (!(rightNeutrals contains (f.fun, e))) {
-          println("right-neutral: " + eq)
+          if (debug)
+            println("right-neutral: " + eq)
           rightNeutrals += ((f.fun, e))
           val key = (f.args.reverse, f.res)
           val old = neutral(key)

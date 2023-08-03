@@ -5,6 +5,8 @@ import cuvee.smtlib._
 import cuvee.State
 
 object Pipe {
+  var debug = true
+
   def run(source: Source, sink: Sink, report: Report) {
     for (cmd <- source) {
       report { sink.exec(cmd, source.state) }
@@ -30,6 +32,8 @@ trait Stage {
 }
 
 class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends Sink {
+  override def toString = "incremental " + stage + " -> " + sink
+
   class Entry(var prefix: List[Cmd], val stage: Stage, val state: State) {
     def copy() = new Entry(prefix, stage.copy(), out.copy())
   }
@@ -41,16 +45,19 @@ class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends S
   var pending: List[Cmd] = Nil
 
   def done(state: State) {
-    if (flushDone)
+    if (flushDone) {
       flush(state)
+      sink.done(out)
+    }
   }
 
   def flush(in: State) {
     val cmds = stage.exec(top.prefix, pending.reverse, in)
     out add cmds
 
-    for (cmd <- cmds)
+    for (cmd <- cmds) {
       sink.exec(cmd, out)
+    }
 
     pending = Nil
   }

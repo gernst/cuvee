@@ -93,6 +93,10 @@ class Parser(init: State) {
         val phi_ = expr_typed(phi, bool)
         Assert(phi_)
 
+      case App(Id("lemma"), phi) =>
+        val phi_ = expr_typed(phi, bool)
+        Lemma(phi_, None, true)
+
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
         st.con(name, n)

@@ -100,19 +100,19 @@ object Test extends Main {
     }
 
     for (i <- 0 until rounds) {
-      val before = lemmas.lemmas map (_._2.toExpr) filter (_.funs subsetOf lemmas.original)
+      // val before = lemmas.lemmas map (_._2.toExpr) filter (_.funs subsetOf lemmas.original)
       lemmas.round()
       lemmas.cleanup()
-      val after = lemmas.lemmas map (_._2.toExpr) filter (_.funs subsetOf lemmas.original)
+      // val after = lemmas.lemmas map (_._2.toExpr) filter (_.funs subsetOf lemmas.original)
       println("--------")
       lemmas.show()
 
-      import cuvee.util.TheoryComparison
-      println("merit of this round: ")
-      println(after)
-      println(before)
-      println(before % after)
-      println("--------")
+      // import cuvee.util.TheoryComparison
+      // println("merit of this round: ")
+      // println(after)
+      // println(before)
+      // println(before % after)
+      // println("--------")
 
       lemmas.next()
     }

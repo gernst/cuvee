@@ -6,7 +6,7 @@ import cuvee.util.Name
 import cuvee.StringOps
 
 object Fuse {
-  var debug = true
+  var debug = false
 
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
