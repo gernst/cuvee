@@ -217,11 +217,12 @@ case class DeclareProc(
         "declare-proc",
         in.asFormals,
         out.asFormals,
-        ":modfies",
+        ":modifies",
         mod,
         ":precondition",
         pre,
-        ":postcondition" + post
+        ":postcondition",
+        post
       )
   }
 
@@ -244,11 +245,12 @@ case class DefineProc(
         "declare-proc",
         in.asFormals,
         out.asFormals,
-        ":modfies",
+        ":modifies",
         mod,
         ":precondition",
         pre,
-        ":postcondition" + post,
+        ":postcondition",
+        post,
         body
       )
 
