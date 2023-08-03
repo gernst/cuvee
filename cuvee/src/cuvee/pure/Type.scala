@@ -44,7 +44,7 @@ object Type extends Alpha[Type, Param] {
       Sort(con, args map (prune(_, su)))
   }
 
-  def unify(typ1: Type, typ2: Type, su: Map[Param, Type]): Map[Param, Type] = {
+  def unify(typ1: Type, typ2: Type, su: Map[Param, Type] = Map()): Map[Param, Type] = {
     (typ1, typ2) match {
       case _ if typ1 == typ2 =>
         su

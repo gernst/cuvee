@@ -191,11 +191,20 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
   def replaceBy(lhs: Expr, rhs: Expr) {
     val eq = Rule(lhs, rhs)
+    println("replace by: " + eq)
     replace = eq :: replace
+    val re = replace.groupBy(_.fun)
+
+    recover = recover map {
+      case Rule(lhs, rhs, cond, avoid) => 
+        val lhs_ = Simplify.simplify(lhs, re, constrs)
+        println(lhs + "~>" + lhs_)
+        Rule(lhs_, rhs, cond, avoid)
+    }
 
     lemmas = lemmas flatMap { case (origin, eq @ Rule(lhs, rhs, cond, avoid)) =>
       val rhs_ = catchRewritingDepthExceeded {
-        Simplify.simplify(rhs, replace.groupBy(_.fun), constrs)
+        Simplify.simplify(rhs, re, constrs)
       }
 
       if (lhs == rhs_) Nil
