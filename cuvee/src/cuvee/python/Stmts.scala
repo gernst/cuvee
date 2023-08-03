@@ -32,7 +32,7 @@ class Stmts(val exprs: Exprs) {
       val in = input(args)
       val out = List(pyResult) // Stmt.output(body)
       val (spec, prog) = body(stmts, in)
-      val param = List(Param(name.name))
+      val param = Nil
       state.proc(name.name, param, in, out, spec)
       state.procdef(name.name, in, out, prog)
 
@@ -170,6 +170,8 @@ class Stmts(val exprs: Exprs) {
           Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))
         ) =>
       List(Call(id.name, args.map(pymap).toList, List(pyResult)), Return)
+    case Ast.stmt.Return(None) =>
+        List(Return)
     case Ast.stmt.Return(Some(value)) =>
       List(Assign(List(pyResult), List(pymap(value))), Return)
     case Ast.stmt.Expr(Ast.expr.Call(name, Seq(args), _, _, _)) =>

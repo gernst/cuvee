@@ -120,7 +120,7 @@ class Exprs(val sig: Signature) {
       Var("self." + attr.name, value)
     case Ast.expr.Num(n: BigInt) => pyInt(Lit(n, int))
     case Ast.expr.Name(id, _)    => name(id)
-    case _                       => cuvee.undefined
+    case _                       => cuvee.error("unsupported Python expression: " + expr)
   }
 
   /* The python ast considers land and lor as n-ary operators with n >= 2.

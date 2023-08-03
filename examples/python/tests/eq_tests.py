@@ -3,14 +3,14 @@ from help_methods import out, ensures, requires, imp
 
 def eq(a, b):
     requires(type(a) == int)
-    requires(type(a) is type(b))
+    requires(type(a) == type(b))
     ensures(out() == (a == b))
     a = b
     return a == b
 
 
 def not_eq(a, b):
-    requires(type(a) is type(b))
+    requires(type(a) == type(b))
     ensures(out() == (a != b))
     return a != b
 
@@ -21,7 +21,7 @@ def eq_div(a, b):
 
 
 def lt(a, b):
-    requires(type(a) is type(b))
+    requires(type(a) == type(b))
     requires(a < b)
     ensures(out())
     if a < b:
@@ -31,7 +31,7 @@ def lt(a, b):
 
 
 def leq(a, b):
-    requires(type(a) is type(b))
+    requires(type(a) == type(b))
     ensures(out() == (a <= b))
     return a <= b
 
@@ -45,14 +45,14 @@ def leq_div(a, b):
 
 
 def gt(a, b):
-    requires(type(a) is type(b))
+    requires(type(a) == type(b))
     ensures(imp(a >= b, out() == 7))
     if a >= b:
         return 7
 
 
 def geq(a, b):
-    requires(type(a) is type(b))
+    requires(type(a) == type(b))
     ensures(imp(a <= b, out()))
     b = a
     if a <= b:
@@ -62,7 +62,7 @@ def geq(a, b):
 
 
 def fail_eq(a, b):
-    requires(type(a) is type(b))
+    requires(type(a) == type(b))
     ensures(a == b)
     return a == b
 
