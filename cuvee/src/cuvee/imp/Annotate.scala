@@ -163,23 +163,58 @@ object Annotate extends Stage {
         val x = Var("x", Sort.int)
         val i_ = Var("i_", Sort.int)
 
-        def getRhs(rhs: Expr): Expr = rhs match {
-          case Var(name, typ) => rhs
-          case Lit(any, typ)  => rhs
-          case Select(a, idx) => Select(Old(a), idx)
-        }
+        val M = Var("M", Sort.array(Sort.int, Sort.bool))
+        // TODO init M with false
 
-        def modify(a: Expr, idx: Expr, rhs: Expr): Expr = a match {
-          case Var(name, typ) =>
-            Select(a, idx) === getRhs(rhs)
-          case Store(a_, idx_, _) if idx == idx_ => modify(a_, idx, rhs)
-          case Store(a_, idx_, rhs_) =>
-            modify(a_, idx, rhs) && modify(a_, idx_, rhs_)
-        }
+        // get all idx from lhs + place in M
+        // inv for M
+        // add M to body
 
         def isModifiedArray(a: Var) = a.typ match {
           case Sort(Con.array, args) if mod.contains(a) => true
           case _                                        => false
+        }
+
+        def toM(idx: Expr) = Store(M, idx, True)
+
+        // TODO get counter from test
+        def isCounter(i: Expr) = {
+          println(test, test.typ)
+          true
+        }
+
+        val which = for (st2 <- after) yield {
+          val modified =
+            for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
+              expr_ match {
+                case Store(a, idx, rhs) => toM(idx)
+              }
+            }
+
+          // TODO current range e.g. 0 <= i_ && i_ < idx
+          // get var from test, search assign, use init of var as lb, var as is as ub
+          var idx = for ((var_, expr_) <- st2.vars if isCounter(var_)) yield {
+            Var("TODO", Sort.int)
+          }
+          var init = Var("initTODO", Sort.int)
+
+          val prelude = Select(M, x)
+          val fine = Exists(List(i_), i_ === x && init <= i_ && i_ <= idx.head)
+
+          prelude === fine
+        }
+
+        def getRhs(rhs: Expr): Expr = rhs match {
+          case Var(name, typ) => rhs
+          case Lit(any, typ)  => rhs
+          case Select(b, idx) => Select(Old(b), idx)
+        }
+
+        def modify(a: Expr, idx: Expr, rhs: Expr): Expr = a match {
+          case Var(name, typ) => Select(a, idx) === getRhs(rhs)
+          case Store(a_, idx_, _) if idx == idx_ => modify(a_, idx, rhs)
+          case Store(a_, idx_, rhs_) =>
+            modify(a_, idx, rhs) && modify(a_, idx_, rhs_)
         }
 
         val how = for (st1 <- before; st2 <- after) yield {
@@ -190,13 +225,13 @@ object Annotate extends Stage {
               }
             }
 
-          val concl = i_ === x && And(modified.toList)
-          val exists = Exists(List(i_), concl)
+          val prem = Select(M, x)
+          val concl = Exists(List(i_), i_ === x && And(modified.toList))
 
-          Forall(List(x), exists)
+          prem ==> concl
         }
 
-        val inv_ = inv && And(how) // TODO
+        val inv_ = inv && And(which) && And(how)
 
         val prog_ = While(test, body_, term, inv_, sum, frames)
 
