@@ -217,6 +217,7 @@ object Annotate extends Stage {
 
         def getM(v: Expr) = {
           val m = for ((i_, m_) <- ms if i_ == v) yield m_
+          // TODO arithmetik expressions
           assert(
             m.size == 1,
             message = String.format(
@@ -230,30 +231,22 @@ object Annotate extends Stage {
         val how = for (st1 <- before; st2 <- after) yield {
           val path = And(st1.path)
 
-          val modified =
+          val all =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
                 case Store(a, idx, rhs) =>
                   val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
+
                   val prem = Select(getM(idx), x)
-                  val concl = modify(var_, a, idx, rhs) rename re
-                  prem ==> concl
+
+                  val modified = modify(var_, a, idx, rhs) rename re
+
+                  val unmodified = Select(var_, x) === Old(Select(var_, x))
+                  prem ==> modified && !prem ==> unmodified
               }
             }
 
-          val unmodified =
-            for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
-              expr_ match {
-                case Store(_, idx, _) =>
-                  val prem = !Select(getM(idx), x)
-                  val concl = Select(var_, x) === Old(Select(var_, x))
-                  prem ==> concl
-              }
-            }
-
-          val all = And(modified.toList) && And(unmodified.toList)
-
-          path && Forall(x_, all)
+          path && Forall(x_, And(all.toList))
         }
 
         // TODO: the same for all integer variables that are modified
