@@ -216,14 +216,16 @@ object Annotate extends Stage {
           val modified =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
-                case Store(a, idx, rhs) => modify(var_, a, idx, rhs)
+                case Store(a, idx, rhs) =>
+                  val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
+                  modify(var_, a, idx, rhs) rename re
               }
             }
 
           val prem = Select(M, x)
-          val concl = Exists(List(i_), i_ === x && And(modified.toList))
+          val concl = And(modified.toList)
 
-          prem ==> concl
+          Forall(List(x), prem ==> concl)
         }
 
         // TODO: the same for all integer variables that are modified
