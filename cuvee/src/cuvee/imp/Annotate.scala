@@ -163,9 +163,15 @@ object Annotate extends Stage {
         val x = Var("x", Sort.int)
         val i_ = Var("i_", Sort.int)
 
+        // TODO
         val M = Var("M", Sort.array(Sort.int, Sort.bool))
-        // TODO init M with false
 
+        val Ms = for (var_ <- mod if var_.typ == Sort.int) yield {
+          val name = "M" + var_.name
+          var_ -> Var(name, Sort.array(Sort.int, Sort.bool))
+        }
+
+        // TODO init M with false -> assume in body
         // get all idx from lhs + place in M
         // inv for M
         // add M to body
@@ -177,23 +183,19 @@ object Annotate extends Stage {
 
         def toM(idx: Expr) = Store(M, idx, True)
 
-        // TODO get counter from test
-        def isCounter(i: Expr) = {
-          println(test, test.typ)
-          true
-        }
-
-        val which = for (st2 <- after) yield {
+        val which = for (st1 <- before; st2 <- after) yield {
           val modified =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
-                case Store(a, idx, rhs) => toM(idx)
+                // TODO buld one M for all integer variables with increments in body
+                // TODO store correct idx in fitting M
+                case Store(a, idx, rhs) if var_ == a => toM(idx)
+                case Store(a, idx, rhs)              => toM(idx)
               }
             }
 
           // TODO current range e.g. 0 <= i_ && i_ < idx
-          // get var from test, search assign, use init of var as lb, var as is as ub
-          var idx = for ((var_, expr_) <- st2.vars if isCounter(var_)) yield {
+          var idx = for ((var_, expr_) <- st2.vars) yield {
             Var("TODO", Sort.int)
           }
           var init = Var("initTODO", Sort.int)
@@ -243,11 +245,6 @@ object Annotate extends Stage {
           case Succ(j) if i == j => true // same as line above
           case _                 => false
         }
-
-        // TODO: how to rename variables
-        val j = Var("j", Sort.int)
-        val re = Expr.subst(i_ -> j)
-        val renamed_inv = inv rename re
 
         val inv_ = inv && And(which) && And(how)
 
