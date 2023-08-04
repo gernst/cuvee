@@ -204,24 +204,19 @@ object Annotate extends Stage {
           prelude === fine
         }
 
-        def getRhs(rhs: Expr): Expr = rhs match {
-          case Var(name, typ) => rhs
-          case Lit(any, typ)  => rhs
-          case Select(b, idx) => Select(Old(b), idx) // TODO: not correct, don't use old here
-        }
-
-        def modify(a: Expr, idx: Expr, rhs: Expr): Expr = a match {
-          case Var(name, typ)                    => Select(a, idx) === rhs // getRhs(rhs)
-          case Store(a_, idx_, _) if idx == idx_ => modify(a_, idx, rhs)
+        def modify(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
+          case Var(name, typ) if lhs == a        => Select(a, idx) === rhs
+          case Var(name, typ)                    => lhs === Store(a, idx, rhs)
+          case Store(a_, idx_, _) if idx == idx_ => modify(lhs, a_, idx, rhs)
           case Store(a_, idx_, rhs_) =>
-            modify(a_, idx, rhs) && modify(a_, idx_, rhs_)
+            modify(lhs, a_, idx, rhs) && modify(lhs, a_, idx_, rhs_)
         }
 
         val how = for (st1 <- before; st2 <- after) yield {
           val modified =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
-                case Store(a, idx, rhs) => modify(a, idx, rhs)
+                case Store(a, idx, rhs) => modify(var_, a, idx, rhs)
               }
             }
 
@@ -233,7 +228,7 @@ object Annotate extends Stage {
 
         // TODO: the same for all integer variables that are modified
         val i = Var("i", Sort.int)
-        
+
         // initial
         val is0 = from map { st => st.vars(i) }
         // try to get the single value for i0, just fail otherwise
@@ -242,9 +237,9 @@ object Annotate extends Stage {
         // after an arbitrary iteration
         val is_ = after map { st => st.vars(i) }
         val isIncremented = is_.forall {
-          case Succ(`i`) => true
+          case Succ(`i`)         => true
           case Succ(j) if i == j => true // same as line above
-          case _       => false
+          case _                 => false
         }
 
         // TODO: how to rename variables
@@ -257,13 +252,8 @@ object Annotate extends Stage {
         val prog_ = While(test, body_, term, inv_, sum, frames)
 
         // prepare states after the loop
-        // from or via here?
         val to = assume(via, inv_ && !test)
-        /*
-        println("prog_ " + prog_)
-        println("to " + to)
-        println()
-         */
+
         (prog_, to)
     }
   }
