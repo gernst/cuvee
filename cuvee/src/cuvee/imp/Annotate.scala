@@ -165,10 +165,10 @@ object Annotate extends Stage {
         val i_ = Var("i_", Sort.int)
 
         // TODO
-        val M = Var("M", Sort.array(Sort.int, Sort.bool))
+        val M = Var("M_", Sort.array(Sort.int, Sort.bool))
 
-        val Ms = for (var_ <- mod if var_.typ == Sort.int) yield {
-          val name = "M" + var_.name
+        val ms = for (var_ <- mod if var_.typ == Sort.int) yield {
+          val name = "M_" + var_.name
           var_ -> Var(name, Sort.array(Sort.int, Sort.bool))
         }
 
@@ -215,29 +215,45 @@ object Annotate extends Stage {
             modify(lhs, a_, idx, rhs) && modify(lhs, a_, idx_, rhs_)
         }
 
+        def getM(v: Expr) = {
+          val m = for ((i_, m_) <- ms if i_ == v) yield m_
+          assert(
+            m.size == 1,
+            message = String.format(
+              "Modified array at %s values. Should be 1.",
+              m.size
+            )
+          )
+          m.head
+        }
+
         val how = for (st1 <- before; st2 <- after) yield {
+          val path = And(st1.path)
+
           val modified =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
                 case Store(a, idx, rhs) =>
                   val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
-                  modify(var_, a, idx, rhs) rename re
+                  val prem = Select(getM(idx), x)
+                  val concl = modify(var_, a, idx, rhs) rename re
+                  prem ==> concl
               }
             }
-          val path = And(st1.path)
-
-          // TODO get correct M
-          val prem = Select(M, x)
-          val concl = And(modified.toList)
 
           val unmodified =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
-              Select(var_, x) === Old(Select(var_, x))
+              expr_ match {
+                case Store(_, idx, _) =>
+                  val prem = !Select(getM(idx), x)
+                  val concl = Select(var_, x) === Old(Select(var_, x))
+                  prem ==> concl
+              }
             }
 
-          val all = Forall(x_, prem ==> concl && !prem ==> And(unmodified.toList))
+          val all = And(modified.toList) && And(unmodified.toList)
 
-          path && all
+          path && Forall(x_, all)
         }
 
         // TODO: the same for all integer variables that are modified
