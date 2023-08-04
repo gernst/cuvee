@@ -161,6 +161,7 @@ object Annotate extends Stage {
         // TODO: compute some new invariants here
 
         val x = Var("x", Sort.int)
+        val x_ = List(x)
         val i_ = Var("i_", Sort.int)
 
         // TODO
@@ -223,11 +224,20 @@ object Annotate extends Stage {
                   modify(var_, a, idx, rhs) rename re
               }
             }
+          val path = And(st1.path)
 
+          // TODO get correct M
           val prem = Select(M, x)
           val concl = And(modified.toList)
 
-          Forall(List(x), prem ==> concl)
+          val unmodified =
+            for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
+              Select(var_, x) === Old(Select(var_, x))
+            }
+
+          val all = Forall(x_, prem ==> concl && !prem ==> And(unmodified.toList))
+
+          path && all
         }
 
         // TODO: the same for all integer variables that are modified
