@@ -162,15 +162,10 @@ object Annotate extends Stage {
 
         val x = Var("x", Sort.int)
         val x_ = List(x)
-        val i_ = Var("i_", Sort.int)
 
         // TODO
         val M = Var("M_", Sort.array(Sort.int, Sort.bool))
-
-        val ms = for (var_ <- mod if var_.typ == Sort.int) yield {
-          val name = "M_" + var_.name
-          var_ -> Var(name, Sort.array(Sort.int, Sort.bool))
-        }
+        val i_ = Var("i_", Sort.int)
 
         // TODO init M with false -> assume in body
         // get all idx from lhs + place in M
@@ -207,26 +202,12 @@ object Annotate extends Stage {
           prelude === fine
         }
 
-        // TODO check for correct order !!!
         def modify(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
           case Var(name, typ) if lhs == a        => Select(a, idx) === rhs
           case Var(name, typ)                    => lhs === Store(a, idx, rhs)
           case Store(a_, idx_, _) if idx == idx_ => modify(lhs, a_, idx, rhs)
           case Store(a_, idx_, rhs_) =>
             modify(lhs, a_, idx, rhs) && modify(lhs, a_, idx_, rhs_)
-        }
-
-        def getM(v: Expr) = {
-          // TODO arithmetik expressions
-          val m = for ((i_, m_) <- ms if i_ == v) yield m_
-          assert(
-            m.size == 1,
-            message = String.format(
-              "Modified array at %s values. Should be 1.",
-              m.size
-            )
-          )
-          m.head
         }
 
         // TODO better design
@@ -296,7 +277,7 @@ object Annotate extends Stage {
 
                   println()
 
-                  // TODO
+                  // TODO construct M from List provided by mOf
                   val prem = Select(M, x)
 
                   val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
@@ -310,7 +291,6 @@ object Annotate extends Stage {
 
           path && Forall(x_, And(all.toList))
         }
-
 
         // TODO: the same for all integer variables that are modified
         val i = Var("i", Sort.int)
@@ -327,7 +307,6 @@ object Annotate extends Stage {
           case Succ(j) if i == j => true // same as line above
           case _                 => false
         }
-
 
         val inv_ = inv && And(which) && And(how)
 
