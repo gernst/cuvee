@@ -183,7 +183,8 @@ object Annotate extends Stage {
             modified(lhs, a_, idx, rhs)
           case Store(a_, idx_, rhs_) =>
             modified(lhs, a_, idx, rhs) && modified(lhs, a_, idx_, rhs_)
-          case _ => cuvee.error("Unexpected case in " + this)
+          case _ =>
+            cuvee.error("Unexpected case in " + this)
         }
 
         def init(x: Var) = {
@@ -272,16 +273,12 @@ object Annotate extends Stage {
                   // TODO think about multible vars -> what should be done -> look at example
                   val boundaries =
                     for (e <- m.vars) yield x === i_ && init(e) <= i_ && i_ <= e
-
                   val exists = Exists(List(i_), Or(boundaries))
                   val which = prem === exists
 
-                  // TODO fix
-                  val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
+                  val re = Expr.subst(for (e <- m.vars) yield (e, x))
                   val mod = modified(var_, a, idx, rhs) rename re
-
                   val notMod = Select(var_, x) === Old(Select(var_, x))
-
                   val how = prem ==> mod && !prem ==> notMod
 
                   which && how
