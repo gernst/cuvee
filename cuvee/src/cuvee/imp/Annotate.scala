@@ -161,10 +161,6 @@ object Annotate extends Stage {
         // TODO: compute some new invariants here
 
         val x = Var("x", Sort.int)
-        val x_ = List(x)
-
-        // TODO
-        val M = Var("M_", Sort.array(Sort.int, Sort.bool))
         val i_ = Var("i_", Sort.int)
 
         // TODO init M with false -> assume in body
@@ -175,31 +171,6 @@ object Annotate extends Stage {
         def isModifiedArray(a: Var) = a.typ match {
           case Sort(Con.array, _) if mod.contains(a) => true
           case _                                     => false
-        }
-
-        def toM(idx: Expr) = Store(M, idx, True)
-
-        val which = for (st1 <- before; st2 <- after) yield {
-          val modified =
-            for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
-              expr_ match {
-                // TODO buld one M for all integer variables with increments in body
-                // TODO store correct idx in fitting M
-                case Store(a, idx, rhs) if var_ == a => toM(idx)
-                case Store(a, idx, rhs)              => toM(idx)
-              }
-            }
-
-          // TODO current range e.g. 0 <= i_ && i_ < idx
-          var idx = for ((var_, expr_) <- st2.vars) yield {
-            Var("TODO", Sort.int)
-          }
-          var init = Var("initTODO", Sort.int)
-
-          val prelude = Select(M, x)
-          val fine = Exists(List(i_), i_ === x && init <= i_ && i_ <= idx.head)
-
-          prelude === fine
         }
 
         def modified(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
@@ -214,13 +185,18 @@ object Annotate extends Stage {
           case _ => cuvee.error("Unexpected case in " + this)
         }
 
+        def init(x: Var) = {
+          // initial
+          val xs = from map { st => st.vars(x) }
+          // try to get the single value for i0, just fail otherwise
+          val List(x_) = xs.distinct
+          x_
+        }
+
         // TODO better design
         def mOf(expr: Expr): Modified = expr match {
           case x @ Var(_, Sort.int) =>
-            // initial
-            val xs0 = from map { st => st.vars(x) }
-            // try to get the single value for i0, just fail otherwise
-            val List(x0) = xs0.distinct
+            val x0 = init(x)
 
             // TODO cover multible assigns, possibly empty
             val stepx = after map { st => st.vars(x) }
@@ -235,7 +211,7 @@ object Annotate extends Stage {
           case Plus(args) =>
             val ranges = args map mOf
             // TODO how calculate these?
-            // if not general case with Modified(init of exprs, expr, sum of steps)
+            // if not general case with Modified(init of vars, expr, sum of steps)
             ranges.reduce((x, y) =>
               Modified(x.lb + y.lb, x.ub + y.ub, x.step + y.step)
             )
@@ -278,37 +254,42 @@ object Annotate extends Stage {
             )
         }
 
-        val how = for (st1 <- before; st2 <- after) yield {
+        // TODO functiontake var as param, build boundaries of var <- lookup assigns
+
+        val derive = for (st1 <- before; st2 <- after) yield {
           val path = And(st1.path)
 
           val all =
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
                 case Store(a, idx, rhs) =>
-                  // TODO get var from idx expr for M and re
-                  println(idx)
+                  val m = mOf(idx)
 
-                  println()
+                  val prem = Select(m.toExpr(), x)
 
-                  println(mOf(idx))
+                  // TODO boundaries of var
+                  // TODO i_ => assignment pos
+                  // TODO get vars used for this M => maybe add param to M
+                  val boundaries =
+                    Exists(List(i_), x === i_ && m.lb <= i_ && i_ <= m.ub)
+                  val which = prem === boundaries
 
-                  println()
-
-                  // TODO construct M from List provided by mOf
-                  val prem = Select(M, x)
-
+                  // TODO fix
                   val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
                   val mod = modified(var_, a, idx, rhs) rename re
 
                   val notMod = Select(var_, x) === Old(Select(var_, x))
 
-                  prem ==> mod && !prem ==> notMod
+                  val how = prem ==> mod && !prem ==> notMod
+
+                  which && how
               }
             }
 
-          path && Forall(x_, And(all.toList))
+          path && Forall(List(x), And(all.toList))
         }
 
+        /*
         // TODO: the same for all integer variables that are modified
         val i = Var("i", Sort.int)
 
@@ -324,8 +305,9 @@ object Annotate extends Stage {
           case Succ(j) if i == j => true // same as line above
           case _                 => false
         }
+         */
 
-        val inv_ = inv && And(which) && And(how)
+        val inv_ = inv && And(derive)
 
         val prog_ = While(test, body_, term, inv_, sum, frames)
 
@@ -337,4 +319,8 @@ object Annotate extends Stage {
   }
 }
 
-sealed case class Modified(lb: Expr, ub: Expr, step: Int = 1)
+sealed case class Modified(lb: Expr, ub: Expr, step: Int = 1) {
+  def name(): String = "M_" + ub
+  // TODO how give ranges to array? see eof
+  def toExpr(): Expr = Var(name(), Sort.array(Sort.int, Sort.bool))
+}
