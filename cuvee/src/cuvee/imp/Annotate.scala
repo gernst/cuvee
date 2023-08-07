@@ -173,8 +173,8 @@ object Annotate extends Stage {
         // add M to body
 
         def isModifiedArray(a: Var) = a.typ match {
-          case Sort(Con.array, args) if mod.contains(a) => true
-          case _                                        => false
+          case Sort(Con.array, _) if mod.contains(a) => true
+          case _                                     => false
         }
 
         def toM(idx: Expr) = Store(M, idx, True)
@@ -202,12 +202,15 @@ object Annotate extends Stage {
           prelude === fine
         }
 
-        def modify(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
-          case Var(name, typ) if lhs == a        => Select(a, idx) === rhs
-          case Var(name, typ)                    => lhs === Store(a, idx, rhs)
-          case Store(a_, idx_, _) if idx == idx_ => modify(lhs, a_, idx, rhs)
+        def modified(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
+          case Var(name, typ) if lhs == a =>
+            Select(a, idx) === rhs
+          case Var(name, typ) =>
+            lhs === Store(a, idx, rhs)
+          case Store(a_, idx_, _) if idx == idx_ =>
+            modified(lhs, a_, idx, rhs)
           case Store(a_, idx_, rhs_) =>
-            modify(lhs, a_, idx, rhs) && modify(lhs, a_, idx_, rhs_)
+            modified(lhs, a_, idx, rhs) && modified(lhs, a_, idx_, rhs_)
         }
 
         // TODO better design
@@ -281,11 +284,11 @@ object Annotate extends Stage {
                   val prem = Select(M, x)
 
                   val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
-                  val modified = modify(var_, a, idx, rhs) rename re
+                  val mod = modified(var_, a, idx, rhs) rename re
 
-                  val unmodified = Select(var_, x) === Old(Select(var_, x))
+                  val notMod = Select(var_, x) === Old(Select(var_, x))
 
-                  prem ==> modified && !prem ==> unmodified
+                  prem ==> mod && !prem ==> notMod
               }
             }
 
