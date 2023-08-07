@@ -211,10 +211,11 @@ object Annotate extends Stage {
             modified(lhs, a_, idx, rhs)
           case Store(a_, idx_, rhs_) =>
             modified(lhs, a_, idx, rhs) && modified(lhs, a_, idx_, rhs_)
+          case _ => cuvee.error("Unexpected case in " + this)
         }
 
         // TODO better design
-        def mOf(expr: Expr): List[Modified] = expr match {
+        def mOf(expr: Expr): Modified = expr match {
           case x @ Var(_, Sort.int) =>
             // initial
             val xs0 = from map { st => st.vars(x) }
@@ -225,39 +226,52 @@ object Annotate extends Stage {
             val stepx = after map { st => st.vars(x) }
             val List(step_) = stepx.distinct
 
-            // TODO get int from expr
+            // TODO get int from expr or use Expr instead of int
             val step = 1
 
-            List(Modified(x0, x, step))
+            Modified(x0, x, step)
           case c @ Lit(_, Sort.int) =>
-            List(Modified(c, c))
+            Modified(c, c)
           case Plus(args) =>
             val ranges = args map mOf
-            // TODO take op into account
-            ranges.flatten
+            // TODO how calculate these?
+            // if not general case with Modified(init of exprs, expr, sum of steps)
+            ranges.reduce((x, y) =>
+              Modified(x.lb + y.lb, x.ub + y.ub, x.step + y.step)
+            )
           case Minus(args) =>
             val (l, r) = args
             val ranges = List(mOf(l), mOf(r))
-            // TODO take op into account
-            ranges.flatten
+            ranges.reduce((x, y) =>
+              Modified(x.lb - y.lb, x.ub - y.ub, x.step + y.step)
+            )
           case Times(args) =>
             val ranges = args map mOf
-            // TODO take op into account
-            ranges.flatten
+            ranges.reduce((x, y) =>
+              Modified(x.lb * y.lb, x.ub * y.ub, x.step + y.step)
+            )
           case DivBy(args) =>
             val (l, r) = args
             val ranges = List(mOf(l), mOf(r))
-            // TODO take op into account
-            ranges.flatten
+            ranges.reduce((x, y) =>
+              Modified(DivBy(x.lb, y.lb), DivBy(x.ub, y.ub), x.step + y.step)
+            )
           case Mod(args) =>
             val (l, r) = args
             val ranges = List(mOf(l), mOf(r))
-            // TODO take op into account
-            ranges.flatten
+            ranges.reduce((x, y) =>
+              Modified(Mod(x.lb, y.lb), Mod(x.ub, y.ub), x.step + y.step)
+            )
           case UMinus(args) =>
             val ranges = List(mOf(args))
-            // TODO take op into account
-            ranges.flatten
+            // TODO ?
+            ranges.reduce((x, y) =>
+              Modified(
+                UMinus(x.lb + y.lb),
+                UMinus(x.ub + y.ub),
+                x.step + y.step
+              )
+            )
           case _ =>
             cuvee.error(
               String.format("Could not construct Modified from Expr %s.", expr)
