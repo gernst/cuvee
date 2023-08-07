@@ -3,6 +3,7 @@ package cuvee.imp
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.pipe.Stage
+import scala.collection.immutable
 
 object Annotate extends Stage {
   case class State(path: List[Expr], vars: Map[Var, Expr])
@@ -267,12 +268,13 @@ object Annotate extends Stage {
 
                   val prem = Select(m.toExpr(), x)
 
-                  // TODO boundaries of var
-                  // TODO i_ => assignment pos
-                  // TODO get vars used for this M => maybe add param to M
+                  // TODO i_ -> assignment pos
+                  // TODO think about multible vars -> what should be done -> look at example
                   val boundaries =
-                    Exists(List(i_), x === i_ && m.lb <= i_ && i_ <= m.ub)
-                  val which = prem === boundaries
+                    for (e <- m.vars) yield x === i_ && init(e) <= i_ && i_ <= e
+
+                  val exists = Exists(List(i_), Or(boundaries))
+                  val which = prem === exists
 
                   // TODO fix
                   val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
@@ -321,6 +323,21 @@ object Annotate extends Stage {
 
 sealed case class Modified(lb: Expr, ub: Expr, step: Int = 1) {
   def name(): String = "M_" + ub
-  // TODO how give ranges to array? see eof
+  // TODO how give ranges to array?
   def toExpr(): Expr = Var(name(), Sort.array(Sort.int, Sort.bool))
+
+  def vars(): List[Var] = {
+    ub match {
+      case Var(name, typ)  => List(Var(name, typ))
+      case App(inst, args) => vars(args)
+      case _               => Nil
+    }
+  }
+
+  def vars(args: List[Expr]): List[Var] = args match {
+    case x @ Var(name, typ) :: next => Var(name, typ) :: vars(next)
+    case a @ App(_, args_) :: next  => vars(args_) ++ vars(next)
+    case head :: next               => vars(next)
+    case Nil                        => Nil
+  }
 }
