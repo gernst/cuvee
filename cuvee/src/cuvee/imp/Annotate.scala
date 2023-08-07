@@ -207,6 +207,7 @@ object Annotate extends Stage {
           prelude === fine
         }
 
+        // TODO check for correct order !!!
         def modify(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
           case Var(name, typ) if lhs == a        => Select(a, idx) === rhs
           case Var(name, typ)                    => lhs === Store(a, idx, rhs)
@@ -216,8 +217,8 @@ object Annotate extends Stage {
         }
 
         def getM(v: Expr) = {
-          val m = for ((i_, m_) <- ms if i_ == v) yield m_
           // TODO arithmetik expressions
+          val m = for ((i_, m_) <- ms if i_ == v) yield m_
           assert(
             m.size == 1,
             message = String.format(
@@ -228,6 +229,57 @@ object Annotate extends Stage {
           m.head
         }
 
+        // TODO better design
+        def mOf(expr: Expr): List[Modified] = expr match {
+          case x @ Var(_, Sort.int) =>
+            // initial
+            val xs0 = from map { st => st.vars(x) }
+            // try to get the single value for i0, just fail otherwise
+            val List(x0) = xs0.distinct
+
+            // TODO cover multible assigns, possibly empty
+            val stepx = after map { st => st.vars(x) }
+            val List(step_) = stepx.distinct
+
+            // TODO get int from expr
+            val step = 1
+
+            List(Modified(x0, x, step))
+          case c @ Lit(_, Sort.int) =>
+            List(Modified(c, c))
+          case Plus(args) =>
+            val ranges = args map mOf
+            // TODO take op into account
+            ranges.flatten
+          case Minus(args) =>
+            val (l, r) = args
+            val ranges = List(mOf(l), mOf(r))
+            // TODO take op into account
+            ranges.flatten
+          case Times(args) =>
+            val ranges = args map mOf
+            // TODO take op into account
+            ranges.flatten
+          case DivBy(args) =>
+            val (l, r) = args
+            val ranges = List(mOf(l), mOf(r))
+            // TODO take op into account
+            ranges.flatten
+          case Mod(args) =>
+            val (l, r) = args
+            val ranges = List(mOf(l), mOf(r))
+            // TODO take op into account
+            ranges.flatten
+          case UMinus(args) =>
+            val ranges = List(mOf(args))
+            // TODO take op into account
+            ranges.flatten
+          case _ =>
+            cuvee.error(
+              String.format("Could not construct Modified from Expr %s.", expr)
+            )
+        }
+
         val how = for (st1 <- before; st2 <- after) yield {
           val path = And(st1.path)
 
@@ -235,19 +287,30 @@ object Annotate extends Stage {
             for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
               expr_ match {
                 case Store(a, idx, rhs) =>
+                  // TODO get var from idx expr for M and re
+                  println(idx)
+
+                  println()
+
+                  println(mOf(idx))
+
+                  println()
+
+                  // TODO
+                  val prem = Select(M, x)
+
                   val re = Expr.subst(Var(idx.toString, idx.typ) -> x)
-
-                  val prem = Select(getM(idx), x)
-
                   val modified = modify(var_, a, idx, rhs) rename re
 
                   val unmodified = Select(var_, x) === Old(Select(var_, x))
+
                   prem ==> modified && !prem ==> unmodified
               }
             }
 
           path && Forall(x_, And(all.toList))
         }
+
 
         // TODO: the same for all integer variables that are modified
         val i = Var("i", Sort.int)
@@ -265,6 +328,7 @@ object Annotate extends Stage {
           case _                 => false
         }
 
+
         val inv_ = inv && And(which) && And(how)
 
         val prog_ = While(test, body_, term, inv_, sum, frames)
@@ -276,3 +340,5 @@ object Annotate extends Stage {
     }
   }
 }
+
+sealed case class Modified(lb: Expr, ub: Expr, step: Int = 1)
