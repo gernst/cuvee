@@ -195,25 +195,33 @@ object Annotate extends Stage {
           x_
         }
 
+        // TODO to many Zero
+        def getStep(exprs: List[Expr], v: Var): Expr = exprs match {
+          case Var(name, typ) :: next if Var(name, typ) != v =>
+            Plus(Var(name, typ), getStep(next, v))
+          case App(inst, args) :: next =>
+            Plus(getStep(args, v), getStep(next, v))
+          case Lit(any, typ) :: next =>
+            Plus(Lit(any, typ), getStep(next, v))
+          case head :: next =>
+            getStep(next, v)
+          case Nil =>
+            Zero
+        }
+
         // TODO better design
         def mOf(expr: Expr): Modified = expr match {
           case x @ Var(_, Sort.int) =>
             val x0 = init(x)
 
-            // TODO cover multible assigns, possibly empty
             val stepx = after map { st => st.vars(x) }
-            val List(step_) = stepx.distinct
 
-            // TODO get int from expr or use Expr instead of int
-            val step = 1
-
+            val step = getStep(stepx, x)
             Modified(x0, x, step)
           case c @ Lit(_, Sort.int) =>
             Modified(c, c)
           case Plus(args) =>
             val ranges = args map mOf
-            // TODO how calculate these?
-            // if not general case with Modified(init of vars, expr, sum of steps)
             ranges.reduce((x, y) =>
               Modified(x.lb + y.lb, x.ub + y.ub, x.step + y.step)
             )
@@ -242,7 +250,7 @@ object Annotate extends Stage {
             )
           case UMinus(args) =>
             val ranges = List(mOf(args))
-            // TODO ?
+            // TODO is this even possible? If it is: How?
             ranges.reduce((x, y) =>
               Modified(
                 UMinus(x.lb + y.lb),
@@ -300,7 +308,7 @@ object Annotate extends Stage {
   }
 }
 
-sealed case class Modified(lb: Expr, ub: Expr, step: Int = 1) {
+sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
   def name(): String = "M_" + ub
   // TODO how give ranges to array?
   def toExpr(): Expr = Var(name(), Sort.array(Sort.int, Sort.bool))
