@@ -162,11 +162,10 @@ object Annotate extends Stage {
         // TODO: compute some new invariants here
 
         val x = Var("x", Sort.int)
-        val i_ = Var("i_", Sort.int)
 
-        // TODO init M with false -> assume in body
+        // TODO
+        // init M with false -> assume in body
         // get all idx from lhs + place in M
-        // inv for M
         // add M to body
 
         def isModifiedArray(a: Var) = a.typ match {
@@ -264,8 +263,11 @@ object Annotate extends Stage {
             )
         }
 
-        def subst(exprs: List[Var], v: Var) =
-          Expr.subst(for (e <- exprs) yield (e, v))
+        def subst(xs: List[Var]) = {
+          val re = Expr.fresh(xs)
+          val xs_ = xs rename re
+          (xs_, re)
+        }
 
         val derive = for (st1 <- before; st2 <- after) yield {
           val path = And(st1.path)
@@ -275,24 +277,31 @@ object Annotate extends Stage {
               expr_ match {
                 case Store(a, idx, rhs) =>
                   val m = mOf(idx)
-                  val prem = Select(m.toExpr(), x)
+                  val (substVars, substMapping) = subst(m.vars)
 
-                  // TODO think about multible vars -> what should be done -> look at example
-                  val pos = m.ub rename subst(m.vars, i_)
-                  val boundaries =
-                    for (e <- m.vars)
-                      yield x === pos && init(e) <= i_ && i_ <= e
-                  val exists = Exists(List(i_), Or(boundaries))
+                  val prem = Select(m.toExpr(), x)
+                  val pos = m.ub rename substMapping
+
+                  val ixs = test match {
+                    case App(inst, args) =>
+                      for (arg <- args; i <- m.vars if arg == i) yield i
+                    case _ => cuvee.error("Non App Expr in Test. " + test)
+                  }
+                  val List(i) = ixs.distinct
+                  val i_ = i rename substMapping
+
+                  val boundaries = x === pos && init(i) <= i_ && i_ <= i
+                  val exists = Exists(substVars, boundaries)
+
                   val which = prem === exists
 
-                  val mod = modified(var_, a, idx, rhs) rename subst(m.vars, x)
+                  val mod = modified(var_, a, idx, rhs) rename substMapping
                   val notMod = Select(var_, x) === Old(Select(var_, x))
                   val how = prem ==> mod && !prem ==> notMod
 
                   which && how
               }
             }
-
           path && Forall(List(x), And(all.toList))
         }
 
