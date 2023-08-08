@@ -256,7 +256,8 @@ object Annotate extends Stage {
             )
         }
 
-        // TODO functiontake var as param, build boundaries of var <- lookup assigns
+        def subst(exprs: List[Var], v: Var) =
+          Expr.subst(for (e <- exprs) yield (e, v))
 
         val derive = for (st1 <- before; st2 <- after) yield {
           val path = And(st1.path)
@@ -266,18 +267,17 @@ object Annotate extends Stage {
               expr_ match {
                 case Store(a, idx, rhs) =>
                   val m = mOf(idx)
-
                   val prem = Select(m.toExpr(), x)
 
-                  // TODO i_ -> assignment pos
                   // TODO think about multible vars -> what should be done -> look at example
+                  val pos = m.ub rename subst(m.vars, i_)
                   val boundaries =
-                    for (e <- m.vars) yield x === i_ && init(e) <= i_ && i_ <= e
+                    for (e <- m.vars)
+                      yield x === pos && init(e) <= i_ && i_ <= e
                   val exists = Exists(List(i_), Or(boundaries))
                   val which = prem === exists
 
-                  val re = Expr.subst(for (e <- m.vars) yield (e, x))
-                  val mod = modified(var_, a, idx, rhs) rename re
+                  val mod = modified(var_, a, idx, rhs) rename subst(m.vars, x)
                   val notMod = Select(var_, x) === Old(Select(var_, x))
                   val how = prem ==> mod && !prem ==> notMod
 
@@ -287,24 +287,6 @@ object Annotate extends Stage {
 
           path && Forall(List(x), And(all.toList))
         }
-
-        /*
-        // TODO: the same for all integer variables that are modified
-        val i = Var("i", Sort.int)
-
-        // initial
-        val is0 = from map { st => st.vars(i) }
-        // try to get the single value for i0, just fail otherwise
-        val List(i0) = is0.distinct
-
-        // after an arbitrary iteration
-        val is_ = after map { st => st.vars(i) }
-        val isIncremented = is_.forall {
-          case Succ(`i`)         => true
-          case Succ(j) if i == j => true // same as line above
-          case _                 => false
-        }
-         */
 
         val inv_ = inv && And(derive)
 
