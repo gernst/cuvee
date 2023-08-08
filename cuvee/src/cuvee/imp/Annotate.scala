@@ -194,7 +194,7 @@ object Annotate extends Stage {
           x_
         }
 
-        // TODO to many Zero
+        // TODO use correct operation
         def getStep(exprs: List[Expr], v: Var): Expr = exprs match {
           case Var(name, typ) :: next if Var(name, typ) != v =>
             Plus(Var(name, typ), getStep(next, v))
@@ -279,9 +279,7 @@ object Annotate extends Stage {
                   val m = mOf(idx)
                   val (substVars, substMapping) = subst(m.vars)
 
-                  val prem = Select(m.toExpr(), x)
                   val pos = m.ub rename substMapping
-
                   val ixs = test match {
                     case App(inst, args) =>
                       for (arg <- args; i <- m.vars if arg == i) yield i
@@ -290,14 +288,16 @@ object Annotate extends Stage {
                   val List(i) = ixs.distinct
                   val i_ = i rename substMapping
 
-                  val boundaries = x === pos && init(i) <= i_ && i_ <= i
-                  val exists = Exists(substVars, boundaries)
+                  val prem = m.toExpr(x)
 
+                  val boundaries = (x === pos) && (init(i) <= i_ && i_ <= i)
+                  val exists = Exists(substVars, boundaries)
                   val which = prem === exists
 
                   val mod = modified(var_, a, idx, rhs) rename substMapping
+                  val mod_ = Exists(substVars, mod)
                   val notMod = Select(var_, x) === Old(Select(var_, x))
-                  val how = prem ==> mod && !prem ==> notMod
+                  val how = (prem ==> mod_) && (!prem ==> notMod)
 
                   which && how
               }
@@ -319,8 +319,9 @@ object Annotate extends Stage {
 
 sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
   def name(): String = "M_" + ub
-  // TODO how give ranges to array?
-  def toExpr(): Expr = Var(name(), Sort.array(Sort.int, Sort.bool))
+
+  // TODO add step
+  def toExpr(x: Var): Expr = this.lb <= x && x <= this.ub
 
   def vars(): List[Var] = {
     ub match {
