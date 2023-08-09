@@ -282,15 +282,21 @@ object Annotate extends Stage {
                   val pos = m.ub rename substMapping
                   val ixs = test match {
                     case App(inst, args) =>
-                      for (arg <- args; i <- m.vars if arg == i) yield i
+                      for (arg <- args) yield {
+                        for (v <- m.vars(List(arg)) if m.vars.contains(v))
+                          yield arg
+                      }
                     case _ => cuvee.error("Non App Expr in Test. " + test)
                   }
-                  val List(i) = ixs.distinct
+                  val List(i) = ixs.flatten.distinct
                   val i_ = i rename substMapping
+
+                  val inits_ = for (v <- m.vars(ixs.flatten)) yield v -> init(v)
+                  val inits = i subst inits_.toMap
 
                   val prem = m.toExpr(x)
 
-                  val boundaries = (x === pos) && (init(i) <= i_ && i_ <= i)
+                  val boundaries = (x === pos) && (inits <= i_ && i_ <= i)
                   val exists = Exists(substVars, boundaries)
                   val which = prem === exists
 
