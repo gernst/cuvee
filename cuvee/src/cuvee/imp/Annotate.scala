@@ -163,11 +163,6 @@ object Annotate extends Stage {
 
         val x = Var("x", Sort.int)
 
-        // TODO
-        // init M with false -> assume in body
-        // get all idx from lhs + place in M
-        // add M to body
-
         def isModifiedArray(a: Var) = a.typ match {
           case Sort(Con.array, _) if mod.contains(a) => true
           case _                                     => false
@@ -194,28 +189,14 @@ object Annotate extends Stage {
           x_
         }
 
-        // TODO use correct operation
-        def getStep(exprs: List[Expr], v: Var): Expr = exprs match {
-          case Var(name, typ) :: next if Var(name, typ) != v =>
-            Plus(Var(name, typ), getStep(next, v))
-          case App(inst, args) :: next =>
-            Plus(getStep(args, v), getStep(next, v))
-          case Lit(any, typ) :: next =>
-            Plus(Lit(any, typ), getStep(next, v))
-          case head :: next =>
-            getStep(next, v)
-          case Nil =>
-            Zero
-        }
-
         // TODO better design
         def mOf(expr: Expr): Modified = expr match {
           case x @ Var(_, Sort.int) =>
             val x0 = init(x)
 
-            val stepx = after map { st => st.vars(x) }
+            val stepxs = after map { st => st.vars(x) }
+            val List(step) = stepxs.distinct
 
-            val step = getStep(stepx, x)
             Modified(x0, x, step)
           case c @ Lit(_, Sort.int) =>
             Modified(c, c)
@@ -279,33 +260,13 @@ object Annotate extends Stage {
                   val m = mOf(idx)
                   val (substVars, substMapping) = subst(m.vars)
 
-                  val pos = m.ub rename substMapping
-                  val ixs = test match {
-                    case App(inst, args) =>
-                      for (arg <- args) yield {
-                        for (v <- m.vars(List(arg)) if m.vars.contains(v))
-                          yield arg
-                      }
-                    case _ => cuvee.error("Non App Expr in Test. " + test)
-                  }
-                  val List(i) = ixs.flatten.distinct
-                  val i_ = i rename substMapping
-
-                  val inits_ = for (v <- m.vars(ixs.flatten)) yield v -> init(v)
-                  val inits = i subst inits_.toMap
-
                   val prem = m.toExpr(x)
-
-                  val boundaries = (x === pos) && (inits <= i_ && i_ <= i)
-                  val exists = Exists(substVars, boundaries)
-                  val which = prem === exists
 
                   val mod = modified(var_, a, idx, rhs) rename substMapping
                   val mod_ = Exists(substVars, mod)
                   val notMod = Select(var_, x) === Old(Select(var_, x))
-                  val how = (prem ==> mod_) && (!prem ==> notMod)
 
-                  which && how
+                  (prem ==> mod_) && (!prem ==> notMod)
               }
             }
           path && Forall(List(x), And(all.toList))
@@ -324,10 +285,8 @@ object Annotate extends Stage {
 }
 
 sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
-  def name(): String = "M_" + ub
-
   // TODO add step
-  def toExpr(x: Var): Expr = this.lb <= x && x <= this.ub
+  def toExpr(x: Var): Expr = this.lb <= x && x < this.ub
 
   def vars(): List[Var] = {
     ub match {
