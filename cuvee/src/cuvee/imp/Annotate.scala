@@ -333,10 +333,36 @@ object Annotate extends Stage {
   }
 }
 
+/** Class to keep track of modified indices for one array
+  *
+  * @param lb
+  *   lower bound of the modified range
+  * @param ub
+  *   upper bound of the modified range
+  * @param step
+  *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
+  *   Can also hold more complicated calculations. However: The expression are *
+  *   held as is and will not be simplified
+  */
 sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
+
+  /** Provides an expression describing all indices which got changed to place
+    * into an invariant
+    *
+    * @param x
+    *   an arbitrary integer to reason about the boundings in this instance
+    * @return
+    *   one expression containing all necessary informations which indices got
+    *   changed
+    */
   // TODO add step
   def toExpr(x: Var): Expr = this.lb <= x && x < this.ub
 
+  /** Find all variables that are part of the expressions
+    *
+    * @return
+    *   List of all variables who are part of the expressions from this instance
+    */
   def vars(): List[Var] = {
     ub match {
       case Var(name, typ)  => List(Var(name, typ))
@@ -345,7 +371,7 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
     }
   }
 
-  def vars(args: List[Expr]): List[Var] = args match {
+  private[this] def vars(args: List[Expr]): List[Var] = args match {
     case Var(name, typ) :: next => Var(name, typ) :: vars(next)
     case App(_, args_) :: next  => vars(args_) ++ vars(next)
     case head :: next           => vars(next)
