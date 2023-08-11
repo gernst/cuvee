@@ -195,37 +195,24 @@ class Stmts(val exprs: Exprs) {
       )
     case Ast.stmt.While(test, body, orelse) =>
       val (inv, pre, post, decrease, remnant) = getInv(body)
-      if (orelse.isEmpty) {
-        List(
-          While(
-            pyIsTrue(pymap(test)),
-            Block(remnant),
-            And(decrease),
-            if (inv.isEmpty) And(pre) else And(inv),
-            pyIsTrue(pyNone()),
-            Nil
-          )
+
+      val loop = While(
+        pyIsTrue(pymap(test)),
+        Block(remnant),
+        And(decrease),
+        if (inv.isEmpty) And(pre) else And(inv),
+        pyIsTrue(pyNone()),
+        Nil
+      )
+
+      if (orelse.isEmpty) List(loop)
+      else {
+        val after = If(
+          Not(pyIsTrue(pymap(test))),
+          Block(orelse.flatMap(stmts).toList),
+          Skip
         )
-      } else {
-        List(
-          Block(
-            List(
-              While(
-                pyIsTrue(pymap(test)),
-                Block(remnant),
-                And(decrease),
-                if (inv.isEmpty) And(pre) else And(inv),
-                pyIsTrue(pyNone()),
-                Nil
-              ),
-              If(
-                Not(pyIsTrue(pymap(test))),
-                Block(orelse.flatMap(stmts).toList),
-                Skip
-              )
-            )
-          )
-        )
+        List(Block(List(loop, after)))
       }
     case Ast.stmt.Break => List(Break)
     case Ast.stmt.Pass  => List(Skip)
