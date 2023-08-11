@@ -48,10 +48,10 @@ class Stmts(val exprs: Exprs) {
       List(cmd)
 
     case Ast.stmt.ClassDef(name, bases, body, _) =>
-      cuvee.undefined
+      cuvee.error("Classes for python are currently not supported.")
 
     case _ =>
-      cuvee.undefined
+      cuvee.error("Unsupported statement: " + stmt)
   }
 
   def input(args: Ast.arguments): List[Var] = {
@@ -64,6 +64,7 @@ class Stmts(val exprs: Exprs) {
     val (vars, pre, post, remnant) = getSpec(body, in)
     val spec = Spec(vars, And(pre), And(post))
     val prog = Block(remnant)
+
     (Option(spec), prog)
   }
 
@@ -72,7 +73,6 @@ class Stmts(val exprs: Exprs) {
       in: List[Var]
   ): (List[Var], List[Expr], List[Expr], List[Prog]) =
     body match {
-      case Nil => (Nil, Nil, Nil, Nil)
       case assign @ Ast.stmt
             .Assign(Seq(Ast.expr.Name(identifier, _)), _) :: next =>
         val (vars, pre, post, remnant) = getSpec(next, in)
@@ -100,10 +100,10 @@ class Stmts(val exprs: Exprs) {
       case head :: next =>
         val (vars, pre, post, remnant) = getSpec(next, in)
         (vars, pre, post, stmts(head) ++ remnant)
+      case Nil => (Nil, Nil, Nil, Nil)
     }
 
   def stmts(stmt: Ast.stmt): List[Prog] = stmt match {
-    case Nil                      => List(Skip)
     case Ast.stmt.Assert(test, _) => List(Spec.assert(pyIsTrue(pymap(test))))
     case Ast.stmt.Assign(Seq(Ast.expr.Name(id, _)), values) =>
       List(Assign(List(Var(id.name, value)), List(pymap(values))))
@@ -165,13 +165,12 @@ class Stmts(val exprs: Exprs) {
           )
         )
       )
-    // TODO is this correct?
     case Ast.stmt.Return(
           Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))
         ) =>
       List(Call(id.name, args.map(pymap).toList, List(pyResult)), Return)
     case Ast.stmt.Return(None) =>
-        List(Return)
+      List(Return)
     case Ast.stmt.Return(Some(value)) =>
       List(Assign(List(pyResult), List(pymap(value))), Return)
     case Ast.stmt.Expr(Ast.expr.Call(name, Seq(args), _, _, _)) =>
@@ -199,17 +198,11 @@ class Stmts(val exprs: Exprs) {
       if (orelse.isEmpty) {
         List(
           While(
-            // test: Expr,
             pyIsTrue(pymap(test)),
-            // body: Prog,
             Block(remnant),
-            // term: Expr,
             And(decrease),
-            // inv: Expr,
             if (inv.isEmpty) And(pre) else And(inv),
-            // sum: Expr,
             pyIsTrue(pyNone()),
-            // frames: List[Frame]
             Nil
           )
         )
@@ -236,14 +229,14 @@ class Stmts(val exprs: Exprs) {
       }
     case Ast.stmt.Break => List(Break)
     case Ast.stmt.Pass  => List(Skip)
-    case _              => cuvee.undefined
+    case Nil            => List(Skip)
+    case _              => cuvee.error("Unsupported statement: " + stmt)
   }
 
   def getInv(
       body: Seq[Ast.stmt]
   ): (List[Expr], List[Expr], List[Expr], List[Expr], List[Prog]) =
     body match {
-      case Nil => (Nil, Nil, Nil, Nil, Nil)
       case Ast.stmt.Expr(
             Ast.expr.Call(Ast.expr.Name(id, _), Seq(arg), _, _, _)
           ) :: next =>
@@ -264,5 +257,6 @@ class Stmts(val exprs: Exprs) {
       case head :: next =>
         val (inv, pre, post, decrease, remnant) = getInv(next)
         (inv, pre, post, decrease, stmts(head) ++ remnant)
+      case Nil => (Nil, Nil, Nil, Nil, Nil)
     }
 }
