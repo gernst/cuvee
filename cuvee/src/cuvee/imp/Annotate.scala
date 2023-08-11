@@ -168,6 +168,18 @@ object Annotate extends Stage {
           case _                                     => false
         }
 
+        /** Provides an expression, which describes an assignment to an array
+          *
+          * @param lhs
+          *   left hand side of the assignment
+          * @param a
+          *   array to write to
+          * @param idx
+          *   index from a to write to
+          * @param rhs
+          *   right hand side of the assignment
+          * @return
+          */
         def modified(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
           case Var(name, typ) if lhs == a =>
             Select(a, idx) === rhs
@@ -181,6 +193,13 @@ object Annotate extends Stage {
             cuvee.error("Unexpected case in " + this)
         }
 
+        /** Gives the value with which x was initialized
+          *
+          * @param x
+          *   variable to get the initial value for
+          * @return
+          *   initial value of x
+          */
         def init(x: Var) = {
           // initial
           val xs = from map { st => st.vars(x) }
@@ -190,6 +209,14 @@ object Annotate extends Stage {
         }
 
         // TODO better design
+        /** Buil an instance of Modified which holds the range of indices which
+          * got edited until an arbitrary iteration of the analyzed loop
+          *
+          * @param expr
+          *   position of an assignment to derive Modified for
+          * @return
+          *   Modified which got derived from the given Expr
+          */
         def mOf(expr: Expr): Modified = expr match {
           case x @ Var(_, Sort.int) =>
             val x0 = init(x)
@@ -239,17 +266,29 @@ object Annotate extends Stage {
               )
             )
           case _ =>
-            cuvee.error(
-              String.format("Could not construct Modified from Expr %s.", expr)
-            )
+            cuvee.error("Could not construct Modified from Expr: " + expr)
         }
 
+        /** Generates a new variable for each element in xs
+          *
+          * @param xs
+          *   List of variables
+          * @return
+          *   Map variable -> fresh variable
+          */
         def subst(xs: List[Var]) = {
           val re = Expr.fresh(xs)
           val xs_ = xs rename re
           (xs_, re)
         }
 
+        /* Try to derive an invariant for a given while loop possibly
+         * containing assignments to array.
+         *
+         * In case of an assignment to an array the utilized approach consists
+         * of the collection of all modified indices and an observation, in
+         * which way an array got modified.
+         */
         val derive = for (st1 <- before; st2 <- after) yield {
           val path = And(st1.path)
 
@@ -260,11 +299,15 @@ object Annotate extends Stage {
                   val m = mOf(idx)
                   val (substVars, substMapping) = subst(m.vars)
 
+                  // Expression which describes all modified indices
                   val prem = m.toExpr(x)
 
+                  // How and at which indices got the array in question modified
                   val mod = modified(var_, a, idx, rhs) rename substMapping
                   val pos = x === (idx rename substMapping)
                   val mod_ = Exists(substVars, pos && mod)
+
+                  // Every index which got not visited should not be modified
                   val notMod = Select(var_, x) === Old(Select(var_, x))
 
                   (prem ==> mod_) && (!prem ==> notMod)
