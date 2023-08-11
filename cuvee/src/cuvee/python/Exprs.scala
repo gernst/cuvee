@@ -13,6 +13,10 @@ import cuvee.pure.Old
 import cuvee.pure.Param
 import cuvee.pure.Is
 import cuvee.pure.Exists
+import pythonparse.Ast.unaryop.Invert
+import pythonparse.Ast.unaryop.Not
+import pythonparse.Ast.unaryop.UAdd
+import pythonparse.Ast.unaryop.USub
 
 class Exprs(val sig: Signature) {
   import sig._
@@ -27,8 +31,10 @@ class Exprs(val sig: Signature) {
     case Ast.expr.BoolOp(op, values)     => boolOp(op, values)
     case Ast.expr.UnaryOp(op, operand)   => unaryOp(op, operand)
     case Ast.expr.BinOp(left, op, right) => binaryOp(left, op, right)
+    case Ast.expr.Num(n: BigInt)         => pyInt(Lit(n, int))
+    case Ast.expr.Name(id, _)            => name(id)
     case Ast.expr.IfExp(test, body, orelse) =>
-      pyIte(this.pymap(test), this.pymap(body), this.pymap(orelse))
+      pyIte(pymap(test), pymap(body), pymap(orelse))
     case Ast.expr.Compare(
           Ast.expr.Call(
             Ast.expr.Name(Ast.identifier("type"), _),
@@ -105,8 +111,8 @@ class Exprs(val sig: Signature) {
       call(func, args)
     case Ast.expr.Call(Ast.expr.Name(func, _), args, _, _, _) =>
       call(func, args)
-    case Ast.expr.Subscript(values, slice, _) =>
-      this.slice(values, slice)
+    case Ast.expr.Subscript(values, slice_, _) =>
+      slice(values, slice_)
     case Ast.expr.List(elems, _) =>
       pyArray(
         initArray(pyDefaultArray(), elems.toList),
@@ -118,9 +124,7 @@ class Exprs(val sig: Signature) {
           _
         ) =>
       Var("self." + attr.name, value)
-    case Ast.expr.Num(n: BigInt) => pyInt(Lit(n, int))
-    case Ast.expr.Name(id, _)    => name(id)
-    case _                       => cuvee.error("unsupported Python expression: " + expr)
+    case _ => cuvee.error("Unsupported Python expression: " + expr)
   }
 
   /* The python ast considers land and lor as n-ary operators with n >= 2.
@@ -133,7 +137,7 @@ class Exprs(val sig: Signature) {
   def unaryOp(op: Ast.unaryop, operand: Ast.expr): Expr = op match {
     case Ast.unaryop.Not  => pyNot(pymap(operand))
     case Ast.unaryop.USub => pyNegate(pymap(operand))
-    case _                => cuvee.undefined
+    case _                => cuvee.error("Unsupported unary operation: " + op)
   }
 
   def comp(
@@ -149,8 +153,7 @@ class Exprs(val sig: Signature) {
     case Ast.cmpop.GtE   => pyGreaterEquals(pymap(left), pymap(comparator))
     case Ast.cmpop.In    => pyIn(pymap(left), pymap(comparator))
     case Ast.cmpop.NotIn => pyNot(pyIn(pymap(left), pymap(comparator)))
-    case Ast.cmpop.Is    => cuvee.undefined
-    case Ast.cmpop.IsNot => cuvee.undefined
+    case _               => cuvee.error("Unsupported compare operation: " + op)
   }
 
   /* Assigns static types to pyValues. They are defined in the parsed file
@@ -161,10 +164,15 @@ class Exprs(val sig: Signature) {
       case "int"  => pyBool(Is(pymap(expr), pyInt))
       case "bool" => pyBool(Is(pymap(expr), pyBool))
       case "list" => pyBool(Is(pymap(expr), pyArray))
+      case _ =>
+        cuvee.error(
+          "At the moment only int, bool and list are supported as definable types. Got: " + pyType.name
+        )
     }
 
   /* Type equality implies: It could be any (available) type, which one does not matter.
-   * The interesting part is: The types of both arguments are the same*/
+   * The interesting part is: The types of both arguments are the same.
+   */
   def defType(left: Ast.expr, right: Ast.expr): Expr = {
     val types = List(
       pyEquals(pyBool(Is(pymap(left), pyInt)), pyBool(Is(pymap(right), pyInt))),
@@ -191,7 +199,7 @@ class Exprs(val sig: Signature) {
     case Ast.operator.FloorDiv => pyFloorDiv(pymap(left), pymap(right))
     case Ast.operator.Mod      => pyMod(pymap(left), pymap(right))
     // case Ast.operator.Pow      => pyPow(pymap(left), pymap(right))
-    case _ => cuvee.undefined
+    case _ => cuvee.error("Unsupported binary operation: " + op)
   }
 
   def slice(values: Ast.expr, slice: Ast.slice) = slice match {
@@ -232,7 +240,7 @@ class Exprs(val sig: Signature) {
               arguments.toList map formal,
               pyIsTrue(
                 pyImplies(
-                  pyBool(conditions(arguments.toList, elem)),
+                  pyBool(boundaries(arguments.toList, elem)),
                   pymap(body)
                 )
               )
@@ -254,7 +262,7 @@ class Exprs(val sig: Signature) {
               arguments.toList map formal,
               pyIsTrue(
                 pyImplies(
-                  pyBool(conditions(arguments.toList, elem)),
+                  pyBool(boundaries(arguments.toList, elem)),
                   pymap(body)
                 )
               )
@@ -268,7 +276,7 @@ class Exprs(val sig: Signature) {
   /* Builds boundaries for targets of quanitifers.
    * e.g. forall x. 0 <= x < array.Length
    */
-  def conditions(names: List[Ast.expr.Name], elem: Ast.expr): Expr = {
+  def boundaries(names: List[Ast.expr.Name], elem: Ast.expr): Expr = {
     val isPyInt =
       names flatMap (x => List(Is(pymap(x), pyInt))) // TODO other types?
     val boundaries = names flatMap (x =>
