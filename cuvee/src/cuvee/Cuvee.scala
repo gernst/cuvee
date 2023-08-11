@@ -13,6 +13,7 @@ import cuvee.imp.Annotate
 class Config {
   var file: Option[String] = None
   var printer: Printer = smtlib.printer
+  var overridePrinter = false
 
   var source: Source = smtlib.source()
   var sink: (Printer => Sink) = Sink.stdout(_)
@@ -53,6 +54,7 @@ class Config {
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
+      overridePrinter = true
     },
     // option("-print:none", "suppress output") {
     //   printer = Printer.dummy
@@ -89,14 +91,17 @@ class Config {
       configure(rest)
 
     case path :: rest =>
-      require(file.isEmpty, "only a single file is allowed, already given: " + file.get)
+      require(
+        file.isEmpty,
+        "only a single file is allowed, already given: " + file.get
+      )
       file = Some(path)
 
       if (path endsWith ".bpl") {
-        printer = boogie.printer
+        if (!overridePrinter) printer = boogie.printer
         source = boogie.source(path)
       } else if (path endsWith ".smt2") {
-        printer = smtlib.printer
+        if (!overridePrinter) printer = smtlib.printer
         source = smtlib.source(path)
       } else if (path endsWith ".th") {
         source = thesy.source(path)
@@ -140,11 +145,11 @@ object Config {
       sink = new Incremental(Lemmas, sink)
     }
 
-    if(config.eval) {
+    if (config.eval) {
       sink = new Incremental(Eval, sink)
     }
 
-    if(config.annotate) {
+    if (config.annotate) {
       sink = new Incremental(Annotate, sink)
     }
 
