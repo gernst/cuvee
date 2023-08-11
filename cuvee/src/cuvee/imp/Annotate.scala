@@ -263,7 +263,8 @@ object Annotate extends Stage {
                   val prem = m.toExpr(x)
 
                   val mod = modified(var_, a, idx, rhs) rename substMapping
-                  val mod_ = Exists(substVars, mod)
+                  val pos = x === (idx rename substMapping)
+                  val mod_ = Exists(substVars, pos && mod)
                   val notMod = Select(var_, x) === Old(Select(var_, x))
 
                   (prem ==> mod_) && (!prem ==> notMod)
@@ -297,9 +298,9 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
   }
 
   def vars(args: List[Expr]): List[Var] = args match {
-    case x @ Var(name, typ) :: next => Var(name, typ) :: vars(next)
-    case a @ App(_, args_) :: next  => vars(args_) ++ vars(next)
-    case head :: next               => vars(next)
-    case Nil                        => Nil
+    case Var(name, typ) :: next => Var(name, typ) :: vars(next)
+    case App(_, args_) :: next  => vars(args_) ++ vars(next)
+    case head :: next           => vars(next)
+    case Nil                    => Nil
   }
 }
