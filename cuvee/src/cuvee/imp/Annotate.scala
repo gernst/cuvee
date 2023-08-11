@@ -161,6 +161,7 @@ object Annotate extends Stage {
 
         // TODO: compute some new invariants here
 
+        // Arbitrary integer variable to reason about all of them
         val x = Var("x", Sort.int)
 
         def isModifiedArray(a: Var) = a.typ match {
@@ -171,13 +172,13 @@ object Annotate extends Stage {
         /** Provides an expression, which describes an assignment to an array
           *
           * @param lhs
-          *   left hand side of the assignment
+          *   left hand side of the assignment, the array to write to
           * @param a
-          *   array to write to
+          *   array from which to take the values
           * @param idx
-          *   index from a to write to
+          *   index from a to read from
           * @param rhs
-          *   right hand side of the assignment
+          *   right hand side of the assignment, the value to write into lhs
           * @return
           */
         def modified(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
@@ -293,8 +294,8 @@ object Annotate extends Stage {
           val path = And(st1.path)
 
           val all =
-            for ((var_, expr_) <- st2.vars if isModifiedArray(var_)) yield {
-              expr_ match {
+            for ((array, assign) <- st2.vars if isModifiedArray(array)) yield {
+              assign match {
                 case Store(a, idx, rhs) =>
                   val m = mOf(idx)
                   val (substVars, substMapping) = subst(m.vars)
@@ -303,14 +304,18 @@ object Annotate extends Stage {
                   val prem = m.toExpr(x)
 
                   // How and at which indices got the array in question modified
-                  val mod = modified(var_, a, idx, rhs) rename substMapping
+                  val mod = modified(array, a, idx, rhs) rename substMapping
                   val pos = x === (idx rename substMapping)
                   val mod_ = Exists(substVars, pos && mod)
 
                   // Every index which got not visited should not be modified
-                  val notMod = Select(var_, x) === Old(Select(var_, x))
+                  val notMod = Select(array, x) === Old(Select(array, x))
 
                   (prem ==> mod_) && (!prem ==> notMod)
+                case _ =>
+                  cuvee.error(
+                    "Here only modified arrays should be handled. Got: " + (array, assign)
+                  )
               }
             }
           path && Forall(List(x), And(all.toList))
