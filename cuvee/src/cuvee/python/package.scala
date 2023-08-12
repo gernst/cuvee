@@ -41,12 +41,14 @@ package object python {
     val exprs = new Exprs(sig)
     val stmts = new Stmts(exprs)
 
-    val it =
+    val cmds = 
       for (
         stmt <- py.iterator;
         cmd <- stmts.createCmd(stmt)
       )
         yield cmd
+
+    val it = prelude.iterator ++ cmds
 
     def state = python.state
     def next() = it.next()
