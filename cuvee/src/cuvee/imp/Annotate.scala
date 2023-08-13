@@ -209,7 +209,6 @@ object Annotate extends Stage {
           x_
         }
 
-        // TODO better design
         /** Buil an instance of Modified which holds the range of indices which
           * got edited until an arbitrary iteration of the analyzed loop
           *
@@ -318,7 +317,7 @@ object Annotate extends Stage {
                   )
               }
             }
-          path && Forall(List(x), And(all.toList))
+          path ==> Forall(List(x), And(all.toList))
         }
 
         val inv_ = inv && And(derive)
