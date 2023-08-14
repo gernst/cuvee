@@ -27,8 +27,6 @@ procedure init_multiple(n: int)
   //var N: [int]bool;
   //assume forall x: int :: N[x] == false;
 
-  var tmp: int := 0;
-
   i := 0;
   while (i < n)
     decreases n - i;
@@ -40,10 +38,8 @@ procedure init_multiple(n: int)
     //    N[x]  ==> exists i_: int :: 
     //        x == n - i_ - 1 && b[x] == i_;
   {
-    tmp := n - i - 1; // for whatever reason: 
-    // cuvee does not want this arithmetik direktly in the assignment
-    b   := b[tmp := i];
-    //N   := N[tmp := true];
+    b   := b[(n - i - 1) := i];
+    //N   := N[(n - i - 1) := true];
     i   := i + 1;
   }
 

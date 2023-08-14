@@ -312,16 +312,18 @@ object Annotate extends Stage {
               assign match {
                 case Store(a, idx, rhs) =>
                   val m = mOf(idx)
-                  val (freshVars, freshMapping) = fresh(m.vars)
-                  val subst_ = subst(m.vars, x)
+                  // Only variables who change in the loop need substitutes
+                  val modifiedVars = m.vars.intersect(mod).toList
+                  val (freshVars, freshMapping) = fresh(modifiedVars)
+                  val subst_ = subst(modifiedVars, x)
 
                   // Expression which describes all modified indices
                   val prem = m.toExpr(x)
 
                   // How and at which indices got the array in question modified
                   val pos = x === (idx rename freshMapping)
-                  val mod = modified(array, a, idx, rhs) rename subst_
-                  val mod_ = Exists(freshVars, pos && mod)
+                  val how = modified(array, a, idx, rhs) rename subst_
+                  val mod_ = Exists(freshVars, pos && how)
 
                   // Every index which got not visited should not be modified
                   val notMod = Select(array, x) === Old(Select(array, x))
@@ -379,11 +381,11 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
     * @return
     *   List of all variables who are part of the expressions from this instance
     */
-  def vars(): List[Var] = {
+  def vars(): Set[Var] = {
     ub match {
-      case Var(name, typ)  => List(Var(name, typ))
-      case App(inst, args) => vars(args)
-      case _               => Nil
+      case Var(name, typ)  => Set(Var(name, typ))
+      case App(inst, args) => vars(args).toSet
+      case _               => Set()
     }
   }
 
