@@ -209,8 +209,8 @@ object Annotate extends Stage {
           x_
         }
 
-        /** Buil an instance of Modified which holds the range of indices which
-          * got edited until an arbitrary iteration of the analyzed loop
+        /** Builds an instance of Modified which holds the range of indices
+          * which got edited until an arbitrary iteration of the analyzed loop
           *
           * @param expr
           *   position of an assignment to derive Modified for
@@ -276,10 +276,24 @@ object Annotate extends Stage {
           * @return
           *   Map variable -> fresh variable
           */
-        def subst(xs: List[Var]) = {
+        def fresh(xs: List[Var]) = {
           val re = Expr.fresh(xs)
           val xs_ = xs rename re
           (xs_, re)
+        }
+
+        /** Substitutes a given List of variables with one given variable
+          *
+          * @param xs
+          *   list of Var to be replaced
+          * @param v
+          *   Var to map elements from xs to
+          * @return
+          *   Map from elements of xs to v
+          */
+        def subst(xs: List[Var], v: Var) = {
+          val subst_ = for (e <- xs) yield e -> v
+          subst_.toMap
         }
 
         /* Try to derive an invariant for a given while loop possibly
@@ -290,6 +304,7 @@ object Annotate extends Stage {
          * which way an array got modified.
          */
         val derive = for (st1 <- before; st2 <- after) yield {
+          // TODO
           val path = And(st1.path)
 
           val all =
@@ -297,15 +312,16 @@ object Annotate extends Stage {
               assign match {
                 case Store(a, idx, rhs) =>
                   val m = mOf(idx)
-                  val (substVars, substMapping) = subst(m.vars)
+                  val (freshVars, freshMapping) = fresh(m.vars)
+                  val subst_ = subst(m.vars, x)
 
                   // Expression which describes all modified indices
                   val prem = m.toExpr(x)
 
                   // How and at which indices got the array in question modified
-                  val mod = modified(array, a, idx, rhs) rename substMapping
-                  val pos = x === (idx rename substMapping)
-                  val mod_ = Exists(substVars, pos && mod)
+                  val pos = x === (idx rename freshMapping)
+                  val mod = modified(array, a, idx, rhs) rename subst_
+                  val mod_ = Exists(freshVars, pos && mod)
 
                   // Every index which got not visited should not be modified
                   val notMod = Select(array, x) === Old(Select(array, x))
@@ -317,7 +333,8 @@ object Annotate extends Stage {
                   )
               }
             }
-          path ==> Forall(List(x), And(all.toList))
+          // TODO ask regarding path
+          Forall(List(x), And(all.toList))
         }
 
         val inv_ = inv && And(derive)
