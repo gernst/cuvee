@@ -195,6 +195,8 @@ object Annotate extends Stage {
         ): Expr = a match {
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
             Select(a, x) === rhs rename fresh
+          case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
+            Select(a, x) === rhs
           case Var(name, typ) if lhs == a =>
             Select(a, idx) === rhs rename subst
           case Var(name, typ) =>
@@ -356,15 +358,11 @@ object Annotate extends Stage {
                   val subst_ = subst(mod_, x)
 
                   /* DO NOT WORK:
-                    examples/boogie/modified/array_tiling_tcpy.bpl
-                    examples/boogie/modified/array_tripl_access_init_const.bpl
-                    examples/boogie/modified/index_plus_one.bpl
-                    examples/boogie/modified/multible_vars.bpl
+                    modified/array_tripl_access_init_const.bpl
+                    modified/multible_vars.bpl -> TODO
+                    array_init_pair_sum_const.bpl -> path
+                    array_init_both_ends_multiple_sum.bpl -> loop without array mod
                    */
-
-                  // TODO ROADMAP
-                  // 1 Boundings
-                  //    - Boundings -> What is inclusive, what exclusive?
 
                   // How and at which indices got the array in question modified
                   val where = x === (idx rename freshMapping)
@@ -420,8 +418,11 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
     *   changed
     */
   // TODO add step
-  // TODO this is not correct. There is no guarantee to walk from lb to ub
-  def toExpr(x: Var): Expr = this.lb <= x && x < this.ub
+  def toExpr(x: Var): Expr = {
+    val l = Le(this.lb, x) && Lt(x, this.ub)
+    val g = Ge(this.lb, x) && Gt(x, this.ub)
+    l || g
+  }
 
   /** Find all variables that are part of the expressions
     *

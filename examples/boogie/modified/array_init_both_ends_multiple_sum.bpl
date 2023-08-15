@@ -43,13 +43,14 @@ procedure init_multiple(n: int)
     i   := i + 1;
   }
 
-  i := 0;
-  while (i < n)
-    decreases n - i;
-    invariant 0 <= i && i <= n;
-  {
-    sum := sum + (a[i] - b[n - i - 1]);
-    i   := i + 1;
-  }
+  // TODO this does not work with annotate but with eval. Why?
+  //i := 0;
+  //while (i < n)
+  //  decreases n - i;
+  //  invariant 0 <= i && i <= n;
+  //{
+  //  sum := sum + (a[i] - b[n - i - 1]);
+  //  i   := i + 1;
+  //}
   //assert sum == 0;
 }
