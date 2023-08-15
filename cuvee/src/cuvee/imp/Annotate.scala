@@ -179,17 +179,31 @@ object Annotate extends Stage {
           *   index from a to read from
           * @param rhs
           *   right hand side of the assignment, the value to write into lhs
+          * @param fresh
+          *   rename variables to given fresh ones if needed
+          * @param subst
+          *   rename variables to some integer if not to fresh
           * @return
           */
-        def modified(lhs: Var, a: Expr, idx: Expr, rhs: Expr): Expr = a match {
+        def modified(
+            lhs: Var,
+            a: Expr,
+            idx: Expr,
+            rhs: Expr,
+            fresh: Map[Var, Var],
+            subst: Map[Var, Var]
+        ): Expr = a match {
+          case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
+            Select(a, x) === rhs rename fresh
           case Var(name, typ) if lhs == a =>
-            Select(a, idx) === rhs
+            Select(a, idx) === rhs rename subst
           case Var(name, typ) =>
-            lhs === Store(a, idx, rhs)
+            lhs === Store(a, idx, rhs) rename subst
           case Store(a_, idx_, _) if idx == idx_ =>
-            modified(lhs, a_, idx, rhs)
+            modified(lhs, a_, idx, rhs, fresh, subst)
           case Store(a_, idx_, rhs_) =>
-            modified(lhs, a_, idx, rhs) && modified(lhs, a_, idx_, rhs_)
+            modified(lhs, a_, idx, rhs, fresh, subst) &&
+            modified(lhs, a_, idx_, rhs_, fresh, subst)
           case _ =>
             cuvee.error("Unexpected case in " + this)
         }
@@ -220,6 +234,7 @@ object Annotate extends Stage {
         def mOf(expr: Expr): Modified = expr match {
           case x @ Var(_, Sort.int) =>
             val x0 = init(x)
+            // TODO this may not hold -> it is not given to go from left to right
 
             val stepxs = after map { st => st.vars(x) }
             val List(step) = stepxs.distinct
@@ -318,12 +333,31 @@ object Annotate extends Stage {
                   val subst_ = subst(modifiedVars, x)
 
                   // Expression which describes all modified indices
-                  val prem = m.toExpr(x)
+                  // val prem = m.toExpr(x)
+                  val prem = init(
+                    modifiedVars.head
+                  ) <= (m.ub rename subst_) && (m.ub rename subst_) < modifiedVars.head
+                  // TODO with this array_init_both_end_multible_sum as well as copy work. figure out, what you actually need
+
+                  /* DO NOT WORK:
+                    examples/boogie/modified/array_tiling_tcpy.bpl
+                    examples/boogie/modified/array_tripl_access_init_const.bpl
+                    examples/boogie/modified/index_plus_one.bpl
+                    examples/boogie/modified/multible_vars.bpl
+                   */
+
+                  // Multible assigns in one iteration (at different indices)
+                  // need modified -> adapt it
+
+                  // TODO ROADMAP
+                  // 1 Boundings
+                  //    - One M pro assign-idx -> OR(M)
+                  //    - Boundings -> What is inclusive, what exclusive?
 
                   // How and at which indices got the array in question modified
-                  val pos = x === (idx rename freshMapping)
-                  val how = modified(array, a, idx, rhs) rename subst_
-                  val mod_ = Exists(freshVars, pos && how)
+                  val where = x === (idx rename freshMapping)
+                  val how = modified(array, a, idx, rhs, freshMapping, subst_)
+                  val mod_ = Exists(freshVars, where && how)
 
                   // Every index which got not visited should not be modified
                   val notMod = Select(array, x) === Old(Select(array, x))
