@@ -284,6 +284,29 @@ object Annotate extends Stage {
             cuvee.error("Could not construct Modified from Expr: " + expr)
         }
 
+        /** Generates one M for every idx of assigns in expr and takes the
+          * boundaries expression from those
+          *
+          * @param expr
+          *   assign to derive M from
+          * @param vars
+          *   modified vars of the loop which are used in Modified
+          * @return
+          *   boundaries for all Modified and modified vars of the loop which
+          *   are used in Modified
+          */
+        def boundaries(expr: Expr, vars: List[Var]): (Expr, List[Var]) =
+          expr match {
+            case Store(a, idx, _) =>
+              val m = mOf(idx)
+              val (expr_, vars_) = boundaries(a, vars)
+
+              val xs = m.vars.union((vars ++ vars_).toSet).intersect(mod)
+
+              (m.toExpr(x) || expr_, xs.toList)
+            case _ => (False, vars)
+          }
+
         /** Generates a new variable for each element in xs
           *
           * @param xs
@@ -326,18 +349,11 @@ object Annotate extends Stage {
             for ((array, assign) <- st2.vars if isModifiedArray(array)) yield {
               assign match {
                 case Store(a, idx, rhs) =>
-                  val m = mOf(idx)
-                  // Only variables who change in the loop need substitutes
-                  val modifiedVars = m.vars.intersect(mod).toList
-                  val (freshVars, freshMapping) = fresh(modifiedVars)
-                  val subst_ = subst(modifiedVars, x)
-
                   // Expression which describes all modified indices
-                  // val prem = m.toExpr(x)
-                  val prem = init(
-                    modifiedVars.head
-                  ) <= (m.ub rename subst_) && (m.ub rename subst_) < modifiedVars.head
-                  // TODO with this array_init_both_end_multible_sum as well as copy work. figure out, what you actually need
+                  val (prem, mod_) = boundaries(assign, Nil)
+                  // Only variables who change in the loop need substitutes
+                  val (freshVars, freshMapping) = fresh(mod_)
+                  val subst_ = subst(mod_, x)
 
                   /* DO NOT WORK:
                     examples/boogie/modified/array_tiling_tcpy.bpl
@@ -346,23 +362,19 @@ object Annotate extends Stage {
                     examples/boogie/modified/multible_vars.bpl
                    */
 
-                  // Multible assigns in one iteration (at different indices)
-                  // need modified -> adapt it
-
                   // TODO ROADMAP
                   // 1 Boundings
-                  //    - One M pro assign-idx -> OR(M)
                   //    - Boundings -> What is inclusive, what exclusive?
 
                   // How and at which indices got the array in question modified
                   val where = x === (idx rename freshMapping)
                   val how = modified(array, a, idx, rhs, freshMapping, subst_)
-                  val mod_ = Exists(freshVars, where && how)
+                  val yes = Exists(freshVars, where && how)
 
                   // Every index which got not visited should not be modified
-                  val notMod = Select(array, x) === Old(Select(array, x))
+                  val no = Select(array, x) === Old(Select(array, x))
 
-                  (prem ==> mod_) && (!prem ==> notMod)
+                  (prem ==> yes) && (!prem ==> no)
                 case _ =>
                   cuvee.error(
                     "Here only modified arrays should be handled. Got: " + (array, assign)
@@ -408,6 +420,7 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
     *   changed
     */
   // TODO add step
+  // TODO this is not correct. There is no guarantee to walk from lb to ub
   def toExpr(x: Var): Expr = this.lb <= x && x < this.ub
 
   /** Find all variables that are part of the expressions
