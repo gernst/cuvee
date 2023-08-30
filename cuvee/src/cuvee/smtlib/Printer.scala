@@ -91,8 +91,6 @@ object Printer extends cuvee.util.Printer {
           )
 
       }
-    // Syntax from Expr
-    // TODO
 
     case s: Syntax => lines(s.sexpr)
     case s: String => List(s)
