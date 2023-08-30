@@ -4,6 +4,9 @@ import cuvee.error
 import cuvee.util.Name
 import cuvee.pure._
 import cuvee.imp._
+import cuvee.sexpr
+import cuvee.sexpr
+import cuvee.sexpr
 
 trait Syntax extends cuvee.util.Syntax {
   def sexpr: Any
@@ -150,9 +153,11 @@ object Printer extends cuvee.util.Printer {
       wrapper("if", test, left, right) // TODO typo? was "id" in Prog
     case While(test, body, _, inv, sum, _) =>
       wrapper("while", test, body, ":invariant", inv, ":summary", sum)
-
-    // TODO
     // sexpr.Expr
+    // case sexpr.Lit => wrapper() // TODO which toString is this?
+    case sexpr.Kw(name)  => wrapper(":" + name)
+    case sexpr.Id(name)  => wrapper(name)
+    case sexpr.App(args) => wrapper(args)
 
     case s: Syntax => lines(s.sexpr)
     case s: String => List(s)
