@@ -3,6 +3,7 @@ package cuvee.smtlib
 import cuvee.error
 import cuvee.util.Name
 import cuvee.imp.Spec
+import cuvee.pure._
 
 trait Syntax extends cuvee.util.Syntax {
   def sexpr: Any
@@ -23,7 +24,7 @@ object Printer extends cuvee.util.Printer {
     case f: Float  => List(f.toString)
     // Name
     case n: Name => List(cuvee.sexpr.mangle(n.toLabel))
-    // Syntax from Cmd
+    // Syntax for Cmd
     case Success              => wrapper("success")
     case Unsupported          => wrapper("unsupported")
     case Error(info)          => wrapper("error" :: info)
@@ -42,17 +43,18 @@ object Printer extends cuvee.util.Printer {
     case Reset                => wrapper("reset")
     case Assert(expr)         => wrapper("assert", expr)
     case CheckSat             => wrapper("check-sat")
+    case Lemma(expr, _, _)    => wrapper("lemma", expr)
     case SetInfo(attr, arg) if arg == None => wrapper("set-info", ":" + attr)
-    case SetInfo(attr, arg)          => wrapper("set-info", ":" + attr, arg)
-    case Lemma(expr, tactic, assert) => wrapper("lemma", expr)
-    case DeclareSort(name, arity)    => wrapper("declare-sort", name, arity)
+    case SetInfo(attr, arg) => wrapper("set-info", ":" + attr, arg)
+    case DeclareSort(name, arity) =>
+      wrapper("declare-sort", name, arity)
     case DefineSort(name, params, body) =>
       wrapper("define-sort", name, params, body)
     case DeclareFun(name, params, args, res) =>
       wrapper("declare-fun", name, args, res)
     case DefineFun(name, params, formals, res, body, rec) if rec =>
       wrapper("define-fun-rec", name, formals.asFormals, res, body)
-    case DefineFun(name, params, formals, res, body, rec) =>
+    case DefineFun(name, params, formals, res, body, _) =>
       wrapper("define-fun", name, formals.asFormals, res, body)
     case DeclareDatatypes(arities, datatypes) =>
       wrapper("declare-datatypes", arities, datatypes)
@@ -89,8 +91,37 @@ object Printer extends cuvee.util.Printer {
             post,
             body
           )
-
       }
+    // Syntax for Expr
+    case Var(name, _)          => wrapper(name)
+    case Lit(a, _)             => wrapper(a)
+    case Is(arg, fun)          => wrapper(wrapper("_", "is", fun.name), arg)
+    case Case(pat, expr)       => wrapper(pat, expr)
+    case Match(expr, cases, _) => wrapper("match", expr, cases)
+    case LetEq(x, e)           => wrapper(x, e)
+    case Let(eqs, body)        => wrapper("let", eqs, body)
+    case Note(expr, _)         => wrapper(expr)
+    case Distinct(exprs)       => wrapper("distinct" :: exprs)
+    case Bind(quant, formals, body, _) =>
+      wrapper(quant.name, formals.asFormals, body)
+    case App(inst, args) =>
+      inst match {
+        case And(phis)  => wrapper("and" :: phis)
+        case Or(phis)   => wrapper("or" :: phis)
+        case Const(arg) => wrapper(wrapper("as", "const", inst.res), arg)
+
+        case _ if args.isEmpty && inst.params.nonEmpty => wrapper(inst)
+
+        case _ if args.isEmpty => wrapper(inst.fun.name)
+
+        case _ => wrapper(inst.fun.name :: args)
+      }
+    // Syntax for Fun
+
+    // TODO
+    // cuvee.pure.Sort
+    // cuvee.pure.Datatype
+    // cuvee.pure.Inst
 
     case s: Syntax => lines(s.sexpr)
     case s: String => List(s)
