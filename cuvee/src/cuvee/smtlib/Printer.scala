@@ -117,11 +117,11 @@ object Printer extends cuvee.util.Printer {
         case _ => wrapper(inst.fun.name :: args)
       }
     // Syntax for Fun
+    case Inst(fun, ty) => wrapper("as", fun.name, fun.res subst ty)
 
     // TODO
     // cuvee.pure.Sort
     // cuvee.pure.Datatype
-    // cuvee.pure.Inst
 
     case s: Syntax => lines(s.sexpr)
     case s: String => List(s)
