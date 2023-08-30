@@ -118,6 +118,11 @@ object Printer extends cuvee.util.Printer {
       }
     // Syntax for Fun
     case Inst(fun, ty) => wrapper("as", fun.name, fun.res subst ty)
+    // Syntax for Prop
+    case Atom(expr, _) => wrapper(expr)
+    case Conj(xs, neg) => wrapper("exists", xs.asFormals, "or" :: neg)
+    case Disj(xs, neg, pos) =>
+      wrapper("forall", xs.asFormals, List("=>", "and" :: neg, "or" :: pos))
 
     // TODO
     // cuvee.pure.Sort
