@@ -2,8 +2,8 @@ package cuvee.smtlib
 
 import cuvee.error
 import cuvee.util.Name
-import cuvee.imp.Spec
 import cuvee.pure._
+import cuvee.imp._
 
 trait Syntax extends cuvee.util.Syntax {
   def sexpr: Any
@@ -24,7 +24,7 @@ object Printer extends cuvee.util.Printer {
     case f: Float  => List(f.toString)
     // Name
     case n: Name => List(cuvee.sexpr.mangle(n.toLabel))
-    // Syntax for Cmd
+    // smtlib.Cmd
     case Success              => wrapper("success")
     case Unsupported          => wrapper("unsupported")
     case Error(info)          => wrapper("error" :: info)
@@ -92,7 +92,7 @@ object Printer extends cuvee.util.Printer {
             body
           )
       }
-    // Syntax for Expr
+    // pure.Expr
     case Var(name, _)          => wrapper(name)
     case Lit(a, _)             => wrapper(a)
     case Is(arg, fun)          => wrapper(wrapper("_", "is", fun.name), arg)
@@ -116,14 +116,14 @@ object Printer extends cuvee.util.Printer {
 
         case _ => wrapper(inst.fun.name :: args)
       }
-    // Syntax for Fun
+    // pure.Fun
     case Inst(fun, ty) => wrapper("as", fun.name, fun.res subst ty)
-    // Syntax for Prop
+    // pure.Prop
     case Atom(expr, _) => wrapper(expr)
     case Conj(xs, neg) => wrapper("exists", xs.asFormals, "or" :: neg)
     case Disj(xs, neg, pos) =>
       wrapper("forall", xs.asFormals, List("=>", "and" :: neg, "or" :: pos))
-    // Syntax for Type
+    // pure.Type
     case Datatype(params, constrs) =>
       val constrs_ = for ((k, sels) <- constrs) yield {
         val sels_ = for (sel <- sels) yield {
@@ -138,6 +138,21 @@ object Printer extends cuvee.util.Printer {
     case Param(name)                     => wrapper(name)
     case Sort(con, args) if args.isEmpty => wrapper(con.name)
     case Sort(con, args)                 => wrapper(con.name :: args)
+    // imp.Prog
+    case Block(progs)        => wrapper("block" :: progs)
+    case Break               => wrapper("break")
+    case Return              => wrapper("return")
+    case Local(xs, rhs)      => wrapper("local", (xs.asFormals zip rhs))
+    case Assign(xs, rhs)     => wrapper("assign", xs zip rhs)
+    case Spec(xs, pre, post) => wrapper("spec", xs, pre, post)
+    case Call(name, in, out) => wrapper("call", name, in, out)
+    case If(test, left, right) =>
+      wrapper("if", test, left, right) // TODO typo? was "id" in Prog
+    case While(test, body, _, inv, sum, _) =>
+      wrapper("while", test, body, ":invariant", inv, ":summary", sum)
+
+    // TODO
+    // sexpr.Expr
 
     case s: Syntax => lines(s.sexpr)
     case s: String => List(s)
