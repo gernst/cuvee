@@ -123,10 +123,21 @@ object Printer extends cuvee.util.Printer {
     case Conj(xs, neg) => wrapper("exists", xs.asFormals, "or" :: neg)
     case Disj(xs, neg, pos) =>
       wrapper("forall", xs.asFormals, List("=>", "and" :: neg, "or" :: pos))
-
-    // TODO
-    // cuvee.pure.Sort
-    // cuvee.pure.Datatype
+    // Syntax for Type
+    case Datatype(params, constrs) =>
+      val constrs_ = for ((k, sels) <- constrs) yield {
+        val sels_ = for (sel <- sels) yield {
+          List(sel.name, sel.res)
+        }
+        k.name :: sels_
+      }
+      if (params.isEmpty)
+        wrapper(constrs_)
+      else
+        wrapper("par", params, constrs_)
+    case Param(name)                     => wrapper(name)
+    case Sort(con, args) if args.isEmpty => wrapper(con.name)
+    case Sort(con, args)                 => wrapper(con.name :: args)
 
     case s: Syntax => lines(s.sexpr)
     case s: String => List(s)
