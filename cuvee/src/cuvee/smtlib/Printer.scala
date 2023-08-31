@@ -101,7 +101,7 @@ object Printer extends cuvee.util.Printer {
     case LetEq(x, e)           => wrapper(x, e)
     case Let(eqs, body)        => wrapper("let", eqs, body)
     case Note(expr, attr) =>
-      wrapper("!" :: expr :: attr) // TODO was comment: def sexpr = "!" :: expr :: attr FIX: it should actually be like that
+      wrapper2("!", expr)(attr) // TODO was comment: def sexpr = "!" :: expr :: attr FIX: it should actually be like that
     case Distinct(exprs) => wrapper2("distinct")(exprs)
     case Bind(quant, formals, body, _) =>
       wrapper(quant.name, formals.asFormals, body)
