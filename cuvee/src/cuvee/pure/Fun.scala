@@ -2,11 +2,11 @@ package cuvee.pure
 
 import cuvee.smtlib.DeclareFun
 import cuvee.boogie
-import cuvee.sexpr
+import cuvee.util
 import cuvee.StringOps
 import cuvee.util.Name
 
-case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie.Syntax {
+case class Inst(fun: Fun, ty: Map[Param, Type]) extends util.Syntax with boogie.Syntax {
   require(
     ty.keySet == fun.bound,
     "some uninstantiated parameters " + ty.keySet + " for " + fun

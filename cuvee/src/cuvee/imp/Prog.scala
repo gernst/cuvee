@@ -1,7 +1,7 @@
 package cuvee.imp
 
 import cuvee.pure._
-import cuvee.sexpr
+import cuvee.util
 import cuvee.util.Name
 
 object Skip extends Block(Nil)
@@ -59,7 +59,7 @@ case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
   override def toString = Printer.post(how, prog, post)
 } */
 
-sealed trait Prog extends sexpr.Syntax {
+sealed trait Prog extends util.Syntax {
   def mod: Set[Var]
   def read: Set[Var]
   def local: Set[Var]

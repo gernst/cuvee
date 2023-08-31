@@ -8,9 +8,10 @@ import scala.reflect.ClassTag
 import cuvee.prove.Tactic
 import cuvee.imp.Prog
 import cuvee.util.Name
+import cuvee.util
 import cuvee.imp.Spec
 
-sealed trait Res extends sexpr.Syntax {}
+sealed trait Res extends util.Syntax {}
 
 sealed trait IsSat extends Res
 sealed trait Ack extends Res
@@ -49,7 +50,7 @@ case class Model(defs: List[DefineFun]) extends Res {
   }
 }
 
-sealed trait Cmd extends sexpr.Syntax with boogie.Syntax
+sealed trait Cmd extends util.Syntax with boogie.Syntax
 sealed trait Decl extends Cmd
 sealed trait Ctrl extends Cmd
 

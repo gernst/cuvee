@@ -4,10 +4,11 @@ import cuvee.error
 import cuvee.trace
 import cuvee.boogie
 import cuvee.sexpr
+import cuvee.util
 import cuvee.util.Alpha
 import cuvee.util.Name
 
-sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
+sealed trait Expr extends Expr.term with util.Syntax with boogie.Syntax {
   def funs: Set[Fun]
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
@@ -598,7 +599,7 @@ class CaseList(cases: List[Case]) {
   def inst(su: Map[Param, Type]) = cases map (_ inst su)
 }
 
-case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with sexpr.Syntax {
+case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with util.Syntax {
 
   def funs = pat.funs ++ expr.funs
   def bound = pat.free
@@ -641,7 +642,7 @@ class LetEqList(eqs: List[LetEq]) {
   def inst(su: Map[Param, Type]) = eqs map (_ inst su)
 }
 
-case class LetEq(x: Var, e: Expr) extends sexpr.Syntax with boogie.Syntax {
+case class LetEq(x: Var, e: Expr) extends util.Syntax with boogie.Syntax {
   def bound = x
   def free = e.free
   def funs = e.funs

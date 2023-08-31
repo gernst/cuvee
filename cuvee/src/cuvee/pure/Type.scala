@@ -2,14 +2,14 @@ package cuvee.pure
 
 import cuvee.StringOps
 import cuvee.error
-import cuvee.sexpr
+import cuvee.util
 import cuvee.boogie
 import cuvee.util.Name
 import cuvee.util.Alpha
 
-sealed trait Type extends Type.term with sexpr.Syntax with boogie.Syntax {}
+sealed trait Type extends Type.term with util.Syntax with boogie.Syntax {}
 
-case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends sexpr.Syntax {
+case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends util.Syntax {
   def sexpr = {
     val constrs_ = for ((k, sels) <- constrs) yield {
       val sels_ = for (sel <- sels) yield {

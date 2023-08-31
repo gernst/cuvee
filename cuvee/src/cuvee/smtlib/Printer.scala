@@ -1,11 +1,8 @@
 package cuvee.smtlib
 
-import cuvee.error
 import cuvee.util.Name
 import cuvee.pure._
 import cuvee.imp._
-import cuvee.sexpr
-import cuvee.sexpr
 import cuvee.sexpr
 
 trait Syntax extends cuvee.util.Syntax {
@@ -107,16 +104,13 @@ object Printer extends cuvee.util.Printer {
     case Distinct(exprs)       => wrapper("distinct" :: exprs)
     case Bind(quant, formals, body, _) =>
       wrapper(quant.name, formals.asFormals, body)
-    case App(inst, args) =>
+    case App(inst, args) => // TODO not sure what `this` should be here <- ref to the old code
       inst match {
         case And(phis)  => wrapper("and" :: phis)
         case Or(phis)   => wrapper("or" :: phis)
         case Const(arg) => wrapper(wrapper("as", "const", inst.res), arg)
-
         case _ if args.isEmpty && inst.params.nonEmpty => wrapper(inst)
-
         case _ if args.isEmpty => wrapper(inst.fun.name)
-
         case _ => wrapper(inst.fun.name :: args)
       }
     // pure.Fun

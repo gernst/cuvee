@@ -2,7 +2,7 @@ package cuvee.sexpr
 
 import easyparse._
 
-sealed trait Expr extends cuvee.sexpr.Syntax {
+sealed trait Expr extends cuvee.util.Syntax {
   def apply(index: Int) =
     this match {
       case App(args @ _*) => args(index)

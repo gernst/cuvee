@@ -5,7 +5,6 @@ import cuvee.pure._
 import cuvee.smtlib._
 import java.io.PrintStream
 import java.io.FileOutputStream
-import cuvee.sexpr.Syntax
 import java.io.OutputStream
 
 package object lemmas {
@@ -70,7 +69,7 @@ package object lemmas {
     (decls1 ++ decls2, dfs.toList)
   }
 
-  def dump(out: PrintStream, syntax: Syntax, comment: Boolean = false) {
+  def dump(out: PrintStream, syntax: util.Syntax, comment: Boolean = false) {
     for (line <- syntax.lines) {
       if (comment)
         out.print("; ")

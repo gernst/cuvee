@@ -1,10 +1,10 @@
 package cuvee.pure
 
-import cuvee.sexpr
+import cuvee.util
 import cuvee.boogie
 import cuvee.smtlib.Model
 
-sealed trait Prop extends sexpr.Syntax with boogie.Syntax {
+sealed trait Prop extends util.Syntax with boogie.Syntax {
   def toExpr: Expr
   def rename(re: Map[Var, Var]): Prop
   def subst(su: Map[Var, Expr]): Prop
@@ -44,7 +44,6 @@ case class Atom(expr: Expr, cex: Option[Model] = None) extends Pos with Neg {
     Atom(expr rename re, cex map (_ rename re))
   def subst(su: Map[Var, Expr]) =
     Atom(expr subst su)
-  def sexpr = expr.sexpr
   def bexpr = cex match {
     case Some(cex) => List(expr.bexpr.mkString(""), "  → counterexample: " + cex.toString)
     case None => List(expr.bexpr.mkString(""))
