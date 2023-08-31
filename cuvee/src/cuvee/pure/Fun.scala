@@ -26,8 +26,6 @@ case class Inst(fun: Fun, ty: Map[Param, Type]) extends util.Syntax with boogie.
   def subst(su: Map[Param, Type]) =
     Inst(fun, ty map { case (p, t) => (p, t subst su) })
 
-  def sexpr = List("as", fun.name, res)
-
   val boogieOperators = boogie.Parser.translate.map(_.swap)
   def bexpr = List(boogieOperators.getOrElse(fun.name.name, fun.name))
 
