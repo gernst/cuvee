@@ -70,7 +70,7 @@ class PositiveProver(solver: Solver) extends Prover {
 
         // Declare the variables from the forall-quantifier
         for (x <- xs_)
-          solver.ack(DeclareFun(x.sexpr, Nil, Nil, x.typ))
+          solver.ack(DeclareFun(x.name, Nil, Nil, x.typ))
 
         for (phi <- neg_)
           solver.assert(phi.toExpr)

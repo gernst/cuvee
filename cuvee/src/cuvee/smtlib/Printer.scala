@@ -100,17 +100,21 @@ object Printer extends cuvee.util.Printer {
     case Match(expr, cases, _) => wrapper("match", expr, cases)
     case LetEq(x, e)           => wrapper(x, e)
     case Let(eqs, body)        => wrapper("let", eqs, body)
-    case Note(expr, _)         => wrapper(expr)
-    case Distinct(exprs)       => wrapper("distinct" :: exprs)
+    case Note(expr, _) =>
+      wrapper(expr) // TODO was comment: def sexpr = "!" :: expr :: attr
+    case Distinct(exprs) => wrapper("distinct" :: exprs)
     case Bind(quant, formals, body, _) =>
       wrapper(quant.name, formals.asFormals, body)
-    case App(inst, args) => // TODO not sure what `this` should be here <- ref to the old code
+    case App(
+          inst,
+          args
+        ) => // TODO not sure what `this` should be here <- ref to the old code
       inst match {
         case And(phis)  => wrapper("and" :: phis)
         case Or(phis)   => wrapper("or" :: phis)
         case Const(arg) => wrapper(wrapper("as", "const", inst.res), arg)
         case _ if args.isEmpty && inst.params.nonEmpty => wrapper(inst)
-        case _ if args.isEmpty => wrapper(inst.fun.name)
+        case _ if args.isEmpty                         => wrapper(inst.fun.name)
         case _ => wrapper(inst.fun.name :: args)
       }
     // pure.Fun

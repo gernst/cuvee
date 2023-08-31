@@ -262,7 +262,6 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
     that exists (this in _)
   }
 
-  def sexpr = name
   def bexpr = List(name)
 
   override def toString = name.toString
@@ -291,7 +290,6 @@ case class Lit(any: Any, typ: Type) extends Expr {
   def inst(su: Map[Param, Type]) = this
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) = this
 
-  def sexpr = any
   def bexpr = List(any.toString)
 
   override def toString = any.toString
@@ -373,7 +371,6 @@ case class Is(arg: Expr, fun: Fun) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Is(arg inst (ty, su), fun)
 
-  def sexpr = List(List("_", "is", fun.name), arg)
   def bexpr = cuvee.undefined /// TODO Daniel thinks that this is not part of boogie.
 
   override def toString = {
@@ -480,18 +477,6 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     App(inst subst ty, args inst (ty, su))
 
-  def sexpr = this match {
-    case And(phis)  => "and" :: phis
-    case Or(phis)   => "or" :: phis
-    case Const(arg) => List(List("as", "const", typ), arg)
-
-    case _ if args.isEmpty && inst.params.nonEmpty => inst
-
-    case _ if args.isEmpty => inst.fun.name
-
-    case _ => inst.fun.name :: args
-  }
-
   def bexpr = this match {
     // Constants
     case App(inst, Nil) => List(inst.toString)
@@ -572,7 +557,6 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     rename(re)
   }
 
-  def sexpr = List(quant.name, formals.asFormals, body)
   def bexpr = {
     val formals_ = formals map { case x =>
       List(x, ":", " ", x.typ)
@@ -611,7 +595,6 @@ case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with util.Syntax 
   def inst(su: Map[Param, Type]) =
     Case(pat inst su, expr inst su)
 
-  def sexpr = List(pat, expr)
   def bexpr = cuvee.undefined // Not part of Boogie
 }
 
@@ -627,7 +610,6 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // need to fix cases, too
 
-  def sexpr = List("match", expr, cases)
   def bexpr = cuvee.undefined // Not part of Boogie
 }
 
@@ -652,7 +634,6 @@ case class LetEq(x: Var, e: Expr) extends util.Syntax with boogie.Syntax {
     LetEq(x rename a, e subst su)
   def inst(su: Map[Param, Type]) = LetEq(x, e inst su)
 
-  def sexpr = List(x, e)
   def bexpr = cuvee.undefined
 }
 
@@ -672,7 +653,6 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // need to fix let eqs, too
 
-  def sexpr = List("let", eqs, body)
   def bexpr = cuvee.undefined
 }
 
@@ -691,8 +671,6 @@ case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Note(expr inst (ty, su), attr)
 
-  def sexpr = expr
-  // def sexpr = "!" :: expr :: attr
   def bexpr = cuvee.undefined
 }
 
@@ -711,6 +689,5 @@ case class Distinct(exprs: List[Expr]) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Distinct(exprs inst (ty, su))
 
-  def sexpr = "distinct" :: exprs
   def bexpr = cuvee.undefined
 }
