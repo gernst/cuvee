@@ -1,6 +1,6 @@
 package cuvee.pure
 
-import cuvee.sexpr.Syntax
+import cuvee.util.Syntax
 import cuvee.smtlib.Assert
 import cuvee.State
 import cuvee.util.Name

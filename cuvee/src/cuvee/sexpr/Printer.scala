@@ -3,14 +3,6 @@ package cuvee.sexpr
 import cuvee.error
 import cuvee.util.Name
 
-trait Syntax extends cuvee.util.Syntax {
-  def sexpr: Any
-}
-
-class SyntaxList(xs: List[Syntax]) {
-  def sexpr = xs map (_.sexpr)
-}
-
 object Printer extends cuvee.util.Printer {
   def lines(any: Any): List[String] = any match {
     // Boolean values
@@ -22,8 +14,6 @@ object Printer extends cuvee.util.Printer {
     case f: Float    => List(f.toString)
     // Name
     case n: Name     => List(cuvee.sexpr.mangle(n.toLabel))
-    // Syntax (recursive call on the syntax' s-expression)
-    case s: Syntax   => lines(s.sexpr)
     case s: String   => List(s)
     // Applications, either represented by a pair (a, b) or a list
     case (a, b)      => printApp(lines(a) ++ lines(b))

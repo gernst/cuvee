@@ -7,8 +7,6 @@ import java.io.Reader
 package object sexpr {
   var debug = false
 
-  implicit def toSyntaxList(xs: List[Syntax]) = new SyntaxList(xs: List[Syntax])
-
   val True = Id("true")
   val False = Id("false")
 

@@ -1,7 +1,6 @@
 package cuvee.pure
 
 import cuvee.error
-import cuvee.sexpr.Syntax
 import cuvee.State
 import cuvee.util.Fix
 import cuvee.smtlib._
