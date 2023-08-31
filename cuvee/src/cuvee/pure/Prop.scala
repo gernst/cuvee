@@ -78,9 +78,6 @@ case class Disj(xs: List[Var], neg: List[Neg], pos: List[Pos])
     case _ => Forall(xs, Imp(And(neg map (_.toExpr)), Or(pos map (_.toExpr))))
   }
 
-  def sexpr =
-    List("forall", xs.asFormals, List("=>", "and" :: neg, "or" :: pos))
-
   def bexpr = {
     var result: List[String] = Nil
     var started: Boolean = false
@@ -136,9 +133,6 @@ case class Conj(xs: List[Var], neg: List[Neg])
     case Nil => And(neg map (_.toExpr))
     case _   => Exists(xs, And(neg map (_.toExpr)))
   }
-
-  def sexpr =
-    List("exists", xs.asFormals, "or" :: neg)
 
   def bexpr = {
     var result: List[String] = Nil
