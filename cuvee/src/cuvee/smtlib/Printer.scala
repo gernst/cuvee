@@ -25,13 +25,13 @@ object Printer extends cuvee.util.Printer {
     // Name
     case n: Name => List(cuvee.sexpr.mangle(n.toLabel))
     // smtlib.Cmd
-    case Success              => wrapper("success")
-    case Unsupported          => wrapper("unsupported")
-    case Error(info)          => wrapper("error" :: info)
-    case Sat                  => wrapper("sat")
-    case Unsat                => wrapper("unsat")
-    case Unknown              => wrapper("unknown")
-    case Model(defs)          => wrapper("model" :: defs)
+    case Success              => lines("success")
+    case Unsupported          => lines("unsupported")
+    case Error(info)          => wrapper2("error")(info)
+    case Sat                  => lines("sat")
+    case Unsat                => lines("unsat")
+    case Unknown              => lines("unknown")
+    case Model(defs)          => wrapper2("model")(defs)
     case Labels               => wrapper("labels")
     case SetLogic(logic)      => wrapper("set-logic", logic)
     case SetOption(attr, arg) => wrapper("set-option", ":" + attr, arg)
@@ -93,37 +93,34 @@ object Printer extends cuvee.util.Printer {
           )
       }
     // pure.Expr
-    case Var(name, _)          => wrapper(name)
-    case Lit(a, _)             => wrapper(a)
+    case Var(name, _)          => lines(name)
+    case Lit(a, _)             => lines(a.toString)
     case Is(arg, fun)          => wrapper(wrapper("_", "is", fun.name), arg)
     case Case(pat, expr)       => wrapper(pat, expr)
     case Match(expr, cases, _) => wrapper("match", expr, cases)
     case LetEq(x, e)           => wrapper(x, e)
     case Let(eqs, body)        => wrapper("let", eqs, body)
-    case Note(expr, _) =>
-      wrapper(expr) // TODO was comment: def sexpr = "!" :: expr :: attr
-    case Distinct(exprs) => wrapper("distinct" :: exprs)
+    case Note(expr, attr) =>
+      wrapper("!" :: expr :: attr) // TODO was comment: def sexpr = "!" :: expr :: attr FIX: it should actually be like that
+    case Distinct(exprs) => wrapper2("distinct")(exprs)
     case Bind(quant, formals, body, _) =>
       wrapper(quant.name, formals.asFormals, body)
-    case App(
-          inst,
-          args
-        ) => // TODO not sure what `this` should be here <- ref to the old code
-      inst match {
-        case And(phis)  => wrapper("and" :: phis)
-        case Or(phis)   => wrapper("or" :: phis)
+    case app@App(inst, args) => // TODO: what about this? ANSWER: this is the object being matched, we can bind it as shown
+      app match {
+        case And(phis)  => wrapper2("and")(phis)
+        case Or(phis)   => wrapper2("or")(phis)
         case Const(arg) => wrapper(wrapper("as", "const", inst.res), arg)
         case _ if args.isEmpty && inst.params.nonEmpty => wrapper(inst)
         case _ if args.isEmpty                         => wrapper(inst.fun.name)
-        case _ => wrapper(inst.fun.name :: args)
+        case _ => wrapper2(inst.fun.name)(args)
       }
     // pure.Fun
     case Inst(fun, ty) => wrapper("as", fun.name, fun.res subst ty)
     // pure.Prop
     case Atom(expr, _) => wrapper(expr)
-    case Conj(xs, neg) => wrapper("exists", xs.asFormals, "or" :: neg)
+    case Conj(xs, neg) => wrapper2("exists", xs.asFormals, "or")(neg)
     case Disj(xs, neg, pos) =>
-      wrapper("forall", xs.asFormals, List("=>", "and" :: neg, "or" :: pos))
+      wrapper("forall", xs.asFormals, wrapper("=>", wrapper2("and")(neg), wrapper2("or")(pos)))
     // pure.Type
     case Datatype(params, constrs) =>
       val constrs_ = for ((k, sels) <- constrs) yield {
@@ -138,9 +135,9 @@ object Printer extends cuvee.util.Printer {
         wrapper("par", params, constrs_)
     case Param(name)                     => wrapper(name)
     case Sort(con, args) if args.isEmpty => wrapper(con.name)
-    case Sort(con, args)                 => wrapper(con.name :: args)
+    case Sort(con, args)                 => wrapper2(con.name)(args)
     // imp.Prog
-    case Block(progs)        => wrapper("block" :: progs)
+    case Block(progs)        => wrapper2("block")(progs)
     case Break               => wrapper("break")
     case Return              => wrapper("return")
     case Local(xs, rhs)      => wrapper("local", (xs.asFormals zip rhs))
@@ -148,11 +145,11 @@ object Printer extends cuvee.util.Printer {
     case Spec(xs, pre, post) => wrapper("spec", xs, pre, post)
     case Call(name, in, out) => wrapper("call", name, in, out)
     case If(test, left, right) =>
-      wrapper("if", test, left, right) // TODO typo? was "id" in Prog
+      wrapper("if", test, left, right) // TODO typo? was "id" in Prog (yes)
     case While(test, body, _, inv, sum, _) =>
       wrapper("while", test, body, ":invariant", inv, ":summary", sum)
     // sexpr.Expr
-    // case sexpr.Lit => wrapper() // TODO which toString is this?
+    case lit: sexpr.Lit => wrapper(lit.toString) // TODO which toString is this?
     case sexpr.Kw(name)  => wrapper(":" + name)
     case sexpr.Id(name)  => wrapper(name)
     case sexpr.App(args) => wrapper(args)
@@ -164,7 +161,13 @@ object Printer extends cuvee.util.Printer {
     case xs: List[_] => printApp(xs flatMap lines)
   }
 
-  def wrapper(args: Any*) = printApp(args.toList flatMap lines)
+  def wrapper(args: Any*) = {
+    printApp(args.toList flatMap lines)
+  }
+
+  def wrapper2(args: Any*)(rest: List[Any]) = {
+    printApp(args.toList ++ rest flatMap lines)
+  }
 
   def printApp(args: List[String]): List[String] = {
     if (args.isEmpty) {
