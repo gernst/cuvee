@@ -347,7 +347,7 @@ object Conj {
       val Exists(ys, body) = expr refresh xs
       from(body :: rest, xs ++ ys, props)
 
-    case phi :: rest =>
+    case phi @ (Or(_) | Forall(_, _)) :: rest =>
       Prop.from(phi) match {
         case Atom(False, _) =>
           Conj.f
@@ -358,6 +358,9 @@ object Conj {
         case prop =>
           from(rest, xs, props ++ List(prop))
       }
+
+    case phi :: rest =>
+      from(rest, xs, props ++ List(Atom(phi)))
   }
 
   def from(
@@ -385,7 +388,7 @@ object Conj {
       val Forall(ys, body) = expr refresh xs
       from(body :: rest, xs ++ ys, props)
 
-    case phi :: rest =>
+    case (phi @ (And(_) | Exists(_, _))) :: rest =>
       Prop.from(!phi) match {
         case Atom(False, _) =>
           Conj.f
@@ -396,6 +399,9 @@ object Conj {
         case prop =>
           from(rest, xs, props ++ List(prop))
       }
+
+    case phi :: rest =>
+      from(rest, xs, props ++ List(Atom(phi)))
   }
 
   def reduce(xs: List[Var], props: List[Prop]): Conj =

@@ -4,6 +4,7 @@ import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 import cuvee.smtlib._
 import cuvee.State
+import cuvee.lemmas.Deaccumulate
 
 /** This class
   *
@@ -115,5 +116,56 @@ class PositiveProver(solver: Solver) extends Prover {
             first_ :: all(rest, state)
           }
       }
+  }
+}
+
+object PositiveProver {
+  def main(args: Array[String]): Unit = try {
+    val occur = 2
+    val depth = 4
+
+    val funs = LazyList(
+      Fun.not,
+      Fun.and,
+      Fun.or,
+      Fun.imp
+    )
+
+    def atom(name: String): Expr =
+      App(Fun(name, Nil, Nil, Sort.bool), Nil)
+
+    val names = List("A", "B", "C", "D")
+
+    val builtin = Map(
+      True -> occur,
+      False -> occur
+    )
+    
+    val atoms = Map(names map (name => (atom(name) -> occur)): _*)
+
+    val phis = Deaccumulate.enumerate(Sort.bool, funs, atoms ++ builtin, depth)
+
+    val solver = Solver.z3()
+
+    for(name <- names) {
+      val cmd = DeclareFun(name, Nil, Nil, Sort.bool)
+      solver.ack(cmd)
+    }
+
+    for ((phi, _) <- phis) {
+      val prop = Prop.from(phi)
+      val psi = prop.toExpr
+
+      val ok = true // solver.isTrue(phi === psi)
+
+      if (!ok) {
+        println(phi)
+        println(psi)
+        return
+      }
+    }
+  } catch {
+    case e: Throwable =>
+      println(e)
   }
 }
