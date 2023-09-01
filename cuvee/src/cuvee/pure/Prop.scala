@@ -11,12 +11,122 @@ sealed trait Prop extends util.Syntax with boogie.Syntax {
 }
 
 object Prop {
-  def from(expr: Expr) = Disj.from(expr) match {
-    case atom @ Atom(_, _) => atom
-    // In case the expression could have been written as just a Conj,
-    // we'll get the sequence {} => { conj }, extract the conj and return it:
-    case Disj(Nil, Nil, conj :: Nil) => conj
-    case disj                        => disj
+  def from(expr: Expr): Prop =
+    from(List(expr), Nil, Nil, Nil)
+
+  def from(exprs: List[Expr]): Prop =
+    from(exprs, Nil, Nil, Nil)
+
+  def from(xs: List[Var], pre: List[Expr], post: List[Expr]): Prop =
+    from(pre, post, xs, Nil, Nil)
+
+  def from(
+      pre: List[Expr],
+      post: List[Expr],
+      xs: List[Var],
+      assms: List[Prop],
+      concls: List[Conj]
+  ): Prop = {
+    pre match {
+      case Nil =>
+        from(post, xs, assms, concls)
+
+      case True :: rest =>
+        from(rest, post, xs, assms, concls)
+
+      case False :: rest =>
+        Atom.t
+
+      case Not(phi) :: rest =>
+        from(rest, phi :: post, xs, assms, concls)
+
+      case And(phis) :: rest =>
+        from(phis ++ rest, post, xs, assms, concls)
+
+      case (expr @ Exists(_, _)) :: rest =>
+        val Exists(ys, body) = expr refresh xs
+        from(body :: rest, post, xs ++ ys, assms, concls)
+
+      // case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
+      //   from(And(Imp(phi, psi), Imp(psi, phi)) :: rest, post, xs, assms, concls)
+
+      case Imp(phi, psi) :: rest =>
+        val prop = from(List(phi), List(psi), Nil, Nil, Nil)
+        from(rest, post, xs, assms ++ List(prop), concls)
+
+      case Or(phis) :: rest =>
+        val prop = from(phis, Nil, Nil, Nil)
+        from(rest, post, xs, assms ++ List(prop), concls)
+
+      case (phi @ Forall(_, _)) :: rest =>
+        val prop = from(phi)
+        from(rest, post, xs, assms ++ List(prop), concls)
+
+      case phi :: rest =>
+        from(rest, post, xs, assms ++ List(Atom(phi)), concls)
+    }
+  }
+
+  def from(
+      post: List[Expr],
+      xs: List[Var],
+      assms: List[Prop],
+      concls: List[Conj]
+  ): Prop = {
+    post match {
+      case Nil if assms.isEmpty && concls.isEmpty =>
+        Atom.f
+
+      case Nil =>
+        Disj(xs, assms, concls)
+
+      case False :: rest =>
+        from(rest, xs, assms, concls)
+
+      case True :: rest =>
+        Atom.t
+
+      case Not(phi) :: rest =>
+        from(List(phi), rest, xs, assms, concls)
+
+      // case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
+      //   show(And(Imp(phi, psi), Imp(psi, phi)) :: rest, xs, assms, concls)
+
+      case Imp(phi, psi) :: rest =>
+        from(List(phi), psi :: rest, xs, assms, concls)
+
+      case Or(phis) :: rest =>
+        from(phis ++ rest, xs, assms, concls)
+
+      case (expr @ Forall(_, _)) :: rest =>
+        val Forall(ys, body) = expr refresh xs
+        from(body :: rest, xs ++ ys, assms, concls)
+
+      // case And(phis) :: rest =>
+      //   val prop = Conj.from(phis)
+      //   from(rest, xs, assms, concls ++ List(prop))
+      // case (expr @ Exists(_, _)) :: rest =>
+      //   Conj.from(expr) match {
+      //     case Atom(False, _) =>
+      //       show(rest, xs, assms, concls)
+      //     case prop @ Atom(True, _) =>
+      //       prop
+      //     case prop =>
+      //       from(rest, xs, assms, concls ++ List(prop))
+      //   }
+
+      case phi :: rest =>
+        Conj.from(phi) match {
+          case Conj(_, List(Atom(True, _))) =>
+            Atom.t
+
+          case Conj(_, Nil) =>
+            from(rest, xs, assms, concls)
+
+          case concl =>
+            from(rest, xs, assms, concls ++ List(concl))
+        }
+    }
   }
 }
 
@@ -147,124 +257,6 @@ case class Conj(xs: List[Var], props: List[Prop]) extends Expr.bind[Conj] {
 }
 
 object Disj {
-  def from(expr: Expr): Prop =
-    from(List(expr), Nil, Nil, Nil)
-
-  def from(exprs: List[Expr]): Prop =
-    from(exprs, Nil, Nil, Nil)
-
-  def from(xs: List[Var], pre: List[Expr], post: List[Expr]): Prop =
-    from(pre, post, xs, Nil, Nil)
-
-  def from(
-      pre: List[Expr],
-      post: List[Expr],
-      xs: List[Var],
-      assms: List[Prop],
-      concls: List[Conj]
-  ): Prop = {
-    pre match {
-      case Nil =>
-        from(post, xs, assms, concls)
-
-      case True :: rest =>
-        from(rest, post, xs, assms, concls)
-
-      case False :: rest =>
-        Atom.t
-
-      case Not(phi) :: rest =>
-        from(rest, phi :: post, xs, assms, concls)
-
-      case And(phis) :: rest =>
-        from(phis ++ rest, post, xs, assms, concls)
-
-      case (expr @ Exists(_, _)) :: rest =>
-        val Exists(ys, body) = expr refresh xs
-        from(body :: rest, post, xs ++ ys, assms, concls)
-
-      // case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
-      //   from(And(Imp(phi, psi), Imp(psi, phi)) :: rest, post, xs, assms, concls)
-
-      case Imp(phi, psi) :: rest =>
-        val prop = from(List(phi), List(psi), Nil, Nil, Nil)
-        from(rest, post, xs, assms ++ List(prop), concls)
-
-      case Or(phis) :: rest =>
-        val prop = from(phis, Nil, Nil, Nil)
-        from(rest, post, xs, assms ++ List(prop), concls)
-
-      case (phi @ Forall(_, _)) :: rest =>
-        val prop = from(phi)
-        from(rest, post, xs, assms ++ List(prop), concls)
-
-      case phi :: rest =>
-        from(rest, post, xs, assms ++ List(Atom(phi)), concls)
-    }
-  }
-
-  def from(
-      post: List[Expr],
-      xs: List[Var],
-      assms: List[Prop],
-      concls: List[Conj]
-  ): Prop = {
-    post match {
-      case Nil if assms.isEmpty && concls.isEmpty =>
-        Atom.f
-
-      case Nil =>
-        Disj(xs, assms, concls)
-
-      case False :: rest =>
-        from(rest, xs, assms, concls)
-
-      case True :: rest =>
-        Atom.t
-
-      case Not(phi) :: rest =>
-        from(List(phi), rest, xs, assms, concls)
-
-      // case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
-      //   show(And(Imp(phi, psi), Imp(psi, phi)) :: rest, xs, assms, concls)
-
-      case Imp(phi, psi) :: rest =>
-        from(List(phi), psi :: rest, xs, assms, concls)
-
-      case Or(phis) :: rest =>
-        from(phis ++ rest, xs, assms, concls)
-
-      case (expr @ Forall(_, _)) :: rest =>
-        val Forall(ys, body) = expr refresh xs
-        from(body :: rest, xs ++ ys, assms, concls)
-
-      // case And(phis) :: rest =>
-      //   val prop = Conj.from(phis)
-      //   from(rest, xs, assms, concls ++ List(prop))
-      // case (expr @ Exists(_, _)) :: rest =>
-      //   Conj.from(expr) match {
-      //     case Atom(False, _) =>
-      //       show(rest, xs, assms, concls)
-      //     case prop @ Atom(True, _) =>
-      //       prop
-      //     case prop =>
-      //       from(rest, xs, assms, concls ++ List(prop))
-      //   }
-
-      case phi :: rest =>
-        Conj.from(phi) match {
-          case Conj(_, List(Atom(True, _))) =>
-            Atom.t
-
-          case Conj(_, Nil) =>
-            from(rest, xs, assms, concls)
-
-          case concl =>
-            from(rest, xs, assms, concls ++ List(concl))
-        }
-    }
-  }
-
   def reduce(xs: List[Var], assms: List[Prop], concls: List[Conj]): Prop =
     reduce(assms, concls, xs, Nil, Nil)
 
@@ -303,10 +295,10 @@ object Disj {
       case Nil =>
         Disj(xs, assms, concls)
 
-      case Conj(_, Nil) :: rest =>
+      case Conj(_, List(Atom(True, _))) :: rest =>
         Atom.t
 
-      case Conj(_, List(Atom(True, _))) :: rest =>
+      case Conj(_, Nil) :: rest =>
         reduce(rest, xs, assms, concls)
 
       case conj :: rest =>
@@ -316,8 +308,8 @@ object Disj {
 }
 
 object Conj {
-  val f = Conj(Nil, Nil)
-  val t = Conj(Nil, List(Atom.t))
+  val t = Conj(Nil, Nil)
+  val f = Conj(Nil, List(Atom.f))
 
   def from(expr: Expr): Conj =
     from(List(expr), Nil, Nil)
@@ -356,7 +348,7 @@ object Conj {
       from(body :: rest, xs ++ ys, props)
 
     case phi :: rest =>
-      Disj.from(phi) match {
+      Prop.from(phi) match {
         case Atom(False, _) =>
           Conj.f
 
@@ -394,7 +386,7 @@ object Conj {
       from(body :: rest, xs ++ ys, props)
 
     case phi :: rest =>
-      Disj.from(!phi) match {
+      Prop.from(!phi) match {
         case Atom(False, _) =>
           Conj.f
 

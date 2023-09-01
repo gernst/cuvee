@@ -16,10 +16,13 @@ object Rating {
         case Atom(expr, _) =>
             complexity(expr)
         // Conjs and Disj can be defined more easily
-        case Conj(xs, neg) =>
-            2 + 4 * xs.length + 3 * (neg map complexity).sum
         case Disj(xs, neg, pos) =>
             4 + 4 * xs.length - 3 * (neg map complexity).sum + 3 * (pos map complexity).sum
+    }
+    
+    def complexity(conj: Conj): Int = conj match {
+        case Conj(xs, neg) =>
+            2 + 4 * xs.length + 3 * (neg map complexity).sum
     }
 
     /** Complexity heuristic for atomic propositions
@@ -58,12 +61,15 @@ object Rating {
         // Atoms / their expressions are handled in a separate function.
         case Atom(expr, _) =>
             size(expr)
-        // Conjunction: 1 + #vars + sum of arguments' sizes
-        case Conj(xs, neg) =>
-            1 + xs.length + (neg map size).sum
         // Conjunction: 3 (conjunction, implication, disjunction) + #vars + sum of pos/neg arguments' sizes
         case Disj(xs, neg, pos) =>
             3 + xs.length + (neg map size).sum + (pos map size).sum
+    }
+
+    def size(conj: Conj)(implicit state: State): Int = conj match {
+        // Conjunction: 1 + #vars + sum of arguments' sizes
+        case Conj(xs, neg) =>
+            1 + xs.length + (neg map size).sum
     }
 
     /** Complexity heuristic for atomic propositions

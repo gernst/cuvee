@@ -128,7 +128,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
 
   def apply(state: State, goal: Prop) = {
     goal match {
-      case Atom(_, _) | Conj(_, _) =>
+      case Atom(_, _) =>
         throw new TacticNotApplicableException(
           "Only Disj supported in induction tactic, got:" + goal
         )
@@ -194,8 +194,8 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
 
         val new_goal = Disj(
           goal_.xs ++ args,
-          goal_.neg.map(_.subst(su)) ++ hyps,
-          goal_.pos.map(_.subst(su))
+          goal_.assms.map(_.subst(su)) ++ hyps,
+          goal_.concls.map(_.subst(su))
         )
 
         (new_goal, con_tactics.get(inst) map (_._2))
@@ -262,10 +262,10 @@ case class Show(
 
   def apply(state: State, goal: Prop) = {
     assert(goal.isInstanceOf[Disj])
-    val prop_ = Disj.from(prop)
+    val prop_ = Prop.from(prop)
 
     val Disj(xs, neg, pos) = goal.asInstanceOf[Disj]
-    val goal_ = Disj.assume(List(prop), Nil, xs, neg, pos)
+    val goal_ = Prop.from(List(prop), Nil, xs, neg, pos)
 
     List(
       (prop_, tactic),
@@ -366,7 +366,7 @@ case class Unfold(
         e
     }
 
-    List((Disj.from(goal_), cont))
+    List((Prop.from(goal_), cont))
   }
 
   override def makesProgress(state: State, goal: Prop)(implicit prover: Prover): Option[Int] = {

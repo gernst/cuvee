@@ -48,23 +48,14 @@ object Simplify {
   // TODO: maybe simplify should be part of Prop and expr, because this sucks:
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
     case Atom(expr, model) =>
-      atom(simplify(expr, rules, constrs), model)
-    case Disj(xs, neg, pos) =>
-      disj(xs, neg map (simplify(_, rules, constrs)), pos map (simplify(_, rules, constrs)))
-    case Conj(xs, neg) =>
-      conj(xs, neg map (simplify(_, rules, constrs)))
+      Atom(simplify(expr, rules, constrs), model)
+    case Disj(xs, assms, concls) =>
+      Disj.reduce(xs, assms map (simplify(_, rules, constrs)), concls map (simplify(_, rules, constrs)))
   }
 
-  def simplify(prop: Pos, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Pos = prop match {
-    case Atom(expr, model) => atom(simplify(expr, rules, constrs), model)
-    case Conj(xs, neg)     => conj(xs, neg map (simplify(_, rules, constrs)))
-  }
-
-  def simplify(prop: Neg, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Neg = prop match {
-    case Atom(expr, model) =>
-      atom(simplify(expr, rules, constrs), model)
-    case Disj(xs, neg, pos) =>
-      disj(xs, neg map (simplify(_, rules, constrs)), pos map (simplify(_, rules, constrs)))
+  def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
+    case Conj(xs, props) =>
+      Conj.reduce(xs, props map (simplify(_, rules, constrs)))
   }
 
   def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Expr] = {
@@ -151,48 +142,5 @@ object Simplify {
 
   def exists(bound: List[Var], psi: Expr): Expr = {
     Exists(bound, psi) // simplified by quant.apply already
-  }
-
-  def atom(expr: Expr, model: Option[Model] = None) = {
-    Atom(simplify(expr, Map(), Set()), model)
-  }
-
-  def disj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
-    Disj.from(xs, neg, pos)
-  }
-
-  def conj(xs: List[Var], neg: List[Neg]): Pos = {
-    val neg_ = neg map (_.toExpr)
-    Conj.from(xs, neg_)
-  }
-
-  def prop_(p: Prop): Prop = p match {
-    case Atom(expr, cex)    => atom(expr, cex)
-    case Disj(xs, neg, pos) => disj_(xs, neg, pos)
-    case Conj(xs, neg)      => conj_(xs, neg)
-  }
-
-  def disj_(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
-    val neg_ = neg filter (_ != Atom(True))
-    val pos_ = pos filter (_ != Atom(False))
-
-    if (neg_ contains Atom.f)
-      return Atom.t
-    if (pos_ contains Atom.t)
-      return Atom.t
-
-    // TODO: special case when we collapse to a single pos without bound vars
-    // remove irrelevant bound vars
-
-    Disj(xs, neg_, pos_)
-  }
-
-  def conj_(xs: List[Var], neg: List[Neg]): Pos = {
-    val neg_ = neg filter (_ != Atom(True))
-
-    if (neg_ contains Atom.f)
-      return Atom.f
-
-    Conj(xs, neg_)
   }
 }
