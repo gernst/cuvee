@@ -117,7 +117,7 @@ object Printer extends cuvee.util.Printer {
     // pure.Fun
     case Inst(fun, ty) => wrapper("as", fun.name, fun.res subst ty)
     // pure.Prop
-    case Atom(expr, _) => wrapper(expr)
+    case Atom(expr, _) => lines(expr)
     case Conj(xs, neg) => wrapper2("exists", xs.asFormals, "or")(neg)
     case Disj(xs, neg, pos) =>
       wrapper("forall", xs.asFormals, wrapper("=>", wrapper2("and")(neg), wrapper2("or")(pos)))
@@ -133,9 +133,9 @@ object Printer extends cuvee.util.Printer {
         wrapper(constrs_)
       else
         wrapper("par", params, constrs_)
-    case Param(name)                     => wrapper(name)
-    case Sort(con, args) if args.isEmpty => wrapper(con.name)
-    case Sort(con, args)                 => wrapper2(con.name)(args)
+    case Param(name)     => lines(name)
+    case Sort(con, Nil)  => lines(con.name)
+    case Sort(con, args) => wrapper2(con.name)(args)
     // imp.Prog
     case Block(progs)        => wrapper2("block")(progs)
     case Break               => wrapper("break")
@@ -149,7 +149,7 @@ object Printer extends cuvee.util.Printer {
     case While(test, body, _, inv, sum, _) =>
       wrapper("while", test, body, ":invariant", inv, ":summary", sum)
     // sexpr.Expr
-    case lit: sexpr.Lit => wrapper(lit.toString) // TODO which toString is this?
+    case lit: sexpr.Lit => lines(lit.toString) // TODO which toString is this?
     case sexpr.Kw(name)  => wrapper(":" + name)
     case sexpr.Id(name)  => wrapper(name)
     case sexpr.App(args) => wrapper(args)
