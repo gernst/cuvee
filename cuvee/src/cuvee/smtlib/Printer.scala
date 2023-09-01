@@ -110,8 +110,8 @@ object Printer extends cuvee.util.Printer {
         case And(phis)  => wrapper2("and")(phis)
         case Or(phis)   => wrapper2("or")(phis)
         case Const(arg) => wrapper(wrapper("as", "const", inst.res), arg)
-        case _ if args.isEmpty && inst.params.nonEmpty => wrapper(inst)
-        case _ if args.isEmpty                         => wrapper(inst.fun.name)
+        case _ if args.isEmpty && inst.params.nonEmpty => lines(inst)
+        case _ if args.isEmpty                         => lines(inst.fun.name)
         case _ => wrapper2(inst.fun.name)(args)
       }
     // pure.Fun
