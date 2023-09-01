@@ -36,7 +36,7 @@ object Test extends Main {
           println("---------------  prove  ---------------")
           val disj = Prop.from(phi);
           println(disj)
-          val disj_ = prover.prove(disj, null)
+          val disj_ = prover.reduce(disj, null)
           println(disj_)
           println(disj_.toExpr)
           // println("-------------  disprove  --------------")
