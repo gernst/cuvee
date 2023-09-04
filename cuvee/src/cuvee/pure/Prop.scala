@@ -135,6 +135,14 @@ case class Atom(phi: Expr, cex: Option[Model] = None) extends Prop {
   require(phi.typ == Sort.bool, "not a boolean proconclsition: " + phi)
   // require(cex.isEmpty || (expr != True && expr != False), "Atoms with True / False must not carry a model")
 
+  phi match {
+    case Not(_) | And(_) | Or(_) | Imp(_, _) =>
+      cuvee.error("invalid atom: " + phi)
+    case Bind(_, _, _, _) =>
+      cuvee.error("invalid atom: " + phi)
+    case _ =>
+  }
+
   // def text = Printer.atom(expr)
   def bound = Set()
   def toExpr = phi
@@ -347,7 +355,7 @@ object Conj {
       val Exists(ys, body) = expr refresh xs
       from(body :: rest, xs ++ ys, props)
 
-    case phi @ (Or(_) | Forall(_, _)) :: rest =>
+    case phi @ (Imp(_, _) | Or(_) | Forall(_, _)) :: rest =>
       Prop.from(phi) match {
         case Atom(False, _) =>
           Conj.f
