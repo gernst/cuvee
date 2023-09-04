@@ -56,7 +56,7 @@ class Stmts(val exprs: Exprs) {
 
   def body(body: Seq[Ast.stmt], in: List[Var]): (Option[Spec], Prog) = {
     val (pre, post, remnant) = getSpec(body)
-    val spec = Spec(List(pyResult), And(pre), And(post))
+    val spec = Spec(Nil, And(pre), And(post))
     val prog = Block(remnant)
 
     (Option(spec), prog)
