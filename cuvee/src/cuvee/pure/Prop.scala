@@ -168,7 +168,7 @@ object Atom {
 case class Disj(xs: List[Var], assms: List[Prop], concls: List[Conj])
     extends Prop
     with Expr.bind[Disj] {
-  require(xs == xs.distinct)
+  require(xs == xs.distinct, "duplicate vars in " + xs)
 
   def bound = xs.toSet
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
