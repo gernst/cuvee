@@ -101,32 +101,38 @@ object Printer extends cuvee.util.Printer {
     case Match(expr, cases, _) => wrapper("match", expr, cases)
     case LetEq(x, e)           => wrapper(x, e)
     case Let(eqs, body)        => wrapper("let", eqs, body)
-    case Note(expr, attr) =>
-      wrapper2("!", expr)(
-        attr
-      ) // TODO was comment: def sexpr = "!" :: expr :: attr FIX: it should actually be like that
-    case Distinct(exprs) => wrapper2("distinct")(exprs)
+    case Note(expr, attr)      => wrapper2("!", expr)(attr)
+    case Distinct(exprs)       => wrapper2("distinct")(exprs)
+
     case Bind(quant, formals, body, _) =>
       wrapper(quant.name, formals.asFormals, body)
-    case app @ App(
-          inst,
-          args
-        ) => // TODO: what about this? ANSWER: this is the object being matched, we can bind it as shown
-      app match {
-        case And(phis)  => wrapper2("and")(phis)
-        case Or(phis)   => wrapper2("or")(phis)
-        case Const(arg) => wrapper(List("as", "const", inst.res), arg)
-        case _ if args.isEmpty && inst.params.nonEmpty => lines(inst)
-        case _ if args.isEmpty                         => lines(inst.fun.name)
-        case _                                         => wrapper2(inst.fun.name)(args)
-      }
+
+    case App(inst, Nil) =>
+      lines(inst)
+
+    // constant array
+    case Const(arg) => wrapper(List("as", "const", arg.typ), arg)
+
+    case And(phis) => wrapper2("and")(phis)
+    case Or(phis)  => wrapper2("or")(phis)
+
+    case App(inst, args) =>
+      wrapper2(inst.fun.name)(args)
+
     // pure.Fun
-    case Inst(fun, ty) => wrapper("as", fun.name, fun.res subst ty)
+    case Inst(fun, ty) if fun.params.nonEmpty =>
+      wrapper("as", fun.name, fun.res subst ty)
+    case Inst(fun, ty) =>
+      lines(fun.name)
+
     // pure.Prop
-    case Atom(expr, _) => lines(expr)
-    case Conj(xs, neg) => wrapper2("exists", xs.asFormals, "or")(neg)
+    case Atom(expr, _) =>
+      lines(expr)
+    case Conj(xs, neg) =>
+      wrapper2("exists", xs.asFormals, "or")(neg)
     case Disj(xs, neg, pos) =>
       wrapper("forall", xs.asFormals, wrapper("=>", wrapper2("and")(neg), wrapper2("or")(pos)))
+
     // pure.Type
     case Datatype(params, constrs) =>
       val constrs_ = for ((k, sels) <- constrs) yield {
