@@ -1,4 +1,4 @@
-from help_methods import out, ensures, requires, imp
+from cuvee import out, ensures, requires, imp
 
 
 def eq(a, b):

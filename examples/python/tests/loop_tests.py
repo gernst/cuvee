@@ -1,4 +1,4 @@
-from help_methods import out, ensures, requires, termination
+from cuvee import out, ensures, requires, decreases
 
 
 def loop(n):
@@ -11,6 +11,6 @@ def loop(n):
         requires(i <= n)
         ensures(i == n)
         ensures(out() == n)
-        termination(n - i)
+        decreases(n - i)
         i = i + 1
     return i

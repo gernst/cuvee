@@ -22,10 +22,10 @@ import cuvee.imp.Return
 class Stmts(val exprs: Exprs) {
   import exprs.sig._
   import exprs.pymap
+  import exprs.sugar
 
   def createCmd(stmt: Ast.stmt): List[Cmd] = stmt match {
-    case Ast.stmt.ImportFrom(module, _, _)
-        if module == Option(Ast.identifier("help_methods")) =>
+    case Ast.stmt.ImportFrom(module, _, _) if module == Option(Ast.identifier("cuvee")) =>
       Nil
 
     case Ast.stmt.FunctionDef(name, args, stmts, _) =>
@@ -36,14 +36,7 @@ class Stmts(val exprs: Exprs) {
       state.proc(name.name, param, in, out, spec)
       state.procdef(name.name, in, out, prog)
 
-      val cmd = DefineProc(
-        name.name,
-        param,
-        in,
-        out,
-        spec,
-        prog
-      )
+      val cmd = DefineProc(name.name, param, in, out, spec, prog)
 
       List(cmd)
 
@@ -55,63 +48,48 @@ class Stmts(val exprs: Exprs) {
   }
 
   def input(args: Ast.arguments): List[Var] = {
-    args.args.collect {
-      case Ast.expr.Name(id, _) if id.name != "self" => Var(id.name, value)
-    }.toList
+    args.args.toList.collect {
+      case Ast.expr.Name(id, _) if id.name != "self" =>
+        Var(id.name, pyValue)
+    }
   }
 
   def body(body: Seq[Ast.stmt], in: List[Var]): (Option[Spec], Prog) = {
-    val (vars, pre, post, remnant) = getSpec(body, in)
-    val spec = Spec(vars, And(pre), And(post))
+    val (pre, post, remnant) = getSpec(body)
+    val spec = Spec(List(pyResult), And(pre), And(post))
     val prog = Block(remnant)
 
     (Option(spec), prog)
   }
 
-  def getSpec(
-      body: Seq[Ast.stmt],
-      in: List[Var]
-  ): (List[Var], List[Expr], List[Expr], List[Prog]) =
-    body match {
-      case assign @ Ast.stmt
-            .Assign(Seq(Ast.expr.Name(identifier, _)), _) :: next =>
-        val (vars, pre, post, remnant) = getSpec(next, in)
-        val id = Var(identifier.name, value)
-        if (!(in.map(_.name) contains id.name)) {
-          (
-            Var(id.name, value) :: vars,
-            pre,
-            post,
-            stmts(assign.head) ++ remnant
-          )
-        } else {
-          (vars, pre, post, stmts(assign.head) ++ remnant)
-        }
-      case Ast.stmt.Expr(
-            Ast.expr.Call(Ast.expr.Name(id, _), Seq(arg), _, _, _)
-          ) :: next if id.name == "requires" =>
-        val (vars, pre, post, remnant) = getSpec(next, in)
-        (vars, pyIsTrue(pymap(arg)) :: pre, post, remnant)
-      case Ast.stmt.Expr(
-            Ast.expr.Call(Ast.expr.Name(id, _), Seq(arg), _, _, _)
-          ) :: next if id.name == "ensures" =>
-        val (vars, pre, post, remnant) = getSpec(next, in)
-        (vars, pre, pyIsTrue(pymap(arg)) :: post, remnant)
-      case head :: next =>
-        val (vars, pre, post, remnant) = getSpec(next, in)
-        (vars, pre, post, stmts(head) ++ remnant)
-      case Nil => (Nil, Nil, Nil, Nil)
-    }
+  def getSpec(body: Seq[Ast.stmt]): (List[Expr], List[Expr], List[Prog]) = body match {
+    case Ast.stmt.Expr(sugar.Call("requires", args)) :: rest =>
+      val (pre, post, remnant) = getSpec(rest)
+      val phis = args.toList map { arg => pyIsTrue(pymap(arg)) }
+      (phis ++ pre, post, remnant)
+
+    case Ast.stmt.Expr(sugar.Call("ensures", args)) :: rest =>
+      val (pre, post, remnant) = getSpec(rest)
+      val phis = args.toList map { arg => pyIsTrue(pymap(arg)) }
+      (pre, phis ++ post, remnant)
+
+    case _ =>
+      (Nil, Nil, body.toList flatMap stmts)
+  }
 
   def stmts(stmt: Ast.stmt): List[Prog] = stmt match {
-    case Ast.stmt.Assert(test, _) => List(Spec.assert(pyIsTrue(pymap(test))))
-    case Ast.stmt.Assign(Seq(Ast.expr.Name(id, _)), values) =>
-      List(Assign(List(Var(id.name, value)), List(pymap(values))))
+    case Ast.stmt.Assert(test, _) =>
+      List(Spec.assert(pyIsTrue(pymap(test))))
+
+    case Ast.stmt.Assign(Seq(Ast.expr.Name(id, _)), rhs) =>
+      List(Assign(List(Var(id.name, pyValue)), List(pymap(rhs))))
+
     case Ast.stmt.Assign(
-          Seq(Ast.expr.Name(idOut, _)),
+          Seq(Ast.expr.Name(lhs, _)),
           Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _)
         ) if id.name != "len" =>
-      List(Call(id.name, args.map(pymap).toList, List(Var(idOut.name, value))))
+      List(Call(id.name, args.map(pymap).toList, List(Var(lhs.name, pyValue))))
+
     case Ast.stmt.Assign(
           Seq(
             Ast.expr.Attribute(
@@ -122,7 +100,8 @@ class Stmts(val exprs: Exprs) {
           ),
           values
         ) =>
-      List(Assign(List(Var("self." + attr.name, value)), List(pymap(values))))
+      List(Assign(List(Var("self." + attr.name, pyValue)), List(pymap(values))))
+
     case Ast.stmt.Assign(
           Seq(
             Ast.expr.Subscript(
@@ -139,10 +118,10 @@ class Stmts(val exprs: Exprs) {
         ) =>
       List(
         Assign(
-          List(Var("self." + attr.name, value)),
+          List(Var("self." + attr.name, pyValue)),
           List(
             pyStore(
-              Var("self." + attr.name, value),
+              Var("self." + attr.name, pyValue),
               pymap(i),
               pymap(values)
             )
@@ -155,24 +134,29 @@ class Stmts(val exprs: Exprs) {
         ) =>
       List(
         Assign(
-          List(Var(id.name, value)),
+          List(Var(id.name, pyValue)),
           List(
             pyStore(
-              Var(id.name, value),
+              Var(id.name, pyValue),
               pymap(i),
               pymap(values)
             )
           )
         )
       )
-    case Ast.stmt.Return(
-          Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))
-        ) =>
-      List(Call(id.name, args.map(pymap).toList, List(pyResult)), Return)
+
+    case Ast.stmt.Break => List(Break)
+    case Ast.stmt.Pass  => Nil
+
+    case Ast.stmt.Return(Some(Ast.expr.Call(Ast.expr.Name(id, _), args, _, _, _))) =>
+      List(Call(id.name, args.toList map pymap, List(pyResult)), Return)
+
     case Ast.stmt.Return(None) =>
       List(Return)
+
     case Ast.stmt.Return(Some(value)) =>
       List(Assign(List(pyResult), List(pymap(value))), Return)
+
     case Ast.stmt.Expr(Ast.expr.Call(name, Seq(args), _, _, _)) =>
       name match {
         case Ast.expr.Name(Ast.identifier("assume"), _) =>
@@ -183,8 +167,10 @@ class Stmts(val exprs: Exprs) {
               _
             ) =>
           List(Call(attr.name, Seq(args).map(pymap).toList, Nil))
-        case _ => cuvee.undefined
+        case _ =>
+          cuvee.undefined
       }
+
     case Ast.stmt.If(test, body, orelse) =>
       List(
         If(
@@ -193,57 +179,50 @@ class Stmts(val exprs: Exprs) {
           Block(orelse.flatMap(stmts).toList)
         )
       )
+
     case Ast.stmt.While(test, body, orelse) =>
-      val (inv, pre, post, decrease, remnant) = getInv(body)
+      val (inv, sum, List(term), remnant) = getInv(body)
 
       val loop = While(
         pyIsTrue(pymap(test)),
         Block(remnant),
-        And(decrease),
-        if (inv.isEmpty) And(pre) else And(inv),
-        pyIsTrue(pyNone()),
+        term,
+        And(inv),
+        And(sum),
         Nil
       )
 
-      if (orelse.isEmpty) List(loop)
-      else {
+      if (orelse.isEmpty) {
+        List(loop)
+      } else {
         val after = If(
           Not(pyIsTrue(pymap(test))),
-          Block(orelse.flatMap(stmts).toList),
+          Block(orelse.toList flatMap stmts),
           Skip
         )
         List(Block(List(loop, after)))
       }
-    case Ast.stmt.Break => List(Break)
-    case Ast.stmt.Pass  => List(Skip)
-    case Nil            => List(Skip)
-    case _              => cuvee.error("Unsupported statement: " + stmt)
+    // case Nil            => Nil
+    case _ => cuvee.error("Unsupported statement: " + stmt)
   }
 
-  def getInv(
-      body: Seq[Ast.stmt]
-  ): (List[Expr], List[Expr], List[Expr], List[Expr], List[Prog]) =
+  def getInv(body: Seq[Ast.stmt]): (List[Expr], List[Expr], List[Expr], List[Prog]) =
     body match {
-      case Ast.stmt.Expr(
-            Ast.expr.Call(Ast.expr.Name(id, _), Seq(arg), _, _, _)
-          ) :: next =>
-        id.name match {
-          case "invariant" =>
-            val (inv, pre, post, decrease, remnant) = getInv(next)
-            (pyIsTrue(pymap(arg)) :: inv, pre, post, decrease, remnant)
-          case "requires" =>
-            val (inv, pre, post, decrease, remnant) = getInv(next)
-            (inv, pyIsTrue(pymap(arg)) :: pre, post, decrease, remnant)
-          case "ensures" =>
-            val (inv, pre, post, decrease, remnant) = getInv(next)
-            (inv, pre, pyIsTrue(pymap(arg)) :: post, decrease, remnant)
-          case "termination" =>
-            val (inv, pre, post, decrease, remnant) = getInv(next)
-            (inv, pre, post, pyGetInt(pymap(arg)) :: decrease, remnant)
-        }
-      case head :: next =>
-        val (inv, pre, post, decrease, remnant) = getInv(next)
-        (inv, pre, post, decrease, stmts(head) ++ remnant)
-      case Nil => (Nil, Nil, Nil, Nil, Nil)
+      case Ast.stmt.Expr(sugar.Call("invariant", args)) :: rest =>
+        val (inv, post, term, remnant) = getInv(rest)
+        val phis = args.toList map { arg => pyIsTrue(pymap(arg)) }
+        (phis ++ inv, post, term, remnant)
+
+      case Ast.stmt.Expr(sugar.Call("summary", args)) :: rest =>
+        val (pre, post, term, remnant) = getInv(rest)
+        val phis = args.toList map { arg => pyIsTrue(pymap(arg)) }
+        (pre, phis ++ post, term, remnant)
+
+      case Ast.stmt.Expr(sugar.Call("decreases", Seq(arg))) :: rest =>
+        val (inv, post, term, remnant) = getInv(rest)
+        (inv, post, pyGetInt(pymap(arg)) :: term, remnant)
+
+      case _ =>
+        (Nil, Nil, Nil, body.toList flatMap stmts)
     }
 }

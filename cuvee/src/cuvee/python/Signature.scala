@@ -6,10 +6,10 @@ import cuvee.pure.Assoc
 import cuvee.pure.Var
 
 class Signature(state: State) {
-  val value = state.sort("pyValue")
+  val pyValue = state.sort("pyValue")
   val pyNone = state.funs("pyNone", 0)
 
-  val pyResult = Var("pyResult", value)
+  val pyResult = Var("pyResult", pyValue)
 
   val int = state.sort("Int")
   val pyInt = state.funs("pyInt", 1)
