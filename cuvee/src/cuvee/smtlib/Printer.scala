@@ -194,7 +194,7 @@ object Printer extends cuvee.util.Printer {
     case lit: sexpr.Lit  => lines(lit.toString) // TODO which toString is this?
     case sexpr.Kw(name)  => parens(":" + name)
     case sexpr.Id(name)  => parens(name)
-    case sexpr.App(args) => parens(args)
+    case sexpr.App(args @ _*) => lines(args.toList)
 
     // Applications, either represented by a pair (a, b) or a list
     case (a, b)      => printApp(lines(a) ++ lines(b))
