@@ -21,6 +21,7 @@ class Config {
   var eval = false
   var annotate = false
 
+  var rewrite = false
   var lemmas = false
 
   var prove = "none"
@@ -68,6 +69,9 @@ class Config {
     },
     option("-lemmas", "infer lemmas") {
       lemmas = true
+    },
+    option("-rewrite", "infer and apply rewrite rules from axioms") {
+      rewrite = true
     },
     option("-eval", "evaluate correctness of programs to expressions") {
       eval = true
@@ -124,16 +128,16 @@ object Config {
       case "z3" =>
         val solver = Solver.z3()
         val prover = Prover.fromSolver(solver, config.induct)
-        sink = new Incremental(new Prove(prover), sink)
+        sink = new Incremental(new Prove(prover, config.rewrite), sink)
 
       case "dummy" =>
         val solver = Solver.dummy
         val prover = Prover.fromSolver(solver, config.induct)
-        sink = new Incremental(new Prove(prover), sink)
+        sink = new Incremental(new Prove(prover, config.rewrite), sink)
 
       case "dump" =>
         val prover = Prover.dump("./lemma")
-        sink = new Incremental(new Prove(prover), sink)
+        sink = new Incremental(new Prove(prover, config.rewrite), sink)
 
       case _ =>
     }

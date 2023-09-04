@@ -9,8 +9,12 @@ import cuvee.pure._
 import cuvee.sub
 import cuvee.smtlib.Assert
 
-class Prove(prover: Prover, proveNegatedAsserts: Boolean = true) extends Stage {
+class Prove(prover: Prover, rewrite: Boolean, proveNegatedAsserts: Boolean = true) extends Stage {
+  var rules: List[Rule] = Nil
+
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+    rules ++= Rewrite.from(cmds, state)
+
     cmds flatMap {
       case cmd @ Lemma(expr, tactic, assert) =>
         val goal = Prop.from(expr)
