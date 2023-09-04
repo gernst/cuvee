@@ -24,8 +24,10 @@ class Exprs(val sig: Signature) {
   object sugar {
     object Call {
       def unapply(expr: Ast.expr) = expr match {
-        case Ast.expr.Call(Ast.expr.Name(Ast.identifier(id), _), args, _, _, _) => Some((id, args))
-        case _                                                                  => None
+        case Ast.expr.Call(Ast.expr.Name(Ast.identifier(id), _), args, _, _, _) =>
+          Some((id, args))
+        case _ =>
+          None
       }
     }
 
@@ -79,7 +81,7 @@ class Exprs(val sig: Signature) {
     case Ast.expr.Compare(
           sugar.Call("type", Seq(arg1)),
           Seq(Ast.cmpop.Eq),
-          sugar.Call("type", Seq(arg2))
+          Seq(sugar.Call("type", Seq(arg2)))
         ) =>
       compareTypes(arg1, arg2)
 
@@ -93,7 +95,7 @@ class Exprs(val sig: Signature) {
     case Ast.expr.Compare(
           sugar.Call("type", Seq(arg1)),
           Seq(Ast.cmpop.NotEq),
-          sugar.Call("type", Seq(arg2))
+          Seq(sugar.Call("type", Seq(arg2)))
         ) =>
       pyNot(compareTypes(arg1, arg2))
 
@@ -230,7 +232,7 @@ class Exprs(val sig: Signature) {
       )
   }
 
-  def formal(name: Ast.expr.Name) = 
+  def formal(name: Ast.expr.Name) =
     Var(name.id.name, pyValue)
 
   /* Python lists with a static length, defined via requires.

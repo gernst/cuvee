@@ -30,10 +30,8 @@ class Signature(state: State) {
   val pyIsTrue = state.funs("pyIsTrue", 1)
 
   val pyIte = state.funs("pyIte", 3)
-  object pyAnd
-      extends Sugar.commutative(state.funs("pyAnd", 2), pyTrue(), Assoc.right)
-  object pyOr
-      extends Sugar.commutative(state.funs("pyOr", 2), pyFalse(), Assoc.right)
+  object pyAnd extends Sugar.commutative(state.funs("pyAnd", 2), pyTrue(), Assoc.right)
+  object pyOr extends Sugar.commutative(state.funs("pyOr", 2), pyFalse(), Assoc.right)
   val pyNot = state.funs("pyNot", 1)
   val pyImplies = state.funs("pyImplies", 2)
 
