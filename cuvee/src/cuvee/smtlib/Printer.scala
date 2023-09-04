@@ -129,8 +129,9 @@ object Printer extends cuvee.util.Printer {
         }
         k.name :: sels_
       }
+
       if (params.isEmpty)
-        wrapper(constrs_)
+        lines(constrs_)
       else
         wrapper("par", params, constrs_)
     case Param(name)     => lines(name)
