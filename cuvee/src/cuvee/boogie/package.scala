@@ -73,5 +73,5 @@ package object boogie {
   }
 
   /** The default printer to use: Prints s-expressions */
-  implicit val printer: cuvee.util.Printer = Printer
+  implicit val printer: cuvee.util.Printer = cuvee.boogie.Printer
 }

@@ -2,29 +2,14 @@ package cuvee.pure
 
 import cuvee.StringOps
 import cuvee.error
-import cuvee.sexpr
+import cuvee.util
 import cuvee.boogie
 import cuvee.util.Name
 import cuvee.util.Alpha
 
-sealed trait Type extends Type.term with sexpr.Syntax with boogie.Syntax {}
+sealed trait Type extends Type.term with util.Syntax with boogie.Syntax {}
 
-case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends sexpr.Syntax {
-  def sexpr = {
-    val constrs_ = for ((k, sels) <- constrs) yield {
-      val sels_ = for (sel <- sels) yield {
-        List(sel.name, sel.res)
-      }
-
-      k.name :: sels_
-    }
-
-    if (params.isEmpty)
-      constrs_
-    else
-      List("par", params, constrs_)
-  }
-}
+case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends util.Syntax
 
 object Type extends Alpha[Type, Param] {
   case class CannotUnify(reason: String) extends Exception
@@ -169,7 +154,6 @@ case class Param(name: Name) extends Type with Type.x {
     types exists (this in _)
   }
 
-  def sexpr = name
   def bexpr = List(name)
   override def toString = name.toString
 }
@@ -201,12 +185,6 @@ case class Sort(con: Con, args: List[Type]) extends Type {
     Sort(con, args rename re)
   def subst(su: Map[Param, Type]) =
     Sort(con, args subst su)
-
-  def sexpr =
-    if (args.isEmpty)
-      con.name
-    else
-      con.name :: args
 
   def bexpr =
     if (args.isEmpty)

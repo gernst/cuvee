@@ -2,11 +2,11 @@ package cuvee.pure
 
 import cuvee.smtlib.DeclareFun
 import cuvee.boogie
-import cuvee.sexpr
+import cuvee.util
 import cuvee.StringOps
 import cuvee.util.Name
 
-case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie.Syntax {
+case class Inst(fun: Fun, ty: Map[Param, Type]) extends util.Syntax with boogie.Syntax {
   require(
     ty.keySet == fun.bound,
     "some uninstantiated parameters " + ty.keySet + " for " + fun
@@ -25,8 +25,6 @@ case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie
     App(this, args.toList)
   def subst(su: Map[Param, Type]) =
     Inst(fun, ty map { case (p, t) => (p, t subst su) })
-
-  def sexpr = List("as", fun.name, res)
 
   val boogieOperators = boogie.Parser.translate.map(_.swap)
   def bexpr = List(boogieOperators.getOrElse(fun.name.name, fun.name))

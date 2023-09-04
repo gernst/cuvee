@@ -130,7 +130,7 @@ object Proving {
         rec(prop, tactic, depth + 1)
       }) filter (_ != Atom(True))) match {
         case Nil             => Atom(True)
-        case remaining_goals => Conj.from(remaining_goals map (_.toExpr))
+        case remaining_goals => ??? // Conj.from(remaining_goals map (_.toExpr))
       }
     }
 

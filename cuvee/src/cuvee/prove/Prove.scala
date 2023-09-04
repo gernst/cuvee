@@ -13,12 +13,12 @@ class Prove(prover: Prover, proveNegatedAsserts: Boolean = true) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
     cmds flatMap {
       case cmd @ Lemma(expr, tactic, assert) =>
-        val goal = Disj.from(expr)
+        val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, tactic, state) if goal_ != Atom.t)
           yield Lemma(goal_.toExpr, None, assert)
 
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
-        val goal = Disj.from(expr)
+        val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, None, state))
           yield Assert(Not(goal_.toExpr))
 

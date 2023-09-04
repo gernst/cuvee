@@ -32,11 +32,11 @@ object Test extends Main {
           println("--------------  is true  --------------")
           println(slv.isTrue(phi))
           println("--------------  to Disj  --------------")
-          println(Disj.from(phi))
+          println(Prop.from(phi))
           println("---------------  prove  ---------------")
-          val disj = Disj.from(phi);
+          val disj = Prop.from(phi);
           println(disj)
-          val disj_ = prover.prove(disj, null)
+          val disj_ = prover.reduce(disj, null)
           println(disj_)
           println(disj_.toExpr)
           // println("-------------  disprove  --------------")
