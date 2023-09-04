@@ -25,27 +25,28 @@ object Printer extends cuvee.util.Printer {
     // Name
     case n: Name => List(cuvee.sexpr.mangle(n.toLabel))
     // smtlib.Cmd
-    case Success              => lines("success")
-    case Unsupported          => lines("unsupported")
-    case Error(info)          => wrapper2("error")(info)
-    case Sat                  => lines("sat")
-    case Unsat                => lines("unsat")
-    case Unknown              => lines("unknown")
-    case Model(defs)          => wrapper2("model")(defs)
-    case Labels               => wrapper("labels")
-    case SetLogic(logic)      => wrapper("set-logic", logic)
-    case SetOption(attr, arg) => wrapper("set-option", ":" + attr, arg)
-    case GetInfo(attr)        => wrapper("get-info", ":" + attr)
-    case Push(depth)          => wrapper("push", depth)
-    case Pop(depth)           => wrapper("pop", depth)
-    case GetModel             => wrapper("get-model")
-    case Exit                 => wrapper("exit")
-    case Reset                => wrapper("reset")
-    case Assert(expr)         => wrapper("assert", expr)
-    case CheckSat             => wrapper("check-sat")
-    case Lemma(expr, _, _)    => wrapper("lemma", expr)
-    case SetInfo(attr, arg) if arg == None => wrapper("set-info", ":" + attr)
-    case SetInfo(attr, arg) => wrapper("set-info", ":" + attr, arg)
+    case Success                  => lines("success")
+    case Unsupported              => lines("unsupported")
+    case Error(info)              => wrapper2("error")(info)
+    case Sat                      => lines("sat")
+    case Unsat                    => lines("unsat")
+    case Unknown                  => lines("unknown")
+    case Model(defs)              => wrapper2("model")(defs)
+    case Labels                   => wrapper("labels")
+    case SetLogic(logic)          => wrapper("set-logic", logic)
+    case SetOption(attr, arg)     => wrapper("set-option", ":" + attr, arg)
+    case GetInfo(attr)            => wrapper("get-info", ":" + attr)
+    case Push(depth)              => wrapper("push", depth)
+    case Pop(depth)               => wrapper("pop", depth)
+    case GetModel                 => wrapper("get-model")
+    case Exit                     => wrapper("exit")
+    case Reset                    => wrapper("reset")
+    case Assert(expr)             => wrapper("assert", expr)
+    case CheckSat                 => wrapper("check-sat")
+    case Lemma(expr, _, _)        => wrapper("lemma", expr)
+    case SetInfo(attr, None)      => wrapper("set-info", ":" + attr)
+    case SetInfo(attr, Some(arg)) => wrapper("set-info", ":" + attr, arg)
+
     case DeclareSort(name, arity) =>
       wrapper("declare-sort", name, arity)
     case DefineSort(name, params, body) =>
@@ -80,7 +81,7 @@ object Printer extends cuvee.util.Printer {
           wrapper("define-proc", in.asFormals, out.asFormals, body)
         case (Nil, Some(Spec(mod, pre, post))) =>
           wrapper(
-            "declare-proc",
+            "define-proc",
             in.asFormals,
             out.asFormals,
             ":modifies",
@@ -95,24 +96,29 @@ object Printer extends cuvee.util.Printer {
     // pure.Expr
     case Var(name, _)          => lines(name)
     case Lit(a, _)             => lines(a.toString)
-    case Is(arg, fun)          => wrapper(wrapper("_", "is", fun.name), arg)
+    case Is(arg, fun)          => wrapper(List("_", "is", fun.name), arg)
     case Case(pat, expr)       => wrapper(pat, expr)
     case Match(expr, cases, _) => wrapper("match", expr, cases)
     case LetEq(x, e)           => wrapper(x, e)
     case Let(eqs, body)        => wrapper("let", eqs, body)
     case Note(expr, attr) =>
-      wrapper2("!", expr)(attr) // TODO was comment: def sexpr = "!" :: expr :: attr FIX: it should actually be like that
+      wrapper2("!", expr)(
+        attr
+      ) // TODO was comment: def sexpr = "!" :: expr :: attr FIX: it should actually be like that
     case Distinct(exprs) => wrapper2("distinct")(exprs)
     case Bind(quant, formals, body, _) =>
       wrapper(quant.name, formals.asFormals, body)
-    case app@App(inst, args) => // TODO: what about this? ANSWER: this is the object being matched, we can bind it as shown
+    case app @ App(
+          inst,
+          args
+        ) => // TODO: what about this? ANSWER: this is the object being matched, we can bind it as shown
       app match {
         case And(phis)  => wrapper2("and")(phis)
         case Or(phis)   => wrapper2("or")(phis)
-        case Const(arg) => wrapper(wrapper("as", "const", inst.res), arg)
+        case Const(arg) => wrapper(List("as", "const", inst.res), arg)
         case _ if args.isEmpty && inst.params.nonEmpty => lines(inst)
         case _ if args.isEmpty                         => lines(inst.fun.name)
-        case _ => wrapper2(inst.fun.name)(args)
+        case _                                         => wrapper2(inst.fun.name)(args)
       }
     // pure.Fun
     case Inst(fun, ty) => wrapper("as", fun.name, fun.res subst ty)
@@ -150,7 +156,7 @@ object Printer extends cuvee.util.Printer {
     case While(test, body, _, inv, sum, _) =>
       wrapper("while", test, body, ":invariant", inv, ":summary", sum)
     // sexpr.Expr
-    case lit: sexpr.Lit => lines(lit.toString) // TODO which toString is this?
+    case lit: sexpr.Lit  => lines(lit.toString) // TODO which toString is this?
     case sexpr.Kw(name)  => wrapper(":" + name)
     case sexpr.Id(name)  => wrapper(name)
     case sexpr.App(args) => wrapper(args)
