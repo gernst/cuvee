@@ -20,6 +20,9 @@ object Simplify {
     case Forall(vars, phi) => forall(vars, simplify(phi, rules, constrs))
     case Exists(vars, phi) => exists(vars, simplify(phi, rules, constrs))
 
+    case Is(arg, fun) =>
+      is(arg, fun)
+
     case Eq(left, right) if left.typ == Sort.bool =>
       eqv(simplify(left, rules, constrs), simplify(right, rules, constrs))
 
@@ -45,12 +48,19 @@ object Simplify {
       expr
   }
 
-  // TODO: maybe simplify should be part of Prop and expr, because this sucks:
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
+    case Atom(expr, None) =>
+      Prop.from(simplify(expr, rules, constrs))
+
     case Atom(expr, model) =>
       Atom(simplify(expr, rules, constrs), model)
+
     case Disj(xs, assms, concls) =>
-      Disj.reduce(xs, assms map (simplify(_, rules, constrs)), concls map (simplify(_, rules, constrs)))
+      Disj.reduce(
+        xs,
+        assms map (simplify(_, rules, constrs)),
+        concls map (simplify(_, rules, constrs))
+      )
   }
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
@@ -61,6 +71,17 @@ object Simplify {
   def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Expr] = {
     for (expr <- exprs)
       yield simplify(expr, rules, constrs)
+  }
+
+  def is(arg: Expr, fun: Fun): Expr = if(true) {
+    Is(arg, fun)
+  } else {
+    val ty = Type.bind(fun.res, arg.typ)
+    val unbound = arg.typ.free -- ty.keySet
+    require(unbound.isEmpty, "unbound type parameters in " + Is(arg, fun))
+    val ts = fun.args subst ty
+    val xs = Expr.vars("x", ts)
+    Exists(xs, Eq(arg, App(fun, xs)))
   }
 
   def eq(left: Expr, right: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = {

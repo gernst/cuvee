@@ -9,16 +9,25 @@ import cuvee.pure._
 import cuvee.sub
 import cuvee.smtlib.Assert
 
-class Prove(prover: Prover, rewrite: Boolean, proveNegatedAsserts: Boolean = true) extends Stage {
+class Prove(
+    prover: Prover,
+    simplify: Boolean,
+    rewrite: Boolean,
+    proveNegatedAsserts: Boolean = true
+) extends Stage {
   var rules: List[Rule] = Nil
+  var rws: Map[Fun, List[Rule]] = Map()
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
-    rules ++= Rewrite.from(cmds, state)
+    if (rewrite) {
+      rules ++= Rewrite.from(cmds, state) // add some new rewrite rules
+      rws = rules.groupBy(_.fun) // update rule index
+    }
 
     cmds flatMap {
       case cmd @ Lemma(expr, tactic, assert) =>
         val goal = Prop.from(expr)
-        for (goal_ <- reduce(goal, tactic, state) if goal_ != Atom.t)
+        for (goal_ <- reduce(goal, tactic, state) if !goal_.isTrue)
           yield Lemma(goal_.toExpr, None, assert)
 
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
@@ -32,7 +41,10 @@ class Prove(prover: Prover, rewrite: Boolean, proveNegatedAsserts: Boolean = tru
     }
   }
 
-  def auto(goal: Prop, state: State) = {
+  def auto(goal: Prop, state: State) = if (simplify) {
+    val goal_ = Simplify.simplify(goal, rws, state.constrs)
+    prover.reduce(goal_, state)
+  } else {
     prover.reduce(goal, state)
   }
 

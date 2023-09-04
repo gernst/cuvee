@@ -5,6 +5,7 @@ import cuvee.boogie
 import cuvee.smtlib.Model
 
 sealed trait Prop extends util.Syntax with boogie.Syntax {
+  def isTrue: Boolean
   def toExpr: Expr
   def rename(re: Map[Var, Var]): Prop
   def subst(su: Map[Var, Expr]): Prop
@@ -143,6 +144,7 @@ case class Atom(phi: Expr, cex: Option[Model] = None) extends Prop {
     case _ =>
   }
 
+  def isTrue: Boolean = (phi == True)
   // def text = Printer.atom(expr)
   def bound = Set()
   def toExpr = phi
@@ -170,6 +172,7 @@ case class Disj(xs: List[Var], assms: List[Prop], concls: List[Conj])
     with Expr.bind[Disj] {
   require(xs == xs.distinct, "duplicate vars in " + xs)
 
+  def isTrue = false
   def bound = xs.toSet
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =
     Disj(xs rename a, assms map (_ rename re), concls map (_ rename re))
@@ -285,6 +288,10 @@ object Disj {
       case Atom(True, _) :: rest =>
         reduce(rest, post, xs, assms, concls)
 
+      case Disj(Nil, Nil, List(conj)) :: rest =>
+        val Conj(ys, props) = conj refresh xs
+        reduce(props ++ rest, post, xs ++ ys, assms, concls)
+
       case prop :: rest =>
         reduce(rest, post, xs, assms ++ List(prop), concls)
     }
@@ -303,10 +310,10 @@ object Disj {
       case Nil =>
         Disj(xs, assms, concls)
 
-      case Conj(_, List(Atom(True, _))) :: rest =>
+      case Conj(_, Nil) :: rest =>
         Atom.t
 
-      case Conj(_, Nil) :: rest =>
+      case Conj(_, List(Atom(False, _))) :: rest =>
         reduce(rest, xs, assms, concls)
 
       case conj :: rest =>
@@ -431,6 +438,10 @@ object Conj {
 
     case Atom(True, _) :: rest =>
       reduce(rest, xs, props)
+
+    case Disj(Nil, Nil, List(conj)) :: rest =>
+      val Conj(ys, add) = conj refresh xs
+      reduce(add ++ rest, xs ++ ys, props)
 
     case prop :: rest =>
       reduce(rest, xs, props ++ List(prop))

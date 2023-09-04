@@ -546,12 +546,6 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // uh oh mess with bound variables
 
-  def refresh(avoid: Iterable[Var]) = {
-    val xs = avoid filter bound
-    val re = Expr.fresh(xs)
-    rename(re)
-  }
-
   def refreshAll = {
     val re = Expr.fresh(formals)
     rename(re)

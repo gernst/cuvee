@@ -34,15 +34,13 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
     def rename(a: Map[V, V], re: Map[V, V]): A
     def subst(a: Map[V, V], su: Map[V, E]): A
 
-    def avoid(xs: Set[V]) = {
-      val captured = bound & xs
+    def avoid(xs: Iterable[V]) = {
+      val captured = xs filter bound
       context.fresh(captured)
     }
 
-    def refresh = {
-      val xs = bound
-      val alpha = avoid(xs)
-      rename(alpha, alpha)
+    def refresh(xs: Iterable[V]) = {
+      rename(avoid(xs))
     }
 
     def rename(re: Map[V, V]): A = {

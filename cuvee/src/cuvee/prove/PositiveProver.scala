@@ -42,7 +42,7 @@ class PositiveProver(solver: Solver) extends Prover {
       case Sat =>
         Atom(phi, Some(solver.model(state)))
       case Unsat =>
-        Atom(True)
+        Atom.t
       case Unknown =>
         Atom(phi)
     }
