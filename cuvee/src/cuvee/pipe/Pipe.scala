@@ -3,13 +3,22 @@ package cuvee.pipe
 import cuvee.util.Printer
 import cuvee.smtlib._
 import cuvee.State
+import cuvee.sexpr.Id
 
 object Pipe {
   var debug = true
+  var printSuccess = false
 
   def run(source: Source, sink: Sink, report: Report) {
-    for (cmd <- source) {
-      report { sink.exec(cmd, source.state) }
+    source foreach {
+      case SetOption("print-success", Id("true")) =>
+        report.printSuccess = true
+      case SetOption("print-success", Id("false")) =>
+        report.printSuccess = false
+      case cmd =>
+        report {
+          sink.exec(cmd, source.state)
+        }
     }
 
     sink.done(source.state)
@@ -66,11 +75,15 @@ class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends S
     case Push(n) =>
       val add = List.tabulate(n) { _ => stack.head.copy }
       stack = add ++ stack
-      sink.exec(cmd, out)
+      pending = cmd :: pending
+      Success
+    // sink.exec(cmd, out)
 
     case Pop(n) =>
       stack = stack drop n
-      sink.exec(cmd, out)
+      pending = cmd :: pending
+      Success
+    // sink.exec(cmd, out)
 
     // check-sat flushes, lemmas don't
     case CheckSat =>

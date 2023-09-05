@@ -15,6 +15,8 @@ sealed trait Res extends util.Syntax {}
 sealed trait IsSat extends Res
 sealed trait Ack extends Res
 
+case class Info(arg: Any) extends Res
+
 case object Success extends Ack
 case object Unsupported extends Ack
 
@@ -50,6 +52,10 @@ sealed trait Decl extends Cmd
 sealed trait Ctrl extends Cmd
 
 case object Labels extends Cmd {
+  def bexpr = cuvee.undefined
+}
+
+case class Labels(labels: List[String]) extends Res {
   def bexpr = cuvee.undefined
 }
 

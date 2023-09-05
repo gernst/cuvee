@@ -15,24 +15,23 @@ class Prove(
     rewrite: Boolean,
     proveNegatedAsserts: Boolean = true
 ) extends Stage {
-  var rules: List[Rule] = Nil
-  var rws: Map[Fun, List[Rule]] = Map()
-
   def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
-    if (rewrite) {
-      rules ++= Rewrite.from(cmds, state) // add some new rewrite rules
-      rws = rules.groupBy(_.fun) // update rule index
+    val rws = if (rewrite) {
+      val rules = Rewrite.from(prefix ++ cmds, state) // add some new rewrite rules
+      rules.groupBy(_.fun) // update rule index
+    } else {
+      Map[Fun, List[Rule]]()
     }
 
     cmds flatMap {
       case cmd @ Lemma(expr, tactic, assert) =>
         val goal = Prop.from(expr)
-        for (goal_ <- reduce(goal, tactic, state) if !goal_.isTrue)
+        for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
           yield Lemma(goal_.toExpr, None, assert)
 
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
         val goal = Prop.from(expr)
-        for (goal_ <- reduce(goal, None, state))
+        for (goal_ <- reduce(goal, None, rws, state))
           yield Assert(Not(goal_.toExpr))
 
       case cmd =>
@@ -41,50 +40,57 @@ class Prove(
     }
   }
 
-  def auto(goal: Prop, state: State) = if (simplify) {
+  def auto(goal: Prop, rws: Map[Fun, List[Rule]], state: State) = if (simplify) {
     val goal_ = Simplify.simplify(goal, rws, state.constrs)
     prover.reduce(goal_, state)
   } else {
     prover.reduce(goal, state)
   }
 
-  def reduce(goal: Prop, tactic: Option[Tactic], state: State): List[Prop] = tactic match {
+  def reduce(
+      goal: Prop,
+      tactic: Option[Tactic],
+      rws: Map[Fun, List[Rule]],
+      state: State
+  ): List[Prop] = tactic match {
     case None =>
-      List(auto(goal, state))
+      List(auto(goal, rws, state))
 
     case Some(tactic) =>
-      reduce(goal, tactic, state)
+      reduce(goal, tactic, rws, state)
   }
 
-  def reduce(goal: Prop, tactic: Tactic, state: State): List[Prop] = tactic match {
-    case NoAuto(tactic) =>
-      noauto(goal, tactic, state)
+  def reduce(goal: Prop, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Prop] =
+    tactic match {
+      case NoAuto(tactic) =>
+        noauto(goal, tactic, rws, state)
 
-    case _: Induction | _: Show =>
-      noauto(goal, tactic, state)
+      case _: Induction | _: Show =>
+        noauto(goal, tactic, rws, state)
 
-    case Auto =>
-      List(auto(goal, state))
+      case Auto =>
+        List(auto(goal, rws, state))
 
-    case Sorry =>
-      List(goal)
+      case Sorry =>
+        List(goal)
 
-    case _ =>
-      noauto(auto(goal, state), tactic, state)
-  }
+      case _ =>
+        noauto(auto(goal, rws, state), tactic, rws, state)
+    }
 
-  def noauto(goal: Prop, tactic: Tactic, state: State): List[Prop] = tactic match {
-    case NoAuto(tactic) =>
-      noauto(goal, tactic, state) // yeah, you can write noauto twice
+  def noauto(goal: Prop, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Prop] =
+    tactic match {
+      case NoAuto(tactic) =>
+        noauto(goal, tactic, rws, state) // yeah, you can write noauto twice
 
-    case Auto =>
-      ??? // should never happen
+      case Auto =>
+        ??? // should never happen
 
-    case _ =>
-      for (
-        (subgoal, subtactic) <- tactic.apply(state, goal);
-        goal_ <- reduce(subgoal, subtactic, state)
-      )
-        yield goal_
-  }
+      case _ =>
+        for (
+          (subgoal, subtactic) <- tactic.apply(state, goal);
+          goal_ <- reduce(subgoal, subtactic, rws, state)
+        )
+          yield goal_
+    }
 }

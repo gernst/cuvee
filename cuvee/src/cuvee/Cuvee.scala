@@ -104,6 +104,9 @@ class Config {
       action()
       configure(rest)
 
+    case first :: rest if first startsWith "-" =>
+      error("not an option: " + first)
+
     case path :: rest =>
       require(file.isEmpty, "only a single file is allowed, already given: " + file.get)
       file = Some(path)

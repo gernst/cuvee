@@ -50,6 +50,8 @@ object Printer extends cuvee.util.Printer {
     // smtlib.Cmd
     case Success                  => just("success")
     case Unsupported              => just("unsupported")
+    case Info(arg)                => lines(arg)
+    case Labels(labels)           => parens2("labels")(labels)
     case Error(info)              => parens2("error")(info)
     case Sat                      => just("sat")
     case Unsat                    => just("unsat")

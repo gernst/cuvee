@@ -35,6 +35,12 @@ object Parser {
       case _ =>
         error("invalid status: " + from)
     }
+
+  def labels(from: Expr): Labels =
+    from match {
+      case App(Id("labels"), ids @ _*) =>
+        Labels(ids.toList map { case Id(name) => name })
+    }
 }
 
 class Parser(init: State) {
@@ -77,6 +83,16 @@ class Parser(init: State) {
 
       case App(Id("pop"), Lit.num(digits)) =>
         val n = digits.toInt
+        stack = stack drop n
+        Pop(n)
+
+      case App(Id("push")) =>
+        val n = 1
+        stack = List.tabulate(n)(_ => stack.head) ++ stack
+        Push(n)
+
+      case App(Id("pop")) =>
+        val n = 1
         stack = stack drop n
         Pop(n)
 
