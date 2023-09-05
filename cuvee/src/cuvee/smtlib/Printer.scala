@@ -191,9 +191,9 @@ object Printer extends cuvee.util.Printer {
       parens("while", test, body, ":invariant", inv, ":summary", sum)
 
     // sexpr.Expr
-    case lit: sexpr.Lit  => lines(lit.toString) // TODO which toString is this?
-    case sexpr.Kw(name)  => parens(":" + name)
-    case sexpr.Id(name)  => parens(name)
+    case lit: sexpr.Lit       => just(lit.toString) // TODO which toString is this?
+    case sexpr.Kw(name)       => just(":" + name)
+    case sexpr.Id(name)       => just(cuvee.sexpr.mangle(name))
     case sexpr.App(args @ _*) => lines(args.toList)
 
     // Applications, either represented by a pair (a, b) or a list
