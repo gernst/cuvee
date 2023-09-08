@@ -38,6 +38,9 @@ object Prop {
       case False :: rest =>
         Atom.t
 
+      case Note(phi, _) :: rest =>
+        from(phi :: rest, post, xs, assms, concls)
+
       case Not(phi) :: rest =>
         from(rest, phi :: post, xs, assms, concls)
 
@@ -75,17 +78,24 @@ object Prop {
       concls: List[Conj]
   ): Prop = {
     post match {
-      case Nil if assms.isEmpty && concls.isEmpty =>
-        Atom.f
-
       case Nil =>
-        Disj(xs, assms, concls)
+        (assms, concls) match {
+          case (Nil, Nil) =>
+            Atom.f
+          case (Nil, List(Conj(Nil, List(prop)))) =>
+            prop
+          case _ =>
+            Disj(xs, assms, concls)
+        }
 
       case False :: rest =>
         from(rest, xs, assms, concls)
 
       case True :: rest =>
         Atom.t
+
+      case Note(phi, _) :: rest =>
+        from(phi :: rest, xs, assms, concls)
 
       case Not(phi) :: rest =>
         from(List(phi), rest, xs, assms, concls)
@@ -103,6 +113,22 @@ object Prop {
         val Forall(ys, body) = expr refresh xs
         from(body :: rest, xs ++ ys, assms, concls)
 
+      case (let @ Let(_, _)) :: rest =>
+        val Let(eqs, body) = let refresh xs
+        val (keep, inline) = eqs partition { case LetEq(x, e) =>
+          e.free contains x
+        }
+
+        val ys = keep map (_.x)
+        val phis = keep map (_.toEq)
+
+        val su = inline map { case LetEq(x, e) =>
+          (x, e)
+        }
+
+        val body_ = body subst su.toMap
+        from(phis, body_ :: rest, xs ++ ys, assms, concls)
+
       // case And(phis) :: rest =>
       //   val prop = Conj.from(phis)
       //   from(rest, xs, assms, concls ++ List(prop))
@@ -118,10 +144,10 @@ object Prop {
 
       case phi :: rest =>
         Conj.from(phi) match {
-          case Conj(_, List(Atom(True, _))) =>
+          case Conj(_, Nil) =>
             Atom.t
 
-          case Conj(_, Nil) =>
+          case Conj(_, List(Atom(False, _))) =>
             from(rest, xs, assms, concls)
 
           case concl =>
@@ -304,11 +330,15 @@ object Disj {
       concls: List[Conj]
   ): Prop = {
     post match {
-      case Nil if assms.isEmpty && concls.isEmpty =>
-        Atom.f
-
       case Nil =>
-        Disj(xs, assms, concls)
+        (assms, concls) match {
+          case (Nil, Nil) =>
+            Atom.f
+          case (Nil, List(Conj(Nil, List(prop)))) =>
+            prop
+          case _ =>
+            Disj(xs, assms, concls)
+        }
 
       case Conj(_, Nil) :: rest =>
         Atom.t
@@ -340,17 +370,24 @@ object Conj {
       xs: List[Var],
       props: List[Prop]
   ): Conj = pos match {
-    case Nil if props.isEmpty =>
-      Conj.t
-
     case Nil =>
-      Conj(xs, props)
+      props match {
+        case Nil =>
+          Conj.t
+        case List(Disj(Nil, Nil, List(conj))) =>
+          conj
+        case _ =>
+          Conj(xs, props)
+      }
 
     case False :: rest =>
       Conj.f
 
     case True :: rest =>
       from(rest, xs, props)
+
+    case Note(phi, _) :: rest =>
+      from(phi :: rest, xs, props)
 
     case Not(phi) :: rest =>
       from(List(phi), rest, xs, props)
@@ -393,11 +430,17 @@ object Conj {
     case False :: rest =>
       from(rest, pos, xs, props)
 
+    case Note(phi, _) :: rest =>
+      from(phi :: rest, pos, xs, props)
+
     case Not(phi) :: rest =>
       from(rest, phi :: pos, xs, props)
 
     case Or(phis) :: rest =>
       from(phis ++ rest, pos, xs, props)
+
+    case Imp(phi, psi) :: rest =>
+      from(psi :: rest, phi :: pos, xs, props)
 
     case (expr @ Forall(_, _)) :: rest =>
       val Forall(ys, body) = expr refresh xs
@@ -427,11 +470,15 @@ object Conj {
       xs: List[Var],
       props: List[Prop]
   ): Conj = pos match {
-    case Nil if props.isEmpty =>
-      Conj.t
-
     case Nil =>
-      Conj(xs, props)
+      props match {
+        case Nil =>
+          Conj.t
+        case List(Disj(Nil, Nil, List(conj))) =>
+          conj
+        case _ =>
+          Conj(xs, props)
+      }
 
     case Atom(False, _) :: rest =>
       Conj.f

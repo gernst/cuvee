@@ -32,7 +32,7 @@ class Prove(
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
         val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, None, rws, state))
-          yield Assert(Not(goal_.toExpr))
+          yield Assert(Simplify.not(goal_.toExpr))
 
       case cmd =>
         prover.exec(cmd, state)

@@ -40,6 +40,10 @@ object Parser {
     from match {
       case App(Id("labels"), ids @ _*) =>
         Labels(ids.toList map { case Id(name) => name })
+      case App(Id("error"), args @ _*) =>
+        Error(args.toList)
+      case _ =>
+        error("invalid label: " + from)
     }
 }
 

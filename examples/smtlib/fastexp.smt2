@@ -14,7 +14,7 @@
 (set-option :smt.QI.EAGER_THRESHOLD 100)
 (set-option :TYPE_CHECK true)
 (set-option :smt.BV.REFLECT true)
-(set-option :model_compress false)
+; (set-option :model_compress false)
 ; done setting options
 
 
@@ -4313,7 +4313,7 @@ PreconditionGeneratedEntry_correct)))))))
 (set-option :smt.QI.EAGER_THRESHOLD 100)
 (set-option :TYPE_CHECK true)
 (set-option :smt.BV.REFLECT true)
-(set-option :model_compress false)
+; (set-option :model_compress false)
 ; done setting options
 
 
@@ -8582,7 +8582,7 @@ PreconditionGeneratedEntry_correct))
 (set-option :smt.QI.EAGER_THRESHOLD 100)
 (set-option :TYPE_CHECK true)
 (set-option :smt.BV.REFLECT true)
-(set-option :model_compress false)
+; (set-option :model_compress false)
 ; done setting options
 
 

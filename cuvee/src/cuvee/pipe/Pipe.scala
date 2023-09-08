@@ -21,7 +21,12 @@ object Pipe {
         }
     }
 
-    sink.done(source.state)
+    try {
+      sink.done(source.state)
+    } catch {
+      case e: cuvee.smtlib.Error =>
+        report(e)
+    }
   }
 }
 

@@ -626,7 +626,10 @@ case class LetEq(x: Var, e: Expr) extends util.Syntax with boogie.Syntax {
     LetEq(x rename a, e rename re)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
     LetEq(x rename a, e subst su)
-  def inst(su: Map[Param, Type]) = LetEq(x, e inst su)
+  def inst(su: Map[Param, Type]) = 
+    LetEq(x inst su, e inst su)
+
+  def toEq = Eq(x, e)
 
   def bexpr = cuvee.undefined
 }

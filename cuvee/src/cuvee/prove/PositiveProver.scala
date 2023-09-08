@@ -88,7 +88,7 @@ class PositiveProver(solver: Solver) extends Prover {
 
     case first :: rest =>
       reduce(first, state) match {
-        case Conj(_, Nil) =>
+        case Conj(_, List(Atom(False, _))) =>
           any(rest, state)
 
         case first_ =>
@@ -153,6 +153,7 @@ object PositiveProver {
     }
 
     for ((phi, _) <- phis) {
+      // println(phi)
       val prop = Prop.from(phi)
       val psi = prop.toExpr
 

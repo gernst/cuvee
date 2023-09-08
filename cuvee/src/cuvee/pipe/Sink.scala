@@ -23,14 +23,19 @@ object Sink {
   class print(stream: PrintStream)(implicit printer: Printer) extends Sink {
     def done(state: State) {}
 
+    var status: Res = Unknown
+
     def exec(cmd: Cmd, state: State): Res = {
       for (line <- cmd.lines)
         stream.println(line)
 
       cmd match {
-        case CheckSat => Unknown
-        case GetModel => cuvee.error("no model available")
-        case _        => Success
+        // make sure we report unsat for lemmas proved by Prove
+        case Assert(False) => status = Unsat; Success
+        case Pop(_)        => status = Unknown; Success
+        case CheckSat      => status
+        case GetModel      => cuvee.error("no model available")
+        case _             => Success
       }
     }
   }
