@@ -34,7 +34,8 @@ object Sink {
         case Assert(False) => status = Unsat; Success
         case Pop(_)        => status = Unknown; Success
         case CheckSat      => status
-        case GetModel      => cuvee.error("no model available")
+        case GetModel      => Error("no model available")
+        case Labels        => Error("no labels available")
         case _             => Success
       }
     }

@@ -100,10 +100,10 @@ object Solver {
   object dummy extends Solver {
     def done(state: State) {}
     def ack(cmd: Cmd) = Success
-    def info(attr: String) = Info("no info: " + attr)
     def check() = Unknown
-    def labels(): Labels = cuvee.error("no labels")
-    def model(state: State) = cuvee.error("no model")
+    def info(attr: String) = Error("no such info: " + attr)
+    def labels(): Labels = Error("no labels")
+    def model(state: State) = Error("no model")
   }
 
   def z3(timeout: Int = 1000) =

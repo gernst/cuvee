@@ -25,6 +25,10 @@ object Error extends (List[Any] => Error) {
   def apply(info: List[Any]): Nothing = {
     throw new Error(info)
   }
+
+  def apply(message: String): Nothing = {
+    apply(List(message))
+  }
 }
 
 case object Sat extends IsSat

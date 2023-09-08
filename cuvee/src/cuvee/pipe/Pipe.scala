@@ -22,6 +22,7 @@ object Pipe {
     }
 
     try {
+      // this is not executed per command but aborts the first error
       sink.done(source.state)
     } catch {
       case e: cuvee.smtlib.Error =>
