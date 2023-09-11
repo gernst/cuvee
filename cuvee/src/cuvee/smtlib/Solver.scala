@@ -148,7 +148,7 @@ object Solver {
       for (line <- cmd.lines) {
         out.println(line)
         if (debug)
-          println("> " + line)
+          println(proc.pid + "> " + line)
       }
       out.flush()
     }
@@ -156,7 +156,7 @@ object Solver {
     def read() = {
       val line = res.next()
       if (debug)
-        println("< " + line)
+        println(proc.pid + "< " + line)
       line
     }
 

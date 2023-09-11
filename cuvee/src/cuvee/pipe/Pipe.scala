@@ -34,61 +34,95 @@ object Pipe {
 
 trait Stage {
   // executed with every check-sat command (but not lemmas, they just return success or not)
-  def exec(prefix: List[Cmd], cmds: List[Cmd], in: State, last: Cmd): List[Cmd]
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, in: State): List[Cmd]
 }
 
 class Incremental(stage: Stage, sink: Sink) extends Sink {
   override def toString = "incremental " + stage + " -> " + sink
 
-  class Entry(var prefix: List[Cmd], var pending: List[Cmd], val state: State) {
-    def copy() = new Entry(prefix, pending, state.copy())
+  class Entry(var prefix: List[Cmd], val state: State) {
+    def copy() = new Entry(prefix, state.copy())
   }
 
-  var stack = List(new Entry(Nil, Nil, State.default))
+  var pending: List[Cmd] = Nil
+
+  def reset = List(new Entry(Nil, State.default))
+  var stack = reset
   def top = stack.head
 
   def done(state: State) {
-    flush(state, Exit)
+    flush(Exit, state)
     sink.done(top.state)
   }
 
-  def flush(in: State, last: Cmd) {
-    val add = top.pending.reverse
-    val cmds = stage.exec(top.prefix, add, in, last)
+  var added: Set[AnyRef] = Set()
+
+  def flush(last: Cmd, in: State) {
+    val add = pending.reverse
+    // println("flush")
+    // println("  prefix: " + top.prefix)
+    // println("  add:    " + add)
+
+    val cmds = stage.exec(top.prefix, add, last, in)
+    // println("  cmds:   " + cmds)
 
     top.prefix = top.prefix ++ add
-    top.pending = Nil
+    val distinct = top.prefix.distinct
 
+    if (distinct != top.prefix) {
+      // println(distinct)
+      // println(top.prefix)
+      // println(last)
+      assert(false, "duplicate entries")
+    }
+
+    pending = Nil
     top.state add cmds
     sink.exec(cmds, top.state)
   }
 
-  def exec(cmd: Cmd, in: State) = cmd match {
-    case Push(n) =>
-      flush(in, cmd)
+  def exec(cmd: Cmd, in: State) = {
+    // println(cmd.getClass().getSimpleName())
 
-      val add = List.tabulate(n) { _ => stack.head.copy }
-      stack = add ++ stack
-      sink.exec(cmd, top.state)
+    cmd match {
+      case Push(n) =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
 
-    case Pop(n) =>
-      flush(in, cmd)
+        val add = List.tabulate(n) { _ => stack.head.copy }
+        stack = add ++ stack
+        sink.exec(cmd, top.state)
 
-      stack = stack drop n
-      sink.exec(cmd, top.state)
+      case Pop(n) =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
 
-    // check-sat flushes, lemmas don't
-    case CheckSat =>
-      flush(in, cmd)
-      sink.exec(cmd, top.state)
+        stack = stack drop n
+        sink.exec(cmd, top.state)
 
-    // assume here that the model and labels are provided always by the backend,
-    // perhaps we can find some more flexible option in the future.
-    case Labels | GetModel | _: GetInfo =>
-      sink.exec(cmd, top.state)
+      case Reset =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
+        stack = reset
+        sink.exec(cmd, top.state)
 
-    case _ =>
-      top.pending = cmd :: top.pending
-      Success
+      case Exit =>
+        ???
+
+      // check-sat flushes, lemmas don't
+      case CheckSat =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
+        sink.exec(cmd, top.state)
+
+      // assume here that the model and labels are provided always by the backend,
+      // perhaps we can find some more flexible option in the future.
+      case Labels | GetModel | _: GetInfo =>
+        sink.exec(cmd, top.state)
+
+      case _ =>
+        pending = cmd :: pending
+        Success
+    }
   }
 }

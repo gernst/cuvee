@@ -12,7 +12,7 @@ import cuvee.lemmas.prepare
 object Lemmas extends Stage {
   val rounds = 3
 
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State, last: Cmd) =
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && last == CheckSat) {
       val (decls, defs) = prepare(cmds, state)
       // val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)

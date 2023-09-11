@@ -18,7 +18,13 @@ class Prove(
     proveNegatedAsserts: Boolean = true,
     crosscheckProver: Boolean = true
 ) extends Stage {
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State, last: Cmd) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
+    val results = exec(prefix, cmds, state)
+    prover.exec(last, state)
+    results
+  }
+
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
     val rws = if (rewrite) {
       val rules = Rewrite.from(prefix ++ cmds, state) // add some new rewrite rules
       rules.groupBy(_.fun) // update rule index
@@ -34,15 +40,22 @@ class Prove(
             Lemma(goal_.toExpr, None, assert)
           }
 
+      case cmd @ Assert(Not(App(Inst(fun, _), _)))
+          if proveNegatedAsserts && (rws contains fun) && rws(fun).nonEmpty =>
+        // println(rws(fun))
+        prover.exec(cmd, state)
+        List(cmd)
+
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
         val goal = Prop.from(expr)
         // println("proving " + goal)
+        // println(rws)
         for (goal_ <- reduce(goal, None, rws, state))
           yield {
             val expr_ = goal_.toExpr
 
             if (crosscheckProver) {
-              val solver = Solver.z3()
+              val solver = Solver.z3(timeout = 10000)
               try { solver.exec(prefix ++ cmds, state) }
               catch {
                 case smtlib.Error(info) =>
@@ -55,14 +68,14 @@ class Prove(
                 assert(false, "conversion to prop did not produce original formula!")
               }
 
-
               if (!solver.isTrue(expr_ === goal_.toExpr)) {
                 // println(expr)
                 assert(false, "conversion to prop did not produce reduced formula!")
               }
 
               if (!solver.isTrue(expr === expr_)) {
-                // println(expr)
+                println(expr + " != " + expr_)
+                for ((_, rules) <- rws; eq <- rules) println(eq)
                 assert(false, "reduce did not produce equivalent formulas!")
               }
             }

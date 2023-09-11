@@ -7,7 +7,7 @@ import cuvee.pipe.Stage
 import cuvee.smtlib._
 
 object Eval extends Stage {
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State, last: Cmd) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
     val eval = new Eval(state)
 
     cmds flatMap {
@@ -71,6 +71,9 @@ class Eval(val state: State = State.default) {
     case Is(arg, fun) =>
       Is(eval(arg, scope, st, old), fun)
 
+    case Note(expr, attr) =>
+      Note(eval(expr, scope, st, old), attr)
+
     case Old(expr) =>
       require(
         old.nonEmpty,
@@ -82,17 +85,29 @@ class Eval(val state: State = State.default) {
       val args_ = args map (eval(_, scope, st, old))
       App(inst, args_)
 
-    case bind @ Bind(quant, xs, body, typ) =>
-      // TODO: check if we need to avoid prior logical variables, too?
-      val re = bind.avoid(Expr.free(st))
-      val su = Expr.subst(xs map {
-        case x if re contains x => (x, re(x))
-        case x                  => (x, x)
-      })
+    case Distinct(args) =>
+      val args_ = args map (eval(_, scope, st, old))
+      Distinct(args_)
 
-      val xs_ = xs rename re
+    case bind: Bind =>
+      val zs = Expr.free(st)
+      val Bind(quant, xs, body, typ) = bind refresh zs
+
+      val su = Expr.id(xs)
       val body_ = eval(body, scope ++ su, st, old)
-      Bind(quant, xs_, body_, typ)
+      Bind(quant, xs, body_, typ)
+
+    case let: Let =>
+      val zs = Expr.free(st)
+      val Let(eqs, body) = let refresh zs
+
+      val su = Expr.id(eqs.bound)
+      val eqs_ =
+        for (LetEq(x, e) <- eqs)
+          yield LetEq(x, eval(e, scope, st, old))
+
+      val body_ = eval(body, scope ++ su, st, old)
+      Let(eqs_, body_)
   }
 
   def havoc(xs: List[Var]) = {
