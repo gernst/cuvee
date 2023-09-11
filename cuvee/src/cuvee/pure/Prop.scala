@@ -9,6 +9,14 @@ sealed trait Prop extends util.Syntax with boogie.Syntax {
   def toExpr: Expr
   def rename(re: Map[Var, Var]): Prop
   def subst(su: Map[Var, Expr]): Prop
+
+  def map(f: Atom => Prop): Prop =
+    this match {
+      case atom @ Atom(phi, cex) =>
+        f(atom)
+      case Disj(xs, assms, concls) =>
+        Disj(xs, assms map (_ map f), concls map (_ map f))
+    }
 }
 
 object Prop {
@@ -253,6 +261,9 @@ case class Disj(xs: List[Var], assms: List[Prop], concls: List[Conj])
 //   exists xs. /\ {props}
 case class Conj(xs: List[Var], props: List[Prop]) extends Expr.bind[Conj] {
   require(xs == xs.distinct)
+
+  def map(f: Atom => Prop): Conj =
+    Conj(xs, props map (_ map f))
 
   def bound = xs.toSet
   def rename(a: Map[Var, Var], re: Map[Var, Var]) =

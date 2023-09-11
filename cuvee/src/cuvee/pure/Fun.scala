@@ -66,18 +66,19 @@ case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
   def argsToString =
     args.mkString(" * ") + " -> "
 
-  def in(expr: Expr): Boolean = expr match {
-    case _: Lit | _: Var =>
-      false
-    case App(Inst(fun, _), _) if fun == this =>
-      true
-    case App(_, args) =>
-      args exists (this in _)
-  }
+  def in(expr: Expr): Boolean =
+    expr match {
+      case _: Lit | _: Var                 => false
+      case Note(expr, attr)                => this in expr
+      case Is(arg, fun)                    => (fun == this) || (this in arg)
+      case App(Inst(fun, _), args)         => (fun == this) || (this in args)
+      case Distinct(exprs)                 => this in exprs
+      case Bind(quant, formals, body, typ) => this in body
+      case Let(eqs, body)                  => (eqs exists (this in _.e)) || (this in body)
+    }
 
-  def in(that: List[Expr]): Boolean = {
+  def in(that: List[Expr]): Boolean =
     that exists (this in _)
-  }
 
   override def toString = (params, args) match {
     case (Nil, Nil) =>

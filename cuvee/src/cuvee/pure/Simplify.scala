@@ -2,6 +2,7 @@ package cuvee.pure
 
 import cuvee.smtlib.Model
 import cuvee.pure.True
+import cuvee.Intersect
 
 object Simplify {
   def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
@@ -56,12 +57,68 @@ object Simplify {
     case Atom(expr, model) =>
       Atom(simplify(expr, rules, constrs), model)
 
-    case Disj(xs, assms, concls) =>
-      Disj.reduce(
-        xs,
-        assms map (simplify(_, rules, constrs)),
-        concls map (simplify(_, rules, constrs))
-      )
+    case Disj(xs_, assms_, concls_) =>
+      // TODO:
+      // - substitute equations
+      // - omit unused variables
+      // - pull common antecedents out (A ==> B) /\ (A ==> C) ~~> A ==> (B /\ C)
+      // - shift negations around?
+
+      var xs = xs_
+      var assms = assms_
+      var concls = concls_
+
+      var eqs = assms collect {
+        case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
+        case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
+      }
+
+      val su = Expr.subst(eqs)
+      assms = assms map (_ subst su)
+      concls = concls map (_ subst su)
+
+      var defs = assms collect {
+        case Atom(Eq(x @ App(Inst(f, _), Nil), e), _) if !(f in e) => Rule(x, e)
+        case Atom(Eq(e, x @ App(Inst(f, _), Nil)), _) if !(f in e) => Rule(x, e)
+      }
+
+      val more = defs.groupBy(_.fun)
+
+      assms = assms_ map (simplify(_, rules ++ more, constrs))
+      concls = concls_ map (simplify(_, rules ++ more, constrs))
+
+      if (concls.nonEmpty) {
+        val common = Intersect {
+          concls flatMap { case Conj(xs, props) =>
+            props map {
+              case _: Atom =>
+                Set[Prop]()
+              case Disj(xs, assms, concls) =>
+                Set(assms: _*)
+            }
+          }
+        }
+
+        concls = concls map { case Conj(xs, props) =>
+          Conj(
+            xs,
+            props map {
+              case atom: Atom =>
+                atom
+              case Disj(xs, assms, concls) =>
+                Disj(xs, assms filterNot common, concls)
+            }
+          )
+        }
+
+        assms = assms ++ common
+      }
+
+      xs = xs filter { case x =>
+        assms exists (x in _)
+      }
+
+      Disj.reduce(xs, assms, concls)
   }
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {

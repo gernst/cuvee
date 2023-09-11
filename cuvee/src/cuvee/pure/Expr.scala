@@ -255,22 +255,38 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
   def prime: Var =
     Var(name.withName(name.name + "^"), typ)
 
-  def in(that: Expr): Boolean = {
+  def in(that: Expr): Boolean =
     that match {
-      case that: Var =>
-        this == that
-      case App(_, args) =>
-        args exists (this in _)
-      case _: Lit =>
-        false
-      case _ =>
-        cuvee.undefined
+      case that: Var        => this == that
+      case App(_, args)     => this in args
+      case _: Lit           => false
+      case Distinct(exprs)  => this in exprs
+      case Is(arg, fun)     => this in arg
+      case Note(expr, attr) => this in expr
+      case self @ Let(eqs, body) =>
+        val bound = self.bound
+        (eqs exists (this in _.e)) || ((this in body) && !(bound contains this))
+      case Bind(quant, formals, body, typ) =>
+        (this in body) && !(formals contains this)
     }
-  }
 
-  def in(that: List[Expr]): Boolean = {
+  def in(that: Prop): Boolean =
+    that match {
+      case Atom(expr, cex) =>
+        this in expr
+
+      case Disj(xs, assms, concls) =>
+        (assms exists (this in _)) || (concls exists (this in _))
+    }
+
+  def in(that: Conj): Boolean =
+    that match {
+      case Conj(xs, props) =>
+        (props exists (this in _))
+    }
+
+  def in(that: List[Expr]): Boolean =
     that exists (this in _)
-  }
 
   def bexpr = List(name)
 

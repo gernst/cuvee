@@ -15,7 +15,7 @@ package object cuvee {
         throw t
     }
   }
-  
+
   def undefined(implicit
       file: sourcecode.File,
       line: sourcecode.Line,
@@ -23,7 +23,7 @@ package object cuvee {
       name: sourcecode.Name
   ) = {
     println("internal error: an implementation is missing")
-    println("  "+ file.value + ":" + line.value)
+    println("  " + file.value + ":" + line.value)
     println("  in " + enclosing.value)
     error("missing implementation: " + enclosing.value)
   }
@@ -46,6 +46,12 @@ package object cuvee {
       case Some(index) => self + "$" + index
     }
   }
+
+  def Union[A](xs: Iterable[Set[A]]): Set[A] =
+    xs.reduce(_ union _)
+
+  def Intersect[A](xs: Iterable[Set[A]]): Set[A] =
+    xs.reduce(_ intersect _)
 
   implicit class SetOps[A](self: Set[A]) {
     def disjoint(that: Set[A]) = {
