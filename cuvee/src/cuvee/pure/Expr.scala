@@ -37,6 +37,10 @@ sealed trait Expr extends Expr.term with util.Syntax with boogie.Syntax {
   // def ::(that: Expr) = App(Fun.cons, List(that, this))
   // def ++(that: Expr) = App(Fun.append, List(this, that))
   // def append(that: Expr) = App(Fun.append, List(this, that))
+  def stripNotes = bottomup {
+    case Note(expr, attr) => expr
+    case expr             => expr
+  }
 
   def bottomup(g: Expr => Expr): Expr = {
     map(identity, g)
@@ -52,12 +56,18 @@ sealed trait Expr extends Expr.term with util.Syntax with boogie.Syntax {
         g(lit)
       case id: Var =>
         g(id)
+      case Note(expr, attr) =>
+        g(Note(expr.map(f, g), attr))
       case Is(arg, fun) =>
         g(Is(arg map (f, g), fun))
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
+      case Distinct(exprs) =>
+        g(Distinct(exprs map (_.map(f, g))))
+      case Let(eqs, body) =>
+        g(Let(eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }, body.map(f, g)))
       case Bind(quant, formals, body, typ) =>
-        println("recursive map at bind, beware! " + this)
+        // println("recursive map at bind, beware! " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
     }
   }
@@ -626,7 +636,7 @@ case class LetEq(x: Var, e: Expr) extends util.Syntax with boogie.Syntax {
     LetEq(x rename a, e rename re)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
     LetEq(x rename a, e subst su)
-  def inst(su: Map[Param, Type]) = 
+  def inst(su: Map[Param, Type]) =
     LetEq(x inst su, e inst su)
 
   def toEq = Eq(x, e)

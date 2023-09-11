@@ -18,12 +18,12 @@ case class Rule(
 
   require(
     rhs.free subsetOf lhs.free,
-    "rule lhs " + lhs + " does not bind " + (rhs.free -- lhs.free) + " in rhs " + rhs
+    "rule " + this + " does not bind " + (rhs.free -- lhs.free) + " in rhs " + rhs
   )
 
   require(
     cond.free subsetOf lhs.free,
-    "rule lhs " + lhs + " does not bind " + (cond.free -- lhs.free) + " in guard " + cond
+    "rule " + this + " does not bind " + (cond.free -- lhs.free) + " in guard " + cond
   )
 
   val vars = lhs.free.toList
@@ -142,8 +142,11 @@ object Rules {
         )
           yield res
 
-      case _ =>
+      case _ if guard.free subsetOf lhs.free =>
         List(Rule(lhs, rhs, guard))
+
+      case _ =>
+        Nil
     }
 
   def from(
@@ -176,7 +179,7 @@ object Rules {
     }
 
   def from(expr: Expr, ok: Set[Fun]): List[Rule] = {
-    val Clause(xs, ant, suc) = expr
+    val Clause(xs, ant, suc) = expr.stripNotes
     from(xs, And(ant), suc, ok)
   }
 

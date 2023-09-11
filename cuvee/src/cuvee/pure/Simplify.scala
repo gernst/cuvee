@@ -1,6 +1,7 @@
 package cuvee.pure
 
 import cuvee.smtlib.Model
+import cuvee.pure.True
 
 object Simplify {
   def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
@@ -73,7 +74,7 @@ object Simplify {
       yield simplify(expr, rules, constrs)
   }
 
-  def is(arg: Expr, fun: Fun): Expr = if(true) {
+  def is(arg: Expr, fun: Fun): Expr = if (true) {
     Is(arg, fun)
   } else {
     val ty = Type.bind(fun.res, arg.typ)
@@ -88,6 +89,10 @@ object Simplify {
     (left, right) match {
       case _ if left == right =>
         True
+
+      case (Lit(left, _), Lit(right, _)) =>
+        if (left == right) True
+        else False
 
       case (App(Inst(f, _), la), App(Inst(g, _), ra))
           if (constrs contains f) && (constrs contains g) =>

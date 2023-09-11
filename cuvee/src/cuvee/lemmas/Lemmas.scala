@@ -12,73 +12,74 @@ import cuvee.lemmas.prepare
 object Lemmas extends Stage {
   val rounds = 3
 
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = if (cmds.nonEmpty) {
-    val (decls, defs) = prepare(cmds, state)
-    // val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State, last: Cmd) =
+    if (cmds.nonEmpty && last == CheckSat) {
+      val (decls, defs) = prepare(cmds, state)
+      // val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)
 
-    implicit val solver = Solver.z3(100)
-    Deaccumulate.neutral = Deaccumulate.defaultNeutral
+      implicit val solver = Solver.z3(100)
+      Deaccumulate.neutral = Deaccumulate.defaultNeutral
 
-    for (cmd <- cmds) cmd match {
-      case SetLogic(_)      =>
-      case _: Lemma         =>
-      case Assert(Not(phi)) =>
-      case _ =>
-        solver.exec(cmd, null)
+      for (cmd <- cmds) cmd match {
+        case SetLogic(_)      =>
+        case _: Lemma         =>
+        case Assert(Not(phi)) =>
+        case _ =>
+          solver.exec(cmd, null)
+      }
+
+      val goals =
+        for ((Assert(Not(phi))) <- cmds)
+          yield phi
+
+      val lemmas = new Lemmas(decls, cmds, defs, state, solver)
+
+      for (
+        Lemma(phi, _, _) <- cmds;
+        Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
+      ) {
+        lemmas.addLemma("provided", lhs, rhs, cond)
+        // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
+      }
+
+      lemmas.findNeutral(defs map (_.fun))
+
+      for (df <- defs) {
+        lemmas.define(df)
+        lemmas.deaccumulate(df)
+        lemmas.recognizeConditional(df)
+      }
+
+      for (df <- defs; dg <- defs) {
+        lemmas.fuse(df, dg)
+      }
+
+      for (i <- 0 until rounds) {
+        lemmas.round()
+        lemmas.cleanup()
+        lemmas.next()
+      }
+
+      val results = lemmas.lemmas
+
+      solver.ack(Exit)
+      solver.destroy()
+
+      val known = state.funs.values.toSet
+      val add =
+        for ((origin, rule) <- results if (origin != "provided") && (rule.funs subsetOf known))
+          yield Lemma(rule.toExpr, None, true)
+
+      val (pre, post) = cmds partition {
+        case Assert(Not(expr)) =>
+          false
+        case _ =>
+          true
+      }
+      pre ++ add ++ post
+    } else {
+      cmds
     }
-
-    val goals =
-      for ((Assert(Not(phi))) <- cmds)
-        yield phi
-
-    val lemmas = new Lemmas(decls, cmds, defs, state, solver)
-
-    for (
-      Lemma(phi, _, _) <- cmds;
-      Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
-    ) {
-      lemmas.addLemma("provided", lhs, rhs, cond)
-      // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
-    }
-
-    lemmas.findNeutral(defs map (_.fun))
-
-    for (df <- defs) {
-      lemmas.define(df)
-      lemmas.deaccumulate(df)
-      lemmas.recognizeConditional(df)
-    }
-
-    for (df <- defs; dg <- defs) {
-      lemmas.fuse(df, dg)
-    }
-
-    for (i <- 0 until rounds) {
-      lemmas.round()
-      lemmas.cleanup()
-      lemmas.next()
-    }
-
-    val results = lemmas.lemmas
-
-    solver.ack(Exit)
-    solver.destroy()
-
-    val known = state.funs.values.toSet
-    val add =
-      for ((origin, rule) <- results if (origin != "provided") && (rule.funs subsetOf known))
-        yield Lemma(rule.toExpr, None, true)
-
-    val (pre, post) = cmds partition {
-      case Assert(Not(expr)) =>
-        false
-      case _ =>
-        true
-    }
-    pre ++ add ++ post
-  } else {
-    cmds
-  }
 }
 
 class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
@@ -195,11 +196,10 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
     replace = eq :: replace
     val re = replace.groupBy(_.fun)
 
-    recover = recover map {
-      case Rule(lhs, rhs, cond, avoid) => 
-        val lhs_ = Simplify.simplify(lhs, re, constrs)
-        println(lhs + "~>" + lhs_)
-        Rule(lhs_, rhs, cond, avoid)
+    recover = recover map { case Rule(lhs, rhs, cond, avoid) =>
+      val lhs_ = Simplify.simplify(lhs, re, constrs)
+      println(lhs + "~>" + lhs_)
+      Rule(lhs_, rhs, cond, avoid)
     }
 
     lemmas = lemmas flatMap { case (origin, eq @ Rule(lhs, rhs, cond, avoid)) =>

@@ -104,6 +104,11 @@ class Config {
       action()
       configure(rest)
 
+    case "-o" :: name :: rest =>
+      sink = Sink.file(name)(_)
+      report = Report.stdout(_)
+      configure(rest)
+
     case first :: rest if first startsWith "-" =>
       error("not an option: " + first)
 

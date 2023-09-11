@@ -30,7 +30,7 @@ object Prover {
 
     def reduce(prop: Prop, state: State) = {
       val phi = prop.toExpr
-      // print("proving " + phi)
+      // print("proving " + phi.toString)
       if (solver.isTrue(phi)) {
         // println("success!")
         Atom.t

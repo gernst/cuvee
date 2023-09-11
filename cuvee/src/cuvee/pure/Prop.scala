@@ -13,10 +13,10 @@ sealed trait Prop extends util.Syntax with boogie.Syntax {
 
 object Prop {
   def from(expr: Expr): Prop =
-    from(List(expr), Nil, Nil, Nil)
+    from(Nil, Nil, List(expr))
 
-  def from(exprs: List[Expr]): Prop =
-    from(exprs, Nil, Nil, Nil)
+  // def from(exprs: List[Expr]): Prop =
+  //   from(Nil, Nil, exprs)
 
   def from(xs: List[Var], pre: List[Expr], post: List[Expr]): Prop =
     from(pre, post, xs, Nil, Nil)
@@ -357,10 +357,7 @@ object Conj {
   val f = Conj(Nil, List(Atom.f))
 
   def from(expr: Expr): Conj =
-    from(List(expr), Nil, Nil)
-
-  def from(exprs: List[Expr]): Conj =
-    from(exprs, Nil, Nil)
+    from(Nil, List(expr))
 
   def from(xs: List[Var], exprs: List[Expr]): Conj =
     from(exprs, xs, Nil)
@@ -374,8 +371,10 @@ object Conj {
       props match {
         case Nil =>
           Conj.t
+
         case List(Disj(Nil, Nil, List(conj))) =>
           conj
+
         case _ =>
           Conj(xs, props)
       }
@@ -399,7 +398,7 @@ object Conj {
       val Exists(ys, body) = expr refresh xs
       from(body :: rest, xs ++ ys, props)
 
-    case phi @ (Imp(_, _) | Or(_) | Forall(_, _)) :: rest =>
+    case (phi @ (Imp(_, _) | Or(_) | Forall(_, _))) :: rest =>
       Prop.from(phi) match {
         case Atom(False, _) =>
           Conj.f

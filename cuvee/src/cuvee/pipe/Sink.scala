@@ -9,16 +9,27 @@ import cuvee.util.Tool
 import java.io.PrintStream
 import cuvee.util.Printer
 import cuvee.State
+import java.io.FileOutputStream
 
 trait Sink {
-  // avoid external calls
   def exec(cmd: Cmd, state: State): Res
   def done(state: State)
+
+  def exec(cmds: List[Cmd], state: State): List[Res] = {
+    for (cmd <- cmds)
+      yield exec(cmd, state)
+  }
 }
 
 object Sink {
-  def stdout(implicit printer: Printer) = new print(System.out)
-  def stderr(implicit printer: Printer) = new print(System.err)
+  def stdout(implicit printer: Printer) =
+    new print(System.out)
+
+  def stderr(implicit printer: Printer) =
+    new print(System.err)
+
+  def file(name: String)(implicit printer: Printer) =
+    new print(new PrintStream(new FileOutputStream(name)))
 
   class print(stream: PrintStream)(implicit printer: Printer) extends Sink {
     def done(state: State) {}

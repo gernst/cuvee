@@ -49,6 +49,7 @@ object Rewrite {
 
   def safe(rules: List[Rule], st: State): List[Rule] = {
     val deps = Rewrite.deps(rules)
+    println(deps)
 
     for (
       rule @ Rule(App(Inst(fun, _), pats), rhs, _, _) <- rules

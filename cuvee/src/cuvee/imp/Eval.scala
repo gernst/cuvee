@@ -7,7 +7,7 @@ import cuvee.pipe.Stage
 import cuvee.smtlib._
 
 object Eval extends Stage {
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State, last: Cmd) = {
     val eval = new Eval(state)
 
     cmds flatMap {

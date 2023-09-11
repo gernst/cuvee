@@ -21,13 +21,7 @@ object Pipe {
         }
     }
 
-    try {
-      // this is not executed per command but aborts the first error
-      sink.done(source.state)
-    } catch {
-      case e: cuvee.smtlib.Error =>
-        report(e)
-    }
+    sink.done(source.state)
   }
 }
 
@@ -39,70 +33,62 @@ object Pipe {
 // as long as copy produces an independent copy.
 
 trait Stage {
-  // need to override for stateful components
-  def copy(): Stage = this
-
   // executed with every check-sat command (but not lemmas, they just return success or not)
-  def exec(prefix: List[Cmd], cmds: List[Cmd], in: State): List[Cmd]
+  def exec(prefix: List[Cmd], cmds: List[Cmd], in: State, last: Cmd): List[Cmd]
 }
 
-class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends Sink {
+class Incremental(stage: Stage, sink: Sink) extends Sink {
   override def toString = "incremental " + stage + " -> " + sink
 
-  class Entry(var prefix: List[Cmd], val stage: Stage, val state: State) {
-    def copy() = new Entry(prefix, stage.copy(), out.copy())
+  class Entry(var prefix: List[Cmd], var pending: List[Cmd], val state: State) {
+    def copy() = new Entry(prefix, pending, state.copy())
   }
 
-  var stack = List(new Entry(Nil, stage, State.default))
+  var stack = List(new Entry(Nil, Nil, State.default))
   def top = stack.head
-  def out = top.state
-
-  var pending: List[Cmd] = Nil
 
   def done(state: State) {
-    if (flushDone) {
-      flush(state)
-      sink.done(out)
-    }
+    flush(state, Exit)
+    sink.done(top.state)
   }
 
-  def flush(in: State) {
-    val cmds = stage.exec(top.prefix, pending.reverse, in)
-    out add cmds
+  def flush(in: State, last: Cmd) {
+    val add = top.pending.reverse
+    val cmds = stage.exec(top.prefix, add, in, last)
 
-    for (cmd <- cmds) {
-      sink.exec(cmd, out)
-    }
+    top.prefix = top.prefix ++ add
+    top.pending = Nil
 
-    pending = Nil
+    top.state add cmds
+    sink.exec(cmds, top.state)
   }
 
   def exec(cmd: Cmd, in: State) = cmd match {
     case Push(n) =>
+      flush(in, cmd)
+
       val add = List.tabulate(n) { _ => stack.head.copy }
       stack = add ++ stack
-      pending = cmd :: pending
-      Success
-    // sink.exec(cmd, out)
+      sink.exec(cmd, top.state)
 
     case Pop(n) =>
+      flush(in, cmd)
+
       stack = stack drop n
-      pending = cmd :: pending
-      Success
-    // sink.exec(cmd, out)
+      sink.exec(cmd, top.state)
 
     // check-sat flushes, lemmas don't
     case CheckSat =>
-      flush(in)
-      sink.exec(cmd, out)
+      flush(in, cmd)
+      sink.exec(cmd, top.state)
 
-    case GetModel =>
-      // assume here that the model is provided always by the backend,
-      // perhaps we can find some more flexible option in the future.
-      sink.exec(cmd, out)
+    // assume here that the model and labels are provided always by the backend,
+    // perhaps we can find some more flexible option in the future.
+    case Labels | GetModel | _: GetInfo =>
+      sink.exec(cmd, top.state)
 
     case _ =>
-      pending = cmd :: pending
+      top.pending = cmd :: top.pending
       Success
   }
 }

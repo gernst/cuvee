@@ -8,14 +8,17 @@ import cuvee.smtlib.Lemma
 import cuvee.pure._
 import cuvee.sub
 import cuvee.smtlib.Assert
+import cuvee.smtlib.Solver
+import cuvee.smtlib
 
 class Prove(
     prover: Prover,
     simplify: Boolean,
     rewrite: Boolean,
-    proveNegatedAsserts: Boolean = true
+    proveNegatedAsserts: Boolean = true,
+    crosscheckProver: Boolean = true
 ) extends Stage {
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State, last: Cmd) = {
     val rws = if (rewrite) {
       val rules = Rewrite.from(prefix ++ cmds, state) // add some new rewrite rules
       rules.groupBy(_.fun) // update rule index
@@ -27,12 +30,45 @@ class Prove(
       case cmd @ Lemma(expr, tactic, assert) =>
         val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
-          yield Lemma(goal_.toExpr, None, assert)
+          yield {
+            Lemma(goal_.toExpr, None, assert)
+          }
 
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
         val goal = Prop.from(expr)
+        // println("proving " + goal)
         for (goal_ <- reduce(goal, None, rws, state))
-          yield Assert(Simplify.not(goal_.toExpr))
+          yield {
+            val expr_ = goal_.toExpr
+
+            if (crosscheckProver) {
+              val solver = Solver.z3()
+              try { solver.exec(prefix ++ cmds, state) }
+              catch {
+                case smtlib.Error(info) =>
+                  println(info)
+                  ???
+              }
+
+              if (!solver.isTrue(expr === goal.toExpr)) {
+                // println(expr)
+                assert(false, "conversion to prop did not produce original formula!")
+              }
+
+
+              if (!solver.isTrue(expr_ === goal_.toExpr)) {
+                // println(expr)
+                assert(false, "conversion to prop did not produce reduced formula!")
+              }
+
+              if (!solver.isTrue(expr === expr_)) {
+                // println(expr)
+                assert(false, "reduce did not produce equivalent formulas!")
+              }
+            }
+
+            Assert(Simplify.not(expr_))
+          }
 
       case cmd =>
         prover.exec(cmd, state)

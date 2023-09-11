@@ -20,9 +20,9 @@ object Clause {
   def apply(xs: List[Var], ant: Expr, suc: Expr) =
     (xs, ant) match {
       case (Nil, True) => suc
-      case (Nil, _)   => Imp(ant, suc)
+      case (Nil, _)    => Imp(ant, suc)
       case (_, True)   => Forall(xs, suc)
-      case _          => Forall(xs, Imp(ant, suc))
+      case _           => Forall(xs, Imp(ant, suc))
     }
 
   def unapply(expr: Expr) =
