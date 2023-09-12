@@ -46,10 +46,8 @@ object Test {
         true
     }
 
-    val e = length(append(xs, ys))
-    val c = g.add(e)
-
-    var cs: Set[g.EClass] = Set()
+    g.add(length(append(xs, ys)))
+    g.add(length(nil))
 
     var i = 0
     var done = false
@@ -61,20 +59,15 @@ object Test {
       println("round " + i + " (new: " + !done + ")")
     }
 
-    // for ((id, ec) <- g.classes) {
-    //   println("class")
-    //   for (nd <- ec.nodes)
-    //     println("  " + nd)
-    // }
-
-    for ((id, ec) <- g.classes) {
-      println("class")
-      for (expr <- g.extract(id, consider))
-        println("  " + expr)
+    for (ec <- g.classes) {
+      println("eclass " + ec.id)
+      for (nd <- ec.nodes) {
+        assert(nd.canon == nd)
+        println("  " + nd)
+      }
     }
+
   }
-
-
 
   def test2() {
     val g = new EGraph()
@@ -107,6 +100,7 @@ object Test {
 
     g.rebuild()
 
+    /*
     for ((id, ec) <- g.classes) {
       println("class $" + id.id)
       for (expr <- ec.nodes)
@@ -114,18 +108,19 @@ object Test {
     }
     println()
 
-    val unifiers = for (
-      (nd1 @ g.EApp(inst1, _), id1) <- g.hash;
-      (nd2 @ g.EApp(inst2, _), id2) <- g.hash
-      if id1 != id2 && inst1.fun == inst2.fun;
-      su <- g.eunify(nd1, nd2) if su.nonEmpty
-    ) yield {
-      (su, id1, id2)
-    }
+    val unifiers =
+      for (
+        (nd1 @ g.EApp(inst1, _), id1) <- g.hash;
+        (nd2 @ g.EApp(inst2, _), id2) <- g.hash
+        if id1 != id2 && inst1.fun == inst2.fun;
+        su <- g.eunify(nd1, nd2) if su.nonEmpty
+      ) yield {
+        (su, id1, id2)
+      }
 
-    for((su, id1, id2) <- unifiers) {
+    for ((su, id1, id2) <- unifiers) {
       println("unify " + id1 + " and " + id2 + " with " + su)
-    }
+    } */
   }
 
 }

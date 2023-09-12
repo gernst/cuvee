@@ -459,7 +459,7 @@ object App extends ((Inst, List[Expr]) => App) {
     val ps = fun.params filterNot su.contains
     require(
       ps.isEmpty,
-      "unbound params casting " + fun + " to " + typ + ": " + ps
+      "unbound params casting " + fun + " to " + typ + ": " + ps.mkString(", ") + " with inst: "  + su
     )
 
     new App(Inst(fun, su), Nil)
