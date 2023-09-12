@@ -20,42 +20,15 @@ import cuvee.smtlib.DeclareDatatypes
 import cuvee.smtlib.DeclareProc
 import cuvee.smtlib.DefineProc
 
-object Parser {
-  def kw(name: String) = KW(name)
-  val eof = new Token {}
-  val id = V[String]
-  val op = V[String]
-  val number = V[String]
-  val string = V[String]
-  val quant = V[String]
-
+class Parser(val state: State = State.default) {
   object toplevel {
     implicit val scope: Map[Name, Var] = Map()
     implicit val ctx: Map[Name, Param] = Map()
   }
 
-  object stack extends DynamicVariable(State.default) {
-    def within[A](p: Parser[A, Token]) =
-      S(p, this)
-  }
-
-  def state = stack.value
-
   val a = Param("a")
   val old = state.fun("old", List(a), List(a), a)
   val fin = state.fun("final", List(a), List(a), a)
-
-  val translate = Map(
-    "<==>" -> "=",
-    "==>" -> "=>",
-    "&&" -> "and",
-    "||" -> "or",
-    "==" -> "=",
-    // "!=" -> "distinct",
-    "/" -> "div",
-    "%" -> "mod",
-    "!" -> "not"
-  )
 
   object typing extends Scope[Param, Type] {
     def unify(typ1: Type, typ2: Type) = {
@@ -117,8 +90,8 @@ object Parser {
     case ("!=", List(arg1, arg2)) =>
       make_not(make_eq(arg1, arg2))
 
-    case (name, args) if translate contains name =>
-      val name_ = translate(name)
+    case (name, args) if Parser.translate contains name =>
+      val name_ = Parser.translate(name)
       typing.app(name_, args)
 
     case (name, args) =>
@@ -211,7 +184,8 @@ object Parser {
       DefineFun(name, params, args, typ, body, body.funs exists (_.name == name))
   }
 
-  val define_proc: ((Name ~ List[Param], ((List[Var], List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
+  val define_proc
+      : ((Name ~ List[Param], ((List[Var], List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
     case (name ~ params, ((in, out), (spec, None))) =>
       state.proc(name, Nil, in, out, spec)
       DeclareProc(name, Nil, in, out, spec)
@@ -275,4 +249,26 @@ object Parser {
     case Bind(quant, formals, body, typ) =>
       Bind(quant, formals, final_to_old_(body, bound ++ formals), typ)
   }
+}
+
+object Parser {
+  def kw(name: String) = KW(name)
+  val eof = new Token {}
+  val id = V[String]
+  val op = V[String]
+  val number = V[String]
+  val string = V[String]
+  val quant = V[String]
+
+  val translate = Map(
+    "<==>" -> "=",
+    "==>" -> "=>",
+    "&&" -> "and",
+    "||" -> "or",
+    "==" -> "=",
+    // "!=" -> "distinct",
+    "/" -> "div",
+    "%" -> "mod",
+    "!" -> "not"
+  )
 }

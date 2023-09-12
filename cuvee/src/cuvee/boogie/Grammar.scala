@@ -10,8 +10,10 @@ import cuvee.prove._
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Lemma
 
-object Grammar {
+class Grammar(parser: cuvee.boogie.Parser) {
   import easyparse.implicits._
+
+  import parser._
   import cuvee.boogie.Parser._
 
   // shadow existing definition for T = Token
@@ -71,7 +73,7 @@ object Grammar {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      M(inner, op, make_op, syntax)
+      M(inner, op, make_op, Grammar.syntax)
 
     def inner(implicit
         scope: Map[Name, Var],
@@ -412,12 +414,11 @@ object Grammar {
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(cmd.*)
 
-  def script_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(make_script(cmds))
-
   def script(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(stack within script_)
+    P(make_script(cmds))
+}
 
+object Grammar {
   object syntax extends Syntax[String, Token] {
     val infix_ops = Map(
       ("<==>", (Left, 0)),
