@@ -233,6 +233,7 @@ object Annotate extends Stage {
           * @return
           *   Modified which got derived from the given Expr
           */
+        // TODO update all args from type tuple
         def mOf(expr: Expr): Modified = expr match {
           case x @ Var(_, Sort.int) =>
             val x0 = init(x)
@@ -241,7 +242,11 @@ object Annotate extends Stage {
             val stepxs = after map { st => st.vars(x) }
             val List(step) = stepxs.distinct
 
-            Modified(x0, x, step)
+            step match {
+              case Plus(args) if args.contains(One)      => Modified(x0, x)
+              case Minus((l, r)) if l == One || r == One => Modified(x, x0)
+              case _ => cuvee.error("Currently only dense steps are supported.")
+            }
           case c @ Lit(_, Sort.int) =>
             Modified(c, c)
           case Plus(args) =>
@@ -417,11 +422,9 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
     *   one expression containing all necessary informations which indices got
     *   changed
     */
-  // TODO add step
   def toExpr(x: Var): Expr = {
-    val l = Le(this.lb, x) && Lt(x, this.ub)
-    val g = Ge(this.lb, x) && Gt(x, this.ub)
-    l || g
+    // TODO derive Le && Lt || Lt && Le
+    this.lb <= x && x < this.ub
   }
 
   /** Find all variables that are part of the expressions
