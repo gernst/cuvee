@@ -235,47 +235,54 @@ object Annotate extends Stage {
           */
         // TODO update all args from type tuple
         def mOf(expr: Expr): Modified = expr match {
-          case x @ Var(_, Sort.int) =>
-            val x0 = init(x)
-            // TODO this may not hold -> it is not given to go from left to right
+          case n @ Var(_, Sort.int) =>
+            // TODO consider position of increments
+            val x0 = init(n)
 
-            val stepxs = after map { st => st.vars(x) }
+            val stepxs = after map { st => st.vars(n) }
             val List(step) = stepxs.distinct
 
             step match {
-              case Plus(args) if args.contains(One)      => Modified(x0, x)
-              case Minus((l, r)) if l == One || r == One => Modified(x, x0)
+              case Plus(args) if args.contains(One) =>
+                Modified(x0, n, test)
+              case Minus((l, r)) if l == One || r == One =>
+                Modified(n, x0, test)
               case _ => cuvee.error("Currently only dense steps are supported.")
             }
           case c @ Lit(_, Sort.int) =>
-            Modified(c, c)
+            Modified(c, c, Le(c, c))
           case Plus(args) =>
             val ranges = args map mOf
             ranges.reduce((x, y) =>
-              Modified(x.lb + y.lb, x.ub + y.ub, x.step + y.step)
+              Modified(x.lb + y.lb, x.ub + y.ub, test, x.step + y.step)
             )
           case Minus(args) =>
             val (l, r) = args
             val ranges = List(mOf(l), mOf(r))
             ranges.reduce((x, y) =>
-              Modified(x.lb - y.lb, x.ub - y.ub, x.step + y.step)
+              Modified(x.lb - y.lb, x.ub - y.ub, test, x.step + y.step)
             )
           case Times(args) =>
             val ranges = args map mOf
             ranges.reduce((x, y) =>
-              Modified(x.lb * y.lb, x.ub * y.ub, x.step + y.step)
+              Modified(x.lb * y.lb, x.ub * y.ub, test, x.step + y.step)
             )
           case DivBy(args) =>
             val (l, r) = args
             val ranges = List(mOf(l), mOf(r))
             ranges.reduce((x, y) =>
-              Modified(DivBy(x.lb, y.lb), DivBy(x.ub, y.ub), x.step + y.step)
+              Modified(
+                DivBy(x.lb, y.lb),
+                DivBy(x.ub, y.ub),
+                test,
+                x.step + y.step
+              )
             )
           case Mod(args) =>
             val (l, r) = args
             val ranges = List(mOf(l), mOf(r))
             ranges.reduce((x, y) =>
-              Modified(Mod(x.lb, y.lb), Mod(x.ub, y.ub), x.step + y.step)
+              Modified(Mod(x.lb, y.lb), Mod(x.ub, y.ub), test, x.step + y.step)
             )
           case UMinus(args) =>
             val ranges = List(mOf(args))
@@ -284,6 +291,7 @@ object Annotate extends Stage {
               Modified(
                 UMinus(x.lb + y.lb),
                 UMinus(x.ub + y.ub),
+                test,
                 x.step + y.step
               )
             )
@@ -411,7 +419,7 @@ object Annotate extends Stage {
   *   Can also hold more complicated calculations. However: The expression are *
   *   held as is and will not be simplified
   */
-sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
+sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
 
   /** Provides an expression describing all indices which got changed to place
     * into an invariant
@@ -422,9 +430,13 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
     *   one expression containing all necessary informations which indices got
     *   changed
     */
-  def toExpr(x: Var): Expr = {
-    // TODO derive Le && Lt || Lt && Le
-    this.lb <= x && x < this.ub
+  def toExpr(x: Var): Expr = this.test match {
+    case Lt(_, _) => this.lb <= x && x < this.ub
+    case Le(_, _) => this.lb <= x && x <= this.ub
+    case _ =>
+      cuvee.error(
+        "Currently only tests with <= and < are supported. Got: " + test
+      )
   }
 
   /** Find all variables that are part of the expressions
