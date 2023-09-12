@@ -9,6 +9,10 @@ class EGraph {
   val todo = mutable.Set[EClass]()
   val classes = mutable.Set[EClass]()
 
+  def free = hash.keySet collect { case EVar(x) =>
+    x
+  }
+
   var debug = false
 
   def invariants() {
@@ -295,4 +299,19 @@ class EGraph {
   def saturate(rules: List[Rule]) {
     while (!rewrite(rules)) {}
   }
+
+  def eunify(ec1: EClass, ec2: EClass, su: Map[Var, EClass]): Set[Map[Var, EClass]] = {
+    for (
+      nd1 <- ec1.nodes;
+      nd2 <- ec2.nodes;
+      su <- eunify(nd1, nd2, su)
+    )
+      yield su
+  }
+
+  def eunify(nd1: ENode, nd2: ENode, su: Map[Var, EClass]): Set[Map[Var, EClass]] =
+    (nd1, nd2) match {
+      case (EVar(x), _) =>
+        ???
+    }
 }
