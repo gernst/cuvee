@@ -1,13 +1,11 @@
 package cuvee.egraph
 
-import scala.collection.mutable
-
 import cuvee.pure._
 
 class EGraph {
-  val hash = mutable.Map[ENode, EClass]()
-  val todo = mutable.Set[EClass]()
-  val classes = mutable.Set[EClass]()
+  var hash = Map[ENode, EClass]()
+  var todo = Set[EClass]()
+  var classes = Set[EClass]()
 
   def free = hash.keySet collect { case EVar(x) =>
     x
@@ -124,7 +122,7 @@ class EGraph {
         arg.parents += nd -> ec
 
       assert(ec == ec.find)
-      hash(nd) = ec
+      hash += (nd -> ec)
 
       ec
     }
@@ -155,10 +153,10 @@ class EGraph {
     while (todo.nonEmpty) {
       val now = todo map (_.find)
 
-      todo.clear()
+      todo = Set()
 
-      for (id <- now)
-        repair(id) // may add some more todos
+      for (ec <- now)
+        repair(ec) // may add some more todos
     }
 
     invariants()
@@ -172,7 +170,7 @@ class EGraph {
 
     for ((pnd, pec) <- ec.parents) {
       hash -= pnd
-      hash(pnd.canon) = pec.find
+      hash += (pnd.canon -> pec.find)
     }
 
     var parents: Map[ENode, EClass] = Map()
@@ -300,18 +298,108 @@ class EGraph {
     while (!rewrite(rules)) {}
   }
 
-  def eunify(ec1: EClass, ec2: EClass, su: Map[Var, EClass]): Set[Map[Var, EClass]] = {
+  def eunify(
+      nd1: ENode,
+      nd2: ENode,
+      su: Map[Var, ENode] = Map()
+  ): Set[Map[Var, ENode]] = (nd1, nd2) match {
+    case _ if nd1 == nd2 =>
+      Set(Map()) // one trivial solution
+    case (EVar(x1), _) if su contains x1 =>
+      eunify(su(x1), nd2, su)
+    case (EVar(x1), _) /* if !(nd1 in nd2) */ =>
+      Set(su + (x1 -> nd2))
+    case (_, _: EVar) =>
+      eunify(nd2, nd1, su)
+    case (EApp(inst1, args1), EApp(inst2, args2)) if inst1 == inst2 =>
+      eunify_classes(args1, args2, su)
+    case _ =>
+      Set()
+  }
+
+  def eunify(
+      ec1: EClass,
+      ec2: EClass,
+      su0: Map[Var, ENode]
+  ): Set[Map[Var, ENode]] = {
     for (
       nd1 <- ec1.nodes;
       nd2 <- ec2.nodes;
-      su <- eunify(nd1, nd2, su)
+      su1 <- eunify(nd1, nd2, su0)
     )
-      yield su
+      yield su1
   }
 
-  def eunify(nd1: ENode, nd2: ENode, su: Map[Var, EClass]): Set[Map[Var, EClass]] =
-    (nd1, nd2) match {
-      case (EVar(x), _) =>
-        ???
+  def eunify_classes(
+      ecs1: List[EClass],
+      ecs2: List[EClass],
+      su0: Map[Var, ENode]
+  ): Set[Map[Var, ENode]] = (ecs1, ecs2) match {
+    case (Nil, Nil) =>
+      Set(su0)
+    case (ec1 :: ecs1, ec2 :: ecs2) =>
+      for (
+        su1 <- eunify(ec1, ec2, su0);
+        su2 <- eunify_classes(ecs1, ecs2, su1)
+      )
+        yield su2
+  }
+
+  def eunify_nodes(
+      nds1: List[ENode],
+      nds2: List[ENode],
+      su0: Map[Var, ENode]
+  ): Set[Map[Var, ENode]] = (nds1, nds2) match {
+    case (Nil, Nil) =>
+      Set(su0)
+    case (nd1 :: nds1, nd2 :: nds2) =>
+      for (
+        su1 <- eunify(nd1, nd2, su0);
+        su2 <- eunify_nodes(nds2, nds2, su1)
+      )
+        yield su2
+  }
+
+  def extractAll(
+      consider: ENode => Boolean = _ => true,
+      known: Set[EClass] = Set()
+  ): Set[Set[Expr]] = {
+    for (ec <- classes)
+      yield extract(ec, consider, known)
+  }
+
+  def extract(
+      ec: EClass,
+      consider: ENode => Boolean = _ => true,
+      known: Set[EClass] = Set()
+  ): Set[Expr] = {
+    if (known contains ec) {
+      Set()
+    } else {
+      ec.nodes.filter(consider) flatMap {
+        case EVar(x) =>
+          Set(x)
+        case ELit(any, typ) =>
+          Set(Lit(any, typ))
+        case EApp(inst, args) =>
+          for (args_ <- extract(args, consider, known + ec))
+            yield App(inst, args_)
+      }
     }
+  }
+
+  def extract(
+      ids: List[EClass],
+      consider: ENode => Boolean,
+      known: Set[EClass]
+  ): Set[List[Expr]] = ids match {
+    case Nil =>
+      Set(Nil)
+    case ec :: ids =>
+      for (
+        e <- extract(ec, consider, known);
+        es <- extract(ids, consider, known)
+      )
+        yield e :: es
+  }
 }
