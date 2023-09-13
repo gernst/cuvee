@@ -1,97 +1,90 @@
 package cuvee.egraph
 
 import cuvee.pure._
+import cuvee.util.Fix
 
 class EGraph {
+  self =>
   var hash = Map[ENode, EClass]()
   var todo = Set[EClass]()
   var classes = Set[EClass]()
 
-  def free = hash.keySet collect { case EVar(x) =>
-    x
-  }
+  def free = hash.keySet collect { case EVar(x) => x }
+  def funs = hash.keySet collect { case EApp(inst, _) => inst.fun }
 
   var debug = false
 
-  def invariants() {
-    val nds =
-      for (ec <- classes; nd <- ec.nodes)
-        yield nd
+  object RefuteUnification extends Exception
 
-    assert(hash.keySet == nds)
+  def invariants() {
+    assert(todo.isEmpty)
+    // val nds =
+    //   for (ec <- classes; nd <- ec.nodes)
+    //     yield nd.canon
+
+    // assert(hash.keySet == nds)
+
+    for (ec <- classes) {
+      assert(ec.egraph == this)
+    }
 
     for (ec <- classes; nd <- ec.nodes) {
-      assert(nd.canon == nd, "not canonical: " + nd + " in " + ec)
-      assert(hash(nd.canon).find == ec.find)
+      // assert(nd.canon == nd, "not canonical: " + nd + " in " + ec)
+      assert(lookup(nd) == ec.find)
     }
 
     for ((nd, ec) <- hash) {
-      assert(hash(nd.canon).find == ec.find)
+      assert(lookup(nd) == ec.find)
     }
   }
 
-  object EClass extends cuvee.util.Counter
+  // descructively replaces a function symbol,
+  // g must not occur yet
+  def replace(f: Fun, g: Fun) {
+    invariants()
 
-  class EClass(var parents: Map[ENode, EClass], var nodes: Set[ENode]) {
-    require(nodes.nonEmpty, "an e-class must be nonempty")
-    val id = EClass.next
+    assert(!(funs contains g))
+    assert(f.params == g.params)
+    assert(f.args == g.args)
+    assert(f.res == g.res)
 
-    override def toString = {
-      // assert(id == find.id)
-      if (nodes.size == 1) {
-        val nd = nodes.head
-        nd.toString
-      } else {
-        "eclass$" + id + "$" + find.id
-      }
-    }
+    for (ec <- classes)
+      ec.replace(f, g)
 
-    def this(nd: ENode) = this(Map(), Set(nd))
+    hash =
+      for ((nd, ec) <- hash)
+        yield (nd.replace(f, g), ec)
 
-    var repr: EClass = this
-
-    def find: EClass = {
-      if (repr != this)
-        repr = repr.find // compaction
-      repr
-    }
-
-    def union(that: EClass) {
-      that.repr = this // make this the representant
-      this.parents ++= that.parents
-      this.nodes ++= that.nodes
-    }
+    invariants()
   }
 
-  sealed trait ENode {
-    def args: List[EClass]
-    def canon: ENode
-  }
+  // creates a copy of this graph
+  def copy(ecs: EClass*): Seq[EClass] = {
+    invariants()
 
-  case class EVar(x: Var) extends ENode {
-    def args = Nil
-    def canon = this
-    override def toString = x.toString
-  }
+    val that = new EGraph
+    var map = Map[EClass, EClass]()
 
-  case class ELit(any: Any, typ: Type) extends ENode {
-    def args = Nil
-    def canon = this
-    override def toString = any.toString
-  }
-
-  case class EApp(inst: Inst, var args: List[EClass]) extends ENode {
-    def canon = {
-      args = args map (_.find)
-      this
+    for (ec <- this.classes) {
+      map += (ec -> new EClass(this))
     }
 
-    override def toString = this match {
-      case EApp(inst, Nil) =>
-        inst.toString
-      case _ =>
-        inst + args.mkString("(", ", ", ")")
-    }
+    that.classes =
+      for (ec <- classes)
+        yield ec.transfer(map)
+
+    that.hash =
+      for ((nd, ec) <- hash)
+        yield nd.transfer(map) -> map(ec)
+
+    that.invariants()
+    
+    ecs map map
+  }
+
+  def lookup(nd: ENode) = {
+    val ec = hash(nd.canon)
+    ec.find
   }
 
   def add(expr: Expr): EClass = expr match {
@@ -115,7 +108,7 @@ class EGraph {
     if (hash contains nd) {
       hash(nd)
     } else {
-      val ec = new EClass(nd)
+      val ec = new EClass(this, nd)
       classes += ec
 
       for (arg <- nd.args)
@@ -175,9 +168,9 @@ class EGraph {
 
     var parents: Map[ENode, EClass] = Map()
 
-    for ((pnd, pec) <- ec.parents) {
-      assert(pnd.canon == pnd)
-      // val pnd = pnd_.canon
+    for ((pnd_, pec) <- ec.parents) {
+      // assert(pnd.canon == pnd)
+      val pnd = pnd_.canon
       if (parents contains pnd)
         merge(pec, parents(pnd))
       parents += pnd -> pec.find
@@ -201,7 +194,7 @@ class EGraph {
       su: Map[Var, EClass] = Map()
   ): Set[Map[Var, EClass]] = pat match {
     case x: Var if !(su contains x) =>
-      Set(su + (x -> ec))
+      Set(su + (x -> ec.find))
 
     case x: Var if (su contains x) && su(x).find == ec.find =>
       Set(su)
@@ -238,27 +231,28 @@ class EGraph {
         yield su2
   }
 
-  def ematch(pat: Expr): List[(Map[Var, EClass], EClass)] = {
+  def ematch(pat: Expr, ecs: Set[EClass]): Set[(Map[Var, EClass], EClass)] = {
     for (
-      (nd, id) <- hash.toList;
-      su <- ematch(pat, id)
+      ec <- ecs;
+      su <- ematch(pat, ec)
     )
-      yield (su, id)
+      yield (su, ec)
   }
 
-  def ematches(rules: List[Rule]) = {
+  def ematches(where: Set[EClass], rules: List[Rule]) = {
     for (
-      rule @ Rule(lhs, rhs, True, avoid) <- rules;
-      (su, lhs_) <- ematch(lhs)
+      rule @ Rule(lhs, rhs, cond, avoid) <- rules;
+      (su, lhs_) <- ematch(lhs, where)
     ) yield {
       val bad = avoid exists { case (a, b) =>
         val a_ = subst(a, su)
         val b_ = add(b)
-        a_ == b_
+        a_ == b_ // bad matches are syntactic
       }
 
       val rhs_ = subst(rhs, su)
-      (bad, rule, su, lhs_ -> rhs_)
+      val cond_ = subst(cond, su)
+      (bad, rule, su, lhs_, rhs_, cond_)
     }
   }
 
@@ -276,43 +270,74 @@ class EGraph {
       add(EApp(inst, args map (subst(_, su))))
   }
 
-  def rewrite(rules: List[Rule]) = {
-    var done = true
+  // if speculate is true then conditional rules are accepted regardless
+  // otherwise only applies rewrite rules whose conditions are satisfied
+  def rewrite(where: Set[EClass], rules: List[Rule], speculate: Boolean) = {
+    var done: Boolean = false
+    var conds = Set[EClass]()
 
-    for ((bad, rule, su, (lhs, rhs)) <- ematches(rules)) {
-      if (!bad) {
-        val same = lhs.find == rhs.find
-        if (!same) {
+    while (!done) {
+      done = true
+
+      for ((bad, rule, su, lhs, rhs, cond) <- ematches(where, rules)) {
+        var ok = true
+
+        // reject syntactic avoid conditions
+        ok = ok && !bad
+
+        // no need to continue if lhs and rhs are already the in same class
+        ok = ok && (lhs.find != rhs.find)
+
+        // if we're not allowed to speculate, then check side-cond
+        ok = ok && (speculate || cond.isTrue)
+
+        if (ok) {
           merge(lhs, rhs)
           done = false
+
+          // keep track of (nontrivial) speculated conditions
+          if (!cond.isTrue)
+            conds += cond
         }
       }
+
+      rebuild()
     }
 
-    rebuild()
-
-    done
-  }
-
-  def saturate(rules: List[Rule]) {
-    while (!rewrite(rules)) {}
+    conds
   }
 
   def eunify(
       nd1: ENode,
       nd2: ENode,
+      constrs: Set[Fun],
       su: Map[Var, ENode] = Map()
   ): Set[Map[Var, ENode]] = (nd1, nd2) match {
     case _ if nd1 == nd2 =>
       Set(Map()) // one trivial solution
+
     case (EVar(x1), _) if su contains x1 =>
-      eunify(su(x1), nd2, su)
+      eunify(su(x1), nd2, constrs, su)
+
     case (EVar(x1), _) /* if !(nd1 in nd2) */ =>
       Set(su + (x1 -> nd2))
+
     case (_, _: EVar) =>
-      eunify(nd2, nd1, su)
-    case (EApp(inst1, args1), EApp(inst2, args2)) if inst1 == inst2 =>
-      eunify_classes(args1, args2, su)
+      eunify(nd2, nd1, constrs, su)
+
+    case (EApp(Inst(f, _), args1), EApp(Inst(g, _), args2)) if f == g =>
+      eunify_classes(args1, args2, constrs, su)
+
+    // here we can say for sure that the current nodes are *not* unifiable,
+    // which means that the entire unification we have started is refuted
+    case (ELit(any1, typ1), ELit(any2, typ2)) if (any1 != any2) && (typ1 == typ2) =>
+      throw RefuteUnification
+
+    case (EApp(Inst(f, _), args1), EApp(Inst(g, _), args2))
+        if (constrs contains f) && (constrs contains g) =>
+      throw RefuteUnification
+
+    // otherwise, the result is inconclusive and we don't produce a result at all
     case _ =>
       Set()
   }
@@ -320,12 +345,13 @@ class EGraph {
   def eunify(
       ec1: EClass,
       ec2: EClass,
+      constrs: Set[Fun],
       su0: Map[Var, ENode]
   ): Set[Map[Var, ENode]] = {
     for (
       nd1 <- ec1.nodes;
       nd2 <- ec2.nodes;
-      su1 <- eunify(nd1, nd2, su0)
+      su1 <- eunify(nd1, nd2, constrs, su0)
     )
       yield su1
   }
@@ -333,14 +359,16 @@ class EGraph {
   def eunify_classes(
       ecs1: List[EClass],
       ecs2: List[EClass],
+      constrs: Set[Fun],
       su0: Map[Var, ENode]
   ): Set[Map[Var, ENode]] = (ecs1, ecs2) match {
     case (Nil, Nil) =>
       Set(su0)
+
     case (ec1 :: ecs1, ec2 :: ecs2) =>
       for (
-        su1 <- eunify(ec1, ec2, su0);
-        su2 <- eunify_classes(ecs1, ecs2, su1)
+        su1 <- eunify(ec1, ec2, constrs, su0);
+        su2 <- eunify_classes(ecs1, ecs2, constrs, su1)
       )
         yield su2
   }
@@ -348,14 +376,16 @@ class EGraph {
   def eunify_nodes(
       nds1: List[ENode],
       nds2: List[ENode],
+      constrs: Set[Fun],
       su0: Map[Var, ENode]
   ): Set[Map[Var, ENode]] = (nds1, nds2) match {
     case (Nil, Nil) =>
       Set(su0)
+
     case (nd1 :: nds1, nd2 :: nds2) =>
       for (
-        su1 <- eunify(nd1, nd2, su0);
-        su2 <- eunify_nodes(nds2, nds2, su1)
+        su1 <- eunify(nd1, nd2, constrs, su0);
+        su2 <- eunify_nodes(nds2, nds2, constrs, su1)
       )
         yield su2
   }
@@ -379,8 +409,10 @@ class EGraph {
       ec.nodes.filter(consider) flatMap {
         case EVar(x) =>
           Set(x)
+
         case ELit(any, typ) =>
           Set(Lit(any, typ))
+
         case EApp(inst, args) =>
           for (args_ <- extract(args, consider, known + ec))
             yield App(inst, args_)
@@ -395,6 +427,7 @@ class EGraph {
   ): Set[List[Expr]] = ids match {
     case Nil =>
       Set(Nil)
+
     case ec :: ids =>
       for (
         e <- extract(ec, consider, known);

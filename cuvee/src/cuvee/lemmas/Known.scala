@@ -5,7 +5,7 @@ import cuvee.pure._
 import cuvee.util.Matching
 
 object Known {
-  var debug = false
+  var debug = true
 
   def main(args: Array[String]) {}
 
@@ -106,12 +106,16 @@ object Known {
       val fcases_ = fcases.sortBy(Def.hash(fg, _))
       val gcases_ = gcases.sortBy(Def.hash(fg, _))
 
+      ??? // this idea of sorting by has code is fundamentally broken!!
+      
       // use this code to debug hash code problems
-      // println("======================")
-      // println("comparing: " + f.name + "  and  " + g.name)
-      // println(fcases map (Def.hash(fg, _)))
-      // println(gcases map (Def.hash(fg, _)))
-      // println("======================")
+      if (debug) {
+        println("======================")
+        println("comparing: " + f.name + "  and  " + g.name)
+        println(fcases_ map (Def.hash(fg, _)))
+        println(gcases_ map (Def.hash(fg, _)))
+        println("======================")
+      }
 
       val F = f.args.zipWithIndex.sortBy { case (t, i) =>
         Def.hash(t) -> foo(f, i, fcases_)
@@ -128,6 +132,11 @@ object Known {
 
           val ok_ = (fcases_ zip gcases_) forall {
             case (cf, cg) => {
+              if (debug) {
+                println("matching pair of case: ")
+                println("  " + cf)
+                println("  " + cg)
+              }
               val C(fargs, fguard, fbody) = cf
               val C(gargs, gguard, gbody) = cg inst su
 
@@ -192,6 +201,13 @@ object Known {
           None
       }
     } else {
+      if (debug) {
+        println("  not possible: " + df.fun.name + " ?= " + dg.fun.name)
+        println("funs  length diff? " + (df.fun != dg.fun))
+        println("args  length same? " + (df.fun.args.length == dg.fun.args.length))
+        println("cases length same? " + (df.cases.length == dg.cases.length))
+      }
+
       None
     }
   }

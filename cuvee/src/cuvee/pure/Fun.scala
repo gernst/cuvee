@@ -21,6 +21,10 @@ case class Inst(fun: Fun, ty: Map[Param, Type]) extends util.Syntax with boogie.
   def res =
     fun.res subst ty
 
+  def replace(f: Fun, g: Fun) =
+    if (fun == f) Inst(g, ty)
+    else this
+
   def apply(args: Expr*) =
     App(this, args.toList)
   def subst(su: Map[Param, Type]) =

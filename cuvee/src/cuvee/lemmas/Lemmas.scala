@@ -88,7 +88,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
   var printTiming = false // may be undesirable if counting duplicates
   AdtInd.cached = false
 
-  var debug = false
+  var debug = true
 
   val constrs = st.constrs
 
@@ -198,7 +198,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
     recover = recover map { case Rule(lhs, rhs, cond, avoid) =>
       val lhs_ = Simplify.simplify(lhs, re, constrs)
-      println(lhs + "~>" + lhs_)
+      // println(lhs + " ~> " + lhs_)
       Rule(lhs_, rhs, cond, avoid)
     }
 
@@ -564,12 +564,18 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
           // note we assume that definitions get simplified in the mean time
           // between rounds, to make use of new lemmas found
-          val rhs4 = for ((dg, ty, perm) <- Known.known(df_, definitions)) yield {
-            val rhs = App(Inst(dg.fun, ty), perm map args_)
-            assert(!(original contains df.fun))
-            drop(df_)
-            (rhs, "as " + dg.fun)
-          }
+
+          val rhs4 =
+            for (
+              dg <- definitions;
+              _ = { if(debug) println("  trying: " + dg.fun.name) };
+              (ty, perm) <- Known.known(df_, dg)
+            ) yield {
+              val rhs = App(Inst(dg.fun, ty), perm map args_)
+              assert(!(original contains df.fun))
+              drop(df_)
+              (rhs, "as " + dg.fun)
+            }
 
           val all = rhs1 ++ rhs2 ++ rhs3 ++ rhs4
 

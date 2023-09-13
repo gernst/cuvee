@@ -6,11 +6,11 @@ import cuvee.util.Name
 import cuvee.StringOps
 
 object Fuse {
-  var debug = false
+  var debug = true
 
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
-      (typ, pos) <- df.fun.args.zipWithIndex if dg.isRecursive
+      (typ, pos) <- df.fun.args.zipWithIndex // if dg.isRecursive
       if typ == dg.fun.res && isMatchingPosition(df, pos)
     )
       yield pos
@@ -200,6 +200,7 @@ object Fuse {
       args forall (isFused(f, g, _))
 
     case Bind(quant, formals, body, typ) =>
+      ??? // document which benchmark has this
       isFused(f, g, body)
 
     case _ =>
@@ -294,6 +295,21 @@ object Fuse {
         ???
         val args_ = gargs updated (pos, fpat)
         List((args_, su))
+
+      // stronger case, instantiate pattern variables nestedly
+      // e.g. runlength_other, where the second argument of
+      //      cons_c(pair(a, n), cons(pair(b, m), xs))
+      //      is supposed to match the result of cons(x, append_(xs, ys))
+
+      // this case now works but unfortunately is not recognized as append(_, cons_c),
+      // because the base cases differ (one matches pair(_, _) and the other one just a variable)
+
+      // first run did NOT succeed on that, but produced expand(append_(y₀, y₁)) = append(expand(y₀), expand(y₁)) instead, YAY
+      case (_, x: Var) if gargs.free contains x =>
+        val su = Expr.subst(x -> fpat)        
+        val gargs_ = gargs subst su
+        List((gargs_, su))
+
 
       case _ =>
         val gbody_ = Simplify.simplify(gbody, rules, constrs)

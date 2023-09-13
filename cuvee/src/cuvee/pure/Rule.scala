@@ -65,6 +65,13 @@ case class Rule(
 
   def cmd = Assert(toExpr)
 
+  def replace(f: Fun, g: Fun) = Rule(
+    lhs.replace(f, g),
+    lhs.replace(f, g),
+    cond.replace(f, g),
+    avoid map { case (a, b) => (a.replace(f, g), b.replace(f, g)) }
+  )
+
   override def toString = {
     var res = lhs + " = " + rhs
     var pres = And.flattenStrong(cond)

@@ -12,8 +12,13 @@ sealed trait Type extends Type.term with util.Syntax with boogie.Syntax {}
 case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends util.Syntax
 
 object Type extends Alpha[Type, Param] {
-  case class CannotUnify(reason: String) extends Exception
-  case class CannotBind(typ1: Type, typ2: Type, su: Map[Param, Type]) extends Exception
+  case class CannotUnify(reason: String) extends Exception {
+    override def toString = "cannot unify: " + reason
+  }
+
+  case class CannotBind(typ1: Type, typ2: Type, su: Map[Param, Type]) extends Exception{
+    override def toString = "cannot bind: " + typ1 + " to " + typ2 + " using " + su
+  }
 
   def prune(su: Map[Param, Type]): Map[Param, Type] = {
     for ((p, t) <- su)

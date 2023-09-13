@@ -39,8 +39,8 @@ object Test {
 
     val original = List(id, append, length, Fun.plus)
 
-    def consider(nd: g.ENode) = nd match {
-      case g.EApp(Inst(fun, _), _) =>
+    def consider(nd: ENode) = nd match {
+      case EApp(Inst(fun, _), _) =>
         original contains fun
       case _ =>
         true
@@ -49,22 +49,21 @@ object Test {
     g.add(length(append(xs, ys)))
     g.add(length(nil))
 
-    var i = 0
-    var done = false
     val all = rules ++ (rules flatMap (_.maybeFlip))
 
-    while (!done) {
-      i += 1
-      done = g.rewrite(all)
-      println("round " + i + " (new: " + !done + ")")
-    }
+    g.rewrite(all, speculate = true)
 
     for (ec <- g.classes) {
-      println("eclass " + ec.id)
-      for (nd <- ec.nodes) {
-        assert(nd.canon == nd)
-        println("  " + nd)
-      }
+      println(
+        "eclass " + ec.id + " (funs: " + ec.funs.map(_.name).mkString(", ") + ", free: " + ec.free
+          .mkString(", ") + ")"
+      )
+      // for (nd <- ec.nodes) {
+      //   assert(nd.canon == nd)
+      //   println("  " + nd)
+      // }
+      for (e <- ec.exprs)
+        println("  " + e)
     }
 
   }

@@ -52,6 +52,8 @@ object nat extends Run(Test, "examples/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "examples/lemmas/list.bpl")
 object tree extends Run(Test, "examples/lemmas/tree.bpl")
 
+object runlength_other extends Run(Test, "examples/lemmas/runlength_other.bpl")
+
 object Test extends Main {
   var out: PrintStream = null
   var rounds = 3
