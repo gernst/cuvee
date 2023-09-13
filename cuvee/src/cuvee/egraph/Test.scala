@@ -51,7 +51,7 @@ object Test {
 
     val all = rules ++ (rules flatMap (_.maybeFlip))
 
-    g.rewrite(all, speculate = true)
+    g.rewrite(g.classes, all, speculate = true)
 
     for (ec <- g.classes) {
       println(
