@@ -637,14 +637,14 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             todo { Recognize(None, lhs, preCondDef, xs) }
           }
 
-          val other =
-            for (
-              dg <- definitions if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
-              (dpre, expr) <- cuvee.newlemmas.Compare.compare(df, dg, st.constrs)
-            ) {
-              println("HAVE: " + expr)
-              println(dpre)
-            }
+          // val other =
+          //   for (
+          //     dg <- definitions if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
+          //     (dpre, expr) <- cuvee.newlemmas.Compare.compare(df, dg, st.constrs)
+          //   ) {
+          //     println("HAVE: " + expr)
+          //     println(dpre)
+          //   }
 
         case _ =>
           if (debug)
