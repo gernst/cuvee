@@ -553,7 +553,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             print("recognize " + lhs)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
-            Unused.unused(df simplify (normalize, constrs), args)
+            Clenaup.cleanup(df simplify (normalize, constrs), args)
           }
 
           // todo {RecognizeConditional(df_)}
