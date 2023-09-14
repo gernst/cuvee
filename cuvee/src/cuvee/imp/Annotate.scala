@@ -226,6 +226,20 @@ object Annotate extends Stage {
           x_
         }
 
+        /** Provides a list of all variables occuring in the test
+          *
+          * @return
+          *   List of Var used in the test
+          */
+        def testVars() = test match {
+          case App(_, args)
+              if args
+                .forall(e => e.isInstanceOf[Var] || e.isInstanceOf[Lit]) =>
+            for (e <- args if e.isInstanceOf[Var]) yield e.asInstanceOf[Var]
+          case _ =>
+            cuvee.error("Currently only simple tests are supported.")
+        }
+
         /** Builds an instance of Modified which holds the range of indices
           * which got edited until an arbitrary iteration of the analyzed loop
           *
@@ -236,12 +250,19 @@ object Annotate extends Stage {
           */
         def mOf(expr: Expr): Modified = expr match {
           case n @ Var(_, Sort.int) =>
-            // TODO consider position of increments
             val x0 = init(n)
 
-            val stepxs = after map { st => st.vars(n) }
+            val candidates = mod.filter(v => v.typ == Sort.int)
+            val testVars_ = testVars.toSet
+            val List(dec) = candidates.intersect(testVars_).toList.distinct
+
+            val stepxs = after map { st => st.vars(dec) }
             val List(step) = stepxs.distinct
 
+            // TODO -> consider position of increments
+            // change lb and ub
+            // to complete exprs. these schould contain <= or < (appropriate)
+            // check here which one
             step match {
               case Plus(args) if args.contains(One) =>
                 Modified(x0, n, test)
