@@ -193,6 +193,7 @@ object Annotate extends Stage {
             fresh: Map[Var, Var],
             subst: Map[Var, Var]
         ): Expr = a match {
+          // TODO check
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
             Select(a, x) === rhs rename fresh
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
@@ -233,7 +234,6 @@ object Annotate extends Stage {
           * @return
           *   Modified which got derived from the given Expr
           */
-        // TODO update all args from type tuple
         def mOf(expr: Expr): Modified = expr match {
           case n @ Var(_, Sort.int) =>
             // TODO consider position of increments
@@ -256,8 +256,7 @@ object Annotate extends Stage {
             ranges.reduce((x, y) =>
               Modified(x.lb + y.lb, x.ub + y.ub, test, x.step + y.step)
             )
-          case Minus(args) =>
-            val (l, r) = args
+          case Minus(l, r) =>
             val ranges = List(mOf(l), mOf(r))
             ranges.reduce((x, y) =>
               Modified(x.lb - y.lb, x.ub - y.ub, test, x.step + y.step)
@@ -267,8 +266,7 @@ object Annotate extends Stage {
             ranges.reduce((x, y) =>
               Modified(x.lb * y.lb, x.ub * y.ub, test, x.step + y.step)
             )
-          case DivBy(args) =>
-            val (l, r) = args
+          case DivBy(l, r) =>
             val ranges = List(mOf(l), mOf(r))
             ranges.reduce((x, y) =>
               Modified(
@@ -278,8 +276,7 @@ object Annotate extends Stage {
                 x.step + y.step
               )
             )
-          case Mod(args) =>
-            val (l, r) = args
+          case Mod(l, r) =>
             val ranges = List(mOf(l), mOf(r))
             ranges.reduce((x, y) =>
               Modified(Mod(x.lb, y.lb), Mod(x.ub, y.ub), test, x.step + y.step)
