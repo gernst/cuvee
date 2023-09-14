@@ -568,7 +568,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           val rhs4 =
             for (
               dg <- definitions;
-              _ = { if(debug) println("  trying: " + dg.fun.name) };
+              _ = { if (debug) println("  trying: " + dg.fun.name) };
               (ty, perm) <- Known.known(df_, dg)
             ) yield {
               val rhs = App(Inst(dg.fun, ty), perm map args_)
@@ -626,6 +626,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
 
           val ids = Conditional.checkIdentityWithParamPicksAndGuard(df)
           val const = Conditional.checkIsDefConstant(df)
+
           val all = ids ++ const
 
           for ((rule, preCondDef) <- all) {
@@ -635,6 +636,15 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             val lhs = App(pre, xs)
             todo { Recognize(None, lhs, preCondDef, xs) }
           }
+
+          val other =
+            for (
+              dg <- definitions if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
+              (dpre, expr) <- cuvee.newlemmas.Compare.compare(df, dg, st.constrs)
+            ) {
+              println("HAVE: " + expr)
+              println(dpre)
+            }
 
         case _ =>
           if (debug)

@@ -106,7 +106,7 @@ object Known {
       val fcases_ = fcases.sortBy(Def.hash(fg, _))
       val gcases_ = gcases.sortBy(Def.hash(fg, _))
 
-      ??? // this idea of sorting by has code is fundamentally broken!!
+      //??? // this idea of sorting by has code is fundamentally broken!!
       
       // use this code to debug hash code problems
       if (debug) {

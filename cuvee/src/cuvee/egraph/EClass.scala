@@ -5,15 +5,20 @@ import cuvee.pure._
 
 object EClass extends cuvee.util.Counter
 
-class EClass(val egraph: EGraph, var parents: Map[ENode, EClass], var nodes: Set[ENode]) {
+class EClass(
+    val egraph: EGraph,
+    var parents: Map[ENode, EClass],
+    var canon: ENode,
+    var nodes: Set[ENode]
+) {
   require(nodes.nonEmpty, "an e-class must be nonempty")
   val id = EClass.next
 
   def exprs = egraph.extract(this)
   def isTrue = nodes exists (_.isTrue)
 
-  def this(egraph: EGraph) = this(egraph, Map(), Set())
-  def this(egraph: EGraph, nd: ENode) = this(egraph, Map(), Set(nd))
+  def this(egraph: EGraph) = this(egraph, Map(), null, Set())
+  def this(egraph: EGraph, nd: ENode) = this(egraph, Map(), nd, Set(nd))
 
   var repr: EClass = this
 
@@ -42,6 +47,8 @@ class EClass(val egraph: EGraph, var parents: Map[ENode, EClass], var nodes: Set
 
   def transfer(map: Map[EClass, EClass]) = {
     val that = map(this)
+
+    that.canon = canon.transfer(map)
 
     that.parents =
       for ((pnd, pec) <- parents)

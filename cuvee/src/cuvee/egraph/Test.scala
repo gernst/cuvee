@@ -30,9 +30,15 @@ object Test {
     val length = Fun("length", List(a), List(list_a), Sort.int)
     val length_ = Fun("length_", List(a), List(list_a, Sort.int), Sort.int)
 
+    val f = Fun("f", List(a), List(a, Sort.int), a)
+
     val rules = List(
       Rule(n + Zero, n),
+      Rule(length(nil), Zero),
       Rule(length(xs), length_(xs, Zero)),
+      Rule(append(nil, xs), xs),
+      Rule(f(x, Zero), f(f(x, Zero), Zero)),
+      Rule(append(xs, nil), xs), // XXX: removing this rule will loop!
       Rule(length_(xs, n), length_(xs, Zero) + n, True, List(n -> Zero)),
       Rule(length(append(xs, ys)), length_(xs, length_(ys, Zero)))
     )
@@ -48,22 +54,23 @@ object Test {
 
     g.add(length(append(xs, ys)))
     g.add(length(nil))
+    g.add(f(x, Zero))
 
-    val all = rules ++ (rules flatMap (_.maybeFlip))
+    val all = (rules flatMap (_.maybeFlip)) ++ rules // prefer later rules
 
-    g.rewrite(g.classes, all, speculate = true)
+    g.rewrite(all, speculate = true)
 
     for (ec <- g.classes) {
       println(
-        "eclass " + ec.id + " (funs: " + ec.funs.map(_.name).mkString(", ") + ", free: " + ec.free
+        "eclass " + ec.id + " for " + ec.canon + " (funs: " + ec.funs.map(_.name).mkString(", ") + ", free: " + ec.free
           .mkString(", ") + ")"
       )
-      // for (nd <- ec.nodes) {
-      //   assert(nd.canon == nd)
-      //   println("  " + nd)
-      // }
-      for (e <- ec.exprs)
-        println("  " + e)
+      for (nd <- ec.nodes) {
+        // assert(nd.canon == nd)
+        println("  " + nd)
+      }
+      // for (e <- ec.exprs)
+      //   println("  " + e)
     }
 
   }

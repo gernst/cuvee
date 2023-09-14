@@ -11,7 +11,7 @@ object Fuse {
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
       (typ, pos) <- df.fun.args.zipWithIndex // if dg.isRecursive
-      if typ == dg.fun.res && isMatchingPosition(df, pos)
+      if typ == dg.fun.res && df.isMatchingPosition(pos)
     )
       yield pos
   }
@@ -208,13 +208,6 @@ object Fuse {
   }
 
   object CannotFuse extends Exception
-
-  def isMatchingPosition(df: Def, pos: Int): Boolean = {
-    df.cases exists { case C(args, guard, body) =>
-      val arg = args(pos)
-      arg.isInstanceOf[App] || arg.isInstanceOf[Lit]
-    }
-  }
 
   def fused(f: Name, g: Name, pos: Int) = {
     // XXX: change if we want to fuse multiple functions

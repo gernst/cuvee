@@ -12,7 +12,7 @@ class EGraph {
   def free = hash.keySet collect { case EVar(x) => x }
   def funs = hash.keySet collect { case EApp(inst, _) => inst.fun }
 
-  var debug = false
+  var debug = true
 
   object RefuteUnification extends Exception
 
@@ -109,6 +109,8 @@ class EGraph {
       hash(nd)
     } else {
       val ec = new EClass(this, nd)
+      if(debug)
+        println("new eclass for " + nd)
       classes += ec
 
       for (arg <- nd.args)
@@ -181,7 +183,7 @@ class EGraph {
     if (debug) {
       println("repaired " + ec)
       for (nd <- ec.nodes) {
-        assert(nd.canon == nd)
+        // assert(nd.canon == nd)
         println("  " + nd)
       }
       println()
@@ -258,7 +260,7 @@ class EGraph {
 
   def subst(expr: Expr, su: Map[Var, EClass]): EClass = expr match {
     case x: Var if su contains x =>
-      su(x)
+      su(x).find
 
     case x: Var =>
       add(EVar(x))
@@ -272,14 +274,15 @@ class EGraph {
 
   // if speculate is true then conditional rules are accepted regardless
   // otherwise only applies rewrite rules whose conditions are satisfied
-  def rewrite(where: Set[EClass], rules: List[Rule], speculate: Boolean) = {
+  def rewrite(rules: List[Rule], speculate: Boolean) = {
     var done: Boolean = false
     var conds = Set[EClass]()
 
     while (!done) {
       done = true
 
-      for ((bad, rule, su, lhs, rhs, cond) <- ematches(where, rules)) {
+      val ms = ematches(classes, rules)
+      for ((bad, rule, su, lhs, rhs, cond) <- ms) {
         var ok = true
 
         // reject syntactic avoid conditions
@@ -292,7 +295,7 @@ class EGraph {
         ok = ok && (speculate || cond.isTrue)
 
         if (ok) {
-          merge(lhs, rhs)
+          merge(lhs, rhs) // rhs will be the representant
           done = false
 
           // keep track of (nontrivial) speculated conditions
