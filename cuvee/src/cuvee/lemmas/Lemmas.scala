@@ -640,7 +640,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
           val other =
             for (
               dg <- definitions if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
-              (dpre, expr) <- cuvee.newlemmas.Compare.compare(df, dg, Map(), st.constrs)
+              (dpre, expr) <- Compare.compare(df, dg, Map(), st.constrs)
             ) {
               println("HAVE: " + expr)
               println(dpre)
