@@ -445,11 +445,19 @@ sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
     *   List of all variables who are part of the expressions from this instance
     */
   def vars(): Set[Var] = {
-    ub match {
+    val first = lb match {
       case Var(name, typ)  => Set(Var(name, typ))
       case App(inst, args) => vars(args).toSet
       case _               => Set()
     }
+
+    val second = ub match {
+      case Var(name, typ)  => Set(Var(name, typ))
+      case App(inst, args) => vars(args).toSet
+      case _               => Set()
+    }
+
+    first ++ second
   }
 
   private[this] def vars(args: List[Expr]): List[Var] = args match {
