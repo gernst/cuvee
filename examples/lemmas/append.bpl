@@ -10,6 +10,10 @@ function append(xs: list<elem>, ys: list<elem>): list<elem>;
 function length(xs: list<elem>): nat;
 function count(x: elem, xs: list<elem>): nat;
 
+function cons_(x: elem, xs: list<elem>): list<elem> {
+  cons(x, xs)
+}
+
 axiom forall n: nat ::
   add(zero, n) == n;
 axiom forall m: nat, n: nat ::

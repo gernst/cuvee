@@ -553,7 +553,7 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             print("recognize " + lhs)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
-            Clenaup.cleanup(df simplify (normalize, constrs), args)
+            Unused.unused(df simplify (normalize, constrs), args)
           }
 
           // todo {RecognizeConditional(df_)}
@@ -637,14 +637,14 @@ class Lemmas(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: Stat
             todo { Recognize(None, lhs, preCondDef, xs) }
           }
 
-          // val other =
-          //   for (
-          //     dg <- definitions if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
-          //     (dpre, expr) <- cuvee.newlemmas.Compare.compare(df, dg, st.constrs)
-          //   ) {
-          //     println("HAVE: " + expr)
-          //     println(dpre)
-          //   }
+          val other =
+            for (
+              dg <- definitions if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
+              (dpre, expr) <- cuvee.newlemmas.Compare.compare(df, dg, Map(), st.constrs)
+            ) {
+              println("HAVE: " + expr)
+              println(dpre)
+            }
 
         case _ =>
           if (debug)

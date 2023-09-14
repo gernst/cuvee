@@ -6,9 +6,10 @@ import cuvee.util.Name
 import cuvee.pure._
 import cuvee.smtlib._
 
-case class C(args: List[Expr], guard: List[Expr], body: Expr) {
+case class C(args: List[Expr], guard: List[Expr], body: Expr) extends Expr.bind[C] {
   def typ = body.typ
   def flat(self: Fun) = this
+  def bound = args.free
 
   require(!(guard contains True), "guard contains " + True)
   require(!(guard contains False), "guard contains " + False)
@@ -20,8 +21,12 @@ case class C(args: List[Expr], guard: List[Expr], body: Expr) {
     C(args replace (f,g), guard replace (f,g), body replace (f,g))
   }
 
-  def rename(re: Map[Var, Var]) = {
-    C(args rename re, guard rename re, body rename re)
+  def rename(a: Map[Var, Var], re: Map[Var, Var]) = {
+    C(args rename a, guard rename re, body rename re)
+  }
+
+  def subst(a: Map[Var, Var], su: Map[Var, Expr]) = {
+    C(args rename a, guard subst su, body subst su)
   }
 
   def inst(su: Map[Param, Type]) = {
@@ -157,7 +162,7 @@ case class Def(fun: Fun, cases: List[C]) {
         yield {
           val guard_ = Simplify.simplify(guard, rules, constrs)
           val body_ = Simplify.simplify(body, rules, constrs)
-          C(args, guard_, body_)
+          C(args, guard_ filterNot(_ == True), body_)
         }
 
     Def(fun, cases_)

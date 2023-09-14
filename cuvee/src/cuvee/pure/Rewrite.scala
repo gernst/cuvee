@@ -12,6 +12,30 @@ object Rewrite {
 
   case class RewriteDepthExceeded(exprs: List[Expr], rules: Map[Fun, List[Rule]]) extends Exception
 
+  def catchRewritingDepthExceeded[A](f: => A) = {
+    try {
+      f
+    } catch {
+      case e @ Rewrite.RewriteDepthExceeded(trace, rules) =>
+        println("rewriting depth exceeded")
+        println()
+
+        println("trace:")
+        for (expr <- trace)
+          println("  " + expr)
+        println()
+        println("rewrite rules:")
+        for ((fun, eqs) <- rules) {
+          println("  " + fun)
+          for (eq <- eqs)
+            println("    " + eq)
+        }
+        println()
+
+        throw e
+    }
+  }
+
   def from(
       cmd: Cmd,
       ok: Set[Fun],
