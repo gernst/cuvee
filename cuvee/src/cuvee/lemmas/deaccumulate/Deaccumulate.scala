@@ -15,10 +15,21 @@ object Deaccumulate {
   var heuristics = 0
 
   class Cond(val prio: Int)
+
+  // Heuristic: look for neutral elements of o
   case class N(o: Fun, b: Fun) extends Cond(0)
+
+  // Heuristic: define f(args) := body
   case class D(f: Fun, args: List[Var], body: Expr) extends Cond(1)
-  case class A(l: Expr, r: Expr, g: Expr) extends Cond(2)
+
+  // Assert g ==> l == r to validate some prior instantiation,
+  // not generated as part of the original query, only during solving
+  case class A(formals: List[Var], l: Expr, r: Expr, g: Expr) extends Cond(2)
+
+  // Heuristic: guess f(args) := body, taken from existing function definition
   case class G(f: Fun, args: List[Var], body: Expr) extends Cond(3)
+
+  // General case for function body b(args): find b so that forall formals. g ==> l == r
   case class B(formals: List[Var], b: Fun, args: List[Var], l: Expr, r: Expr, g: Expr)
       extends Cond(4)
 
@@ -79,95 +90,114 @@ object Deaccumulate {
 
           val args_ = args removed pos
           // val xs = args.free.toList
+
           val xs_ = args_.free.toList
 
-          val (lhs, recs) = abstracted(f, body)
+          // skel is the abstracted body, where all recursive calls have been replaced by variables ys
+          val (skel, recs) = abstracted(f, body)
           val (ys, arglists) = recs.unzip
 
+          // list of static variables in this particular case
           val zs = static_ map args collect { case z: Var =>
             z
           }
 
-          val acc =
-            for ((y, args) <- recs)
-              yield (y, App(⊕, List(y, args(pos)) ++ zs))
-
-          val su = Expr.subst(acc)
-
-          val arglists_ =
-            for ((y, args) <- recs)
-              yield App(f_, args removed pos)
-
-          val isBaseCase = ys.isEmpty
-          val refersToAccumulator = (u in body)
+          // assumptions needed for hoisting (one?) static base case
+          val isBaseCase = recs.isEmpty
           val isStaticBody = ((body.free - u) subsetOf zs.toSet)
 
-          // if all other variables are static -> can refer to these in oplus
+          // check whether it makes sense at all:
+          // base cases that are not referring to the accumulator
+          // can (probably) remain the same
+          val refersToAccumulator = (u in body)
+
           if (isBaseCase && refersToAccumulator && isStaticBody) {
+            // apply static hoisting to this base case:
+
+            // prepare a placeholder for the definition of the body
             val n = Name("body", Some(j))
             val b = Fun(n, params, Nil, res)
+            val body_ = b()
+            val cs_ = C(args_, guard, body_)
 
+            // prepare a binary operator ⊙ that may be used to body,
+            // so that the solution is read off neutral elements of that operator
             val m = Name("odot", Some(j))
-
-            // TODO: add static global args to oplus
             val ⊙ = Fun(m, params, List(res, res), res)
             val y = Expr.fresh("y", res)
             val z = Expr.fresh("z", res)
 
-            val body_ = b()
-
-            // TODO: rename static globals in the lifted body
             val eq1 = Rule(⊙(body_, z), z)
             val eq2 = Rule(App(⊕, List(y, u) ++ zs), ⊙(y, body))
-            val cs_ = C(args_, guard, body_)
 
             (cs_, List(b, ⊙), (List(eq1, eq2), List(N(⊙, b), D(⊕, List(y, u) ++ zs, ⊙(y, body)))))
+          } else {
+            // adjust argument lists of recursive calls
+            val arglists_ =
+              for ((y, args) <- recs)
+                yield App(f_, args removed pos)
 
-          } /* else if (
-            false && ys.nonEmpty && (static contains pos) && (body_.free subsetOf args_.free)
-          ) {
-            // this is a heuristic that does not work for deaccumulating reverse.append
-            // ra [] ys = reverse ys
-            // ra (x:xs) ys = snoc (ra xs ys) x
-            // println(lhs)
-            // println(su_)
-            // println(args + " and " + args_)
-            val cs_ = C(args_, guard, body_)
-            // cannot rely on facts about the guard as it may refer to non-static information here
-            val eq = Rule(App(⊕, List(lhs, u) ++ zs), lhs subst su /*, And(guard) */ )
-
-            // promote through a body without compensating for the accumulator
-            (cs_, List(), (List(eq), List(A(App(⊕, List(lhs, u) ++ zs), lhs subst su, And(guard)))))
-          } */
-          else {
-            val n = Name("phi" + j)
+            val n = Name("phi", Some(j))
             val b = Fun(n, params, xs_.types ++ ys.types, res)
-
             val body_ = App(b, xs_ ++ arglists_)
             val cs_ = C(args_, guard, body_)
 
-            val rhs = App(⊕, List(App(b, xs_ ++ ys), u) ++ zs)
-            val eq = Rule(rhs, lhs subst su, And(guard))
-
+            // compute original body with recursive calls replaced
+            // to new function and shorter argument lists
             val su_ = Expr.subst(ys, arglists_)
-            val orig_ = lhs subst su_
+            val orig_ = skel subst su_
 
+            // all variables possibly occurring in the constraints
             val vs = (u :: xs_ ++ ys ++ zs).distinct
 
+            // substitution that replaces recursive calls by inductive hypothesis
+            val acc =
+              for ((y, args) <- recs)
+                yield (y, App(⊕, List(y, args(pos)) ++ zs))
+
+            val su = Expr.subst(acc)
+
+            // this gives the lhs used in the actual proof obligation
+            val lhs = skel subst su
+            val rhs = App(⊕, List(App(b, xs_ ++ ys), u) ++ zs)
+            val eq = Rule(rhs, lhs, And(guard))
+
+            val accumulatorIsStatic = (static contains pos)
+
+            // this condition holds, if the accumulator is not used somewhere else in the body,
+            // which means it is just passed down at that same argument position
+            val accumulatorDisappears = (orig_.free subsetOf args_.free)
+
+            // TODO: document what happens here!
             val conds =
-              if (recs.nonEmpty && (static contains pos) && (orig_.free subsetOf args_.free)) {
-                // offer a guess here that the body will remain unchanged, not useful for reverse:0:append (XXX: this may not be accurate!)
-                val guess = G(b, xs_ ++ ys, lhs)
-                val cond = B(vs, b, xs_ ++ ys, rhs, lhs subst su, And(guard))
+              if (recs.nonEmpty && accumulatorIsStatic && accumulatorDisappears) {
+                // offer a guess here that the body will remain unchanged,
+                // for a *recursive* case when that makes sense
+                // - we have an accumulator that is actually unchanged passing it downwards, and
+                // - we do not need the accumulator otherwise
+
+                // perhaps this heuristic is not useful for reverse:0:append (XXX: this may not be accurate!)
+
+                val guess = G(b, xs_ ++ ys, skel)
+                val cond = B(vs, b, xs_ ++ ys, rhs, rhs, And(guard))
                 List(guess, cond)
               } else if (recs.length == 1 && u.typ == res) { // direct accumulator
+                // offer a guess when the accumulator actually does change but we have a single recursive call only,
+                // the rationale for not trying this when there are multiple recursive calls is that then ⊕ must be idempotent or something like that
+                // which seems unlikely to be satisfied
+
+                // the guess is that we can just tail-recurse without considering the original body skel at all,
+                // which only works if the type of the accumulator is what the function returns
+
+                // TODO: document when that is useful!
                 val List((y, args)) = recs
                 val acc = args(pos) subst Map(u -> y)
                 val guess = G(b, xs_ ++ ys, acc)
-                val cond = B(vs, b, xs_ ++ ys, rhs, lhs subst su, And(guard))
+                val cond = B(vs, b, xs_ ++ ys, lhs, rhs, And(guard))
                 List(guess, cond)
               } else {
-                val cond = B(vs, b, xs_ ++ ys, rhs, lhs subst su, And(guard))
+                // otherwise, we have to work harder :)
+                val cond = B(vs, b, xs_ ++ ys, lhs, rhs, And(guard))
                 List(cond)
               }
 
@@ -314,7 +344,7 @@ object Deaccumulate {
         solve(solver, consts, funs, datatypes, unknowns - f, Nil, rest, easy, guess, hard, rules_)
 
       case (Nil, D(f, args, body) :: rest, _, _, _) =>
-        val cond = A(App(f, args), body, True)
+        val cond = A(args, App(f, args), body, True)
         solve(
           solver,
           consts,
@@ -329,7 +359,7 @@ object Deaccumulate {
           rules
         )
 
-      case (Nil, Nil, (cond @ A(lhs, rhs, guard)) :: rest, _, _) =>
+      case (Nil, Nil, (cond @ A(xs, lhs, rhs, guard)) :: rest, _, _) =>
         // println("  using rules")
         // for((_, eqs) <- rules; eq <- eqs)
         //   println("    " + eq)
@@ -342,8 +372,7 @@ object Deaccumulate {
             val rhs_ = Simplify.simplify(rhs, rules, Set())
             val guard_ = Simplify.simplify(guard, rules, Set())
 
-            val xs = lhs_.free ++ rhs_.free ++ guard_.free
-            val phi = Forall(xs.toList, Imp(guard_, Eq(lhs_, rhs_)))
+            val phi = Forall(xs, Imp(guard_, Eq(lhs_, rhs_)))
             if (debug)
               print("proving:  " + phi + " ... ")
 
@@ -398,7 +427,7 @@ object Deaccumulate {
           unknowns,
           Nil,
           Nil,
-          List(A(lhs, rhs, guard)),
+          List(A(xs, lhs, rhs, guard)),
           guess,
           rest,
           rules
@@ -449,7 +478,7 @@ object Deaccumulate {
               unknowns,
               Nil,
               Nil,
-              List(A(lhs, rhs, guard)),
+              List(A(xs, lhs, rhs, guard)),
               Nil,
               rest,
               rules_

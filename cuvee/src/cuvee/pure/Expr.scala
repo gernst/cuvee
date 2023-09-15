@@ -198,8 +198,8 @@ object Expr extends Alpha[Expr, Var] {
         (ty, su)
       case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
         val ty_ = Type.binds(inst1.args, inst1.res, inst2.args, inst2.res, ty)
-        val su_ = bind(pats, args, ty_, su)
-        (ty_, su_)
+        val (ty__, su_) = bind(pats, args, ty_, su)
+        (ty__, su_)
       case _ =>
         throw CannotBind(pat, arg, ty, su)
     }
@@ -210,15 +210,15 @@ object Expr extends Alpha[Expr, Var] {
       args: List[Expr],
       ty: Map[Param, Type],
       su: Map[Var, Expr]
-  ): Map[Var, Expr] = {
+  ): (Map[Param, Type], Map[Var, Expr]) = {
     (pats, args) match {
       case (Nil, Nil) =>
-        su
+        (ty, su)
       case (pat :: pats, arg :: args) =>
         val (ty_, su_) = bind(pat, arg, ty, su)
         bind(pats, args, ty_, su_)
     }
-  }
+  }  
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {

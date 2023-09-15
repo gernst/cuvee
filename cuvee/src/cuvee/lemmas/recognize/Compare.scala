@@ -116,8 +116,8 @@ object Compare {
       val (ty, su) = Expr.unify(pat, pat_)
       require(ty.isEmpty)
       require((pat subst su) == (pat_ subst su))
-      if(su.nonEmpty)
-      println("unify " + pat + " and " + pat_ + " = " + su)
+      // if(su.nonEmpty)
+      // println("unify " + pat + " and " + pat_ + " = " + su)
 
       var guard = (fguard ++ gguard) subst su
 
