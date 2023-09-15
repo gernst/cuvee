@@ -1,12 +1,14 @@
-package cuvee.lemmas
+package cuvee.lemmas.evaluation
 
 import java.io.PrintStream
 import cuvee.smtlib._
 import cuvee.pure._
+import cuvee.lemmas._
 import cuvee.util.Run
 import cuvee.util.Main
 import cuvee.State
 
+import cuvee.lemmas.deaccumulate.Deaccumulate
 object isaplanner
     extends Run(
       Test,
@@ -77,9 +79,8 @@ object Test extends Main {
       for ((Assert(Not(phi))) <- cmds)
         yield phi
 
-    val lemmas = new Lemmas(decls, cmds, defs, st, solver)
+    val lemmas = new Discover(decls, cmds, defs, st, solver)
     lemmas.useInternal = useInternal
-    lemmas.useAdtInd = useAdtInd
 
     for (
       Lemma(phi, _, _) <- cmds;
@@ -136,7 +137,7 @@ object Test extends Main {
     for (file <- files) {
       try {
         val (cmds, st) = read(file)
-        val (decls, defs) = prepare(cmds, st)
+        val (decls, eqs, defs) = prepare(cmds, st)
         println(file)
         run(decls, cmds, defs, st)
       } catch {

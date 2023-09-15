@@ -1,4 +1,4 @@
-package cuvee.lemmas
+package cuvee.lemmas.evaluation
 
 object Isaplanner {
   def main(args: Array[String]) {

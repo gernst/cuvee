@@ -1,4 +1,4 @@
-package cuvee.lemmas
+package cuvee.lemmas.deaccumulate
 
 import cuvee.pure._
 import cuvee.util.Name
@@ -6,6 +6,7 @@ import cuvee.smtlib.Model
 import cuvee.smtlib.Solver
 import cuvee.State
 import cuvee.smtlib.Unsat
+import cuvee.lemmas._
 
 object Deaccumulate {
   // case object CannotDeaccumulate extends Exception
@@ -53,7 +54,7 @@ object Deaccumulate {
       args: List[Expr],
       pos: Int,
       static: List[Int]
-  ) = {
+  ): (Def, Expr, Fun, List[Fun], List[Rule], List[Cond]) = {
     val Def(f, cases) = df
     val Fun(name, params, types, res) = f
 
@@ -97,8 +98,12 @@ object Deaccumulate {
             for ((y, args) <- recs)
               yield App(f_, args removed pos)
 
+          val isBaseCase = ys.isEmpty
+          val refersToAccumulator = (u in body)
+          val isStaticBody = ((body.free - u) subsetOf zs.toSet)
+
           // if all other variables are static -> can refer to these in oplus
-          if (ys.isEmpty && (u in body) && ((body.free - u) subsetOf zs.toSet)) {
+          if (isBaseCase && refersToAccumulator && isStaticBody) {
             val n = Name("body", Some(j))
             val b = Fun(n, params, Nil, res)
 
@@ -151,7 +156,7 @@ object Deaccumulate {
 
             val conds =
               if (recs.nonEmpty && (static contains pos) && (orig_.free subsetOf args_.free)) {
-                // offer a guess here that the body will remain unchanged, not useful for reverse:0:append
+                // offer a guess here that the body will remain unchanged, not useful for reverse:0:append (XXX: this may not be accurate!)
                 val guess = G(b, xs_ ++ ys, lhs)
                 val cond = B(vs, b, xs_ ++ ys, rhs, lhs subst su, And(guard))
                 List(guess, cond)
@@ -479,7 +484,7 @@ object Deaccumulate {
             yield (unknowns_, eq_ :: todo, rules)
         }
     }
-  
+
   val defaultNeutral = {
     val int: Type = Sort.int // cast to Type
     val bool: Type = Sort.bool
@@ -498,7 +503,7 @@ object Deaccumulate {
 
     known.withDefaultValue(LazyList.empty)
   }
-  
+
   var neutral = defaultNeutral
 
   def select(fun: Fun, typ: Type) = {
@@ -572,9 +577,8 @@ object Foo {
         True -> 1,
         False -> 1,
         Zero -> 1,
-        One -> 1,
+        One -> 1
       )
-
 
     val results = Deaccumulate.enumerate(Sort.int, st.funs.values.to(LazyList), zs, 3)
 

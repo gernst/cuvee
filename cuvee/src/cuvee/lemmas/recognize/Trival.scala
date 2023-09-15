@@ -1,6 +1,7 @@
-package cuvee.lemmas
+package cuvee.lemmas.recognize
 
 import cuvee.pure._
+import cuvee.lemmas._
 
 object Trivial {
   def identity(df: Def, args: List[Expr]): List[Expr] = {

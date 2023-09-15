@@ -1,16 +1,24 @@
 package cuvee.lemmas
 
+import cuvee.util.Name
 import cuvee.pure._
 
 object Unused {
-  def unused(df: Def, xs: List[Expr]): (Boolean, Def, List[Expr]) = {
+  // removes unused parameters, returning:
+  // - a flag whether the definition was changed
+  // - the old or new definition if changed
+  // - the updated argument lists
+  // if rename is not none, then the new function will have that name,
+  // otherwise, the old name is kept; this is used if an original function must be kept
+  def unused(df: Def, xs: List[Expr], rename: Option[Name] = None): (Boolean, Def, List[Expr]) = {
     val Def(f, cases) = df
 
     val is = usedArgs(df)
 
+    val name_ = rename getOrElse f.name
     val args_ = is map f.args
     val params_ = f.params filter (_ in args_)
-    val f_ = Fun(f.name, params_, args_, f.res)
+    val f_ = Fun(name_, params_, args_, f.res)
 
     val cases_ = for (C(args, guard, body) <- cases) yield {
       C(is map args, guard, keep(f, f_, is, body))

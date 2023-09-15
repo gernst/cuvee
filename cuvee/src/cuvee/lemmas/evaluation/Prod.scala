@@ -1,4 +1,4 @@
-package cuvee.lemmas
+package cuvee.lemmas.evaluation
 
 object Prod {
   def main(args: Array[String]) {

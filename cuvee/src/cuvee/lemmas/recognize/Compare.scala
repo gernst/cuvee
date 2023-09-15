@@ -1,4 +1,4 @@
-package cuvee.lemmas
+package cuvee.lemmas.recognize
 
 import cuvee.lemmas.Def
 import cuvee.lemmas.C
@@ -6,6 +6,26 @@ import cuvee.pure._
 import cuvee.imp.WP
 
 object Compare {
+  def main(args: Array[String]) {
+    val (cmds, st) = cuvee.boogie.parse("examples/boogie/debug.bpl")
+    val (decls, eqs, defs) = cuvee.lemmas.prepare(cmds, st)
+
+    val rules = eqs.groupBy(_.fun)
+    val constrs = st.constrs
+
+    for (
+      df <- defs; dg <- defs if df.fun != dg.fun;
+      (pre, eq) <- compare(df, dg, rules, constrs)
+    ) try {
+      println(eq)
+      println(pre)
+      println()
+    } catch {
+      case _: Exception =>
+        println("failed: " + df.fun + " ?= " + dg.fun)
+    }
+  }
+
   object CanIgnore extends Exception
   // object CannotCompare extends Exception
 
@@ -96,6 +116,8 @@ object Compare {
       val (ty, su) = Expr.unify(pat, pat_)
       require(ty.isEmpty)
       require((pat subst su) == (pat_ subst su))
+      if(su.nonEmpty)
+      println("unify " + pat + " and " + pat_ + " = " + su)
 
       var guard = (fguard ++ gguard) subst su
 

@@ -18,7 +18,16 @@ case class C(args: List[Expr], guard: List[Expr], body: Expr) extends Expr.bind[
   require(guard.free subsetOf args.free, this + " does not bind: " + (guard.free -- args.free))
 
   def replace(f: Fun, g: Fun) = {
-    C(args replace (f,g), guard replace (f,g), body replace (f,g))
+    C(args replace (f, g), guard replace (f, g), body replace (f, g))
+  }
+
+  def reorder(f: Fun, f_ : Fun, perm: List[Int]) = {
+    val body_ = body bottomup {
+      case App(Inst(`f`, su), args) => App(Inst(f_, su), perm map args)
+      case expr                     => expr
+    }
+
+    C(perm map args, guard, body_)
   }
 
   def rename(a: Map[Var, Var], re: Map[Var, Var]) = {
@@ -89,6 +98,8 @@ case class Def(fun: Fun, cases: List[C]) {
     )
   }
 
+  def name = fun.name
+  def arity = fun.arity
   def params = fun.params
   def args = fun.args
   def typ = fun.res
@@ -118,30 +129,26 @@ case class Def(fun: Fun, cases: List[C]) {
     }
   }
 
-  // object Norm {
-  //   def unapply(c: C) = {
-  //     val C(args, guard, body) = c
-  //     val ((d, r), (as, bs, cs)) = Split.split(fun, body)
-  //     Some((args, guard, as, bs, cs, d))
-  //   }
-  // }
+  def reorder(fun_ : Fun, perm: List[Int]) = {
+    assert(fun_.params.toSet == fun.params.toSet)
+    assert(fun_.args == (perm map fun.args))
+    assert(fun_.res == fun.res)
+
+    // Note: this is ok: sequence comparison ignores the concrete collection type
+    assert(perm.length == arity)
+    assert(perm.sorted == (0 until arity))
+
+    val cases_ = cases map (_ reorder (fun, fun_, perm))
+    Def(fun_, cases_)
+  }
+
+  def renameTo(g: Fun) = {
+    Def(g, cases map (_ replace (fun, g)))
+  }
 
   def rename(re: Name => Name): Def = {
     val fun_ = fun rename re
-    val cases_ =
-      for (C(args, guard, body) <- cases)
-        yield {
-          val body_ = body bottomup {
-            case App(Inst(`fun`, su), args) =>
-              App(Inst(fun_, su), args)
-            case expr =>
-              expr
-          }
-
-          C(args, guard, body_)
-        }
-
-    Def(fun_, cases_)
+    renameTo(fun_ rename re)
   }
 
   def rewrite(rules: Map[Fun, List[Rule]]) = {
@@ -162,7 +169,7 @@ case class Def(fun: Fun, cases: List[C]) {
         yield {
           val guard_ = Simplify.simplify(guard, rules, constrs)
           val body_ = Simplify.simplify(body, rules, constrs)
-          C(args, guard_ filterNot(_ == True), body_)
+          C(args, guard_ filterNot (_ == True), body_)
         }
 
     Def(fun, cases_)
@@ -192,7 +199,7 @@ case class Def(fun: Fun, cases: List[C]) {
   }
 
   def usedArgs: List[Int] = {
-    val(xs, ys) = usedAndUnusedArgs
+    val (xs, ys) = usedAndUnusedArgs
     xs
   }
 
@@ -228,7 +235,7 @@ object Def {
     case App(_, args) =>
       args.exists(isUsed(f, i, x, _))
   }
-  
+
   def isStatic(f: Fun, i: Int, a: Var, e: Expr): Boolean = e match {
     case _: Lit => true
     case y: Var => true

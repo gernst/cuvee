@@ -4,7 +4,7 @@ import cuvee.pure._
 import cuvee.smtlib.DeclareFun
 import cuvee.smtlib._
 import cuvee.State
-import cuvee.lemmas.Deaccumulate
+import cuvee.lemmas.deaccumulate.Deaccumulate
 
 /** This class
   *

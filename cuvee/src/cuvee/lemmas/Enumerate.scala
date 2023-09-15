@@ -7,6 +7,7 @@ import cuvee.smtlib._
 import cuvee.util.Main
 import cuvee.util.Run
 
+import cuvee.lemmas.deaccumulate.Deaccumulate
 object enat extends Run(Enumerate, "examples/boogie/nat.bpl")
 object elength extends Run(Enumerate, "examples/boogie/length.bpl")
 
@@ -92,7 +93,7 @@ object Enumerate extends Main {
   def main(args: Array[String]) {
     val Array(file) = args
     val (cmds, st) = read(file)
-    val (decls, defs) = prepare(cmds, st)
+    val (decls, eqs, defs) = prepare(cmds, st)
     println(file)
 
     val solver = Solver.z3(timeout = 50)

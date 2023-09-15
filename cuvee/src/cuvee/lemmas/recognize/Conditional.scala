@@ -1,6 +1,8 @@
-package cuvee.lemmas
+package cuvee.lemmas.recognize
 
 import cuvee.pure._
+import cuvee.lemmas._
+
 import cuvee.util.Name
 import scala.collection.mutable.ListBuffer
 

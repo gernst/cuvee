@@ -1,7 +1,7 @@
-package cuvee.lemmas
+package cuvee.lemmas.recognize
 
-import easyparse.Control
 import cuvee.pure._
+import cuvee.lemmas._
 import cuvee.util.Matching
 
 object Known {

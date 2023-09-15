@@ -1,4 +1,4 @@
-package cuvee.lemmas
+package cuvee.lemmas.recognize
 
 import cuvee.State
 import cuvee.pure._

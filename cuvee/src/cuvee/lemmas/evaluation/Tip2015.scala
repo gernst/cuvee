@@ -1,4 +1,4 @@
-package cuvee.lemmas
+package cuvee.lemmas.evaluation
 
 import java.io.File
 

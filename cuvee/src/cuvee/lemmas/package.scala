@@ -66,7 +66,7 @@ package object lemmas {
           Def(fun, cases)
         }
 
-    (decls1 ++ decls2, dfs.toList)
+    (decls1 ++ decls2, eqs, dfs.toList)
   }
 
   def dump(out: PrintStream, syntax: util.Syntax, comment: Boolean = false) {
