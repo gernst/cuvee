@@ -11,7 +11,6 @@ import java.io.File
 import scala.io.Source
 import java.io.StringReader
 
-
 object AdtInd {
   var cached = false
   var promoteAll = true
@@ -110,11 +109,11 @@ object AdtInd {
             None
         }
 
-      case List(N(odot, body)) =>
+      case List(N(z, odot, body)) =>
         val b = body rename (_ => "b")
         val oplus = odot rename (_ => "oplus")
 
-        val defs = for (D(f, xs, App(Inst(odot_, _), args @ List(z, arg))) <- all) yield {
+        val defs = for (D(xs, f, App(Inst(odot_, _), args @ List(z, arg))) <- all) yield {
           assert(odot == odot_)
           (arg, Rule(App(f, xs), App(oplus, args)))
         }

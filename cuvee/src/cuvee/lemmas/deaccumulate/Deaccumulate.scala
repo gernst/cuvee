@@ -14,25 +14,6 @@ object Deaccumulate {
 
   var heuristics = 0
 
-  class Cond(val prio: Int)
-
-  // Heuristic: look for neutral elements of o
-  case class N(o: Fun, b: Fun) extends Cond(0)
-
-  // Heuristic: define f(args) := body
-  case class D(f: Fun, args: List[Var], body: Expr) extends Cond(1)
-
-  // Assert g ==> l == r to validate some prior instantiation,
-  // not generated as part of the original query, only during solving
-  case class A(formals: List[Var], l: Expr, r: Expr, g: Expr) extends Cond(2)
-
-  // Heuristic: guess f(args) := body, taken from existing function definition
-  case class G(f: Fun, args: List[Var], body: Expr) extends Cond(3)
-
-  // General case for function body b(args): find b so that forall formals. g ==> l == r
-  case class B(formals: List[Var], b: Fun, args: List[Var], l: Expr, r: Expr, g: Expr)
-      extends Cond(4)
-
   def mayDeaccumulateAt(df: Def) = if (df.isRecursive) {
     for ((_, pos) <- df.fun.args.zipWithIndex if isAccumulator(df, pos))
       yield pos
@@ -65,7 +46,7 @@ object Deaccumulate {
       args: List[Expr],
       pos: Int,
       static: List[Int]
-  ): (Def, Expr, Fun, List[Fun], List[Rule], List[Cond]) = {
+  ) = {
     val Def(f, cases) = df
     val Fun(name, params, types, res) = f
 
@@ -79,6 +60,8 @@ object Deaccumulate {
     // val XS = Expr.vars("x", args)
     // val ZS = static_ map XS
 
+    val restargs = args removed pos
+
     val typ = types(pos)
     val ⊕ = Fun("oplus!", params, List(res, typ) ++ args_.types, res)
 
@@ -88,10 +71,7 @@ object Deaccumulate {
           val u @ Var(_, _) = args(pos)
           assert(!(u in guard))
 
-          val args_ = args removed pos
-          // val xs = args.free.toList
-
-          val xs_ = args_.free.toList
+          val xs_ = restargs.free.toList
 
           // skel is the abstracted body, where all recursive calls have been replaced by variables ys
           val (skel, recs) = abstracted(f, body)
@@ -130,7 +110,11 @@ object Deaccumulate {
             val eq1 = Rule(⊙(body_, z), z)
             val eq2 = Rule(App(⊕, List(y, u) ++ zs), ⊙(y, body))
 
-            (cs_, List(b, ⊙), (List(eq1, eq2), List(N(⊙, b), D(⊕, List(y, u) ++ zs, ⊙(y, body)))))
+            (
+              cs_,
+              List(b, ⊙),
+              (List(eq1, eq2), List(N(z, ⊙, b), D(List(y, u) ++ zs, ⊕, ⊙(y, body))))
+            )
           } else {
             // adjust argument lists of recursive calls
             val arglists_ =
@@ -178,7 +162,7 @@ object Deaccumulate {
 
                 // perhaps this heuristic is not useful for reverse:0:append (XXX: this may not be accurate!)
 
-                val guess = G(b, xs_ ++ ys, skel)
+                val guess = G(xs_ ++ ys, b, skel)
                 val cond = B(vs, b, xs_ ++ ys, rhs, rhs, And(guard))
                 List(guess, cond)
               } else if (recs.length == 1 && u.typ == res) { // direct accumulator
@@ -192,7 +176,7 @@ object Deaccumulate {
                 // TODO: document when that is useful!
                 val List((y, args)) = recs
                 val acc = args(pos) subst Map(u -> y)
-                val guess = G(b, xs_ ++ ys, acc)
+                val guess = G(xs_ ++ ys, b, acc)
                 val cond = B(vs, b, xs_ ++ ys, lhs, rhs, And(guard))
                 List(guess, cond)
               } else {
@@ -210,9 +194,9 @@ object Deaccumulate {
 
     val df_ = Def(f_, cases_)
 
-    val rhs = App(⊕, List(App(f_, args removed pos), args(pos)) ++ args_)
+    val rhs = App(⊕, List(App(f_, restargs), args(pos)) ++ args_)
 
-    (df_, rhs, ⊕, ⊕ :: bs.flatten, eqs.flatten, conds.flatten)
+    Query(df, args, df_, rhs, ⊕, ⊕ :: bs.flatten, conds.flatten)
   }
 
   def abstracted(
@@ -296,7 +280,7 @@ object Deaccumulate {
       case (Nil, Nil, Nil, Nil, Nil) =>
         LazyList((unknowns, Nil, rules))
 
-      case (N(o, b) :: rest, _, _, _, _) =>
+      case (N(z, o, b) :: rest, _, _, _, _) =>
         require(unknowns contains o, "already solved for " + o)
         require(unknowns contains b, "already solved for " + b)
 
@@ -334,7 +318,7 @@ object Deaccumulate {
         )
           yield result
 
-      case (Nil, D(f, args, body) :: rest, _, _, _) if unknowns contains f =>
+      case (Nil, D(args, f, body) :: rest, _, _, _) if unknowns contains f =>
         require(!(rules contains f), "unexpected existing rule for " + f)
 
         val eq = Rule(App(f, args), body)
@@ -343,7 +327,7 @@ object Deaccumulate {
         val rules_ = rules + (f -> List(eq))
         solve(solver, consts, funs, datatypes, unknowns - f, Nil, rest, easy, guess, hard, rules_)
 
-      case (Nil, D(f, args, body) :: rest, _, _, _) =>
+      case (Nil, D(args, f, body) :: rest, _, _, _) =>
         val cond = A(args, App(f, args), body, True)
         solve(
           solver,
@@ -433,7 +417,7 @@ object Deaccumulate {
           rules
         )
 
-      case (Nil, Nil, Nil, G(f, args, body) :: rest, hard) if unknowns contains f =>
+      case (Nil, Nil, Nil, G(args, f, body) :: rest, hard) if unknowns contains f =>
         require(!(rules contains f), "unexpected existing rule for " + f)
 
         val eq = List(Rule(App(f, args), body))

@@ -15,6 +15,7 @@ import cuvee.lemmas.recognize.Compare
 import cuvee.lemmas.recognize.Conditional
 
 import cuvee.lemmas.deaccumulate.Deaccumulate
+import cuvee.lemmas.deaccumulate.Query
 
 class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
   var useInternal = true
@@ -296,7 +297,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
           }
 
         case DeaccumulateAt(lhs, df, xs, pos, again) if !(deaccumulated contains ((df.fun, pos))) =>
-          val (df_, rhs, oplus, unknowns, eqs, conds) =
+          val Query(_, _, df_, rhs, oplus, unknowns, conds) =
             Deaccumulate.deaccumulateAt(df, xs, pos, df.staticArgs)
 
           val consts = LazyList[Expr]()
@@ -324,11 +325,8 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
             for (fun <- funs1)
               println("  " + fun)
             println("solving")
-            for (eq <- eqs)
-              println(eq)
-            println("conds")
             for (eq <- conds)
-              println(eq)
+              println(eq.toExpr)
 
           }
 
