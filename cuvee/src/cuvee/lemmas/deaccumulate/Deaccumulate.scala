@@ -196,7 +196,7 @@ object Deaccumulate {
 
     val rhs = App(⊕, List(App(f_, restargs), args(pos)) ++ args_)
 
-    Query(df, args, df_, rhs, ⊕, ⊕ :: bs.flatten, conds.flatten)
+    Query(df, args, df_, rhs, ⊕, Set(⊕ :: bs.flatten: _*), conds.flatten)
   }
 
   def abstracted(
