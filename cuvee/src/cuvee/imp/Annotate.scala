@@ -259,10 +259,6 @@ object Annotate extends Stage {
             val stepxs = after map { st => st.vars(dec) }
             val List(step) = stepxs.distinct
 
-            // TODO -> consider position of increments
-            // change lb and ub
-            // to complete exprs. these schould contain <= or < (appropriate)
-            // check here which one
             step match {
               case Plus(args) if args.contains(One) =>
                 Modified(x0, n, test)
@@ -272,47 +268,12 @@ object Annotate extends Stage {
             }
           case c @ Lit(_, Sort.int) =>
             Modified(c, c, Le(c, c))
-          case Plus(args) =>
+          case x @ App(_, args) =>
             val ranges = args map mOf
-            ranges.reduce((x, y) =>
-              Modified(x.lb + y.lb, x.ub + y.ub, test, x.step + y.step)
-            )
-          case Minus(l, r) =>
-            val ranges = List(mOf(l), mOf(r))
-            ranges.reduce((x, y) =>
-              Modified(x.lb - y.lb, x.ub - y.ub, test, x.step + y.step)
-            )
-          case Times(args) =>
-            val ranges = args map mOf
-            ranges.reduce((x, y) =>
-              Modified(x.lb * y.lb, x.ub * y.ub, test, x.step + y.step)
-            )
-          case DivBy(l, r) =>
-            val ranges = List(mOf(l), mOf(r))
-            ranges.reduce((x, y) =>
-              Modified(
-                DivBy(x.lb, y.lb),
-                DivBy(x.ub, y.ub),
-                test,
-                x.step + y.step
-              )
-            )
-          case Mod(l, r) =>
-            val ranges = List(mOf(l), mOf(r))
-            ranges.reduce((x, y) =>
-              Modified(Mod(x.lb, y.lb), Mod(x.ub, y.ub), test, x.step + y.step)
-            )
-          case UMinus(args) =>
-            val ranges = List(mOf(args))
-            // TODO is this even possible? If it is: How?
-            ranges.reduce((x, y) =>
-              Modified(
-                UMinus(x.lb + y.lb),
-                UMinus(x.ub + y.ub),
-                test,
-                x.step + y.step
-              )
-            )
+            val modified = for (m <- ranges if !m.vars.isEmpty) yield m
+
+            if (modified.length == 1) modified.head
+            else cuvee.error("Currently only dense steps are supported.")
           case _ =>
             cuvee.error("Could not construct Modified from Expr: " + expr)
         }
