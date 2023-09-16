@@ -193,13 +193,16 @@ object Annotate extends Stage {
             fresh: Map[Var, Var],
             subst: Map[Var, Var]
         ): Expr = a match {
-          // TODO check
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
             Select(a, x) === rhs rename fresh
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
             Select(a, x) === rhs
           case Var(name, typ) if lhs == a =>
-            Select(a, idx) === rhs rename subst
+            rhs match {
+              case Select(b, idx_) if idx == idx_ =>
+                Select(a, x) === Select(b, x)
+              case _ => Select(a, idx) === rhs rename subst
+            }
           case Var(name, typ) =>
             lhs === Store(a, idx, rhs) rename subst
           case Store(a_, idx_, _) if idx == idx_ =>
@@ -349,13 +352,7 @@ object Annotate extends Stage {
                   val (freshVars, freshMapping) = fresh(mod_)
                   val subst_ = subst(mod_, x)
 
-                  /* DO NOT WORK:
-                    modified/array_tripl_access_init_const.bpl
-                    modified/multible_vars.bpl -> TODO
-                    array_init_pair_sum_const.bpl -> path
-                    array_init_both_ends_multiple_sum.bpl -> loop without array mod
-                   */
-
+                  // TODO one exist per modify
                   // How and at which indices got the array in question modified
                   val where = x === (idx rename freshMapping)
                   val how = modified(array, a, idx, rhs, freshMapping, subst_)
