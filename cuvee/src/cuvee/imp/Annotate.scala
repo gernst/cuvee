@@ -271,14 +271,71 @@ object Annotate extends Stage {
             }
           case c @ Lit(_, Sort.int) =>
             Modified(c, c, Le(c, c))
-          case x @ App(_, args) =>
+          case x @ App(inst, args) =>
             val ranges = args map mOf
             val modified = for (m <- ranges if !m.vars.isEmpty) yield m
 
             if (modified.length == 1) modified.head
-            else cuvee.error("Currently only dense steps are supported.")
+            else app(x)
           case _ =>
             cuvee.error("Could not construct Modified from Expr: " + expr)
+        }
+
+        // TODO this is not correct see array_init_both_ends_multible_times
+
+        /** Builds an instance of Modified if multible variables are part of the
+          * expression
+          *
+          * @param inst
+          *   instance of App
+          * @return
+          *   Modified for inst
+          */
+        def app(inst: Expr): Modified = inst match {
+          case Plus(args) =>
+            val ranges = args map mOf
+            ranges.reduce((x, y) =>
+              Modified(x.lb + y.lb, x.ub + y.ub, test, x.step + y.step)
+            )
+          case Minus(l, r) =>
+            val ranges = List(mOf(l), mOf(r))
+            println(ranges)
+            ranges.reduce((x, y) =>
+              Modified(x.lb - y.lb, x.ub - y.ub, test, x.step + y.step)
+            )
+          case Times(args) =>
+            val ranges = args map mOf
+            ranges.reduce((x, y) =>
+              Modified(x.lb * y.lb, x.ub * y.ub, test, x.step + y.step)
+            )
+          case DivBy(l, r) =>
+            val ranges = List(mOf(l), mOf(r))
+            ranges.reduce((x, y) =>
+              Modified(
+                DivBy(x.lb, y.lb),
+                DivBy(x.ub, y.ub),
+                test,
+                x.step + y.step
+              )
+            )
+          case Mod(l, r) =>
+            val ranges = List(mOf(l), mOf(r))
+            ranges.reduce((x, y) =>
+              Modified(Mod(x.lb, y.lb), Mod(x.ub, y.ub), test, x.step + y.step)
+            )
+          case UMinus(args) =>
+            val ranges = List(mOf(args))
+            // TODO is this even possible? If it is: How?
+            ranges.reduce((x, y) =>
+              Modified(
+                UMinus(x.lb + y.lb),
+                UMinus(x.ub + y.ub),
+                test,
+                x.step + y.step
+              )
+            )
+          case _ =>
+            cuvee.error("Could not construct Modified from Expr: " + inst)
         }
 
         /** Generates one M for every idx of assigns in expr and takes the
