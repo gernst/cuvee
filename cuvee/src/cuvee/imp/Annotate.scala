@@ -185,46 +185,44 @@ object Annotate extends Stage {
           *   rename variables to some integer if not to fresh
           * @return
           */
-        // TODO figure out how to use a new variable for each exist
+        // TODO figure out how to make it distinct
         def modified(
             lhs: Var,
             a: Expr,
             idx: Expr,
             rhs: Expr,
-            fresh: Map[Var, Var],
-            subst: Map[Var, Var],
             vars: List[Var]
-        ): List[Expr] = a match {
-          case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
-            val where = x === (idx rename fresh)
-            val how = Select(a, x) === rhs rename fresh
-            List(Exists(vars, where && how))
-          case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
-            val where = x === (idx rename fresh)
-            val how = Select(a, x) === rhs
-            List(Exists(vars, where && how))
-          case Var(name, typ) if lhs == a =>
-            rhs match {
-              case Select(b, idx_) if idx == idx_ =>
-                val where = x === (idx rename fresh)
-                val how = Select(a, x) === Select(b, x)
-            List(Exists(vars, where && how))
-              case _ =>
-                val where = x === (idx rename fresh)
-                val how = Select(a, idx) === rhs rename subst
-            List(Exists(vars, where && how))
-            }
-          case Var(name, typ) =>
-                val where = x === (idx rename fresh)
-            val how = lhs === Store(a, idx, rhs) rename subst
-            List(Exists(vars, where && how))
-          case Store(a_, idx_, _) if idx == idx_ =>
-            modified(lhs, a_, idx, rhs, fresh, subst, vars)
-          case Store(a_, idx_, rhs_) =>
-            modified(lhs, a_, idx, rhs, fresh, subst, vars) ++
-            modified(lhs, a_, idx_, rhs_, fresh, subst, vars)
-          case _ =>
-            cuvee.error("Unexpected case in " + this)
+        ): List[Expr] = {
+          val (fresh_, subst) = fresh(vars)
+          val where = x === (idx rename subst)
+
+          a match {
+            case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
+              val how = Select(a, x) === rhs rename subst
+              List(Exists(fresh_, where && how))
+            case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
+              val how = Select(a, x) === rhs
+              List(Exists(fresh_, where && how))
+            case Var(name, typ) if lhs == a =>
+              rhs match {
+                case Select(b, idx_) if idx == idx_ =>
+                  val how = Select(a, x) === Select(b, x)
+                  List(Exists(fresh_, where && how))
+                case _ =>
+                  val how = Select(a, idx) === rhs rename subst
+                  List(Exists(fresh_, where && how))
+              }
+            case Var(name, typ) =>
+              val how = lhs === Store(a, idx, rhs) rename subst
+              List(Exists(fresh_, where && how))
+            case Store(a_, idx_, _) if idx == idx_ =>
+              modified(lhs, a_, idx, rhs, vars)
+            case Store(a_, idx_, rhs_) =>
+              modified(lhs, a_, idx, rhs, vars) ++
+                modified(lhs, a_, idx_, rhs_, vars)
+            case _ =>
+              cuvee.error("Unexpected case in " + this)
+          }
         }
 
         /** Gives the value with which x was initialized
@@ -368,26 +366,14 @@ object Annotate extends Stage {
                   // Expression which describes all modified indices
                   val (prem, mod_) = boundaries(List(assign), Nil)
                   val premise = And(prem.distinct)
-                  // Only variables who change in the loop need substitutes
-                  val (freshVars, freshMapping) = fresh(mod_)
-                  val subst_ = subst(mod_, x)
 
                   // How and at which indices got the array in question modified
-                  val yes_ = modified(
-                    array,
-                    a,
-                    idx,
-                    rhs,
-                    freshMapping,
-                    subst_,
-                    freshVars
-                  )
-                  val yes = And(yes_.distinct)
+                  val yes = modified(array, a, idx, rhs, mod_)
 
                   // Every index which got not visited should not be modified
                   val no = Select(array, x) === Old(Select(array, x))
 
-                  (premise ==> yes) && (premise ==> no)
+                  (premise ==> And(yes)) && (!premise ==> no)
                 case _ =>
                   cuvee.error(
                     "Here only modified arrays should be handled. Got: " + (array, assign)
