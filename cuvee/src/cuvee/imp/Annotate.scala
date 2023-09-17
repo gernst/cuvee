@@ -179,11 +179,11 @@ object Annotate extends Stage {
           *   index from a to read from
           * @param rhs
           *   right hand side of the assignment, the value to write into lhs
-          * @param fresh
-          *   rename variables to given fresh ones if needed
-          * @param subst
-          *   rename variables to some integer if not to fresh
+          * @param vars
+          *   variables from idx, to be substituted
           * @return
+          *   list of Expr, each reasons about one position at which the given
+          *   array (lhs) got modified
           */
         // TODO figure out how to make it distinct
         def modified(
