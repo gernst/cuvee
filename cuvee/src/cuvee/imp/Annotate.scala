@@ -402,6 +402,8 @@ object Annotate extends Stage {
   *   lower bound of the modified range
   * @param ub
   *   upper bound of the modified range
+  * @param test
+  *   the test from the loop needed for the boundary expression
   * @param step
   *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
   *   Can also hold more complicated calculations. However: The expression are *
