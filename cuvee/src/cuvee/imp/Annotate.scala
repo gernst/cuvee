@@ -191,25 +191,35 @@ object Annotate extends Stage {
             idx: Expr,
             rhs: Expr,
             fresh: Map[Var, Var],
-            subst: Map[Var, Var]
+            subst: Map[Var, Var],
+            vars: List[Var]
         ): Expr = a match {
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
-            Select(a, x) === rhs rename fresh
+            val where = x === (idx rename fresh)
+            val how = Select(a, x) === rhs rename fresh
+            Exists(vars, where && how)
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
-            Select(a, x) === rhs
+            val where = x === (idx rename fresh)
+            val how = Select(a, x) === rhs
+            Exists(vars, where && how)
           case Var(name, typ) if lhs == a =>
             rhs match {
               case Select(b, idx_) if idx == idx_ =>
-                Select(a, x) === Select(b, x)
-              case _ => Select(a, idx) === rhs rename subst
+                val where = x === (idx rename fresh)
+                val how = Select(a, x) === Select(b, x)
+                Exists(vars, where && how)
+              case _ =>
+                val where = x === (idx rename fresh)
+                val how = Select(a, idx) === rhs rename subst
+                Exists(vars, where && how)
             }
           case Var(name, typ) =>
             lhs === Store(a, idx, rhs) rename subst
           case Store(a_, idx_, _) if idx == idx_ =>
-            modified(lhs, a_, idx, rhs, fresh, subst)
+            modified(lhs, a_, idx, rhs, fresh, subst, vars)
           case Store(a_, idx_, rhs_) =>
-            modified(lhs, a_, idx, rhs, fresh, subst) &&
-            modified(lhs, a_, idx_, rhs_, fresh, subst)
+            modified(lhs, a_, idx, rhs, fresh, subst, vars) &&
+            modified(lhs, a_, idx_, rhs_, fresh, subst, vars)
           case _ =>
             cuvee.error("Unexpected case in " + this)
         }
@@ -355,11 +365,16 @@ object Annotate extends Stage {
                   val (freshVars, freshMapping) = fresh(mod_)
                   val subst_ = subst(mod_, x)
 
-                  // TODO one exist per modify
                   // How and at which indices got the array in question modified
-                  val where = x === (idx rename freshMapping)
-                  val how = modified(array, a, idx, rhs, freshMapping, subst_)
-                  val yes = Exists(freshVars, where && how)
+                  val yes = modified(
+                    array,
+                    a,
+                    idx,
+                    rhs,
+                    freshMapping,
+                    subst_,
+                    freshVars
+                  )
 
                   // Every index which got not visited should not be modified
                   val no = Select(array, x) === Old(Select(array, x))
