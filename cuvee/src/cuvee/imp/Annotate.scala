@@ -185,6 +185,7 @@ object Annotate extends Stage {
           *   rename variables to some integer if not to fresh
           * @return
           */
+        // TODO figure out how to use a new variable for each exist
         def modified(
             lhs: Var,
             a: Expr,
@@ -193,32 +194,34 @@ object Annotate extends Stage {
             fresh: Map[Var, Var],
             subst: Map[Var, Var],
             vars: List[Var]
-        ): Expr = a match {
+        ): List[Expr] = a match {
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
             val where = x === (idx rename fresh)
             val how = Select(a, x) === rhs rename fresh
-            Exists(vars, where && how)
+            List(Exists(vars, where && how))
           case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
             val where = x === (idx rename fresh)
             val how = Select(a, x) === rhs
-            Exists(vars, where && how)
+            List(Exists(vars, where && how))
           case Var(name, typ) if lhs == a =>
             rhs match {
               case Select(b, idx_) if idx == idx_ =>
                 val where = x === (idx rename fresh)
                 val how = Select(a, x) === Select(b, x)
-                Exists(vars, where && how)
+            List(Exists(vars, where && how))
               case _ =>
                 val where = x === (idx rename fresh)
                 val how = Select(a, idx) === rhs rename subst
-                Exists(vars, where && how)
+            List(Exists(vars, where && how))
             }
           case Var(name, typ) =>
-            lhs === Store(a, idx, rhs) rename subst
+                val where = x === (idx rename fresh)
+            val how = lhs === Store(a, idx, rhs) rename subst
+            List(Exists(vars, where && how))
           case Store(a_, idx_, _) if idx == idx_ =>
             modified(lhs, a_, idx, rhs, fresh, subst, vars)
           case Store(a_, idx_, rhs_) =>
-            modified(lhs, a_, idx, rhs, fresh, subst, vars) &&
+            modified(lhs, a_, idx, rhs, fresh, subst, vars) ++
             modified(lhs, a_, idx_, rhs_, fresh, subst, vars)
           case _ =>
             cuvee.error("Unexpected case in " + this)
@@ -370,7 +373,7 @@ object Annotate extends Stage {
                   val subst_ = subst(mod_, x)
 
                   // How and at which indices got the array in question modified
-                  val yes = modified(
+                  val yes_ = modified(
                     array,
                     a,
                     idx,
@@ -379,6 +382,7 @@ object Annotate extends Stage {
                     subst_,
                     freshVars
                   )
+                  val yes = And(yes_.distinct)
 
                   // Every index which got not visited should not be modified
                   val no = Select(array, x) === Old(Select(array, x))
