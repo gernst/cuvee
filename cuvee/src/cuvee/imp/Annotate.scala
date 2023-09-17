@@ -305,16 +305,19 @@ object Annotate extends Stage {
           *   boundaries for all Modified and modified vars of the loop which
           *   are used in Modified
           */
-        def boundaries(expr: Expr, vars: List[Var]): (Expr, List[Var]) =
+        def boundaries(
+            expr: List[Expr],
+            vars: List[Var]
+        ): (List[Expr], List[Var]) =
           expr match {
-            case Store(a, idx, _) =>
+            case Store(a, idx, _) :: next =>
               val m = mOf(idx)
-              val (expr_, vars_) = boundaries(a, vars)
+              val (expr_, vars_) = boundaries(List(a), vars)
 
               val xs = m.vars.union((vars ++ vars_).toSet).intersect(mod)
 
-              (m.toExpr(x) || expr_, xs.toList)
-            case _ => (False, vars)
+              (m.toExpr(x) :: expr_, xs.toList)
+            case _ => (Nil, vars)
           }
 
         /** Generates a new variable for each element in xs
@@ -360,7 +363,8 @@ object Annotate extends Stage {
               assign match {
                 case Store(a, idx, rhs) =>
                   // Expression which describes all modified indices
-                  val (prem, mod_) = boundaries(assign, Nil)
+                  val (prem, mod_) = boundaries(List(assign), Nil)
+                  val premise = And(prem.distinct)
                   // Only variables who change in the loop need substitutes
                   val (freshVars, freshMapping) = fresh(mod_)
                   val subst_ = subst(mod_, x)
@@ -379,7 +383,7 @@ object Annotate extends Stage {
                   // Every index which got not visited should not be modified
                   val no = Select(array, x) === Old(Select(array, x))
 
-                  (prem ==> yes) && (!prem ==> no)
+                  (premise ==> yes) && (premise ==> no)
                 case _ =>
                   cuvee.error(
                     "Here only modified arrays should be handled. Got: " + (array, assign)
