@@ -7,12 +7,70 @@ import cuvee.smtlib._
 import cuvee.util.Main
 import cuvee.util.Run
 
-import cuvee.lemmas.deaccumulate.Deaccumulate
 object enat extends Run(Enumerate, "examples/boogie/nat.bpl")
 object elength extends Run(Enumerate, "examples/boogie/length.bpl")
 
 object Enumerate extends Main {
   import InductiveProver._
+
+  def select(fun: Fun, typ: Type) = {
+    try {
+      val inst = fun.generic
+      val ty = Type.bind(inst.res, typ)
+      LazyList((inst subst ty))
+    } catch {
+      case e: Type.CannotBind =>
+        LazyList()
+    }
+  }
+
+  def enumerate(
+      types: List[Type],
+      funs: LazyList[Fun],
+      base0: Map[Expr, Int],
+      depth: Int
+  ): LazyList[(List[Expr], Map[Expr, Int])] = types match {
+    case Nil =>
+      LazyList((Nil, base0))
+
+    case typ :: rest =>
+      for (
+        (expr, base1) <- enumerate(typ, funs, base0, depth);
+        (exprs, base2) <- enumerate(rest, funs, base1, depth)
+      )
+        yield (expr :: exprs, base2)
+  }
+
+  def enumerate(
+      typ: Type,
+      funs: LazyList[Fun],
+      base: Map[Expr, Int],
+      depth: Int
+  ): LazyList[(Expr, Map[Expr, Int])] = if (depth == 0) {
+    LazyList()
+  } else {
+    val first =
+      LazyList.from(
+        for ((z, k) <- base if z.typ == typ && k > 0)
+          yield (z, base + (z -> (k - 1)))
+      )
+
+    val next =
+      for (
+        fun <- funs;
+        inst <- select(fun, typ)
+      )
+        yield inst
+
+    val second =
+      for (
+        inst <- next;
+        (args, base_) <- enumerate(inst.args, funs, base, depth - 1)
+      )
+        yield (App(inst, args), base_)
+
+    first ++ second
+  }
 
 // cuvee.smtlib.solver.debug = true
 
@@ -29,7 +87,7 @@ object Enumerate extends Main {
 
     val free = lhs.free.toList
     val base = Map(free ++ consts map (_ -> repeat): _*)
-    val candidates = Deaccumulate.enumerate(lhs.typ, funs, base, depth)
+    val candidates = enumerate(lhs.typ, funs, base, depth)
 
     var results: Set[Expr] = Set()
     println("trying " + lhs)
@@ -56,7 +114,7 @@ object Enumerate extends Main {
             //   // println("missed: " + res)
             //   true
             // else
-              false
+            false
         }
       }
 
@@ -117,14 +175,14 @@ object Enumerate extends Main {
           yield constr -> false
     }
 
-    val (constfuns, nonconstfuns) = all_.flatten.partition {
-      case (fun, _) =>
-        fun.arity == 0 && fun.params.isEmpty
+    val (constfuns, nonconstfuns) = all_.flatten.partition { case (fun, _) =>
+      fun.arity == 0 && fun.params.isEmpty
     }
 
     val extra = LazyList(st.funs("+", 2))
     val funs = LazyList(nonconstfuns map (_._1): _*)
-    val consts = LazyList(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
+    val consts =
+      LazyList(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
 
     val rules = Rewrite.from(cmds, st)
     val rws = rules groupBy (_.fun)

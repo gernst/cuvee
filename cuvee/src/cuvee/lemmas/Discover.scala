@@ -16,6 +16,7 @@ import cuvee.lemmas.recognize.Conditional
 
 import cuvee.lemmas.deaccumulate.Deaccumulate
 import cuvee.lemmas.deaccumulate.Query
+import cuvee.lemmas.fuse.Fuse
 
 class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
   var useInternal = true

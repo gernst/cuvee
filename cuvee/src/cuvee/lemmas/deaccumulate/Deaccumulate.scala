@@ -56,22 +56,24 @@ object Deaccumulate {
     val f_ = Fun(name_, params_, types_, res)
 
     val static_ = static filterNot (_ == pos)
-    val args_ = static_ map args
+    val staticargs = static_ map args
+    val restargs = args removed pos
+
     // val XS = Expr.vars("x", args)
     // val ZS = static_ map XS
 
-    val restargs = args removed pos
 
     val typ = types(pos)
-    val ⊕ = Fun("oplus!", params, List(res, typ) ++ args_.types, res)
+    val ⊕ = Fun("oplus!", params, List(res, typ) ++ staticargs.types, res)
 
     val stuff =
-      for ((cs @ C(args, guard, body), j) <- cases.zipWithIndex)
+      for ((cs @ C(pats, guard, body), j) <- cases.zipWithIndex)
         yield {
-          val u @ Var(_, _) = args(pos)
+          val u @ Var(_, _) = pats(pos)
           assert(!(u in guard))
 
-          val xs_ = restargs.free.toList
+          val restpats = pats removed pos
+          val xs_ = restpats.free.toList
 
           // skel is the abstracted body, where all recursive calls have been replaced by variables ys
           val (skel, recs) = abstracted(f, body)
@@ -98,7 +100,7 @@ object Deaccumulate {
             val n = Name("body", Some(j))
             val b = Fun(n, params, Nil, res)
             val body_ = b()
-            val cs_ = C(args_, guard, body_)
+            val cs_ = C(restpats, guard, body_)
 
             // prepare a binary operator ⊙ that may be used to body,
             // so that the solution is read off neutral elements of that operator
@@ -117,18 +119,18 @@ object Deaccumulate {
             )
           } else {
             // adjust argument lists of recursive calls
-            val arglists_ =
-              for ((y, args) <- recs)
-                yield App(f_, args removed pos)
+            val reccalls =
+              for ((y, recargs) <- recs)
+                yield App(f_, recargs removed pos)
 
             val n = Name("phi", Some(j))
             val b = Fun(n, params, xs_.types ++ ys.types, res)
-            val body_ = App(b, xs_ ++ arglists_)
-            val cs_ = C(args_, guard, body_)
+            val body_ = App(b, xs_ ++ reccalls)
+            val cs_ = C(restpats, guard, body_)
 
             // compute original body with recursive calls replaced
             // to new function and shorter argument lists
-            val su_ = Expr.subst(ys, arglists_)
+            val su_ = Expr.subst(ys, reccalls)
             val orig_ = skel subst su_
 
             // all variables possibly occurring in the constraints
@@ -150,7 +152,7 @@ object Deaccumulate {
 
             // this condition holds, if the accumulator is not used somewhere else in the body,
             // which means it is just passed down at that same argument position
-            val accumulatorDisappears = (orig_.free subsetOf args_.free)
+            val accumulatorDisappears = (orig_.free subsetOf restpats.free)
 
             // TODO: document what happens here!
             val conds =
@@ -163,7 +165,7 @@ object Deaccumulate {
                 // perhaps this heuristic is not useful for reverse:0:append (XXX: this may not be accurate!)
 
                 val guess = G(xs_ ++ ys, b, skel)
-                val cond = B(vs, b, xs_ ++ ys, rhs, rhs, And(guard))
+                val cond = B(vs, b, xs_ ++ ys, lhs, rhs, And(guard))
                 List(guess, cond)
               } else if (recs.length == 1 && u.typ == res) { // direct accumulator
                 // offer a guess when the accumulator actually does change but we have a single recursive call only,
@@ -194,7 +196,9 @@ object Deaccumulate {
 
     val df_ = Def(f_, cases_)
 
-    val rhs = App(⊕, List(App(f_, restargs), args(pos)) ++ args_)
+    val rhs = App(⊕, List(App(f_, restargs), args(pos)) ++ staticargs)
+    val eq = Eq(App(df.fun, args), rhs)
+    println(eq)
 
     Query(df, args, df_, rhs, ⊕, Set(⊕ :: bs.flatten: _*), conds.flatten)
   }
@@ -441,7 +445,7 @@ object Deaccumulate {
         if (false) {
           cuvee.error("add consts!")
           val eqs =
-            for ((expr, _) <- enumerate(b.res, funs, Map(zs map (_ -> MaxVar): _*), Depth))
+            for ((expr, _) <- Enumerate.enumerate(b.res, funs, Map(zs map (_ -> MaxVar): _*), Depth))
               yield {
                 val eq = Rule(App(b, zs), expr)
                 if (debug)
@@ -518,65 +522,6 @@ object Deaccumulate {
   }
 
   var neutral = defaultNeutral
-
-  def select(fun: Fun, typ: Type) = {
-    try {
-      val inst = fun.generic
-      val ty = Type.bind(inst.res, typ)
-      LazyList((inst subst ty))
-    } catch {
-      case e: Type.CannotBind =>
-        LazyList()
-    }
-  }
-
-  def enumerate(
-      types: List[Type],
-      funs: LazyList[Fun],
-      base0: Map[Expr, Int],
-      depth: Int
-  ): LazyList[(List[Expr], Map[Expr, Int])] = types match {
-    case Nil =>
-      LazyList((Nil, base0))
-
-    case typ :: rest =>
-      for (
-        (expr, base1) <- enumerate(typ, funs, base0, depth);
-        (exprs, base2) <- enumerate(rest, funs, base1, depth)
-      )
-        yield (expr :: exprs, base2)
-  }
-
-  def enumerate(
-      typ: Type,
-      funs: LazyList[Fun],
-      base: Map[Expr, Int],
-      depth: Int
-  ): LazyList[(Expr, Map[Expr, Int])] = if (depth == 0) {
-    LazyList()
-  } else {
-    val first =
-      LazyList.from(
-        for ((z, k) <- base if z.typ == typ && k > 0)
-          yield (z, base + (z -> (k - 1)))
-      )
-
-    val next =
-      for (
-        fun <- funs;
-        inst <- select(fun, typ)
-      )
-        yield inst
-
-    val second =
-      for (
-        inst <- next;
-        (args, base_) <- enumerate(inst.args, funs, base, depth - 1)
-      )
-        yield (App(inst, args), base_)
-
-    first ++ second
-  }
 }
 
 object Foo {
@@ -593,7 +538,7 @@ object Foo {
         One -> 1
       )
 
-    val results = Deaccumulate.enumerate(Sort.int, st.funs.values.to(LazyList), zs, 3)
+    val results = Enumerate.enumerate(Sort.int, st.funs.values.to(LazyList), zs, 3)
 
     for (result <- results)
       println(result)

@@ -43,10 +43,6 @@ case class B(formals: List[Var], b: Fun, args: List[Var], l: Expr, r: Expr, g: E
   def funs = l.funs ++ r.funs ++ g.funs
 }
 
-trait QuerySolver {
-  def solve(query: Query): List[(Query, List[Rule])]
-}
-
 case class Query(
     df: Def,
     args: List[Expr],
