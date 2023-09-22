@@ -52,9 +52,9 @@ abstract class IncrementalSolver(state: State, solver: Solver, rws: Map[Fun, Lis
       yield (Query(df, args, df_, rhs, oplus, unknowns_, conds_), rules)
   }
 
-  def suggest(n: N): List[(List[D], List[Cond])]
-  def suggest(g: G): List[(List[D], List[Cond])]
-  def suggest(b: B): List[(List[D], List[Cond])]
+  def suggest(n: N): List[(List[D], List[A], List[Cond])]
+  def suggest(g: G): List[(List[D], List[A], List[Cond])]
+  def suggest(b: B): List[(List[D], List[A], List[Cond])]
 
   def check(
       unknowns: Set[Fun],
@@ -126,52 +126,52 @@ abstract class IncrementalSolver(state: State, solver: Solver, rws: Map[Fun, Lis
       // next: try to instantiate base cases with operators that have neutral elements
       case (Nil, n :: rest, _, _, _) =>
         for (
-          (conds, kept_) <- suggest(n);
-          funs = conds flatMap (_.funs);
+          (defs_, easy_, kept_) <- suggest(n);
+          funs = defs_ flatMap (_.funs);
           result <- solve(
             unknowns -- funs,
-            conds ++ defs,
+            defs ++ defs_,
             rest,
             guess,
-            easy,
+            easy ++ easy_,
             hard,
-            kept_,
+            kept ++ kept_,
             rules,
             rws
           )
         )
           yield result
 
-      case (Nil, Nil, g :: rest, _, _) =>
+      case (Nil, Nil, c :: rest, _, _) =>
         for (
-          (conds, kept_) <- suggest(g);
-          funs = conds flatMap (_.funs);
+          (defs_, easy_, kept_) <- suggest(c);
+          funs = defs_ flatMap (_.funs);
           result <- solve(
             unknowns -- funs,
-            conds ++ defs,
+            defs ++ defs_,
             base,
             rest,
-            easy,
+            easy ++ easy_,
             hard,
-            kept_,
+            kept ++ kept_,
             rules,
             rws
           )
         )
           yield result
 
-      case (Nil, Nil, Nil, _, b :: rest) =>
+      case (Nil, Nil, Nil, _, c :: rest) =>
         for (
-          (conds, kept_) <- suggest(b);
-          funs = conds flatMap (_.funs);
+          (defs_, easy_, kept_) <- suggest(c);
+          funs = defs_ flatMap (_.funs);
           result <- solve(
             unknowns -- funs,
-            conds ++ defs,
+            defs ++ defs_,
             base,
             guess,
-            easy,
+            easy ++ easy_,
             rest,
-            kept_,
+            kept ++ kept_,
             rules,
             rws
           )

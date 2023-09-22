@@ -14,11 +14,11 @@ class HeuristicSolver(
   def suggest(g: G) = {
     val G(formals, f, body) = g
     val d = D(formals, f, body)
-    List((List(d), Nil))
+    List((List(d), Nil, Nil))
   }
 
   def suggest(b: B) = {
-    List((Nil, List(b)))
+    List((Nil, Nil, List(b)))
   }
 
   def suggest(n: N) = {
@@ -30,16 +30,16 @@ class HeuristicSolver(
         assert(f.args == o.args)
         val d1 = D(Nil, b, e)
         val d2 = D(xs, o, App(f, xs))
-        (List(d1, d2), Nil)
+        (List(d1, d2), Nil, Nil)
 
       case Right((f, e)) if f.res == o.res =>
         assert(f.args.reverse == o.args)
         val d1 = D(Nil, b, e)
         val d2 = D(xs, o, App(f, xs.reverse))
-        (List(d1, d2), Nil)
+        (List(d1, d2), Nil, Nil)
 
       case _ =>
-        (Nil, List(n))
+        (Nil, Nil, List(n))
     }
   }
 }

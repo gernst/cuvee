@@ -30,8 +30,7 @@ class EnumerativeSolver(
 
     val base = Map(args map ((_: Expr) -> occur): _*)
 
-    ??? // this won't get checked!
     for ((body, _) <- Enumerate.enumerate(f.res, funs, base, depth))
-      yield (List(D(args, f, body)), Nil)
+      yield (List(D(args, f, body)), List(A(formals, lhs, rhs, guard)), Nil)
   }
 }

@@ -49,7 +49,6 @@ object Compare {
       yield (dpre, eq)
   }
 
-  // TODO: make sure cases are using disjoint type parameters and variables
   def compare(
       df: Def,
       i: Int,
@@ -135,7 +134,6 @@ object Compare {
         val body = meet(pre, f, fbody_, i, g, gbody_, j, constrs)
         val body_ = Simplify.simplify(body, rules, constrs)
 
-        // possibly simplify guard here
         List(C((pat subst su) :: pats, guard, And(body_)))
       }
     } catch {
