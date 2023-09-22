@@ -128,7 +128,7 @@ object Fuse {
       val fpats = fcases flatMap (_.args)
       val critical = gargs.free & fpats.free
       val re = Expr.fresh(critical)
-      val fcases_ = fcases map (_ rename re)
+      val fcases_ = fcases map (_ replace re)
 
       for (
         C(fargs, fguard, fbody) <- fcases_;

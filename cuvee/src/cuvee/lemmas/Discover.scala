@@ -301,16 +301,16 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
           val Query(_, _, df_, rhs, oplus, unknowns, conds) =
             Deaccumulate.deaccumulateAt(df, xs, pos, df.staticArgs)
 
-          val consts = LazyList[Expr]()
+          val consts = List[Expr]()
           // val consts = LazyList(Zero, One, True, False)
 
           // val funs0 = LazyList[Fun]()
           // val funs0 = LazyList(Fun.eq_, Fun.plus, Fun.minus, Fun.times, Fun.uminus, Fun.and, Fun.or)
 
-          val funs0 = st.constrs.to(LazyList)
+          val funs0 = st.constrs.toList
 
           val x = definitions filter (original contains _.fun) map (_.fun)
-          val funs1 = x.to(LazyList)
+          val funs1 = x
 
           val funs = funs0 ++ funs1
 
@@ -423,7 +423,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
           // println("given definition")
           // println(df)
           if (debug)
-            print("recognize " + lhs)
+            print("recognize " + df)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
             Unused.unused(df simplify (normalize, constrs), args)

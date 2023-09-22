@@ -5,6 +5,7 @@ import cuvee.smtlib.DeclareFun
 import cuvee.smtlib._
 import cuvee.State
 import cuvee.lemmas.deaccumulate.Deaccumulate
+import cuvee.lemmas.Enumerate
 
 /** This class
   *
@@ -124,7 +125,7 @@ object PositiveProver {
     val occur = 2
     val depth = 4
 
-    val funs = LazyList(
+    val funs = List(
       Fun.not,
       Fun.and,
       Fun.or,
@@ -143,7 +144,7 @@ object PositiveProver {
     
     val atoms = Map(names map (name => (atom(name) -> occur)): _*)
 
-    val phis = Deaccumulate.enumerate(Sort.bool, funs, atoms ++ builtin, depth)
+    val phis = Enumerate.enumerate(Sort.bool, funs, atoms ++ builtin, depth)
 
     val solver = Solver.z3()
 

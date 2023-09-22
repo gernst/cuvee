@@ -6,6 +6,17 @@ import cuvee.smtlib.Solver
 
 trait QuerySolver {
   def solve(query: Query): List[(Query, List[Rule])]
+
+  def ~(that: QuerySolver) = new QuerySolver {
+    def solve(query0: Query): List[(Query, List[Rule])] = {
+      for (
+        (query1, rules1) <- this.solve(query0);
+        (query2, rules2) <- that.solve(query1)
+      )
+        yield (query2, rules1 ++ rules2)
+    }
+
+  }
 }
 
 abstract class IncrementalSolver(state: State, solver: Solver, rws: Map[Fun, List[Rule]])
@@ -97,8 +108,8 @@ abstract class IncrementalSolver(state: State, solver: Solver, rws: Map[Fun, Lis
       rws: Map[Fun, List[Rule]]
   ): List[(Set[Fun], List[Cond], List[Rule], Map[Fun, List[Rule]])] = {
     (defs, base, guess, easy, hard) match {
-      case (Nil, Nil, Nil, Nil, Nil) =>
-        List((unknowns, kept, rules, rws))
+      case (Nil, Nil, Nil, _, Nil) =>
+        check(unknowns, defs, base, guess, easy, hard, kept, rules, rws)
 
       // eagerly substitute definitional constraints
       case (D(args, f, body) :: rest, _, _, _, _) if unknowns contains f =>

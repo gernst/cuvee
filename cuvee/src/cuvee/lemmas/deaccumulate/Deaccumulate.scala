@@ -229,13 +229,13 @@ object Deaccumulate {
 
   def solve(
       solver: Solver,
-      consts: LazyList[Expr],
-      funs: LazyList[Fun],
+      consts: List[Expr],
+      funs: List[Fun],
       datatypes: Map[Name, Datatype],
       unknowns: Set[Fun],
       conds: List[Cond],
       rules: Map[Fun, List[Rule]] = Map()
-  ): LazyList[(Set[Fun], List[Rule], Map[Fun, List[Rule]])] = {
+  ): List[(Set[Fun], List[Rule], Map[Fun, List[Rule]])] = {
     val neutrals = conds collect { case c: N => c }
     val defs = conds collect { case c: D => c }
     val easy = conds collect { case c: A => c }
@@ -269,8 +269,8 @@ object Deaccumulate {
   // assumes that conds is sorted in some reasonable order (e.g. prio)
   def solve(
       solver: Solver,
-      consts: LazyList[Expr],
-      funs: LazyList[Fun],
+      consts: List[Expr],
+      funs: List[Fun],
       datatypes: Map[Name, Datatype],
       unknowns: Set[Fun],
       neutrals: List[N],
@@ -279,10 +279,10 @@ object Deaccumulate {
       guess: List[G],
       hard: List[B],
       rules: Map[Fun, List[Rule]]
-  ): LazyList[(Set[Fun], List[Rule], Map[Fun, List[Rule]])] =
+  ): List[(Set[Fun], List[Rule], Map[Fun, List[Rule]])] =
     (neutrals, defs, easy, guess, hard) match {
       case (Nil, Nil, Nil, Nil, Nil) =>
-        LazyList((unknowns, Nil, rules))
+        List((unknowns, Nil, rules))
 
       case (N(z, o, b) :: rest, _, _, _, _) =>
         require(unknowns contains o, "already solved for " + o)
@@ -403,7 +403,7 @@ object Deaccumulate {
           //   )
           // )
           //   yield (unknowns_, eq_ :: todo, rules)
-          LazyList()
+          List()
         }
 
       case (Nil, Nil, Nil, guess, B(xs, b, _, lhs, rhs, guard) :: rest) if !(unknowns contains b) =>
@@ -514,11 +514,11 @@ object Deaccumulate {
       }
 
     val known = Map(
-      (List(int, int), int) -> LazyList(make(Plus), make(Times)),
-      (List(bool, bool), bool) -> LazyList(make(Or), make(And))
+      (List(int, int), int) -> List(make(Plus), make(Times)),
+      (List(bool, bool), bool) -> List(make(Or), make(And))
     )
 
-    known.withDefaultValue(LazyList.empty)
+    known.withDefaultValue(List.empty)
   }
 
   var neutral = defaultNeutral
@@ -538,7 +538,7 @@ object Foo {
         One -> 1
       )
 
-    val results = Enumerate.enumerate(Sort.int, st.funs.values.to(LazyList), zs, 3)
+    val results = Enumerate.enumerate(Sort.int, st.funs.values.to(List), zs, 3)
 
     for (result <- results)
       println(result)

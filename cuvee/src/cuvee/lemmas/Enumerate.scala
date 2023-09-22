@@ -17,21 +17,21 @@ object Enumerate extends Main {
     try {
       val inst = fun.generic
       val ty = Type.bind(inst.res, typ)
-      LazyList((inst subst ty))
+      List((inst subst ty))
     } catch {
       case e: Type.CannotBind =>
-        LazyList()
+        List()
     }
   }
 
   def enumerate(
       types: List[Type],
-      funs: LazyList[Fun],
+      funs: List[Fun],
       base0: Map[Expr, Int],
       depth: Int
-  ): LazyList[(List[Expr], Map[Expr, Int])] = types match {
+  ): List[(List[Expr], Map[Expr, Int])] = types match {
     case Nil =>
-      LazyList((Nil, base0))
+      List((Nil, base0))
 
     case typ :: rest =>
       for (
@@ -43,14 +43,14 @@ object Enumerate extends Main {
 
   def enumerate(
       typ: Type,
-      funs: LazyList[Fun],
+      funs: List[Fun],
       base: Map[Expr, Int],
       depth: Int
-  ): LazyList[(Expr, Map[Expr, Int])] = if (depth == 0) {
-    LazyList()
+  ): List[(Expr, Map[Expr, Int])] = if (depth == 0) {
+    List()
   } else {
     val first =
-      LazyList.from(
+      List.from(
         for ((z, k) <- base if z.typ == typ && k > 0)
           yield (z, base + (z -> (k - 1)))
       )
@@ -76,8 +76,8 @@ object Enumerate extends Main {
 
   def findEqual(
       solver: Solver,
-      funs: LazyList[Fun],
-      consts: LazyList[Expr],
+      funs: List[Fun],
+      consts: List[Expr],
       lhs: Expr,
       repeat: Int,
       depth: Int,
@@ -131,8 +131,8 @@ object Enumerate extends Main {
 
   def findEqual(
       solver: Solver,
-      funs: LazyList[Fun],
-      consts: LazyList[Expr],
+      funs: List[Fun],
+      consts: List[Expr],
       f: Fun,
       g: Fun,
       i: Int,
@@ -179,10 +179,10 @@ object Enumerate extends Main {
       fun.arity == 0 && fun.params.isEmpty
     }
 
-    val extra = LazyList(st.funs("+", 2))
-    val funs = LazyList(nonconstfuns map (_._1): _*)
+    val extra = List(st.funs("+", 2))
+    val funs = List(nonconstfuns map (_._1): _*)
     val consts =
-      LazyList(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
+      List(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
 
     val rules = Rewrite.from(cmds, st)
     val rws = rules groupBy (_.fun)

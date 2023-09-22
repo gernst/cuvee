@@ -11,11 +11,15 @@ case class C(args: List[Expr], guard: List[Expr], body: Expr) extends Expr.bind[
   def flat(self: Fun) = this
   def bound = args.free
 
-  require(!(guard contains True), "guard contains " + True)
-  require(!(guard contains False), "guard contains " + False)
+  require(!(guard contains True), "guard of " + this + " contains " + True)
+  require(!(guard contains False), "guard of " + this + " contains " + False)
 
   require(body.free subsetOf args.free, this + " does not bind: " + (body.free -- args.free))
   require(guard.free subsetOf args.free, this + " does not bind: " + (guard.free -- args.free))
+
+  def replace(re: Map[Var, Var]) = {
+    C(args rename re, guard rename re, body rename re)
+  }
 
   def replace(f: Fun, g: Fun) = {
     C(args replace (f, g), guard replace (f, g), body replace (f, g))
