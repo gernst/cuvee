@@ -6,11 +6,12 @@ import cuvee.prove.InductiveProver
 import cuvee.smtlib._
 import cuvee.util.Main
 import cuvee.util.Run
+import cuvee.pipe.Stage
 
 object enat extends Run(Enumerate, "examples/boogie/nat.bpl")
 object elength extends Run(Enumerate, "examples/boogie/length.bpl")
 
-object Enumerate extends Main {
+object Enumerate extends Main with Stage {
   import InductiveProver._
 
   def select(fun: Fun, typ: Type) = {
@@ -147,6 +148,41 @@ object Enumerate extends Main {
 
     findEqual(solver, funs, consts, lhs, repeat, depth, rws, st)
   }
+
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
+    if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
+      val (decls, eqs, defs) = prepare(cmds, state)
+
+      implicit val solver = Solver.z3(100)
+
+      for (cmd <- cmds) cmd match {
+        case SetLogic(_)      =>
+        case _: Lemma         =>
+        case Assert(Not(phi)) =>
+        case _ =>
+          solver.exec(cmd, null)
+      }
+
+      val goals =
+        for ((Assert(Not(phi))) <- cmds)
+          yield phi
+
+      // ???
+
+      solver.ack(Exit)
+      solver.destroy()
+
+      val add = Nil
+
+      val (pre, post) = cmds partition {
+        case Assert(Not(expr)) => false
+        case _                 => true
+      }
+
+      pre ++ add ++ post
+    } else {
+      cmds
+    }
 
   def main(args: Array[String]) {
     val Array(file) = args

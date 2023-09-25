@@ -37,10 +37,9 @@ case object Unknown extends IsSat
 
 case class Model(defs: List[DefineFun]) extends Res {
   def rename(re: Map[Var, Var]): Model = {
-    val defs_ = defs map {
-      case DefineFun(name, params, formals, res, body, rec) =>
-        val name_ = re get (Var(name, res)) map (_.name) getOrElse name
-        DefineFun(name_, params, formals rename re, res, body rename re, rec)
+    val defs_ = defs map { case DefineFun(name, params, formals, res, body, rec) =>
+      val name_ = re get (Var(name, res)) map (_.name) getOrElse name
+      DefineFun(name_, params, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
@@ -108,15 +107,14 @@ case object Reset extends Ctrl {
 }
 
 case class Assert(expr: Expr) extends Cmd {
-  def bexpr = List("assert", " ", expr, ";")
+  def bexpr = List("axiom " + expr + ";")
 }
 
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
-case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean)
-    extends Cmd {
+case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean) extends Cmd {
   def bexpr = tactic match {
-    case None         => List("lemma", " ", expr, ";")
-    case Some(tactic) => List("lemma", " ", expr, "proof", tactic, ";")
+    case None         => List("lemma " + expr + ";")
+    case Some(tactic) => List("lemma " + expr, "proof" + tactic + ";")
   }
 }
 
@@ -131,11 +129,11 @@ case object CheckSat extends Cmd {
 }
 
 case class DeclareSort(name: Name, arity: Int) extends Decl {
-  def bexpr = List("type", " ", name, ";")
+  def bexpr = List("type " + name + ";") // XXX: add params
 }
-case class DefineSort(name: Name, params: List[Param], body: Type)
-    extends Decl {
-  def bexpr = cuvee.undefined // TODO: Is this right?
+
+case class DefineSort(name: Name, params: List[Param], body: Type) extends Decl {
+  def bexpr = List("type " + name + " = " + body + ";")
 }
 
 case class DeclareFun(
@@ -144,8 +142,8 @@ case class DeclareFun(
     args: List[Type],
     res: Type
 ) extends Decl {
-  // require(params.isEmpty, "generic functions are currently not supported")
-  def bexpr = List("function", " ", name, "(", args, ")", ":", res)
+  def formals = Expr.vars("x", args)
+  def bexpr = List("function " + name + "(" + formals.toStringTyped + "): " + res)
 }
 
 case class DefineFun(
@@ -157,37 +155,45 @@ case class DefineFun(
     rec: Boolean
 ) extends Decl {
   require(params.isEmpty, "generic functions are currently not supported")
-  def bexpr = List(
-    "function",
-    " ",
-    name,
-    "(",
-    formals.asFormals,
-    ")",
-    ":",
-    " ",
-    res,
-    "\n",
-    "{ ",
-    body,
-    " }",
-    "\n"
-  )
+
+  def bexpr =
+    List("function " + name + "(" + formals.toStringTyped + "): " + res + "{", "  " + body, "}")
 }
 
 case class DeclareDatatypes(
     arities: List[(Name, Int)],
     datatypes: List[Datatype]
 ) extends Decl {
-  def bexpr = List(
-    "/* ",
-    "declare-datatypes",
-    " arities: ",
-    arities,
-    ", commands: ",
-    datatypes,
-    "*/"
-  ) // What should we do here?
+  def sorts = arities zip datatypes map { case ((name, arity), Datatype(params, constrs)) =>
+    Sort(Con(name, arity), params)
+  }
+
+  def bexpr = {
+    val lines = arities zip datatypes map {
+      case ((name, arity), Datatype(Nil, constrs)) =>
+        val cs = constrs map {
+          case (constr, Nil) =>
+            constr.name
+          case (constr, sels) =>
+            val as = sels map { case Fun(name, _, List(arg), _) =>
+              name + ": " + arg
+            }
+            constr.name + as.mkString("(", ", ", ")")
+        }
+        name + cs.mkString(" = ", " | ", ";")
+      case ((name, arity), Datatype(params, constrs)) =>
+        val cs = constrs map {
+          case (constr, Nil) =>
+            constr.name
+          case (constr, sels) =>
+            val as = sels map { case Fun(name, _, List(arg), _) => name + ": " + arg }
+            constr.name + as.mkString("(", ", ", ")")
+        }
+        name + params.mkString("<", ", ", ">") + cs.mkString(" = ", " | ", ";")
+    }
+
+    "data " :: lines
+  }
 }
 
 case class DeclareProc(

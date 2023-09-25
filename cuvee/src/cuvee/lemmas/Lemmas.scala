@@ -15,7 +15,7 @@ object Lemmas extends Stage {
   val rounds = 3
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
-    if (cmds.nonEmpty && last == CheckSat) {
+    if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
       // val results = cuvee.lemmas.Test.run(decls, cmds, defs, state)
 

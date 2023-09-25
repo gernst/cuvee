@@ -73,12 +73,12 @@ case class Rule(
   )
 
   override def toString = {
-    var res = lhs + " = " + rhs
+    var res = lhs + " == " + rhs
     var pres = And.flattenStrong(cond)
     pres ++= avoid map { case (x, e) => (x !== e) }
 
     if (pres.nonEmpty)
-      res += " if " + And(pres)
+      res += " <== " + And(pres)
 
     res
   }

@@ -114,7 +114,7 @@ object Expr extends Alpha[Expr, Var] {
   }
 
   val infix =
-    Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
+    Set("<=", ">=", "<", ">", "+", "-", "*", "and", "or")
   val boogieInfix =
     boogie.Grammar.syntax.infix_ops.keySet
 
@@ -218,7 +218,7 @@ object Expr extends Alpha[Expr, Var] {
         val (ty_, su_) = bind(pat, arg, ty, su)
         bind(pats, args, ty_, su_)
     }
-  }  
+  }
 }
 
 class ExprList(exprs: List[Expr]) extends Expr.terms(exprs) {
@@ -302,6 +302,8 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
   def asScope = vars map { case x @ Var(name, typ) => name -> x }
+
+  def toStringTyped = vars.map(_.toStringTyped).mkString(", ")
 }
 
 class VarSet(vars: Set[Var]) {
@@ -459,7 +461,9 @@ object App extends ((Inst, List[Expr]) => App) {
     val ps = fun.params filterNot su.contains
     require(
       ps.isEmpty,
-      "unbound params casting " + fun + " to " + typ + ": " + ps.mkString(", ") + " with inst: "  + su
+      "unbound params casting " + fun + " to " + typ + ": " + ps.mkString(
+        ", "
+      ) + " with inst: " + su
     )
 
     new App(Inst(fun, su), Nil)
@@ -535,15 +539,35 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case _                 => inst :: args
   }
 
-  override def toString =
-    (inst, args) match {
-      case (_, Nil) =>
-        inst.toString
-      case (_, List(left, right)) if Expr.infix contains inst.fun.name.name =>
-        "(" + left + " " + inst + " " + right + ")"
-      case _ =>
-        inst + args.mkString("(", ", ", ")")
-    }
+  override def toString = this match {
+    // Constants
+    case App(inst, Nil) => inst.toString
+    // Logical connectives
+    case And(phis) => phis mkString ("(", " && ", ")")
+    case Or(phis)  => phis mkString ("(", " || ", ")")
+    // Iff (<==>), needs special handling, as this is also represented by "=" internally
+    case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
+      "(" + lhs + " " + " <==> " + " " + rhs + ")"
+    case Eq(lhs, rhs) =>
+      "(" + lhs + " " + " == " + " " + rhs + ")"
+    case Imp(phi, psi) =>
+      "(" + phi + " " + " ==> " + " " + psi + ")"
+    case DivBy(lhs, rhs) =>
+      "(" + lhs + " " + " / " + " " + rhs + ")"
+    case Mod(lhs, rhs) =>
+      "(" + lhs + " " + " % " + " " + rhs + ")"
+    // Infix operators
+    case App(_, List(lhs, rhs)) if Expr.boogieInfix contains inst.fun.name.name =>
+      "(" + lhs + " " + inst.toString + " " + rhs + ")"
+    // Unary -
+    case Not(psi)    => "! (" + psi + ")"
+    case UMinus(arg) => "- (" + arg + ")"
+    // Map access
+    case Select(arr, idx)        => arr + "[" + idx + "]"
+    case Store(arr, idx, newval) => arr + "[" + idx + ":=" + newval + "]"
+    // Applications (i.e. function calls)
+    case App(_, args) => inst + (args mkString ("(", ", ", ")"))
+  }
 }
 
 case class Quant(name: String)
