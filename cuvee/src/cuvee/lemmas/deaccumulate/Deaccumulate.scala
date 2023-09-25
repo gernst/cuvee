@@ -28,8 +28,10 @@ object Deaccumulate {
       args(pos) match {
         case x: Var =>
           val (body_, recs) = abstracted(df.fun, body)
-          // throw new Exception("insight is that the hoisted base cases are dependent on accumulators, so that it makes sense to consider *all* arguments introduced via fusion, and get rid of them by restricting which parameters the new body and guards may use")
+          // throw new Exception("insight is that the hoisted base cases are dependent on accumulators," +
+          //  "so that it makes sense to consider *all* arguments introduced via fusion, and get rid of them by restricting which parameters the new body and guards may use")
           !(x in guard) && !(recs exists { case (y, args) => (x in (args removed pos)) })
+          // the assumption that x is not in the guard is necessary to eliminate it
         case _ =>
           false
       }

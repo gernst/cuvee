@@ -6,6 +6,10 @@ function mul(m: nat, n: nat): nat;
 
 function leq(m: nat, n: nat): bool;
 
+function not_(b: bool): bool;
+axiom not_(false) == true;
+axiom not_(true) == false;
+
 axiom forall n: nat ::
   leq(zero, n) == true;
 axiom forall m: nat ::

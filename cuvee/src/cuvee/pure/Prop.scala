@@ -87,11 +87,11 @@ object Prop {
   ): Prop = {
     post match {
       case Nil =>
-        (assms, concls) match {
-          case (Nil, Nil) =>
+        (xs, assms, concls) match {
+          case (Nil, Nil, Nil) =>
             Atom.f
-          case (Nil, List(Conj(Nil, List(prop)))) =>
-            prop
+          case (Nil, Nil, List(Conj(Nil, List(Disj(ys, assms, concls))))) =>
+            Disj(xs ++ ys, assms, concls)
           case _ =>
             Disj(xs, assms, concls)
         }
@@ -345,8 +345,8 @@ object Disj {
         (assms, concls) match {
           case (Nil, Nil) =>
             Atom.f
-          case (Nil, List(Conj(Nil, List(prop)))) =>
-            prop
+          case (Nil, List(Conj(Nil, List(Disj(ys, assms, concls))))) =>
+            Disj(xs ++ ys, assms, concls)
           case _ =>
             Disj(xs, assms, concls)
         }

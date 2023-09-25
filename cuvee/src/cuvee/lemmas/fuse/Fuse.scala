@@ -137,6 +137,11 @@ object Fuse {
         val args = fargs patch (pos, gargs_, 1)
         val guard = (fguard ++ gguard) subst su
         val body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
+        // println(re)
+        // println(su)
+        // println(fargs + ". " + fbody)
+        // println(gargs + ". " + gbody)
+        // println(gargs_)
         C(args, guard, body_)
       }
     }
@@ -303,6 +308,10 @@ object Fuse {
       case (_, x: Var) if gargs.free contains x =>
         val su = Expr.subst(x -> fpat)        
         val gargs_ = gargs subst su
+        println(
+          "instantiating unconstrained argument " + x + " of " + g.name + " with " + fpat
+        )
+        println("new argument list: " + gargs_)
         List((gargs_, su))
 
 
@@ -368,7 +377,7 @@ object Fuse {
         val args_ = args map (recurse(f, g, fg, pos, _, su, constrs, rules))
         args_(pos) match {
           case App(Inst(`g`, _), args) =>
-            val res = App(fg, args_ patch (pos, args, 1))
+            val res = App(fg, args_ patch (pos, args subst su, 1))
             res
           // case App(_, args) if g in args =>
           //   val expr = App(f, args_)

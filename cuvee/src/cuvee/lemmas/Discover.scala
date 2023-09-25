@@ -423,7 +423,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
           // println("given definition")
           // println(df)
           if (debug)
-            print("recognize " + df)
+            print("recognize " + df.name)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
             Unused.unused(df simplify (normalize, constrs), args)
@@ -441,7 +441,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
           val rhs4 =
             for (
               dg <- definitions;
-              _ = { if (debug) println("  trying: " + dg.fun.name) };
+              // _ = { if (debug) println("  trying: " + dg.fun.name) };
               (ty, perm) <- Known.known(df_, dg)
             ) yield {
               val rhs = App(Inst(dg.fun, ty), perm map args_)
@@ -484,8 +484,10 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
               }
 
               todo {
+                val where = Deaccumulate.mayDeaccumulateAt(df_)
+                println("schedule for deaccumulation: " + df_.name + " at " + where)
                 // try deaccumulating but don't chain this query, it depends on the one above
-                for (pos <- Deaccumulate.mayDeaccumulateAt(df_))
+                for (pos <- where)
                   yield DeaccumulateAt(lhs, df_, args_, pos, again = true)
               }
             }

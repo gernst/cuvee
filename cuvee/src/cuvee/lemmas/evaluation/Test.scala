@@ -12,7 +12,7 @@ import cuvee.lemmas.deaccumulate.Deaccumulate
 object isaplanner
     extends Run(
       Test,
-      "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/isaplanner/prop_83.smt2"
+      "benchmarks-dt/isaplanner/goal1.smt2"
     )
 
 object tip2015_mod_same
@@ -54,6 +54,7 @@ object nat extends Run(Test, "examples/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "examples/lemmas/list.bpl")
 object tree extends Run(Test, "examples/lemmas/tree.bpl")
 
+object runlength extends Run(Test, "examples/lemmas/runlength.bpl")
 object runlength_other extends Run(Test, "examples/lemmas/runlength_other.bpl")
 
 object Test extends Main {

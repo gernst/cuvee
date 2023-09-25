@@ -87,17 +87,17 @@ object Simplify {
       assms = assms_ map (simplify(_, rules ++ more, constrs))
       concls = concls_ map (simplify(_, rules ++ more, constrs))
 
-      if (concls.nonEmpty) {
-        val common = Intersect {
-          concls flatMap { case Conj(xs, props) =>
-            props map {
-              case _: Atom =>
-                Set[Prop]()
-              case Disj(xs, assms, concls) =>
-                Set(assms: _*)
-            }
-          }
+      val all = concls flatMap { case Conj(xs, props) =>
+        props map {
+          case _: Atom =>
+            Set[Prop]()
+          case Disj(xs, assms, concls) =>
+            Set(assms: _*)
         }
+      }
+
+      if (all.nonEmpty) {
+        val common = Intersect(all)
 
         concls = concls map { case Conj(xs, props) =>
           Conj(

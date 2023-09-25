@@ -29,6 +29,9 @@ class Config {
   var prove = "none"
   var induct = false
 
+  var proveNegatedAsserts = true
+  var crosscheckProver = false
+
   def option(name: String, help: String)(action: => Unit) = {
     name -> (help, () => action)
   }
@@ -68,6 +71,12 @@ class Config {
     },
     option("-prove:dump", "dump lemmas to prove into file") {
       prove = "dump"
+    },
+    option(
+      "-prove:crosscheck",
+      "cross-check simplifications of prover by Z3 (may fail due to incompleteness)"
+    ) {
+      crosscheckProver = true
     },
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
@@ -148,21 +157,59 @@ object Config {
       case "auto" =>
         val solver = Solver.z3()
         val prover = new PositiveProver(solver)
-        sink = new Incremental(new Prove(prover, config.simplify, config.rewrite), sink)
+        if(config.induct)
+          error("induction not supported by auto prover")
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
 
       case "z3" =>
         val solver = Solver.z3()
         val prover = Prover.fromSolver(solver, config.induct)
-        sink = new Incremental(new Prove(prover, config.simplify, config.rewrite), sink)
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
 
       case "dummy" =>
         val solver = Solver.dummy
         val prover = Prover.fromSolver(solver, config.induct)
-        sink = new Incremental(new Prove(prover, config.simplify, config.rewrite), sink)
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
 
       case "dump" =>
         val prover = Prover.dump("./lemma")
-        sink = new Incremental(new Prove(prover, config.simplify, config.rewrite), sink)
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
 
       case _ =>
     }

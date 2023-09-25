@@ -41,7 +41,6 @@ object Lemmas extends Stage {
         Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
       ) {
         lemmas.addLemma("provided", lhs, rhs, cond)
-        // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
       }
 
       lemmas.findNeutral(defs map (_.fun))

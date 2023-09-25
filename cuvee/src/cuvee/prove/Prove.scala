@@ -15,8 +15,8 @@ class Prove(
     prover: Prover,
     simplify: Boolean,
     rewrite: Boolean,
-    proveNegatedAsserts: Boolean = true,
-    crosscheckProver: Boolean = true
+    proveNegatedAsserts: Boolean,
+    crosscheckProver: Boolean
 ) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
     val results = exec(prefix, cmds, state)
@@ -76,7 +76,7 @@ class Prove(
               if (!solver.isTrue(expr === expr_)) {
                 println(expr + " != " + expr_)
                 for ((_, rules) <- rws; eq <- rules) println(eq)
-                assert(false, "reduce did not produce equivalent formulas!")
+                assert(false, "reduce did not produce formulas recognized equivalent by Z3!")
               }
             }
 
