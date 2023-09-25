@@ -84,48 +84,57 @@ object Enumerate extends Main with Stage {
       depth: Int,
       rws: Map[Fun, List[Rule]],
       st: State
-  ) {
-
+  ): List[List[Lemma]] = {
     val free = lhs.free.toList
     val base = Map(free ++ consts map (_ -> repeat): _*)
+
+    print("trying " + lhs)
     val candidates = enumerate(lhs.typ, funs, base, depth)
+    println(" ...")
 
-    var results: Set[Expr] = Set()
-    println("trying " + lhs)
-
-    for ((rhs, _) <- candidates if lhs != rhs) {
+    for ((rhs, _) <- candidates if lhs != rhs) yield {
       val goal = Forall(free.toList, Eq(lhs, rhs))
-      // print("candidate: " + goal)
+      val goal_ = Simplify.simplify(goal, rws, st.constrs)
 
-      // val proved = solver.check(Not(goal)) match {
-      //   case Unknown =>
-      //     proveWithInduction(solver, goal, st.datatypes) exists { case (x, status) =>
-      //       status == Unsat
-      //     }
-      //   case Unsat => true
-      //   case _     => false
-      // }
+      // XXX: simple cex check up to size 2?
 
-      val proved = inductions(goal, st.datatypes) exists { case (x, goal) =>
-        Simplify.simplify(goal, rws, st.constrs) match {
-          case True =>
-            true
-          case res =>
-            // if (solver.isTrue(res))
-            //   // println("missed: " + res)
-            //   true
-            // else
-            false
-        }
-      }
-
-      if (proved) {
-        // println(" proved!")
-        println("proved: " + goal)
-        results += goal
+      if (goal_ == True) {
+        // don't report trivial lemmas
+        Nil
       } else {
-        // println("discarded: " + goal)
-        // println(" discarded.")
+
+        // val proved = solver.check(Not(goal)) match {
+        //   case Unknown =>
+        //     proveWithInduction(solver, goal, st.datatypes) exists { case (x, status) =>
+        //       status == Unsat
+        //     }
+        //   case Unsat => true
+        //   case _     => false
+        // }
+
+        println("candidate: " + rhs)
+        val proved = inductions(goal_, st.datatypes) exists { case (x, goal) =>
+          Simplify.simplify(goal, rws, st.constrs) match {
+            case True =>
+              true
+            case res =>
+              if (solver.isTrue(res))
+                // println("missed: " + res)
+                true
+              else
+                false
+          }
+        }
+
+        if (proved) {
+          // println(" proved!")
+          println("proved: " + goal)
+          List(Lemma(goal, None, false))
+        } else {
+          Nil
+          // println("discarded: " + goal)
+          // println(" discarded.")
+        }
       }
     }
   }
@@ -141,7 +150,7 @@ object Enumerate extends Main with Stage {
       depth: Int,
       rws: Map[Fun, List[Rule]],
       st: State
-  ) {
+  ): List[List[Lemma]] = {
     val xs = Expr.vars("x", f.args)
     val ys = Expr.vars("y", g.args)
     val lhs = App(f, xs updated (i, App(g, ys)))
@@ -152,27 +161,62 @@ object Enumerate extends Main with Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
+      val solver = Solver.z3(timeout =20)
 
-      implicit val solver = Solver.z3(100)
+      for (cmd <- cmds)
+        solver.ack(cmd)
 
-      for (cmd <- cmds) cmd match {
-        case SetLogic(_)      =>
-        case _: Lemma         =>
-        case Assert(Not(phi)) =>
-        case _ =>
-          solver.exec(cmd, null)
+      // TODO: add data type constructors
+      val all_ = cmds collect {
+        case DeclareFun(name, params, args, res) =>
+          List(state.funs(name, args.length) -> true)
+
+        case DefineFun(name, params, formals, res, body, rec) =>
+          List(state.funs(name, formals.length) -> true)
+
+        case DeclareDatatypes(_, datatypes) =>
+          for (
+            dt <- datatypes;
+            (constr, _) <- dt.constrs
+          )
+            yield constr -> false
       }
+
+      val (constfuns, nonconstfuns) = all_.flatten.partition { case (fun, _) =>
+        fun.arity == 0 && fun.params.isEmpty
+      }
+
+      // add some functions with known neutral elements
+      val extra =
+        List(state.funs("+", 2), state.funs("not", 1), state.funs("and", 2), state.funs("or", 2))
+
+      val funs = List(nonconstfuns map (_._1): _*)
+
+      val consts =
+        List(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
+
+      val rws = eqs groupBy (_.fun)
+
+      val repeat = 1
+      val depth = 3
+
+      val add =
+        for (
+          (f, true) <- nonconstfuns;
+          (g, true) <- nonconstfuns;
+          (typ, pos) <- f.args.zipWithIndex if typ == g.res;
+          lemmas <- findEqual(solver, funs ++ extra, consts, f, g, pos, repeat, depth, rws, state);
+          res <- lemmas
+        ) yield {
+          res
+        }
 
       val goals =
         for ((Assert(Not(phi))) <- cmds)
           yield phi
 
-      // ???
-
       solver.ack(Exit)
       solver.destroy()
-
-      val add = Nil
 
       val (pre, post) = cmds partition {
         case Assert(Not(expr)) => false
