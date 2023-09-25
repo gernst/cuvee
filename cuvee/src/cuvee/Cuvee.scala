@@ -10,6 +10,7 @@ import cuvee.lemmas.Lemmas
 import cuvee.imp.Eval
 import cuvee.imp.Annotate
 import cuvee.prove.PositiveProver
+import cuvee.lemmas.Enumerate
 
 class Config {
   var file: Option[String] = None
@@ -21,7 +22,7 @@ class Config {
 
   var eval = false
   var annotate = false
-  var lemmas = false
+  var lemmas = "none"
 
   var simplify = false
   var rewrite = false
@@ -81,8 +82,11 @@ class Config {
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
     },
-    option("-lemmas", "infer lemmas") {
-      lemmas = true
+    option("-lemmas:structural", "infer lemmas") {
+      lemmas = "structural"
+    },
+    option("-lemmas:enumerate", "infer lemmas") {
+      lemmas = "enumerate"
     },
     option("-simplify", "simplify using internal algorithms") {
       simplify = true
@@ -157,7 +161,7 @@ object Config {
       case "auto" =>
         val solver = Solver.z3()
         val prover = new PositiveProver(solver)
-        if(config.induct)
+        if (config.induct)
           error("induction not supported by auto prover")
         sink = new Incremental(
           new Prove(
@@ -214,8 +218,12 @@ object Config {
       case _ =>
     }
 
-    if (config.lemmas) {
+    if (config.lemmas == "structural") {
       sink = new Incremental(Lemmas, sink)
+    }
+
+    if (config.lemmas == "enumerate") {
+      sink = new Incremental(Enumerate, sink)
     }
 
     if (config.eval) {
