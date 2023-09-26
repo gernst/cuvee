@@ -22,7 +22,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
   var useInternal = true
   var printTiming = false // may be undesirable if counting duplicates
 
-  var debug = true
+  var debug = false
 
   val constrs = st.constrs
 

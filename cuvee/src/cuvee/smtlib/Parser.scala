@@ -207,7 +207,7 @@ class Parser(init: State) {
     from match {
       case App(Id(name), arg) =>
         val out = typ(arg, ctx)
-        Fun(name, params, List(in), out)
+        st.fun(name, params, List(in), out)
 
       case _ =>
         error("invalid selector declaration: " + from)
