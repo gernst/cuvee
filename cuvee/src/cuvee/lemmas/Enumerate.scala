@@ -193,7 +193,7 @@ object Enumerate extends Main with Stage {
 
       val rws = eqs groupBy (_.fun)
 
-      val repeat = 1
+      val repeat = 2 // e.g. for map:append
       val depth = 3
 
       val add =

@@ -11,7 +11,7 @@ import cuvee.lemmas.prepare
 
 import cuvee.lemmas.deaccumulate.Deaccumulate
 
-object Lemmas extends Stage {
+class Lemmas(lemmasWithSyntheticFunctions: Boolean) extends Stage {
   val rounds = 3
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
@@ -62,14 +62,37 @@ object Lemmas extends Stage {
       }
 
       val results = lemmas.lemmas
+      val known = state.funs.values.toSet
 
       solver.ack(Exit)
       solver.destroy()
 
-      val known = state.funs.values.toSet
       val add =
-        for ((origin, rule) <- results if (origin != "provided") && (rule.funs subsetOf known))
-          yield Lemma(rule.toExpr, None, true)
+        if (lemmasWithSyntheticFunctions) {
+          val need =
+            for (
+              (origin, rule) <- results;
+              fun <- rule.funs
+            ) yield fun
+
+          val miss = need.toSet -- known
+
+          val defn =
+            for (
+              df <- lemmas.definitions if (miss contains df.fun);
+              cmd <- df.cmds
+            )
+              yield cmd
+
+          val lems =
+            for ((origin, rule) <- results if (origin != "provided"))
+              yield Lemma(rule.toExpr, None, true)
+
+          defn ++ lems
+        } else {
+          for ((origin, rule) <- results if (origin != "provided") && (rule.funs subsetOf known))
+            yield Lemma(rule.toExpr, None, true)
+        }
 
       val (pre, post) = cmds partition {
         case Assert(Not(expr)) =>

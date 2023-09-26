@@ -23,6 +23,7 @@ class Config {
   var eval = false
   var annotate = false
   var lemmas = "none"
+  var lemmasWithSyntheticFunctions = false
 
   var simplify = false
   var rewrite = false
@@ -88,11 +89,14 @@ class Config {
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
     },
-    option("-lemmas:structural", "infer lemmas") {
+    option("-lemmas:structural", "infer lemmas by structural methods") {
       lemmas = "structural"
     },
-    option("-lemmas:enumerate", "infer lemmas") {
+    option("-lemmas:enumerate", "infer lemmas with term enumeration") {
       lemmas = "enumerate"
+    },
+    option("-lemmas:all", "include lemmas that are formulated over synthetic functions (structural methods)") {
+      lemmasWithSyntheticFunctions = true
     },
     option("-simplify", "simplify using internal algorithms") {
       simplify = true
@@ -226,7 +230,7 @@ object Config {
     }
 
     if (config.lemmas == "structural") {
-      sink = new Incremental(Lemmas, sink)
+      sink = new Incremental(new Lemmas(config.lemmasWithSyntheticFunctions), sink)
     }
 
     if (config.lemmas == "enumerate") {
@@ -253,4 +257,14 @@ object Cuvee {
     val (file, source, sink, report) = Config(args)
     Pipe.run(source, sink, report)
   }
+}
+
+object RelativeTheoryStrength {
+  def lemmas(file: String) = ???
+
+  def main(args: Array[String]) = {
+    require(args.length == 2)
+    val Array(first, second) = args
+  }
+
 }

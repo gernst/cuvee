@@ -11,10 +11,11 @@ import cuvee.smtlib.Solver
 
 object TheSy {
   def main(args: Array[String]) {
-    storedLemmas(
-      "/home/ernst/Papers/adt-commute/benchmarks/ind/benchmarks-dt/isaplanner/goal1.smt2",
-      "/home/ernst/Projects/cuvee/TheSy/experiments/cvc4_benchmarks/expl/isaplanner/goal1.smt2.th.out"
+    val lemmas = storedLemmas(
+      "/home/ernst/Papers/adt-commute/benchmarks/ind/benchmarks-dt/isaplanner/goal82.smt2",
+      "/home/ernst/Projects/cuvee/TheSy/experiments/cvc4_benchmarks/expl/isaplanner/goal82.smt2.log"
     )
+    lemmas map println
   }
 
   def storedLemmas(smt2: String, th: String) = {

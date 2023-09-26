@@ -33,7 +33,7 @@ object POPL2024 {
             expr
           }
 
-          val th = base_th + cat + "/" + goal + ".th.out"
+          val th = base_th + cat + "/" + goal + ".log"
           //   println(th)
           val theirs = TheSy.storedLemmas(smt2, th)
 
