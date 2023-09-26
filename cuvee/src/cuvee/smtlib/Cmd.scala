@@ -107,7 +107,15 @@ case object Reset extends Ctrl {
 }
 
 case class Assert(expr: Expr) extends Cmd {
-  def bexpr = List("axiom " + expr + ";")
+  def bexpr = expr match {
+    case Bind(quant, formals, body, _) =>
+      List(
+        "axiom " + quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", " :: "),
+        expr + ";"
+      )
+    case _ =>
+      List("axiom " + expr + ";")
+  }
 }
 
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
@@ -143,7 +151,7 @@ case class DeclareFun(
     res: Type
 ) extends Decl {
   def formals = Expr.vars("x", args)
-  def bexpr = List("function " + name + "(" + formals.toStringTyped + "): " + res)
+  def bexpr = List("function " + name + "(" + formals.toStringTyped + "): " + res + ";")
 }
 
 case class DefineFun(

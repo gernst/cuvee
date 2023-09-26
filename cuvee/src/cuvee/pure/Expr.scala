@@ -547,15 +547,17 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
     case Or(phis)  => phis mkString ("(", " || ", ")")
     // Iff (<==>), needs special handling, as this is also represented by "=" internally
     case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
-      "(" + lhs + " " + " <==> " + " " + rhs + ")"
+      "(" + lhs + " <==> " + rhs + ")"
     case Eq(lhs, rhs) =>
-      "(" + lhs + " " + " == " + " " + rhs + ")"
+      "(" + lhs + " == " + rhs + ")"
     case Imp(phi, psi) =>
-      "(" + phi + " " + " ==> " + " " + psi + ")"
+      "(" + phi + " ==> " + psi + ")"
     case DivBy(lhs, rhs) =>
-      "(" + lhs + " " + " / " + " " + rhs + ")"
+      "(" + lhs + " / " + rhs + ")"
     case Mod(lhs, rhs) =>
-      "(" + lhs + " " + " % " + " " + rhs + ")"
+      "(" + lhs + " % " + rhs + ")"
+    case Ite(test, left, right) =>
+      "(if " + test + " then " + left + " else " + right + ")"
     // Infix operators
     case App(_, List(lhs, rhs)) if Expr.boogieInfix contains inst.fun.name.name =>
       "(" + lhs + " " + inst.toString + " " + rhs + ")"
@@ -616,7 +618,7 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   }
 
   override def toString =
-    quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body
+    quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", " :: ") + body
 }
 
 class CaseList(cases: List[Case]) {

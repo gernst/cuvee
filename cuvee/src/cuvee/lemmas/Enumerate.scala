@@ -112,17 +112,13 @@ object Enumerate extends Main with Stage {
         //   case _     => false
         // }
 
-        println("candidate: " + rhs)
+        // println("candidate: " + rhs)
         val proved = inductions(goal_, st.datatypes) exists { case (x, goal) =>
           Simplify.simplify(goal, rws, st.constrs) match {
-            case True =>
+            case res if solver.isTrue(res) =>
               true
-            case res =>
-              if (solver.isTrue(res))
-                // println("missed: " + res)
-                true
-              else
-                false
+            case _ =>
+              false
           }
         }
 
@@ -161,7 +157,7 @@ object Enumerate extends Main with Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
-      val solver = Solver.z3(timeout =20)
+      val solver = Solver.z3(timeout = 20)
 
       for (cmd <- cmds)
         solver.ack(cmd)
@@ -198,7 +194,7 @@ object Enumerate extends Main with Stage {
       val rws = eqs groupBy (_.fun)
 
       val repeat = 1
-      val depth = 2
+      val depth = 3
 
       val add =
         for (

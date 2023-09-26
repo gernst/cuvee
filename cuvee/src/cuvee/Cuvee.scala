@@ -61,6 +61,12 @@ class Config {
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
     },
+    option("-print:boogie", "force output to Boogie format") {
+      printer = cuvee.boogie.printer
+    },
+    option("-print:thesy", "force output to TheSy format") {
+      printer = cuvee.thesy.printer
+    },
     // option("-print:none", "suppress output") {
     //   printer = Printer.dummy
     // },
@@ -138,6 +144,7 @@ class Config {
       } else if (path endsWith ".py") {
         source = python.source(path)
       } else if (path endsWith ".th") {
+        printer = thesy.printer
         source = thesy.source(path)
       } else {
         error("unknown file format: " + path)

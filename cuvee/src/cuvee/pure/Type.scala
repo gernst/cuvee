@@ -199,13 +199,13 @@ case class Sort(con: Con, args: List[Type]) extends Type {
     if (args.isEmpty)
       List(con.name)
     else
-      con.name :: (args intersperse ("[", ",", "]"))
+      con.name :: (args intersperse ("<", ",", ">"))
 
   override def toString =
     if (args.isEmpty)
       con.name.toString
     else
-      con.name.toString + args.mkString("[", ", ", "]")
+      con.name.toString + args.mkString("<", ", ", ">")
 }
 
 object Sort extends ((Con, List[Type]) => Sort) {

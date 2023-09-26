@@ -6,6 +6,8 @@ import java.io.InputStreamReader
 import java.io.FileReader
 
 package object thesy {
+  implicit val printer: cuvee.util.Printer = cuvee.thesy.Printer
+
   def source(): Source = source(new InputStreamReader(System.in))
   def source(path: String): Source = source(new FileReader(path))
 
