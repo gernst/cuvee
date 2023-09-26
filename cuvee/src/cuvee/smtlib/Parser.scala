@@ -105,8 +105,6 @@ class Parser(init: State) {
         Reset
 
       case App(Id("exit")) =>
-        // println("!!! exit in parser")
-        // cuvee.undefined
         Exit
 
       case App(Id("assert"), phi) =>
@@ -297,7 +295,9 @@ class Parser(init: State) {
           val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
           DefineFun(name, Nil, formals_, res_, body_, false)
         }
-      case _ => cuvee.error("Unexpected format in model response")
+
+      case _ =>
+        error("unexpected format in model response")
     }
 
   def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
@@ -444,7 +444,7 @@ class Parser(init: State) {
           val e_ = expr(e, ctx, scope ++ scope_)
           (p_, e_)
         case _ =>
-          error("invalid case: " + from)
+          error("invalid match case: " + from)
       }
 
     def cases(

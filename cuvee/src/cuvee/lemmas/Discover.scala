@@ -22,7 +22,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
   var useInternal = true
   var printTiming = false // may be undesirable if counting duplicates
 
-  var debug = false
+  var debug = true
 
   val constrs = st.constrs
 
@@ -134,7 +134,8 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
   def replaceBy(lhs: Expr, rhs: Expr) {
     val eq = Rule(lhs, rhs)
-    println("replace by: " + eq)
+    if(debug)
+      println("replace by: " + eq)
     replace = eq :: replace
     val re = replace.groupBy(_.fun)
 
@@ -314,7 +315,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
           val funs = funs0 ++ funs1
 
-          if (false) {
+          if (true) {
             println("goal: " + lhs + " == " + rhs)
             println("constants for deaccumulation synthesis")
             for (cst <- consts)
@@ -485,7 +486,8 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
               todo {
                 val where = Deaccumulate.mayDeaccumulateAt(df_)
-                println("schedule for deaccumulation: " + df_.name + " at " + where)
+                if(debug)
+                  println("schedule for deaccumulation: " + df_.name + " at " + where)
                 // try deaccumulating but don't chain this query, it depends on the one above
                 for (pos <- where)
                   yield DeaccumulateAt(lhs, df_, args_, pos, again = true)

@@ -7,9 +7,13 @@ import cuvee.smtlib._
 import cuvee.util.Main
 import cuvee.util.Run
 import cuvee.pipe.Stage
+import cuvee.prove.QuickCheck
+import cuvee.util.Fix
 
 object Enumerate extends Stage {
   import InductiveProver._
+
+  var debug = true
 
   def select(fun: Fun, typ: Type) = {
     try {
@@ -70,6 +74,8 @@ object Enumerate extends Stage {
     first ++ second
   }
 
+  val builtin = State.default.funs.values.toSet
+
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
@@ -78,23 +84,18 @@ object Enumerate extends Stage {
       for (cmd <- prefix ++ cmds)
         solver.ack(cmd)
 
-      // TODO: add data type constructors
-      val all_ = cmds collect {
-        case DeclareFun(name, params, args, res) =>
-          List(state.funs(name, args.length) -> true)
+      val constrs = state.constrs
+      val rws = eqs groupBy (_.fun)
+      val ok = rws.keySet | constrs | builtin
+      println(ok)
 
-        case DefineFun(name, params, formals, res, body, rec) =>
-          List(state.funs(name, formals.length) -> true)
-
-        case DeclareDatatypes(_, datatypes) =>
-          for (
-            dt <- datatypes;
-            (constr, _) <- dt.constrs
-          )
-            yield constr -> false
+      val (_, _, deps) = Fix.rtc(rws map { case (fun, eqs) => (fun, eqs flatMap (_.funs)) })
+      deps map println
+      val all = rws.keys.toList filter {
+        fun => deps(fun) subsetOf ok
       }
 
-      val (constfuns, nonconstfuns) = all_.flatten.partition { case (fun, _) =>
+      val (constfuns, nonconstfuns) = all.partition { fun =>
         fun.arity == 0 && fun.params.isEmpty
       }
 
@@ -102,24 +103,21 @@ object Enumerate extends Stage {
       val extra =
         List(state.funs("+", 2), state.funs("not", 1), state.funs("and", 2), state.funs("or", 2))
 
-      val funs = List(nonconstfuns map (_._1): _*)
+      val funs = List(nonconstfuns: _*)
 
       val consts: List[Expr] =
-        List(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
+        List(Zero, One) ++ (constfuns map { fun => new App(Inst(fun, Map()), Nil) })
 
-      val constrs = state.constrs
-      val rws = eqs groupBy (_.fun)
-
-      val repeat = 1 // at least 2 needed for e.g. for map:append
+      val repeat = 2 // at least 2 needed for e.g. for map:append
       val depth = 3 // at least 3 needed for distributive laws
-      val rounds = 2
+      val rounds = 3
 
       // compute a set of candidates for each left-hand side
       var candidates = Set[Expr]()
 
       for (
-        (f, true) <- nonconstfuns;
-        (g, true) <- nonconstfuns;
+        f <- nonconstfuns;
+        g <- nonconstfuns;
         (typ, pos) <- f.args.zipWithIndex if typ == g.res
       ) {
         val xs = Expr.vars("x", f.args)
@@ -141,32 +139,38 @@ object Enumerate extends Stage {
       }
 
       var lemmas: List[Lemma] = Nil
+      val qc = new QuickCheck(rws, state)
 
       for (round <- 1 to rounds) {
         val count = candidates.size
-        // println("round " + round + " (" + count + " candidates)")
+        if (debug)
+          println("round " + round + " (" + count + " candidates)")
 
         val todo = candidates
         candidates = Set()
 
-        for (goal <- todo) {
-          // print(goal)
+        for ((goal, i) <- todo.toList.zipWithIndex) {
+          if (debug) print("[" + i + "] " + goal)
 
-          solver.check(!goal) match {
-            case Sat   => // println(" sat") // wrong
-            case Unsat => // println(" unsat") // trivial
+          if (qc.hasSimpleCounterexample(goal, 3)) {
+            if (debug) println(" sat (quickcheck)")
+          } else {
+            solver.check(!goal) match {
+              case Sat   => if (debug) println(" sat") // wrong
+              case Unsat => if (debug) println(" unsat") // trivial
 
-            case Unknown =>
-              val goals = inductions(goal, state.datatypes)
-              val proved = goals exists { case (x, goal) => solver.isTrue(goal) }
-              // if (proved) println(" proved") else println(" unknown")
+              case Unknown =>
+                val goals = inductions(goal, state.datatypes)
+                val proved = goals exists { case (x, goal) => solver.isTrue(goal) }
+                if (debug) { if (proved) println(" proved") else println(" unknown") }
 
-              if (proved) {
-                solver.assert(goal)
-                lemmas = Lemma(goal, None, true) :: lemmas
-              } else {
-                candidates += goal
-              }
+                if (proved) {
+                  solver.assert(goal)
+                  lemmas = Lemma(goal, None, true) :: lemmas
+                } else {
+                  candidates += goal
+                }
+            }
           }
         }
       }

@@ -9,6 +9,8 @@ import cuvee.util.Main
 import cuvee.State
 
 import cuvee.lemmas.deaccumulate.Deaccumulate
+
+object foo extends Run(Test, "benchmarks-dt/clam/goal2.smt2")
 object isaplanner
     extends Run(
       Test,

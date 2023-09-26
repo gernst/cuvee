@@ -200,7 +200,7 @@ object Deaccumulate {
 
     val rhs = App(⊕, List(App(f_, restargs), args(pos)) ++ staticargs)
     val eq = Eq(App(df.fun, args), rhs)
-    println(eq)
+    // println(eq)
 
     Query(df, args, df_, rhs, ⊕, Set(⊕ :: bs.flatten: _*), conds.flatten)
   }

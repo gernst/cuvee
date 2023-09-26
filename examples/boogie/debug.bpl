@@ -7,3 +7,6 @@ axiom forall y: nat ::
   add(zero, y) == y;
 axiom forall x: nat, y : nat ::
   add(succ(x), y) == succ(add(x, y));
+
+lemma forall x: nat, y: nat ::
+  add(x, zero) == x;

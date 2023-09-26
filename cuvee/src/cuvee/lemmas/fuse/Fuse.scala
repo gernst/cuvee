@@ -8,7 +8,7 @@ import cuvee.lemmas.Def
 import cuvee.lemmas.C
 
 object Fuse {
-  var debug = true
+  var debug = false
 
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
@@ -308,10 +308,10 @@ object Fuse {
       case (_, x: Var) if gargs.free contains x =>
         val su = Expr.subst(x -> fpat)        
         val gargs_ = gargs subst su
-        println(
-          "instantiating unconstrained argument " + x + " of " + g.name + " with " + fpat
-        )
-        println("new argument list: " + gargs_)
+        // println(
+        //   "instantiating unconstrained argument " + x + " of " + g.name + " with " + fpat
+        // )
+        // println("new argument list: " + gargs_)
         List((gargs_, su))
 
 

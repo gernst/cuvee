@@ -12,6 +12,7 @@ import cuvee.imp.Annotate
 import cuvee.prove.PositiveProver
 import cuvee.lemmas.Enumerate
 import cuvee.lemmas.recognize.Neutral
+import cuvee.prove.QuickCheck
 
 class Config {
   var file: Option[String] = None
@@ -31,6 +32,7 @@ class Config {
 
   var prove = "none"
   var induct = false
+  var quickcheck = true
 
   var proveNegatedAsserts = true
   var crosscheckProver = false
@@ -65,6 +67,9 @@ class Config {
     option("-z3", "process final output via Z3") {
       sink = _ => Solver.z3()
       report = Report.stdout(_)
+    },
+    option("-prove:quickcheck", "quick check lemmas for counterexamples") {
+      quickcheck = true
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
@@ -242,8 +247,8 @@ object Config {
       case _ =>
     }
 
-    if (config.lemmas == "neutral") {
-      sink = new Incremental(Neutral, sink)
+    if(config.quickcheck) {
+      sink = new Incremental(QuickCheck, sink)
     }
 
     if (config.lemmas == "structural") {
@@ -252,6 +257,10 @@ object Config {
 
     if (config.lemmas == "enumerate") {
       sink = new Incremental(Enumerate, sink)
+    }
+
+    if (config.lemmas == "neutral") {
+      sink = new Incremental(Neutral, sink)
     }
 
     if (config.eval) {
