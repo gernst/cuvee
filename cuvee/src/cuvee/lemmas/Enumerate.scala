@@ -175,7 +175,7 @@ object Enumerate extends Main with Stage {
             dt <- datatypes;
             (constr, _) <- dt.constrs
           )
-            yield constr -> false
+            yield constr -> true
       }
 
       val (constfuns, nonconstfuns) = all_.flatten.partition { case (fun, _) =>
@@ -188,24 +188,78 @@ object Enumerate extends Main with Stage {
 
       val funs = List(nonconstfuns map (_._1): _*)
 
-      val consts =
+      val consts: List[Expr] =
         List(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
 
       val rws = eqs groupBy (_.fun)
 
       val repeat = 2 // e.g. for map:append
       val depth = 3
+      val rounds = 2
 
-      val add =
-        for (
-          (f, true) <- nonconstfuns;
-          (g, true) <- nonconstfuns;
-          (typ, pos) <- f.args.zipWithIndex if typ == g.res;
-          lemmas <- findEqual(solver, funs ++ extra, consts, f, g, pos, repeat, depth, rws, state);
-          res <- lemmas
-        ) yield {
-          res
+      // compute a set of candidates for each left-hand side
+      var candidates = Map[Expr, (List[Var], List[Expr])]()
+
+      for (
+        (f, true) <- nonconstfuns;
+        (g, true) <- all_.flatten;
+        (typ, pos) <- f.args.zipWithIndex if typ == g.res
+      ) {
+        val xs = Expr.vars("x", f.args)
+        val ys = Expr.vars("y", g.args)
+        val lhs = App(f, xs updated (pos, App(g, ys)))
+
+        val free = lhs.free.toList
+        val base = Map(free ++ consts map (_ -> repeat): _*)
+
+        val exprs =
+          for ((expr, _) <- enumerate(lhs.typ, funs, base, depth))
+            yield expr
+
+        candidates += (lhs -> (free, exprs))
+      }
+
+      var lemmas: List[Lemma] = Nil
+
+      for (round <- 1 to rounds) {
+        val count = candidates.map(_._2._2.length).sum
+        println("round " + round + " (" + count + " candidates)")
+
+        val todo = candidates
+        for ((lhs, (xs, exprs)) <- todo) {
+
+          val status =
+            for (rhs <- exprs) yield {
+              val goal = Forall(xs, Eq(lhs, rhs))
+              print(goal)
+
+              // solver.check(!goal) match {
+              //   case Sat   => println(" sat"); None // wrong
+              //   case Unsat => println(" unsat"); None // trivial
+
+              //   case Unknown =>
+              val goals = inductions(goal, state.datatypes)
+              val proved = goals exists { case (x, goal) => solver.isTrue(goal) }
+              if (proved) println(" proved") else println(" unknown")
+              if (proved) Some(Some(goal))
+              else Some(None)
+              // }
+            }
+
+          val exprs_ = (status zip exprs) collect { case (Some(None), rhs) =>
+            rhs
+          }
+
+          val add = (status zip exprs) collect { case (Some(Some(goal)), rhs) =>
+            Lemma(goal, None, true)
+          }
+
+          for (Lemma(phi, _, _) <- add)
+            solver.assert(phi)
+
+          lemmas = lemmas ++ add
         }
+      }
 
       val goals =
         for ((Assert(Not(phi))) <- cmds)
@@ -219,7 +273,7 @@ object Enumerate extends Main with Stage {
         case _                 => true
       }
 
-      pre ++ add ++ post
+      pre ++ lemmas ++ post
     } else {
       cmds
     }
@@ -230,7 +284,7 @@ object Enumerate extends Main with Stage {
     val (decls, eqs, defs) = prepare(cmds, st)
     println(file)
 
-    val solver = Solver.z3(timeout = 50)
+    val solver = Solver.z3(timeout = 10)
 
     for (cmd <- cmds)
       solver.ack(cmd)

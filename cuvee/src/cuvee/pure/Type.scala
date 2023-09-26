@@ -16,7 +16,7 @@ object Type extends Alpha[Type, Param] {
     override def toString = "cannot unify: " + reason
   }
 
-  case class CannotBind(typ1: Type, typ2: Type, su: Map[Param, Type]) extends Exception{
+  case class CannotBind(typ1: Type, typ2: Type, su: Map[Param, Type]) extends Exception {
     override def toString = "cannot bind: " + typ1 + " to " + typ2 + " using " + su
   }
 
@@ -201,11 +201,14 @@ case class Sort(con: Con, args: List[Type]) extends Type {
     else
       con.name :: (args intersperse ("<", ",", ">"))
 
-  override def toString =
-    if (args.isEmpty)
+  override def toString = this match {
+    case Sort(con, Nil) =>
       con.name.toString
-    else
+    case Sort(Con.array, List(a, b)) =>
+      "[" + a + "]" + b
+    case _ =>
       con.name.toString + args.mkString("<", ", ", ">")
+  }
 }
 
 object Sort extends ((Con, List[Type]) => Sort) {

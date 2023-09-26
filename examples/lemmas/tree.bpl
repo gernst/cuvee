@@ -1,4 +1,6 @@
-type Elem;
+// type Elem;
+
+data Elem = zero | succ(n: Elem);
 
 data Lst<a> = nil  | cons(head: a, tail: Lst<a>);
 data Tree<a> = leaf | node(value: a, left: Tree<a>, right: Tree<a>);
