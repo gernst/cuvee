@@ -157,7 +157,11 @@ object Enumerate extends Main with Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
+<<<<<<< HEAD
       val solver = Solver.z3(timeout = 20)
+=======
+      val solver = Solver.z3(timeout =20)
+>>>>>>> f66740ff76d8122aa78332511fe1d11da7afbe4e
 
       for (cmd <- cmds)
         solver.ack(cmd)
