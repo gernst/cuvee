@@ -1,6 +1,17 @@
 import scala.annotation.tailrec
 
 package object cuvee {
+  var level = 0
+  def info(msg: Any*) = log(1, msg)
+  def debug(msg: Any*) = log(2, msg)
+
+  val levelName = Array("[ALL]  ", "[INFO] ", "[DEBUG]")
+
+  def log(self: Int, msg: Seq[Any]) {
+    if (self <= level)
+      System.err.println(levelName(self) + (msg mkString " "))
+  }
+
   def error(msg: => String) = {
     require(false, msg)
     ???
@@ -22,10 +33,7 @@ package object cuvee {
       enclosing: sourcecode.Enclosing,
       name: sourcecode.Name
   ) = {
-    println("internal error: an implementation is missing")
-    println("  " + file.value + ":" + line.value)
-    println("  in " + enclosing.value)
-    error("missing implementation: " + enclosing.value)
+    error("missing implementation at " + file.value + ":" + line.value + " in " + enclosing.value)
   }
 
   val sub = "₀₁₂₃₄₅₆₇₈₉"

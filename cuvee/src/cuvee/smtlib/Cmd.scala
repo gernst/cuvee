@@ -21,6 +21,7 @@ case object Success extends Ack
 case object Unsupported extends Ack
 
 case class Error(info: List[Any]) extends Exception with Res {}
+
 object Error extends (List[Any] => Error) {
   def apply(info: List[Any]): Nothing = {
     throw new Error(info)

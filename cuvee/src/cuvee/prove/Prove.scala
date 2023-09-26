@@ -93,7 +93,8 @@ class Prove(
     val goal_ = Simplify.simplify(goal, rws, state.constrs)
     prover.reduce(goal_, state)
   } else {
-    prover.reduce(goal, state)
+    val goal_ = prover.reduce(goal, state)
+    goal_
   }
 
   def reduce(
@@ -139,7 +140,8 @@ class Prove(
         for (
           (subgoal, subtactic) <- tactic.apply(state, goal);
           goal_ <- reduce(subgoal, subtactic, rws, state)
-        )
-          yield goal_
+        ) yield {
+           goal_
+        }
     }
 }

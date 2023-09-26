@@ -11,6 +11,7 @@ import cuvee.imp.Eval
 import cuvee.imp.Annotate
 import cuvee.prove.PositiveProver
 import cuvee.lemmas.Enumerate
+import cuvee.lemmas.recognize.Neutral
 
 class Config {
   var file: Option[String] = None
@@ -52,6 +53,12 @@ class Config {
 
   val options = Map(
     option("-help", "show this help text") { help() },
+    option("-log:info", "print some informative output to stderr, such as progress") {
+      printer = cuvee.smtlib.printer
+    },
+    option("-log:debug", "print lots of internals to stderr, includes -log:info") {
+      printer = cuvee.smtlib.printer
+    },
     option("-debug:solver", "show interaction SMT-LIB backends") {
       Solver.debug = true
     },
@@ -89,13 +96,19 @@ class Config {
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
     },
+    option("-lemmas:neutral", "infer lemmas by guessing neutral laws") {
+      lemmas = "neutral"
+    },
     option("-lemmas:structural", "infer lemmas by structural methods") {
       lemmas = "structural"
     },
     option("-lemmas:enumerate", "infer lemmas with term enumeration") {
       lemmas = "enumerate"
     },
-    option("-lemmas:all", "include lemmas that are formulated over synthetic functions (structural methods)") {
+    option(
+      "-lemmas:all",
+      "include lemmas that are formulated over synthetic functions (structural methods)"
+    ) {
       lemmasWithSyntheticFunctions = true
     },
     option("-simplify", "simplify using internal algorithms") {
@@ -227,6 +240,10 @@ object Config {
         )
 
       case _ =>
+    }
+
+    if (config.lemmas == "neutral") {
+      sink = new Incremental(Neutral, sink)
     }
 
     if (config.lemmas == "structural") {

@@ -8,10 +8,7 @@ import cuvee.util.Main
 import cuvee.util.Run
 import cuvee.pipe.Stage
 
-object enat extends Run(Enumerate, "examples/boogie/nat.bpl")
-object elength extends Run(Enumerate, "examples/boogie/length.bpl")
-
-object Enumerate extends Main with Stage {
+object Enumerate extends Stage {
   import InductiveProver._
 
   def select(fun: Fun, typ: Type) = {
@@ -73,93 +70,12 @@ object Enumerate extends Main with Stage {
     first ++ second
   }
 
-// cuvee.smtlib.solver.debug = true
-
-  def findEqual(
-      solver: Solver,
-      funs: List[Fun],
-      consts: List[Expr],
-      lhs: Expr,
-      repeat: Int,
-      depth: Int,
-      rws: Map[Fun, List[Rule]],
-      st: State
-  ): List[List[Lemma]] = {
-    val free = lhs.free.toList
-    val base = Map(free ++ consts map (_ -> repeat): _*)
-
-    print("trying " + lhs)
-    val candidates = enumerate(lhs.typ, funs, base, depth)
-    println(" ...")
-
-    for ((rhs, _) <- candidates if lhs != rhs) yield {
-      val goal = Forall(free.toList, Eq(lhs, rhs))
-      val goal_ = Simplify.simplify(goal, rws, st.constrs)
-
-      // XXX: simple cex check up to size 2?
-
-      if (goal_ == True) {
-        // don't report trivial lemmas
-        Nil
-      } else {
-
-        // val proved = solver.check(Not(goal)) match {
-        //   case Unknown =>
-        //     proveWithInduction(solver, goal, st.datatypes) exists { case (x, status) =>
-        //       status == Unsat
-        //     }
-        //   case Unsat => true
-        //   case _     => false
-        // }
-
-        // println("candidate: " + rhs)
-        val proved = inductions(goal_, st.datatypes) exists { case (x, goal) =>
-          Simplify.simplify(goal, rws, st.constrs) match {
-            case res if solver.isTrue(res) =>
-              true
-            case _ =>
-              false
-          }
-        }
-
-        if (proved) {
-          // println(" proved!")
-          println("proved: " + goal)
-          List(Lemma(goal, None, false))
-        } else {
-          Nil
-          // println("discarded: " + goal)
-          // println(" discarded.")
-        }
-      }
-    }
-  }
-
-  def findEqual(
-      solver: Solver,
-      funs: List[Fun],
-      consts: List[Expr],
-      f: Fun,
-      g: Fun,
-      i: Int,
-      repeat: Int,
-      depth: Int,
-      rws: Map[Fun, List[Rule]],
-      st: State
-  ): List[List[Lemma]] = {
-    val xs = Expr.vars("x", f.args)
-    val ys = Expr.vars("y", g.args)
-    val lhs = App(f, xs updated (i, App(g, ys)))
-
-    findEqual(solver, funs, consts, lhs, repeat, depth, rws, st)
-  }
-
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
       val solver = Solver.z3(timeout = 20)
 
-      for (cmd <- cmds)
+      for (cmd <- prefix ++ cmds)
         solver.ack(cmd)
 
       // TODO: add data type constructors
@@ -175,7 +91,7 @@ object Enumerate extends Main with Stage {
             dt <- datatypes;
             (constr, _) <- dt.constrs
           )
-            yield constr -> true
+            yield constr -> false
       }
 
       val (constfuns, nonconstfuns) = all_.flatten.partition { case (fun, _) =>
@@ -191,18 +107,19 @@ object Enumerate extends Main with Stage {
       val consts: List[Expr] =
         List(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
 
+      val constrs = state.constrs
       val rws = eqs groupBy (_.fun)
 
-      val repeat = 2 // e.g. for map:append
-      val depth = 3
+      val repeat = 1 // at least 2 needed for e.g. for map:append
+      val depth = 3 // at least 3 needed for distributive laws
       val rounds = 2
 
       // compute a set of candidates for each left-hand side
-      var candidates = Map[Expr, (List[Var], List[Expr])]()
+      var candidates = Set[Expr]()
 
       for (
         (f, true) <- nonconstfuns;
-        (g, true) <- all_.flatten;
+        (g, true) <- nonconstfuns;
         (typ, pos) <- f.args.zipWithIndex if typ == g.res
       ) {
         val xs = Expr.vars("x", f.args)
@@ -213,121 +130,62 @@ object Enumerate extends Main with Stage {
         val base = Map(free ++ consts map (_ -> repeat): _*)
 
         val exprs =
-          for ((expr, _) <- enumerate(lhs.typ, funs, base, depth))
-            yield expr
+          for ((rhs, _) <- enumerate(lhs.typ, funs, base, depth))
+            yield {
+              val phi = Forall(free, Eq(lhs, rhs))
+              val goal = Simplify.simplify(phi, rws, constrs)
+              goal
+            }
 
-        candidates += (lhs -> (free, exprs))
+        candidates ++= exprs
       }
 
       var lemmas: List[Lemma] = Nil
 
       for (round <- 1 to rounds) {
-        val count = candidates.map(_._2._2.length).sum
-        println("round " + round + " (" + count + " candidates)")
+        val count = candidates.size
+        // println("round " + round + " (" + count + " candidates)")
 
         val todo = candidates
-        for ((lhs, (xs, exprs)) <- todo) {
+        candidates = Set()
 
-          val status =
-            for (rhs <- exprs) yield {
-              val goal = Forall(xs, Eq(lhs, rhs))
-              print(goal)
+        for (goal <- todo) {
+          // print(goal)
 
-              // solver.check(!goal) match {
-              //   case Sat   => println(" sat"); None // wrong
-              //   case Unsat => println(" unsat"); None // trivial
+          solver.check(!goal) match {
+            case Sat   => // println(" sat") // wrong
+            case Unsat => // println(" unsat") // trivial
 
-              //   case Unknown =>
+            case Unknown =>
               val goals = inductions(goal, state.datatypes)
               val proved = goals exists { case (x, goal) => solver.isTrue(goal) }
-              if (proved) println(" proved") else println(" unknown")
-              if (proved) Some(Some(goal))
-              else Some(None)
-              // }
-            }
+              // if (proved) println(" proved") else println(" unknown")
 
-          val exprs_ = (status zip exprs) collect { case (Some(None), rhs) =>
-            rhs
+              if (proved) {
+                solver.assert(goal)
+                lemmas = Lemma(goal, None, true) :: lemmas
+              } else {
+                candidates += goal
+              }
           }
-
-          val add = (status zip exprs) collect { case (Some(Some(goal)), rhs) =>
-            Lemma(goal, None, true)
-          }
-
-          for (Lemma(phi, _, _) <- add)
-            solver.assert(phi)
-
-          lemmas = lemmas ++ add
         }
       }
+
+      solver.ack(Exit)
+      solver.destroy()
 
       val goals =
         for ((Assert(Not(phi))) <- cmds)
           yield phi
-
-      solver.ack(Exit)
-      solver.destroy()
 
       val (pre, post) = cmds partition {
         case Assert(Not(expr)) => false
         case _                 => true
       }
 
-      pre ++ lemmas ++ post
+      // reversing restores the order in which they were discovered
+      pre ++ lemmas.reverse ++ post
     } else {
       cmds
     }
-
-  def main(args: Array[String]) {
-    val Array(file) = args
-    val (cmds, st) = read(file)
-    val (decls, eqs, defs) = prepare(cmds, st)
-    println(file)
-
-    val solver = Solver.z3(timeout = 10)
-
-    for (cmd <- cmds)
-      solver.ack(cmd)
-
-    // TODO: add data type constructors
-    val all_ = cmds collect {
-      case DeclareFun(name, params, args, res) =>
-        List(st.funs(name, args.length) -> true)
-
-      case DefineFun(name, params, formals, res, body, rec) =>
-        List(st.funs(name, formals.length) -> true)
-
-      case DeclareDatatypes(_, datatypes) =>
-        for (
-          dt <- datatypes;
-          (constr, _) <- dt.constrs
-        )
-          yield constr -> false
-    }
-
-    val (constfuns, nonconstfuns) = all_.flatten.partition { case (fun, _) =>
-      fun.arity == 0 && fun.params.isEmpty
-    }
-
-    val extra = List(st.funs("+", 2))
-    val funs = List(nonconstfuns map (_._1): _*)
-    val consts =
-      List(Zero, One) ++ (constfuns map { case (fun, _) => new App(Inst(fun, Map()), Nil) })
-
-    val rules = Rewrite.from(cmds, st)
-    val rws = rules groupBy (_.fun)
-
-    val repeat = 1
-    val depth = 3
-
-    // findEqual(solver, funs, consts, add(x, add(y, z)), 1, 3, rws, st)
-
-    for (
-      (f, true) <- nonconstfuns;
-      (g, true) <- nonconstfuns;
-      (typ, pos) <- f.args.zipWithIndex if typ == g.res
-    ) {
-      findEqual(solver, funs ++ extra, consts, f, g, pos, repeat, depth, rws, st)
-    }
-  }
 }
