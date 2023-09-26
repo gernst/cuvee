@@ -397,6 +397,11 @@ class Parser(init: State) {
           check(body, bool)
           bind(name, xs, body, bool)
 
+        // qualified constant
+        case App(Id("as"), Id(name), from) if st.funs contains (name, 0) =>
+          const(name, Some(typ(from, ctx)))
+
+        // qualified function application
         case App(App(Id("as"), Id(name), from), args @ _*)
             if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope), Some(typ(from, ctx)))

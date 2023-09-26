@@ -263,8 +263,8 @@ class State(
       Pre(Let(eqs_, body.expr))
     }
 
-    def const(name: Name) = {
-      app(name, Nil)
+    def const(name: Name, res: Option[Type] = None) = {
+      app(name, Nil, res)
     }
 
     def select(base: Pre, index: Pre) = {
