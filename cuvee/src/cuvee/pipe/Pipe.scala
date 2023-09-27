@@ -21,7 +21,9 @@ object Pipe {
         }
     }
 
-    sink.done(source.state)
+    report.safe {
+      sink.done(source.state)
+    }
   }
 }
 

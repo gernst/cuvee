@@ -9,6 +9,7 @@ import cuvee.util.Run
 import cuvee.pipe.Stage
 import cuvee.prove.QuickCheck
 import cuvee.util.Fix
+import scala.util.Try
 
 object Enumerate extends Stage {
   import InductiveProver._
@@ -87,12 +88,12 @@ object Enumerate extends Stage {
       val constrs = state.constrs
       val rws = eqs groupBy (_.fun)
       val ok = rws.keySet | constrs | builtin
-      println(ok)
+      // println(ok)
 
       val (_, _, deps) = Fix.rtc(rws map { case (fun, eqs) => (fun, eqs flatMap (_.funs)) })
-      deps map println
-      val all = rws.keys.toList filter {
-        fun => deps(fun) subsetOf ok
+      // deps map println
+      val all = (constrs ++ rws.keys).toList filter { fun =>
+        !(deps contains fun) || (deps(fun) subsetOf ok)
       }
 
       val (constfuns, nonconstfuns) = all.partition { fun =>
@@ -115,17 +116,34 @@ object Enumerate extends Stage {
       // compute a set of candidates for each left-hand side
       var candidates = Set[Expr]()
 
-      for (
-        f <- nonconstfuns;
-        g <- nonconstfuns;
-        (typ, pos) <- f.args.zipWithIndex if typ == g.res
-      ) {
-        val xs = Expr.vars("x", f.args)
-        val ys = Expr.vars("y", g.args)
-        val lhs = App(f, xs updated (pos, App(g, ys)))
+      def list[A](f: => A) = try {
+        List(f)
+      } catch {
+        case _: Exception => Nil
+      }
 
-        val free = lhs.free.toList
+      val init =
+        for (
+          f <- nonconstfuns if f.params.isEmpty;
+          g <- nonconstfuns;
+          (typ, pos) <- f.args.zipWithIndex;
+          ty <- list(Type.bind(g.res, typ)) // instantiate g, was if typ == g.res
+        ) yield {
+          val xs = Expr.vars("x", f.args)
+          val ys = Expr.vars("y", g.args subst ty)
+          val lhs = App(f, xs updated (pos, App(Inst(g, ty), ys)))
+
+          val free = lhs.free.toList
+          val params = free.types.free
+          require(params.isEmpty, "lhs " + lhs + " has type parameters: " + params)
+
+          (free, lhs)
+        }
+
+      val n = init.length
+      for (((free, lhs), i) <- init.zipWithIndex) {
         val base = Map(free ++ consts map (_ -> repeat): _*)
+        System.out.print("\r" + i + " of " + n)
 
         val exprs =
           for ((rhs, _) <- enumerate(lhs.typ, funs, base, depth))

@@ -6,7 +6,7 @@ import cuvee.smtlib._
 import cuvee.util.Tool
 import cuvee.util.Name
 import cuvee.prove.InductiveProver
-import cuvee.pipe.Stage
+
 import cuvee.lemmas.prepare
 
 import cuvee.lemmas.recognize.Known
@@ -18,11 +18,17 @@ import cuvee.lemmas.deaccumulate.Deaccumulate
 import cuvee.lemmas.deaccumulate.Query
 import cuvee.lemmas.fuse.Fuse
 
-class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State, solver: Solver) {
+class Discover(
+    decls: List[DeclareFun],
+    cmds: List[Cmd],
+    defs: List[Def],
+    st: State,
+    solver: Solver
+) {
   var useInternal = true
   var printTiming = false // may be undesirable if counting duplicates
 
-  var debug = true
+  var debug = false
 
   val constrs = st.constrs
 
@@ -59,7 +65,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
   var original: Set[Fun] = st.funs.values.toSet
   var preconditions: Set[Fun] = Set()
-  
+
   var deaccumulated: Set[(Fun, Int)] = Set()
   var fused: Set[(Fun, Fun, Int)] = Set()
 
@@ -71,11 +77,8 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
   var definitions: List[Def] = Nil
 
-  // candidates for lemmas that could lead to cycles
-  var unsafe: List[(String, Rule)] = Nil
-
   // conditional lemmas (pre, lhs, rhs) that may be converted to rewrite rules
-  var conditional_lemmas: List[(String, (Expr, Expr, Expr))] = Nil
+  var conditional_lemmas: List[(String, (List[Var], Expr, Expr, Expr))] = Nil
 
   // discovered lemmas, always safe to use
   var lemmas: List[(String, Rule)] = Nil
@@ -128,13 +131,17 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
     lemmas = (origin, eq) :: lemmas
   }
 
+  def addConditionalLemma(origin: String, vars: List[Var], pre: Expr, lhs: Expr, rhs: Expr) {
+    conditional_lemmas = (origin, (vars, pre, lhs, rhs)) :: conditional_lemmas
+  }
+
   def addLemma(origin: String, lhs: Expr, rhs: Expr, cond: Expr = True) {
     addLemma(origin, Rule(lhs, rhs, cond))
   }
 
   def replaceBy(lhs: Expr, rhs: Expr) {
     val eq = Rule(lhs, rhs)
-    if(debug)
+    if (debug)
       println("replace by: " + eq)
     replace = eq :: replace
     val re = replace.groupBy(_.fun)
@@ -225,12 +232,33 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
           val rhs_ = Simplify.simplify(rhs, rw1, constrs)
           val cond_ = Simplify.simplify(cond, rw1, constrs)
           val eq_ = Rule(lhs, rhs_, cond_, avoid)
-          // println("simplified lemma: " + eq + " to " + eq_)
           (origin, eq_)
         }
 
-    lemmas = lemmas.distinct filterNot {
-      _._2.cond == False
+    conditional_lemmas =
+      for ((origin, (xs, pre, lhs, rhs)) <- conditional_lemmas)
+        yield catchRewritingDepthExceeded {
+          val pre_ = Simplify.simplify(pre, rw1, constrs)
+          val lhs_ = Simplify.simplify(lhs, rw1, constrs)
+          val rhs_ = Simplify.simplify(rhs, rw1, constrs)
+          (origin, (xs, pre_, lhs_, rhs_))
+        }
+
+    lemmas = lemmas.distinct filterNot { case (_, eq) =>
+      eq.cond == False
+    }
+
+    conditional_lemmas = conditional_lemmas.distinct filterNot { case (_, (xs, pre, lhs, rhs)) =>
+      if (pre == False || lhs == rhs) {
+        false
+      } else {
+        // don't keep lemmas that trivially follow from prior definitions
+        val eq = Forall(xs, pre ==> Eq(lhs, rhs))
+        if (eq.funs subsetOf original)
+          !solver.isTrue(eq)
+        else
+          true
+      }
     }
 
     val rw2 = lemmas.map(_._2).groupBy(_.fun)
@@ -267,6 +295,19 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
       }
       println()
 
+      println("conditional lemmas:")
+      for ((origin, (xs, pre, lhs, rhs)) <- conditional_lemmas) {
+        val eq = Forall(xs, pre ==> Eq(lhs, rhs))
+        println("  " + eq + " (" + origin + ")")
+      }
+      println()
+
+      println("recover:")
+      for (eq <- recover) {
+        println("  " + eq)
+      }
+      println()
+
       // println("retry:")
       // for (pending <- failed)
       //   println("  " + pending)
@@ -275,6 +316,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
   }
 
   def round() {
+    if (debug) println("---------------------")
     while (pending.nonEmpty) {
       val first = pending.head
       pending = pending.tail
@@ -315,7 +357,9 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
           val funs = funs0 ++ funs1
 
-          if (false) {
+          val debugDeaccumulation = false
+
+          if (debugDeaccumulation) {
             println("goal: " + lhs + " == " + rhs)
             println("constants for deaccumulation synthesis")
             for (cst <- consts)
@@ -369,7 +413,10 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
                     iterator = Some(solutions.tail)
                     counter += 1
 
-                    if (rest.isEmpty) {
+                    if (rest.nonEmpty) {
+                      if (debugDeaccumulation)
+                        println("unsolved queries: " + rest)
+                    } else {
                       val model = rules_.filter(unknowns contains _._1)
                       // println("model: ")
                       // for((_, eqs) <- model; eq <- eqs)
@@ -420,6 +467,12 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
             }
           }
 
+          if (!solved) {
+            if (debugDeaccumulation)
+              println("deaccumulation failed!")
+            retry { first }
+          }
+
         case Recognize(asLemma, lhs, df, args) =>
           // println("given definition")
           // println(df)
@@ -432,9 +485,9 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
           // todo {RecognizeConditional(df_)}
 
-          val rhs1 = Trivial.constant(df_, args_) map ((_, "constant"))
-          val rhs2 = Trivial.identity(df_, args_) map ((_, "identity"))
-          val rhs3 = Trivial.selectsConstructors(df_, args_) map ((_, "constructors"))
+          val rhs1 = Trivial.constant(df_, args_) map ((_, false, "constant"))
+          val rhs2 = Trivial.identity(df_, args_) map ((_, false, "identity"))
+          val rhs3 = Trivial.selectsConstructors(df_, args_) map ((_, false, "constructors"))
 
           // note we assume that definitions get simplified in the mean time
           // between rounds, to make use of new lemmas found
@@ -448,19 +501,27 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
               val rhs = App(Inst(dg.fun, ty), perm map args_)
               assert(!(original contains df.fun))
               drop(df_)
-              (rhs, "as " + dg.fun)
+              (rhs, preconditions contains dg.fun, "as " + dg.fun)
             }
 
           val all = rhs1 ++ rhs2 ++ rhs3 ++ rhs4
 
-          for ((rhs, why) <- all) {
+          for ((rhs, flip, why) <- all) {
             if (debug)
               println(" == " + rhs + " (" + why + ")")
 
-            replaceBy(lhs, rhs)
-
-            for (origin <- asLemma)
-              addLemma(origin, lhs, rhs)
+            if (flip) {
+              // XXX: this is a bit of a hack but it's actually tricky to figure it out ok
+              // never prefer synthetic preconditions,
+              // due to bad interactions with recovery rules (aargh.)
+              replaceBy(rhs, lhs)
+              for (origin <- asLemma)
+                addLemma(origin, rhs, lhs)
+            } else {
+              replaceBy(lhs, rhs)
+              for (origin <- asLemma)
+                addLemma(origin, lhs, rhs)
+            }
           }
 
           if (all.isEmpty) {
@@ -486,7 +547,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
               todo {
                 val where = Deaccumulate.mayDeaccumulateAt(df_)
-                if(debug)
+                if (debug)
                   println("schedule for deaccumulation: " + df_.name + " at " + where)
                 // try deaccumulating but don't chain this query, it depends on the one above
                 for (pos <- where)
@@ -504,24 +565,24 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
           val ids = Conditional.checkIdentityWithParamPicksAndGuard(df)
           val const = Conditional.checkIsDefConstant(df)
 
-          val all = ids ++ const
-
-          for ((rule, preCondDef) <- all) {
+          for ((rule, dpre) <- ids ++ const) {
             addLemma("conditional identity", rule)
-            val pre = preCondDef.fun
+            val pre = dpre.fun
             val xs = Expr.vars("x", pre.args)
             val lhs = App(pre, xs)
-            todo { Recognize(None, lhs, preCondDef, xs) }
+            preconditions += pre
+            todo { Recognize(None, lhs, dpre, xs) }
           }
 
-        //   val other =
-        //     for (
-        //       dg <- definitions if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
-        //       (dpre, expr) <- Compare.compare(df, dg, Map(), st.constrs)
-        //     ) {
-        //       println("HAVE: " + expr)
-        //       println(dpre)
-        //     }
+          for (
+            dg <- definitions
+            if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
+            (dpre, xs, pre, lhs, rhs) <- Compare.compare(df, dg, Map(), st.constrs)
+          ) {
+            addConditionalLemma("conditional comparison", xs, pre, lhs, rhs)
+            preconditions += dpre.fun
+            todo { Recognize(None, pre, dpre, xs) }
+          }
 
         case _ =>
           if (debug)

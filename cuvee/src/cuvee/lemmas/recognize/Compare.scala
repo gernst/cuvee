@@ -15,10 +15,11 @@ object Compare {
 
     for (
       df <- defs; dg <- defs if df.fun != dg.fun;
-      (pre, eq) <- compare(df, dg, rules, constrs)
+      (dpre, xs, pre, lhs, rhs) <- compare(df, dg, rules, constrs)
     ) try {
+      val eq = Forall(xs, pre ==> Eq(lhs, rhs))
       println(eq)
-      println(pre)
+      println(dpre)
       println()
     } catch {
       case _: Exception =>
@@ -39,14 +40,14 @@ object Compare {
       dg: Def,
       rules: Map[Fun, List[Rule]],
       constrs: Set[Fun]
-  ): List[(Def, Expr)] = {
+  ): List[(Def, List[Var], Expr, Expr, Expr)] = {
     for (
       (t, i) <- df.args.zipWithIndex if df.isMatchingPosition(i);
       (t_, j) <- dg.args.zipWithIndex if dg.isMatchingPosition(j)
       if t == t_;
-      (dpre, eq) <- compare(df, i, dg, j, rules, constrs)
+      res <- compare(df, i, dg, j, rules, constrs)
     )
-      yield (dpre, eq)
+      yield res
   }
 
   def compare(
@@ -56,7 +57,7 @@ object Compare {
       j: Int,
       rules: Map[Fun, List[Rule]],
       constrs: Set[Fun]
-  ): Option[(Def, Expr)] = {
+  ): Option[(Def, List[Var], Expr, Expr, Expr)] = {
     val Def(f, fcases) = df
     val Def(g, gcases) = dg
     require(f.params.isEmpty)
@@ -85,9 +86,9 @@ object Compare {
       val lhs = App(f, ys patch (i, List(x), 0))
       val rhs = App(g, zs patch (j, List(x), 0))
 
-      val eq = Forall(xs, App(pre, xs) ==> Eq(lhs, rhs))
+      // val eq = Forall(xs, App(pre, xs) ==> Eq(lhs, rhs))
       val dpre = Def(pre, precases)
-      Some((dpre, eq))
+      Some((dpre, xs, App(pre, xs), lhs, rhs))
     } catch {
       // case CannotCompare =>
       //   None
@@ -107,8 +108,14 @@ object Compare {
       rules: Map[Fun, List[Rule]],
       constrs: Set[Fun]
   ): List[C] = {
+    val re = Expr.fresh(cf.bound)
     val C(fpats, fguard, fbody) = cf
-    val C(gpats, gguard, gbody) = cg refresh cf.bound
+    val C(gpats, gguard, gbody) = cg replace re
+    // println("==================")
+    // println(fpats)
+    // println(gpats)
+    // println("==================")
+    require(fpats.free disjoint gpats.free, "patterns are not disjount (internal error): " + fpats + " and " + gpats + " of " + f + " and " + g)
 
     try {
       val (pat, pat_, fpats_, gpats_) = splitArgs(fpats, i, gpats, j)

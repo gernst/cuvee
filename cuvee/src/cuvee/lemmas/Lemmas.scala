@@ -61,7 +61,16 @@ class Lemmas(lemmasWithSyntheticFunctions: Boolean) extends Stage {
         lemmas.next()
       }
 
-      val results = lemmas.lemmas
+      val results1 =
+        for ((origin, rule) <- lemmas.lemmas)
+          yield (origin, rule.toExpr)
+
+      val results2 =
+        for ((origin, (xs, pre, lhs, rhs)) <- lemmas.conditional_lemmas)
+          yield (origin, Forall(xs, pre ==> Eq(lhs, rhs)))
+
+      val results = results1 ++ results2
+
       val known = state.funs.values.toSet
 
       solver.ack(Exit)
@@ -71,8 +80,8 @@ class Lemmas(lemmasWithSyntheticFunctions: Boolean) extends Stage {
         if (lemmasWithSyntheticFunctions) {
           val need =
             for (
-              (origin, rule) <- results;
-              fun <- rule.funs
+              (origin, phi) <- results;
+              fun <- phi.funs
             ) yield fun
 
           val miss = need.toSet -- known
@@ -85,13 +94,13 @@ class Lemmas(lemmasWithSyntheticFunctions: Boolean) extends Stage {
               yield cmd
 
           val lems =
-            for ((origin, rule) <- results if (origin != "provided"))
-              yield Lemma(rule.toExpr, None, true)
+            for ((origin, phi) <- results if (origin != "provided"))
+              yield Lemma(phi, None, true)
 
           defn ++ lems
         } else {
-          for ((origin, rule) <- results if (origin != "provided") && (rule.funs subsetOf known))
-            yield Lemma(rule.toExpr, None, true)
+          for ((origin, phi) <- results if (origin != "provided") && (phi.funs subsetOf known))
+            yield Lemma(phi, None, true)
         }
 
       val (pre, post) = cmds partition {

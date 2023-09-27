@@ -68,8 +68,11 @@ class Config {
       sink = _ => Solver.z3()
       report = Report.stdout(_)
     },
-    option("-prove:quickcheck", "quick check lemmas for counterexamples") {
+    option("-prove:quickcheck", "quick check lemmas for counterexamples (default)") {
       quickcheck = true
+    },
+    option("-prove:no-quickcheck", "quick check lemmas for counterexamples") {
+      quickcheck = false
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
