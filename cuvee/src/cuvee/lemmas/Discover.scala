@@ -315,7 +315,7 @@ class Discover(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: St
 
           val funs = funs0 ++ funs1
 
-          if (true) {
+          if (false) {
             println("goal: " + lhs + " == " + rhs)
             println("constants for deaccumulation synthesis")
             for (cst <- consts)
