@@ -26,6 +26,7 @@ class Config {
   var eval = false
   var annotate = false
   var lemmas = "none"
+  var lemmasRounds = 3
   var conditionalLemmas = false
   var lemmasWithSyntheticFunctions = false
 
@@ -157,6 +158,10 @@ class Config {
       action()
       configure(rest)
 
+    case "-lemmas:rounds" :: arg :: rest =>
+      lemmasRounds = arg.toInt
+      configure(rest)
+
     case "-o" :: path :: rest =>
       sink = Sink.file(path)(_)
       report = Report.stdout(_)
@@ -273,13 +278,17 @@ object Config {
 
     if (config.lemmas == "structural") {
       sink = new Incremental(
-        new Lemmas(config.conditionalLemmas, config.lemmasWithSyntheticFunctions),
+        new Lemmas(
+          config.lemmasRounds,
+          config.conditionalLemmas,
+          config.lemmasWithSyntheticFunctions
+        ),
         sink
       )
     }
 
     if (config.lemmas == "enumerate") {
-      sink = new Incremental(Enumerate, sink)
+      sink = new Incremental(new Enumerate(config.lemmasRounds), sink)
     }
 
     if (config.lemmas == "neutral") {

@@ -1,3 +1,8 @@
+// characteristic lemmas:
+//   neutral elements, commutativity, associativity of add/mul
+//   exchange laws between sub and add
+//   lt and leq duality, some properties of these wrt sub/add/mul
+
 data nat = zero | succ(pred: nat);
 
 function not_(b: bool): bool;

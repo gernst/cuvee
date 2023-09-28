@@ -11,10 +11,8 @@ import cuvee.prove.QuickCheck
 import cuvee.util.Fix
 import scala.util.Try
 
-object Enumerate extends Stage {
-  import InductiveProver._
-
-  var debug = true
+object Enumerate {
+  var debug = false
 
   def select(fun: Fun, typ: Type) = {
     try {
@@ -76,6 +74,10 @@ object Enumerate extends Stage {
   }
 
   val builtin = State.default.funs.values.toSet
+}
+
+class Enumerate(rounds: Int) extends Stage {
+  import Enumerate._
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
@@ -178,7 +180,7 @@ object Enumerate extends Stage {
               case Unsat => if (debug) println(" unsat") // trivial
 
               case Unknown =>
-                val goals = inductions(goal, state.datatypes)
+                val goals =   InductiveProver.inductions(goal, state.datatypes)
                 val proved = goals exists { case (x, goal) => solver.isTrue(goal) }
                 if (debug) { if (proved) println(" proved") else println(" unknown") }
 

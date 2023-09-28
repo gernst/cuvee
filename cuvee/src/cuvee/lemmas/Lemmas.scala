@@ -11,9 +11,7 @@ import cuvee.lemmas.prepare
 
 import cuvee.lemmas.deaccumulate.Deaccumulate
 
-class Lemmas(conditionalLemmas: Boolean, lemmasWithSyntheticFunctions: Boolean) extends Stage {
-  val rounds = 3
-
+class Lemmas(rounds: Int, conditionalLemmas: Boolean, lemmasWithSyntheticFunctions: Boolean) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
