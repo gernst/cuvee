@@ -11,7 +11,7 @@ import cuvee.lemmas.prepare
 
 import cuvee.lemmas.deaccumulate.Deaccumulate
 
-class Lemmas(lemmasWithSyntheticFunctions: Boolean) extends Stage {
+class Lemmas(conditionalLemmas: Boolean, lemmasWithSyntheticFunctions: Boolean) extends Stage {
   val rounds = 3
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
@@ -35,6 +35,7 @@ class Lemmas(lemmasWithSyntheticFunctions: Boolean) extends Stage {
           yield phi
 
       val lemmas = new Discover(decls, cmds, defs, state, solver)
+      lemmas.useConditional = conditionalLemmas
 
       for (
         Lemma(phi, _, _) <- cmds;

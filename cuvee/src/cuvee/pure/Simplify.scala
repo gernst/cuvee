@@ -165,6 +165,11 @@ object Simplify {
           False
         }
 
+      case (App(Inst(f, _), la), r) if (constrs contains f) && (la contains r) =>
+        False
+      case (l, App(Inst(g, _), ra)) if (constrs contains g) && (ra contains l) =>
+        False
+
       case _ =>
         Eq(left, right)
     }

@@ -16,15 +16,15 @@ case class Rule(
     "rule " + this + " not type correct: " + lhs.typ + ", " + rhs.typ
   )
 
-  // require(
-  //   rhs.free subsetOf lhs.free,
-  //   "rule " + this + " does not bind " + (rhs.free -- lhs.free) + " in rhs " + rhs
-  // )
+  require(
+    rhs.free subsetOf lhs.free,
+    "rule " + this + " does not bind " + (rhs.free -- lhs.free) + " in rhs " + rhs
+  )
 
-  // require(
-  //   cond.free subsetOf lhs.free,
-  //   "rule " + this + " does not bind " + (cond.free -- lhs.free) + " in guard " + cond
-  // )
+  require(
+    cond.free subsetOf lhs.free,
+    "rule " + this + " does not bind " + (cond.free -- lhs.free) + " in guard " + cond
+  )
 
   val vars = lhs.free.toList
   def funs = lhs.funs ++ rhs.funs ++ cond.funs

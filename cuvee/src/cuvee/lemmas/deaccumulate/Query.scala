@@ -39,6 +39,9 @@ case class G(formals: List[Var], f: Fun, body: Expr) extends Cond {
 
 // General case for function body b(args): find b so that forall formals. g ==> l == r
 case class B(formals: List[Var], b: Fun, args: List[Var], l: Expr, r: Expr, g: Expr) extends Cond {
+  require(r.free subsetOf l.free)
+  require(g.free subsetOf l.free)
+
   def toExpr = Forall(formals, g ==> Eq(l, r))
   def funs = l.funs ++ r.funs ++ g.funs
 }

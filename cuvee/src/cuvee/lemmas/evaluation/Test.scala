@@ -64,7 +64,7 @@ object Test extends Main {
   var rounds = 3
   var useAdtInd = false
   var useInternal = true
-  // cuvee.smtlib.solver.debug = true
+  // cuvee.smtlib.Solver.debug = true
 
   def run(decls: List[DeclareFun], cmds: List[Cmd], defs: List[Def], st: State) = {
     implicit val solver = Solver.z3(100)
@@ -99,11 +99,14 @@ object Test extends Main {
     for (df <- defs) {
       lemmas.define(df)
       lemmas.deaccumulate(df)
-      lemmas.recognizeConditional(df)
     }
 
     for (df <- defs; dg <- defs) {
       lemmas.fuse(df, dg)
+    }
+
+    for (df <- defs) {
+      lemmas.recognizeConditional(df)
     }
 
     for (i <- 0 until rounds) {

@@ -26,6 +26,7 @@ class Discover(
     solver: Solver
 ) {
   var useInternal = true
+  var useConditional = false
   var printTiming = false // may be undesirable if counting duplicates
 
   var debug = false
@@ -224,14 +225,17 @@ class Discover(
   }
 
   def cleanup() {
+    val rw0 = recover.groupBy(_.fun)
     val rw1 = rules
 
     lemmas =
       for ((origin, eq @ Rule(lhs, rhs, cond, avoid)) <- lemmas)
         yield catchRewritingDepthExceeded {
+          // need to rewrite lhs of conditional lemmas for fused functions
+          val lhs_ = Simplify.simplify(lhs, rw0, constrs)
           val rhs_ = Simplify.simplify(rhs, rw1, constrs)
           val cond_ = Simplify.simplify(cond, rw1, constrs)
-          val eq_ = Rule(lhs, rhs_, cond_, avoid)
+          val eq_ = Rule(lhs_, rhs_, cond_, avoid)
           (origin, eq_)
         }
 
@@ -248,14 +252,14 @@ class Discover(
       eq.cond == False
     }
 
-    conditional_lemmas = conditional_lemmas.distinct filterNot { case (_, (xs, pre, lhs, rhs)) =>
+    conditional_lemmas = conditional_lemmas.distinct filter { case (_, (xs, pre, lhs, rhs)) =>
       if (pre == False || lhs == rhs) {
         false
       } else {
         // don't keep lemmas that trivially follow from prior definitions
         val eq = Forall(xs, pre ==> Eq(lhs, rhs))
         if (eq.funs subsetOf original)
-          !solver.isTrue(eq)
+          true // !solver.isTrue(eq)
         else
           true
       }
@@ -302,11 +306,11 @@ class Discover(
       }
       println()
 
-      println("recover:")
-      for (eq <- recover) {
-        println("  " + eq)
-      }
-      println()
+      // println("recover:")
+      // for (eq <- recover) {
+      //   println("  " + eq)
+      // }
+      // println()
 
       // println("retry:")
       // for (pending <- failed)
@@ -451,9 +455,9 @@ class Discover(
                       // println("  model: " + model)
                       // println("success: " + first)
                       if (printTiming)
-                        addLemma("internal (" + ms + "ms)", lhs, rhs_)
+                        addLemma("deaccumulated (" + ms + "ms)", lhs, rhs_)
                       else
-                        addLemma("internal", lhs, rhs_)
+                        addLemma("deaccumulated", lhs, rhs_)
                       // println("added lemma")
                       solved = true
 
@@ -478,6 +482,7 @@ class Discover(
           // println(df)
           if (debug)
             print("recognize " + df.name)
+          // println(df)
 
           val (changed, df_, args_) = catchRewritingDepthExceeded {
             Unused.unused(df simplify (normalize, constrs), args)
@@ -501,7 +506,11 @@ class Discover(
               val rhs = App(Inst(dg.fun, ty), perm map args_)
               assert(!(original contains df.fun))
               drop(df_)
-              (rhs, preconditions contains dg.fun, "as " + dg.fun)
+              (
+                rhs,
+                !(preconditions contains df.fun) && (preconditions contains dg.fun),
+                "as " + dg.fun
+              )
             }
 
           val all = rhs1 ++ rhs2 ++ rhs3 ++ rhs4
@@ -510,7 +519,7 @@ class Discover(
             if (debug)
               println(" == " + rhs + " (" + why + ")")
 
-            if (flip) {
+            if (flip && (lhs.free subsetOf rhs.free)) {
               // XXX: this is a bit of a hack but it's actually tricky to figure it out ok
               // never prefer synthetic preconditions,
               // due to bad interactions with recovery rules (aargh.)
@@ -557,7 +566,7 @@ class Discover(
           }
 
         // case RecognizeConditional(df, lhs, recogArg) =>
-        case RecognizeConditional(df) =>
+        case RecognizeConditional(df) if useConditional && !(preconditions contains df.fun) =>
           val Def(fun, cases) = df
           if (debug)
             println("recognize conditionally " + fun.name)
@@ -574,9 +583,10 @@ class Discover(
             todo { Recognize(None, lhs, dpre, xs) }
           }
 
+          // only apply this to original definitions, it's quite costly
           for (
             dg <- definitions
-            if (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
+            if df.name < dg.name && (original contains df.fun) && (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
             (dpre, xs, pre, lhs, rhs) <- Compare.compare(df, dg, Map(), st.constrs)
           ) {
             addConditionalLemma("conditional comparison", xs, pre, lhs, rhs)

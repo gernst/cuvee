@@ -79,16 +79,24 @@ object Compare {
           yield cpre
 
       val x = Var("x", t)
-      val ys = Expr.vars("ys", fts)
-      val zs = Expr.vars("zs", gts)
+      val ys = Expr.vars("y", fts)
+      val zs = Expr.vars("z", gts)
       val xs = x :: ys ::: zs
 
       val lhs = App(f, ys patch (i, List(x), 0))
       val rhs = App(g, zs patch (j, List(x), 0))
 
-      // val eq = Forall(xs, App(pre, xs) ==> Eq(lhs, rhs))
-      val dpre = Def(pre, precases)
-      Some((dpre, xs, App(pre, xs), lhs, rhs))
+      val isNontrivial =
+        (precases exists { c => !c.isRecursive(pre) && c.body != False }) &&
+          (precases exists { c => c.isRecursive(pre) })
+
+      if (isNontrivial) {
+        // val eq = Forall(xs, App(pre, xs) ==> Eq(lhs, rhs))
+        val dpre = Def(pre, precases)
+        Some((dpre, xs, App(pre, xs), lhs, rhs))
+      } else {
+        None
+      }
     } catch {
       // case CannotCompare =>
       //   None
@@ -115,7 +123,10 @@ object Compare {
     // println(fpats)
     // println(gpats)
     // println("==================")
-    require(fpats.free disjoint gpats.free, "patterns are not disjount (internal error): " + fpats + " and " + gpats + " of " + f + " and " + g)
+    require(
+      fpats.free disjoint gpats.free,
+      "patterns are not disjount (internal error): " + fpats + " and " + gpats + " of " + f + " and " + g
+    )
 
     try {
       val (pat, pat_, fpats_, gpats_) = splitArgs(fpats, i, gpats, j)
@@ -136,12 +147,14 @@ object Compare {
         Nil
       } else {
         val pats = fpats_ ++ gpats_
-        val fbody_ = fbody subst su // we assume the functions are already normalized!
-        val gbody_ = gbody subst su
+        // maybe we can simplify something wrt. su
+        val fbody_ = Simplify.simplify(fbody subst su, rules, constrs)
+        val gbody_ = Simplify.simplify(gbody subst su, rules, constrs)
         val body = meet(pre, f, fbody_, i, g, gbody_, j, constrs)
-        val body_ = Simplify.simplify(body, rules, constrs)
 
-        List(C((pat subst su) :: pats, guard, And(body_)))
+        // simplify again
+        val body_ = Simplify.simplify(And(body), rules, constrs)
+        List(C((pat subst su) :: pats, guard, body_))
       }
     } catch {
       case CanIgnore =>

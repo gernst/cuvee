@@ -3,6 +3,7 @@ package cuvee.lemmas.recognize
 import cuvee.pure._
 import cuvee.lemmas._
 import cuvee.util.Matching
+import scala.util.hashing.MurmurHash3
 
 object Known {
   var debug = false
@@ -57,6 +58,13 @@ object Known {
     d
   }
 
+  def bar(f: Fun, i: Int, cs: List[C]): Int = {
+    val exprs =
+      for (C(args, guard, body) <- cs)
+        yield args(i)
+    MurmurHash3.unorderedHash(Def.hash(Set(f), exprs))
+  }
+
   def foo(f: Fun, i: Int, cs: List[C]): Int = {
     val ks = cs.zipWithIndex collect {
       case (C(args, guard, x: Var), k) if (args indexOf x) == i =>
@@ -105,7 +113,18 @@ object Known {
 
       val fcases_ = fcases.sortBy(Def.hash(fg, _))
       val gcases_ = gcases.sortBy(Def.hash(fg, _))
-      
+
+      val F = f.args.zipWithIndex.sortBy { case (t, i) =>
+        (Def.hash(t), bar(f, i, fcases_), foo(f, i, fcases_))
+      }
+
+      val G = g.args.zipWithIndex.sortBy { case (t, i) =>
+        (Def.hash(t), bar(g, i, gcases_), foo(g, i, gcases_))
+      }
+
+      val (ftypes, fp) = F.unzip
+      val (gtypes, gp) = G.unzip
+
       // use this code to debug hash code problems
       if (debug) {
         println("======================")
@@ -114,15 +133,6 @@ object Known {
         println(gcases_ map (Def.hash(fg, _)))
         println("======================")
       }
-
-      val F = f.args.zipWithIndex.sortBy { case (t, i) =>
-        Def.hash(t) -> foo(f, i, fcases_)
-      }
-      val G = g.args.zipWithIndex.sortBy { case (t, i) =>
-        Def.hash(t) -> foo(g, i, gcases_)
-      }
-      val (ftypes, fp) = F.unzip
-      val (gtypes, gp) = G.unzip
 
       val ok_ =
         try {
@@ -187,6 +197,7 @@ object Known {
             // println("  definitions are structurally similar when ignoring variable names")
             // println(df)
             // println(dg)
+            // ???
           }
 
           if (df.fun.name == dg.fun.name) {
@@ -224,9 +235,9 @@ object Known {
       su: Map[Param, Type]
   ): Boolean = {
     if (debug) {
-      println("checking ")
-      println(fargs.mkString(" ") + ". " + fbody)
-      println(gargs.mkString(" ") + ". " + gbody)
+      println("checking after permuting arguments ")
+      println((fp map fargs).mkString(" ") + ". " + fbody)
+      println((gp map gargs).mkString(" ") + ". " + gbody)
     }
 
     var ok = true

@@ -31,7 +31,7 @@ object Deaccumulate {
           // throw new Exception("insight is that the hoisted base cases are dependent on accumulators," +
           //  "so that it makes sense to consider *all* arguments introduced via fusion, and get rid of them by restricting which parameters the new body and guards may use")
           !(x in guard) && !(recs exists { case (y, args) => (x in (args removed pos)) })
-          // the assumption that x is not in the guard is necessary to eliminate it
+        // the assumption that x is not in the guard is necessary to eliminate it
         case _ =>
           false
       }
@@ -39,8 +39,7 @@ object Deaccumulate {
   }
 
   def deaccumulated(name: Name, pos: Int) = {
-    val Name(str, None) = name
-    Name(str + "^" + pos, None)
+    Name(name.toLabel + "^" + pos, None)
   }
 
   def deaccumulateAt(
@@ -63,7 +62,6 @@ object Deaccumulate {
 
     // val XS = Expr.vars("x", args)
     // val ZS = static_ map XS
-
 
     val typ = types(pos)
     val ⊕ = Fun("oplus!", params, List(res, typ) ++ staticargs.types, res)
@@ -146,9 +144,11 @@ object Deaccumulate {
             val su = Expr.subst(acc)
 
             // this gives the lhs used in the actual proof obligation
-            val lhs = skel subst su
-            val rhs = App(⊕, List(App(b, xs_ ++ ys), u) ++ zs)
-            val eq = Rule(rhs, lhs, And(guard))
+            // note, the conditions are set up in this direction, because b is allowed to refer to *all* variables in scope
+            // whereas skel may not use them, thus lhs ~> rhs can be represented as a rewrite rule, not conversely
+            val lhs = App(⊕, List(App(b, xs_ ++ ys), u) ++ zs)
+            val rhs = skel subst su
+            val eq = Rule(lhs, rhs, And(guard))
 
             val accumulatorIsStatic = (static contains pos)
 
@@ -367,7 +367,7 @@ object Deaccumulate {
               print("proving:  " + phi + " ... ")
 
             val s = lhs_ == rhs_
-            val a = s || solver.isTrue(phi)
+            val a = s // || solver.isTrue(phi)
             val b = a // || cuvee.a.Prove.holdsByInduction(solver, phi, datatypes)
             if (b && !s && !a) println("proved by induction: " + phi)
             b
@@ -447,7 +447,9 @@ object Deaccumulate {
         if (false) {
           cuvee.error("add consts!")
           val eqs =
-            for ((expr, _) <- Enumerate.enumerate(b.res, funs, Map(zs map (_ -> MaxVar): _*), Depth))
+            for (
+              (expr, _) <- Enumerate.enumerate(b.res, funs, Map(zs map (_ -> MaxVar): _*), Depth)
+            )
               yield {
                 val eq = Rule(App(b, zs), expr)
                 if (debug)

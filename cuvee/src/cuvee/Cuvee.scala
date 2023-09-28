@@ -25,6 +25,7 @@ class Config {
   var eval = false
   var annotate = false
   var lemmas = "none"
+  var conditionalLemmas = false
   var lemmasWithSyntheticFunctions = false
 
   var simplify = false
@@ -109,6 +110,13 @@ class Config {
     },
     option("-lemmas:structural", "infer lemmas by structural methods") {
       lemmas = "structural"
+    },
+    option(
+      "-lemmas:structural+conditional",
+      "infer lemmas by structural methods, including conditional ones"
+    ) {
+      lemmas = "structural"
+      conditionalLemmas = true
     },
     option("-lemmas:enumerate", "infer lemmas with term enumeration") {
       lemmas = "enumerate"
@@ -250,12 +258,15 @@ object Config {
       case _ =>
     }
 
-    if(config.quickcheck) {
+    if (config.quickcheck) {
       sink = new Incremental(QuickCheck, sink)
     }
 
     if (config.lemmas == "structural") {
-      sink = new Incremental(new Lemmas(config.lemmasWithSyntheticFunctions), sink)
+      sink = new Incremental(
+        new Lemmas(config.conditionalLemmas, config.lemmasWithSyntheticFunctions),
+        sink
+      )
     }
 
     if (config.lemmas == "enumerate") {

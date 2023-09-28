@@ -37,10 +37,12 @@ object Trivial {
     }
   }
 
-
   def selectsConstructors(df: Def, args: List[Expr]): List[Expr] = {
     val Def(f, cases) = df
     val tests = cases map {
+      case C(List(True | False), _, _) =>
+        None
+
       case C(List(App(c, xs)), guard, body)
           if (xs forall (_.isInstanceOf[Var])) && (body == True || body == False) =>
         Some(body, Is(args(0), c.fun))

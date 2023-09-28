@@ -1,12 +1,16 @@
-data nat
-  = zero | succ(pred: nat);
+type elem;
+data list<a> = nil | cons(head: a, tail: list<a>);
 
-function add(x: nat, y: nat): nat;
+function snoc(xs: list<elem>, x: elem): list<elem>;
+function filter(p: [elem]bool, xs: list<elem>): list<elem>;
 
-axiom forall y: nat ::
-  add(zero, y) == y;
-axiom forall x: nat, y : nat ::
-  add(succ(x), y) == succ(add(x, y));
 
-lemma forall x: nat, y: nat ::
-  add(x, zero) == x;
+axiom forall z: elem ::
+  snoc(nil, z) == cons(z, nil);
+axiom forall z: elem, y: elem, ys: list<elem> ::
+  snoc(cons(y, ys), z) == cons(y, snoc(ys, z));
+
+axiom forall p: [elem]bool ::
+  filter(p, nil) == nil;
+axiom forall p: [elem]bool, y: elem, ys: list<elem> ::
+  filter(p, cons(y, ys)) == ite(p[y], cons(y, filter(p, ys)), filter(p, ys));

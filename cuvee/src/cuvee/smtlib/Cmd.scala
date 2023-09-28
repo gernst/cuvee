@@ -112,7 +112,7 @@ case class Assert(expr: Expr) extends Cmd {
     case Bind(quant, formals, body, _) =>
       List(
         "axiom " + quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", " :: "),
-        expr + ";"
+        body + ";"
       )
     case _ =>
       List("axiom " + expr + ";")
