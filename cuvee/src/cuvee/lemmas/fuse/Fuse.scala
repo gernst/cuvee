@@ -15,7 +15,11 @@ object Fuse {
       (typ, pos) <- df.fun.args.zipWithIndex // if dg.isRecursive
       if typ == dg.fun.res && df.isMatchingPosition(pos)
     )
-      yield pos
+      yield {
+        if (debug)
+          println("fuse", df.fun.name, dg.fun.name, pos)
+        pos
+      }
   }
 
   def fuseAt(
@@ -40,7 +44,9 @@ object Fuse {
     val args = f.args patch (pos, g.args, 1)
     val res = f.res
     val fg = Fun(name, params.distinct, args, res)
-    // println("fusing " + name)
+
+    if(debug)
+      println("fusing " + name)
 
     try {
       val cases =
@@ -105,12 +111,12 @@ object Fuse {
     val args = xs updated (pos, gbody_)
     val body = App(f, args)
     val body_ = Rewrite.app(body, f, args, rules_)
-        // println("gbody:  " + gbody)
-        // println("gbody_:  " + gbody_)
-        // println("body:  " + body)
-        // println("body_: " + body_)
-        // println("args:  " + args)
-        // println()
+    // println("gbody:  " + gbody)
+    // println("gbody_:  " + gbody_)
+    // println("body:  " + body)
+    // println("body_: " + body_)
+    // println("args:  " + args)
+    // println()
 
     if (isFused(f, g, body_)) {
       val args = xs patch (pos, gargs, 1)
@@ -262,7 +268,7 @@ object Fuse {
 
       // case (False, Or(args)) =>
       //   require(args.length == 2, "fusing over boolean operators currently only supported for binary occurrences")
-        
+
       //   ???
 
       // constructor match: we can recurse into the arguments
@@ -306,14 +312,13 @@ object Fuse {
 
       // first run did NOT succeed on that, but produced expand(append_(y₀, y₁)) = append(expand(y₀), expand(y₁)) instead, YAY
       case (_, x: Var) if gargs.free contains x =>
-        val su = Expr.subst(x -> fpat)        
+        val su = Expr.subst(x -> fpat)
         val gargs_ = gargs subst su
         // println(
         //   "instantiating unconstrained argument " + x + " of " + g.name + " with " + fpat
         // )
         // println("new argument list: " + gargs_)
         List((gargs_, su))
-
 
       case _ =>
         val gbody_ = Simplify.simplify(gbody, rules, constrs)

@@ -1,5 +1,9 @@
 data nat = zero | succ(pred: nat);
 
+function not_(b: bool): bool;
+axiom not_(false) == true;
+axiom not_(true) == false;
+
 function add(m: nat, n: nat): nat;
 axiom forall n: nat ::
   add(zero, n) == n;
@@ -19,10 +23,6 @@ axiom forall n: nat ::
   mul(zero, n) == zero;
 axiom forall m: nat, n: nat ::
   mul(succ(m), n) == add(n, mul(m, n));
-
-function not_(b: bool): bool;
-axiom not_(false) == true;
-axiom not_(true) == false;
 
 function leq(m: nat, n: nat): bool;
 axiom forall n: nat ::

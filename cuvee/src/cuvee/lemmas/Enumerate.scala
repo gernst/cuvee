@@ -88,7 +88,6 @@ object Enumerate extends Stage {
       val constrs = state.constrs
       val rws = eqs groupBy (_.fun)
       val ok = rws.keySet | constrs | builtin
-      // println(ok)
 
       val (_, _, deps) = Fix.rtc(rws map { case (fun, eqs) => (fun, eqs flatMap (_.funs)) })
       // deps map println
@@ -143,7 +142,8 @@ object Enumerate extends Stage {
       val n = init.length
       for (((free, lhs), i) <- init.zipWithIndex) {
         val base = Map(free ++ consts map (_ -> repeat): _*)
-        System.out.print("\r" + i + " of " + n)
+        if(debug)
+          System.out.print(i + " of " + n)
 
         val exprs =
           for ((rhs, _) <- enumerate(lhs.typ, funs, base, depth))

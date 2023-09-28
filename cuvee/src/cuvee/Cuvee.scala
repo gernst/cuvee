@@ -157,9 +157,17 @@ class Config {
       action()
       configure(rest)
 
-    case "-o" :: name :: rest =>
-      sink = Sink.file(name)(_)
+    case "-o" :: path :: rest =>
+      sink = Sink.file(path)(_)
       report = Report.stdout(_)
+
+      if (path endsWith ".bpl")
+        printer = cuvee.boogie.printer
+      else if (path endsWith ".smt2")
+        printer = cuvee.smtlib.printer
+      else if (path endsWith ".th")
+        printer = cuvee.thesy.printer
+
       configure(rest)
 
     case first :: rest if first startsWith "-" =>

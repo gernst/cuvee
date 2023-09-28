@@ -603,6 +603,24 @@ class Discover(
 
   def findNeutral(funs: Iterable[Fun]) {
     for (f <- funs) (f.args, f.res) match {
+      case (List(Sort.bool, Sort.bool), Sort.bool) =>
+        val x = Var("x", Sort.bool)
+        val eqs = List(
+          (App(f, List(True, x)), x),
+          (App(f, List(False, x)), x),
+          (App(f, List(x, True)), x),
+          (App(f, List(x, False)), x)
+        )
+
+        for ((lhs, rhs) <- eqs) {
+          val phi = Forall(List(x), Eq(lhs, rhs))
+          val ok = solver.isTrue(phi)
+          if (ok) {
+            addLemma("neutral", lhs, rhs)
+            maybeAddNeutral(Rule(lhs, rhs))
+          }
+        }
+
       case (List(left, right), res @ Sort(Con(name, _), _)) if st.datatypes contains name =>
         val dt = st datatypes name
 

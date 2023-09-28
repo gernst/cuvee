@@ -52,9 +52,10 @@ object remove extends Run(Test, "-use:shortcut", "examples/lemmas/remove.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
 object filter extends Run(Test, "-use:shortcut", "examples/lemmas/filter.bpl")
 
-object nat extends Run(Test, "examples/lemmas/nat.bpl")
-object list extends Run(Test, "-use:shortcut", "examples/lemmas/list.bpl")
-object tree extends Run(Test, "examples/lemmas/tree.bpl")
+object bool extends Run(Test, "evaluation/lemmas/bool.bpl")
+object nat extends Run(Test, "evaluation/lemmas/nat.bpl")
+object list extends Run(Test, "-use:shortcut", "evaluation/lemmas/list.bpl")
+object tree extends Run(Test, "evaluation/lemmas/tree.bpl")
 
 object runlength extends Run(Test, "examples/lemmas/runlength.bpl")
 object runlength_other extends Run(Test, "examples/lemmas/runlength_other.bpl")
