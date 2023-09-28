@@ -1,4 +1,5 @@
 import scala.annotation.tailrec
+import cuvee.smtlib.Lemma
 
 package object cuvee {
   var level = 0
@@ -26,6 +27,17 @@ package object cuvee {
         throw t
     }
   }
+
+  def parse(file: String) =
+    if (file endsWith ".smt2") {
+      cuvee.smtlib.parse(file)
+    } else if (file endsWith ".bpl") {
+      cuvee.boogie.parse(file)
+    } else if (file endsWith ".th") {
+      cuvee.thesy.parse(file)
+    }  else {
+      error("unsupported file type: " + file)
+    }
 
   def undefined(implicit
       file: sourcecode.File,

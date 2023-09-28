@@ -5,14 +5,17 @@ import cuvee.smtlib.Solver
 
 package object util {
 
-  implicit class TheoryComparison(TB: List[Expr]) {
-    def %(TA: List[Expr])(implicit solver: Solver) = {
-      val TA_ = solver.scoped {
-        solver.assert(TB)
-        TA filterNot solver.isTrue
-      }
+  implicit class TheoryComparison(TA: List[Expr]) {
+    def advantageOver(TB: List[Expr])(implicit solver: Solver) =
+      if (TA.isEmpty) {
+        None // 1.0f // avoid division by zero
+      } else {
+        val TA_ = solver.scoped {
+          solver.assert(TB)
+          TA filterNot solver.isTrue
+        }
 
-      TA_.length.toFloat / TA.length.toFloat
-    }
+        Some(TA_.length.toFloat / TA.length.toFloat)
+      }
   }
 }

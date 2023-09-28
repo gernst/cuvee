@@ -13,6 +13,7 @@ import cuvee.prove.PositiveProver
 import cuvee.lemmas.Enumerate
 import cuvee.lemmas.recognize.Neutral
 import cuvee.prove.QuickCheck
+import cuvee.smtlib.Lemma
 
 class Config {
   var file: Option[String] = None
@@ -299,12 +300,60 @@ object Cuvee {
   }
 }
 
-object RelativeTheoryStrength {
+object CompareTheories {
   def lemmas(file: String) = ???
 
   def main(args: Array[String]) = {
-    require(args.length == 2)
-    val Array(first, second) = args
+    require(args.length == 2, "please specify two files to compare against each other")
+    val Array(path1, path2) = args
+
+    try {
+      val (cmds1, st1) = parse(path1)
+
+      val (lemmas1, defs1) = cmds1 partition (_.isInstanceOf[Lemma])
+
+      val (cmds2, st2) = if (path2 endsWith ".th.log") {
+        val lemmas2 = cuvee.thesy.storedLemmas(path2, st1) map { Lemma(_, None, false) }
+        (defs1 ++ lemmas2, st1)
+      } else {
+        parse(path2)
+      }
+
+      val (lemmas2, defs2) = cmds2 partition (_.isInstanceOf[Lemma])
+
+      assert(defs1 == defs2)
+      val prefix = defs1
+
+      implicit val solver = Solver.z3(100)
+
+      for (cmd <- prefix)
+        solver.ack(cmd)
+
+      import util.TheoryComparison
+
+      // println(f"$score1%.2f $score2%.2f")
+
+      val phis1 = lemmas1 map { case Lemma(phi, _, _) => phi }
+      val phis2 = lemmas2 map { case Lemma(phi, _, _) => phi }
+
+      println("A: " + path1)
+      println("  lemmas:        " + phis1.length)
+      println("  score over B:  " + (phis1 advantageOver phis2))
+      println("  score over -:  " + (phis1 advantageOver Nil))
+      println()
+
+      println("B: " + path2)
+      println("  lemmas:        " + phis2.length)
+      println("  score over A:  " + (phis2 advantageOver phis1))
+      println("  score over -:  " + (phis2 advantageOver Nil))
+      println()
+
+    } catch {
+      case e @ smtlib.Error(msg) =>
+        println(msg)
+      case e: Exception =>
+        e.printStackTrace()
+    }
   }
 
 }

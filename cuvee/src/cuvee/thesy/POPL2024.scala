@@ -35,11 +35,12 @@ object POPL2024 {
 
           val th = base_th + cat + "/" + goal + ".log"
           //   println(th)
-          val theirs = TheSy.storedLemmas(smt2, th)
+          val theirs = storedLemmas(th, st)
 
-          println(
-            ours.length + " score = " + (theirs % ours) + " and " + theirs.length + " score = " + (ours % theirs)
-          )
+          ???
+          // println(
+          //   ours.length + " score = " + (theirs % ours) + " and " + theirs.length + " score = " + (ours % theirs)
+          // )
 
           solver.ack(Exit)
           solver.destroy()
