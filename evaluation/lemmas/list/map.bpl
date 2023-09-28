@@ -1,9 +1,27 @@
 // characteristic lemmas
 //   length(map(f, xs)) = xs
 //   map distributes through append, take, drop
+//   drop/take resp. its length for long enough/too short lists
 
 data nat = zero | succ(pred: nat);
 data list = nil | cons(head: nat, tail: list);
+
+function leq(m: nat, n: nat): bool;
+axiom forall n: nat ::
+  leq(zero, n) == true;
+axiom forall m: nat ::
+  leq(succ(m), zero) == false;
+axiom forall m: nat, n: nat ::
+  leq(succ(m), succ(n)) == leq(m, n);
+
+function lt(m: nat, n: nat): bool;
+axiom forall m: nat ::
+  lt(m, zero) == false;
+axiom forall n: nat ::
+  lt(zero, succ(n)) == true;
+axiom forall m: nat, n: nat ::
+  lt(succ(m), succ(n)) == lt(m, n);
+
 
 function length(xs: list): nat;
 axiom

@@ -48,9 +48,10 @@ object debug extends Run(Test, "examples/boogie/debug.bpl")
 object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 
 object append extends Run(Test, "examples/lemmas/append.bpl")
-object remove extends Run(Test, "-use:shortcut", "examples/lemmas/remove.bpl")
+object remove extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/remove.bpl")
+object maaap extends Run(Test, "evaluation/lemmas/list/map.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
-object filter extends Run(Test, "-use:shortcut", "examples/lemmas/filter.bpl")
+object filter extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/filter.bpl")
 
 object bool extends Run(Test, "evaluation/lemmas/bool.bpl")
 object nat extends Run(Test, "evaluation/lemmas/nat.bpl")
@@ -86,6 +87,7 @@ object Test extends Main {
     val lemmas = new Discover(decls, cmds, defs, st, solver)
     lemmas.useInternal = useInternal
     lemmas.debug = true
+    lemmas.useConditional = true
 
     for (
       Lemma(phi, _, _) <- cmds;

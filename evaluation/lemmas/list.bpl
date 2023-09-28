@@ -55,12 +55,17 @@ axiom forall x: nat ::
 axiom forall x: nat, y: nat, ys: list ::
   contains(x, cons(y, ys)) == (x == y || contains(x, ys));
 
-
 function count(x: nat, xs: list): nat;
 axiom forall x: nat ::
   count(x, nil) == zero;
 axiom forall x: nat, y: nat, ys: list ::
   count(x, cons(y, ys)) == if x == y then succ(count(x, ys)) else count(x, ys);
+
+function countif(p: [nat]bool, xs: list): nat;
+axiom forall p: [nat]bool ::
+  countif(p, nil) == zero;
+axiom forall p: [nat]bool, y: nat, ys: list ::
+  countif(p, cons(y, ys)) == if p[y] then succ(countif(p, ys)) else countif(p, ys);
 
 function snoc(xs: list, x: nat): list;
 axiom forall z: nat ::
@@ -102,7 +107,7 @@ function remove(x: nat, xs: list): list;
 axiom forall x: nat ::
   remove(x, nil) == nil;
 axiom forall x: nat, y: nat, ys: list ::
-  remove(x, cons(y, ys)) == ite(x == y, remove(x, ys), cons(y, remove(x, ys)));
+  remove(x, cons(y, ys)) == if x == y then remove(x, ys) else cons(y, remove(x, ys));
 
 function filter(p: [nat]bool, xs: list): list;
 axiom forall p: [nat]bool ::

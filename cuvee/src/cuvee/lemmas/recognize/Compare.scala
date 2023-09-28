@@ -184,9 +184,10 @@ object Compare {
       case (App(Inst(h, _), fargs), App(Inst(h_, _), gargs)) if h == h_ =>
         meets(pre, f, fargs, i, g, gargs, j, constrs)
 
-      case (App(Inst(h, _), fargs), App(Inst(h_, _), gargs))
-          if h != h_ && (constrs contains h) && (constrs contains h_) =>
-        throw CanIgnore
+      // NO: this should result in False as result
+      // case (App(Inst(h, _), fargs), App(Inst(h_, _), gargs))
+      //     if h != h_ && (constrs contains h) && (constrs contains h_) =>
+      //   throw CanIgnore
 
       case _ if fexpr == gexpr =>
         Nil

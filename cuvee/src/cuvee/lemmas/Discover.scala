@@ -513,6 +513,9 @@ class Discover(
               )
             }
 
+            // TODO: by self-recognition
+            // filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+
           val all = rhs1 ++ rhs2 ++ rhs3 ++ rhs4
 
           for ((rhs, flip, why) <- all) {
@@ -590,6 +593,7 @@ class Discover(
             (dpre, xs, pre, lhs, rhs) <- Compare.compare(df, dg, Map(), st.constrs)
           ) {
             addConditionalLemma("conditional comparison", xs, pre, lhs, rhs)
+            // println(dpre)
             preconditions += dpre.fun
             todo { Recognize(None, pre, dpre, xs) }
           }
