@@ -1,6 +1,6 @@
 // characteristic lemmas:
 //   snoc can be expressed as append
-//   associativity of append
+//   nil is right-neutral element and associativity of append
 //   distributivity of catamorphisms over append
 
 data nat = zero | succ(pred: nat);

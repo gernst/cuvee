@@ -74,7 +74,7 @@ axiom forall n: nat ::
 axiom forall y: nat, ys: list ::
   rotate(zero, cons(y, ys)) == cons(y, ys);
 axiom forall n: nat, y: nat, ys: list ::
-  rotate(succ(n), cons(y, ys)) == snoc(rotate(n-1, ys), y);
+  rotate(succ(n), cons(y, ys)) == snoc(rotate(n, ys), y);
 
 function take(cnt: nat, xs: list): list;
 axiom forall n: nat ::
