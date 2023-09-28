@@ -184,20 +184,23 @@ case class DeclareDatatypes(
           case (constr, Nil) =>
             constr.name
           case (constr, sels) =>
-            val as = sels map { case Fun(name, _, List(arg), _) =>
-              name + ": " + arg
+            val as = sels map { case Fun(name, _, _, res) =>
+              name + ": " + res
             }
             constr.name + as.mkString("(", ", ", ")")
         }
+
         name + cs.mkString(" = ", " | ", ";")
+
       case ((name, arity), Datatype(params, constrs)) =>
         val cs = constrs map {
           case (constr, Nil) =>
             constr.name
           case (constr, sels) =>
-            val as = sels map { case Fun(name, _, List(arg), _) => name + ": " + arg }
+            val as = sels map { case Fun(name, _,  _, res) => name + ": " + res }
             constr.name + as.mkString("(", ", ", ")")
         }
+
         name + params.mkString("<", ", ", ">") + cs.mkString(" = ", " | ", ";")
     }
 
