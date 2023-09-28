@@ -4,6 +4,8 @@ TH   = $(BPL:%.bpl=%.th)
 
 .PHONY: smt2 th clean
 
+ # don't delete TheSy logs if we interrupt it
+.PRECIOUS: %.th.log
 
 
 th: $(TH)
