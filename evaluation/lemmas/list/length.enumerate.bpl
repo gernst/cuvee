@@ -1,0 +1,18 @@
+data nat = zero | succ(pred: nat);
+data list = nil | cons(head: nat, tail: list);
+function length(x₀: list): nat;
+axiom (length(nil) == zero);
+axiom forall x: nat, xs: list :: (length(cons(x, xs)) == succ(length(xs)));
+function qlength(x₀: list, x₁: nat): nat;
+axiom forall n: nat :: (qlength(nil, n) == n);
+axiom forall x: nat, xs: list, n: nat :: (qlength(cons(x, xs), n) == qlength(xs, succ(n)));
+function nlength(x₀: list, x₁: nat): nat;
+axiom forall n: nat :: (nlength(nil, n) == n);
+axiom forall x: nat, xs: list, n: nat :: (nlength(cons(x, xs), n) == succ(nlength(xs, n)));
+lemma forall y₁: list :: (length(y₁) == nlength(y₁, zero));
+lemma forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength(x₀, y₀)));
+lemma forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)));
+lemma forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)));
+lemma forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)));
+lemma forall y₁: list, x₁: nat :: (nlength(y₁, x₁) == qlength(y₁, x₁));
+lemma forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)));

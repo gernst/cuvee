@@ -1,12 +1,39 @@
-BPL  = $(wildcard evaluation/lemmas/*.bpl)
+ALL  = $(wildcard evaluation/lemmas/*.bpl)
+
+BPL = \
+	evaluation/lemmas/list/append.bpl \
+	evaluation/lemmas/list/filter.bpl \
+	evaluation/lemmas/list/length.bpl \
+	evaluation/lemmas/list/map.bpl \
+	evaluation/lemmas/list/remove.bpl \
+	evaluation/lemmas/list/reverse.bpl \
+	evaluation/lemmas/list/rotate.bpl \
+	evaluation/lemmas/list/runlength.bpl
+
+	# evaluation/lemmas/list/regex.bpl
+	# evaluation/lemmas/list/runlength.conditional.bpl
+	# evaluation/lemmas/list/runlength_other.bpl
+	# evaluation/lemmas/list/take_drop.bpl
+
 SMT2 = $(BPL:%.bpl=%.smt2)
 TH   = $(BPL:%.bpl=%.th)
 
-.PHONY: smt2 th clean
+S = $(BPL:%.bpl=%.structural.bpl)
+C = $(BPL:%.bpl=%.conditional.bpl)
+E = $(BPL:%.bpl=%.enumerate.bpl)
+T = $(BPL:%.bpl=%.th.log)
+
+.PHONY: all smt2 th clean
 
  # don't delete TheSy logs if we interrupt it
 .PRECIOUS: %.th.log
 
+structural: $S
+conditional: $C
+enumerate: $E
+thesy: $T
+
+all: $S $C $E $T
 
 th: $(TH)
 smt2: $(SMT2)

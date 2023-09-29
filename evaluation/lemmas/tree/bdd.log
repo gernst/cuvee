@@ -1,0 +1,19 @@
+15:58:19 [WARN] Collecting statistics
+15:58:19 [WARN]  ex is: zero
+15:58:19 [WARN]  ex is: (succ zero)
+15:58:19 [WARN]  ex is: (succ (succ zero))
+15:58:19 [WARN]  ex is: True
+15:58:19 [WARN]  ex is: False
+15:58:19 [WARN]  ex is: (Node autovar_nat_0 False False)
+15:58:19 [WARN]  ex is: (Node autovar_nat_1 (Node autovar_nat_0 False False) (Node autovar_nat_0 False False))
+15:58:19 [WARN] Proof mode: false
+15:58:19 [WARN]  ex is: zero
+15:58:19 [WARN]  ex is: (succ zero)
+15:58:19 [WARN]  ex is: (succ (succ zero))
+15:58:19 [WARN]  ex is: True
+15:58:19 [WARN]  ex is: False
+15:58:19 [WARN]  ex is: (Node autovar_nat_0 False False)
+15:58:19 [WARN]  ex is: (Node autovar_nat_1 (Node autovar_nat_0 False False) (Node autovar_nat_0 False False))
+15:58:19 [WARN] Proof mode: false
+15:58:21 [WARN] proved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
+15:58:21 [WARN] proved: (conj ?ts_ph_node_0 ?ts_ph_node_0) => ?ts_ph_node_0

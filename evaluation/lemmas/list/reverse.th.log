@@ -1,0 +1,62 @@
+11:26:25 [0m[33m[WARN] [0mCollecting statistics
+(append nil ?ys) => ?ys
+(append (cons ?x ?xs) ?ys) => (cons ?x (append ?xs ?ys))
+(cons ?x (append ?xs ?ys)) => (append (cons ?x ?xs) ?ys)
+(reverse nil) => nil
+(reverse (cons ?y ?ys)) => (append (reverse ?ys) (cons ?y nil))
+(append (reverse ?ys) (cons ?y nil)) => (reverse (cons ?y ?ys))
+(qreverse nil ?zs) => ?zs
+(qreverse (cons ?y ?ys) ?zs) => (qreverse ?ys (cons ?y ?zs))
+(qreverse ?ys (cons ?y ?zs)) => (qreverse (cons ?y ?ys) ?zs)
+(nreverse nil ?zs) => ?zs
+(nreverse (cons ?y ?ys) ?zs) => (append (nreverse ?ys ?zs) (cons ?y nil))
+(append (nreverse ?ys ?zs) (cons ?y nil)) => (nreverse (cons ?y ?ys) ?zs)
+11:26:25 [0m[33m[WARN] [0m ex is: zero
+11:26:25 [0m[33m[WARN] [0m ex is: (succ zero)
+11:26:25 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+11:26:25 [0m[33m[WARN] [0m ex is: nil
+11:26:25 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+11:26:25 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+11:26:25 [0m[33m[WARN] [0mProof mode: false
+11:26:25 [0m[33m[WARN] [0m ex is: zero
+11:26:25 [0m[33m[WARN] [0m ex is: (succ zero)
+11:26:25 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+11:26:25 [0m[33m[WARN] [0m ex is: nil
+11:26:25 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+11:26:25 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+11:26:25 [0m[33m[WARN] [0mProof mode: false
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse ?ts_ph_list_0 nil) => (reverse ?ts_ph_list_0)
+11:26:25 [0m[33m[WARN] [0mproved: (reverse ?ts_ph_list_0) => (nreverse ?ts_ph_list_0 nil)
+11:26:25 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+11:26:25 [0m[33m[WARN] [0mproved: (reverse (append ?ts_ph_list_0 ?ts_ph_list_1)) => (nreverse ?ts_ph_list_0 (reverse ?ts_ph_list_1))
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse ?ts_ph_list_0 (reverse ?ts_ph_list_1)) => (reverse (append ?ts_ph_list_0 ?ts_ph_list_1))
+11:26:25 [0m[33m[WARN] [0mproved: (cons ?ts_ph_nat_1 (nreverse ?ts_ph_list_0 ?ts_ph_list_1)) => (nreverse ?ts_ph_list_0 (cons ?ts_ph_nat_1 ?ts_ph_list_1))
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse ?ts_ph_list_0 (cons ?ts_ph_nat_1 ?ts_ph_list_1)) => (cons ?ts_ph_nat_1 (nreverse ?ts_ph_list_0 ?ts_ph_list_1))
+11:26:25 [0m[33m[WARN] [0mgeneralized case_split proof as: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) -- (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+11:26:25 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+11:26:25 [0m[33m[WARN] [0mproved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+11:26:25 [0m[33m[WARN] [0mgeneralized case_split proof as: (nreverse ?ts_ph_list_0 (nreverse ?ts_ph_list_1 ?ts_ph_list_2)) -- (nreverse (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse ?ts_ph_list_0 (nreverse ?ts_ph_list_1 ?ts_ph_list_2)) => (nreverse (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (nreverse ?ts_ph_list_0 (nreverse ?ts_ph_list_1 ?ts_ph_list_2))
+11:26:25 [0m[33m[WARN] [0mproved: (qreverse (qreverse ?ts_ph_list_0 ?ts_ph_list_1) nil) => (qreverse ?ts_ph_list_1 ?ts_ph_list_0)
+11:26:25 [0m[33m[WARN] [0mproved: (qreverse ?ts_ph_list_1 ?ts_ph_list_0) => (qreverse (qreverse ?ts_ph_list_0 ?ts_ph_list_1) nil)
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse ?ts_ph_list_0 (append ?ts_ph_list_0 ?ts_ph_list_1)) => (append ?ts_ph_list_0 (nreverse ?ts_ph_list_0 ?ts_ph_list_1))
+11:26:25 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (nreverse ?ts_ph_list_0 ?ts_ph_list_1)) => (nreverse ?ts_ph_list_0 (append ?ts_ph_list_0 ?ts_ph_list_1))
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse (nreverse ?ts_ph_list_0 ?ts_ph_list_0) (cons ?ts_ph_nat_1 nil)) => (cons ?ts_ph_nat_1 (append ?ts_ph_list_0 (reverse ?ts_ph_list_0)))
+11:26:25 [0m[33m[WARN] [0mproved: (cons ?ts_ph_nat_1 (append ?ts_ph_list_0 (reverse ?ts_ph_list_0))) => (nreverse (nreverse ?ts_ph_list_0 ?ts_ph_list_0) (cons ?ts_ph_nat_1 nil))
+11:26:25 [0m[33m[WARN] [0mproved: (nreverse
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0)
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0)) => (append
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0)
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0))
+11:26:25 [0m[33m[WARN] [0mproved: (append
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0)
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0)) => (nreverse
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0)
+  (nreverse ?ts_ph_list_0 ?ts_ph_list_0))
+11:26:26 [0m[33m[WARN] [0mproved: (reverse (reverse ?ts_ph_list_0)) => ?ts_ph_list_0
+11:26:26 [0m[33m[WARN] [0mproved: (qreverse ?ts_ph_list_0 ?ts_ph_list_1) => (append (reverse ?ts_ph_list_0) ?ts_ph_list_1)
+11:26:26 [0m[33m[WARN] [0mproved: (append (reverse ?ts_ph_list_0) ?ts_ph_list_1) => (qreverse ?ts_ph_list_0 ?ts_ph_list_1)
+11:26:27 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 ?ts_ph_list_1) => (nreverse (reverse ?ts_ph_list_1) ?ts_ph_list_0)
+11:26:27 [0m[33m[WARN] [0mproved: (nreverse (reverse ?ts_ph_list_1) ?ts_ph_list_0) => (append ?ts_ph_list_0 ?ts_ph_list_1)
+done in 3447

@@ -1,0 +1,26 @@
+07:32:55 [WARN] Collecting statistics
+07:32:55 [WARN]  ex is: zero
+07:32:55 [WARN]  ex is: (succ zero)
+07:32:55 [WARN]  ex is: (succ (succ zero))
+07:32:55 [WARN]  ex is: nil
+07:32:55 [WARN]  ex is: (cons autovar_nat_0 nil)
+07:32:55 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:32:55 [WARN] Proof mode: false
+07:32:55 [WARN]  ex is: zero
+07:32:55 [WARN]  ex is: (succ zero)
+07:32:55 [WARN]  ex is: (succ (succ zero))
+07:32:55 [WARN]  ex is: nil
+07:32:55 [WARN]  ex is: (cons autovar_nat_0 nil)
+07:32:55 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:32:55 [WARN] Proof mode: false
+07:32:58 [WARN] proved: (length (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => (countif ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)
+07:32:58 [WARN] proved: (countif ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0) => (length (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0))
+07:32:58 [WARN] proved: (all ?ts_ph_POfn_nat_BoolPC_1 (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => true
+07:32:58 [WARN] proved: (ex ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0) => (ex ?ts_ph_POfn_nat_BoolPC_1 (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0))
+07:32:58 [WARN] proved: (ex ?ts_ph_POfn_nat_BoolPC_1 (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => (ex ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)
+07:32:58 [WARN] proved: (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0) => (filter
+  ?ts_ph_POfn_nat_BoolPC_1
+  (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0))
+07:32:58 [WARN] proved: (filter
+  ?ts_ph_POfn_nat_BoolPC_1
+  (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)

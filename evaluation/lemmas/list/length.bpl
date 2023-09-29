@@ -1,7 +1,7 @@
 // characteristic lemmas:
 //   relation between the different length functions
 
-type nat = zero | succ(pred: nat);
+data nat = zero | succ(pred: nat);
 data list = nil | cons(head: nat, tail: list);
 
 function length(xs: list): nat;

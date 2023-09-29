@@ -12,7 +12,7 @@ import cuvee.util.Fix
 import scala.util.Try
 
 object Enumerate {
-  var debug = false
+  var debug = true
 
   def select(fun: Fun, typ: Type) = {
     try {
@@ -145,7 +145,7 @@ class Enumerate(rounds: Int) extends Stage {
       for (((free, lhs), i) <- init.zipWithIndex) {
         val base = Map(free ++ consts map (_ -> repeat): _*)
         if(debug)
-          System.out.print(i + " of " + n)
+          println(i + " of " + n)
 
         val exprs =
           for ((rhs, _) <- enumerate(lhs.typ, funs, base, depth))
@@ -168,9 +168,10 @@ class Enumerate(rounds: Int) extends Stage {
 
         val todo = candidates
         candidates = Set()
+        val n = todo.size
 
         for ((goal, i) <- todo.toList.zipWithIndex) {
-          if (debug) print("[" + i + "] " + goal)
+          if (debug) print("[" + i + "/" + n + "] " + goal)
 
           if (qc.hasSimpleCounterexample(goal, 3)) {
             if (debug) println(" sat (quickcheck)")

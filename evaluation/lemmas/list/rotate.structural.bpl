@@ -27,4 +27,3 @@ lemma forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == a
 lemma forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)));
 lemma forall x: nat :: (add(x, zero) == x);
 lemma forall x: list :: (append(x, nil) == x);
-lemma forall x: list, z₀: nat :: (leq(length(x), z₀) ==> (reverse(x) == rotate(z₀, x)));

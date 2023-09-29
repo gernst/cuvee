@@ -1,0 +1,43 @@
+07:32:55 [0m[33m[WARN] [0mCollecting statistics
+(not_ false) => true
+(not_ true) => false
+(length nil) => zero
+(length (cons ?x ?xs)) => (succ (length ?xs))
+(filter ?p nil) => nil
+(filter ?p (cons ?y ?ys)) => (ite (select ?p ?y) (cons ?y (filter ?p ?ys)) (filter ?p ?ys))
+(ite (select ?p ?y) (cons ?y (filter ?p ?ys)) (filter ?p ?ys)) => (filter ?p (cons ?y ?ys))
+(all ?p nil) => true
+(all ?p (cons ?y ?ys)) => (and (select ?p ?y) (all ?p ?ys))
+(and (select ?p ?y) (all ?p ?ys)) => (all ?p (cons ?y ?ys))
+(ex ?p nil) => false
+(ex ?p (cons ?y ?ys)) => (or (select ?p ?y) (ex ?p ?ys))
+(or (select ?p ?y) (ex ?p ?ys)) => (ex ?p (cons ?y ?ys))
+(countif ?p nil) => zero
+(countif ?p (cons ?y ?ys)) => (ite (select ?p ?y) (succ (countif ?p ?ys)) (countif ?p ?ys))
+(ite (select ?p ?y) (succ (countif ?p ?ys)) (countif ?p ?ys)) => (countif ?p (cons ?y ?ys))
+07:32:55 [0m[33m[WARN] [0m ex is: zero
+07:32:55 [0m[33m[WARN] [0m ex is: (succ zero)
+07:32:55 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+07:32:55 [0m[33m[WARN] [0m ex is: nil
+07:32:55 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+07:32:55 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:32:55 [0m[33m[WARN] [0mProof mode: false
+07:32:55 [0m[33m[WARN] [0m ex is: zero
+07:32:55 [0m[33m[WARN] [0m ex is: (succ zero)
+07:32:55 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+07:32:55 [0m[33m[WARN] [0m ex is: nil
+07:32:55 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+07:32:55 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:32:55 [0m[33m[WARN] [0mProof mode: false
+07:32:58 [0m[33m[WARN] [0mproved: (length (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => (countif ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)
+07:32:58 [0m[33m[WARN] [0mproved: (countif ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0) => (length (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0))
+07:32:58 [0m[33m[WARN] [0mproved: (all ?ts_ph_POfn_nat_BoolPC_1 (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => true
+07:32:58 [0m[33m[WARN] [0mproved: (ex ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0) => (ex ?ts_ph_POfn_nat_BoolPC_1 (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0))
+07:32:58 [0m[33m[WARN] [0mproved: (ex ?ts_ph_POfn_nat_BoolPC_1 (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => (ex ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)
+07:32:58 [0m[33m[WARN] [0mproved: (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0) => (filter
+  ?ts_ph_POfn_nat_BoolPC_1
+  (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0))
+07:32:58 [0m[33m[WARN] [0mproved: (filter
+  ?ts_ph_POfn_nat_BoolPC_1
+  (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)) => (filter ?ts_ph_POfn_nat_BoolPC_1 ?ts_ph_list_0)
+done in 2609

@@ -1,0 +1,68 @@
+07:50:40 [0m[33m[WARN] [0mCollecting statistics
+(not_ false) => true
+(not_ true) => false
+(add zero ?n) => ?n
+(add (succ ?m) ?n) => (succ (add ?m ?n))
+(succ (add ?m ?n)) => (add (succ ?m) ?n)
+(sub ?m zero) => ?m
+(sub zero (succ ?n)) => zero
+(sub (succ ?m) (succ ?n)) => (sub ?m ?n)
+(sub ?m ?n) => (sub (succ ?m) (succ ?n))
+(length nil) => zero
+(length (cons ?x ?xs)) => (succ (length ?xs))
+(contains ?x nil) => false
+(contains ?x (cons ?y ?ys)) => (or (= ?x ?y) (contains ?x ?ys))
+(or (= ?x ?y) (contains ?x ?ys)) => (contains ?x (cons ?y ?ys))
+(remove ?x nil) => nil
+(remove ?x (cons ?y ?ys)) => (ite (= ?x ?y) (remove ?x ?ys) (cons ?y (remove ?x ?ys)))
+(ite (= ?x ?y) (remove ?x ?ys) (cons ?y (remove ?x ?ys))) => (remove ?x (cons ?y ?ys))
+(count ?x nil) => zero
+(count ?x (cons ?y ?ys)) => (ite (= ?x ?y) (succ (count ?x ?ys)) (count ?x ?ys))
+(ite (= ?x ?y) (succ (count ?x ?ys)) (count ?x ?ys)) => (count ?x (cons ?y ?ys))
+Searcher: (sub ?autovar5 (succ ?autovar1))
+Searcher: (sub ?autovar5 (succ ?autovar3))
+Searcher: (sub zero ?autovar6)
+Searcher: (sub (succ ?autovar4) ?autovar6)
+07:50:40 [0m[33m[WARN] [0m ex is: zero
+07:50:40 [0m[33m[WARN] [0m ex is: (succ zero)
+07:50:40 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+07:50:40 [0m[33m[WARN] [0m ex is: nil
+07:50:40 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+07:50:40 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:50:40 [0m[33m[WARN] [0mProof mode: false
+07:50:40 [0m[33m[WARN] [0m ex is: zero
+07:50:40 [0m[33m[WARN] [0m ex is: (succ zero)
+07:50:40 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+07:50:40 [0m[33m[WARN] [0m ex is: nil
+07:50:40 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+07:50:40 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:50:40 [0m[33m[WARN] [0mProof mode: false
+07:50:40 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+07:50:40 [0m[33m[WARN] [0mproved: (sub zero ?ts_ph_nat_0) => zero
+07:50:40 [0m[33m[WARN] [0mproved: (sub ?ts_ph_nat_0 ?ts_ph_nat_0) => (sub zero ?ts_ph_nat_0)
+07:50:40 [0m[33m[WARN] [0mproved: (sub zero ?ts_ph_nat_0) => (sub ?ts_ph_nat_0 ?ts_ph_nat_0)
+07:53:29 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1)) => (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1))
+07:53:29 [0m[33m[WARN] [0mproved: (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1))
+07:53:29 [0m[33m[WARN] [0mproved: (sub ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => zero
+07:53:29 [0m[33m[WARN] [0mgeneralized case_split proof as: (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2)) -- (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2)
+07:53:29 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2)) => (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2)
+07:53:29 [0m[33m[WARN] [0mproved: (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2) => (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2))
+07:53:29 [0m[33m[WARN] [0mproved: (sub (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => ?ts_ph_nat_1
+07:53:29 [0m[33m[WARN] [0mproved: (sub ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => zero
+07:53:29 [0m[33m[WARN] [0mproved: (sub (succ ?ts_ph_nat_0) (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (sub (succ zero) ?ts_ph_nat_1)
+07:53:29 [0m[33m[WARN] [0mproved: (sub (succ zero) (add ?ts_ph_nat_0 ?ts_ph_nat_0)) => (sub (succ zero) ?ts_ph_nat_0)
+07:53:29 [0m[33m[WARN] [0mproved: (sub (succ zero) ?ts_ph_nat_0) => (sub (succ zero) (add ?ts_ph_nat_0 ?ts_ph_nat_0))
+07:53:29 [0m[33m[WARN] [0mproved: (sub (add ?ts_ph_nat_0 ?ts_ph_nat_1) (add ?ts_ph_nat_0 ?ts_ph_nat_0)) => (sub ?ts_ph_nat_1 ?ts_ph_nat_0)
+07:53:29 [0m[33m[WARN] [0mproved: (sub ?ts_ph_nat_1 ?ts_ph_nat_0) => (sub (add ?ts_ph_nat_0 ?ts_ph_nat_1) (add ?ts_ph_nat_0 ?ts_ph_nat_0))
+07:55:41 [0m[33m[WARN] [0mproved: (sub (add ?ts_ph_nat_0 ?ts_ph_nat_0) (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (sub ?ts_ph_nat_0 ?ts_ph_nat_1)
+07:55:41 [0m[33m[WARN] [0mproved: (sub ?ts_ph_nat_0 ?ts_ph_nat_1) => (sub (add ?ts_ph_nat_0 ?ts_ph_nat_0) (add ?ts_ph_nat_0 ?ts_ph_nat_1))
+07:55:41 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_1 ?ts_ph_nat_0) => (add ?ts_ph_nat_0 ?ts_ph_nat_1)
+07:55:41 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 ?ts_ph_nat_1) => (add ?ts_ph_nat_1 ?ts_ph_nat_0)
+07:55:58 [0m[33m[WARN] [0mproved: (contains ?ts_ph_nat_1 (remove ?ts_ph_nat_1 ?ts_ph_list_0)) => false
+07:56:08 [0m[33m[WARN] [0mproved: (count ?ts_ph_nat_1 (remove ?ts_ph_nat_1 ?ts_ph_list_0)) => zero
+07:56:56 [0m[33m[WARN] [0mproved: (remove ?ts_ph_nat_1 (remove ?ts_ph_nat_1 ?ts_ph_list_0)) => (remove ?ts_ph_nat_1 ?ts_ph_list_0)
+07:56:56 [0m[33m[WARN] [0mproved: (remove ?ts_ph_nat_1 ?ts_ph_list_0) => (remove ?ts_ph_nat_1 (remove ?ts_ph_nat_1 ?ts_ph_list_0))
+08:04:29 [0m[33m[WARN] [0mproved: (sub (succ zero) ?ts_ph_nat_0) => (count zero (cons ?ts_ph_nat_0 nil))
+08:04:29 [0m[33m[WARN] [0mproved: (count zero (cons ?ts_ph_nat_0 nil)) => (sub (succ zero) ?ts_ph_nat_0)
+09:48:26 [0m[33m[WARN] [0mStopped case split due to time limit
+10:33:24 [0m[33m[WARN] [0mStopped case split due to time limit

@@ -1,0 +1,44 @@
+07:32:59 [0m[33m[WARN] [0mCollecting statistics
+(length nil) => zero
+(length (cons ?x ?xs)) => (succ (length ?xs))
+(qlength nil ?n) => ?n
+(qlength (cons ?x ?xs) ?n) => (qlength ?xs (succ ?n))
+(nlength nil ?n) => ?n
+(nlength (cons ?x ?xs) ?n) => (succ (nlength ?xs ?n))
+07:32:59 [0m[33m[WARN] [0m ex is: zero
+07:32:59 [0m[33m[WARN] [0m ex is: (succ zero)
+07:32:59 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+07:32:59 [0m[33m[WARN] [0m ex is: nil
+07:32:59 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+07:32:59 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:32:59 [0m[33m[WARN] [0mProof mode: false
+07:32:59 [0m[33m[WARN] [0m ex is: zero
+07:32:59 [0m[33m[WARN] [0m ex is: (succ zero)
+07:32:59 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+07:32:59 [0m[33m[WARN] [0m ex is: nil
+07:32:59 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+07:32:59 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+07:32:59 [0m[33m[WARN] [0mProof mode: false
+07:32:59 [0m[33m[WARN] [0mproved: (length ?ts_ph_list_0) => (nlength ?ts_ph_list_0 zero)
+07:32:59 [0m[33m[WARN] [0mproved: (nlength ?ts_ph_list_0 zero) => (length ?ts_ph_list_0)
+07:32:59 [0m[33m[WARN] [0mproved: (succ (nlength ?ts_ph_list_0 ?ts_ph_nat_1)) => (nlength ?ts_ph_list_0 (succ ?ts_ph_nat_1))
+07:32:59 [0m[33m[WARN] [0mproved: (nlength ?ts_ph_list_0 (succ ?ts_ph_nat_1)) => (succ (nlength ?ts_ph_list_0 ?ts_ph_nat_1))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_0 (succ ?ts_ph_nat_1)) => (nlength ?ts_ph_list_0 (succ ?ts_ph_nat_1))
+07:32:59 [0m[33m[WARN] [0mproved: (nlength ?ts_ph_list_0 (succ ?ts_ph_nat_1)) => (qlength ?ts_ph_list_0 (succ ?ts_ph_nat_1))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_0 (length ?ts_ph_list_1)) => (nlength ?ts_ph_list_0 (length ?ts_ph_list_1))
+07:32:59 [0m[33m[WARN] [0mproved: (nlength ?ts_ph_list_0 (length ?ts_ph_list_1)) => (qlength ?ts_ph_list_0 (length ?ts_ph_list_1))
+07:32:59 [0m[33m[WARN] [0mproved: (succ (qlength ?ts_ph_list_0 ?ts_ph_nat_0)) => (succ (nlength ?ts_ph_list_0 ?ts_ph_nat_0))
+07:32:59 [0m[33m[WARN] [0mproved: (succ (nlength ?ts_ph_list_0 ?ts_ph_nat_0)) => (succ (qlength ?ts_ph_list_0 ?ts_ph_nat_0))
+07:32:59 [0m[33m[WARN] [0mproved: (cons (nlength ?ts_ph_list_0 ?ts_ph_nat_1) ?ts_ph_list_1) => (cons (qlength ?ts_ph_list_0 ?ts_ph_nat_1) ?ts_ph_list_1)
+07:32:59 [0m[33m[WARN] [0mproved: (cons (qlength ?ts_ph_list_0 ?ts_ph_nat_1) ?ts_ph_list_1) => (cons (nlength ?ts_ph_list_0 ?ts_ph_nat_1) ?ts_ph_list_1)
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_1 (nlength ?ts_ph_list_0 ?ts_ph_nat_1)) => (qlength ?ts_ph_list_1 (qlength ?ts_ph_list_0 ?ts_ph_nat_1))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_1 (qlength ?ts_ph_list_0 ?ts_ph_nat_1)) => (qlength ?ts_ph_list_1 (nlength ?ts_ph_list_0 ?ts_ph_nat_1))
+07:32:59 [0m[33m[WARN] [0mproved: (nlength ?ts_ph_list_1 (qlength ?ts_ph_list_0 ?ts_ph_nat_0)) => (nlength ?ts_ph_list_1 (nlength ?ts_ph_list_0 ?ts_ph_nat_0))
+07:32:59 [0m[33m[WARN] [0mproved: (nlength ?ts_ph_list_1 (nlength ?ts_ph_list_0 ?ts_ph_nat_0)) => (nlength ?ts_ph_list_1 (qlength ?ts_ph_list_0 ?ts_ph_nat_0))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_0 (nlength ?ts_ph_list_1 ?ts_ph_nat_0)) => (nlength ?ts_ph_list_0 (nlength ?ts_ph_list_1 ?ts_ph_nat_0))
+07:32:59 [0m[33m[WARN] [0mproved: (nlength ?ts_ph_list_0 (nlength ?ts_ph_list_1 ?ts_ph_nat_0)) => (qlength ?ts_ph_list_0 (nlength ?ts_ph_list_1 ?ts_ph_nat_0))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_0 (length ?ts_ph_list_1)) => (qlength ?ts_ph_list_1 (length ?ts_ph_list_0))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_1 (length ?ts_ph_list_0)) => (qlength ?ts_ph_list_0 (length ?ts_ph_list_1))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_1 (qlength ?ts_ph_list_0 ?ts_ph_nat_1)) => (qlength ?ts_ph_list_0 (qlength ?ts_ph_list_1 ?ts_ph_nat_1))
+07:32:59 [0m[33m[WARN] [0mproved: (qlength ?ts_ph_list_0 (qlength ?ts_ph_list_1 ?ts_ph_nat_1)) => (qlength ?ts_ph_list_1 (qlength ?ts_ph_list_0 ?ts_ph_nat_1))
+done in 125

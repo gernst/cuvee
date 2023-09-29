@@ -1,0 +1,80 @@
+11:30:19 [0m[33m[WARN] [0mCollecting statistics
+(add zero ?n) => ?n
+(add (succ ?m) ?n) => (succ (add ?m ?n))
+(succ (add ?m ?n)) => (add (succ ?m) ?n)
+(mul zero ?n) => zero
+(mul (succ ?m) ?n) => (add ?n (mul ?m ?n))
+(add ?n (mul ?m ?n)) => (mul (succ ?m) ?n)
+(append nil ?ys) => ?ys
+(append (cons ?x ?xs) ?ys) => (cons ?x (append ?xs ?ys))
+(cons ?x (append ?xs ?ys)) => (append (cons ?x ?xs) ?ys)
+(sum nil) => zero
+(sum (cons ?n ?xs)) => (add ?n (sum ?xs))
+(add ?n (sum ?xs)) => (sum (cons ?n ?xs))
+(is_runs nil nil) => true
+(is_runs (cons ?n ?ind) (cons ?x ?val)) => (is_runs ?ind ?val)
+(is_runs (cons ?n ?ind) nil) => false
+(is_runs nil (cons ?x ?val)) => false
+(sumruns nil nil) => zero
+(sumruns (cons ?n ?ind) (cons ?x ?val)) => (add (mul ?n ?x) (sumruns ?ind ?val))
+(add (mul ?n ?x) (sumruns ?ind ?val)) => (sumruns (cons ?n ?ind) (cons ?x ?val))
+(sumruns (cons ?n ?ind) nil) => zero
+(sumruns nil (cons ?x ?val)) => zero
+(decode nil nil) => nil
+(decode (cons zero ?ind) (cons ?x ?val)) => (decode ?ind ?val)
+(decode (cons (succ ?n) ?ind) (cons ?x ?val)) => (cons ?x (decode (cons ?n ?ind) (cons ?x ?val)))
+(cons ?x (decode (cons ?n ?ind) (cons ?x ?val))) => (decode (cons (succ ?n) ?ind) (cons ?x ?val))
+(decode (cons ?n ?ind) nil) => nil
+(decode nil (cons ?x ?val)) => nil
+Searcher: (is_runs ?autovar13 nil)
+Searcher: (is_runs ?autovar13 (cons ?autovar3 ?autovar4))
+Searcher: (is_runs ?autovar13 nil)
+Searcher: (is_runs ?autovar13 (cons ?autovar7 ?autovar8))
+Searcher: (is_runs nil ?autovar14)
+Searcher: (is_runs (cons ?autovar9 ?autovar10) ?autovar14)
+Searcher: (is_runs (cons ?autovar11 ?autovar12) ?autovar14)
+Searcher: (is_runs nil ?autovar14)
+Searcher: (sumruns ?autovar13 nil)
+Searcher: (sumruns ?autovar13 (cons ?autovar3 ?autovar4))
+Searcher: (sumruns ?autovar13 nil)
+Searcher: (sumruns ?autovar13 (cons ?autovar7 ?autovar8))
+Searcher: (sumruns nil ?autovar14)
+Searcher: (sumruns (cons ?autovar9 ?autovar10) ?autovar14)
+Searcher: (sumruns (cons ?autovar11 ?autovar12) ?autovar14)
+Searcher: (sumruns nil ?autovar14)
+Searcher: (decode ?autovar17 nil)
+Searcher: (decode ?autovar17 (cons ?autovar2 ?autovar3))
+Searcher: (decode ?autovar17 (cons ?autovar6 ?autovar7))
+Searcher: (decode ?autovar17 nil)
+Searcher: (decode ?autovar17 (cons ?autovar10 ?autovar11))
+Searcher: (decode nil ?autovar18)
+Searcher: (decode (cons zero ?autovar12) ?autovar18)
+Searcher: (decode (cons (succ ?autovar13) ?autovar14) ?autovar18)
+Searcher: (decode (cons ?autovar15 ?autovar16) ?autovar18)
+Searcher: (decode nil ?autovar18)
+11:30:19 [0m[33m[WARN] [0m ex is: zero
+11:30:19 [0m[33m[WARN] [0m ex is: (succ zero)
+11:30:19 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+11:30:19 [0m[33m[WARN] [0m ex is: nil
+11:30:19 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+11:30:19 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+11:30:19 [0m[33m[WARN] [0mProof mode: false
+11:30:19 [0m[33m[WARN] [0m ex is: zero
+11:30:19 [0m[33m[WARN] [0m ex is: (succ zero)
+11:30:19 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+11:30:19 [0m[33m[WARN] [0m ex is: nil
+11:30:19 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+11:30:19 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+11:30:19 [0m[33m[WARN] [0mProof mode: false
+11:30:20 [0m[33m[WARN] [0mStopped case split due to node limit
+11:30:21 [0m[33m[WARN] [0mStopped case split due to node limit
+11:30:21 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+11:30:21 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+11:30:21 [0m[33m[WARN] [0mproved: (mul ?ts_ph_nat_0 zero) => zero
+11:30:21 [0m[33m[WARN] [0mproved: (is_runs ?ts_ph_list_0 ?ts_ph_list_0) => true
+11:30:21 [0m[33m[WARN] [0mproved: (sumruns ?ts_ph_list_0 nil) => zero
+11:30:21 [0m[33m[WARN] [0mproved: (sumruns nil ?ts_ph_list_0) => zero
+11:30:21 [0m[33m[WARN] [0mproved: (decode ?ts_ph_list_0 nil) => nil
+11:30:21 [0m[33m[WARN] [0mproved: (decode nil ?ts_ph_list_0) => nil
+11:30:21 [0m[33m[WARN] [0mproved: (is_runs nil ?ts_ph_list_0) => (is_runs ?ts_ph_list_0 nil)
+11:30:21 [0m[33m[WARN] [0mproved: (is_runs ?ts_ph_list_0 nil) => (is_runs nil ?ts_ph_list_0)
