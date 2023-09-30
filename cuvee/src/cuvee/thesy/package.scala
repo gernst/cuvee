@@ -40,23 +40,37 @@ package object thesy {
 
   def readLemmas(in: BufferedReader, st: State) = {
     val PROVED = "proved: "
+    import scala.collection.mutable
+
     val parser = new Parser(st)
 
     var line = in.readLine()
+    var lines = mutable.Buffer[String]()
+
     var lemmas: List[Expr] = Nil
 
     while (line != null) {
       val pos = line.indexOf(PROVED)
+
       if (pos >= 0) {
-        val rest = line.substring(pos + PROVED.length)
-        val from = cuvee.sexpr.parse(new StringReader(rest))
+        var current = line.substring(pos + PROVED.length)
+
+        line = in.readLine()
+        while (line != null && (line startsWith "  ")) {
+          current += line
+          line = in.readLine()
+        }
+
+        val from = cuvee.sexpr.parse(new StringReader(current))
         val eq = parser.rule(from)
         val expr = eq.toExpr
 
         lemmas = expr :: lemmas
-      }
 
-      line = in.readLine()
+        lines += current
+      } else {
+        line = in.readLine()
+      }
     }
 
     lemmas.reverse

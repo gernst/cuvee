@@ -42,7 +42,8 @@ object reverse
     )
 // object replace extends Run(Test, "examples/smtlib/replace.smt2")
 object contains extends Run(Test, "examples/smtlib/contains_only.smt2")
-object tree2 extends Run(Test, "examples/boogie/tree-update.bpl")
+object tree2 extends Run(Test, "-no:shortcut", "examples/boogie/tree2.bpl")
+object tree_update extends Run(Test, "examples/boogie/tree-update.bpl")
 object debug extends Run(Test, "examples/boogie/debug.bpl")
 
 object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
@@ -170,6 +171,10 @@ object Test extends Main {
 
     case "-use:AdtInd" :: rest =>
       useAdtInd = true
+      configure(rest)
+
+    case "-no:shortcut" :: rest =>
+      Rules.shortcut = false
       configure(rest)
 
     case "-use:shortcut" :: rest =>
