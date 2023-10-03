@@ -48,7 +48,7 @@ class Parser(val state: State = State.default) {
       val fun = state funs (name, arity)
       val inst = fun.generic
 
-      trace("cannot apply " + inst + " to " + args) {
+      trace("cannot apply " + fun + " to " + args + " with types " + args.types) {
         unify(inst.args, args.types)
       }
 
@@ -199,13 +199,17 @@ class Parser(val state: State = State.default) {
   def make_constr: ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {
     case (name, params, sels, res) =>
       // declare the constructor
-      state.fun(name, params, sels map (_.res), res)
+      val args = sels map (_.res)
+      val fun = state.fun(name, params, args, res)
+      // println("declaring constructor: " + fun)
+
       // declare projections for the selectors
       for (sel <- sels) {
-        state.fun(sel.name, sel.params, sel.args, sel.res)
+        val fun = state.fun(sel.name, sel.params, sel.args, sel.res)
+        // println("declaring selector: " + fun)
       }
 
-      (Fun(name, params, sels map (_.res), res), sels)
+      (fun, sels)
   }
 
   def make_datatype: (((Name, List[Param]), List[(Fun, List[Fun])]) => Cmd) = {

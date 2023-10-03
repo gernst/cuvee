@@ -1,0 +1,9 @@
+evaluation/lemmas/nat.enumerate.bpl
+  19  number of lemmas
+  0  wrong
+  19  nontrivial
+  16  reduced greedily
+  7  independent
+  17  evaluation/lemmas/nat.structural.bpl
+  17  evaluation/lemmas/nat.conditional.bpl
+  18  evaluation/lemmas/nat.th.log

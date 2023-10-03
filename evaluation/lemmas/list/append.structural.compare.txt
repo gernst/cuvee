@@ -1,0 +1,16 @@
+evaluation/lemmas/list/append.structural.bpl
+  11  number of lemmas
+  11  nontrivial
+  9  reduced greedily
+  0  independent
+  0  evaluation/lemmas/list/append.conditional.bpl
+  0  evaluation/lemmas/list/append.enumerate.bpl
+  0  evaluation/lemmas/list/append.th.log
+evaluation/lemmas/list/append.structural.bpl
+  11  number of lemmas
+  11  nontrivial
+  9  reduced greedily
+  6  independent
+  0  evaluation/lemmas/list/append.conditional.bpl
+  1  evaluation/lemmas/list/append.enumerate.bpl
+  1  evaluation/lemmas/list/append.th.log

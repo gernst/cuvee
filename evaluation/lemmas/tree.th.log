@@ -1,0 +1,55 @@
+20:23:02 [0m[33m[WARN] [0mCollecting statistics
+(add zero ?n) => ?n
+(add (succ ?m) ?n) => (succ (add ?m ?n))
+(succ (add ?m ?n)) => (add (succ ?m) ?n)
+(length nil) => zero
+(length (cons ?x ?xs)) => (succ (length ?xs))
+(map ?f nil) => nil
+(map ?f (cons ?y ?ys)) => (cons (select ?f ?y) (map ?f ?ys))
+(cons (select ?f ?y) (map ?f ?ys)) => (map ?f (cons ?y ?ys))
+(append nil ?ys) => ?ys
+(append (cons ?x ?xs) ?ys) => (cons ?x (append ?xs ?ys))
+(cons ?x (append ?xs ?ys)) => (append (cons ?x ?xs) ?ys)
+(contains ?x nil) => false
+(contains ?x (cons ?y ?ys)) => (or (= ?x ?y) (contains ?x ?ys))
+(or (= ?x ?y) (contains ?x ?ys)) => (contains ?x (cons ?y ?ys))
+(size leaf) => zero
+(size (node ?v ?l ?r)) => (succ (add (size ?l) (size ?r)))
+(mirror leaf) => leaf
+(mirror (node ?v ?l ?r)) => (node ?v ?r ?l)
+(node ?v ?r ?l) => (mirror (node ?v ?l ?r))
+(maptree ?f leaf) => leaf
+(maptree ?f (node ?v ?l ?r)) => (node (select ?f ?v) (maptree ?f ?l) (maptree ?f ?r))
+(node (select ?f ?v) (maptree ?f ?l) (maptree ?f ?r)) => (maptree ?f (node ?v ?l ?r))
+(elems leaf) => nil
+(elems (node ?v ?l ?r)) => (cons ?v (append (elems ?l) (elems ?r)))
+(cons ?v (append (elems ?l) (elems ?r))) => (elems (node ?v ?l ?r))
+(containstree ?x leaf) => false
+(containstree ?x (node ?v ?l ?r)) => (or (= ?x ?v) (containstree ?x ?l) (containstree ?x ?r))
+(or (= ?x ?v) (containstree ?x ?l) (containstree ?x ?r)) => (containstree ?x (node ?v ?l ?r))
+(insert ?x leaf) => (node ?x leaf leaf)
+(node ?x leaf leaf) => (insert ?x leaf)
+(insert ?x (node ?v ?l ?r)) => (node ?v (insert ?x ?l) ?r)
+(node ?v (insert ?x ?l) ?r) => (insert ?x (node ?v ?l ?r))
+20:23:02 [0m[33m[WARN] [0m ex is: zero
+20:23:02 [0m[33m[WARN] [0m ex is: (succ zero)
+20:23:02 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+20:23:02 [0m[33m[WARN] [0m ex is: nil
+20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+20:23:02 [0m[33m[WARN] [0m ex is: leaf
+20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_0 leaf leaf)
+20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_1 (node autovar_nat_0 leaf leaf) (node autovar_nat_0 leaf leaf))
+20:23:02 [0m[33m[WARN] [0mProof mode: false
+20:23:02 [0m[33m[WARN] [0m ex is: zero
+20:23:02 [0m[33m[WARN] [0m ex is: (succ zero)
+20:23:02 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+20:23:02 [0m[33m[WARN] [0m ex is: nil
+20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+20:23:02 [0m[33m[WARN] [0m ex is: leaf
+20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_0 leaf leaf)
+20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_1 (node autovar_nat_0 leaf leaf) (node autovar_nat_0 leaf leaf))
+20:23:02 [0m[33m[WARN] [0mProof mode: false
+20:23:02 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+20:23:02 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0

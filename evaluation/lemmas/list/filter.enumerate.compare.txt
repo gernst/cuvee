@@ -1,0 +1,8 @@
+evaluation/lemmas/list/filter.enumerate.bpl
+  5  number of lemmas
+  5  nontrivial
+  5  reduced greedily
+  4  independent
+  4  evaluation/lemmas/list/filter.structural.bpl
+  4  evaluation/lemmas/list/filter.conditional.bpl
+  3  evaluation/lemmas/list/filter.th.log

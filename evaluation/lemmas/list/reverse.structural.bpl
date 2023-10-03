@@ -1,5 +1,5 @@
 data nat = zero | succ(pred: nat);
-data list = nil | cons(head: list, tail: list);
+data list = nil | cons(head: nat, tail: list);
 function append(x₀: list, x₁: list): list;
 axiom forall ys: list :: (append(nil, ys) == ys);
 axiom forall x: nat, xs: list, ys: list :: (append(cons(x, xs), ys) == cons(x, append(xs, ys)));

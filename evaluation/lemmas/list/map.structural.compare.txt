@@ -1,0 +1,16 @@
+evaluation/lemmas/list/map.structural.bpl
+  6  number of lemmas
+  6  nontrivial
+  6  reduced greedily
+  0  independent
+  0  evaluation/lemmas/list/map.conditional.bpl
+  0  evaluation/lemmas/list/map.enumerate.bpl
+  0  evaluation/lemmas/list/map.th.log
+evaluation/lemmas/list/map.structural.bpl
+  6  number of lemmas
+  6  nontrivial
+  6  reduced greedily
+  6  independent
+  0  evaluation/lemmas/list/map.conditional.bpl
+  1  evaluation/lemmas/list/map.enumerate.bpl
+  0  evaluation/lemmas/list/map.th.log

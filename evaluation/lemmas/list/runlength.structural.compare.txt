@@ -1,0 +1,16 @@
+evaluation/lemmas/list/runlength.structural.bpl
+  6  number of lemmas
+  6  nontrivial
+  6  reduced greedily
+  0  independent
+  0  evaluation/lemmas/list/runlength.conditional.bpl
+  0  evaluation/lemmas/list/runlength.enumerate.bpl
+  0  evaluation/lemmas/list/runlength.th.log
+evaluation/lemmas/list/runlength.structural.bpl
+  6  number of lemmas
+  6  nontrivial
+  6  reduced greedily
+  6  independent
+  0  evaluation/lemmas/list/runlength.conditional.bpl
+  1  evaluation/lemmas/list/runlength.enumerate.bpl
+  4  evaluation/lemmas/list/runlength.th.log

@@ -1,0 +1,8 @@
+evaluation/lemmas/list/reverse.enumerate.bpl
+  45  number of lemmas
+  45  nontrivial
+  21  reduced greedily
+  0  independent
+  0  evaluation/lemmas/list/reverse.structural.bpl
+  0  evaluation/lemmas/list/reverse.conditional.bpl
+  0  evaluation/lemmas/list/reverse.th.log

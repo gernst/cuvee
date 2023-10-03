@@ -10,9 +10,23 @@ import cuvee.pipe.Stage
 import cuvee.prove.QuickCheck
 import cuvee.util.Fix
 import scala.util.Try
+import java.time.format.DateTimeFormatter
+import java.time.LocalDateTime
 
 object Enumerate {
   var debug = true
+  var trace = false
+
+  def depthOf(e: Expr): Int = e match {
+    case x: Var      => 1
+    case l: Lit      => 1
+    case App(_, Nil) => 1
+    case App(_, args) =>
+      val ds = args map depthOf
+      1 + ds.max
+    case Bind(quant, formals, body, typ) =>
+      depthOf(body) + 1
+  }
 
   def select(fun: Fun, typ: Type) = {
     try {
@@ -144,7 +158,7 @@ class Enumerate(rounds: Int) extends Stage {
       val n = init.length
       for (((free, lhs), i) <- init.zipWithIndex) {
         val base = Map(free ++ consts map (_ -> repeat): _*)
-        if(debug)
+        if (debug)
           println(i + " of " + n)
 
         val exprs =
@@ -158,37 +172,48 @@ class Enumerate(rounds: Int) extends Stage {
         candidates ++= exprs
       }
 
+      val dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
+
       var lemmas: List[Lemma] = Nil
       val qc = new QuickCheck(rws, state)
+      var done = 0
 
       for (round <- 1 to rounds) {
         val count = candidates.size
         if (debug)
           println("round " + round + " (" + count + " candidates)")
 
-        val todo = candidates
+        // try smaller right hand sides first
+        val todo = candidates.toList sortBy depthOf
         candidates = Set()
         val n = todo.size
 
-        for ((goal, i) <- todo.toList.zipWithIndex) {
-          if (debug) print("[" + i + "/" + n + "] " + goal)
+        for ((goal, i) <- todo.zipWithIndex) {
+          if (debug) {
+            val now = LocalDateTime.now();
+            print(dtf.format(now) + " [" + i + "/" + n + "] " + goal)
+          }
 
           if (qc.hasSimpleCounterexample(goal, 3)) {
             if (debug) println(" sat (quickcheck)")
           } else {
             solver.check(!goal) match {
-              case Sat   => if (debug) println(" sat") // wrong
-              case Unsat => if (debug) println(" unsat") // trivial
+              case Sat =>
+                if (debug) println(" sat") // wrong
+
+              case Unsat =>
+                if (debug) println(" unsat") // trivial
 
               case Unknown =>
-                val goals =   InductiveProver.inductions(goal, state.datatypes)
+                val goals = InductiveProver.inductions(goal, state.datatypes)
                 val proved = goals exists { case (x, goal) => solver.isTrue(goal) }
-                if (debug) { if (proved) println(" proved") else println(" unknown") }
 
                 if (proved) {
+                  if (debug) println(" proved")
                   solver.assert(goal)
                   lemmas = Lemma(goal, None, true) :: lemmas
                 } else {
+                  if (debug) println(" unknown")
                   candidates += goal
                 }
             }

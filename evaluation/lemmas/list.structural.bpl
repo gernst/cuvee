@@ -1,5 +1,5 @@
 data nat = zero | succ(pred: nat);
-data list = nil | cons(head: list, tail: list);
+data list = nil | cons(head: nat, tail: list);
 function not_(x₀: Bool): Bool;
 axiom (not_(false) <==> true);
 axiom (not_(true) <==> false);
@@ -27,6 +27,9 @@ axiom forall x: nat, y: nat, ys: list :: (contains(x, cons(y, ys)) <==> ((x == y
 function count(x₀: nat, x₁: list): nat;
 axiom forall x: nat :: (count(x, nil) == zero);
 axiom forall x: nat, y: nat, ys: list :: (count(x, cons(y, ys)) == (if (x == y) then succ(count(x, ys)) else count(x, ys)));
+function countif(x₀: [nat]Bool, x₁: list): nat;
+axiom forall p: [nat]Bool :: (countif(p, nil) == zero);
+axiom forall p: [nat]Bool, y: nat, ys: list :: (countif(p, cons(y, ys)) == (if p[y] then succ(countif(p, ys)) else countif(p, ys)));
 function snoc(x₀: list, x₁: nat): list;
 axiom forall z: nat :: (snoc(nil, z) == cons(z, nil));
 axiom forall z: nat, y: nat, ys: list :: (snoc(cons(y, ys), z) == cons(y, snoc(ys, z)));
@@ -74,8 +77,11 @@ lemma forall y₀: [nat]Bool, y₁: list, x₁: nat :: (snoc(filter(y₀, y₁),
 lemma forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)));
 lemma forall x₀: [nat]Bool, y₀: list, y₁: list :: (filter(x₀, append(y₀, y₁)) == append(filter(x₀, y₀), filter(x₀, y₁)));
 lemma forall x₀: [nat]Bool, y₀: list, y₁: nat :: (filter(x₀, snoc(y₀, y₁)) == append(filter(x₀, y₀), filter(x₀, cons(y₁, nil))));
+lemma forall x₀: [nat]Bool, y₀: list, y₁: list :: (countif(x₀, append(y₀, y₁)) == add(countif(x₀, y₀), countif(x₀, y₁)));
+lemma forall x₀: [nat]Bool, y₀: list, y₁: nat :: (countif(x₀, snoc(y₀, y₁)) == add(countif(x₀, y₀), countif(x₀, cons(y₁, nil))));
 lemma forall x₀: nat, y₀: [nat]nat, y₁: list :: (take(x₀, map(y₀, y₁)) == map(y₀, take(x₀, y₁)));
 lemma forall y₀: [nat]nat, y₁: list :: (length(map(y₀, y₁)) == length(y₁));
+lemma forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁));
 lemma forall y₀: Bool :: (not_(not_(y₀)) <==> y₀);
 lemma forall x₀: nat, y₀: [nat]nat, y₁: list :: (drop(x₀, map(y₀, y₁)) == map(y₀, drop(x₀, y₁)));
 lemma forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)));

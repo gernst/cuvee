@@ -1,5 +1,5 @@
 data nat = zero | succ(pred: nat);
-data list = nil | cons(head: list, tail: list);
+data list = nil | cons(head: nat, tail: list);
 function leq(x₀: nat, x₁: nat): Bool;
 axiom forall n: nat :: (leq(zero, n) <==> true);
 axiom forall m: nat :: (leq(succ(m), zero) <==> false);

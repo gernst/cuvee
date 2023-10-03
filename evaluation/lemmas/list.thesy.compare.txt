@@ -1,0 +1,9 @@
+evaluation/lemmas/list.th.log
+  6  number of lemmas
+  0  wrong
+  3  nontrivial
+  2  reduced greedily
+  1  independent
+  0  evaluation/lemmas/list.structural.bpl
+  0  evaluation/lemmas/list.conditional.bpl
+  3  evaluation/lemmas/list.enumerate.bpl

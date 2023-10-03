@@ -1,0 +1,16 @@
+evaluation/lemmas/list/remove.structural.bpl
+  3  number of lemmas
+  2  nontrivial
+  2  reduced greedily
+  0  independent
+  0  evaluation/lemmas/list/remove.conditional.bpl
+  0  evaluation/lemmas/list/remove.enumerate.bpl
+  0  evaluation/lemmas/list/remove.th.log
+evaluation/lemmas/list/remove.structural.bpl
+  3  number of lemmas
+  2  nontrivial
+  2  reduced greedily
+  2  independent
+  0  evaluation/lemmas/list/remove.conditional.bpl
+  1  evaluation/lemmas/list/remove.enumerate.bpl
+  0  evaluation/lemmas/list/remove.th.log

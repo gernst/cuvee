@@ -1,57 +1,64 @@
-07:32:59 [WARN] Collecting statistics
-07:32:59 [WARN]  ex is: zero
-07:32:59 [WARN]  ex is: (succ zero)
-07:32:59 [WARN]  ex is: (succ (succ zero))
-07:32:59 [WARN]  ex is: nil
-07:32:59 [WARN]  ex is: (cons autovar_nat_0 nil)
-07:32:59 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-07:32:59 [WARN] Proof mode: false
-07:32:59 [WARN]  ex is: zero
-07:32:59 [WARN]  ex is: (succ zero)
-07:32:59 [WARN]  ex is: (succ (succ zero))
-07:32:59 [WARN]  ex is: nil
-07:32:59 [WARN]  ex is: (cons autovar_nat_0 nil)
-07:32:59 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-07:32:59 [WARN] Proof mode: false
-07:33:00 [WARN] proved: (drop zero ?ts_ph_list_0) => ?ts_ph_list_0
-07:33:00 [WARN] proved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
-07:33:00 [WARN] proved: (take zero ?ts_ph_list_0) => nil
-07:33:00 [WARN] proved: (append ?ts_ph_list_0 nil) => (drop zero ?ts_ph_list_0)
-07:33:00 [WARN] proved: (drop zero ?ts_ph_list_0) => (append ?ts_ph_list_0 nil)
-07:33:00 [WARN] proved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
-07:45:18 [WARN] proved: (length (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (length ?ts_ph_list_0)
-07:45:18 [WARN] proved: (leq (succ ?ts_ph_nat_1) ?ts_ph_nat_0) => (lt ?ts_ph_nat_1 ?ts_ph_nat_0)
-07:45:18 [WARN] proved: (lt ?ts_ph_nat_1 ?ts_ph_nat_0) => (leq (succ ?ts_ph_nat_1) ?ts_ph_nat_0)
-07:45:18 [WARN] proved: (take (length ?ts_ph_list_0) ?ts_ph_list_0) => ?ts_ph_list_0
-07:45:18 [WARN] proved: (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
-07:45:18 [WARN] proved: (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
-07:45:18 [WARN] proved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
-07:45:18 [WARN] generalized case_split proof as: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) -- (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
-07:45:18 [WARN] proved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
-07:45:18 [WARN] proved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
-07:45:18 [WARN] proved: (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1))
-07:45:18 [WARN] proved: (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1))
-07:45:18 [WARN] proved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => nil
-07:45:18 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
-07:45:18 [WARN] proved: (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
-07:45:18 [WARN] proved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (drop (length ?ts_ph_list_0) ?ts_ph_list_0)
-07:45:18 [WARN] proved: (take (succ zero) ?ts_ph_list_0) => (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0))
-07:45:18 [WARN] proved: (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0)) => (take (succ zero) ?ts_ph_list_0)
-07:45:18 [WARN] proved: (append
-  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
-  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_1)) => (map ?ts_ph_POfn_nat_natPC_1 (append ?ts_ph_list_0 ?ts_ph_list_1))
-07:45:18 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_1 (append ?ts_ph_list_0 ?ts_ph_list_1)) => (append
-  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
-  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_1))
-07:45:20 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
-07:45:20 [WARN] proved: (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
-07:45:22 [WARN] proved: (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0))
-07:45:22 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0)) => (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
-07:45:29 [WARN] proved: (drop ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
-07:45:40 [WARN] proved: (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 ?ts_ph_list_0)
-07:45:40 [WARN] proved: (take ?ts_ph_nat_1 ?ts_ph_list_0) => (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
-07:45:55 [WARN] proved: (drop (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
-07:46:46 [WARN] proved: (take ?ts_ph_nat_1 ?ts_ph_list_0) => (take (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0))
-07:46:46 [WARN] proved: (take (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 ?ts_ph_list_0)
-07:48:11 [WARN] proved: (drop (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_1
-07:49:38 [WARN] proved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_0
+09:23:16 [WARN] Collecting statistics
+09:23:16 [WARN]  ex is: zero
+09:23:16 [WARN]  ex is: (succ zero)
+09:23:16 [WARN]  ex is: (succ (succ zero))
+09:23:16 [WARN]  ex is: nil
+09:23:16 [WARN]  ex is: (cons autovar_nat_0 nil)
+09:23:16 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+09:23:16 [WARN] Proof mode: false
+09:23:16 [WARN]  ex is: zero
+09:23:16 [WARN]  ex is: (succ zero)
+09:23:16 [WARN]  ex is: (succ (succ zero))
+09:23:16 [WARN]  ex is: nil
+09:23:16 [WARN]  ex is: (cons autovar_nat_0 nil)
+09:23:16 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+09:23:16 [WARN] Proof mode: false
+09:23:17 [WARN] proved: (drop zero ?ts_ph_list_0) => ?ts_ph_list_0
+09:23:17 [WARN] proved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
+09:23:17 [WARN] proved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
+09:23:17 [WARN] proved: (take zero ?ts_ph_list_0) => nil
+09:23:17 [WARN] proved: (drop zero ?ts_ph_list_0) => (append ?ts_ph_list_0 nil)
+09:23:17 [WARN] proved: (append ?ts_ph_list_0 nil) => (drop zero ?ts_ph_list_0)
+09:33:22 [WARN] proved: (length (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (length ?ts_ph_list_0)
+09:33:22 [WARN] proved: (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
+09:33:22 [WARN] proved: (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => false
+09:33:22 [WARN] proved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => false
+09:33:22 [WARN] proved: (leq (succ zero) ?ts_ph_nat_0) => (lt zero ?ts_ph_nat_0)
+09:33:22 [WARN] proved: (lt zero ?ts_ph_nat_0) => (leq (succ zero) ?ts_ph_nat_0)
+09:33:22 [WARN] proved: (lt ?ts_ph_nat_0 (succ zero)) => (leq ?ts_ph_nat_0 zero)
+09:33:22 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (lt ?ts_ph_nat_0 (succ zero))
+09:33:22 [WARN] proved: (lt ?ts_ph_nat_1 (length ?ts_ph_list_0)) => (leq (succ ?ts_ph_nat_1) (length ?ts_ph_list_0))
+09:33:22 [WARN] proved: (leq (succ ?ts_ph_nat_1) (length ?ts_ph_list_0)) => (lt ?ts_ph_nat_1 (length ?ts_ph_list_0))
+09:33:22 [WARN] proved: (leq (length ?ts_ph_list_0) ?ts_ph_nat_1) => (lt (length ?ts_ph_list_0) (succ ?ts_ph_nat_1))
+09:33:22 [WARN] proved: (lt (length ?ts_ph_list_0) (succ ?ts_ph_nat_1)) => (leq (length ?ts_ph_list_0) ?ts_ph_nat_1)
+09:33:22 [WARN] proved: (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1))
+09:33:22 [WARN] proved: (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1))
+09:33:22 [WARN] proved: (drop (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_1
+09:33:22 [WARN] proved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_0
+09:33:22 [WARN] proved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => nil
+09:33:22 [WARN] proved: (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
+09:33:22 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+09:33:22 [WARN] proved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (drop (length ?ts_ph_list_0) ?ts_ph_list_0)
+09:33:22 [WARN] proved: (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0)) => (take (succ zero) ?ts_ph_list_0)
+09:33:22 [WARN] proved: (take (succ zero) ?ts_ph_list_0) => (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0))
+09:33:22 [WARN] proved: (take (length ?ts_ph_list_0) ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_0))
+09:33:22 [WARN] proved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_0)) => (take (length ?ts_ph_list_0) ?ts_ph_list_0)
+09:33:22 [WARN] proved: (append
+  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)
+  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_1)) => (map ?ts_ph_POfn_nat_natPC_0 (append ?ts_ph_list_0 ?ts_ph_list_1))
+09:33:22 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_0 (append ?ts_ph_list_0 ?ts_ph_list_1)) => (append
+  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)
+  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_1))
+09:33:23 [WARN] proved: (lt ?ts_ph_nat_0 ?ts_ph_nat_1) => (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_1)
+09:33:23 [WARN] proved: (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_1) => (lt ?ts_ph_nat_0 ?ts_ph_nat_1)
+09:33:25 [WARN] proved: (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
+09:33:33 [WARN] proved: (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0))
+09:33:33 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0)) => (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+09:33:55 [WARN] proved: (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+09:33:55 [WARN] proved: (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
+09:34:30 [WARN] proved: (drop ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
+09:35:10 [WARN] proved: (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 ?ts_ph_list_0)
+09:35:10 [WARN] proved: (take ?ts_ph_nat_1 ?ts_ph_list_0) => (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
+09:35:49 [WARN] proved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+09:35:49 [WARN] proved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+09:37:08 [WARN] proved: (drop (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil

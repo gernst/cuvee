@@ -14,6 +14,7 @@ import cuvee.lemmas.Enumerate
 import cuvee.lemmas.recognize.Neutral
 import cuvee.prove.QuickCheck
 import cuvee.smtlib.Lemma
+import cuvee.pure.Rewrite
 
 class Config {
   var file: Option[String] = None
@@ -318,53 +319,58 @@ object Cuvee {
 }
 
 object CompareTheories {
-  def lemmas(file: String) = ???
-
   def main(args: Array[String]) = {
-    require(args.length == 2, "please specify two files to compare against each other")
-    val Array(path1, path2) = args
+    require(
+      args.length >= 2,
+      "Usage: ./CompareTheories.sh <definitions> <baseline> <comparison1> <comparison2> ..."
+    )
+    val Array(theory, baseline, rest @ _*) = args
 
     try {
-      val (cmds1, st1) = parse(path1)
+      val (cmds, st) = parse(theory)
 
-      val (lemmas1, defs1) = cmds1 partition (_.isInstanceOf[Lemma])
+      implicit val solver = Solver.z3(1000)
 
-      val (cmds2, st2) = if (path2 endsWith ".th.log") {
-        val lemmas2 = cuvee.thesy.storedLemmas(path2, st1) map { Lemma(_, None, false) }
-        (defs1 ++ lemmas2, st1)
-      } else {
-        parse(path2)
-      }
-
-      val (lemmas2, defs2) = cmds2 partition (_.isInstanceOf[Lemma])
-
-      assert(defs1 == defs2)
-      val prefix = defs1
-
-      implicit val solver = Solver.z3(100)
-
-      for (cmd <- prefix)
+      for (cmd <- cmds)
         solver.ack(cmd)
+
+      val rws = Rewrite.from(cmds, st)
+      val qc = new QuickCheck(rws.groupBy(_.fun), st)
+
+      def lemmasOf(file: String) = if (file endsWith ".th.log") {
+        cuvee.thesy.storedLemmas(file, st)
+      } else {
+        val (cmds, _) = parse(file)
+        cmds collect { case Lemma(phi, _, _) => phi }
+      }
 
       import util.TheoryComparison
 
-      // println(f"$score1%.2f $score2%.2f")
+      val self = lemmasOf(baseline)
 
-      val phis1 = lemmas1 map { case Lemma(phi, _, _) => phi }
-      val phis2 = lemmas2 map { case Lemma(phi, _, _) => phi }
+      val wrong = self filter { phi =>
+        qc.hasSimpleCounterexample(phi, depth = 2)
+      }
 
-      println("A: " + path1)
-      println("  lemmas:        " + phis1.length)
-      println("  score over B:  " + (phis1 advantageOver phis2))
-      println("  score over -:  " + (phis1 advantageOver Nil))
-      println()
+      println(baseline)
+      println("  " + self.length + "  number of lemmas")
+      println("  " + wrong.length + "  wrong")
+      println("  " + self.nontrivial + "  nontrivial")
+      println("  " + self.reducedGreedily.length + "  reduced greedily")
+      println("  " + self.independentOfAnyOther + "  independent")
 
-      println("B: " + path2)
-      println("  lemmas:        " + phis2.length)
-      println("  score over A:  " + (phis2 advantageOver phis1))
-      println("  score over -:  " + (phis2 advantageOver Nil))
-      println()
+      for (file <- rest) {
+        val other = lemmasOf(file)
+        println("  " + self.advantageOver(other) + "  " + file)
 
+        // solver.scoped {
+        //   println("  formulas not implied by " + file)
+        //   solver.assert(other)
+        //   for (phi <- self)
+        //     if (!solver.isTrue(phi))
+        //       println("    " + phi)
+        // }
+      }
     } catch {
       case e @ smtlib.Error(msg) =>
         println(msg)

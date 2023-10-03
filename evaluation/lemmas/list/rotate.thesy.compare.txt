@@ -1,0 +1,8 @@
+evaluation/lemmas/list/rotate.th.log
+  32  number of lemmas
+  24  nontrivial
+  17  reduced greedily
+  4  independent
+  18  evaluation/lemmas/list/rotate.structural.bpl
+  18  evaluation/lemmas/list/rotate.conditional.bpl
+  5  evaluation/lemmas/list/rotate.enumerate.bpl

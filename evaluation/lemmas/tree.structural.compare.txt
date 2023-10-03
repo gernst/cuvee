@@ -1,0 +1,7 @@
+evaluation/lemmas/tree.structural.bpl
+  12  number of lemmas
+  0  wrong
+  10  nontrivial
+  9  reduced greedily
+  9  independent
+  0  evaluation/lemmas/tree.conditional.bpl
