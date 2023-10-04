@@ -33,6 +33,8 @@ lemma forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == a
 lemma forall y₀: Bool :: (not_(not_(y₀)) <==> y₀);
 lemma forall y₀: nat, y₁: nat :: (not_(leq(y₀, y₁)) <==> lt(y₁, y₀));
 lemma forall y₀: nat, y₁: nat :: (not_(lt(y₀, y₁)) <==> leq(y₁, y₀));
+lemma forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(min(y₀, y₁), x₀));
 lemma forall y₀: nat, y₁: nat, x₁: nat :: (leq(sub(y₀, y₁), x₁) <==> leq(y₀, add(y₁, x₁)));
 lemma forall x₀: nat, y₀: nat, y₁: nat :: (lt(x₀, sub(y₀, y₁)) <==> lt(add(y₁, x₀), y₀));
+lemma forall x: nat :: (max(x, zero) == x);
 lemma forall x: nat :: (add(x, zero) == x);
