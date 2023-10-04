@@ -67,6 +67,7 @@ smt2: $(SMT2)
 
 %.enumerate.bpl: %.bpl
 	./Cuvee.sh $< -lemmas:enumerate -o $@ | tee $*.enumerate.log
+	gzip $*.enumerate.log
 
 %.th.log: %.th
 	TheSy $< | tee $@

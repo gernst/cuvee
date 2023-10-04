@@ -196,16 +196,16 @@ class Enumerate(rounds: Int) extends Stage {
             print(dtf.format(now) + " round " + round + " candidate " + i + "/" + n + " " + goal)
           }
 
-          if ((i + 1) % 100 == 0) {
-            if(debug)
-              println("reinit solver")
-            solver.ack(Exit)
-            solver.destroy()
+          // if ((i + 1) % 10000 == 0) {
+          //   if(debug)
+          //     println("reinit solver")
+          //   solver.ack(Exit)
+          //   solver.destroy()
 
-            solver = Solver.z3(timeout = 50)
-            for (cmd <- reinit)
-              solver.ack(cmd)
-          }
+          //   solver = Solver.z3(timeout = 50)
+          //   for (cmd <- reinit)
+          //     solver.ack(cmd)
+          // }
 
           if (qc.hasSimpleCounterexample(goal, 3)) {
             if (debug) println(" cex")

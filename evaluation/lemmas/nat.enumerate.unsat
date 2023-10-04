@@ -1,0 +1,309 @@
+10:29:34 [1/1131799] true unsat
+10:29:55 [36343/1131799] forall y₀: nat, x₁: nat :: (add(y₀, x₁) == add(y₀, min(x₁, x₁))) unsat
+10:30:03 [51194/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(min(x₀, x₀), add(y₀, y₁))) unsat
+10:30:09 [63257/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(mul(y₀, y₁), x₁) == max(mul(y₀, y₁), min(x₁, x₁))) unsat
+10:30:12 [68512/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(add(y₀, y₁), x₁) == min(add(y₀, y₁), min(x₁, x₁))) unsat
+10:30:26 [94798/1131799] forall y₀: nat, x₁: nat :: (max(succ(y₀), x₁) == max(succ(y₀), max(x₁, zero))) unsat
+10:30:28 [99331/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(min(y₀, y₁), x₁) == min(min(y₀, y₁), min(x₁, x₁))) unsat
+10:30:32 [105114/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(mul(y₀, y₁), x₁) == sub(mul(y₀, y₁), max(x₁, zero))) unsat
+10:30:45 [128888/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, sub(y₀, y₁)) == mul(min(x₀, x₀), sub(y₀, y₁))) unsat
+10:30:47 [134095/1131799] forall y₀: nat, x₁: nat :: (min(succ(y₀), x₁) == min(succ(y₀), min(x₁, x₁))) unsat
+10:30:48 [136997/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(x₀, zero), add(y₀, y₁))) unsat
+10:30:58 [154817/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(mul(y₀, y₁), min(x₀, x₀))) unsat
+10:30:58 [155869/1131799] forall x₀: nat, y₀: nat :: (min(x₀, succ(y₀)) == min(add(x₀, zero), succ(y₀))) unsat
+10:31:02 [162577/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(min(x₀, x₀), sub(y₀, y₁))) unsat
+10:31:03 [164311/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(min(y₀, y₁), x₁) == mul(min(y₀, y₁), max(x₁, x₁))) unsat
+10:31:08 [174918/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(mul(y₀, y₁), x₁) == sub(mul(y₀, y₁), min(x₁, x₁))) unsat
+10:31:11 [180407/1131799] forall y₀: nat, x₁: nat :: (max(succ(y₀), x₁) == max(succ(y₀), min(x₁, x₁))) unsat
+10:31:15 [186495/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(x₁, add(y₁, y₀))) unsat
+10:31:17 [190836/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == add(max(x₁, x₁), min(y₀, y₁))) unsat
+10:31:17 [191595/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, x₀), max(y₀, zero))) unsat
+10:31:20 [198068/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(max(y₀, y₁), x₁) == add(max(x₁, zero), max(y₀, y₁))) unsat
+10:31:22 [202523/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, x₁), add(y₀, zero))) unsat
+10:31:23 [203554/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, sub(y₀, y₁)) == sub(min(x₀, x₀), sub(y₀, y₁))) unsat
+10:31:24 [205390/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(sub(y₀, y₁), x₁) == max(sub(y₀, y₁), max(x₁, zero))) unsat
+10:31:26 [209458/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(mul(y₀, y₁), x₁) == add(max(x₁, x₁), mul(y₀, y₁))) unsat
+10:31:27 [211096/1131799] forall y₀: nat, x₁: nat :: (add(y₀, x₁) == add(y₀, add(x₁, zero))) unsat
+10:31:31 [218675/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(x₀, zero), add(y₁, y₀))) unsat
+10:31:31 [219343/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(max(x₁, zero), succ(y₀))) unsat
+10:31:31 [219746/1131799] forall y₀: nat, x₁: nat :: (add(y₀, x₁) == add(y₀, max(x₁, x₁))) unsat
+10:31:32 [220266/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == add(min(y₀, y₁), max(x₁, x₁))) unsat
+10:31:33 [222672/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(y₁, y₁), add(y₀, x₀))) unsat
+10:31:33 [222724/1131799] forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(add(x₁, zero), mul(y₀, x₁))) unsat
+10:31:33 [223261/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == add(max(x₁, zero), min(y₀, y₁))) unsat
+10:31:37 [229438/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), max(y₁, y₁))) unsat
+10:31:41 [237182/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(x₀, y₁), min(y₀, y₀))) unsat
+10:31:42 [238573/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(y₁, y₁), add(x₁, y₀))) unsat
+10:31:47 [249976/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(min(y₀, y₁), min(x₀, x₀))) unsat
+10:31:50 [254768/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(min(x₀, x₀), min(y₀, y₁))) unsat
+10:31:54 [261128/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₁, add(x₀, y₀))) unsat
+10:31:54 [262699/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, x₀), y₀)) unsat
+10:31:55 [263787/1131799] forall x₀: nat, y₀: nat :: (max(x₀, succ(y₀)) == max(min(x₀, x₀), succ(y₀))) unsat
+10:31:59 [271657/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), max(x₀, zero))) unsat
+10:31:59 [273171/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(max(y₁, zero), succ(y₀))) unsat
+10:32:01 [276035/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(sub(y₀, y₁), x₁) == add(min(x₁, x₁), sub(y₀, y₁))) unsat
+10:32:03 [279596/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(max(y₀, zero), succ(x₁))) unsat
+10:32:05 [283947/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add(y₀, y₁), max(x₁, zero))) unsat
+10:32:06 [285600/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, x₀), max(y₁, zero))) unsat
+10:32:06 [286368/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(add(x₀, zero), min(y₀, y₁))) unsat
+10:32:07 [286864/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(y₁, zero), add(x₀, y₀))) unsat
+10:32:08 [290718/1131799] forall x₀: nat, y₀: nat :: (min(x₀, succ(y₀)) == min(min(x₀, x₀), succ(y₀))) unsat
+10:32:14 [301824/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), min(x₀, x₀))) unsat
+10:32:18 [306915/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, zero), add(y₁, x₁))) unsat
+10:32:20 [312151/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₁), max(y₀, zero))) unsat
+10:32:21 [313215/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, sub(y₀, y₁)) == mul(max(x₀, x₀), sub(y₀, y₁))) unsat
+10:32:24 [317640/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == add(max(x₀, x₀), succ(y₀))) unsat
+10:32:25 [320736/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(y₁, y₁), add(x₀, y₀))) unsat
+10:32:27 [323913/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(y₀, y₀), add(x₁, y₁))) unsat
+10:32:28 [324986/1131799] forall y₀: nat, x₁: nat :: (min(succ(y₀), x₁) == min(succ(y₀), max(x₁, zero))) unsat
+10:32:28 [325746/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(add(y₁, zero), succ(y₀))) unsat
+10:32:30 [328594/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, add(y₀, y₁)) == max(max(x₀, zero), add(y₀, y₁))) unsat
+10:32:32 [333032/1131799] forall y₀: nat, x₁: nat :: (add(y₀, x₁) == add(x₁, add(y₀, zero))) unsat
+10:32:32 [333673/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, mul(y₀, y₁)) == max(min(x₀, x₀), mul(y₀, y₁))) unsat
+10:32:35 [338160/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, x₁), y₀)) unsat
+10:32:36 [339784/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(x₀, add(y₁, y₀))) unsat
+10:32:36 [340044/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(mul(y₀, y₁), x₁) == mul(mul(y₀, y₁), max(x₁, x₁))) unsat
+10:32:37 [343235/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, mul(y₀, y₁)) == sub(min(x₀, x₀), mul(y₀, y₁))) unsat
+10:32:38 [344590/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, zero), add(x₀, y₁))) unsat
+10:32:39 [345687/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, add(y₀, y₁)) == max(add(x₀, zero), add(y₀, y₁))) unsat
+10:32:39 [345984/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(add(x₁, zero), succ(y₀))) unsat
+10:32:39 [346418/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(x₁, y₁))) unsat
+10:32:41 [349984/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(y₁, y₁), add(y₀, x₁))) unsat
+10:32:41 [350238/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(sub(y₀, y₁), max(x₀, zero))) unsat
+10:32:41 [350266/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, x₁), max(y₀, zero))) unsat
+10:32:44 [355101/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(max(y₀, y₁), x₁) == min(max(y₀, y₁), add(x₁, zero))) unsat
+10:32:45 [356633/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(x₀, y₁), max(y₀, zero))) unsat
+10:32:48 [363501/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, y₁), x₀)) unsat
+10:32:52 [369683/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(min(y₁, y₁), add(x₁, y₀))) unsat
+10:32:53 [371393/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, max(y₀, y₁)) == add(max(x₀, x₀), max(y₀, y₁))) unsat
+10:32:55 [375180/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(min(x₀, x₀), mul(y₀, y₁))) unsat
+10:33:01 [387515/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(x₀, y₁), y₀)) unsat
+10:33:02 [389394/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(add(y₀, zero), succ(y₁))) unsat
+10:33:08 [401474/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(add(y₀, zero), succ(x₁))) unsat
+10:33:12 [408291/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, x₀), min(y₀, y₀))) unsat
+10:33:14 [413611/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(min(y₀, y₁), x₁) == sub(min(y₀, y₁), add(x₁, zero))) unsat
+10:33:16 [415941/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(max(x₀, zero), min(y₀, y₁))) unsat
+10:33:17 [417950/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(add(y₀, y₁), x₁) == max(add(y₁, y₀), x₁)) unsat
+10:33:19 [422511/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(sub(y₀, y₁), x₁) == sub(sub(y₀, y₁), add(x₁, zero))) unsat
+10:33:20 [424446/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == add(min(y₀, y₁), min(x₁, x₁))) unsat
+10:33:21 [427578/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(add(y₀, y₁), x₁) == max(add(y₁, y₀), add(x₁, zero))) unsat
+10:33:25 [434415/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(min(x₁, x₁), succ(y₀))) unsat
+10:33:26 [435116/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), max(x₁, x₁))) unsat
+10:33:26 [435791/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, max(y₀, y₁)) == add(min(x₀, x₀), max(y₀, y₁))) unsat
+10:33:33 [449505/1131799] forall x₀: nat, y₀: nat :: (max(x₀, succ(y₀)) == max(max(x₀, x₀), succ(y₀))) unsat
+10:33:34 [450717/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, x₁), min(y₀, y₀))) unsat
+10:33:40 [460207/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == min(add(y₀, x₀), add(y₁, x₀))) unsat
+10:33:40 [461322/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(mul(y₀, y₁), max(x₀, zero))) unsat
+10:33:42 [463692/1131799] forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(mul(y₀, x₁), add(x₁, zero))) unsat
+10:33:44 [467795/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(max(x₀, x₀), sub(y₀, y₁))) unsat
+10:33:44 [468383/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(x₀, y₀), max(y₁, y₁))) unsat
+10:33:46 [472761/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, zero), add(y₁, y₀))) unsat
+10:33:47 [473454/1131799] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == mul(add(x₀, zero), succ(y₀))) unsat
+10:33:48 [476273/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(y₀, y₀), add(x₀, y₁))) unsat
+10:33:49 [476525/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, sub(y₀, y₁)) == max(add(x₀, zero), sub(y₀, y₁))) unsat
+10:33:49 [477196/1131799] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₀, max(y₁, zero))) unsat
+10:33:49 [477524/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(min(y₁, y₁), add(y₀, x₀))) unsat
+10:33:51 [480145/1131799] forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(max(x₁, zero), mul(y₀, x₁))) unsat
+10:33:52 [481825/1131799] forall y₀: nat, x₁: nat :: (min(succ(y₀), x₁) == min(succ(y₀), add(x₁, zero))) unsat
+10:33:53 [483841/1131799] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == mul(min(x₀, x₀), succ(y₀))) unsat
+10:33:56 [487303/1131799] forall y₀: nat, x₁: nat :: (sub(succ(y₀), x₁) == sub(succ(y₀), max(x₁, x₁))) unsat
+10:34:02 [498415/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(max(y₀, zero), succ(y₁))) unsat
+10:34:03 [499867/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₁, add(x₁, y₀))) unsat
+10:34:04 [503128/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == add(add(x₁, zero), min(y₀, y₁))) unsat
+10:34:05 [504105/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(max(y₀, y₁), x₁) == add(max(y₀, y₁), max(x₁, x₁))) unsat
+10:34:09 [510972/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(x₁, x₁), add(y₀, y₁))) unsat
+10:34:10 [513447/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(y₁, zero), add(y₀, x₁))) unsat
+10:34:10 [514422/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(sub(y₀, y₁), x₁) == add(add(x₁, zero), sub(y₀, y₁))) unsat
+10:34:14 [521122/1131799] forall y₀: Bool :: (not_(not_(y₀)) <==> y₀) unsat
+10:34:15 [523591/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), min(x₁, x₁))) unsat
+10:34:16 [525631/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(mul(y₀, y₁), x₁) == add(mul(y₀, y₁), add(x₁, zero))) unsat
+10:34:16 [525934/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₀), max(y₁, y₁))) unsat
+10:34:17 [527021/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, max(y₀, y₁)) == add(max(y₀, y₁), min(x₀, x₀))) unsat
+10:34:17 [527933/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == min(add(y₀, x₀), add(x₀, y₁))) unsat
+10:34:19 [531550/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁))) unsat
+10:34:19 [531806/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), max(y₁, zero))) unsat
+10:34:19 [531991/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, add(y₀, y₁)) == sub(add(x₀, zero), add(y₁, y₀))) unsat
+10:34:25 [543969/1131799] forall y₀: nat, x₁: nat :: (min(succ(y₀), x₁) == min(succ(y₀), max(x₁, x₁))) unsat
+10:34:27 [545892/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, x₀), max(y₁, y₁))) unsat
+10:34:27 [546321/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(min(y₁, y₁), succ(y₀))) unsat
+10:34:28 [549140/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(sub(y₀, y₁), x₀)) unsat
+10:34:32 [556000/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(mul(y₀, y₁), x₁) == add(x₁, mul(y₀, y₁))) unsat
+10:34:32 [557686/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(add(y₀, y₁), x₁) == min(add(y₀, y₁), add(x₁, zero))) unsat
+10:34:34 [560085/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(mul(y₀, y₁), x₁) == add(add(x₁, zero), mul(y₀, y₁))) unsat
+10:34:37 [565164/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₀), y₁)) unsat
+10:34:37 [566366/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(min(y₀, y₀), succ(x₁))) unsat
+10:34:38 [567631/1131799] forall y₀: nat, x₁: nat :: (sub(succ(y₀), x₁) == sub(succ(y₀), add(x₁, zero))) unsat
+10:34:38 [567744/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, sub(y₀, y₁)) == sub(add(x₀, zero), sub(y₀, y₁))) unsat
+10:34:38 [568841/1131799] forall y₀: nat, x₁: nat :: (add(y₀, x₁) == add(x₁, max(y₀, zero))) unsat
+10:34:39 [569589/1131799] forall x₀: nat, y₀: nat :: (max(x₀, succ(y₀)) == max(max(x₀, zero), succ(y₀))) unsat
+10:34:39 [570195/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₁), y₀)) unsat
+10:34:43 [577860/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, min(y₀, y₁)) == mul(add(x₀, zero), min(y₀, y₁))) unsat
+10:34:44 [578721/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, max(y₀, y₁)) == add(max(y₀, y₁), x₀)) unsat
+10:34:44 [579221/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), x₁)) unsat
+10:34:47 [583869/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == min(add(y₀, x₁), add(y₁, x₁))) unsat
+10:34:47 [584543/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, add(y₀, y₁)) == sub(add(x₀, zero), add(y₀, y₁))) unsat
+10:34:47 [584925/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(min(y₀, y₁), x₀)) unsat
+10:34:51 [591329/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, add(y₀, y₁)) == max(x₀, add(y₁, y₀))) unsat
+10:34:53 [595882/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(min(y₀, y₁), x₁) == mul(min(y₀, y₁), add(x₁, zero))) unsat
+10:34:55 [598065/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(x₁, succ(y₀))) unsat
+10:34:55 [598565/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(add(y₀, y₁), x₁) == sub(add(y₀, y₁), add(x₁, zero))) unsat
+10:34:55 [599073/1131799] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₀, add(y₁, zero))) unsat
+10:34:57 [603048/1131799] forall x₀: nat, y₀: nat :: (sub(x₀, succ(y₀)) == sub(max(x₀, x₀), succ(y₀))) unsat
+10:34:59 [606586/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(add(y₀, y₁), x₁) == min(add(y₁, y₀), add(x₁, zero))) unsat
+10:34:59 [607096/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(mul(y₀, y₁), add(x₀, zero))) unsat
+10:35:05 [615919/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(max(x₀, x₀), min(y₀, y₁))) unsat
+10:35:05 [616822/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(x₀, add(y₁, y₀))) unsat
+10:35:06 [618540/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(max(y₀, y₀), succ(x₁))) unsat
+10:35:07 [619632/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), x₀)) unsat
+10:35:09 [625896/1131799] forall y₀: nat, x₁: nat :: (max(succ(y₀), x₁) == max(succ(y₀), max(x₁, x₁))) unsat
+10:35:11 [628954/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(sub(y₀, y₁), x₁) == min(sub(y₀, y₁), add(x₁, zero))) unsat
+10:35:12 [630832/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(mul(y₀, y₁), x₁) == add(max(x₁, zero), mul(y₀, y₁))) unsat
+10:35:13 [633468/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(min(x₁, x₁), add(y₁, y₀))) unsat
+10:35:19 [643765/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(add(y₀, y₁), x₁) == sub(add(y₁, y₀), add(x₁, zero))) unsat
+10:35:19 [644596/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(add(x₀, zero), add(y₁, y₀))) unsat
+10:35:23 [650993/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(sub(y₀, y₁), x₁) == add(sub(y₀, y₁), max(x₁, zero))) unsat
+10:35:26 [656651/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == add(add(y₀, x₀), succ(zero))) unsat
+10:35:33 [669490/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, mul(y₀, y₁)) == max(add(x₀, zero), mul(y₀, y₁))) unsat
+10:35:36 [675748/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, add(y₀, y₁)) == sub(x₀, add(y₁, y₀))) unsat
+10:35:36 [678084/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(max(y₀, y₁), x₁) == add(add(x₁, zero), max(y₀, y₁))) unsat
+10:35:37 [678457/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(add(x₀, zero), sub(y₀, y₁))) unsat
+10:35:38 [682014/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, add(y₀, y₁)) == min(add(x₀, zero), add(y₁, y₀))) unsat
+10:35:41 [686287/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(y₀, succ(x₁))) unsat
+10:35:41 [687422/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(max(x₀, zero), sub(y₀, y₁))) unsat
+10:35:42 [688747/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(y₀, y₀), add(y₁, x₁))) unsat
+10:35:46 [695632/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(max(x₀, x₀), mul(y₀, y₁))) unsat
+10:35:50 [703470/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(add(x₀, zero), min(y₀, y₁))) unsat
+10:35:51 [704721/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, zero), add(x₁, y₁))) unsat
+10:35:51 [705103/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(add(y₀, y₁), x₁) == sub(add(y₁, y₀), max(x₁, zero))) unsat
+10:35:51 [705117/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(mul(y₀, y₁), x₁) == max(mul(y₀, y₁), add(x₁, zero))) unsat
+10:35:56 [713829/1131799] forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(mul(y₀, x₁), x₁)) unsat
+10:35:57 [716460/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, sub(y₀, y₁)) == min(add(x₀, zero), sub(y₀, y₁))) unsat
+10:35:57 [717600/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add(y₁, y₀), x₁)) unsat
+10:36:00 [722818/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, max(y₀, y₁)) == add(max(y₀, y₁), add(x₀, zero))) unsat
+10:36:00 [723178/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(mul(y₀, y₁), max(x₀, x₀))) unsat
+10:36:02 [728269/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(x₀, y₁), max(y₀, y₀))) unsat
+10:36:07 [737618/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, mul(y₀, y₁)) == sub(add(x₀, zero), mul(y₀, y₁))) unsat
+10:36:10 [744853/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(max(y₀, y₁), x₁) == add(x₁, max(y₀, y₁))) unsat
+10:36:16 [757116/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, y₁), add(x₁, zero))) unsat
+10:36:18 [760020/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(x₁, x₁), add(y₁, y₀))) unsat
+10:36:19 [763022/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(y₀, x₀))) unsat
+10:36:22 [768360/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == add(min(y₀, y₁), max(x₁, zero))) unsat
+10:36:25 [772860/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(max(y₀, y₁), x₁) == add(max(y₀, y₁), min(x₁, x₁))) unsat
+10:36:27 [777934/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, sub(y₀, y₁)) == mul(add(x₀, zero), sub(y₀, y₁))) unsat
+10:36:29 [780177/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == add(x₁, min(y₀, y₁))) unsat
+10:36:29 [781658/1131799] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₁, min(y₀, y₀))) unsat
+10:36:30 [782683/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₁, succ(y₀))) unsat
+10:36:44 [809595/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(max(x₀, zero), mul(y₀, y₁))) unsat
+10:36:45 [810719/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(x₀, y₀), max(y₁, zero))) unsat
+10:36:46 [814867/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, add(y₀, y₁)) == sub(max(x₀, zero), add(y₀, y₁))) unsat
+10:36:59 [838974/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(max(y₀, y₁), x₁) == add(max(y₀, y₁), max(x₁, zero))) unsat
+10:37:01 [843315/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, y₁), max(x₀, x₀))) unsat
+10:37:03 [846669/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(mul(y₀, y₁), x₁) == min(mul(y₀, y₁), add(x₁, zero))) unsat
+10:37:06 [852562/1131799] forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(add(y₀, x₁), succ(zero))) unsat
+10:37:07 [855585/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(y₁, zero), add(x₁, y₀))) unsat
+10:37:08 [856803/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(mul(y₀, y₁), x₁) == add(mul(y₀, y₁), max(x₁, x₁))) unsat
+10:37:09 [859076/1131799] forall y₀: nat, x₁: nat :: (sub(succ(y₀), x₁) == sub(succ(y₀), min(x₁, x₁))) unsat
+10:37:10 [861120/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, max(y₀, y₁)) == max(add(x₀, zero), max(y₀, y₁))) unsat
+10:37:12 [865572/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(x₀, y₀))) unsat
+10:37:19 [878432/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, zero), add(y₀, x₀))) unsat
+10:37:20 [880321/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(mul(y₀, y₁), x₁) == min(mul(y₀, y₁), min(x₁, x₁))) unsat
+10:37:24 [887470/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(sub(y₀, y₁), x₁) == add(max(x₁, zero), sub(y₀, y₁))) unsat
+10:37:26 [890880/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == add(y₀, succ(x₀))) unsat
+10:37:30 [899865/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₁), min(y₀, y₀))) unsat
+10:37:32 [903766/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(min(y₁, y₁), add(y₀, x₁))) unsat
+10:37:34 [907295/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(max(y₁, y₁), succ(y₀))) unsat
+10:37:34 [908785/1131799] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₁, max(y₀, y₀))) unsat
+10:37:39 [917353/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(add(y₀, y₁), x₁) == max(add(y₁, y₀), max(x₁, zero))) unsat
+10:37:41 [919709/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(sub(y₀, y₁), x₁) == add(sub(y₀, y₁), max(x₁, x₁))) unsat
+10:37:46 [929660/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(x₀, y₁), add(y₀, zero))) unsat
+10:37:46 [930058/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, max(y₀, y₁)) == sub(max(x₀, zero), max(y₀, y₁))) unsat
+10:37:48 [934409/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, mul(y₀, y₁)) == min(add(x₀, zero), mul(y₀, y₁))) unsat
+10:37:51 [940547/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, mul(y₀, y₁)) == add(mul(y₀, y₁), x₀)) unsat
+10:37:51 [941328/1131799] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == mul(max(x₀, x₀), succ(y₀))) unsat
+10:37:56 [949685/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(add(y₀, y₁), x₁) == min(add(y₁, y₀), x₁)) unsat
+10:37:59 [956180/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add(y₀, y₁), min(x₁, x₁))) unsat
+10:38:01 [959142/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(min(x₀, x₀), add(y₁, y₀))) unsat
+10:38:03 [962560/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, max(y₀, y₁)) == add(add(x₀, zero), max(y₀, y₁))) unsat
+10:38:07 [969408/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, zero), add(x₀, y₀))) unsat
+10:38:09 [973080/1131799] forall x₀: nat, y₀: nat :: (sub(x₀, succ(y₀)) == sub(min(x₀, x₀), succ(y₀))) unsat
+10:38:12 [978851/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, x₀), min(y₁, y₁))) unsat
+10:38:13 [981567/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, zero), add(x₁, y₀))) unsat
+10:38:14 [983925/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(x₁, zero), add(y₁, y₀))) unsat
+10:38:14 [984083/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(add(y₀, y₁), x₁) == max(add(y₁, y₀), min(x₁, x₁))) unsat
+10:38:17 [989348/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(sub(y₀, y₁), min(x₀, x₀))) unsat
+10:38:17 [990410/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(min(y₀, y₁), x₁) == sub(min(y₀, y₁), max(x₁, zero))) unsat
+10:38:19 [993722/1131799] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₀, min(y₁, y₁))) unsat
+10:38:19 [994086/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(add(y₁, y₀), succ(zero))) unsat
+10:38:20 [997341/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, add(y₀, y₁)) == max(min(x₀, x₀), add(y₀, y₁))) unsat
+10:38:22 [999871/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, mul(y₀, y₁)) == mul(add(x₀, zero), mul(y₀, y₁))) unsat
+10:38:25 [1006643/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(min(y₀, y₀), add(y₁, x₁))) unsat
+10:38:28 [1011903/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, zero), add(y₀, y₁))) unsat
+10:38:36 [1025985/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(x₀, y₁))) unsat
+10:38:37 [1027463/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(min(y₀, y₁), max(x₀, x₀))) unsat
+10:38:39 [1031408/1131799] forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(add(y₀, y₁), succ(zero))) unsat
+10:38:39 [1031423/1131799] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == mul(max(x₀, zero), succ(y₀))) unsat
+10:38:41 [1035916/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (max(sub(y₀, y₁), x₁) == max(sub(y₀, y₁), add(x₁, zero))) unsat
+10:38:46 [1043968/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (sub(add(y₀, y₁), x₁) == sub(add(y₁, y₀), x₁)) unsat
+10:38:47 [1048450/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(mul(y₀, y₁), x₁) == mul(mul(y₀, y₁), max(x₁, zero))) unsat
+10:38:51 [1054163/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₀), min(y₁, y₁))) unsat
+10:38:54 [1060211/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(x₁, add(y₀, y₁))) unsat
+10:38:59 [1069651/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == add(add(x₀, y₀), succ(zero))) unsat
+10:38:59 [1069689/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (min(add(y₀, y₁), x₁) == min(add(y₁, y₀), max(x₁, zero))) unsat
+10:39:02 [1074854/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(max(y₀, zero), add(y₁, x₁))) unsat
+10:39:04 [1078557/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (mul(mul(y₀, y₁), x₁) == mul(mul(y₀, y₁), add(x₁, zero))) unsat
+10:39:07 [1084786/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == add(min(x₀, x₀), succ(y₀))) unsat
+10:39:11 [1091697/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(min(y₀, y₁), add(x₀, zero))) unsat
+10:39:13 [1096480/1131799] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, y₁), min(x₁, x₁))) unsat
+10:39:20 [1111003/1131799] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(x₀, x₀), add(y₀, y₁))) unsat
+10:39:22 [1116579/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(y₀, add(x₀, zero)))) unsat
+10:39:22 [1116872/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(y₀, min(x₀, x₀)))) unsat
+10:39:23 [1118626/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(x₀, max(y₀, zero)))) unsat
+10:39:23 [1120451/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(x₀, add(y₀, zero)))) unsat
+10:39:27 [1130033/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(x₀, max(y₀, y₀)))) unsat
+10:39:27 [1130375/1131799] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == succ(add(y₀, max(x₀, x₀)))) unsat
+10:39:27 [2/1887] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₁, y₀)) unsat
+10:39:27 [3/1887] forall y₀: nat, x₁: nat :: (add(y₀, x₁) == add(x₁, y₀)) unsat
+10:39:27 [7/1887] forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, add(y₀, y₁)) == min(x₀, add(y₁, y₀))) unsat
+10:39:28 [11/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(sub(y₀, y₁), x₁) == add(max(x₁, x₁), sub(y₀, y₁))) unsat
+10:39:29 [26/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, sub(y₀, y₁)) == add(sub(y₀, y₁), max(x₀, x₀))) unsat
+10:39:30 [41/1887] forall x₀: nat, y₀: nat :: (min(x₀, succ(y₀)) == min(max(x₀, x₀), succ(y₀))) unsat
+10:39:31 [51/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == add(min(y₀, y₁), max(x₀, zero))) unsat
+10:39:31 [54/1887] forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, max(y₀, y₁)) == min(add(x₀, zero), max(y₀, y₁))) unsat
+10:39:32 [57/1887] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == add(mul(x₀, y₀), add(x₀, zero))) unsat
+10:39:32 [60/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, x₀), y₁)) unsat
+10:39:34 [84/1887] forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(mul(y₀, x₁), max(x₁, zero))) unsat
+10:39:34 [90/1887] forall y₀: nat, x₁: nat :: (add(y₀, x₁) == add(x₁, max(y₀, y₀))) unsat
+10:39:35 [100/1887] forall y₀: nat, y₁: nat, x₁: nat :: (max(max(y₀, y₁), x₁) == max(max(y₀, y₁), add(x₁, zero))) unsat
+10:39:36 [108/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), add(x₁, zero))) unsat
+10:39:36 [109/1887] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₁, max(y₀, zero))) unsat
+10:39:37 [125/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(sub(y₀, y₁), x₁) == add(x₁, sub(y₀, y₁))) unsat
+10:39:38 [131/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(max(y₀, y₁), x₁) == add(max(x₁, x₁), max(y₀, y₁))) unsat
+10:39:38 [132/1887] forall y₀: nat, y₁: nat, x₁: nat :: (sub(max(y₀, y₁), x₁) == sub(max(y₀, y₁), add(x₁, zero))) unsat
+10:39:39 [141/1887] forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == add(max(y₀, y₀), succ(x₀))) unsat
+10:39:39 [148/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(mul(y₀, y₁), x₁) == add(min(x₁, x₁), mul(y₀, y₁))) unsat
+10:39:39 [151/1887] forall x₀: nat, y₀: nat, y₁: nat :: (sub(x₀, max(y₀, y₁)) == sub(add(x₀, zero), max(y₀, y₁))) unsat
+10:39:41 [168/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀))) unsat
+10:39:43 [194/1887] forall y₀: nat, y₁: nat, x₁: nat :: (sub(mul(y₀, y₁), x₁) == sub(mul(y₀, y₁), add(x₁, zero))) unsat
+10:39:43 [197/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₀), max(y₁, zero))) unsat
+10:39:44 [209/1887] forall y₀: nat, y₁: nat :: (add(y₀, y₁) == add(y₀, max(y₁, y₁))) unsat
+10:39:44 [210/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, max(y₀, y₁)) == add(max(y₀, y₁), max(x₀, zero))) unsat
+10:39:45 [220/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), add(x₀, zero))) unsat
+10:39:46 [225/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₀), add(y₁, zero))) unsat
+10:39:46 [231/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(max(x₀, x₀), add(y₁, y₀))) unsat
+10:39:46 [232/1887] forall y₀: nat, y₁: nat :: (succ(min(y₀, y₁)) == add(min(y₀, y₁), succ(zero))) unsat
+10:39:54 [322/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, min(y₀, y₁)) == min(add(x₀, y₀), add(y₁, x₀))) unsat
+10:40:03 [417/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == min(add(x₁, y₀), add(y₁, x₁))) unsat
+10:40:10 [490/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == min(add(y₀, x₁), add(x₁, y₁))) unsat
+10:40:24 [633/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, x₀), add(y₀, zero))) unsat
+10:40:27 [664/1887] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == add(max(x₀, zero), mul(x₀, y₀))) unsat
+10:40:28 [677/1887] forall y₀: nat, y₁: nat, x₁: nat :: (sub(add(y₀, y₁), x₁) == sub(add(y₀, y₁), max(x₁, x₁))) unsat
+10:40:28 [678/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(min(y₀, y₁), x₁) == min(add(x₁, y₀), add(x₁, y₁))) unsat
+10:40:30 [704/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, zero), add(y₀, x₁))) unsat
+10:40:54 [965/1887] forall y₀: nat, y₁: nat, x₁: nat :: (sub(add(y₀, y₁), x₁) == sub(add(y₀, y₁), min(x₁, x₁))) unsat
+10:41:08 [1110/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, x₀), add(y₁, zero))) unsat
+10:41:18 [1218/1887] forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(min(y₀, y₀), add(x₁, y₁))) unsat
+10:41:19 [1221/1887] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == add(mul(x₀, y₀), x₀)) unsat
+10:41:24 [1279/1887] forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₀, zero), add(y₁, x₀))) unsat
+10:41:37 [1418/1887] forall y₀: nat, y₁: nat :: (succ(sub(y₀, y₁)) == add(sub(y₀, y₁), succ(zero))) unsat
+10:41:39 [1441/1887] forall y₀: nat, y₁: nat :: (succ(max(y₀, y₁)) == add(max(y₀, y₁), succ(zero))) unsat
+10:41:49 [1553/1887] forall x₀: nat, y₀: nat :: (mul(x₀, succ(y₀)) == add(add(x₀, zero), mul(x₀, y₀))) unsat
