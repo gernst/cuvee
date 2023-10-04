@@ -4,6 +4,12 @@
 data nat = zero | succ(pred: nat);
 data list = nil | cons(head: nat, tail: list);
 
+function add(m: nat, n: nat): nat;
+axiom forall n: nat ::
+  add(zero, n) == n;
+axiom forall m: nat, n: nat ::
+  add(succ(m), n) == succ(add(m, n));
+
 function length(xs: list): nat;
 axiom
   length(nil) == zero;

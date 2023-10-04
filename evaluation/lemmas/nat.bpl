@@ -44,3 +44,19 @@ axiom forall n: nat ::
   lt(zero, succ(n)) == true;
 axiom forall m: nat, n: nat ::
   lt(succ(m), succ(n)) == lt(m, n);
+
+function min(m: nat, n: nat): nat;
+axiom forall n: nat ::
+  min(zero, n) == zero;
+axiom forall m: nat ::
+  min(succ(m), zero) == zero;
+axiom forall m: nat, n: nat ::
+  min(succ(m), succ(n)) == succ(min(m, n));
+
+function max(m: nat, n: nat): nat;
+axiom forall n: nat ::
+  max(zero, n) == n;
+axiom forall m: nat ::
+  max(succ(m), zero) == succ(m);
+axiom forall m: nat, n: nat ::
+  max(succ(m), succ(n)) == succ(max(m, n));

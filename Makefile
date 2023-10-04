@@ -35,7 +35,6 @@ thesy: $T
 
 all: $S $C $E $T
 
-
 compare: evaluation/lemmas/list/structural.txt \
          evaluation/lemmas/list/conditional.txt \
          evaluation/lemmas/list/enumerate.txt \

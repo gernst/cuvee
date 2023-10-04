@@ -14,5 +14,6 @@ lemma forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength
 lemma forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)));
 lemma forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)));
 lemma forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)));
-lemma forall y₁: list, x₁: nat :: (nlength(y₁, x₁) == qlength(y₁, x₁));
+lemma forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == qlength(x₀, qlength(y₀, y₁)));
 lemma forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)));
+lemma forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == qlength(y₁, succ(x₁)));

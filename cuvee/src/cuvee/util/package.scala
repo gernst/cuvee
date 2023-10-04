@@ -12,6 +12,7 @@ package object util {
     def reducedGreedily(implicit solver: Solver) =
       solver.scoped {
         TA.filter { case phi =>
+          println(phi)
           if (solver.isTrue(phi)) {
             false
           } else {
@@ -31,6 +32,7 @@ package object util {
 
         solver.scoped {
           solver.assert(TB)
+          println(phi)
           solver.isTrue(phi)
         }
       }
@@ -38,7 +40,10 @@ package object util {
     def advantageOver(TB: List[Expr])(implicit solver: Solver) =
       solver.scoped {
         solver.assert(TB)
-        TA count (phi => !solver.isTrue(phi))
+        TA count { phi =>
+          println(phi)
+          !solver.isTrue(phi)
+        }
       }
   }
 }

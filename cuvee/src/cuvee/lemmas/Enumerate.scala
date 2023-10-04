@@ -96,10 +96,12 @@ class Enumerate(rounds: Int) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
     if (cmds.nonEmpty && (last == CheckSat || last == Exit)) {
       val (decls, eqs, defs) = prepare(cmds, state)
-      val solver = Solver.z3(timeout = 20)
+      var solver = Solver.z3(timeout = 50)
 
       for (cmd <- prefix ++ cmds)
         solver.ack(cmd)
+
+      val reinit = scala.collection.mutable.Buffer(prefix ++ cmds: _*)
 
       val constrs = state.constrs
       val rws = eqs groupBy (_.fun)
@@ -191,11 +193,22 @@ class Enumerate(rounds: Int) extends Stage {
         for ((goal, i) <- todo.zipWithIndex) {
           if (debug) {
             val now = LocalDateTime.now();
-            print(dtf.format(now) + " [" + i + "/" + n + "] " + goal)
+            print(dtf.format(now) + " round " + round + " candidate " + i + "/" + n + " " + goal)
+          }
+
+          if ((i + 1) % 100 == 0) {
+            if(debug)
+              println("reinit solver")
+            solver.ack(Exit)
+            solver.destroy()
+
+            solver = Solver.z3(timeout = 50)
+            for (cmd <- reinit)
+              solver.ack(cmd)
           }
 
           if (qc.hasSimpleCounterexample(goal, 3)) {
-            if (debug) println(" sat (quickcheck)")
+            if (debug) println(" cex")
           } else {
             solver.check(!goal) match {
               case Sat =>
@@ -211,6 +224,7 @@ class Enumerate(rounds: Int) extends Stage {
                 if (proved) {
                   if (debug) println(" proved")
                   solver.assert(goal)
+                  reinit += Assert(goal)
                   lemmas = Lemma(goal, None, true) :: lemmas
                 } else {
                   if (debug) println(" unknown")

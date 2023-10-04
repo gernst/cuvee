@@ -1,8 +1,57 @@
-evaluation/lemmas/list/length.enumerate.bpl
-  7  number of lemmas
-  7  nontrivial
-  5  reduced greedily
+evaluation/lemmas//list/length.enumerate.bpl
+  8  number of lemmas
+  0  wrong
+forall y₁: list :: (length(y₁) == nlength(y₁, zero))
+forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength(x₀, y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)))
+forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == qlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == qlength(y₁, succ(x₁)))
+  8  nontrivial
+forall y₁: list :: (length(y₁) == nlength(y₁, zero))
+forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength(x₀, y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)))
+forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == qlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == qlength(y₁, succ(x₁)))
+  6  reduced greedily
+forall y₁: list :: (length(y₁) == nlength(y₁, zero))
+forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength(x₀, y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)))
+forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == qlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == qlength(y₁, succ(x₁)))
   1  independent
-  7  evaluation/lemmas/list/length.structural.bpl
-  6  evaluation/lemmas/list/length.conditional.bpl
-  0  evaluation/lemmas/list/length.th.log
+forall y₁: list :: (length(y₁) == nlength(y₁, zero))
+forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength(x₀, y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)))
+forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == qlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == qlength(y₁, succ(x₁)))
+  8  evaluation/lemmas//list/length.structural.bpl
+forall y₁: list :: (length(y₁) == nlength(y₁, zero))
+forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength(x₀, y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)))
+forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == qlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == qlength(y₁, succ(x₁)))
+  7  evaluation/lemmas//list/length.conditional.bpl
+forall y₁: list :: (length(y₁) == nlength(y₁, zero))
+forall x₀: list, y₀: nat :: (nlength(x₀, succ(y₀)) == succ(nlength(x₀, y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == qlength(x₀, nlength(y₀, y₁)))
+forall x₀: list, y₀: list :: (nlength(x₀, length(y₀)) == qlength(y₀, qlength(x₀, zero)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == nlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == qlength(x₀, qlength(y₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == qlength(y₁, succ(x₁)))
+  0  evaluation/lemmas//list/length.th.log

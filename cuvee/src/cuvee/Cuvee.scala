@@ -329,7 +329,8 @@ object CompareTheories {
     try {
       val (cmds, st) = parse(theory)
 
-      implicit val solver = Solver.z3(1000)
+      implicit val solver = Solver.z3(100)
+      // Solver.debug = true
 
       for (cmd <- cmds)
         solver.ack(cmd)
