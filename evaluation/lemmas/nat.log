@@ -1,53 +1,287 @@
-13:42:24 [WARN] Collecting statistics
-13:42:24 [WARN]  ex is: zero
-13:42:24 [WARN]  ex is: (succ zero)
-13:42:24 [WARN]  ex is: (succ (succ zero))
-13:42:24 [WARN] Proof mode: false
-13:42:24 [WARN]  ex is: zero
-13:42:24 [WARN]  ex is: (succ zero)
-13:42:24 [WARN]  ex is: (succ (succ zero))
-13:42:24 [WARN] Proof mode: false
-13:42:24 [WARN] proved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
-13:42:24 [WARN] proved: (sub zero ?ts_ph_nat_0) => zero
-13:42:24 [WARN] proved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
-13:42:24 [WARN] proved: (sub zero ?ts_ph_nat_0) => (sub ?ts_ph_nat_0 ?ts_ph_nat_0)
-13:42:24 [WARN] proved: (sub ?ts_ph_nat_0 ?ts_ph_nat_0) => (sub zero ?ts_ph_nat_0)
-13:42:24 [WARN] proved: (mul ?ts_ph_nat_0 zero) => (sub zero ?ts_ph_nat_0)
-13:42:24 [WARN] proved: (sub zero ?ts_ph_nat_0) => (mul ?ts_ph_nat_0 zero)
-13:42:24 [WARN] proved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
-13:42:36 [WARN] proved: (mul ?ts_ph_nat_0 (succ zero)) => ?ts_ph_nat_0
-13:42:36 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (lt ?ts_ph_nat_0 (succ zero))
-13:42:36 [WARN] proved: (lt ?ts_ph_nat_0 (succ zero)) => (leq ?ts_ph_nat_0 zero)
-13:42:36 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (not_ (lt zero ?ts_ph_nat_0))
-13:42:36 [WARN] proved: (not_ (lt zero ?ts_ph_nat_0)) => (leq ?ts_ph_nat_0 zero)
-13:42:36 [WARN] proved: (not_ (leq ?ts_ph_nat_0 zero)) => (lt zero ?ts_ph_nat_0)
-13:42:36 [WARN] proved: (lt zero ?ts_ph_nat_0) => (not_ (leq ?ts_ph_nat_0 zero))
-13:42:36 [WARN] proved: (leq (succ zero) ?ts_ph_nat_0) => (lt zero ?ts_ph_nat_0)
-13:42:36 [WARN] proved: (lt zero ?ts_ph_nat_0) => (leq (succ zero) ?ts_ph_nat_0)
-13:42:36 [WARN] proved: (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
-13:42:36 [WARN] proved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
-13:42:36 [WARN] proved: (sub (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => ?ts_ph_nat_1
-13:42:36 [WARN] proved: (sub ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => zero
-13:42:36 [WARN] proved: (lt ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (lt zero ?ts_ph_nat_1)
-13:42:36 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => (leq ?ts_ph_nat_1 zero)
-13:42:36 [WARN] proved: (lt (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
-13:42:36 [WARN] proved: (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
-13:42:36 [WARN] proved: (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
-13:42:36 [WARN] proved: (sub ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (sub ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
-13:42:36 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero)
-13:42:36 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero) => (leq ?ts_ph_nat_0 zero)
-13:42:37 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (leq (mul ?ts_ph_nat_0 ?ts_ph_nat_0) zero)
-13:42:37 [WARN] proved: (leq (mul ?ts_ph_nat_0 ?ts_ph_nat_0) zero) => (leq ?ts_ph_nat_0 zero)
-13:42:37 [WARN] proved: (add (succ ?ts_ph_nat_0) (succ zero)) => (succ (succ ?ts_ph_nat_0))
-13:42:37 [WARN] proved: (succ (succ ?ts_ph_nat_0)) => (add (succ ?ts_ph_nat_0) (succ zero))
-14:16:14 [WARN] proved: (mul (succ ?ts_ph_nat_0) (succ zero)) => (add ?ts_ph_nat_0 (succ zero))
-14:16:14 [WARN] proved: (add ?ts_ph_nat_0 (succ zero)) => (mul (succ ?ts_ph_nat_0) (succ zero))
-14:41:26 [WARN] proved: (leq ?ts_ph_nat_0 (mul ?ts_ph_nat_0 ?ts_ph_nat_0)) => (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_0))
-14:41:26 [WARN] proved: (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_0)) => (leq ?ts_ph_nat_0 (mul ?ts_ph_nat_0 ?ts_ph_nat_0))
-15:07:21 [WARN] proved: (leq (succ ?ts_ph_nat_0) (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (lt zero ?ts_ph_nat_1)
-15:07:21 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) (succ ?ts_ph_nat_0)) => (leq ?ts_ph_nat_1 (succ zero))
-15:07:21 [WARN] proved: (lt (succ ?ts_ph_nat_0) (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (lt (succ zero) ?ts_ph_nat_1)
-15:22:17 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => (lt (add ?ts_ph_nat_0 ?ts_ph_nat_1) (succ ?ts_ph_nat_0))
-15:22:17 [WARN] proved: (lt (add ?ts_ph_nat_0 ?ts_ph_nat_1) (succ ?ts_ph_nat_0)) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0)
-15:41:01 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) (succ zero)) => (leq ?ts_ph_nat_0 zero)
-15:41:01 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) (succ zero))
+09:04:24 [WARN] Collecting statistics
+09:04:24 [WARN]  ex is: zero
+09:04:24 [WARN]  ex is: (succ zero)
+09:04:24 [WARN]  ex is: (succ (succ zero))
+09:04:24 [WARN] Proof mode: false
+09:04:24 [WARN]  ex is: zero
+09:04:24 [WARN]  ex is: (succ zero)
+09:04:24 [WARN]  ex is: (succ (succ zero))
+09:04:24 [WARN] Proof mode: false
+09:04:24 [WARN] proved: (max ?ts_ph_nat_0 ?ts_ph_nat_0) => ?ts_ph_nat_0
+09:04:24 [WARN] proved: (max ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+09:04:24 [WARN] proved: (min ?ts_ph_nat_0 ?ts_ph_nat_0) => ?ts_ph_nat_0
+09:04:24 [WARN] proved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
+09:04:24 [WARN] proved: (sub ?ts_ph_nat_0 ?ts_ph_nat_0) => zero
+09:04:24 [WARN] proved: (sub zero ?ts_ph_nat_0) => zero
+09:04:24 [WARN] proved: (mul ?ts_ph_nat_0 zero) => zero
+09:04:24 [WARN] proved: (min ?ts_ph_nat_0 zero) => zero
+09:04:24 [WARN] proved: (add ?ts_ph_nat_0 zero) => (max ?ts_ph_nat_0 zero)
+09:04:24 [WARN] proved: (max ?ts_ph_nat_0 zero) => (add ?ts_ph_nat_0 zero)
+09:04:24 [WARN] proved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
+09:06:38 [WARN] proved: (leq ?ts_ph_nat_0 ?ts_ph_nat_1) => (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_1))
+09:06:38 [WARN] proved: (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_1)) => (leq ?ts_ph_nat_0 ?ts_ph_nat_1)
+09:06:38 [WARN] proved: (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1)) => (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1))
+09:06:38 [WARN] proved: (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1))
+09:06:38 [WARN] proved: (min ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => ?ts_ph_nat_0
+09:06:38 [WARN] proved: (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
+09:06:38 [WARN] proved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => false
+09:06:39 [WARN] proved: (sub (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (succ zero)
+09:06:39 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (not_ (lt zero ?ts_ph_nat_0))
+09:06:39 [WARN] proved: (not_ (lt zero ?ts_ph_nat_0)) => (leq ?ts_ph_nat_0 zero)
+09:06:39 [WARN] proved: (lt zero ?ts_ph_nat_0) => (not_ (leq ?ts_ph_nat_0 zero))
+09:06:39 [WARN] proved: (not_ (leq ?ts_ph_nat_0 zero)) => (lt zero ?ts_ph_nat_0)
+09:06:39 [WARN] proved: (min ?ts_ph_nat_0 (succ zero)) => (min (succ zero) ?ts_ph_nat_0)
+09:06:39 [WARN] proved: (min (succ zero) ?ts_ph_nat_0) => (min ?ts_ph_nat_0 (succ zero))
+09:06:39 [WARN] proved: (max (succ zero) ?ts_ph_nat_0) => (max ?ts_ph_nat_0 (succ zero))
+09:06:39 [WARN] proved: (max ?ts_ph_nat_0 (succ zero)) => (max (succ zero) ?ts_ph_nat_0)
+09:06:39 [WARN] proved: (max (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (max ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+09:06:39 [WARN] proved: (max ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => (max (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
+09:06:39 [WARN] proved: (add ?ts_ph_nat_0 (succ zero)) => (max ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+09:06:39 [WARN] proved: (max ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => (add ?ts_ph_nat_0 (succ zero))
+09:06:39 [WARN] generalized case_split proof as: (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2) -- (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2))
+09:06:39 [WARN] proved: (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2) => (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2))
+09:06:39 [WARN] proved: (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2)) => (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2)
+09:06:39 [WARN] proved: (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => true
+09:06:39 [WARN] proved: (lt (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => false
+09:06:39 [WARN] proved: (add ?ts_ph_nat_0 ?ts_ph_nat_1) => (max (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0)
+09:06:39 [WARN] proved: (max (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => (add ?ts_ph_nat_0 ?ts_ph_nat_1)
+09:06:39 [WARN] proved: (add ?ts_ph_nat_0 ?ts_ph_nat_1) => (max ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1))
+09:06:39 [WARN] proved: (max ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (add ?ts_ph_nat_0 ?ts_ph_nat_1)
+09:06:39 [WARN] proved: (lt ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (lt zero ?ts_ph_nat_1)
+09:06:39 [WARN] proved: (sub ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (sub ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+09:06:40 [WARN] proved: (min (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => (min ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+09:06:40 [WARN] proved: (min ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (min (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
+09:06:40 [WARN] proved: (min ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (mul ?ts_ph_nat_0 (succ zero))
+09:06:40 [WARN] proved: (leq ?ts_ph_nat_0 (mul ?ts_ph_nat_0 ?ts_ph_nat_0)) => true
+09:06:40 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (leq (mul ?ts_ph_nat_0 ?ts_ph_nat_0) zero)
+09:06:40 [WARN] proved: (leq (mul ?ts_ph_nat_0 ?ts_ph_nat_0) zero) => (leq ?ts_ph_nat_0 zero)
+09:06:54 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero) => (leq ?ts_ph_nat_0 zero)
+09:06:54 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero)
+09:06:54 [WARN] proved: (mul ?ts_ph_nat_0 ?ts_ph_nat_0) => (max (mul ?ts_ph_nat_0 ?ts_ph_nat_0) ?ts_ph_nat_0)
+09:06:54 [WARN] proved: (max (mul ?ts_ph_nat_0 ?ts_ph_nat_0) ?ts_ph_nat_0) => (mul ?ts_ph_nat_0 ?ts_ph_nat_0)
+09:26:46 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) ?ts_ph_nat_0) => (not_ (lt zero ?ts_ph_nat_0))
+09:26:46 [WARN] proved: (not_ (lt zero ?ts_ph_nat_0)) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) ?ts_ph_nat_0)
+09:49:29 [WARN] proved: (mul (succ ?ts_ph_nat_0) (succ zero)) => (max ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+09:49:29 [WARN] proved: (max ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => (mul (succ ?ts_ph_nat_0) (succ zero))
+09:49:37 [WARN] proved: (min ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => (min ?ts_ph_nat_0 (mul ?ts_ph_nat_0 ?ts_ph_nat_0))
+09:49:37 [WARN] proved: (min ?ts_ph_nat_0 (mul ?ts_ph_nat_0 ?ts_ph_nat_0)) => (min ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+09:51:56 [WARN] proved: (min (mul ?ts_ph_nat_0 ?ts_ph_nat_0) ?ts_ph_nat_0) => (min (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
+09:51:56 [WARN] proved: (min (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (min (mul ?ts_ph_nat_0 ?ts_ph_nat_0) ?ts_ph_nat_0)
+09:52:04 [WARN] Stopped case split due to node limit
+09:52:06 [WARN] Stopped case split due to node limit
+09:52:08 [WARN] Stopped case split due to node limit
+09:52:11 [WARN] Stopped case split due to node limit
+09:52:13 [WARN] Stopped case split due to node limit
+09:52:16 [WARN] Stopped case split due to node limit
+09:52:17 [WARN] Stopped case split due to node limit
+09:52:18 [WARN] Stopped case split due to node limit
+09:52:20 [WARN] Stopped case split due to node limit
+09:52:21 [WARN] Stopped case split due to node limit
+09:52:24 [WARN] Stopped case split due to node limit
+09:52:26 [WARN] Stopped case split due to node limit
+09:52:28 [WARN] Stopped case split due to node limit
+09:52:30 [WARN] Stopped case split due to node limit
+09:52:33 [WARN] Stopped case split due to node limit
+09:52:35 [WARN] Stopped case split due to node limit
+09:52:37 [WARN] Stopped case split due to node limit
+09:52:40 [WARN] Stopped case split due to node limit
+09:52:42 [WARN] Stopped case split due to node limit
+09:52:44 [WARN] Stopped case split due to node limit
+09:52:47 [WARN] Stopped case split due to node limit
+09:52:49 [WARN] Stopped case split due to node limit
+09:52:51 [WARN] Stopped case split due to node limit
+09:52:54 [WARN] Stopped case split due to node limit
+09:52:56 [WARN] Stopped case split due to node limit
+09:52:59 [WARN] Stopped case split due to node limit
+09:53:00 [WARN] Stopped case split due to node limit
+09:53:01 [WARN] Stopped case split due to node limit
+09:53:03 [WARN] Stopped case split due to node limit
+09:53:04 [WARN] Stopped case split due to node limit
+09:53:06 [WARN] Stopped case split due to node limit
+09:53:07 [WARN] Stopped case split due to node limit
+09:53:09 [WARN] Stopped case split due to node limit
+09:53:10 [WARN] Stopped case split due to node limit
+09:53:12 [WARN] Stopped case split due to node limit
+09:53:13 [WARN] Stopped case split due to node limit
+09:53:15 [WARN] Stopped case split due to node limit
+09:53:16 [WARN] Stopped case split due to node limit
+09:53:18 [WARN] Stopped case split due to node limit
+09:53:19 [WARN] Stopped case split due to node limit
+09:53:21 [WARN] Stopped case split due to node limit
+09:53:22 [WARN] Stopped case split due to node limit
+09:53:24 [WARN] Stopped case split due to node limit
+09:53:25 [WARN] Stopped case split due to node limit
+09:53:27 [WARN] Stopped case split due to node limit
+09:53:28 [WARN] Stopped case split due to node limit
+09:53:30 [WARN] Stopped case split due to node limit
+09:53:31 [WARN] Stopped case split due to node limit
+09:53:33 [WARN] Stopped case split due to node limit
+09:53:34 [WARN] Stopped case split due to node limit
+09:53:36 [WARN] Stopped case split due to node limit
+09:53:37 [WARN] Stopped case split due to node limit
+09:53:39 [WARN] Stopped case split due to node limit
+09:53:40 [WARN] Stopped case split due to node limit
+09:53:42 [WARN] Stopped case split due to node limit
+09:53:43 [WARN] Stopped case split due to node limit
+09:53:44 [WARN] Stopped case split due to node limit
+09:53:46 [WARN] Stopped case split due to node limit
+09:53:47 [WARN] Stopped case split due to node limit
+09:53:49 [WARN] Stopped case split due to node limit
+09:53:50 [WARN] Stopped case split due to node limit
+09:53:52 [WARN] Stopped case split due to node limit
+09:53:53 [WARN] Stopped case split due to node limit
+09:53:55 [WARN] Stopped case split due to node limit
+09:53:56 [WARN] Stopped case split due to node limit
+09:53:58 [WARN] Stopped case split due to node limit
+09:53:59 [WARN] Stopped case split due to node limit
+09:54:01 [WARN] Stopped case split due to node limit
+09:54:02 [WARN] Stopped case split due to node limit
+09:54:04 [WARN] Stopped case split due to node limit
+09:54:05 [WARN] Stopped case split due to node limit
+09:54:07 [WARN] Stopped case split due to node limit
+09:54:08 [WARN] Stopped case split due to node limit
+09:54:10 [WARN] Stopped case split due to node limit
+09:54:11 [WARN] Stopped case split due to node limit
+09:54:12 [WARN] Stopped case split due to node limit
+09:54:14 [WARN] Stopped case split due to node limit
+09:54:15 [WARN] Stopped case split due to node limit
+09:54:17 [WARN] Stopped case split due to node limit
+09:54:18 [WARN] Stopped case split due to node limit
+09:54:20 [WARN] Stopped case split due to node limit
+09:54:21 [WARN] Stopped case split due to node limit
+09:54:23 [WARN] Stopped case split due to node limit
+09:54:24 [WARN] Stopped case split due to node limit
+09:54:25 [WARN] Stopped case split due to node limit
+09:54:27 [WARN] Stopped case split due to node limit
+09:54:28 [WARN] Stopped case split due to node limit
+09:54:30 [WARN] Stopped case split due to node limit
+09:54:31 [WARN] Stopped case split due to node limit
+09:54:33 [WARN] Stopped case split due to node limit
+09:54:34 [WARN] Stopped case split due to node limit
+09:54:36 [WARN] Stopped case split due to node limit
+09:54:37 [WARN] Stopped case split due to node limit
+09:54:39 [WARN] Stopped case split due to node limit
+09:54:40 [WARN] Stopped case split due to node limit
+09:54:42 [WARN] Stopped case split due to node limit
+09:54:43 [WARN] Stopped case split due to node limit
+09:54:45 [WARN] Stopped case split due to node limit
+09:54:46 [WARN] Stopped case split due to node limit
+09:54:48 [WARN] Stopped case split due to node limit
+09:54:49 [WARN] Stopped case split due to node limit
+09:54:51 [WARN] Stopped case split due to node limit
+09:54:52 [WARN] Stopped case split due to node limit
+09:54:54 [WARN] Stopped case split due to node limit
+09:54:55 [WARN] Stopped case split due to node limit
+09:54:57 [WARN] Stopped case split due to node limit
+09:54:58 [WARN] Stopped case split due to node limit
+09:55:00 [WARN] Stopped case split due to node limit
+09:55:01 [WARN] Stopped case split due to node limit
+09:55:03 [WARN] Stopped case split due to node limit
+09:55:04 [WARN] Stopped case split due to node limit
+09:55:06 [WARN] Stopped case split due to node limit
+09:55:07 [WARN] Stopped case split due to node limit
+09:55:09 [WARN] Stopped case split due to node limit
+09:55:10 [WARN] Stopped case split due to node limit
+09:55:12 [WARN] Stopped case split due to node limit
+09:55:13 [WARN] Stopped case split due to node limit
+09:55:15 [WARN] Stopped case split due to node limit
+09:55:16 [WARN] Stopped case split due to node limit
+09:55:18 [WARN] Stopped case split due to node limit
+09:55:19 [WARN] Stopped case split due to node limit
+09:55:21 [WARN] Stopped case split due to node limit
+09:55:22 [WARN] Stopped case split due to node limit
+09:55:23 [WARN] Stopped case split due to node limit
+09:55:25 [WARN] Stopped case split due to node limit
+09:55:26 [WARN] Stopped case split due to node limit
+09:55:28 [WARN] Stopped case split due to node limit
+09:55:29 [WARN] Stopped case split due to node limit
+09:55:31 [WARN] Stopped case split due to node limit
+09:55:32 [WARN] Stopped case split due to node limit
+09:55:35 [WARN] Stopped case split due to node limit
+09:55:37 [WARN] Stopped case split due to node limit
+09:55:39 [WARN] Stopped case split due to node limit
+09:55:42 [WARN] Stopped case split due to node limit
+09:55:44 [WARN] Stopped case split due to node limit
+09:55:46 [WARN] Stopped case split due to node limit
+09:55:49 [WARN] Stopped case split due to node limit
+09:55:51 [WARN] Stopped case split due to node limit
+09:55:53 [WARN] Stopped case split due to node limit
+09:55:56 [WARN] Stopped case split due to node limit
+09:55:58 [WARN] Stopped case split due to node limit
+09:56:00 [WARN] Stopped case split due to node limit
+09:56:03 [WARN] Stopped case split due to node limit
+09:56:05 [WARN] Stopped case split due to node limit
+09:56:07 [WARN] Stopped case split due to node limit
+09:56:10 [WARN] Stopped case split due to node limit
+09:56:12 [WARN] Stopped case split due to node limit
+09:56:14 [WARN] Stopped case split due to node limit
+09:56:17 [WARN] Stopped case split due to node limit
+09:56:19 [WARN] Stopped case split due to node limit
+09:56:21 [WARN] Stopped case split due to node limit
+09:56:24 [WARN] Stopped case split due to node limit
+09:56:26 [WARN] Stopped case split due to node limit
+09:56:28 [WARN] Stopped case split due to node limit
+09:56:31 [WARN] Stopped case split due to node limit
+09:56:33 [WARN] Stopped case split due to node limit
+09:56:35 [WARN] Stopped case split due to node limit
+09:56:38 [WARN] Stopped case split due to node limit
+09:56:40 [WARN] Stopped case split due to node limit
+09:56:42 [WARN] Stopped case split due to node limit
+09:56:45 [WARN] Stopped case split due to node limit
+09:56:47 [WARN] Stopped case split due to node limit
+09:56:49 [WARN] Stopped case split due to node limit
+09:56:52 [WARN] Stopped case split due to node limit
+09:56:54 [WARN] Stopped case split due to node limit
+09:56:56 [WARN] Stopped case split due to node limit
+09:56:59 [WARN] Stopped case split due to node limit
+09:57:01 [WARN] Stopped case split due to node limit
+09:57:03 [WARN] Stopped case split due to node limit
+09:57:06 [WARN] Stopped case split due to node limit
+09:57:08 [WARN] Stopped case split due to node limit
+09:57:10 [WARN] Stopped case split due to node limit
+09:57:13 [WARN] Stopped case split due to node limit
+09:57:15 [WARN] Stopped case split due to node limit
+09:57:18 [WARN] Stopped case split due to node limit
+09:57:20 [WARN] Stopped case split due to node limit
+09:57:22 [WARN] Stopped case split due to node limit
+09:57:25 [WARN] Stopped case split due to node limit
+09:57:27 [WARN] Stopped case split due to node limit
+09:57:29 [WARN] Stopped case split due to node limit
+09:57:32 [WARN] Stopped case split due to node limit
+09:57:34 [WARN] Stopped case split due to node limit
+09:57:37 [WARN] Stopped case split due to node limit
+09:57:39 [WARN] Stopped case split due to node limit
+09:57:42 [WARN] Stopped case split due to node limit
+09:57:44 [WARN] Stopped case split due to node limit
+09:57:47 [WARN] Stopped case split due to node limit
+09:57:49 [WARN] Stopped case split due to node limit
+09:57:51 [WARN] Stopped case split due to node limit
+09:57:54 [WARN] Stopped case split due to node limit
+09:57:56 [WARN] Stopped case split due to node limit
+09:57:58 [WARN] Stopped case split due to node limit
+09:58:01 [WARN] Stopped case split due to node limit
+09:58:03 [WARN] Stopped case split due to node limit
+09:58:06 [WARN] Stopped case split due to node limit
+09:58:08 [WARN] Stopped case split due to node limit
+09:58:10 [WARN] Stopped case split due to node limit
+09:58:13 [WARN] Stopped case split due to node limit
+09:58:15 [WARN] Stopped case split due to node limit
+09:58:17 [WARN] Stopped case split due to node limit
+09:58:20 [WARN] Stopped case split due to node limit
+09:58:22 [WARN] Stopped case split due to node limit
+09:58:24 [WARN] Stopped case split due to node limit
+09:58:27 [WARN] Stopped case split due to node limit
+09:58:29 [WARN] Stopped case split due to node limit
+09:58:31 [WARN] Stopped case split due to node limit
+09:58:34 [WARN] Stopped case split due to node limit
+09:58:36 [WARN] Stopped case split due to node limit
+09:58:39 [WARN] Stopped case split due to node limit
+09:58:41 [WARN] Stopped case split due to node limit
+09:58:43 [WARN] Stopped case split due to node limit
+09:58:46 [WARN] Stopped case split due to node limit
+09:58:48 [WARN] Stopped case split due to node limit
+09:58:50 [WARN] Stopped case split due to node limit
+09:58:53 [WARN] Stopped case split due to node limit
+09:58:55 [WARN] Stopped case split due to node limit
+09:58:57 [WARN] Stopped case split due to node limit
+09:58:59 [WARN] Stopped case split due to node limit
