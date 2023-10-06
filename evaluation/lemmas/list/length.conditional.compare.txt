@@ -1,16 +1,39 @@
 evaluation/lemmas/list/length.conditional.bpl
-  1  number of lemmas
-  1  nontrivial
-  1  reduced greedily
-  0  independent
+  5  number of lemmas
+  0  wrong
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list, z₀: nat :: ((zero == z₀) ==> (length(x) == nlength(x, z₀)))
+  5  nontrivial
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list, z₀: nat :: ((zero == z₀) ==> (length(x) == nlength(x, z₀)))
+  4  reduced greedily
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list, z₀: nat :: ((zero == z₀) ==> (length(x) == nlength(x, z₀)))
+  2  independent
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list, z₀: nat :: ((zero == z₀) ==> (length(x) == nlength(x, z₀)))
   0  evaluation/lemmas/list/length.structural.bpl
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list, z₀: nat :: ((zero == z₀) ==> (length(x) == nlength(x, z₀)))
   0  evaluation/lemmas/list/length.enumerate.bpl
-  0  evaluation/lemmas/list/length.th.log
-evaluation/lemmas/list/length.conditional.bpl
-  1  number of lemmas
-  1  nontrivial
-  1  reduced greedily
-  1  independent
-  1  evaluation/lemmas/list/length.structural.bpl
-  0  evaluation/lemmas/list/length.enumerate.bpl
-  0  evaluation/lemmas/list/length.th.log
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list, z₀: nat :: ((zero == z₀) ==> (length(x) == nlength(x, z₀)))
+  4  evaluation/lemmas/list/length.th.log

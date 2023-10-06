@@ -1,40 +1,48 @@
 evaluation/lemmas/nat.structural.bpl
-  8  number of lemmas
+  10  number of lemmas
   0  wrong
 forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
 forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
 forall y₀: nat, y₁: nat :: (not_(leq(y₀, y₁)) <==> lt(y₁, y₀))
 forall y₀: nat, y₁: nat :: (not_(lt(y₀, y₁)) <==> leq(y₁, y₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(min(y₀, y₁), x₀))
 forall y₀: nat, y₁: nat, x₁: nat :: (leq(sub(y₀, y₁), x₁) <==> leq(y₀, add(y₁, x₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (lt(x₀, sub(y₀, y₁)) <==> lt(add(y₁, x₀), y₀))
+forall x: nat :: (max(x, zero) == x)
 forall x: nat :: (add(x, zero) == x)
-  7  nontrivial
+  8  nontrivial
 forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
 forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
 forall y₀: nat, y₁: nat :: (not_(leq(y₀, y₁)) <==> lt(y₁, y₀))
 forall y₀: nat, y₁: nat :: (not_(lt(y₀, y₁)) <==> leq(y₁, y₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(min(y₀, y₁), x₀))
 forall y₀: nat, y₁: nat, x₁: nat :: (leq(sub(y₀, y₁), x₁) <==> leq(y₀, add(y₁, x₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (lt(x₀, sub(y₀, y₁)) <==> lt(add(y₁, x₀), y₀))
+forall x: nat :: (max(x, zero) == x)
 forall x: nat :: (add(x, zero) == x)
-  6  reduced greedily
+  7  reduced greedily
 forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
 forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
 forall y₀: nat, y₁: nat :: (not_(leq(y₀, y₁)) <==> lt(y₁, y₀))
 forall y₀: nat, y₁: nat :: (not_(lt(y₀, y₁)) <==> leq(y₁, y₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(min(y₀, y₁), x₀))
 forall y₀: nat, y₁: nat, x₁: nat :: (leq(sub(y₀, y₁), x₁) <==> leq(y₀, add(y₁, x₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (lt(x₀, sub(y₀, y₁)) <==> lt(add(y₁, x₀), y₀))
+forall x: nat :: (max(x, zero) == x)
 forall x: nat :: (add(x, zero) == x)
-  5  independent
+  6  independent
 forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
 forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
 forall y₀: nat, y₁: nat :: (not_(leq(y₀, y₁)) <==> lt(y₁, y₀))
 forall y₀: nat, y₁: nat :: (not_(lt(y₀, y₁)) <==> leq(y₁, y₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(min(y₀, y₁), x₀))
 forall y₀: nat, y₁: nat, x₁: nat :: (leq(sub(y₀, y₁), x₁) <==> leq(y₀, add(y₁, x₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (lt(x₀, sub(y₀, y₁)) <==> lt(add(y₁, x₀), y₀))
+forall x: nat :: (max(x, zero) == x)
 forall x: nat :: (add(x, zero) == x)
   0  evaluation/lemmas/nat.conditional.bpl
 forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
@@ -42,16 +50,20 @@ forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y�
 forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
 forall y₀: nat, y₁: nat :: (not_(leq(y₀, y₁)) <==> lt(y₁, y₀))
 forall y₀: nat, y₁: nat :: (not_(lt(y₀, y₁)) <==> leq(y₁, y₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(min(y₀, y₁), x₀))
 forall y₀: nat, y₁: nat, x₁: nat :: (leq(sub(y₀, y₁), x₁) <==> leq(y₀, add(y₁, x₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (lt(x₀, sub(y₀, y₁)) <==> lt(add(y₁, x₀), y₀))
+forall x: nat :: (max(x, zero) == x)
 forall x: nat :: (add(x, zero) == x)
-  5  evaluation/lemmas/nat.enumerate.bpl
+  6  evaluation/lemmas/nat.enumerate.bpl
 forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
 forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
 forall y₀: nat, y₁: nat :: (not_(leq(y₀, y₁)) <==> lt(y₁, y₀))
 forall y₀: nat, y₁: nat :: (not_(lt(y₀, y₁)) <==> leq(y₁, y₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (max(x₀, min(y₀, y₁)) == max(min(y₀, y₁), x₀))
 forall y₀: nat, y₁: nat, x₁: nat :: (leq(sub(y₀, y₁), x₁) <==> leq(y₀, add(y₁, x₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (lt(x₀, sub(y₀, y₁)) <==> lt(add(y₁, x₀), y₀))
+forall x: nat :: (max(x, zero) == x)
 forall x: nat :: (add(x, zero) == x)
   6  evaluation/lemmas/nat.th.log

@@ -1,16 +1,51 @@
 evaluation/lemmas/list/rotate.structural.bpl
   7  number of lemmas
+  0  wrong
+forall y₀: list :: (reverse(reverse(y₀)) == y₀)
+forall y₀: list, y₁: list :: (reverse(append(y₀, y₁)) == append(reverse(y₁), reverse(y₀)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   7  nontrivial
+forall y₀: list :: (reverse(reverse(y₀)) == y₀)
+forall y₀: list, y₁: list :: (reverse(append(y₀, y₁)) == append(reverse(y₁), reverse(y₀)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   6  reduced greedily
-  0  independent
-  0  evaluation/lemmas/list/rotate.conditional.bpl
-  0  evaluation/lemmas/list/rotate.enumerate.bpl
-  0  evaluation/lemmas/list/rotate.th.log
-evaluation/lemmas/list/rotate.structural.bpl
-  7  number of lemmas
-  7  nontrivial
-  6  reduced greedily
+forall y₀: list :: (reverse(reverse(y₀)) == y₀)
+forall y₀: list, y₁: list :: (reverse(append(y₀, y₁)) == append(reverse(y₁), reverse(y₀)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   6  independent
+forall y₀: list :: (reverse(reverse(y₀)) == y₀)
+forall y₀: list, y₁: list :: (reverse(append(y₀, y₁)) == append(reverse(y₁), reverse(y₀)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   0  evaluation/lemmas/list/rotate.conditional.bpl
+forall y₀: list :: (reverse(reverse(y₀)) == y₀)
+forall y₀: list, y₁: list :: (reverse(append(y₀, y₁)) == append(reverse(y₁), reverse(y₀)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   0  evaluation/lemmas/list/rotate.enumerate.bpl
+forall y₀: list :: (reverse(reverse(y₀)) == y₀)
+forall y₀: list, y₁: list :: (reverse(append(y₀, y₁)) == append(reverse(y₁), reverse(y₀)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   2  evaluation/lemmas/list/rotate.th.log

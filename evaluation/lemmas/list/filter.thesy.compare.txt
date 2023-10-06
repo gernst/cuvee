@@ -1,8 +1,53 @@
 evaluation/lemmas/list/filter.th.log
-  7  number of lemmas
-  7  nontrivial
-  4  reduced greedily
-  1  independent
-  5  evaluation/lemmas/list/filter.structural.bpl
-  5  evaluation/lemmas/list/filter.conditional.bpl
+  9  number of lemmas
+  0  wrong
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (all(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> true)
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) <==> ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+  9  nontrivial
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (all(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> true)
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) <==> ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+  5  reduced greedily
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (all(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> true)
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) <==> ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+  7  evaluation/lemmas/list/filter.structural.bpl
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (all(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> true)
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) <==> ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+  7  evaluation/lemmas/list/filter.conditional.bpl
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (length(filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (all(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> true)
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (countif(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == countif(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) <==> ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (ex(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) <==> ex(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0) == filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)))
+forall ?ts_ph_POfn_nat_BoolPC_1: [nat]Bool, ?ts_ph_list_0: list :: (filter(?ts_ph_POfn_nat_BoolPC_1, filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0)) == filter(?ts_ph_POfn_nat_BoolPC_1, ?ts_ph_list_0))
   5  evaluation/lemmas/list/filter.enumerate.bpl

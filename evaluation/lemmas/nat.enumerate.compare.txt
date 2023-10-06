@@ -160,7 +160,7 @@ forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add
 forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), max(x₀, x₀)))
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(add(x₀, zero), add(y₀, y₁)))
 forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(min(x₁, x₁), mul(y₀, min(x₁, x₁))))
-  150  nontrivial
+  153  nontrivial
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, max(y₀, y₁)) == mul(add(x₀, zero), max(y₀, y₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, sub(y₀, y₁)) == min(max(x₀, zero), sub(y₀, y₁)))
 forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
@@ -320,7 +320,7 @@ forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add
 forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), max(x₀, x₀)))
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(add(x₀, zero), add(y₀, y₁)))
 forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(min(x₁, x₁), mul(y₀, min(x₁, x₁))))
-  60  reduced greedily
+  54  reduced greedily
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, max(y₀, y₁)) == mul(add(x₀, zero), max(y₀, y₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, sub(y₀, y₁)) == min(max(x₀, zero), sub(y₀, y₁)))
 forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
@@ -480,7 +480,7 @@ forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add
 forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), max(x₀, x₀)))
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(add(x₀, zero), add(y₀, y₁)))
 forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(min(x₁, x₁), mul(y₀, min(x₁, x₁))))
-  47  independent
+  45  independent
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, max(y₀, y₁)) == mul(add(x₀, zero), max(y₀, y₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, sub(y₀, y₁)) == min(max(x₀, zero), sub(y₀, y₁)))
 forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
@@ -640,7 +640,7 @@ forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add
 forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), max(x₀, x₀)))
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(add(x₀, zero), add(y₀, y₁)))
 forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(min(x₁, x₁), mul(y₀, min(x₁, x₁))))
-  136  evaluation/lemmas/nat.structural.bpl
+  95  evaluation/lemmas/nat.structural.bpl
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, max(y₀, y₁)) == mul(add(x₀, zero), max(y₀, y₁)))
 forall x₀: nat, y₀: nat, y₁: nat :: (min(x₀, sub(y₀, y₁)) == min(max(x₀, zero), sub(y₀, y₁)))
 forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
@@ -960,4 +960,4 @@ forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == mul(add
 forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(add(y₁, y₀), max(x₀, x₀)))
 forall x₀: nat, y₀: nat, y₁: nat :: (mul(x₀, add(y₀, y₁)) == mul(add(x₀, zero), add(y₀, y₁)))
 forall y₀: nat, x₁: nat :: (add(x₁, mul(y₀, x₁)) == add(min(x₁, x₁), mul(y₀, min(x₁, x₁))))
-  136  evaluation/lemmas/nat.th.log
+  48  evaluation/lemmas/nat.th.log

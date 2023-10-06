@@ -1,8 +1,45 @@
 evaluation/lemmas/list/remove.conditional.bpl
   6  number of lemmas
+  0  wrong
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: nat, x₁: list, x₂: nat :: (not_(contains(x₀, x₁)) ==> (add(count(x₀, x₁), x₂) == x₂))
+forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (remove(x₀, x₁) == x₁))
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (count(x₀, x₁) == zero))
+forall x: nat :: (add(x, zero) == x)
   5  nontrivial
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: nat, x₁: list, x₂: nat :: (not_(contains(x₀, x₁)) ==> (add(count(x₀, x₁), x₂) == x₂))
+forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (remove(x₀, x₁) == x₁))
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (count(x₀, x₁) == zero))
+forall x: nat :: (add(x, zero) == x)
   5  reduced greedily
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: nat, x₁: list, x₂: nat :: (not_(contains(x₀, x₁)) ==> (add(count(x₀, x₁), x₂) == x₂))
+forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (remove(x₀, x₁) == x₁))
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (count(x₀, x₁) == zero))
+forall x: nat :: (add(x, zero) == x)
   4  independent
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: nat, x₁: list, x₂: nat :: (not_(contains(x₀, x₁)) ==> (add(count(x₀, x₁), x₂) == x₂))
+forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (remove(x₀, x₁) == x₁))
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (count(x₀, x₁) == zero))
+forall x: nat :: (add(x, zero) == x)
   3  evaluation/lemmas/list/remove.structural.bpl
-  4  evaluation/lemmas/list/remove.enumerate.bpl
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: nat, x₁: list, x₂: nat :: (not_(contains(x₀, x₁)) ==> (add(count(x₀, x₁), x₂) == x₂))
+forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (remove(x₀, x₁) == x₁))
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (count(x₀, x₁) == zero))
+forall x: nat :: (add(x, zero) == x)
+  3  evaluation/lemmas/list/remove.enumerate.bpl
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: nat, x₁: list, x₂: nat :: (not_(contains(x₀, x₁)) ==> (add(count(x₀, x₁), x₂) == x₂))
+forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (remove(x₀, x₁) == x₁))
+forall x₀: nat, x₁: list :: (not_(contains(x₀, x₁)) ==> (count(x₀, x₁) == zero))
+forall x: nat :: (add(x, zero) == x)
   3  evaluation/lemmas/list/remove.th.log

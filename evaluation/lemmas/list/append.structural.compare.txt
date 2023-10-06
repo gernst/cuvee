@@ -1,16 +1,75 @@
 evaluation/lemmas/list/append.structural.bpl
   11  number of lemmas
+  0  wrong
+forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)
   11  nontrivial
+forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)
   9  reduced greedily
-  0  independent
-  0  evaluation/lemmas/list/append.conditional.bpl
-  0  evaluation/lemmas/list/append.enumerate.bpl
-  0  evaluation/lemmas/list/append.th.log
-evaluation/lemmas/list/append.structural.bpl
-  11  number of lemmas
-  11  nontrivial
-  9  reduced greedily
+forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)
   6  independent
+forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)
   0  evaluation/lemmas/list/append.conditional.bpl
-  1  evaluation/lemmas/list/append.enumerate.bpl
-  1  evaluation/lemmas/list/append.th.log
+forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)
+  5  evaluation/lemmas/list/append.enumerate.bpl
+forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)
+  4  evaluation/lemmas/list/append.th.log

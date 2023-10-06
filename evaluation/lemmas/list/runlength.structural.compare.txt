@@ -1,16 +1,45 @@
 evaluation/lemmas/list/runlength.structural.bpl
   6  number of lemmas
+  0  wrong
+forall y₀: list, y₁: list :: (sum(append(y₀, y₁)) == add(sum(y₀), sum(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   6  nontrivial
+forall y₀: list, y₁: list :: (sum(append(y₀, y₁)) == add(sum(y₀), sum(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   6  reduced greedily
-  0  independent
-  0  evaluation/lemmas/list/runlength.conditional.bpl
-  0  evaluation/lemmas/list/runlength.enumerate.bpl
-  0  evaluation/lemmas/list/runlength.th.log
-evaluation/lemmas/list/runlength.structural.bpl
-  6  number of lemmas
-  6  nontrivial
-  6  reduced greedily
+forall y₀: list, y₁: list :: (sum(append(y₀, y₁)) == add(sum(y₀), sum(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   6  independent
+forall y₀: list, y₁: list :: (sum(append(y₀, y₁)) == add(sum(y₀), sum(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   0  evaluation/lemmas/list/runlength.conditional.bpl
+forall y₀: list, y₁: list :: (sum(append(y₀, y₁)) == add(sum(y₀), sum(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   1  evaluation/lemmas/list/runlength.enumerate.bpl
+forall y₀: list, y₁: list :: (sum(append(y₀, y₁)) == add(sum(y₀), sum(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (mul(add(y₀, y₁), x₁) == add(mul(y₀, x₁), mul(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)
   4  evaluation/lemmas/list/runlength.th.log

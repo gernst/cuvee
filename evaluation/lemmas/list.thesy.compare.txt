@@ -1,9 +1,38 @@
 evaluation/lemmas/list.th.log
   6  number of lemmas
   0  wrong
+forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (rotate(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (take(zero, ?ts_ph_list_0) == nil)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == append(?ts_ph_list_0, nil))
   3  nontrivial
+forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (rotate(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (take(zero, ?ts_ph_list_0) == nil)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == append(?ts_ph_list_0, nil))
   2  reduced greedily
-  1  independent
-  0  evaluation/lemmas/list.structural.bpl
+forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (rotate(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (take(zero, ?ts_ph_list_0) == nil)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == append(?ts_ph_list_0, nil))
+  1  evaluation/lemmas/list.structural.bpl
+forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (rotate(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (take(zero, ?ts_ph_list_0) == nil)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == append(?ts_ph_list_0, nil))
   0  evaluation/lemmas/list.conditional.bpl
+forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (rotate(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list :: (take(zero, ?ts_ph_list_0) == nil)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
+forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == append(?ts_ph_list_0, nil))
   3  evaluation/lemmas/list.enumerate.bpl

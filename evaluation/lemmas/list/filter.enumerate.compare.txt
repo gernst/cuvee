@@ -1,8 +1,39 @@
 evaluation/lemmas/list/filter.enumerate.bpl
   5  number of lemmas
+  0  wrong
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (ex(x₀, filter(y₀, y₁)) <==> ex(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (countif(x₀, filter(y₀, y₁)) == countif(y₀, filter(x₀, y₁)))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, filter(y₀, y₁)))
   5  nontrivial
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (ex(x₀, filter(y₀, y₁)) <==> ex(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (countif(x₀, filter(y₀, y₁)) == countif(y₀, filter(x₀, y₁)))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, filter(y₀, y₁)))
   5  reduced greedily
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (ex(x₀, filter(y₀, y₁)) <==> ex(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (countif(x₀, filter(y₀, y₁)) == countif(y₀, filter(x₀, y₁)))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, filter(y₀, y₁)))
   4  independent
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (ex(x₀, filter(y₀, y₁)) <==> ex(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (countif(x₀, filter(y₀, y₁)) == countif(y₀, filter(x₀, y₁)))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, filter(y₀, y₁)))
   4  evaluation/lemmas/list/filter.structural.bpl
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (ex(x₀, filter(y₀, y₁)) <==> ex(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (countif(x₀, filter(y₀, y₁)) == countif(y₀, filter(x₀, y₁)))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, filter(y₀, y₁)))
   4  evaluation/lemmas/list/filter.conditional.bpl
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (ex(x₀, filter(y₀, y₁)) <==> ex(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+forall x₀: [nat]Bool, y₀: [nat]Bool, y₁: list :: (countif(x₀, filter(y₀, y₁)) == countif(y₀, filter(x₀, y₁)))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁))
+forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, filter(y₀, y₁)))
   3  evaluation/lemmas/list/filter.th.log
