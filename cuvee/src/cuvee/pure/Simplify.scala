@@ -175,10 +175,14 @@ object Simplify {
     }
   }
 
-  def bind(quant: Quant, formals: List[Var], body: Expr, typ: Type) = {
-    val formals_ = formals filter body.free
-    if (formals_.isEmpty) body
-    else Bind(quant, formals_, body, typ)
+  def bind(quant: Quant, formals: List[Var], body: Expr, typ: Type) = quant match {
+    case Quant.lambda =>
+      ???
+
+    case Quant.exists | Quant.forall =>
+      val formals_ = formals filter body.free
+      if (formals_.isEmpty) body
+      else Bind(quant, formals_, body, typ)
   }
 
   def and(phis: List[Expr]): Expr = {

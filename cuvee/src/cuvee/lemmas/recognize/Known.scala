@@ -70,7 +70,7 @@ object Known {
       case (C(args, guard, x: Var), k) if (args indexOf x) == i =>
         k
     }
-
+    
     ks match {
       case Nil => 0
       case List(k) =>
