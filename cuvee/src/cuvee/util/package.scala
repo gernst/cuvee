@@ -7,12 +7,21 @@ import cuvee.prove.QuickCheck
 package object util {
   implicit class TheoryComparison(TA: List[Expr]) {
     def nontrivial(implicit solver: Solver) =
-      advantageOver(Nil)
+      solver.scoped {
+        TA filterNot { phi =>
+          solver.isTrue(phi)
+        }
+      }
+
+    def reduced(implicit solver: Solver): List[Expr] = {
+      var TB = reducedGreedily
+      if (TA != TB) TB.reduced
+      else TA
+    }
 
     def reducedGreedily(implicit solver: Solver) =
       solver.scoped {
         TA.filter { case phi =>
-          println(phi)
           if (solver.isTrue(phi)) {
             false
           } else {
@@ -21,6 +30,17 @@ package object util {
           }
         }
       }
+
+    def validatedBy(TB: List[Expr])(implicit solver: Solver) =
+      solver.scoped {
+        solver.assert(TB)
+        TA filter { phi =>
+          solver.isTrue(phi)
+        }
+      }
+
+    def countNontrivial(implicit solver: Solver) =
+      advantageOver(Nil)
 
     def independentOfAnyOther(implicit solver: Solver) =
       TA.length - dependentOfAnyOther
@@ -32,7 +52,6 @@ package object util {
 
         solver.scoped {
           solver.assert(TB)
-          println(phi)
           solver.isTrue(phi)
         }
       }
@@ -41,7 +60,6 @@ package object util {
       solver.scoped {
         solver.assert(TB)
         TA count { phi =>
-          println(phi)
           !solver.isTrue(phi)
         }
       }

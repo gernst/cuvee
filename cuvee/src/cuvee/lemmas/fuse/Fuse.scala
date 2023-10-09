@@ -13,7 +13,7 @@ object Fuse {
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
       (typ, pos) <- df.fun.args.zipWithIndex // if dg.isRecursive
-      if typ == dg.fun.res && df.isMatchingPosition(pos)
+      if typ == dg.fun.res // && df.isMatchingPosition(pos)
     )
       yield {
         if (debug)
@@ -45,16 +45,22 @@ object Fuse {
     val res = f.res
     val fg = Fun(name, params.distinct, args, res)
 
-    if(debug)
+    if (debug)
       println("fusing " + name)
 
     try {
       val cases =
         for (
           gcase <- gcases;
-          flat <- fuse(f, g, fg, fcases, gcase, pos, constrs, rules)
-        )
-          yield flat
+          fgcase <- fuse(f, g, fg, fcases, gcase, pos, constrs, rules)
+        ) yield {
+          // if((fgcase isRecursive fg) && (gcase isRecursive g)) {
+          //   println("g:  " + gcase.body)
+          //   println("fg: " + fgcase.body)
+          //   println()
+          // }
+          fgcase
+        }
 
       val dfg = Def(fg, cases)
 

@@ -46,6 +46,7 @@ object tree2 extends Run(Test, "-no:shortcut", "examples/boogie/tree2.bpl")
 object tree_update extends Run(Test, "examples/boogie/tree-update.bpl")
 object debug extends Run(Test, "examples/boogie/debug.bpl")
 
+object compiler extends Run(Test, "examples/boogie/compiler.bpl")
 object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 
 object append extends Run(Test, "examples/lemmas/append.bpl")

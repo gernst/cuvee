@@ -319,6 +319,25 @@ object Cuvee {
 }
 
 object CompareTheories {
+  var mode = "paper"
+
+  def configure(args: List[String]): List[String] = args match {
+    case "-full" :: rest =>
+      mode = "full"
+      configure(rest)
+
+    case "-nontrivial" :: rest =>
+      mode = "nontrivial"
+      configure(rest)
+
+    case "-reduced" :: rest =>
+      mode = "reduced"
+      configure(rest)
+
+    case _ =>
+      args
+  }
+
   def main(args: Array[String]) = {
     require(
       args.length >= 2,
@@ -353,24 +372,22 @@ object CompareTheories {
         qc.hasSimpleCounterexample(phi, depth = 2)
       }
 
-      println(baseline)
-      println("  " + self.length + "  number of lemmas")
-      println("  " + wrong.length + "  wrong")
-      println("  " + self.nontrivial + "  nontrivial")
-      println("  " + self.reducedGreedily.length + "  reduced greedily")
-      println("  " + self.independentOfAnyOther + "  independent")
+      mode match {
+        case "informative" =>
+          println(baseline)
+          println("  " + self.length + "  number of lemmas")
+          println("  " + wrong.length + "  wrong (counterexample by testing)")
+          println("  " + self.countNontrivial + "  nontrivial")
+          println("  " + self.reduced.length + "  reduced")
 
-      for (file <- rest) {
-        val other = lemmasOf(file)
-        println("  " + self.advantageOver(other) + "  " + file)
+          for (file <- rest) {
+            val other = lemmasOf(file)
+            println("  " + self.advantageOver(other) + "  " + file)
+          }
 
-        // solver.scoped {
-        //   println("  formulas not implied by " + file)
-        //   solver.assert(other)
-        //   for (phi <- self)
-        //     if (!solver.isTrue(phi))
-        //       println("    " + phi)
-        // }
+        case "paper" =>
+
+
       }
     } catch {
       case e @ smtlib.Error(msg) =>

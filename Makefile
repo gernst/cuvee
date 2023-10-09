@@ -36,6 +36,12 @@ thesy: $T
 
 all: $S $C $E $T
 
+TEX = $(BPL:%.bpl=%.tex)
+figures: $(TEX)
+
+%.tex: %.bpl %.structural.bpl %.conditional.bpl %.enumerate.bpl %.th.log
+	bloop run cuvee -m cuvee.TACAS -- $* | tee $@
+
 compare: evaluation/lemmas/structural.txt \
          evaluation/lemmas/conditional.txt \
          evaluation/lemmas/enumerate.txt \
