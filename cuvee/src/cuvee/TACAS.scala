@@ -46,19 +46,19 @@ object TACAS {
       printDefinition(g, "C", a.lemmas)
       println()
 
-      printDefinition(g, "D", b.reduced validatedBy a.reduced)
-      printDefinition(g, "E", b.nontrivial validatedBy a.nontrivial)
-      printDefinition(g, "F", b.lemmas validatedBy a.lemmas)
+      printDefinition(g, "D", a.reduced validatedBy b.reduced)
+      printDefinition(g, "E", a.nontrivial validatedBy b.nontrivial)
+      printDefinition(g, "F", a.lemmas validatedBy b.lemmas)
       println()
 
-      printDefinition(g, "G", c.reduced validatedBy a.reduced)
-      printDefinition(g, "H", c.nontrivial validatedBy a.nontrivial)
-      printDefinition(g, "I", c.lemmas validatedBy a.lemmas)
+      printDefinition(g, "G", a.reduced validatedBy c.reduced)
+      printDefinition(g, "H", a.nontrivial validatedBy c.nontrivial)
+      printDefinition(g, "I", a.lemmas validatedBy c.lemmas)
       println()
 
-      printDefinition(g, "J", d.reduced validatedBy a.reduced)
-      printDefinition(g, "K", d.nontrivial validatedBy a.nontrivial)
-      printDefinition(g, "L", d.lemmas validatedBy a.lemmas)
+      printDefinition(g, "J", a.reduced validatedBy d.reduced)
+      printDefinition(g, "K", a.nontrivial validatedBy d.nontrivial)
+      printDefinition(g, "L", a.lemmas validatedBy d.lemmas)
       println()
     }
 
