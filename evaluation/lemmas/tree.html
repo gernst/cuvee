@@ -1,0 +1,104 @@
+<h1
+id="benchmark-evaluationlemmastree-comparison-for-structural">benchmark:
+evaluation/lemmas/tree comparison for structural</h1>
+<h2 id="lemmas-found-by-structural">lemmas found by structural</h2>
+<h3 id="reduced">reduced</h3>
+<pre><code>forall y₀: tree :: (length(elems(y₀)) == size(y₀))
+forall x₀: [nat]nat, y₀: tree :: (map(x₀, elems(y₀)) == elems(maptree(x₀, y₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall x₀: [nat]nat, y₀: list, y₁: list :: (map(x₀, append(y₀, y₁)) == append(map(x₀, y₀), map(x₀, y₁)))
+forall y₀: [nat]nat, y₁: list :: (length(map(y₀, y₁)) == length(y₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)</code></pre>
+<h3 id="implied">implied</h3>
+<pre><code>forall y₀: [nat]nat, y₁: tree :: (size(maptree(y₀, y₁)) == size(y₁))</code></pre>
+<h3 id="trivial">trivial</h3>
+<pre><code>forall y₀: tree :: (mirror(mirror(y₀)) == y₀)
+forall y₀: [nat]nat, y₁: tree :: (mirror(maptree(y₀, y₁)) == maptree(y₀, mirror(y₁)))</code></pre>
+<h2 id="unique-lemmas-found-by-structural">unique lemmas found by
+structural</h2>
+<h3 id="overall-unique">overall unique</h3>
+<h3 id="unique-over-conditional">unique over conditional</h3>
+<h3 id="unique-over-enumerate">unique over enumerate</h3>
+<pre><code>forall y₀: [nat]nat, y₁: tree :: (mirror(maptree(y₀, y₁)) == maptree(y₀, mirror(y₁)))</code></pre>
+<h3 id="unique-over-thesy">unique over thesy</h3>
+<h1
+id="benchmark-evaluationlemmastree-comparison-for-conditional">benchmark:
+evaluation/lemmas/tree comparison for conditional</h1>
+<h2 id="lemmas-found-by-conditional">lemmas found by conditional</h2>
+<h3 id="reduced-1">reduced</h3>
+<pre><code>forall y₀: tree :: (length(elems(y₀)) == size(y₀))
+forall x₀: [nat]nat, y₀: tree :: (map(x₀, elems(y₀)) == elems(maptree(x₀, y₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall x₀: [nat]nat, y₀: list, y₁: list :: (map(x₀, append(y₀, y₁)) == append(map(x₀, y₀), map(x₀, y₁)))
+forall y₀: [nat]nat, y₁: list :: (length(map(y₀, y₁)) == length(y₁))
+forall x: nat :: (add(x, zero) == x)
+forall x: list :: (append(x, nil) == x)</code></pre>
+<h3 id="implied-1">implied</h3>
+<pre><code>forall y₀: [nat]nat, y₁: tree :: (size(maptree(y₀, y₁)) == size(y₁))</code></pre>
+<h3 id="trivial-1">trivial</h3>
+<pre><code>forall y₀: tree :: (mirror(mirror(y₀)) == y₀)
+forall y₀: [nat]nat, y₁: tree :: (mirror(maptree(y₀, y₁)) == maptree(y₀, mirror(y₁)))</code></pre>
+<h2 id="unique-lemmas-found-by-conditional">unique lemmas found by
+conditional</h2>
+<h3 id="overall-unique-1">overall unique</h3>
+<h3 id="unique-over-structural">unique over structural</h3>
+<h3 id="unique-over-enumerate-1">unique over enumerate</h3>
+<pre><code>forall y₀: [nat]nat, y₁: tree :: (mirror(maptree(y₀, y₁)) == maptree(y₀, mirror(y₁)))</code></pre>
+<h3 id="unique-over-thesy-1">unique over thesy</h3>
+<h1
+id="benchmark-evaluationlemmastree-comparison-for-enumerate">benchmark:
+evaluation/lemmas/tree comparison for enumerate</h1>
+<h2 id="lemmas-found-by-enumerate">lemmas found by enumerate</h2>
+<h3 id="reduced-2">reduced</h3>
+<pre><code>forall y₀: nat :: (y₀ == add(y₀, zero))
+forall x₁: list :: (x₁ == append(x₁, nil))
+forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), add(x₁, zero)))
+forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), append(y₁, nil)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₁, add(y₀, x₀)))
+forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), y₁))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), y₁))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(x₁, add(y₁, y₀)))
+forall x₀: [nat]nat, y₀: list, y₁: list :: (map(x₀, append(y₀, y₁)) == append(map(x₀, y₀), map(x₀, y₁)))
+forall y₀: [nat]nat, y₁: tree :: (size(maptree(y₀, y₁)) == add(size(y₁), zero))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: tree :: (size(insert(y₀, y₁)) == size(insert(zero, y₁)))
+forall y₀: [nat]nat, y₁: tree :: (elems(maptree(y₀, y₁)) == map(y₀, elems(y₁)))
+forall y₀: [nat]nat, y₁: list :: (length(map(y₀, y₁)) == length(y₁))
+forall y₀: [nat]nat, y₁: tree :: (size(maptree(y₀, y₁)) == length(elems(y₁)))
+forall y₀: tree :: (succ(size(y₀)) == size(insert(zero, y₀)))
+forall y₀: tree :: (length(elems(y₀)) == size(y₀))
+forall y₀: tree :: (mirror(mirror(y₀)) == y₀)</code></pre>
+<h3 id="implied-2">implied</h3>
+<pre><code>forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(x₁, succ(y₀)))
+forall x₀: nat, y₀: nat :: (add(x₀, succ(y₀)) == add(add(y₀, x₀), succ(zero)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(x₁, y₁), add(y₀, zero)))
+forall y₀: nat :: (succ(y₀) == add(y₀, succ(zero)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₁), length(y₀)))</code></pre>
+<h3 id="trivial-2">trivial</h3>
+<h2 id="unique-lemmas-found-by-enumerate">unique lemmas found by
+enumerate</h2>
+<h3 id="overall-unique-2">overall unique</h3>
+<h3 id="unique-over-structural-1">unique over structural</h3>
+<h3 id="unique-over-conditional-1">unique over conditional</h3>
+<h3 id="unique-over-thesy-2">unique over thesy</h3>
+<h1 id="benchmark-evaluationlemmastree-comparison-for-thesy">benchmark:
+evaluation/lemmas/tree comparison for thesy</h1>
+<h2 id="lemmas-found-by-thesy">lemmas found by thesy</h2>
+<h3 id="reduced-3">reduced</h3>
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)</code></pre>
+<h3 id="implied-3">implied</h3>
+<h3 id="trivial-3">trivial</h3>
+<h2 id="unique-lemmas-found-by-thesy">unique lemmas found by thesy</h2>
+<h3 id="overall-unique-3">overall unique</h3>
+<h3 id="unique-over-structural-2">unique over structural</h3>
+<h3 id="unique-over-conditional-2">unique over conditional</h3>
+<h3 id="unique-over-enumerate-2">unique over enumerate</h3>
