@@ -1,3 +1,13 @@
+SMALL =\
+	evaluation/lemmas/list/append.bpl \
+	evaluation/lemmas/list/filter.bpl \
+	evaluation/lemmas/list/length.bpl \
+	evaluation/lemmas/list/map.bpl \
+	evaluation/lemmas/list/remove.bpl \
+	evaluation/lemmas/list/reverse.bpl \
+	evaluation/lemmas/list/rotate.bpl \
+	evaluation/lemmas/list/runlength.bpl
+
 BPL = \
 	evaluation/lemmas/list/append.bpl \
 	evaluation/lemmas/list/filter.bpl \
@@ -39,8 +49,15 @@ all: $S $C $E $T
 TEX = $(BPL:%.bpl=%.tex)
 figures: $(TEX)
 
+MD = $(SMALL:%.bpl=%.md)
+markdown: $(MD)
+
 %.tex: %.bpl %.structural.bpl %.conditional.bpl %.enumerate.bpl %.th.log
-	bloop run cuvee -m cuvee.TACAS -- $* | tee $@
+	bloop run cuvee -m cuvee.TACAS -- "tex" $* | tee $@
+
+%.md: %.bpl %.structural.bpl %.conditional.bpl %.enumerate.bpl %.th.log
+	bloop run cuvee -m cuvee.TACAS -- "md" $* | tee $@
+	pandoc $@ -o $*.html
 
 compare: evaluation/lemmas/structural.txt \
          evaluation/lemmas/conditional.txt \
