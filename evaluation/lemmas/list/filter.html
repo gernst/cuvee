@@ -49,8 +49,7 @@ forall x: list, y₀: [nat]Bool :: (all(y₀, x) ==&gt; (countif(y₀, x) == len
 <h2 id="unique-lemmas-found-by-conditional">unique lemmas found by
 conditional</h2>
 <h3 id="overall-unique-1">overall unique</h3>
-<pre><code>forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==&gt; (filter(x₀, x₁) == nil))
-forall x₀: [nat]Bool, x₁: list :: (all(x₀, x₁) ==&gt; (filter(x₀, x₁) == x₁))
+<pre><code>forall x₀: [nat]Bool, x₁: list :: (all(x₀, x₁) ==&gt; (filter(x₀, x₁) == x₁))
 forall x: list, y₀: [nat]Bool :: (all(y₀, x) ==&gt; (countif(y₀, x) == length(x)))</code></pre>
 <h3 id="unique-over-structural">unique over structural</h3>
 <pre><code>forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==&gt; (filter(x₀, x₁) == nil))
@@ -63,8 +62,7 @@ forall x₀: [nat]Bool, x₁: list :: (all(x₀, x₁) ==&gt; (filter(x₀, x₁
 forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==&gt; (countif(x₀, x₁) == zero))
 forall x: list, y₀: [nat]Bool :: (all(y₀, x) ==&gt; (countif(y₀, x) == length(x)))</code></pre>
 <h3 id="unique-over-thesy-1">unique over thesy</h3>
-<pre><code>forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==&gt; (filter(x₀, x₁) == nil))
-forall x₀: [nat]Bool, x₁: list :: (all(x₀, x₁) ==&gt; (filter(x₀, x₁) == x₁))
+<pre><code>forall x₀: [nat]Bool, x₁: list :: (all(x₀, x₁) ==&gt; (filter(x₀, x₁) == x₁))
 forall x: list, y₀: [nat]Bool :: (all(y₀, x) ==&gt; (countif(y₀, x) == length(x)))</code></pre>
 <h2 id="lemmas-confirmed-by-structural">lemmas confirmed by
 structural</h2>
@@ -85,9 +83,9 @@ enumerate</h2>
 <pre><code>forall y₀: [nat]Bool, y₁: list :: (length(filter(y₀, y₁)) == countif(y₀, y₁))
 forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==&gt; (filter(x₀, x₁) == nil))</code></pre>
 <h3 id="implied-7">implied</h3>
+<pre><code>forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==&gt; (countif(x₀, x₁) == zero))</code></pre>
 <h3 id="trivial-7">trivial</h3>
-<pre><code>forall y₀: Bool :: (not_(not_(y₀)) &lt;==&gt; y₀)
-forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==&gt; (countif(x₀, x₁) == zero))</code></pre>
+<pre><code>forall y₀: Bool :: (not_(not_(y₀)) &lt;==&gt; y₀)</code></pre>
 <h1
 id="benchmark-evaluationlemmaslistfilter-comparison-for-enumerate">benchmark:
 evaluation/lemmas/list/filter comparison for enumerate</h1>

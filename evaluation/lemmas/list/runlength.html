@@ -229,7 +229,6 @@ forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) &lt;==&gt; is_runs(?t
 forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)</code></pre>
 <h3 id="unique-over-enumerate-2">unique over enumerate</h3>
 <pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)
-forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
 forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
 forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) &lt;==&gt; is_runs(?ts_ph_list_0, nil))
 forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)</code></pre>
@@ -264,4 +263,5 @@ forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)</code></pr
 <h3 id="trivial-15">trivial</h3>
 <pre><code>forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
 forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
 forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)</code></pre>

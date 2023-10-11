@@ -96,7 +96,6 @@
 
 ### overall unique
 
-    forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==> (filter(x₀, x₁) == nil))
     forall x₀: [nat]Bool, x₁: list :: (all(x₀, x₁) ==> (filter(x₀, x₁) == x₁))
     forall x: list, y₀: [nat]Bool :: (all(y₀, x) ==> (countif(y₀, x) == length(x)))
 
@@ -116,7 +115,6 @@
 
 ### unique over thesy
 
-    forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==> (filter(x₀, x₁) == nil))
     forall x₀: [nat]Bool, x₁: list :: (all(x₀, x₁) ==> (filter(x₀, x₁) == x₁))
     forall x: list, y₀: [nat]Bool :: (all(y₀, x) ==> (countif(y₀, x) == length(x)))
 
@@ -158,11 +156,11 @@
 
 ### implied
 
+    forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==> (countif(x₀, x₁) == zero))
 
 ### trivial
 
     forall y₀: Bool :: (not_(not_(y₀)) <==> y₀)
-    forall x₀: [nat]Bool, x₁: list :: (not_(ex(x₀, x₁)) ==> (countif(x₀, x₁) == zero))
 
 
 

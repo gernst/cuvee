@@ -270,6 +270,8 @@
     forall x₀: nat, y₀: nat, y₁: list :: (take(x₀, take(y₀, y₁)) == take(y₀, take(x₀, y₁)))
     forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(append(y₀, y₁), drop(zero, x₁)))
     forall y₀: [nat]nat, y₁: list, x₁: list :: (append(map(y₀, y₁), x₁) == append(map(y₀, y₁), drop(zero, x₁)))
+    forall x₀: list, y₀: nat, y₁: list :: (append(x₀, drop(y₀, y₁)) == append(drop(zero, x₀), drop(y₀, y₁)))
+    forall y₀: nat, y₁: list, x₁: list :: (append(take(y₀, y₁), x₁) == append(take(y₀, y₁), drop(zero, x₁)))
     forall y₀: nat, x₁: nat :: (leq(succ(y₀), x₁) <==> lt(y₀, x₁))
 
 ### unique over conditional
@@ -278,12 +280,12 @@
     forall x₀: nat, y₀: nat, y₁: list :: (take(x₀, take(y₀, y₁)) == take(y₀, take(x₀, y₁)))
     forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(append(y₀, y₁), drop(zero, x₁)))
     forall y₀: [nat]nat, y₁: list, x₁: list :: (append(map(y₀, y₁), x₁) == append(map(y₀, y₁), drop(zero, x₁)))
-    forall y₀: nat, y₁: list, x₁: list :: (append(take(y₀, y₁), x₁) == append(take(y₀, y₁), drop(zero, x₁)))
+    forall x₀: list, y₀: nat, y₁: list :: (append(x₀, drop(y₀, y₁)) == append(drop(zero, x₀), drop(y₀, y₁)))
     forall y₀: nat, x₁: nat :: (leq(succ(y₀), x₁) <==> lt(y₀, x₁))
     forall y₀: list, x₁: list :: (drop(length(y₀), x₁) == drop(length(y₀), drop(zero, x₁)))
     forall y₀: list, x₁: list :: (take(length(y₀), x₁) == take(length(y₀), drop(zero, x₁)))
     forall y₀: list, y₁: list :: (append(y₀, y₁) == append(y₀, drop(zero, y₁)))
-    forall y₀: nat, x₁: list :: (take(succ(y₀), x₁) == take(succ(y₀), drop(zero, x₁)))
+    forall y₀: [nat]nat, y₁: list :: (length(map(y₀, y₁)) == length(drop(zero, y₁)))
 
 ### unique over thesy
 
@@ -302,13 +304,11 @@
 
 ### implied
 
-    forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(drop(zero, y₀), append(y₁, x₁)))
     forall y₀: [nat]nat, y₁: list :: (length(map(y₀, y₁)) == length(drop(zero, y₁)))
 
 ### trivial
 
-    forall x₀: list, y₀: nat, y₁: list :: (append(x₀, drop(y₀, y₁)) == append(drop(zero, x₀), drop(y₀, y₁)))
-    forall y₀: nat, y₁: list, x₁: list :: (append(take(y₀, y₁), x₁) == append(take(y₀, y₁), drop(zero, x₁)))
+    forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(drop(zero, y₀), append(y₁, x₁)))
     forall y₀: list, x₁: list :: (drop(length(y₀), x₁) == drop(length(y₀), drop(zero, x₁)))
     forall y₀: list, x₁: list :: (take(length(y₀), x₁) == take(length(y₀), drop(zero, x₁)))
     forall y₀: list, y₁: list :: (append(y₀, y₁) == append(y₀, drop(zero, y₁)))
@@ -332,7 +332,8 @@
 
 ### trivial
 
-    forall x₀: list, y₀: nat, y₁: list :: (append(x₀, drop(y₀, y₁)) == append(drop(zero, x₀), drop(y₀, y₁)))
+    forall y₀: nat, y₁: list, x₁: list :: (append(take(y₀, y₁), x₁) == append(take(y₀, y₁), drop(zero, x₁)))
+    forall y₀: nat, x₁: list :: (take(succ(y₀), x₁) == take(succ(y₀), drop(zero, x₁)))
 
 
 ## lemmas confirmed by thesy
@@ -432,6 +433,7 @@
     forall ?ts_ph_nat_0: nat :: (lt(?ts_ph_nat_0, succ(?ts_ph_nat_0)) <==> true)
     forall ?ts_ph_nat_0: nat :: (leq(succ(?ts_ph_nat_0), ?ts_ph_nat_0) <==> false)
     forall ?ts_ph_nat_0: nat :: (lt(succ(?ts_ph_nat_0), ?ts_ph_nat_0) <==> false)
+    forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)))
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (drop(length(?ts_ph_list_0), append(?ts_ph_list_0, ?ts_ph_list_1)) == ?ts_ph_list_1)
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (take(length(?ts_ph_list_0), append(?ts_ph_list_0, ?ts_ph_list_1)) == ?ts_ph_list_0)
     forall ?ts_ph_list_0: list, ?ts_ph_POfn_nat_natPC_1: [nat]nat :: (drop(length(?ts_ph_list_0), map(?ts_ph_POfn_nat_natPC_1, ?ts_ph_list_0)) == nil)
@@ -459,6 +461,7 @@
     forall ?ts_ph_nat_1: nat, ?ts_ph_list_0: list :: (leq(succ(?ts_ph_nat_1), length(?ts_ph_list_0)) <==> lt(?ts_ph_nat_1, length(?ts_ph_list_0)))
     forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (leq(length(?ts_ph_list_0), ?ts_ph_nat_1) <==> lt(length(?ts_ph_list_0), succ(?ts_ph_nat_1)))
     forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (lt(length(?ts_ph_list_0), succ(?ts_ph_nat_1)) <==> leq(length(?ts_ph_list_0), ?ts_ph_nat_1))
+    forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)))
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (drop(length(?ts_ph_list_0), append(?ts_ph_list_0, ?ts_ph_list_1)) == ?ts_ph_list_1)
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (take(length(?ts_ph_list_0), append(?ts_ph_list_0, ?ts_ph_list_1)) == ?ts_ph_list_0)
     forall ?ts_ph_list_0: list, ?ts_ph_POfn_nat_natPC_1: [nat]nat :: (drop(length(?ts_ph_list_0), map(?ts_ph_POfn_nat_natPC_1, ?ts_ph_list_0)) == nil)
@@ -482,6 +485,7 @@
     forall ?ts_ph_list_0: list :: (drop(zero, ?ts_ph_list_0) == ?ts_ph_list_0)
     forall ?ts_ph_nat_0: nat :: (lt(?ts_ph_nat_0, ?ts_ph_nat_0) <==> false)
     forall ?ts_ph_nat_0: nat :: (leq(?ts_ph_nat_0, ?ts_ph_nat_0) <==> true)
+    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
     forall ?ts_ph_nat_0: nat :: (lt(?ts_ph_nat_0, succ(?ts_ph_nat_0)) <==> true)
     forall ?ts_ph_nat_0: nat :: (leq(succ(?ts_ph_nat_0), ?ts_ph_nat_0) <==> false)
     forall ?ts_ph_nat_0: nat :: (lt(succ(?ts_ph_nat_0), ?ts_ph_nat_0) <==> false)
@@ -490,6 +494,7 @@
     forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (leq(length(?ts_ph_list_0), ?ts_ph_nat_1) <==> lt(length(?ts_ph_list_0), succ(?ts_ph_nat_1)))
     forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (lt(length(?ts_ph_list_0), succ(?ts_ph_nat_1)) <==> leq(length(?ts_ph_list_0), ?ts_ph_nat_1))
     forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)))
+    forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)))
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (drop(length(?ts_ph_list_0), append(?ts_ph_list_0, ?ts_ph_list_1)) == ?ts_ph_list_1)
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (take(length(?ts_ph_list_0), append(?ts_ph_list_0, ?ts_ph_list_1)) == ?ts_ph_list_0)
     forall ?ts_ph_list_0: list, ?ts_ph_POfn_nat_natPC_1: [nat]nat :: (drop(length(?ts_ph_list_0), map(?ts_ph_POfn_nat_natPC_1, ?ts_ph_list_0)) == nil)
@@ -567,7 +572,6 @@
     forall ?ts_ph_nat_0: nat :: (lt(zero, ?ts_ph_nat_0) <==> leq(succ(zero), ?ts_ph_nat_0))
     forall ?ts_ph_nat_0: nat :: (lt(?ts_ph_nat_0, succ(zero)) <==> leq(?ts_ph_nat_0, zero))
     forall ?ts_ph_nat_0: nat :: (leq(?ts_ph_nat_0, zero) <==> lt(?ts_ph_nat_0, succ(zero)))
-    forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)))
 
 
 ## lemmas confirmed by conditional
@@ -583,6 +587,8 @@
 
 ### implied
 
+    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
+    forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)))
     forall ?ts_ph_POfn_nat_natPC_0: [nat]nat, ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (map(?ts_ph_POfn_nat_natPC_0, append(?ts_ph_list_0, ?ts_ph_list_1)) == append(map(?ts_ph_POfn_nat_natPC_0, ?ts_ph_list_0), map(?ts_ph_POfn_nat_natPC_0, ?ts_ph_list_1)))
     forall ?ts_ph_POfn_nat_natPC_1: [nat]nat, ?ts_ph_nat_1: nat, ?ts_ph_list_0: list :: (map(?ts_ph_POfn_nat_natPC_1, drop(?ts_ph_nat_1, ?ts_ph_list_0)) == drop(?ts_ph_nat_1, map(?ts_ph_POfn_nat_natPC_1, ?ts_ph_list_0)))
     forall ?ts_ph_nat_1: nat, ?ts_ph_POfn_nat_natPC_1: [nat]nat, ?ts_ph_list_0: list :: (take(?ts_ph_nat_1, map(?ts_ph_POfn_nat_natPC_1, ?ts_ph_list_0)) == map(?ts_ph_POfn_nat_natPC_1, take(?ts_ph_nat_1, ?ts_ph_list_0)))
@@ -591,12 +597,10 @@
 ### trivial
 
     forall ?ts_ph_list_0: list :: (take(zero, ?ts_ph_list_0) == nil)
-    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == drop(zero, ?ts_ph_list_0))
     forall ?ts_ph_nat_0: nat :: (leq(succ(zero), ?ts_ph_nat_0) <==> lt(zero, ?ts_ph_nat_0))
     forall ?ts_ph_nat_0: nat :: (lt(zero, ?ts_ph_nat_0) <==> leq(succ(zero), ?ts_ph_nat_0))
     forall ?ts_ph_nat_0: nat :: (lt(?ts_ph_nat_0, succ(zero)) <==> leq(?ts_ph_nat_0, zero))
     forall ?ts_ph_nat_0: nat :: (leq(?ts_ph_nat_0, zero) <==> lt(?ts_ph_nat_0, succ(zero)))
-    forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)))
 
 
 ## lemmas confirmed by enumerate
@@ -607,6 +611,7 @@
     forall ?ts_ph_POfn_nat_natPC_1: [nat]nat, ?ts_ph_list_0: list :: (length(map(?ts_ph_POfn_nat_natPC_1, ?ts_ph_list_0)) == length(?ts_ph_list_0))
     forall ?ts_ph_nat_1: nat, ?ts_ph_list_0: list :: (lt(?ts_ph_nat_1, length(?ts_ph_list_0)) <==> leq(succ(?ts_ph_nat_1), length(?ts_ph_list_0)))
     forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (leq(length(?ts_ph_list_0), ?ts_ph_nat_1) <==> lt(length(?ts_ph_list_0), succ(?ts_ph_nat_1)))
+    forall ?ts_ph_list_0: list :: (take(succ(zero), append(?ts_ph_list_0, ?ts_ph_list_0)) == take(succ(zero), ?ts_ph_list_0))
     forall ?ts_ph_POfn_nat_natPC_0: [nat]nat, ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (append(map(?ts_ph_POfn_nat_natPC_0, ?ts_ph_list_0), map(?ts_ph_POfn_nat_natPC_0, ?ts_ph_list_1)) == map(?ts_ph_POfn_nat_natPC_0, append(?ts_ph_list_0, ?ts_ph_list_1)))
     forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (lt(?ts_ph_nat_0, ?ts_ph_nat_1) <==> leq(succ(?ts_ph_nat_0), ?ts_ph_nat_1))
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_list_2: list :: (append(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_list_2) == append(?ts_ph_list_0, append(?ts_ph_list_1, ?ts_ph_list_2)))
@@ -617,7 +622,6 @@
     forall ?ts_ph_nat_1: nat, ?ts_ph_list_0: list :: (leq(succ(?ts_ph_nat_1), length(?ts_ph_list_0)) <==> lt(?ts_ph_nat_1, length(?ts_ph_list_0)))
     forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (lt(length(?ts_ph_list_0), succ(?ts_ph_nat_1)) <==> leq(length(?ts_ph_list_0), ?ts_ph_nat_1))
     forall ?ts_ph_nat_0: nat, ?ts_ph_list_1: list :: (drop(?ts_ph_nat_0, cons(zero, ?ts_ph_list_1)) == drop(?ts_ph_nat_0, cons(?ts_ph_nat_0, ?ts_ph_list_1)))
-    forall ?ts_ph_list_0: list :: (take(succ(zero), append(?ts_ph_list_0, ?ts_ph_list_0)) == take(succ(zero), ?ts_ph_list_0))
     forall ?ts_ph_POfn_nat_natPC_0: [nat]nat, ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (map(?ts_ph_POfn_nat_natPC_0, append(?ts_ph_list_0, ?ts_ph_list_1)) == append(map(?ts_ph_POfn_nat_natPC_0, ?ts_ph_list_0), map(?ts_ph_POfn_nat_natPC_0, ?ts_ph_list_1)))
     forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (leq(succ(?ts_ph_nat_0), ?ts_ph_nat_1) <==> lt(?ts_ph_nat_0, ?ts_ph_nat_1))
     forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_list_2: list :: (append(?ts_ph_list_0, append(?ts_ph_list_1, ?ts_ph_list_2)) == append(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_list_2))

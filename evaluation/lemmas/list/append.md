@@ -11,13 +11,13 @@
     forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
     forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
     forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
-    forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
     forall x: list :: (append(x, nil) == x)
     forall x: nat :: (add(x, zero) == x)
 
 ### implied
 
     forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+    forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
 
 ### trivial
 
@@ -35,7 +35,6 @@
 
     forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
     forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
-    forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
     forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
     forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
 
@@ -58,13 +57,13 @@
     forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
     forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
     forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
-    forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
     forall x: list :: (append(x, nil) == x)
     forall x: nat :: (add(x, zero) == x)
 
 ### implied
 
     forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+    forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
 
 ### trivial
 
@@ -76,6 +75,7 @@
 
     forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
     forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+    forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
     forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
     forall x: list :: (append(x, nil) == x)
     forall x: nat :: (add(x, zero) == x)
@@ -95,13 +95,13 @@
     forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
     forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
     forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
-    forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
     forall x: list :: (append(x, nil) == x)
     forall x: nat :: (add(x, zero) == x)
 
 ### implied
 
     forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+    forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
 
 ### trivial
 
@@ -146,7 +146,6 @@
 
     forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
     forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
-    forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
     forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
     forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
 
@@ -188,6 +187,7 @@
 
     forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
     forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+    forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
     forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
     forall x: list :: (append(x, nil) == x)
     forall x: nat :: (add(x, zero) == x)

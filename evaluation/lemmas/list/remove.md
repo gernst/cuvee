@@ -384,6 +384,7 @@
     forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (sub(add(?ts_ph_nat_0, ?ts_ph_nat_1), ?ts_ph_nat_0) == ?ts_ph_nat_1)
     forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (sub(?ts_ph_nat_0, add(?ts_ph_nat_0, ?ts_ph_nat_1)) == zero)
     forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (sub(succ(?ts_ph_nat_0), add(?ts_ph_nat_0, ?ts_ph_nat_1)) == sub(succ(zero), ?ts_ph_nat_1))
+    forall ?ts_ph_nat_0: nat :: (sub(succ(zero), add(?ts_ph_nat_0, ?ts_ph_nat_0)) == sub(succ(zero), ?ts_ph_nat_0))
     forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (sub(add(?ts_ph_nat_0, ?ts_ph_nat_1), add(?ts_ph_nat_0, ?ts_ph_nat_0)) == sub(?ts_ph_nat_1, ?ts_ph_nat_0))
     forall ?ts_ph_nat_1: nat, ?ts_ph_nat_0: nat :: (sub(?ts_ph_nat_1, ?ts_ph_nat_0) == sub(add(?ts_ph_nat_0, ?ts_ph_nat_1), add(?ts_ph_nat_0, ?ts_ph_nat_0)))
     forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (sub(add(?ts_ph_nat_0, ?ts_ph_nat_0), add(?ts_ph_nat_0, ?ts_ph_nat_1)) == sub(?ts_ph_nat_0, ?ts_ph_nat_1))
@@ -451,7 +452,6 @@
 ### trivial
 
     forall ?ts_ph_nat_0: nat :: (sub(zero, ?ts_ph_nat_0) == zero)
-    forall ?ts_ph_nat_0: nat :: (sub(succ(zero), add(?ts_ph_nat_0, ?ts_ph_nat_0)) == sub(succ(zero), ?ts_ph_nat_0))
     forall ?ts_ph_nat_0: nat :: (sub(succ(zero), ?ts_ph_nat_0) == sub(succ(zero), add(?ts_ph_nat_0, ?ts_ph_nat_0)))
     forall ?ts_ph_nat_0: nat :: (sub(succ(zero), ?ts_ph_nat_0) == count(zero, cons(?ts_ph_nat_0, nil)))
     forall ?ts_ph_nat_0: nat :: (count(zero, cons(?ts_ph_nat_0, nil)) == sub(succ(zero), ?ts_ph_nat_0))
