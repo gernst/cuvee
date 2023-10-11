@@ -46,18 +46,12 @@ thesy: $T
 
 all: $S $C $E $T
 
-TEX = $(BPL:%.bpl=%.tex)
-figures: $(TEX)
-
-MD = $(SMALL:%.bpl=%.md)
-markdown: $(MD)
+TEX = $(SMALL:%.bpl=%.tex)
+tex: $(TEX)
 
 %.tex: %.bpl %.structural.bpl %.conditional.bpl %.enumerate.bpl %.th.log
-	bloop run cuvee -m cuvee.TACAS -- "tex" $* | tee $@
-
-%.md: %.bpl %.structural.bpl %.conditional.bpl %.enumerate.bpl %.th.log
-	bloop run cuvee -m cuvee.TACAS -- "md" $* | tee $@
-	pandoc $@ -o $*.html
+	bloop run cuvee -m cuvee.TACAS -- $*
+	pandoc $*.md -o $*.html
 
 compare: evaluation/lemmas/structural.txt \
          evaluation/lemmas/conditional.txt \

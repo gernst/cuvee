@@ -96,7 +96,20 @@ package object cuvee {
 
     def removed(pos: Int) =
       self.patch(pos, Nil, 1)
-  }
+
+    def union(that: List[A]) =
+      self ++ (that -- self)
+
+    def intersect(that: List[A]) =
+      self filter that.contains
+
+    def --(that: List[A]) =
+      self filterNot that.contains
+
+
+    def subsetOf(that: List[A]) =
+      self forall that.contains
+    }
 
   implicit class ListMapOps[A, B](self: List[Map[A, B]]) {
     def merged = {

@@ -9,6 +9,7 @@ package object util {
     def nontrivial(implicit solver: Solver) =
       solver.scoped {
         TA filterNot { phi =>
+          println(phi)
           solver.isTrue(phi)
         }
       }
@@ -22,6 +23,7 @@ package object util {
     def reducedGreedily(implicit solver: Solver) =
       solver.scoped {
         TA.filter { case phi =>
+          println(phi)
           if (solver.isTrue(phi)) {
             false
           } else {
@@ -35,6 +37,7 @@ package object util {
       solver.scoped {
         solver.assert(TB)
         TA filter { phi =>
+          println(phi)
           solver.isTrue(phi)
         }
       }
