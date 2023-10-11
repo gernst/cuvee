@@ -15,29 +15,84 @@ structural</h2>
 <h3 id="unique-over-conditional">unique over conditional</h3>
 <h3 id="unique-over-enumerate">unique over enumerate</h3>
 <h3 id="unique-over-thesy">unique over thesy</h3>
-<h1
-id="benchmark-evaluationlemmaslistlength-comparison-for-conditional">benchmark:
-evaluation/lemmas/list/length comparison for conditional</h1>
-<h2 id="lemmas-found-by-conditional">lemmas found by conditional</h2>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h2 id="lemmas-confirmed-by-conditional">lemmas confirmed by
+conditional</h2>
 <h3 id="reduced-1">reduced</h3>
 <pre><code>forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
 forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
 forall x: nat :: (add(x, zero) == x)</code></pre>
 <h3 id="implied-1">implied</h3>
-<pre><code>forall x: list, z₀: nat :: ((zero == z₀) ==&gt; (length(x) == nlength(x, z₀)))</code></pre>
 <h3 id="trivial-1">trivial</h3>
+<h2 id="lemmas-confirmed-by-enumerate">lemmas confirmed by
+enumerate</h2>
+<h3 id="reduced-2">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-2">implied</h3>
+<h3 id="trivial-2">trivial</h3>
+<h2 id="lemmas-confirmed-by-thesy">lemmas confirmed by thesy</h2>
+<h3 id="reduced-3">reduced</h3>
+<h3 id="implied-3">implied</h3>
+<h3 id="trivial-3">trivial</h3>
+<h1
+id="benchmark-evaluationlemmaslistlength-comparison-for-conditional">benchmark:
+evaluation/lemmas/list/length comparison for conditional</h1>
+<h2 id="lemmas-found-by-conditional">lemmas found by conditional</h2>
+<h3 id="reduced-4">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-4">implied</h3>
+<pre><code>forall x: list, z₀: nat :: ((zero == z₀) ==&gt; (length(x) == nlength(x, z₀)))</code></pre>
+<h3 id="trivial-4">trivial</h3>
 <h2 id="unique-lemmas-found-by-conditional">unique lemmas found by
 conditional</h2>
 <h3 id="overall-unique-1">overall unique</h3>
 <h3 id="unique-over-structural">unique over structural</h3>
 <h3 id="unique-over-enumerate-1">unique over enumerate</h3>
 <h3 id="unique-over-thesy-1">unique over thesy</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h2 id="lemmas-confirmed-by-structural">lemmas confirmed by
+structural</h2>
+<h3 id="reduced-5">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-5">implied</h3>
+<pre><code>forall x: list, z₀: nat :: ((zero == z₀) ==&gt; (length(x) == nlength(x, z₀)))</code></pre>
+<h3 id="trivial-5">trivial</h3>
+<h2 id="lemmas-confirmed-by-enumerate-1">lemmas confirmed by
+enumerate</h2>
+<h3 id="reduced-6">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == nlength(y₀, x₁))
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-6">implied</h3>
+<pre><code>forall x: list, z₀: nat :: ((zero == z₀) ==&gt; (length(x) == nlength(x, z₀)))</code></pre>
+<h3 id="trivial-6">trivial</h3>
+<h2 id="lemmas-confirmed-by-thesy-1">lemmas confirmed by thesy</h2>
+<h3 id="reduced-7">reduced</h3>
+<h3 id="implied-7">implied</h3>
+<pre><code>forall x: list, z₀: nat :: ((zero == z₀) ==&gt; (length(x) == nlength(x, z₀)))</code></pre>
+<h3 id="trivial-7">trivial</h3>
 <h1
 id="benchmark-evaluationlemmaslistlength-comparison-for-enumerate">benchmark:
 evaluation/lemmas/list/length comparison for enumerate</h1>
 <h2 id="lemmas-found-by-enumerate">lemmas found by enumerate</h2>
-<h3 id="reduced-2">reduced</h3>
+<h3 id="reduced-8">reduced</h3>
 <pre><code>forall y₀: list :: (length(y₀) == nlength(y₀, zero))
 forall x₀: nat :: (x₀ == add(x₀, zero))
 forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(nlength(y₀, zero), add(y₁, x₁)))
@@ -49,28 +104,92 @@ forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y�
 forall y₁: list, x₁: nat :: (qlength(y₁, succ(x₁)) == nlength(y₁, succ(x₁)))
 forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == nlength(y₁, succ(x₁)))
 forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))</code></pre>
-<h3 id="implied-2">implied</h3>
+<h3 id="implied-8">implied</h3>
 <pre><code>forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == add(qlength(x₀, y₁), length(y₀)))
 forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, nlength(y₀, y₁)) == add(qlength(y₀, zero), nlength(x₀, y₁)))
 forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, qlength(y₀, y₁)) == add(nlength(x₀, y₁), length(y₀)))</code></pre>
-<h3 id="trivial-2">trivial</h3>
+<h3 id="trivial-8">trivial</h3>
 <h2 id="unique-lemmas-found-by-enumerate">unique lemmas found by
 enumerate</h2>
 <h3 id="overall-unique-2">overall unique</h3>
+<pre><code>forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(qlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(add(x₁, zero), qlength(y₀, y₁)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == add(qlength(x₀, y₁), length(y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, nlength(y₀, y₁)) == add(qlength(y₀, zero), nlength(x₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, qlength(y₀, y₁)) == add(nlength(x₀, y₁), length(y₀)))</code></pre>
 <h3 id="unique-over-structural-1">unique over structural</h3>
+<pre><code>forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(qlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(add(x₁, zero), qlength(y₀, y₁)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == add(qlength(x₀, y₁), length(y₀)))
+forall y₁: list, x₁: nat :: (qlength(y₁, succ(x₁)) == nlength(y₁, succ(x₁)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, nlength(y₀, y₁)) == add(qlength(y₀, zero), nlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == nlength(y₁, succ(x₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, qlength(y₀, y₁)) == add(nlength(x₀, y₁), length(y₀)))</code></pre>
 <h3 id="unique-over-conditional-1">unique over conditional</h3>
+<pre><code>forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(qlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(add(x₁, zero), qlength(y₀, y₁)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == add(qlength(x₀, y₁), length(y₀)))
+forall y₁: list, x₁: nat :: (qlength(y₁, succ(x₁)) == nlength(y₁, succ(x₁)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, nlength(y₀, y₁)) == add(qlength(y₀, zero), nlength(x₀, y₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == nlength(y₁, succ(x₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, qlength(y₀, y₁)) == add(nlength(x₀, y₁), length(y₀)))</code></pre>
 <h3 id="unique-over-thesy-2">unique over thesy</h3>
+<pre><code>forall x₀: nat :: (x₀ == add(x₀, zero))
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(nlength(y₀, zero), add(y₁, x₁)))
+forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(qlength(y₀, y₁), x₁) == nlength(y₀, add(y₁, x₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(add(x₁, zero), qlength(y₀, y₁)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, nlength(y₀, y₁)) == add(qlength(x₀, y₁), length(y₀)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, nlength(y₀, y₁)) == add(qlength(y₀, zero), nlength(x₀, y₁)))
+forall x₀: list, y₀: list, y₁: nat :: (qlength(x₀, qlength(y₀, y₁)) == add(nlength(x₀, y₁), length(y₀)))</code></pre>
+<h2 id="lemmas-confirmed-by-structural-1">lemmas confirmed by
+structural</h2>
+<h3 id="reduced-9">reduced</h3>
+<pre><code>forall y₀: list :: (length(y₀) == nlength(y₀, zero))
+forall x₀: nat :: (x₀ == add(x₀, zero))
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(nlength(y₀, zero), add(y₁, x₁)))</code></pre>
+<h3 id="implied-9">implied</h3>
+<h3 id="trivial-9">trivial</h3>
+<h2 id="lemmas-confirmed-by-conditional-1">lemmas confirmed by
+conditional</h2>
+<h3 id="reduced-10">reduced</h3>
+<pre><code>forall y₀: list :: (length(y₀) == nlength(y₀, zero))
+forall x₀: nat :: (x₀ == add(x₀, zero))
+forall y₀: list, y₁: nat, x₁: nat :: (add(nlength(y₀, y₁), x₁) == add(nlength(y₀, zero), add(y₁, x₁)))</code></pre>
+<h3 id="implied-10">implied</h3>
+<h3 id="trivial-10">trivial</h3>
+<h2 id="lemmas-confirmed-by-thesy-2">lemmas confirmed by thesy</h2>
+<h3 id="reduced-11">reduced</h3>
+<pre><code>forall y₀: list :: (length(y₀) == nlength(y₀, zero))
+forall y₁: list, x₁: nat :: (qlength(y₁, succ(x₁)) == nlength(y₁, succ(x₁)))
+forall y₁: list, x₁: nat :: (succ(nlength(y₁, x₁)) == nlength(y₁, succ(x₁)))
+forall x₀: list, y₀: list, y₁: nat :: (nlength(x₀, qlength(y₀, y₁)) == nlength(y₀, qlength(x₀, y₁)))</code></pre>
+<h3 id="implied-11">implied</h3>
+<h3 id="trivial-11">trivial</h3>
 <h1
 id="benchmark-evaluationlemmaslistlength-comparison-for-thesy">benchmark:
 evaluation/lemmas/list/length comparison for thesy</h1>
 <h2 id="lemmas-found-by-thesy">lemmas found by thesy</h2>
-<h3 id="reduced-3">reduced</h3>
+<h3 id="reduced-12">reduced</h3>
 <pre><code>forall ?ts_ph_list_0: list :: (length(?ts_ph_list_0) == nlength(?ts_ph_list_0, zero))
 forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
 forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
 forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (qlength(?ts_ph_list_0, length(?ts_ph_list_1)) == qlength(?ts_ph_list_1, length(?ts_ph_list_0)))
 forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)))</code></pre>
-<h3 id="implied-3">implied</h3>
+<h3 id="implied-12">implied</h3>
 <pre><code>forall ?ts_ph_list_0: list :: (nlength(?ts_ph_list_0, zero) == length(?ts_ph_list_0))
 forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)))
 forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
@@ -88,9 +207,90 @@ forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (qlength(?
 forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)) == qlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)))
 forall ?ts_ph_list_1: list, ?ts_ph_list_0: list :: (qlength(?ts_ph_list_1, length(?ts_ph_list_0)) == qlength(?ts_ph_list_0, length(?ts_ph_list_1)))
 forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)))</code></pre>
-<h3 id="trivial-3">trivial</h3>
+<h3 id="trivial-12">trivial</h3>
 <h2 id="unique-lemmas-found-by-thesy">unique lemmas found by thesy</h2>
 <h3 id="overall-unique-3">overall unique</h3>
 <h3 id="unique-over-structural-2">unique over structural</h3>
+<pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (qlength(?ts_ph_list_0, length(?ts_ph_list_1)) == nlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (nlength(?ts_ph_list_0, length(?ts_ph_list_1)) == qlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (succ(qlength(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(nlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (succ(nlength(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(qlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (cons(nlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == cons(qlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (cons(qlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == cons(nlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_0)) == nlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_0)) == nlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (qlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)) == nlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)) == qlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (qlength(?ts_ph_list_0, length(?ts_ph_list_1)) == qlength(?ts_ph_list_1, length(?ts_ph_list_0)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list :: (qlength(?ts_ph_list_1, length(?ts_ph_list_0)) == qlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)))</code></pre>
 <h3 id="unique-over-conditional-2">unique over conditional</h3>
+<pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (qlength(?ts_ph_list_0, length(?ts_ph_list_1)) == nlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (nlength(?ts_ph_list_0, length(?ts_ph_list_1)) == qlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (succ(qlength(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(nlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (succ(nlength(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(qlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (cons(nlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == cons(qlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (cons(qlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == cons(nlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_0)) == nlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_0)) == nlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (qlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)) == nlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)) == qlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (qlength(?ts_ph_list_0, length(?ts_ph_list_1)) == qlength(?ts_ph_list_1, length(?ts_ph_list_0)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list :: (qlength(?ts_ph_list_1, length(?ts_ph_list_0)) == qlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)))</code></pre>
 <h3 id="unique-over-enumerate-2">unique over enumerate</h3>
+<h2 id="lemmas-confirmed-by-structural-2">lemmas confirmed by
+structural</h2>
+<h3 id="reduced-13">reduced</h3>
+<pre><code>forall ?ts_ph_list_0: list :: (length(?ts_ph_list_0) == nlength(?ts_ph_list_0, zero))</code></pre>
+<h3 id="implied-13">implied</h3>
+<pre><code>forall ?ts_ph_list_0: list :: (nlength(?ts_ph_list_0, zero) == length(?ts_ph_list_0))</code></pre>
+<h3 id="trivial-13">trivial</h3>
+<h2 id="lemmas-confirmed-by-conditional-2">lemmas confirmed by
+conditional</h2>
+<h3 id="reduced-14">reduced</h3>
+<pre><code>forall ?ts_ph_list_0: list :: (length(?ts_ph_list_0) == nlength(?ts_ph_list_0, zero))</code></pre>
+<h3 id="implied-14">implied</h3>
+<pre><code>forall ?ts_ph_list_0: list :: (nlength(?ts_ph_list_0, zero) == length(?ts_ph_list_0))</code></pre>
+<h3 id="trivial-14">trivial</h3>
+<h2 id="lemmas-confirmed-by-enumerate-2">lemmas confirmed by
+enumerate</h2>
+<h3 id="reduced-15">reduced</h3>
+<pre><code>forall ?ts_ph_list_0: list :: (length(?ts_ph_list_0) == nlength(?ts_ph_list_0, zero))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (qlength(?ts_ph_list_0, length(?ts_ph_list_1)) == qlength(?ts_ph_list_1, length(?ts_ph_list_0)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)))</code></pre>
+<h3 id="implied-15">implied</h3>
+<pre><code>forall ?ts_ph_list_0: list :: (nlength(?ts_ph_list_0, zero) == length(?ts_ph_list_0))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == succ(nlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (nlength(?ts_ph_list_0, succ(?ts_ph_nat_1)) == qlength(?ts_ph_list_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (qlength(?ts_ph_list_0, length(?ts_ph_list_1)) == nlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (nlength(?ts_ph_list_0, length(?ts_ph_list_1)) == qlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (succ(qlength(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(nlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (succ(nlength(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(qlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (cons(nlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == cons(qlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (cons(qlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == cons(nlength(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_1)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_0)) == nlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_1, nlength(?ts_ph_list_0, ?ts_ph_nat_0)) == nlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (qlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)) == nlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_0: nat :: (nlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)) == qlength(?ts_ph_list_0, nlength(?ts_ph_list_1, ?ts_ph_nat_0)))
+forall ?ts_ph_list_1: list, ?ts_ph_list_0: list :: (qlength(?ts_ph_list_1, length(?ts_ph_list_0)) == qlength(?ts_ph_list_0, length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (qlength(?ts_ph_list_0, qlength(?ts_ph_list_1, ?ts_ph_nat_1)) == qlength(?ts_ph_list_1, qlength(?ts_ph_list_0, ?ts_ph_nat_1)))</code></pre>
+<h3 id="trivial-15">trivial</h3>

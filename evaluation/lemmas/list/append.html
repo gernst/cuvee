@@ -21,11 +21,18 @@ structural</h2>
 <h3 id="overall-unique">overall unique</h3>
 <h3 id="unique-over-conditional">unique over conditional</h3>
 <h3 id="unique-over-enumerate">unique over enumerate</h3>
+<pre><code>forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))</code></pre>
 <h3 id="unique-over-thesy">unique over thesy</h3>
-<h1
-id="benchmark-evaluationlemmaslistappend-comparison-for-conditional">benchmark:
-evaluation/lemmas/list/append comparison for conditional</h1>
-<h2 id="lemmas-found-by-conditional">lemmas found by conditional</h2>
+<pre><code>forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))</code></pre>
+<h2 id="lemmas-confirmed-by-conditional">lemmas confirmed by
+conditional</h2>
 <h3 id="reduced-1">reduced</h3>
 <pre><code>forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
 forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
@@ -34,24 +41,114 @@ forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == a
 forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
 forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
 forall x: list :: (append(x, nil) == x)
 forall x: nat :: (add(x, zero) == x)</code></pre>
 <h3 id="implied-1">implied</h3>
-<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
-forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))</code></pre>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))</code></pre>
 <h3 id="trivial-1">trivial</h3>
+<h2 id="lemmas-confirmed-by-enumerate">lemmas confirmed by
+enumerate</h2>
+<h3 id="reduced-2">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-2">implied</h3>
+<pre><code>forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))</code></pre>
+<h3 id="trivial-2">trivial</h3>
+<h2 id="lemmas-confirmed-by-thesy">lemmas confirmed by thesy</h2>
+<h3 id="reduced-3">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-3">implied</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))</code></pre>
+<h3 id="trivial-3">trivial</h3>
+<h1
+id="benchmark-evaluationlemmaslistappend-comparison-for-conditional">benchmark:
+evaluation/lemmas/list/append comparison for conditional</h1>
+<h2 id="lemmas-found-by-conditional">lemmas found by conditional</h2>
+<h3 id="reduced-4">reduced</h3>
+<pre><code>forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-4">implied</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))</code></pre>
+<h3 id="trivial-4">trivial</h3>
 <pre><code>forall x: list, y₀: list, z₀: nat :: ((y₀ == cons(z₀, nil)) ==&gt; (append(x, y₀) == append(x, cons(z₀, nil))))</code></pre>
 <h2 id="unique-lemmas-found-by-conditional">unique lemmas found by
 conditional</h2>
 <h3 id="overall-unique-1">overall unique</h3>
 <h3 id="unique-over-structural">unique over structural</h3>
 <h3 id="unique-over-enumerate-1">unique over enumerate</h3>
+<pre><code>forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))</code></pre>
 <h3 id="unique-over-thesy-1">unique over thesy</h3>
+<pre><code>forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))</code></pre>
+<h2 id="lemmas-confirmed-by-structural">lemmas confirmed by
+structural</h2>
+<h3 id="reduced-5">reduced</h3>
+<pre><code>forall x₀: nat, y₀: list, y₁: list :: (count(x₀, append(y₀, y₁)) == add(count(x₀, y₀), count(x₀, y₁)))
+forall x₀: nat, y₀: list, y₁: nat :: (count(x₀, snoc(y₀, y₁)) == add(count(x₀, y₀), count(x₀, cons(y₁, nil))))
+forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-5">implied</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))</code></pre>
+<h3 id="trivial-5">trivial</h3>
+<pre><code>forall x: list, y₀: list, z₀: nat :: ((y₀ == cons(z₀, nil)) ==&gt; (append(x, y₀) == append(x, cons(z₀, nil))))</code></pre>
+<h2 id="lemmas-confirmed-by-enumerate-1">lemmas confirmed by
+enumerate</h2>
+<h3 id="reduced-6">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(y₀, add(y₁, x₁)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-6">implied</h3>
+<pre><code>forall y₀: list, y₁: list, x₁: list :: (append(append(y₀, y₁), x₁) == append(y₀, append(y₁, x₁)))</code></pre>
+<h3 id="trivial-6">trivial</h3>
+<pre><code>forall x: list, y₀: list, z₀: nat :: ((y₀ == cons(z₀, nil)) ==&gt; (append(x, y₀) == append(x, cons(z₀, nil))))</code></pre>
+<h2 id="lemmas-confirmed-by-thesy-1">lemmas confirmed by thesy</h2>
+<h3 id="reduced-7">reduced</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, x₁)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(y₀, append(y₁, cons(x₁, nil))))
+forall x₀: list, x₁: nat :: (snoc(x₀, x₁) == append(x₀, cons(x₁, nil)))
+forall x: list :: (append(x, nil) == x)
+forall x: nat :: (add(x, zero) == x)</code></pre>
+<h3 id="implied-7">implied</h3>
+<pre><code>forall y₀: list, y₁: nat, x₁: nat :: (snoc(snoc(y₀, y₁), x₁) == append(y₀, cons(y₁, cons(x₁, nil))))</code></pre>
+<h3 id="trivial-7">trivial</h3>
+<pre><code>forall x: list, y₀: list, z₀: nat :: ((y₀ == cons(z₀, nil)) ==&gt; (append(x, y₀) == append(x, cons(z₀, nil))))</code></pre>
 <h1
 id="benchmark-evaluationlemmaslistappend-comparison-for-enumerate">benchmark:
 evaluation/lemmas/list/append comparison for enumerate</h1>
 <h2 id="lemmas-found-by-enumerate">lemmas found by enumerate</h2>
-<h3 id="reduced-2">reduced</h3>
+<h3 id="reduced-8">reduced</h3>
 <pre><code>forall y₀: nat :: (y₀ == add(y₀, zero))
 forall x₁: list :: (x₁ == append(x₁, nil))
 forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(append(y₀, nil), cons(y₁, x₁)))
@@ -64,25 +161,96 @@ forall y₀: list, y₁: nat :: (length(snoc(y₀, y₁)) == add(length(y₀), s
 forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), append(y₁, nil)))
 forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
 forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₁, add(y₀, x₀)))
-forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), y₁))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), y₁))
 forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(x₁, add(y₁, y₀)))
 forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))</code></pre>
-<h3 id="implied-2">implied</h3>
-<pre><code>forall x₀: list, y₀: nat, y₁: nat :: (snoc(x₀, add(y₀, y₁)) == snoc(append(x₀, nil), add(y₁, y₀)))
+<h3 id="implied-8">implied</h3>
+<pre><code>forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), y₁))
+forall x₀: list, y₀: nat, y₁: nat :: (snoc(x₀, add(y₀, y₁)) == snoc(append(x₀, nil), add(y₁, y₀)))
 forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(x₁, succ(y₀)))</code></pre>
-<h3 id="trivial-2">trivial</h3>
+<h3 id="trivial-8">trivial</h3>
 <h2 id="unique-lemmas-found-by-enumerate">unique lemmas found by
 enumerate</h2>
 <h3 id="overall-unique-2">overall unique</h3>
+<pre><code>forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₁, add(y₀, x₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), y₁))</code></pre>
 <h3 id="unique-over-structural-1">unique over structural</h3>
+<pre><code>forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), add(x₁, zero)))
+forall x₀: nat, y₀: nat, y₁: list :: (add(x₀, count(y₀, y₁)) == add(count(y₀, y₁), x₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₁, add(y₀, x₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), y₁))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(x₁, add(y₁, y₀)))
+forall x₀: list, y₀: nat, y₁: nat :: (snoc(x₀, add(y₀, y₁)) == snoc(append(x₀, nil), add(y₁, y₀)))
+forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(x₁, succ(y₀)))</code></pre>
 <h3 id="unique-over-conditional-1">unique over conditional</h3>
+<pre><code>forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), add(x₁, zero)))
+forall x₀: nat, y₀: nat, y₁: list :: (add(x₀, count(y₀, y₁)) == add(count(y₀, y₁), x₀))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₁, add(y₀, x₀)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), y₁))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(x₁, add(y₁, y₀)))
+forall x₀: list, y₀: nat, y₁: nat :: (snoc(x₀, add(y₀, y₁)) == snoc(append(x₀, nil), add(y₁, y₀)))
+forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(x₁, succ(y₀)))</code></pre>
 <h3 id="unique-over-thesy-2">unique over thesy</h3>
+<pre><code>forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), append(y₁, nil)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₀, add(y₁, x₀)))
+forall x₀: nat, y₀: nat, y₁: nat :: (add(x₀, add(y₀, y₁)) == add(y₁, add(y₀, x₀)))
+forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), y₁))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₀, x₁), y₁))</code></pre>
+<h2 id="lemmas-confirmed-by-structural-1">lemmas confirmed by
+structural</h2>
+<h3 id="reduced-9">reduced</h3>
+<pre><code>forall y₀: nat :: (y₀ == add(y₀, zero))
+forall x₁: list :: (x₁ == append(x₁, nil))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(append(y₀, nil), cons(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(append(y₀, nil), snoc(y₁, x₁)))
+forall y₀: list, y₁: nat :: (length(snoc(y₀, y₁)) == add(length(y₀), succ(zero)))
+forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), append(y₁, nil)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))</code></pre>
+<h3 id="implied-9">implied</h3>
+<pre><code>forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), y₁))</code></pre>
+<h3 id="trivial-9">trivial</h3>
+<h2 id="lemmas-confirmed-by-conditional-1">lemmas confirmed by
+conditional</h2>
+<h3 id="reduced-10">reduced</h3>
+<pre><code>forall y₀: nat :: (y₀ == add(y₀, zero))
+forall x₁: list :: (x₁ == append(x₁, nil))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(append(y₀, nil), cons(y₁, x₁)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(append(y₀, nil), snoc(y₁, x₁)))
+forall y₀: list, y₁: nat :: (length(snoc(y₀, y₁)) == add(length(y₀), succ(zero)))
+forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), append(y₁, nil)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))</code></pre>
+<h3 id="implied-10">implied</h3>
+<pre><code>forall x₀: list, y₀: list, y₁: list :: (append(x₀, append(y₀, y₁)) == append(append(x₀, y₀), y₁))</code></pre>
+<h3 id="trivial-10">trivial</h3>
+<h2 id="lemmas-confirmed-by-thesy-2">lemmas confirmed by thesy</h2>
+<h3 id="reduced-11">reduced</h3>
+<pre><code>forall y₀: nat :: (y₀ == add(y₀, zero))
+forall x₁: list :: (x₁ == append(x₁, nil))
+forall y₀: list, y₁: nat, x₁: list :: (append(snoc(y₀, y₁), x₁) == append(append(y₀, nil), cons(y₁, x₁)))
+forall y₀: nat, y₁: nat :: (succ(add(y₀, y₁)) == add(y₀, succ(y₁)))
+forall y₀: list, x₁: nat :: (add(length(y₀), x₁) == add(add(x₁, zero), length(y₀)))
+forall y₀: list, y₁: list, x₁: nat :: (snoc(append(y₀, y₁), x₁) == append(append(y₀, nil), snoc(y₁, x₁)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(add(y₁, y₀), add(x₁, zero)))
+forall x₀: nat, y₀: nat, y₁: list :: (add(x₀, count(y₀, y₁)) == add(count(y₀, y₁), x₀))
+forall y₀: list, y₁: nat :: (length(snoc(y₀, y₁)) == add(length(y₀), succ(zero)))
+forall y₀: nat, y₁: nat, x₁: nat :: (add(add(y₀, y₁), x₁) == add(x₁, add(y₁, y₀)))
+forall y₀: list, y₁: list :: (length(append(y₀, y₁)) == add(length(y₀), length(y₁)))</code></pre>
+<h3 id="implied-11">implied</h3>
+<pre><code>forall x₀: list, y₀: nat, y₁: nat :: (snoc(x₀, add(y₀, y₁)) == snoc(append(x₀, nil), add(y₁, y₀)))
+forall y₀: nat, x₁: nat :: (succ(add(y₀, x₁)) == add(x₁, succ(y₀)))</code></pre>
+<h3 id="trivial-11">trivial</h3>
 <h1
 id="benchmark-evaluationlemmaslistappend-comparison-for-thesy">benchmark:
 evaluation/lemmas/list/append comparison for thesy</h1>
 <h2 id="lemmas-found-by-thesy">lemmas found by thesy</h2>
-<h3 id="reduced-3">reduced</h3>
+<h3 id="reduced-12">reduced</h3>
 <pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
 forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
 forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (length(snoc(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(length(?ts_ph_list_0)))
@@ -92,7 +260,7 @@ forall ?ts_ph_nat_0: nat :: (succ(succ(?ts_ph_nat_0)) == add(succ(?ts_ph_nat_0),
 forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)) == add(?ts_ph_nat_0, succ(?ts_ph_nat_1)))
 forall ?ts_ph_nat_1: nat, ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_1, ?ts_ph_nat_0) == add(?ts_ph_nat_0, ?ts_ph_nat_1))
 forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)) == snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1))</code></pre>
-<h3 id="implied-3">implied</h3>
+<h3 id="implied-12">implied</h3>
 <pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (append(snoc(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == append(?ts_ph_list_0, cons(?ts_ph_nat_1, ?ts_ph_list_1)))
 forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (add(length(?ts_ph_list_0), length(?ts_ph_list_1)) == length(append(?ts_ph_list_0, ?ts_ph_list_1)))
 forall ?ts_ph_list_0: list :: (succ(length(?ts_ph_list_0)) == add(length(?ts_ph_list_0), succ(zero)))
@@ -101,9 +269,75 @@ forall ?ts_ph_nat_0: nat :: (add(succ(?ts_ph_nat_0), succ(zero)) == succ(succ(?t
 forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, succ(?ts_ph_nat_1)) == succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)))
 forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, ?ts_ph_nat_1) == add(?ts_ph_nat_1, ?ts_ph_nat_0))
 forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1) == append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)))</code></pre>
-<h3 id="trivial-3">trivial</h3>
+<h3 id="trivial-12">trivial</h3>
 <h2 id="unique-lemmas-found-by-thesy">unique lemmas found by thesy</h2>
 <h3 id="overall-unique-3">overall unique</h3>
 <h3 id="unique-over-structural-2">unique over structural</h3>
+<pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (length(snoc(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(length(?ts_ph_list_0)))
+forall ?ts_ph_list_0: list :: (succ(length(?ts_ph_list_0)) == add(length(?ts_ph_list_0), succ(zero)))
+forall ?ts_ph_list_0: list :: (add(length(?ts_ph_list_0), succ(zero)) == succ(length(?ts_ph_list_0)))
+forall ?ts_ph_nat_0: nat :: (succ(succ(?ts_ph_nat_0)) == add(succ(?ts_ph_nat_0), succ(zero)))
+forall ?ts_ph_nat_0: nat :: (add(succ(?ts_ph_nat_0), succ(zero)) == succ(succ(?ts_ph_nat_0)))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)) == add(?ts_ph_nat_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, succ(?ts_ph_nat_1)) == succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)))
+forall ?ts_ph_nat_1: nat, ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_1, ?ts_ph_nat_0) == add(?ts_ph_nat_0, ?ts_ph_nat_1))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, ?ts_ph_nat_1) == add(?ts_ph_nat_1, ?ts_ph_nat_0))</code></pre>
 <h3 id="unique-over-conditional-2">unique over conditional</h3>
+<pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (length(snoc(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(length(?ts_ph_list_0)))
+forall ?ts_ph_list_0: list :: (succ(length(?ts_ph_list_0)) == add(length(?ts_ph_list_0), succ(zero)))
+forall ?ts_ph_list_0: list :: (add(length(?ts_ph_list_0), succ(zero)) == succ(length(?ts_ph_list_0)))
+forall ?ts_ph_nat_0: nat :: (succ(succ(?ts_ph_nat_0)) == add(succ(?ts_ph_nat_0), succ(zero)))
+forall ?ts_ph_nat_0: nat :: (add(succ(?ts_ph_nat_0), succ(zero)) == succ(succ(?ts_ph_nat_0)))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)) == add(?ts_ph_nat_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, succ(?ts_ph_nat_1)) == succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)))
+forall ?ts_ph_nat_1: nat, ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_1, ?ts_ph_nat_0) == add(?ts_ph_nat_0, ?ts_ph_nat_1))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, ?ts_ph_nat_1) == add(?ts_ph_nat_1, ?ts_ph_nat_0))</code></pre>
 <h3 id="unique-over-enumerate-2">unique over enumerate</h3>
+<h2 id="lemmas-confirmed-by-structural-2">lemmas confirmed by
+structural</h2>
+<h3 id="reduced-13">reduced</h3>
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (append(?ts_ph_list_0, cons(?ts_ph_nat_1, ?ts_ph_list_1)) == append(snoc(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (length(append(?ts_ph_list_0, ?ts_ph_list_1)) == add(length(?ts_ph_list_0), length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)) == snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1))</code></pre>
+<h3 id="implied-13">implied</h3>
+<pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (append(snoc(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == append(?ts_ph_list_0, cons(?ts_ph_nat_1, ?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (add(length(?ts_ph_list_0), length(?ts_ph_list_1)) == length(append(?ts_ph_list_0, ?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1) == append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)))</code></pre>
+<h3 id="trivial-13">trivial</h3>
+<h2 id="lemmas-confirmed-by-conditional-2">lemmas confirmed by
+conditional</h2>
+<h3 id="reduced-14">reduced</h3>
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (append(?ts_ph_list_0, cons(?ts_ph_nat_1, ?ts_ph_list_1)) == append(snoc(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (length(append(?ts_ph_list_0, ?ts_ph_list_1)) == add(length(?ts_ph_list_0), length(?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)) == snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1))</code></pre>
+<h3 id="implied-14">implied</h3>
+<pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (append(snoc(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == append(?ts_ph_list_0, cons(?ts_ph_nat_1, ?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (add(length(?ts_ph_list_0), length(?ts_ph_list_1)) == length(append(?ts_ph_list_0, ?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1) == append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)))</code></pre>
+<h3 id="trivial-14">trivial</h3>
+<h2 id="lemmas-confirmed-by-enumerate-2">lemmas confirmed by
+enumerate</h2>
+<h3 id="reduced-15">reduced</h3>
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
+forall ?ts_ph_list_0: list, ?ts_ph_nat_0: nat :: (length(snoc(?ts_ph_list_0, ?ts_ph_nat_0)) == succ(length(?ts_ph_list_0)))
+forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (append(?ts_ph_list_0, cons(?ts_ph_nat_1, ?ts_ph_list_1)) == append(snoc(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (length(append(?ts_ph_list_0, ?ts_ph_list_1)) == add(length(?ts_ph_list_0), length(?ts_ph_list_1)))
+forall ?ts_ph_nat_0: nat :: (succ(succ(?ts_ph_nat_0)) == add(succ(?ts_ph_nat_0), succ(zero)))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)) == add(?ts_ph_nat_0, succ(?ts_ph_nat_1)))
+forall ?ts_ph_nat_1: nat, ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_1, ?ts_ph_nat_0) == add(?ts_ph_nat_0, ?ts_ph_nat_1))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)) == snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1))</code></pre>
+<h3 id="implied-15">implied</h3>
+<pre><code>forall ?ts_ph_list_0: list, ?ts_ph_nat_1: nat, ?ts_ph_list_1: list :: (append(snoc(?ts_ph_list_0, ?ts_ph_nat_1), ?ts_ph_list_1) == append(?ts_ph_list_0, cons(?ts_ph_nat_1, ?ts_ph_list_1)))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list :: (add(length(?ts_ph_list_0), length(?ts_ph_list_1)) == length(append(?ts_ph_list_0, ?ts_ph_list_1)))
+forall ?ts_ph_list_0: list :: (succ(length(?ts_ph_list_0)) == add(length(?ts_ph_list_0), succ(zero)))
+forall ?ts_ph_list_0: list :: (add(length(?ts_ph_list_0), succ(zero)) == succ(length(?ts_ph_list_0)))
+forall ?ts_ph_nat_0: nat :: (add(succ(?ts_ph_nat_0), succ(zero)) == succ(succ(?ts_ph_nat_0)))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, succ(?ts_ph_nat_1)) == succ(add(?ts_ph_nat_0, ?ts_ph_nat_1)))
+forall ?ts_ph_nat_0: nat, ?ts_ph_nat_1: nat :: (add(?ts_ph_nat_0, ?ts_ph_nat_1) == add(?ts_ph_nat_1, ?ts_ph_nat_0))
+forall ?ts_ph_list_0: list, ?ts_ph_list_1: list, ?ts_ph_nat_1: nat :: (snoc(append(?ts_ph_list_0, ?ts_ph_list_1), ?ts_ph_nat_1) == append(?ts_ph_list_0, snoc(?ts_ph_list_1, ?ts_ph_nat_1)))</code></pre>
+<h3 id="trivial-15">trivial</h3>
