@@ -46,7 +46,7 @@ thesy: $T
 
 all: $S $C $E $T
 
-TEX = $(SMALL:%.bpl=%.tex)
+TEX = $(BPL:%.bpl=%.tex)
 tex: $(TEX)
 
 %.tex: %.bpl %.structural.bpl %.conditional.bpl %.enumerate.bpl %.th.log

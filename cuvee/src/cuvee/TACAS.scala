@@ -13,7 +13,7 @@ object TACAS {
 
     val (cmds, st) = parse(basepath + ".bpl")
 
-    implicit val solver = Solver.z3(100)
+    implicit val solver = Solver.z3(500)
     // Solver.debug = true
 
     for (cmd <- cmds)
