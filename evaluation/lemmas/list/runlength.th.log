@@ -1,4 +1,4 @@
-09:21:50 [0m[33m[WARN] [0mCollecting statistics
+17:31:27 [0m[33m[WARN] [0mCollecting statistics
 (add zero ?n) => ?n
 (add (succ ?m) ?n) => (succ (add ?m ?n))
 (succ (add ?m ?n)) => (add (succ ?m) ?n)
@@ -52,29 +52,36 @@ Searcher: (decode (cons zero ?autovar12) ?autovar18)
 Searcher: (decode (cons (succ ?autovar13) ?autovar14) ?autovar18)
 Searcher: (decode (cons ?autovar15 ?autovar16) ?autovar18)
 Searcher: (decode nil ?autovar18)
-09:21:50 [0m[33m[WARN] [0m ex is: zero
-09:21:50 [0m[33m[WARN] [0m ex is: (succ zero)
-09:21:50 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-09:21:50 [0m[33m[WARN] [0m ex is: nil
-09:21:50 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-09:21:50 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-09:21:50 [0m[33m[WARN] [0mProof mode: false
-09:21:50 [0m[33m[WARN] [0m ex is: zero
-09:21:50 [0m[33m[WARN] [0m ex is: (succ zero)
-09:21:50 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-09:21:50 [0m[33m[WARN] [0m ex is: nil
-09:21:50 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-09:21:50 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-09:21:50 [0m[33m[WARN] [0mProof mode: false
-09:21:50 [0m[33m[WARN] [0mStopped case split due to node limit
-09:21:51 [0m[33m[WARN] [0mStopped case split due to node limit
-09:21:51 [0m[33m[WARN] [0mproved: (is_runs ?ts_ph_list_0 ?ts_ph_list_0) => true
-09:21:51 [0m[33m[WARN] [0mproved: (sumruns nil ?ts_ph_list_0) => zero
-09:21:51 [0m[33m[WARN] [0mproved: (sumruns ?ts_ph_list_0 nil) => zero
-09:21:51 [0m[33m[WARN] [0mproved: (decode ?ts_ph_list_0 nil) => nil
-09:21:51 [0m[33m[WARN] [0mproved: (decode nil ?ts_ph_list_0) => nil
-09:21:51 [0m[33m[WARN] [0mproved: (is_runs ?ts_ph_list_0 nil) => (is_runs nil ?ts_ph_list_0)
-09:21:51 [0m[33m[WARN] [0mproved: (is_runs nil ?ts_ph_list_0) => (is_runs ?ts_ph_list_0 nil)
-09:21:51 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
-09:21:53 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
-09:22:08 [0m[33m[WARN] [0mproved: (mul ?ts_ph_nat_0 zero) => zero
+17:31:27 [0m[33m[WARN] [0m ex is: zero
+17:31:27 [0m[33m[WARN] [0m ex is: (succ zero)
+17:31:27 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+17:31:27 [0m[33m[WARN] [0m ex is: nil
+17:31:27 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+17:31:27 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+17:31:27 [0m[33m[WARN] [0mProof mode: false
+17:31:27 [0m[33m[WARN] [0m ex is: zero
+17:31:27 [0m[33m[WARN] [0m ex is: (succ zero)
+17:31:27 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+17:31:27 [0m[33m[WARN] [0m ex is: nil
+17:31:27 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+17:31:27 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+17:31:27 [0m[33m[WARN] [0mProof mode: false
+17:31:28 [0m[33m[WARN] [0mStopped case split due to node limit
+17:31:29 [0m[33m[WARN] [0mStopped case split due to node limit
+17:31:30 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+17:31:30 [0m[33m[WARN] [0mproved: (sumruns ?ts_ph_list_0 nil) => zero
+17:31:30 [0m[33m[WARN] [0mproved: (sumruns nil ?ts_ph_list_0) => zero
+17:31:30 [0m[33m[WARN] [0mproved: (decode ?ts_ph_list_0 nil) => nil
+17:31:30 [0m[33m[WARN] [0mproved: (decode nil ?ts_ph_list_0) => nil
+17:31:30 [0m[33m[WARN] [0mproved: (is_runs ?ts_ph_list_0 nil) => (is_runs nil ?ts_ph_list_0)
+17:31:30 [0m[33m[WARN] [0mproved: (is_runs nil ?ts_ph_list_0) => (is_runs ?ts_ph_list_0 nil)
+17:31:30 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+17:31:33 [0m[33m[WARN] [0mproved: (mul ?ts_ph_nat_0 zero) => zero
+17:32:07 [0m[33m[WARN] [0mproved: (is_runs ?ts_ph_list_0 ?ts_ph_list_0) => true
+18:12:55 [0m[33m[WARN] [0mStopped case split due to time limit
+19:29:12 [0m[33m[WARN] [0mStopped case split due to time limit
+21:44:16 [0m[33m[WARN] [0mStopped case split due to time limit
+22:59:45 [0m[33m[WARN] [0mStopped case split due to time limit
+01:18:27 [0m[33m[WARN] [0mStopped case split due to time limit
+02:41:14 [0m[33m[WARN] [0mStopped case split due to time limit
+04:51:00 KILLED

@@ -1,4 +1,4 @@
-20:23:02 [0m[33m[WARN] [0mCollecting statistics
+15:16:26 [0m[33m[WARN] [0mCollecting statistics
 (add zero ?n) => ?n
 (add (succ ?m) ?n) => (succ (add ?m ?n))
 (succ (add ?m ?n)) => (add (succ ?m) ?n)
@@ -31,25 +31,56 @@
 (node ?x leaf leaf) => (insert ?x leaf)
 (insert ?x (node ?v ?l ?r)) => (node ?v (insert ?x ?l) ?r)
 (node ?v (insert ?x ?l) ?r) => (insert ?x (node ?v ?l ?r))
-20:23:02 [0m[33m[WARN] [0m ex is: zero
-20:23:02 [0m[33m[WARN] [0m ex is: (succ zero)
-20:23:02 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-20:23:02 [0m[33m[WARN] [0m ex is: nil
-20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-20:23:02 [0m[33m[WARN] [0m ex is: leaf
-20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_0 leaf leaf)
-20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_1 (node autovar_nat_0 leaf leaf) (node autovar_nat_0 leaf leaf))
-20:23:02 [0m[33m[WARN] [0mProof mode: false
-20:23:02 [0m[33m[WARN] [0m ex is: zero
-20:23:02 [0m[33m[WARN] [0m ex is: (succ zero)
-20:23:02 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-20:23:02 [0m[33m[WARN] [0m ex is: nil
-20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-20:23:02 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-20:23:02 [0m[33m[WARN] [0m ex is: leaf
-20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_0 leaf leaf)
-20:23:02 [0m[33m[WARN] [0m ex is: (node autovar_nat_1 (node autovar_nat_0 leaf leaf) (node autovar_nat_0 leaf leaf))
-20:23:02 [0m[33m[WARN] [0mProof mode: false
-20:23:02 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
-20:23:02 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+15:16:26 [0m[33m[WARN] [0m ex is: zero
+15:16:26 [0m[33m[WARN] [0m ex is: (succ zero)
+15:16:26 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+15:16:26 [0m[33m[WARN] [0m ex is: nil
+15:16:26 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+15:16:26 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+15:16:26 [0m[33m[WARN] [0m ex is: leaf
+15:16:26 [0m[33m[WARN] [0m ex is: (node autovar_nat_0 leaf leaf)
+15:16:26 [0m[33m[WARN] [0m ex is: (node autovar_nat_1 (node autovar_nat_0 leaf leaf) (node autovar_nat_0 leaf leaf))
+15:16:26 [0m[33m[WARN] [0mProof mode: false
+15:16:26 [0m[33m[WARN] [0m ex is: zero
+15:16:26 [0m[33m[WARN] [0m ex is: (succ zero)
+15:16:26 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+15:16:26 [0m[33m[WARN] [0m ex is: nil
+15:16:26 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+15:16:26 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+15:16:26 [0m[33m[WARN] [0m ex is: leaf
+15:16:26 [0m[33m[WARN] [0m ex is: (node autovar_nat_0 leaf leaf)
+15:16:26 [0m[33m[WARN] [0m ex is: (node autovar_nat_1 (node autovar_nat_0 leaf leaf) (node autovar_nat_0 leaf leaf))
+15:16:26 [0m[33m[WARN] [0mProof mode: false
+15:16:26 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+15:16:26 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+15:31:37 [0m[33m[WARN] [0mproved: (mirror (mirror ?ts_ph_tree_0)) => ?ts_ph_tree_0
+15:31:37 [0m[33m[WARN] [0mproved: (size (insert ?ts_ph_nat_1 ?ts_ph_tree_0)) => (succ (size ?ts_ph_tree_0))
+15:31:37 [0m[33m[WARN] [0mproved: (mirror (maptree ?ts_ph_POfn_nat_natPC_1 ?ts_ph_tree_0)) => (maptree ?ts_ph_POfn_nat_natPC_1 (mirror ?ts_ph_tree_0))
+15:31:37 [0m[33m[WARN] [0mproved: (maptree ?ts_ph_POfn_nat_natPC_1 (mirror ?ts_ph_tree_0)) => (mirror (maptree ?ts_ph_POfn_nat_natPC_1 ?ts_ph_tree_0))
+15:31:37 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1)) => (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1))
+15:31:37 [0m[33m[WARN] [0mproved: (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1))
+15:31:37 [0m[33m[WARN] [0mproved: (length (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)) => (length ?ts_ph_list_0)
+15:31:37 [0m[33m[WARN] [0mproved: (size (maptree ?ts_ph_POfn_nat_natPC_0 ?ts_ph_tree_0)) => (size ?ts_ph_tree_0)
+15:31:37 [0m[33m[WARN] [0mgeneralized case_split proof as: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) -- (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+15:31:37 [0m[33m[WARN] [0mproved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+15:31:37 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+15:31:37 [0m[33m[WARN] [0mgeneralized case_split proof as: (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2)) -- (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2)
+15:31:37 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2)) => (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2)
+15:31:37 [0m[33m[WARN] [0mproved: (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2) => (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2))
+15:31:37 [0m[33m[WARN] [0mproved: (add (length ?ts_ph_list_0) (length ?ts_ph_list_1)) => (length (append ?ts_ph_list_0 ?ts_ph_list_1))
+15:31:37 [0m[33m[WARN] [0mproved: (length (append ?ts_ph_list_0 ?ts_ph_list_1)) => (add (length ?ts_ph_list_0) (length ?ts_ph_list_1))
+15:31:37 [0m[33m[WARN] [0mproved: (append
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_1)) => (map ?ts_ph_POfn_nat_natPC_1 (append ?ts_ph_list_0 ?ts_ph_list_1))
+15:31:37 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 (append ?ts_ph_list_0 ?ts_ph_list_1)) => (append
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_1))
+15:31:49 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 ?ts_ph_nat_1) => (add ?ts_ph_nat_1 ?ts_ph_nat_0)
+15:31:49 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_1 ?ts_ph_nat_0) => (add ?ts_ph_nat_0 ?ts_ph_nat_1)
+15:31:59 [0m[33m[WARN] [0mproved: (size (mirror ?ts_ph_tree_0)) => (size ?ts_ph_tree_0)
+15:31:59 [0m[33m[WARN] [0mproved: (size ?ts_ph_tree_0) => (size (mirror ?ts_ph_tree_0))
+15:32:40 [0m[33m[WARN] [0mproved: (length (elems ?ts_ph_tree_0)) => (size ?ts_ph_tree_0)
+15:32:40 [0m[33m[WARN] [0mproved: (size ?ts_ph_tree_0) => (length (elems ?ts_ph_tree_0))
+15:33:13 [0m[33m[WARN] [0mproved: (elems (maptree ?ts_ph_POfn_nat_natPC_1 ?ts_ph_tree_0)) => (map ?ts_ph_POfn_nat_natPC_1 (elems ?ts_ph_tree_0))
+15:33:13 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 (elems ?ts_ph_tree_0)) => (elems (maptree ?ts_ph_POfn_nat_natPC_1 ?ts_ph_tree_0))
+done in 1044823

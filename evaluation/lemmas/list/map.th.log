@@ -1,4 +1,4 @@
-09:23:16 [0m[33m[WARN] [0mCollecting statistics
+17:30:13 [0m[33m[WARN] [0mCollecting statistics
 (leq zero ?n) => true
 (leq (succ ?m) zero) => false
 (leq (succ ?m) (succ ?n)) => (leq ?m ?n)
@@ -39,66 +39,78 @@ Searcher: (drop ?autovar7 (cons ?autovar1 ?autovar2))
 Searcher: (drop ?autovar7 (cons ?autovar4 ?autovar5))
 Searcher: (drop zero ?autovar8)
 Searcher: (drop (succ ?autovar6) ?autovar8)
-09:23:16 [0m[33m[WARN] [0m ex is: zero
-09:23:16 [0m[33m[WARN] [0m ex is: (succ zero)
-09:23:16 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-09:23:16 [0m[33m[WARN] [0m ex is: nil
-09:23:16 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-09:23:16 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-09:23:16 [0m[33m[WARN] [0mProof mode: false
-09:23:16 [0m[33m[WARN] [0m ex is: zero
-09:23:16 [0m[33m[WARN] [0m ex is: (succ zero)
-09:23:16 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-09:23:16 [0m[33m[WARN] [0m ex is: nil
-09:23:16 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-09:23:16 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-09:23:16 [0m[33m[WARN] [0mProof mode: false
-09:23:17 [0m[33m[WARN] [0mproved: (drop zero ?ts_ph_list_0) => ?ts_ph_list_0
-09:23:17 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
-09:23:17 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
-09:23:17 [0m[33m[WARN] [0mproved: (take zero ?ts_ph_list_0) => nil
-09:23:17 [0m[33m[WARN] [0mproved: (drop zero ?ts_ph_list_0) => (append ?ts_ph_list_0 nil)
-09:23:17 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => (drop zero ?ts_ph_list_0)
-09:33:22 [0m[33m[WARN] [0mproved: (length (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (length ?ts_ph_list_0)
-09:33:22 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
-09:33:22 [0m[33m[WARN] [0mproved: (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => false
-09:33:22 [0m[33m[WARN] [0mproved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => false
-09:33:22 [0m[33m[WARN] [0mproved: (leq (succ zero) ?ts_ph_nat_0) => (lt zero ?ts_ph_nat_0)
-09:33:22 [0m[33m[WARN] [0mproved: (lt zero ?ts_ph_nat_0) => (leq (succ zero) ?ts_ph_nat_0)
-09:33:22 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 (succ zero)) => (leq ?ts_ph_nat_0 zero)
-09:33:22 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 zero) => (lt ?ts_ph_nat_0 (succ zero))
-09:33:22 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_1 (length ?ts_ph_list_0)) => (leq (succ ?ts_ph_nat_1) (length ?ts_ph_list_0))
-09:33:22 [0m[33m[WARN] [0mproved: (leq (succ ?ts_ph_nat_1) (length ?ts_ph_list_0)) => (lt ?ts_ph_nat_1 (length ?ts_ph_list_0))
-09:33:22 [0m[33m[WARN] [0mproved: (leq (length ?ts_ph_list_0) ?ts_ph_nat_1) => (lt (length ?ts_ph_list_0) (succ ?ts_ph_nat_1))
-09:33:22 [0m[33m[WARN] [0mproved: (lt (length ?ts_ph_list_0) (succ ?ts_ph_nat_1)) => (leq (length ?ts_ph_list_0) ?ts_ph_nat_1)
-09:33:22 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1))
-09:33:22 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1))
-09:33:22 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_1
-09:33:22 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_0
-09:33:22 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => nil
-09:33:22 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
-09:33:22 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
-09:33:22 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (drop (length ?ts_ph_list_0) ?ts_ph_list_0)
-09:33:22 [0m[33m[WARN] [0mproved: (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0)) => (take (succ zero) ?ts_ph_list_0)
-09:33:22 [0m[33m[WARN] [0mproved: (take (succ zero) ?ts_ph_list_0) => (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0))
-09:33:22 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_0))
-09:33:22 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_0)) => (take (length ?ts_ph_list_0) ?ts_ph_list_0)
-09:33:22 [0m[33m[WARN] [0mproved: (append
-  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)
-  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_1)) => (map ?ts_ph_POfn_nat_natPC_0 (append ?ts_ph_list_0 ?ts_ph_list_1))
-09:33:22 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_0 (append ?ts_ph_list_0 ?ts_ph_list_1)) => (append
+17:30:13 [0m[33m[WARN] [0m ex is: zero
+17:30:13 [0m[33m[WARN] [0m ex is: (succ zero)
+17:30:13 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+17:30:13 [0m[33m[WARN] [0m ex is: nil
+17:30:13 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+17:30:13 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+17:30:13 [0m[33m[WARN] [0mProof mode: false
+17:30:13 [0m[33m[WARN] [0m ex is: zero
+17:30:13 [0m[33m[WARN] [0m ex is: (succ zero)
+17:30:13 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+17:30:13 [0m[33m[WARN] [0m ex is: nil
+17:30:13 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+17:30:13 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+17:30:13 [0m[33m[WARN] [0mProof mode: false
+17:30:14 [0m[33m[WARN] [0mproved: (drop zero ?ts_ph_list_0) => ?ts_ph_list_0
+17:30:14 [0m[33m[WARN] [0mproved: (take zero ?ts_ph_list_0) => nil
+17:30:14 [0m[33m[WARN] [0mproved: (drop zero ?ts_ph_list_0) => (append ?ts_ph_list_0 nil)
+17:30:14 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => (drop zero ?ts_ph_list_0)
+17:30:14 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
+17:30:14 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
+17:51:09 [0m[33m[WARN] [0mproved: (length (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (length ?ts_ph_list_0)
+17:51:09 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) ?ts_ph_list_0) => ?ts_ph_list_0
+17:51:09 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) ?ts_ph_list_0) => nil
+17:51:09 [0m[33m[WARN] [0mproved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => false
+17:51:09 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 (succ zero)) => (leq ?ts_ph_nat_0 zero)
+17:51:09 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 zero) => (lt ?ts_ph_nat_0 (succ zero))
+17:51:09 [0m[33m[WARN] [0mproved: (leq (succ zero) ?ts_ph_nat_0) => (lt zero ?ts_ph_nat_0)
+17:51:09 [0m[33m[WARN] [0mproved: (lt zero ?ts_ph_nat_0) => (leq (succ zero) ?ts_ph_nat_0)
+17:51:09 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+17:51:09 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0))
+17:51:09 [0m[33m[WARN] [0mproved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
+17:51:09 [0m[33m[WARN] [0mproved: (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0)
+17:51:09 [0m[33m[WARN] [0mgeneralized case_split proof as: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) -- (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+17:51:09 [0m[33m[WARN] [0mproved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+17:51:09 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+17:51:09 [0m[33m[WARN] [0mproved: (leq (length ?ts_ph_list_0) ?ts_ph_nat_1) => (lt (length ?ts_ph_list_0) (succ ?ts_ph_nat_1))
+17:51:09 [0m[33m[WARN] [0mproved: (lt (length ?ts_ph_list_0) (succ ?ts_ph_nat_1)) => (leq (length ?ts_ph_list_0) ?ts_ph_nat_1)
+17:51:09 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_1 (length ?ts_ph_list_0)) => (leq (succ ?ts_ph_nat_1) (length ?ts_ph_list_0))
+17:51:09 [0m[33m[WARN] [0mproved: (leq (succ ?ts_ph_nat_1) (length ?ts_ph_list_0)) => (lt ?ts_ph_nat_1 (length ?ts_ph_list_0))
+17:51:09 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1))
+17:51:09 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1))
+17:51:09 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_1
+17:51:09 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (drop (length ?ts_ph_list_0) ?ts_ph_list_0)
+17:51:09 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => (take (length ?ts_ph_list_0) ?ts_ph_list_0)
+17:51:09 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)
+17:51:09 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0))
+17:51:09 [0m[33m[WARN] [0mproved: (take (succ zero) ?ts_ph_list_0) => (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0))
+17:51:09 [0m[33m[WARN] [0mproved: (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0)) => (take (succ zero) ?ts_ph_list_0)
+17:51:09 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_0 (append ?ts_ph_list_0 ?ts_ph_list_1)) => (append
   (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)
   (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_1))
-09:33:23 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 ?ts_ph_nat_1) => (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_1)
-09:33:23 [0m[33m[WARN] [0mproved: (leq (succ ?ts_ph_nat_0) ?ts_ph_nat_1) => (lt ?ts_ph_nat_0 ?ts_ph_nat_1)
-09:33:25 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
-09:33:33 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0))
-09:33:33 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0)) => (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
-09:33:55 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
-09:33:55 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
-09:34:30 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
-09:35:10 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 ?ts_ph_list_0)
-09:35:10 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 ?ts_ph_list_0) => (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
-09:35:49 [0m[33m[WARN] [0mproved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
-09:35:49 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
-09:37:08 [0m[33m[WARN] [0mproved: (drop (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
+17:51:09 [0m[33m[WARN] [0mproved: (append
+  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_0)
+  (map ?ts_ph_POfn_nat_natPC_0 ?ts_ph_list_1)) => (map ?ts_ph_POfn_nat_natPC_0 (append ?ts_ph_list_0 ?ts_ph_list_1))
+17:51:11 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 ?ts_ph_nat_1) => (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_1))
+17:51:11 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 (succ ?ts_ph_nat_1)) => (leq ?ts_ph_nat_0 ?ts_ph_nat_1)
+17:51:15 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0))
+17:51:15 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 (drop ?ts_ph_nat_1 ?ts_ph_list_0)) => (drop ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+17:51:23 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
+17:51:23 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+17:51:36 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
+17:51:51 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 ?ts_ph_list_0) => (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0))
+17:51:51 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 ?ts_ph_list_0)
+17:52:14 [0m[33m[WARN] [0mproved: (drop (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
+17:52:51 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 ?ts_ph_list_0) => (take (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0))
+17:52:51 [0m[33m[WARN] [0mproved: (take (succ ?ts_ph_nat_1) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 ?ts_ph_list_0)
+17:53:34 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => nil
+17:54:51 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_1 ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (take ?ts_ph_nat_1 ?ts_ph_list_0))
+17:54:51 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (take ?ts_ph_nat_1 ?ts_ph_list_0)) => (take ?ts_ph_nat_1 ?ts_ph_list_0)
+17:57:40 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_1 ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (drop ?ts_ph_nat_1 ?ts_ph_list_0))
+17:57:40 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (drop ?ts_ph_nat_1 ?ts_ph_list_0)) => (drop ?ts_ph_nat_1 ?ts_ph_list_0)
+18:00:50 [0m[33m[WARN] [0mproved: (drop (succ zero) (drop ?ts_ph_nat_1 ?ts_ph_list_0)) => (drop (succ ?ts_ph_nat_1) ?ts_ph_list_0)
+18:00:50 [0m[33m[WARN] [0mproved: (drop (succ ?ts_ph_nat_1) ?ts_ph_list_0) => (drop (succ zero) (drop ?ts_ph_nat_1 ?ts_ph_list_0))
+18:07:47 [0m[33m[WARN] [0mproved: (append (take ?ts_ph_nat_1 ?ts_ph_list_0) (drop ?ts_ph_nat_1 ?ts_ph_list_0)) => ?ts_ph_list_0
+done in 3200601

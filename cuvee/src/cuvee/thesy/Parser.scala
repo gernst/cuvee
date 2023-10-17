@@ -11,6 +11,7 @@ import cuvee.pure.Sort
 import cuvee.pure.Fun
 import cuvee.error
 import cuvee.pure.Var
+import cuvee.trace
 
 class Parser(val st: State) {
   import cuvee.sexpr._

@@ -24,6 +24,7 @@ object tip2015_mod_same
     )
 object isaplanner_prop52 extends Run(Test, "examples/smtlib/prop_52.smt2")
 
+object giesl extends Run(Test, "evaluation/lemmas/list/giesl.bpl")
 object just_append extends Run(Test, "examples/boogie/append.bpl")
 
 object debug_smt2 extends Run(Test, "debug.smt2")

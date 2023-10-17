@@ -199,69 +199,69 @@ id="benchmark-evaluationlemmaslistrunlength-comparison-for-thesy">benchmark:
 evaluation/lemmas/list/runlength comparison for thesy</h1>
 <h2 id="lemmas-found-by-thesy">lemmas found by thesy</h2>
 <h3 id="reduced-12">reduced</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
 forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
-forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
-forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)</code></pre>
+forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)</code></pre>
 <h3 id="implied-12">implied</h3>
 <h3 id="trivial-12">trivial</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
-forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+<pre><code>forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
 forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
 forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)
 forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
 forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) &lt;==&gt; is_runs(?ts_ph_list_0, nil))</code></pre>
 <h2 id="unique-lemmas-found-by-thesy">unique lemmas found by thesy</h2>
 <h3 id="overall-unique-3">overall unique</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)
-forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
+<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
 forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) &lt;==&gt; is_runs(?ts_ph_list_0, nil))
-forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)</code></pre>
+forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)</code></pre>
 <h3 id="unique-over-structural-2">unique over structural</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)
-forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
+<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
 forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) &lt;==&gt; is_runs(?ts_ph_list_0, nil))
-forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)</code></pre>
+forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)</code></pre>
 <h3 id="unique-over-conditional-2">unique over conditional</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)
-forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
+<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
 forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) &lt;==&gt; is_runs(?ts_ph_list_0, nil))
-forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)</code></pre>
+forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)</code></pre>
 <h3 id="unique-over-enumerate-2">unique over enumerate</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)
+<pre><code>forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
+forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)
 forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) &lt;==&gt; is_runs(nil, ?ts_ph_list_0))
 forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) &lt;==&gt; is_runs(?ts_ph_list_0, nil))
-forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)</code></pre>
+forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) &lt;==&gt; true)</code></pre>
 <h2 id="lemmas-confirmed-by-structural-2">lemmas confirmed by
 structural</h2>
 <h3 id="reduced-13">reduced</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
-forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)</code></pre>
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)</code></pre>
 <h3 id="implied-13">implied</h3>
 <h3 id="trivial-13">trivial</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
-forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+<pre><code>forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
 forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
 forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)</code></pre>
 <h2 id="lemmas-confirmed-by-conditional-2">lemmas confirmed by
 conditional</h2>
 <h3 id="reduced-14">reduced</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
-forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)</code></pre>
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)</code></pre>
 <h3 id="implied-14">implied</h3>
 <h3 id="trivial-14">trivial</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
-forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+<pre><code>forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
 forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
 forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)</code></pre>
 <h2 id="lemmas-confirmed-by-enumerate-2">lemmas confirmed by
 enumerate</h2>
 <h3 id="reduced-15">reduced</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
-forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)</code></pre>
+<pre><code>forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)</code></pre>
 <h3 id="implied-15">implied</h3>
 <h3 id="trivial-15">trivial</h3>
-<pre><code>forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
-forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
-forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
-forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)</code></pre>
+<pre><code>forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)</code></pre>

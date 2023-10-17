@@ -1,27 +1,29 @@
-09:21:50 [WARN] Collecting statistics
-09:21:50 [WARN]  ex is: zero
-09:21:50 [WARN]  ex is: (succ zero)
-09:21:50 [WARN]  ex is: (succ (succ zero))
-09:21:50 [WARN]  ex is: nil
-09:21:50 [WARN]  ex is: (cons autovar_nat_0 nil)
-09:21:50 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-09:21:50 [WARN] Proof mode: false
-09:21:50 [WARN]  ex is: zero
-09:21:50 [WARN]  ex is: (succ zero)
-09:21:50 [WARN]  ex is: (succ (succ zero))
-09:21:50 [WARN]  ex is: nil
-09:21:50 [WARN]  ex is: (cons autovar_nat_0 nil)
-09:21:50 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-09:21:50 [WARN] Proof mode: false
-09:21:50 [WARN] Stopped case split due to node limit
-09:21:51 [WARN] Stopped case split due to node limit
-09:21:51 [WARN] proved: (is_runs ?ts_ph_list_0 ?ts_ph_list_0) => true
-09:21:51 [WARN] proved: (sumruns nil ?ts_ph_list_0) => zero
-09:21:51 [WARN] proved: (sumruns ?ts_ph_list_0 nil) => zero
-09:21:51 [WARN] proved: (decode ?ts_ph_list_0 nil) => nil
-09:21:51 [WARN] proved: (decode nil ?ts_ph_list_0) => nil
-09:21:51 [WARN] proved: (is_runs ?ts_ph_list_0 nil) => (is_runs nil ?ts_ph_list_0)
-09:21:51 [WARN] proved: (is_runs nil ?ts_ph_list_0) => (is_runs ?ts_ph_list_0 nil)
-09:21:51 [WARN] proved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
-09:21:53 [WARN] proved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
-09:22:08 [WARN] proved: (mul ?ts_ph_nat_0 zero) => zero
+17:20:16 [WARN] Collecting statistics
+17:20:16 [WARN]  ex is: zero
+17:20:16 [WARN]  ex is: (succ zero)
+17:20:16 [WARN]  ex is: (succ (succ zero))
+17:20:16 [WARN]  ex is: nil
+17:20:16 [WARN]  ex is: (cons autovar_nat_0 nil)
+17:20:16 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+17:20:16 [WARN] Proof mode: false
+17:20:16 [WARN]  ex is: zero
+17:20:16 [WARN]  ex is: (succ zero)
+17:20:16 [WARN]  ex is: (succ (succ zero))
+17:20:16 [WARN]  ex is: nil
+17:20:16 [WARN]  ex is: (cons autovar_nat_0 nil)
+17:20:16 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+17:20:16 [WARN] Proof mode: false
+17:20:17 [WARN] Stopped case split due to node limit
+17:20:17 [WARN] Stopped case split due to node limit
+17:20:18 [WARN] proved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+17:20:18 [WARN] proved: (sumruns ?ts_ph_list_0 nil) => zero
+17:20:18 [WARN] proved: (sumruns nil ?ts_ph_list_0) => zero
+17:20:18 [WARN] proved: (decode nil ?ts_ph_list_0) => nil
+17:20:18 [WARN] proved: (decode ?ts_ph_list_0 nil) => nil
+17:20:18 [WARN] proved: (mul ?ts_ph_nat_0 zero) => zero
+17:20:18 [WARN] proved: (is_runs nil ?ts_ph_list_0) => (is_runs ?ts_ph_list_0 nil)
+17:20:18 [WARN] proved: (is_runs ?ts_ph_list_0 nil) => (is_runs nil ?ts_ph_list_0)
+17:20:18 [WARN] proved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+17:20:20 [WARN] proved: (is_runs ?ts_ph_list_0 ?ts_ph_list_0) => true
+17:21:15 [WARN] Stopped case split due to node limit
+17:23:01 [WARN] Stopped case split due to node limit

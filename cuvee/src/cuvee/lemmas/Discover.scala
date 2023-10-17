@@ -361,7 +361,7 @@ class Discover(
 
           val funs = funs0 ++ funs1
 
-          val debugDeaccumulation = false
+          val debugDeaccumulation = true
 
           if (debugDeaccumulation) {
             println("goal: " + lhs + " == " + rhs)

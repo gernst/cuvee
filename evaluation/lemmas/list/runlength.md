@@ -317,18 +317,18 @@
 
 ### reduced
 
-    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
-    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
     forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
     forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
 
 ### implied
 
 
 ### trivial
 
-    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
     forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
     forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
     forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)
     forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) <==> is_runs(nil, ?ts_ph_list_0))
@@ -339,47 +339,49 @@
 
 ### overall unique
 
-    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
     forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) <==> is_runs(nil, ?ts_ph_list_0))
     forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) <==> is_runs(?ts_ph_list_0, nil))
     forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
 
 ### unique over structural
 
-    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
     forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) <==> is_runs(nil, ?ts_ph_list_0))
     forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) <==> is_runs(?ts_ph_list_0, nil))
     forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
 
 ### unique over conditional
 
-    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
     forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) <==> is_runs(nil, ?ts_ph_list_0))
     forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) <==> is_runs(?ts_ph_list_0, nil))
     forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
 
 ### unique over enumerate
 
-    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
+    forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
+    forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)
     forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, nil) <==> is_runs(nil, ?ts_ph_list_0))
     forall ?ts_ph_list_0: list :: (is_runs(nil, ?ts_ph_list_0) <==> is_runs(?ts_ph_list_0, nil))
     forall ?ts_ph_nat_0: nat :: (mul(?ts_ph_nat_0, zero) == zero)
+    forall ?ts_ph_list_0: list :: (is_runs(?ts_ph_list_0, ?ts_ph_list_0) <==> true)
 
 
 ## lemmas confirmed by structural
 
 ### reduced
 
-    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
     forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
 
 ### implied
 
 
 ### trivial
 
-    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
     forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
     forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
     forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)
 
@@ -388,16 +390,16 @@
 
 ### reduced
 
-    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
     forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
 
 ### implied
 
 
 ### trivial
 
-    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
     forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
+    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
     forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
     forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)
 
@@ -406,18 +408,16 @@
 
 ### reduced
 
-    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
     forall ?ts_ph_nat_0: nat :: (add(?ts_ph_nat_0, zero) == ?ts_ph_nat_0)
+    forall ?ts_ph_list_0: list :: (append(?ts_ph_list_0, nil) == ?ts_ph_list_0)
 
 ### implied
 
 
 ### trivial
 
-    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
     forall ?ts_ph_list_0: list :: (sumruns(?ts_ph_list_0, nil) == zero)
-    forall ?ts_ph_list_0: list :: (decode(?ts_ph_list_0, nil) == nil)
-    forall ?ts_ph_list_0: list :: (decode(nil, ?ts_ph_list_0) == nil)
+    forall ?ts_ph_list_0: list :: (sumruns(nil, ?ts_ph_list_0) == zero)
 
 
 

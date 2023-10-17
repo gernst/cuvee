@@ -61,11 +61,16 @@ package object thesy {
           line = in.readLine()
         }
 
-        val from = cuvee.sexpr.parse(new StringReader(current))
-        val eq = parser.rule(from)
-        val expr = eq.toExpr
+        try {
+          val from = cuvee.sexpr.parse(new StringReader(current))
+          val eq = parser.rule(from)
+          val expr = eq.toExpr
 
-        lemmas = expr :: lemmas
+          lemmas = expr :: lemmas
+        } catch {
+          case _: Exception =>
+            println("cannot parse lemma: " + current)
+        }
 
         lines += current
       } else {

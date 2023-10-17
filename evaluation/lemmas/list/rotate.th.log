@@ -1,4 +1,4 @@
-11:26:39 [0m[33m[WARN] [0mCollecting statistics
+17:31:13 [WARN] Collecting statistics
 (leq zero ?n) => true
 (leq (succ ?m) zero) => false
 (leq (succ ?m) (succ ?n)) => (leq ?m ?n)
@@ -27,49 +27,39 @@ Searcher: (rotate ?autovar7 (cons ?autovar1 ?autovar2))
 Searcher: (rotate ?autovar7 (cons ?autovar4 ?autovar5))
 Searcher: (rotate zero ?autovar8)
 Searcher: (rotate (succ ?autovar6) ?autovar8)
-11:26:39 [0m[33m[WARN] [0m ex is: zero
-11:26:39 [0m[33m[WARN] [0m ex is: (succ zero)
-11:26:39 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-11:26:39 [0m[33m[WARN] [0m ex is: nil
-11:26:39 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-11:26:39 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-11:26:39 [0m[33m[WARN] [0mProof mode: false
-11:26:39 [0m[33m[WARN] [0m ex is: zero
-11:26:39 [0m[33m[WARN] [0m ex is: (succ zero)
-11:26:39 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-11:26:39 [0m[33m[WARN] [0m ex is: nil
-11:26:39 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-11:26:39 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-11:26:39 [0m[33m[WARN] [0mProof mode: false
-11:26:39 [0m[33m[WARN] [0mproved: (rotate zero ?ts_ph_list_0) => ?ts_ph_list_0
-11:26:39 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
-11:26:39 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
-11:26:39 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
-11:27:11 [0m[33m[WARN] [0mproved: (reverse ?ts_ph_list_0) => (rotate (length ?ts_ph_list_0) ?ts_ph_list_0)
-11:27:11 [0m[33m[WARN] [0mproved: (rotate (length ?ts_ph_list_0) ?ts_ph_list_0) => (reverse ?ts_ph_list_0)
-11:27:11 [0m[33m[WARN] [0mproved: (succ ?ts_ph_nat_0) => (add ?ts_ph_nat_0 (succ zero))
-11:27:11 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (succ zero)) => (succ ?ts_ph_nat_0)
-11:27:11 [0m[33m[WARN] [0mproved: (rotate ?ts_ph_nat_0 (cons ?ts_ph_nat_1 nil)) => (cons ?ts_ph_nat_1 nil)
-11:27:11 [0m[33m[WARN] [0mproved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => (leq ?ts_ph_nat_1 zero)
-11:27:11 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 zero) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero)
-11:27:11 [0m[33m[WARN] [0mproved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero) => (leq ?ts_ph_nat_0 zero)
-11:27:11 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_0))
-11:27:11 [0m[33m[WARN] [0mproved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) (succ ?ts_ph_nat_0)) => (leq ?ts_ph_nat_1 (succ zero))
-11:27:11 [0m[33m[WARN] [0mproved: (reverse (cons ?ts_ph_nat_0 ?ts_ph_list_0)) => (rotate (length ?ts_ph_list_0) (cons ?ts_ph_nat_0 ?ts_ph_list_0))
-11:27:11 [0m[33m[WARN] [0mproved: (rotate (length ?ts_ph_list_0) (cons ?ts_ph_nat_0 ?ts_ph_list_0)) => (reverse (cons ?ts_ph_nat_0 ?ts_ph_list_0))
-11:27:11 [0m[33m[WARN] [0mproved: (leq (succ zero) ?ts_ph_nat_0) => (leq (succ zero) (add ?ts_ph_nat_0 ?ts_ph_nat_0))
-11:27:11 [0m[33m[WARN] [0mproved: (leq (succ zero) (add ?ts_ph_nat_0 ?ts_ph_nat_0)) => (leq (succ zero) ?ts_ph_nat_0)
-11:27:11 [0m[33m[WARN] [0mproved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) (succ zero)) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero)
-11:27:11 [0m[33m[WARN] [0mproved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) (succ zero))
-11:27:12 [0m[33m[WARN] [0mproved: (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1))
-11:27:12 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1)) => (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1))
-11:27:13 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 ?ts_ph_nat_1) => (add ?ts_ph_nat_1 ?ts_ph_nat_0)
-11:27:13 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_1 ?ts_ph_nat_0) => (add ?ts_ph_nat_0 ?ts_ph_nat_1)
-11:27:13 [0m[33m[WARN] [0mproved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
-11:27:13 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
-11:27:16 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_1 (add ?ts_ph_nat_0 ?ts_ph_nat_2)) => (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2))
-11:27:16 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2)) => (add ?ts_ph_nat_1 (add ?ts_ph_nat_0 ?ts_ph_nat_2))
-11:27:32 [0m[33m[WARN] [0mproved: (add (length ?ts_ph_list_0) (length ?ts_ph_list_1)) => (length (append ?ts_ph_list_0 ?ts_ph_list_1))
-11:27:32 [0m[33m[WARN] [0mproved: (length (append ?ts_ph_list_0 ?ts_ph_list_1)) => (add (length ?ts_ph_list_0) (length ?ts_ph_list_1))
-11:29:42 [0m[33m[WARN] [0mproved: (length ?ts_ph_list_0) => (length (reverse ?ts_ph_list_0))
-11:29:42 [0m[33m[WARN] [0mproved: (length (reverse ?ts_ph_list_0)) => (length ?ts_ph_list_0)
+17:31:14 [WARN] proved: (rotate zero ?ts_ph_list_0) => ?ts_ph_list_0
+17:31:14 [WARN] proved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+17:31:14 [WARN] proved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+17:31:14 [WARN] proved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
+17:32:10 [WARN] proved: (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
+17:32:10 [WARN] proved: (succ ?ts_ph_nat_0) => (add ?ts_ph_nat_0 (succ zero))
+17:32:10 [WARN] proved: (add ?ts_ph_nat_0 (succ zero)) => (succ ?ts_ph_nat_0)
+17:32:10 [WARN] generalized case_split proof as: (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2) -- (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2))
+17:32:10 [WARN] proved: (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2) => (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2))
+17:32:10 [WARN] proved: (add ?ts_ph_nat_0 (add ?ts_ph_nat_1 ?ts_ph_nat_2)) => (add (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_2)
+17:32:10 [WARN] proved: (rotate ?ts_ph_nat_0 (cons ?ts_ph_nat_1 nil)) => (cons ?ts_ph_nat_1 nil)
+17:32:10 [WARN] proved: (add (length ?ts_ph_list_0) (length ?ts_ph_list_1)) => (length (append ?ts_ph_list_0 ?ts_ph_list_1))
+17:32:10 [WARN] proved: (length (append ?ts_ph_list_0 ?ts_ph_list_1)) => (add (length ?ts_ph_list_0) (length ?ts_ph_list_1))
+17:32:10 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero)
+17:32:10 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) zero) => (leq ?ts_ph_nat_0 zero)
+17:32:10 [WARN] proved: (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (leq ?ts_ph_nat_0 (add ?ts_ph_nat_0 ?ts_ph_nat_0))
+17:32:22 [WARN] proved: (leq (succ ?ts_ph_nat_0) (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (leq (succ zero) ?ts_ph_nat_1)
+17:32:22 [WARN] proved: (rotate (length ?ts_ph_list_0) (cons ?ts_ph_nat_0 ?ts_ph_list_0)) => (reverse (cons ?ts_ph_nat_0 ?ts_ph_list_0))
+17:32:22 [WARN] proved: (reverse (cons ?ts_ph_nat_0 ?ts_ph_list_0)) => (rotate (length ?ts_ph_list_0) (cons ?ts_ph_nat_0 ?ts_ph_list_0))
+17:32:36 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) (succ zero)) => (leq ?ts_ph_nat_0 zero)
+17:32:36 [WARN] proved: (leq ?ts_ph_nat_0 zero) => (leq (add ?ts_ph_nat_0 ?ts_ph_nat_0) (succ zero))
+17:33:45 [WARN] proved: (leq (succ zero) ?ts_ph_nat_0) => (leq (succ zero) (add ?ts_ph_nat_0 ?ts_ph_nat_0))
+17:33:45 [WARN] proved: (leq (succ zero) (add ?ts_ph_nat_0 ?ts_ph_nat_0)) => (leq (succ zero) ?ts_ph_nat_0)
+17:36:20 [WARN] proved: (add ?ts_ph_nat_1 ?ts_ph_nat_0) => (add ?ts_ph_nat_0 ?ts_ph_nat_1)
+17:36:20 [WARN] proved: (add ?ts_ph_nat_0 ?ts_ph_nat_1) => (add ?ts_ph_nat_1 ?ts_ph_nat_0)
+17:36:24 [WARN] proved: (length (reverse ?ts_ph_list_0)) => (length ?ts_ph_list_0)
+17:36:24 [WARN] proved: (length ?ts_ph_list_0) => (length (reverse ?ts_ph_list_0))
+18:23:42 [WARN] proved: (length (rotate ?ts_ph_nat_1 ?ts_ph_list_0)) => (length ?ts_ph_list_0)
+19:02:45 [WARN] proved: (reverse ?ts_ph_list_0) => (rotate (length ?ts_ph_list_0) ?ts_ph_list_0)
+19:02:45 [WARN] proved: (rotate (length ?ts_ph_list_0) ?ts_ph_list_0) => (reverse ?ts_ph_list_0)
+19:45:41 [WARN] proved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+19:45:41 [WARN] proved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+20:23:52 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) ?ts_ph_nat_0) => (leq ?ts_ph_nat_1 zero)
+
+00:25:36 [WARN] proved: (leq (add ?ts_ph_nat_0 ?ts_ph_nat_1) (succ ?ts_ph_nat_1)) => (leq ?ts_ph_nat_0 (succ zero))
+04:51:00 KILLED
