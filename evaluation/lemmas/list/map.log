@@ -1,20 +1,15 @@
-17:19:59 [WARN] Collecting statistics
-17:19:59 [WARN]  ex is: zero
-17:19:59 [WARN]  ex is: (succ zero)
-17:19:59 [WARN]  ex is: (succ (succ zero))
-17:19:59 [WARN]  ex is: nil
-17:19:59 [WARN]  ex is: (cons autovar_nat_0 nil)
-17:19:59 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-17:19:59 [WARN] Proof mode: false
-17:19:59 [WARN]  ex is: zero
-17:19:59 [WARN]  ex is: (succ zero)
-17:19:59 [WARN]  ex is: (succ (succ zero))
-17:19:59 [WARN]  ex is: nil
-17:19:59 [WARN]  ex is: (cons autovar_nat_0 nil)
-17:19:59 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-17:19:59 [WARN] Proof mode: false
-17:19:59 [WARN] proved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
-17:19:59 [WARN] proved: (drop zero ?ts_ph_list_0) => ?ts_ph_list_0
-17:19:59 [WARN] proved: (take zero ?ts_ph_list_0) => nil
-17:19:59 [WARN] proved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
-17:19:59 [WARN] proved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
+10:18:04 [WARN] Collecting statistics
+10:18:04 [WARN]  ex is: zero
+10:18:04 [WARN]  ex is: (succ zero)
+10:18:04 [WARN]  ex is: (succ (succ zero))
+10:18:04 [WARN]  ex is: nil
+10:18:04 [WARN]  ex is: (cons autovar_nat_0 nil)
+10:18:04 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+10:18:04 [WARN] Proof mode: false
+10:18:04 [WARN]  ex is: zero
+10:18:04 [WARN]  ex is: (succ zero)
+10:18:04 [WARN]  ex is: (succ (succ zero))
+10:18:04 [WARN]  ex is: nil
+10:18:04 [WARN]  ex is: (cons autovar_nat_0 nil)
+10:18:04 [WARN]  ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+10:18:04 [WARN] Proof mode: false

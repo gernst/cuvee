@@ -6,12 +6,17 @@ import cuvee.pure._
 import cuvee.util.Name
 import cuvee.smtlib.Res
 import cuvee.smtlib
+import cuvee.imp.Prog
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
 }
 
 object Printer extends cuvee.util.Printer {
+  def lines(prog: Prog): List[String] = {
+    ???
+  }
+
   def lines(any: Any): List[String] = any match {
     // Boolean values
     case true  => List("true")

@@ -49,6 +49,14 @@ axiom forall y: nat, ys: list ::
 axiom forall n: nat, y: nat, ys: list ::
   take(succ(n), cons(y, ys)) == cons(y, take(n , ys));
 
+function take_(cnt: nat, xs: list): list;
+axiom forall n: nat, xs: list ::
+  take_(zero, xs) == nil;
+axiom forall n: nat ::
+  take_(succ(n), nil) == nil;
+axiom forall n: nat, y: nat, ys: list ::
+  take_(succ(n), cons(y, ys)) == cons(y, take_(n , ys));
+
 function drop(cnt: nat, xs: list): list;
 axiom forall n: nat ::
   drop(n, nil) == nil;
