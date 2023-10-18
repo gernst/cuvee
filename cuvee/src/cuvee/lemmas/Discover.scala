@@ -574,7 +574,7 @@ class Discover(
           if (debug)
             println("recognize conditionally " + fun.name)
 
-          val ids = Conditional.checkIdentityWithParamPicksAndGuard(df)
+          val ids = Conditional.checkConditionalIdentityForEveryParameter(df)
           val const = Conditional.checkIsDefConstant(df)
 
           for ((rule, dpre) <- ids ++ const) {
