@@ -49,6 +49,7 @@ object debug extends Run(Test, "examples/boogie/debug.bpl")
 
 object compiler extends Run(Test, "examples/boogie/compiler.bpl")
 object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
+object insort extends Run(Test, "examples/boogie/insort.bpl")
 
 object append extends Run(Test, "examples/lemmas/append.bpl")
 object remove extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/remove.bpl")

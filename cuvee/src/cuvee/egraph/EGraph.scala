@@ -24,10 +24,6 @@ class EGraph {
 
     // assert(hash.keySet == nds)
 
-    for (ec <- classes) {
-      assert(ec.egraph == this)
-    }
-
     for (ec <- classes; nd <- ec.nodes) {
       // assert(nd.canon == nd, "not canonical: " + nd + " in " + ec)
       assert(lookup(nd) == ec.find)
@@ -58,30 +54,6 @@ class EGraph {
     invariants()
   }
 
-  // creates a copy of this graph
-  def copy(ecs: EClass*): Seq[EClass] = {
-    invariants()
-
-    val that = new EGraph
-    var map = Map[EClass, EClass]()
-
-    for (ec <- this.classes) {
-      map += (ec -> new EClass(this))
-    }
-
-    that.classes =
-      for (ec <- classes)
-        yield ec.transfer(map)
-
-    that.hash =
-      for ((nd, ec) <- hash)
-        yield nd.transfer(map) -> map(ec)
-
-    that.invariants()
-    
-    ecs map map
-  }
-
   def lookup(nd: ENode) = {
     val ec = hash(nd.canon)
     ec.find
@@ -108,7 +80,7 @@ class EGraph {
     if (hash contains nd) {
       hash(nd)
     } else {
-      val ec = new EClass(this, nd)
+      val ec = new EClass(nd)
       if(debug)
         println("new eclass for " + nd)
       classes += ec

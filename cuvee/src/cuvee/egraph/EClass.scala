@@ -6,7 +6,6 @@ import cuvee.pure._
 object EClass extends cuvee.util.Counter
 
 class EClass(
-    val egraph: EGraph,
     var parents: Map[ENode, EClass],
     var canon: ENode,
     var nodes: Set[ENode]
@@ -14,11 +13,10 @@ class EClass(
   require(nodes.nonEmpty, "an e-class must be nonempty")
   val id = EClass.next
 
-  def exprs = egraph.extract(this)
   def isTrue = nodes exists (_.isTrue)
 
-  def this(egraph: EGraph) = this(egraph, Map(), null, Set())
-  def this(egraph: EGraph, nd: ENode) = this(egraph, Map(), nd, Set(nd))
+  def this() = this(Map(), null, Set())
+  def this(nd: ENode) = this(Map(), nd, Set(nd))
 
   var repr: EClass = this
 
@@ -29,7 +27,6 @@ class EClass(
   }
 
   def union(that: EClass) {
-    assert(this.egraph == that.egraph)
     that.repr = this // make this the representant
     this.parents ++= that.parents
     this.nodes ++= that.nodes

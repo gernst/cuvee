@@ -366,8 +366,15 @@ object Deaccumulate {
             if (debug)
               print("proving:  " + phi + " ... ")
 
+            def hasPrimitiveTypes(expr: Expr) = expr.typ match {
+              case Sort.int | Sort.bool => true
+              case _                    => false
+            }
+
+            val useSolver = phi.reduce[Boolean](_ || _)(hasPrimitiveTypes)
+
             val s = lhs_ == rhs_
-            val a = s // || solver.isTrue(phi)
+            val a = s || (useSolver && solver.isTrue(phi))
             val b = a // || cuvee.a.Prove.holdsByInduction(solver, phi, datatypes)
             if (b && !s && !a) println("proved by induction: " + phi)
             b
