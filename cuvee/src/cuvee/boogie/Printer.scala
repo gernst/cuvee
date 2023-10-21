@@ -7,6 +7,7 @@ import cuvee.util.Name
 import cuvee.smtlib.Res
 import cuvee.smtlib
 import cuvee.imp.Prog
+import cuvee.imp._
 import cuvee.smtlib._
 
 trait Syntax extends util.Syntax {
@@ -102,8 +103,30 @@ object Printer extends cuvee.util.Printer {
     case DefineProc(name, params, in, out, spec, body) => cuvee.undefined
   }
 
-  def lines(prog: Prog): List[String] = {
-    ???
+  def lines(syn: util.Syntax): List[String] = ???
+
+  // TODO use lines in the appropriate places instead of var.toString
+  def lines(prog: Prog): List[String] = prog match {
+    case Block(progs) => ???
+    case Break        => List("break;")
+    case Return       => List("return;")
+    case Local(xs, rhs) =>
+      List("var " + xs + ": " + xs.types + " := " + rhs + ";")
+    case Assign(xs, rhs)       => List(xs + " := " + rhs)
+    case Spec(xs, pre, post)   => ???
+    // TODO right may be empty
+    case If(test, left, right) => List("if(" + test + ") {", left.toString, "} else " + right, "}")
+    // TODO term, inv, sum, frames nay be empty
+    case While(test, body, term, inv, sum, frames) =>
+      List(
+        "while(" + test + ")",
+        "decreases " + term,
+        "invariant " + inv,
+        "summary " + sum,
+        "frames " + frames,
+        body.toString // TODO
+      )
+    case Call(name, in, out) => ???
   }
 
   def lines(any: Any): List[String] = any match {
