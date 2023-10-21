@@ -186,4 +186,5 @@ object Solver {
       Model(parser.model(read()))
     }
   }
+  implicit class ProcessWithPid(process: java.lang.Process) { def pid = 0 }
 }
