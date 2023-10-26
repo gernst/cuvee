@@ -1,4 +1,4 @@
-10:18:04 [0m[33m[WARN] [0mCollecting statistics
+15:39:57 [0m[33m[WARN] [0mCollecting statistics
 (leq zero ?n) => true
 (leq (succ ?m) zero) => false
 (leq (succ ?m) (succ ?n)) => (leq ?m ?n)
@@ -47,17 +47,491 @@ Searcher: (drop ?autovar7 (cons ?autovar1 ?autovar2))
 Searcher: (drop ?autovar7 (cons ?autovar4 ?autovar5))
 Searcher: (drop zero ?autovar8)
 Searcher: (drop (succ ?autovar6) ?autovar8)
-10:18:04 [0m[33m[WARN] [0m ex is: zero
-10:18:04 [0m[33m[WARN] [0m ex is: (succ zero)
-10:18:04 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-10:18:04 [0m[33m[WARN] [0m ex is: nil
-10:18:04 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-10:18:04 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-10:18:04 [0m[33m[WARN] [0mProof mode: false
-10:18:04 [0m[33m[WARN] [0m ex is: zero
-10:18:04 [0m[33m[WARN] [0m ex is: (succ zero)
-10:18:04 [0m[33m[WARN] [0m ex is: (succ (succ zero))
-10:18:04 [0m[33m[WARN] [0m ex is: nil
-10:18:04 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
-10:18:04 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
-10:18:04 [0m[33m[WARN] [0mProof mode: false
+15:39:57 [0m[33m[WARN] [0m ex is: zero
+15:39:57 [0m[33m[WARN] [0m ex is: (succ zero)
+15:39:57 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+15:39:57 [0m[33m[WARN] [0m ex is: nil
+15:39:57 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+15:39:57 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+15:39:57 [0m[33m[WARN] [0mProof mode: false
+15:39:57 [0m[33m[WARN] [0m ex is: zero
+15:39:57 [0m[33m[WARN] [0m ex is: (succ zero)
+15:39:57 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+15:39:57 [0m[33m[WARN] [0m ex is: nil
+15:39:57 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+15:39:57 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+15:39:57 [0m[33m[WARN] [0mProof mode: false
+15:39:58 [0m[33m[WARN] [0mproved: (drop zero ?ts_ph_list_0) => ?ts_ph_list_0
+15:39:58 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+15:39:58 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 ?ts_ph_nat_0) => true
+15:39:58 [0m[33m[WARN] [0mproved: (take_ ?ts_ph_nat_0 nil) => nil
+15:39:58 [0m[33m[WARN] [0mproved: (take zero ?ts_ph_list_0) => nil
+15:39:58 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_0 ?ts_ph_nat_0) => false
+15:40:04 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:05 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:06 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:06 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:13 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:13 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:14 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:22 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:27 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:27 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:32 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:36 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:37 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:40 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:40 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:42 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:45 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:46 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:46 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:47 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:48 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:48 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:50 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:50 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:51 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:52 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:52 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:54 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:55 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:55 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:56 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:40:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:00 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:00 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:01 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:01 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:03 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:03 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:04 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:05 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:08 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:09 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:09 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:13 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:14 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:14 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:19 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:20 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:42 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:43 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:47 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:48 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:52 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:54 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:41:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:03 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:04 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:06 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:08 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:08 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:11 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:13 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:13 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:14 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:16 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:19 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:20 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:20 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:22 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:22 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:27 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:32 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:40 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:42 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:43 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:45 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:45 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:46 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:47 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:48 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:50 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:51 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:52 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:52 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:54 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:55 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:55 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:56 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:42:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:00 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:01 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:01 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:03 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:04 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:04 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:05 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:06 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:10 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:11 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:16 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:20 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:22 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:27 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:32 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:32 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:36 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:40 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:45 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:46 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:54 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:55 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:56 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:56 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:43:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:00 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:01 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:03 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:04 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:05 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:05 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:06 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:08 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:08 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:09 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:10 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:11 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:13 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:14 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:16 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:19 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:20 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:37 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:42 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:43 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:43 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:47 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:47 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:48 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:51 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:52 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:56 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:44:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:01 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:01 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:05 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:06 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:10 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:10 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:11 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:12 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:19 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:20 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:22 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:27 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:32 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:36 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:36 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:37 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:40 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:42 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:43 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:43 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:45 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:48 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:48 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:50 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:52 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:54 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:54 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:57 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:45:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:02 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:03 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:03 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:06 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:07 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:08 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:11 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:15 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:16 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:17 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:18 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:19 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:20 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:21 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:22 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:23 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:24 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:25 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:26 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:27 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:28 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:29 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:30 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:31 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:32 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:33 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:34 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:35 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:36 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:36 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:37 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:38 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:39 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:40 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:41 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:44 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:45 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:45 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:46 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:49 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:50 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:51 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:53 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:54 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:55 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:55 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:58 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:46:59 [0m[33m[WARN] [0mStopped case split due to node limit
+15:47:00 [0m[33m[WARN] [0mStopped case split due to node limit
+15:47:00 [0m[33m[WARN] [0mproved: (length (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (length ?ts_ph_list_0)
+15:47:00 [0m[33m[WARN] [0mproved: (lt ?ts_ph_nat_1 ?ts_ph_nat_0) => (leq (succ ?ts_ph_nat_1) ?ts_ph_nat_0)
+15:47:00 [0m[33m[WARN] [0mproved: (leq (succ ?ts_ph_nat_1) ?ts_ph_nat_0) => (lt ?ts_ph_nat_1 ?ts_ph_nat_0)
+15:47:00 [0m[33m[WARN] [0mproved: (lt (succ ?ts_ph_nat_0) ?ts_ph_nat_0) => false
+15:47:00 [0m[33m[WARN] [0mproved: (leq ?ts_ph_nat_0 (succ ?ts_ph_nat_0)) => true
+15:47:00 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) ?ts_ph_list_0) => nil
+15:47:00 [0m[33m[WARN] [0mgeneralized case_split proof as: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) -- (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+15:47:00 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2)) => (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2)
+15:47:00 [0m[33m[WARN] [0mproved: (append (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_list_2) => (append ?ts_ph_list_0 (append ?ts_ph_list_1 ?ts_ph_list_2))
+15:47:00 [0m[33m[WARN] [0mproved: (take ?ts_ph_nat_0 (cons ?ts_ph_nat_1 nil)) => (take_ ?ts_ph_nat_0 (cons ?ts_ph_nat_1 nil))
+15:47:00 [0m[33m[WARN] [0mproved: (take_ ?ts_ph_nat_0 (cons ?ts_ph_nat_1 nil)) => (take ?ts_ph_nat_0 (cons ?ts_ph_nat_1 nil))
+15:47:00 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1))
+15:47:00 [0m[33m[WARN] [0mproved: (drop ?ts_ph_nat_0 (cons zero ?ts_ph_list_1)) => (drop ?ts_ph_nat_0 (cons ?ts_ph_nat_0 ?ts_ph_list_1))
+15:47:00 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_0
+15:47:00 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
+15:47:00 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0) => (take (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+15:47:00 [0m[33m[WARN] [0mproved: (take_ (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
+15:47:00 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0) => (take_ (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+15:47:00 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (drop (length ?ts_ph_list_0) ?ts_ph_list_0)
+15:47:00 [0m[33m[WARN] [0mproved: (take_ (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => (take (length ?ts_ph_list_0) ?ts_ph_list_0)
+15:47:00 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => (take (length ?ts_ph_list_0) ?ts_ph_list_0)
+15:47:00 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => (take_ (length ?ts_ph_list_0) ?ts_ph_list_0)
+15:47:00 [0m[33m[WARN] [0mproved: (take (succ zero) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (take_ (succ zero) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+15:47:00 [0m[33m[WARN] [0mproved: (take_ (succ zero) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)) => (take (succ zero) (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0))
+15:47:00 [0m[33m[WARN] [0mproved: (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_1)) => (take_ (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_1))
+15:47:00 [0m[33m[WARN] [0mproved: (take_ (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_1)) => (take (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_1))
+15:47:00 [0m[33m[WARN] [0mproved: (take (succ zero) ?ts_ph_list_0) => (take_ (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0))
+15:47:00 [0m[33m[WARN] [0mproved: (take_ (succ zero) (append ?ts_ph_list_0 ?ts_ph_list_0)) => (take (succ zero) ?ts_ph_list_0)
+15:47:02 [0m[33m[WARN] [0mproved: (drop (length ?ts_ph_list_0) (append ?ts_ph_list_0 ?ts_ph_list_1)) => ?ts_ph_list_1
+15:47:04 [0m[33m[WARN] [0mproved: (take_ (length ?ts_ph_list_0) (cons ?ts_ph_nat_1 ?ts_ph_list_0)) => (take (length ?ts_ph_list_0) (cons ?ts_ph_nat_1 ?ts_ph_list_0))
+15:47:04 [0m[33m[WARN] [0mproved: (take (length ?ts_ph_list_0) (cons ?ts_ph_nat_1 ?ts_ph_list_0)) => (take_ (length ?ts_ph_list_0) (cons ?ts_ph_nat_1 ?ts_ph_list_0))
+15:47:08 [0m[33m[WARN] [0mproved: (map ?ts_ph_POfn_nat_natPC_1 (append ?ts_ph_list_0 ?ts_ph_list_1)) => (append
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_1))
+15:47:08 [0m[33m[WARN] [0mproved: (append
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_0)
+  (map ?ts_ph_POfn_nat_natPC_1 ?ts_ph_list_1)) => (map ?ts_ph_POfn_nat_natPC_1 (append ?ts_ph_list_0 ?ts_ph_list_1))
+done in 436964
