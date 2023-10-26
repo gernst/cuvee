@@ -60,7 +60,9 @@ object Printer extends cuvee.util.Printer {
     case DefineSort(name, _, body) => List("type " + name + " = " + body + ";")
     case x @ DeclareFun(name, params, _, res) =>
       List(
-        "function " + name + "(" + x.formals.toStringTyped + "): " + res + ";"
+        "function " + name +
+          "(" + x.formals.toStringTyped.toLowerCase + "): " +
+          res.toString.toLowerCase + ";"
       )
     case DefineFun(name, _, formals, res, body, _) =>
       List(
@@ -112,10 +114,11 @@ object Printer extends cuvee.util.Printer {
     case Return       => List("return;")
     case Local(xs, rhs) =>
       List("var " + xs + ": " + xs.types + " := " + rhs + ";")
-    case Assign(xs, rhs)       => List(xs + " := " + rhs)
-    case Spec(xs, pre, post)   => ???
+    case Assign(xs, rhs)     => List(xs + " := " + rhs)
+    case Spec(xs, pre, post) => ???
     // TODO right may be empty
-    case If(test, left, right) => List("if(" + test + ") {", left.toString, "} else " + right, "}")
+    case If(test, left, right) =>
+      List("if(" + test + ") {", left.toString, "} else " + right, "}")
     // TODO term, inv, sum, frames nay be empty
     case While(test, body, term, inv, sum, frames) =>
       List(
@@ -130,6 +133,8 @@ object Printer extends cuvee.util.Printer {
   }
 
   def lines(any: Any): List[String] = any match {
+    case cmd: Cmd   => lines(cmd)
+    case prog: Prog => lines(prog)
     // Boolean values
     case true  => List("true")
     case false => List("false")
