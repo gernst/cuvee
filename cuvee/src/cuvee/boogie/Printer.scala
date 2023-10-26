@@ -45,7 +45,7 @@ object Printer extends cuvee.util.Printer {
             "axiom " + quant.name + formals
               .map(_.toStringTyped)
               .mkString(" ", ", ", " :: "),
-            body + ";"
+            "  " + body + ";"
           )
         case _ =>
           List("axiom " + expr + ";")
@@ -66,7 +66,9 @@ object Printer extends cuvee.util.Printer {
       )
     case DefineFun(name, _, formals, res, body, _) =>
       List(
-        "function " + name + "(" + formals.toStringTyped + "): " + res + "{",
+        "function " + name +
+          "(" + formals.toStringTyped.toLowerCase + "): " +
+          res + "{",
         "  " + body,
         "}"
       )
@@ -102,20 +104,40 @@ object Printer extends cuvee.util.Printer {
       }
       "data " :: lines
     case DeclareProc(name, params, in, out, spec)      => cuvee.undefined
-    case DefineProc(name, params, in, out, spec, body) => cuvee.undefined
+    case DefineProc(name, params, in, out, spec, body) =>
+      // TODO what is 'params' and how does 'out' look?
+      val rest = "  " +: lines(body) :+ "}"
+      in match {
+        case Nil =>
+          List("procedure " + name + "()", "{") ++ rest
+        case _ =>
+          val header =
+            List(
+              "procedure " + name + "(" + in.toStringTyped.toLowerCase + ")",
+              "{"
+            )
+          spec match {
+            case None =>
+              header ++ rest
+            case Some(s) =>
+              val spec_ = lines(s)
+              header ++ spec_ ++ rest
+          }
+      }
   }
 
   def lines(syn: util.Syntax): List[String] = ???
 
   // TODO use lines in the appropriate places instead of var.toString
   def lines(prog: Prog): List[String] = prog match {
-    case Block(progs) => ???
+    case Block(progs) => List(prog.toString)
     case Break        => List("break;")
     case Return       => List("return;")
     case Local(xs, rhs) =>
       List("var " + xs + ": " + xs.types + " := " + rhs + ";")
     case Assign(xs, rhs)     => List(xs + " := " + rhs)
-    case Spec(xs, pre, post) => ???
+    case Spec(xs, pre, post) => 
+      List(pre.toStringTyped, post.toStringTyped)
     // TODO right may be empty
     case If(test, left, right) =>
       List("if(" + test + ") {", left.toString, "} else " + right, "}")
