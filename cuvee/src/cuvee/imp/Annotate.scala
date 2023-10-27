@@ -361,24 +361,18 @@ object Annotate extends Stage {
 
           val all =
             for ((array, assign) <- st2.vars if isModifiedArray(array)) yield {
-              assign match {
-                case Store(a, idx, rhs) =>
-                  // Expression which describes all modified indices
-                  val (prem, mod_) = boundaries(List(assign), Nil)
-                  val premise = And(prem.distinct)
+              val Store(a, idx, rhs) = assign
+              // Expression which describes all modified indices
+              val (prem, mod_) = boundaries(List(assign), Nil)
+              val premise = And(prem.distinct)
 
-                  // How and at which indices got the array in question modified
-                  val yes = modified(array, a, idx, rhs, mod_)
+              // How and at which indices got the array in question modified
+              val yes = modified(array, a, idx, rhs, mod_)
 
-                  // Every index which got not visited should not be modified
-                  val no = Select(array, x) === Old(Select(array, x))
+              // Every index which got not visited should not be modified
+              val no = Select(array, x) === Old(Select(array, x))
 
-                  (premise ==> And(yes)) && (!premise ==> no)
-                case _ =>
-                  cuvee.error(
-                    "Here only modified arrays should be handled. Got: " + (array, assign)
-                  )
-              }
+              (premise ==> And(yes)) && (!premise ==> no)
             }
           // TODO ask regarding path
           Forall(List(x), And(all.toList))
