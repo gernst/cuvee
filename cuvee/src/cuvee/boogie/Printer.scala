@@ -127,12 +127,17 @@ object Printer extends cuvee.util.Printer {
 
   // TODO use lines in the appropriate places instead of var.toString
   def lines(prog: Prog): List[String] = prog match {
-    case Block(progs) => List(prog.toString) // TODO
+    case Block(progs) => progs flatMap lines
     case Break        => List("break;")
     case Return       => List("return;")
     case Local(xs, rhs) =>
-      List("var " + xs + ": " + xs.types + " := " + rhs + ";")
-    case Assign(xs, rhs) => List(xs + " := " + rhs)
+      val vars = for (x <- xs) yield x + ": " + x.typ
+      List(
+        "var " + vars.mkString(", ") +
+          " := " + rhs.mkString(", ") + ";"
+      )
+    case Assign(xs, rhs) =>
+      List(xs.mkString(",") + " := " + rhs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (pre, post) match {
         case (_, True) =>
