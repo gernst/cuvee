@@ -139,14 +139,19 @@ object Printer extends cuvee.util.Printer {
     case Assign(xs, rhs) =>
       List(xs.mkString(",") + " := " + rhs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
-      (pre, post) match {
-        case (_, True) =>
-          lines(pre).map(l => "  requires " + l + ";")
-        case (True, _) =>
-          lines(post).map(l => "  ensures " + l + ";")
-        case (_, _) =>
-          lines(pre).map(l => "  requires " + l + ";") ++
-            lines(post).map(l => "  ensures " + l + ";")
+      (xs, pre, post) match {
+        case (Nil, True, phi) => List("  assert " + phi + ";")
+        case (Nil, phi, True) => List("  assume " + phi + ";")
+        case (xs, True, True) => List("  havoc " + xs.mkString(", "))
+        case _ =>
+          List(
+            "/* ",
+            "Unknown Spec in boogie:",
+            xs.mkString(", "),
+            pre.toString,
+            post.toString,
+            " */"
+          )
       }
     // TODO right may be empty
     case If(test, left, right) =>
