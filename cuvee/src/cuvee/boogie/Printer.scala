@@ -127,7 +127,7 @@ object Printer extends cuvee.util.Printer {
 
   // TODO use lines in the appropriate places instead of var.toString
   def lines(prog: Prog): List[String] = prog match {
-    case Block(progs) => progs flatMap lines
+    case Block(progs) => indent(progs flatMap lines)
     case Break        => List("break;")
     case Return       => List("return;")
     case Local(xs, rhs) =>
@@ -204,4 +204,7 @@ object Printer extends cuvee.util.Printer {
     // Fall-through: just crash
     // case _ => List()
   }
+
+  def indent(lines: List[String]): List[String] =
+    for (l <- lines) yield "  " + l
 }
