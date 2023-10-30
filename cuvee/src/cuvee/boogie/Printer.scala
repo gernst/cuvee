@@ -139,9 +139,9 @@ object Printer extends cuvee.util.Printer {
       List(xs.mkString(",") + " := " + rhs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
-        case (Nil, True, phi) => List("  assert " + phi + ";")
-        case (Nil, phi, True) => List("  assume " + phi + ";")
-        case (xs, True, True) => List("  havoc " + xs.mkString(", "))
+        case (Nil, True, phi) => indent(List("assert " + phi + ";"))
+        case (Nil, phi, True) => indent(List("assume " + phi + ";"))
+        case (xs, True, True) => indent(List("havoc " + xs.mkString(", ")))
         case _ =>
           List(
             "/* ",
@@ -219,6 +219,6 @@ object Printer extends cuvee.util.Printer {
     }
   }
 
-  def indent(lines: List[String]): List[String] =
+  private def indent(lines: List[String]): List[String] =
     for (l <- lines) yield "  " + l
 }
