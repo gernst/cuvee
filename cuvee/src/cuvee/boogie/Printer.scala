@@ -125,7 +125,6 @@ object Printer extends cuvee.util.Printer {
       }
   }
 
-  // TODO use lines in the appropriate places instead of var.toString
   def lines(prog: Prog): List[String] = prog match {
     case Block(progs) => indent(progs flatMap lines)
     case Break        => List("break;")
@@ -153,9 +152,7 @@ object Printer extends cuvee.util.Printer {
             " */"
           )
       }
-    // TODO right may be empty
-    case If(test, left, right) =>
-      List("if(" + test + ") {", left.toString, "} else " + right, "}")
+    case x @ If(test, left, right) => if_(x)
     // TODO term, inv, sum, frames nay be empty
     case While(test, body, term, inv, sum, frames) =>
       List(
@@ -172,7 +169,7 @@ object Printer extends cuvee.util.Printer {
   def lines(any: Any): List[String] = any match {
     case cmd: Cmd   => lines(cmd)
     case prog: Prog => lines(prog)
-    case expr: Expr => List(expr.toString)
+    case expr: Expr => List(expr.toString) // TODO
     // Boolean values
     case true  => List("true")
     case false => List("false")
@@ -208,6 +205,18 @@ object Printer extends cuvee.util.Printer {
       }
     // Fall-through: just crash
     // case _ => List()
+  }
+
+  private def if_(prog: If): List[String] = {
+    val If(test, left, right) = prog
+    val first = ("if(" + lines(test) + ") {") +: lines(left)
+    right match {
+      // TODO concat last elem from "first" with head of "if_(x)"
+      case x @ If(test_, left_, right_) => (first :+ "} else") ++ if_(x)
+      case Block(Nil)                   => first :+ "}"
+      case x @ Block(_) => (first :+ "} else {") ++ (lines(x) :+ "}")
+      case _ => first :+ ("// Unknown operation in If: " ++ right.toString)
+    }
   }
 
   def indent(lines: List[String]): List[String] =
