@@ -211,9 +211,9 @@ object Printer extends cuvee.util.Printer {
     val If(test, left, right) = prog
     val first = ("if(" + lines(test) + ") {") +: lines(left)
     right match {
-      // TODO concat last elem from "first" with head of "if_(x)"
-      case x @ If(test_, left_, right_) => (first :+ "} else") ++ if_(x)
-      case Block(Nil)                   => first :+ "}"
+      case x @ If(test_, left_, right_) =>
+        (first :+ "} else " + if_(x).head) ++ if_(x).tail
+      case Block(Nil)   => first :+ "}"
       case x @ Block(_) => (first :+ "} else {") ++ (lines(x) :+ "}")
       case _ => first :+ ("// Unknown operation in If: " ++ right.toString)
     }
