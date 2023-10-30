@@ -153,16 +153,18 @@ object Printer extends cuvee.util.Printer {
           )
       }
     case x @ If(test, left, right) => if_(x)
-    // TODO term, inv, sum, frames nay be empty
     case While(test, body, term, inv, sum, frames) =>
-      List(
-        "while(" + test + ")",
-        "decreases " + term,
-        "invariant " + inv,
-        "summary " + sum,
-        "frames " + frames,
-        body.toString // TODO
-      )
+      val con = "while(" + lines(test) + ")"
+
+      val dec = "decreases " + term
+      val invariant = "invariant " + inv
+      val summmary = "summary " + sum
+      val frame = "frames " + frames
+      val notes = indent(List(dec, invariant, summmary, frame))
+
+      val body_ = "{" +: lines(body) :+ "}"
+
+      (con +: notes) ++ body_
     case Call(name, in, out) => ???
   }
 
