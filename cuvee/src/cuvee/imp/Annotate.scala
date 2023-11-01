@@ -162,7 +162,7 @@ object Annotate extends Stage {
         // TODO: compute some new invariants here
 
         // Arbitrary integer variable to reason about all of them
-        val x = Var("x", Sort.int)
+        val x = Expr.fresh(Var("x", Sort.int))
 
         def isModifiedArray(a: Var) = a.typ match {
           case Sort(Con.array, _) if mod.contains(a) => true
