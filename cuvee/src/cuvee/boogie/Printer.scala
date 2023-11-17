@@ -175,10 +175,35 @@ object Printer extends cuvee.util.Printer {
     case Call(name, in, out) => ???
   }
 
+  def lines(expr: Expr): List[String] = expr match {
+    case Lit(any, typ)                   => List(any.toString)
+    case Var(name, typ)                  => List(name.toString)
+    case App(inst, Nil)                  => List(inst.toString)
+    case Bind(quant, formals, body, typ) => ???
+    case Distinct(exprs)                 => ???
+    case Is(arg, fun)                    => ???
+    case Let(eqs, body)                  => ???
+    case Match(expr, cases, typ)         => ???
+    case Note(expr, attr)                => ???
+    case App(inst, args) =>
+      val map = boogie.Grammar.syntax.infix_ops
+
+      var operator = ""
+      if (map.contains(inst.toString)) {
+        operator = inst.toString
+      } else {
+        operator =
+          boogie.Parser.translate.filter(_._2 == inst.toString).map(_._1).head
+      }
+      val (assoc, prec) = map.get(operator).get
+
+      List(format(expr, prec, assoc))
+  }
+
   def lines(any: Any): List[String] = any match {
     case cmd: Cmd   => lines(cmd)
     case prog: Prog => lines(prog)
-    case expr: Expr => List(expr.toString) // TODO
+    case expr: Expr => lines(expr)
     // Boolean values
     case true  => List("true")
     case false => List("false")
@@ -215,6 +240,27 @@ object Printer extends cuvee.util.Printer {
     // Fall-through: just crash
     // case _ => List()
   }
+
+  /** When printing an infix application such as a + b the information from prec
+    * and assoc is used to decide whether we need parentheses.
+    *
+    * For example `(a + b) * c` needs parentheses because context `_ * c` has a
+    * strictly higher precedence than `+` .assoc is only necessary when prec is
+    * the same as the current function.
+    *
+    * @param expr
+    *   to print
+    * @param prec
+    *   is the precedence of the surrounding context
+    * @param assoc
+    *   the associativity of the given expr
+    * @return
+    *   String to print for the given expr
+    */
+  private def format(expr: Expr, prec: Int, assoc: easyparse.Assoc): String =
+    expr match {
+      case _ => expr.toString
+    }
 
   private def if_(prog: If): List[String] = {
     val If(test, left, right) = prog
