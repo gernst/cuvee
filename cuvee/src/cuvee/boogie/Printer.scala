@@ -9,6 +9,7 @@ import cuvee.smtlib
 import cuvee.imp.Prog
 import cuvee.imp._
 import cuvee.smtlib._
+import cuvee.boogie
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -131,12 +132,14 @@ object Printer extends cuvee.util.Printer {
     case Return       => List("return;")
     case Local(xs, rhs) =>
       val vars = for (x <- xs) yield x + ": " + x.typ
+      val exprs = for (e <- rhs) yield lines(e)
       List(
         "var " + vars.mkString(", ") +
-          " := " + rhs.mkString(", ") + ";"
+          " := " + exprs.flatten.mkString(", ") + ";"
       )
     case Assign(xs, rhs) =>
-      List(xs.mkString(",") + " := " + rhs.mkString(",") + ";")
+      val exprs = for (e <- rhs) yield lines(e)
+      List(xs.mkString(",") + " := " + exprs.flatten.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
         case (Nil, True, phi) => indent(List("assert " + phi + ";"))
