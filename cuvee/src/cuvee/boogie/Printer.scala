@@ -138,8 +138,8 @@ object Printer extends cuvee.util.Printer {
           " := " + exprs.flatten.mkString(", ") + ";"
       )
     case Assign(xs, rhs) =>
-      val exprs = for (e <- rhs) yield lines(e)
-      List(xs.mkString(",") + " := " + exprs.flatten.mkString(",") + ";")
+      val exprs = for (e <- rhs) yield lines(e).mkString
+      List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
         case (Nil, True, phi) => indent(List("assert " + phi + ";"))
@@ -262,6 +262,31 @@ object Printer extends cuvee.util.Printer {
       case Or(phis) =>
         val args = phis map lines
         (args.flatten).mkString(" || ")
+      // Iff (<==>), needs special handling, as this is also represented by "=" internally
+      case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
+        lines(lhs).mkString + " <==> " + lines(rhs).mkString
+      case Eq(lhs, rhs) =>
+        lines(lhs).mkString + " == " + lines(rhs).mkString
+      case Imp(phi, psi) =>
+        psi match {
+          case App(inst, args) if args.nonEmpty && inst.toString != "old" =>
+            val (assoc_, prec_) = precedence(psi)
+            if (prec_ < prec) {
+              val con = ("(" +: lines(psi) :+ ")").mkString
+              var pre = ""
+              phi match {
+                case App(inst_, args_) if args_.nonEmpty =>
+                  println(args); pre = ("(" +: lines(phi) :+ ")").mkString
+                case _ =>
+                  pre = lines(phi).mkString
+              }
+              pre + " ==> " + con
+            } else {
+              lines(phi).mkString + " ==> " + lines(psi).mkString
+            }
+          case _ =>
+            lines(phi).mkString + " ==> " + lines(psi).mkString
+        }
       // Infix operators
       case App(inst, List(left, right))
           if Expr.boogieInfix contains inst.toString =>
@@ -305,7 +330,7 @@ object Printer extends cuvee.util.Printer {
 
   private def if_(prog: If): List[String] = {
     val If(test, left, right) = prog
-    val first = ("if(" + lines(test) + ") {") +: lines(left)
+    val first = ("if(" + lines(test).mkString + ") {") +: lines(left)
     right match {
       case x @ If(test_, left_, right_) =>
         (first :+ "} else " + if_(x).head) ++ if_(x).tail
