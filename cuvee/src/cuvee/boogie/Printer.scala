@@ -157,7 +157,7 @@ object Printer extends cuvee.util.Printer {
       }
     case x @ If(test, left, right) => if_(x)
     case While(test, body, term, inv, sum, frames) =>
-      val con = "while(" + lines(test) + ")"
+      val con = "while(" + lines(test).mkString + ")"
 
       var spec: List[String] = List()
       if (term != Zero)
@@ -254,7 +254,6 @@ object Printer extends cuvee.util.Printer {
     */
   private def format(expr: Expr, prec: Int, assoc: easyparse.Assoc): String =
     // TODO add prec/ assoc
-    // idea: lookahead in arguments
     expr match {
       // Logical connectives
       case And(phis) =>
@@ -266,8 +265,19 @@ object Printer extends cuvee.util.Printer {
       // Infix operators
       case App(inst, List(left, right))
           if Expr.boogieInfix contains inst.toString =>
-        // look in left/ right to see ops
-        ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
+        left match {
+          case App(inst_, _) if inst_.toString != "old" =>
+            var (assoc_, prec_) = precedence(left)
+            if (prec_ < prec) {
+              val inner = ("(" +: lines(left) :+ ")").mkString
+              val outer = inst.toString + lines(right).mkString
+              inner + " " + outer.mkString(" ")
+            } else {
+              ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
+            }
+          case _ =>
+            ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
+        }
       case _ => expr.toString
     }
 
