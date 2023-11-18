@@ -161,13 +161,13 @@ object Printer extends cuvee.util.Printer {
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases " + lines(term) + ";")
+        spec = spec :+ ("decreases\t" + lines(term).mkString + ";")
       if (inv != True)
-        spec = spec :+ ("invariant " + lines(inv) + ";")
+        spec = spec :+ ("invariant\t" + lines(inv).mkString + ";")
       if (sum != True)
-        spec = spec :+ ("summary " + lines(sum) + ";")
+        spec = spec :+ ("summary\t" + lines(sum).mkString + ";")
       if (!frames.isEmpty)
-        spec = spec :+ ("summary " + lines(frames) + ";")
+        spec = spec :+ ("frames\t" + lines(frames).mkString + ";")
 
       val body_ = "{" +: lines(body) :+ "}"
 
@@ -267,8 +267,6 @@ object Printer extends cuvee.util.Printer {
       case App(inst, List(left, right))
           if Expr.boogieInfix contains inst.toString =>
         // look in left/ right to see ops
-        if (left.isInstanceOf[App]) println("left: " + left); println()
-        if (right.isInstanceOf[App]) println("right: " + right)
         ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
       case _ => expr.toString
     }
