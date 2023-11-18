@@ -276,7 +276,7 @@ object Printer extends cuvee.util.Printer {
               var pre = ""
               phi match {
                 case App(inst_, args_) if args_.nonEmpty =>
-                  println(args); pre = ("(" +: lines(phi) :+ ")").mkString
+                  pre = ("(" +: lines(phi) :+ ")").mkString
                 case _ =>
                   pre = lines(phi).mkString
               }
@@ -284,6 +284,17 @@ object Printer extends cuvee.util.Printer {
             } else {
               lines(phi).mkString + " ==> " + lines(psi).mkString
             }
+          case _ if (phi.isInstanceOf[App]) =>
+            val App(inst, args) = phi
+            if (args.nonEmpty && inst.toString != "old") {
+              val (assoc_, prec_) = precedence(phi)
+              if (prec_ < prec) {
+                val pre = ("(" +: lines(phi) :+ ")").mkString
+                val con = lines(psi).mkString
+                return pre + " ==> " + con
+              }
+            }
+            lines(phi).mkString + " ==> " + lines(psi).mkString
           case _ =>
             lines(phi).mkString + " ==> " + lines(psi).mkString
         }
