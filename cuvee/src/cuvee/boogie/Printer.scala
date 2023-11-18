@@ -176,28 +176,23 @@ object Printer extends cuvee.util.Printer {
   }
 
   def lines(expr: Expr): List[String] = expr match {
-    case Lit(any, typ)                   => List(any.toString)
-    case Var(name, typ)                  => List(name.toString)
-    case App(inst, Nil)                  => List(inst.toString)
+    case Lit(any, typ)   => List(any.toString)
+    case Var(name, typ)  => List(name.toString)
+    case App(inst, Nil)  => List(inst.toString)
+    case App(inst, args) =>
+      // TODO I am not sure about this
+      if (inst.toString == "old") {
+        List(expr.toString)
+      } else {
+        val (assoc, prec) = precedence(expr)
+        List(format(expr, prec, assoc))
+      }
     case Bind(quant, formals, body, typ) => ???
     case Distinct(exprs)                 => ???
     case Is(arg, fun)                    => ???
     case Let(eqs, body)                  => ???
     case Match(expr, cases, typ)         => ???
     case Note(expr, attr)                => ???
-    case App(inst, args) =>
-      val map = boogie.Grammar.syntax.infix_ops
-
-      var operator = ""
-      if (map.contains(inst.toString)) {
-        operator = inst.toString
-      } else {
-        operator =
-          boogie.Parser.translate.filter(_._2 == inst.toString).map(_._1).head
-      }
-      val (assoc, prec) = map.get(operator).get
-
-      List(format(expr, prec, assoc))
   }
 
   def lines(any: Any): List[String] = any match {
@@ -241,8 +236,8 @@ object Printer extends cuvee.util.Printer {
     // case _ => List()
   }
 
-  /** When printing an infix application such as a + b the information from prec
-    * and assoc is used to decide whether we need parentheses.
+  /** When printing an infix application such as `a + b` the information from
+    * prec and assoc is used to decide whether parentheses are needed.
     *
     * For example `(a + b) * c` needs parentheses because context `_ * c` has a
     * strictly higher precedence than `+` .assoc is only necessary when prec is
@@ -258,9 +253,47 @@ object Printer extends cuvee.util.Printer {
     *   String to print for the given expr
     */
   private def format(expr: Expr, prec: Int, assoc: easyparse.Assoc): String =
+    // TODO add prec/ assoc
+    // idea: lookahead in arguments
     expr match {
+      // Logical connectives
+      case And(phis) =>
+        val args = phis map lines
+        (args.flatten).mkString(" && ")
+      case Or(phis) =>
+        val args = phis map lines
+        (args.flatten).mkString(" || ")
+      // Infix operators
+      case App(inst, List(left, right))
+          if Expr.boogieInfix contains inst.toString =>
+        // look in left/ right to see ops
+        if (left.isInstanceOf[App]) println("left: " + left); println()
+        if (right.isInstanceOf[App]) println("right: " + right)
+        ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
       case _ => expr.toString
     }
+
+  /** Provides a tuple containing associativity as well as precedence for the
+    * given expression.
+    *
+    * @param expr
+    *   to get prec an assoc for
+    * @return
+    *   associativity and precedence for the given expr
+    */
+  private def precedence(expr: Expr): (easyparse.Assoc, Int) = {
+    val map = boogie.Grammar.syntax.infix_ops
+    val App(inst, args) = expr
+
+    var operator = ""
+    if (map.contains(inst.toString)) {
+      operator = inst.toString
+    } else {
+      operator =
+        boogie.Parser.translate.filter(_._2 == inst.toString).map(_._1).head
+    }
+    map.get(operator).get
+  }
 
   private def if_(prog: If): List[String] = {
     val If(test, left, right) = prog
