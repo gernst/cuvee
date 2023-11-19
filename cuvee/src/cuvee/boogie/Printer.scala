@@ -16,6 +16,7 @@ trait Syntax extends util.Syntax {
 }
 
 object Printer extends cuvee.util.Printer {
+  import easyparse.Non
 
   def lines(cmd: Cmd): List[String] = cmd match {
     case Labels => cuvee.undefined
@@ -287,6 +288,7 @@ object Printer extends cuvee.util.Printer {
           case _ if (phi.isInstanceOf[App]) =>
             val App(inst, args) = phi
             if (args.nonEmpty && inst.toString != "old") {
+              println(phi)
               val (assoc_, prec_) = precedence(phi)
               if (prec_ < prec) {
                 val pre = ("(" +: lines(phi) :+ ")").mkString
@@ -342,7 +344,12 @@ object Printer extends cuvee.util.Printer {
           case _ =>
             ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
         }
-      case _ => expr.toString
+      // Unary
+      case Not(psi) => "!" + psi
+      // TODO I have no idea how I am supposed to get the precedence for UMinus
+      // since I do not know how to differentiate between "-" infix and "-" prefix
+      case UMinus(term) => "-" + term
+      case _            => expr.toString
     }
 
   /** Provides a tuple containing associativity as well as precedence for the
@@ -354,17 +361,20 @@ object Printer extends cuvee.util.Printer {
     *   associativity and precedence for the given expr
     */
   private def precedence(expr: Expr): (easyparse.Assoc, Int) = {
-    val map = boogie.Grammar.syntax.infix_ops
+    val infix = boogie.Grammar.syntax.infix_ops
+    val prefix = boogie.Grammar.syntax.prefix_ops
     val App(inst, args) = expr
 
-    var operator = ""
-    if (map.contains(inst.toString)) {
-      operator = inst.toString
+    if (infix.contains(inst.toString)) {
+      infix.get(inst.toString).get
+    } else if (inst.toString == "not") {
+      val prec = prefix.get("!").get
+      (Non, prec)
     } else {
-      operator =
+      val operator =
         boogie.Parser.translate.filter(_._2 == inst.toString).map(_._1).head
+      infix.get(operator).get
     }
-    map.get(operator).get
   }
 
   private def if_(prog: If): List[String] = {
