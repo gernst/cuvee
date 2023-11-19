@@ -177,9 +177,17 @@ object Printer extends cuvee.util.Printer {
   }
 
   def lines(expr: Expr): List[String] = expr match {
-    case Lit(any, typ)   => List(any.toString)
-    case Var(name, typ)  => List(name.toString)
-    case App(inst, Nil)  => List(inst.toString)
+    case Lit(any, typ)  => List(any.toString)
+    case Var(name, typ) => List(name.toString)
+    case App(inst, Nil) => List(inst.toString)
+    // Map access
+    case Select(arr, idx) =>
+      List(lines(arr).mkString + "[" + lines(idx).mkString + "]")
+    case Store(arr, idx, newval) =>
+      val assign = (lines(idx) :+ ":=") ++ lines(newval)
+      List(lines(arr).mkString + "[" + assign.mkString(" ") + "]")
+    // Applications (i.e. function calls)
+    // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
     case App(inst, args) =>
       // TODO I am not sure about this
       if (inst.toString == "old") {
@@ -254,9 +262,9 @@ object Printer extends cuvee.util.Printer {
     *   String to print for the given expr
     */
   private def format(expr: Expr, prec: Int, assoc: easyparse.Assoc): String =
-    // TODO add prec/ assoc
     expr match {
       // Logical connectives
+      // TODO add prec/ assoc
       case And(phis) =>
         val args = phis map lines
         (args.flatten).mkString(" && ")
