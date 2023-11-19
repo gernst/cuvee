@@ -299,6 +299,34 @@ object Printer extends cuvee.util.Printer {
             lines(phi).mkString + " ==> " + lines(psi).mkString
         }
       // Infix operators
+      case DivBy(lhs, rhs) =>
+        lhs match {
+          case App(inst_, _) if inst_.toString != "old" =>
+            var (assoc_, prec_) = precedence(lhs)
+            if (prec_ < prec) {
+              val inner = ("(" +: lines(lhs) :+ ")").mkString
+              val outer = "/" + lines(rhs).mkString
+              inner + " " + outer.mkString(" ")
+            } else {
+              ((lines(lhs) :+ "/") ++ lines(rhs)).mkString(" ")
+            }
+          case _ =>
+            ((lines(lhs) :+ "/") ++ lines(rhs)).mkString(" ")
+        }
+      case Mod(lhs, rhs) =>
+        lhs match {
+          case App(inst_, _) if inst_.toString != "old" =>
+            var (assoc_, prec_) = precedence(lhs)
+            if (prec_ < prec) {
+              val inner = ("(" +: lines(lhs) :+ ")").mkString
+              val outer = "%" + lines(rhs).mkString
+              inner + " " + outer.mkString(" ")
+            } else {
+              ((lines(lhs) :+ "%") ++ lines(rhs)).mkString(" ")
+            }
+          case _ =>
+            ((lines(lhs) :+ "%") ++ lines(rhs)).mkString(" ")
+        }
       case App(inst, List(left, right))
           if Expr.boogieInfix contains inst.toString =>
         left match {
