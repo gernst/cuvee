@@ -40,7 +40,7 @@ object Printer extends cuvee.util.Printer {
         case Some(s) => key = s
         case None    => key = k
       }
-      key -> (k, v, Non)
+      key -> (k, v)
     }
 
   def lines(cmd: Cmd): List[String] = cmd match {
@@ -260,8 +260,8 @@ object Printer extends cuvee.util.Printer {
     // TODO: explicitly match unary and binary functions
     case App(inst, List(left, right)) if infix contains inst.toString =>
       val (name, prec, assoc) = infix(inst.toString)
-      var a = lines(left).mkString
-      var b = lines(right).mkString
+      var a = line(left)
+      var b = line(right)
       // decide if we need parens around a and b
       val (precA, assocA) = precedence(left)
       val (precB, assocB) = precedence(right)
@@ -271,6 +271,18 @@ object Printer extends cuvee.util.Printer {
       if (precB > prec || precB == prec && assocB == assoc) b = "(" + b + ")"
 
       a + " " + name + " " + b
+    case App(inst, List(expr)) if prefix.contains(inst.toString) =>
+      val (name, prec) = prefix(inst.toString)
+      val (prec_, assoc) = precedence(expr)
+
+      var arg = line(expr)
+      if (prec > prec) arg = "(" + arg + ")"
+
+      name + " " + arg
+    case App(inst, args) => inst.toString + args.toString + "TODO"
+      val exprs = args map line
+
+      inst.toString + "(" + exprs.mkString + ")"
     // Applications (i.e. function calls)
     // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
     case Bind(quant, formals, body, typ) =>
@@ -415,8 +427,7 @@ object Printer extends cuvee.util.Printer {
       (prec, assoc)
     case App(inst, _) if prefix.contains(inst.toString) =>
       val prec = prefix(inst.toString)._2
-      val assoc = prefix(inst.toString)._3
-      (prec, assoc)
+      (prec, Non)
     case _ => (0, Non)
   }
 
