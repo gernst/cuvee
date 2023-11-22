@@ -75,7 +75,7 @@ object Printer extends cuvee.util.Printer {
             "  " + body + ";"
           )
         case _ =>
-          List("axiom " + expr + ";")
+          List("axiom " + line(expr)  +";")
       }
     case Lemma(expr, tactic, _) =>
       tactic match {
@@ -129,7 +129,7 @@ object Printer extends cuvee.util.Printer {
             ";"
           )
       }
-      "data " :: lines
+      "data " +: lines
     case DeclareProc(name, params, in, out, spec)      => cuvee.undefined
     case DefineProc(name, params, in, out, spec, body) =>
       // TODO what is 'params' and how does 'out' look?
@@ -158,7 +158,7 @@ object Printer extends cuvee.util.Printer {
     case Return       => List("return;")
     case Local(xs, rhs) =>
       val vars = for (x <- xs) yield x + ": " + x.typ
-      val exprs = for (e <- rhs) yield lines(e)
+      val exprs = for (e <- rhs) yield line(e)
       List(
         "var " + vars.mkString(", ") +
           " := " + exprs.flatten.mkString(", ") + ";"
@@ -202,7 +202,7 @@ object Printer extends cuvee.util.Printer {
   }
 
   def lines(any: Any): List[String] = any match {
-    case cmd: Cmd   => lines(cmd)
+    case cmd: Cmd   => lines(cmd) :+ ""
     case prog: Prog => lines(prog)
     case expr: Expr => List(line(expr))
     // Boolean values
