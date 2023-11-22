@@ -189,13 +189,8 @@ object Printer extends cuvee.util.Printer {
     // Applications (i.e. function calls)
     // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
     case App(inst, args) =>
-      // TODO I am not sure about this
-      if (inst.toString == "old") {
-        List(expr.toString)
-      } else {
-        val (assoc, prec) = precedence(expr)
-        List(format(expr, prec, assoc))
-      }
+      val (assoc, prec) = precedence(expr)
+      List(format(expr, prec, assoc))
     case Bind(quant, formals, body, typ) => ???
     case Distinct(exprs)                 => ???
     case Is(arg, fun)                    => ???
@@ -371,6 +366,8 @@ object Printer extends cuvee.util.Printer {
   private def precedence(expr: Expr): (easyparse.Assoc, Int) = {
     val infix = boogie.Grammar.syntax.infix_ops
     val prefix = boogie.Grammar.syntax.prefix_ops
+    val map = boogie.Parser.translate.map(_.swap)
+
     val App(inst, args) = expr
 
     if (infix.contains(inst.toString)) {
@@ -378,10 +375,11 @@ object Printer extends cuvee.util.Printer {
     } else if (inst.toString == "not") {
       val prec = prefix.get("!").get
       (Non, prec)
+    } else if (map.contains(inst.toString)) {
+      val Some(op) = map.get(inst.toString)
+      infix.get(op).get
     } else {
-      val operator =
-        boogie.Parser.translate.filter(_._2 == inst.toString).map(_._1).head
-      infix.get(operator).get
+      (Non, 9)
     }
   }
 
