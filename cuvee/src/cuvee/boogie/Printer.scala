@@ -15,6 +15,7 @@ trait Syntax extends util.Syntax {
   def bexpr: List[Any]
 }
 
+/** Printer for boogie format */
 object Printer extends cuvee.util.Printer {
   import easyparse.Assoc
   import easyparse.Non
@@ -43,8 +44,8 @@ object Printer extends cuvee.util.Printer {
       key -> (k, v)
     }
 
-  def lines(cmd: Cmd): List[String] = cmd match {
-    case Labels => cuvee.undefined
+  private def lines(cmd: Cmd): List[String] = cmd match {
+    case Labels => ???
     case SetLogic(logic) =>
       List("/* ", "Command unsupported in boogie:", "set-logic", logic, " */")
     case SetOption(attr, arg) =>
@@ -60,11 +61,11 @@ object Printer extends cuvee.util.Printer {
       List("/* ", "Command unsupported in boogie:", "get-info", attr, " */")
     case SetInfo(attr, _) =>
       List("/* ", "Command unsupported in boogie:", "set-info", attr, " */")
-    case Push(depth) => cuvee.undefined
-    case Pop(depth)  => cuvee.undefined
-    case GetModel    => cuvee.undefined
-    case Exit        => cuvee.undefined
-    case Reset       => cuvee.undefined
+    case Push(depth) => ???
+    case Pop(depth)  => ???
+    case GetModel    => ???
+    case Exit        => ???
+    case Reset       => ???
     case Assert(expr) =>
       expr match {
         case Bind(quant, formals, body, _) =>
@@ -75,27 +76,25 @@ object Printer extends cuvee.util.Printer {
             "  " + body + ";"
           )
         case _ =>
-          List("axiom " + line(expr)  +";")
+          List("axiom " + line(expr) + ";")
       }
     case Lemma(expr, tactic, _) =>
       tactic match {
         case None         => List("lemma " + line(expr) + ";")
         case Some(tactic) => List("lemma " + line(expr), "proof" + tactic + ";")
       }
-    case CheckSat                  => cuvee.undefined
+    case CheckSat                  => ???
     case DeclareSort(name, arity)  => List("type " + name + ";") // add params
     case DefineSort(name, _, body) => List("type " + name + " = " + body + ";")
     case x @ DeclareFun(name, params, _, res) =>
       List(
         "function " + name +
-          "(" + x.formals.toStringTyped.toLowerCase + "): " +
-          res.toString.toLowerCase + ";"
+          "(" + x.formals.toStringTyped.toLowerCase + "): " + btype(res) + ";"
       )
     case DefineFun(name, _, formals, res, body, _) =>
       List(
         "function " + name +
-          "(" + formals.toStringTyped.toLowerCase + "): " +
-          res.toString.toLowerCase + " {",
+          "(" + formals.toStringTyped.toLowerCase + "): " + btype(res) + " {",
         "  " + body,
         "}"
       )
@@ -130,7 +129,7 @@ object Printer extends cuvee.util.Printer {
           )
       }
       "data " +: lines
-    case DeclareProc(name, params, in, out, spec)      => cuvee.undefined
+    case DeclareProc(name, params, in, out, spec)      => ???
     case DefineProc(name, params, in, out, spec, body) =>
       // TODO what is 'params' and how does 'out' look?
       val rest = "{" +: lines(body) :+ "}"
@@ -152,22 +151,23 @@ object Printer extends cuvee.util.Printer {
       }
   }
 
-  def lines(prog: Prog): List[String] = prog match {
+  private def lines(prog: Prog): List[String] = prog match {
     case Block(progs) => indent(progs flatMap lines)
     case Break        => List("break;")
     case Return       => List("return;")
     case Local(xs, rhs) =>
-      val vars = for (x <- xs) yield x + ": " + x.typ
+      val vars = for (x <- xs) yield x + ": " + btype(x.typ)
       val exprs = for (e <- rhs) yield line(e)
       List(
         "var " + vars.mkString(", ") +
           " := " + exprs.flatten.mkString(", ") + ";"
       )
     case Assign(xs, rhs) =>
-      val exprs = for (e <- rhs) yield lines(e).mkString
+      val exprs = for (e <- rhs) yield line(e)
       List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
+        // TODO does not work in combination with 'returns'
         case (Nil, True, phi) => List("assert " + line(phi) + ";")
         case (Nil, phi, True) => List("assume " + line(phi) + ";")
         case (xs, True, True) => List("havoc " + xs.mkString(", "))
@@ -201,6 +201,13 @@ object Printer extends cuvee.util.Printer {
     case Call(name, in, out) => ???
   }
 
+  /** Takes care of formatting the given argument to print formated boogie.
+    *
+    * @param any
+    *   argument to be formated
+    * @return
+    *   List[String] to be printed
+    */
   def lines(any: Any): List[String] = any match {
     case cmd: Cmd   => lines(cmd) :+ ""
     case prog: Prog => lines(prog)
@@ -277,7 +284,7 @@ object Printer extends cuvee.util.Printer {
       val exprs = args map line
       inst.toString + "(" + exprs.mkString(",") + ")"
     case Bind(quant, formals, body, typ) =>
-      val vars = for (x <- formals) yield x + ": " + x.typ
+      val vars = for (x <- formals) yield x + ": " + btype(x.typ)
       val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
       (quantifier +: lines(body)).mkString
     case Distinct(exprs)         => ???
@@ -318,6 +325,7 @@ object Printer extends cuvee.util.Printer {
     }
   }
 
-  private def indent(lines: List[String]): List[String] =
-    for (l <- lines) yield "  " + l
+  private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
+
+  private def btype(typ: Type) = typ.toString.toLowerCase
 }
