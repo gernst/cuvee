@@ -201,51 +201,10 @@ object Printer extends cuvee.util.Printer {
     case Call(name, in, out) => ???
   }
 
-  // TODO: return single String
-  def lines(expr: Expr): List[String] = expr match {
-    case Lit(any, typ)  => List(any.toString)
-    case Var(name, typ) => List(name.toString)
-    case App(inst, Nil) => List(inst.toString)
-    // Map access
-    case Select(arr, idx) =>
-      List(lines(arr).mkString + "[" + lines(idx).mkString + "]")
-    case Store(arr, idx, newval) =>
-      val assign = (lines(idx) :+ ":=") ++ lines(newval)
-      List(lines(arr).mkString + "[" + assign.mkString(" ") + "]")
-
-    // TODO: only if necessary
-    // case Old(arg) =>
-    //   "old(" + arg + ")"
-
-    // TODO: explicitly match unary and binary functions
-    // case App(inst, List(left, right)) if infix contains inst.name =>
-    //   val (name, prec, assoc) = infix(inst.name)
-    //    var a = lines(left), b = lines(right)
-    //    decide if we need parens around a and b
-    //    val (aprec, aaosc) = precedence(left)
-    //    if (aprec > prec || aprec == prec && aassoc != assoc) a = "(" + a + ")"
-    // return a + " " + name + " " + b
-
-    // Applications (i.e. function calls)
-    // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
-    case App(inst, args) =>
-      val (assoc, prec) = precedence(expr)
-      List(format(expr, prec, assoc))
-    case Bind(quant, formals, body, typ) =>
-      val vars = for (x <- formals) yield x + ": " + x.typ
-      val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
-      quantifier +: lines(body) :+ ";"
-    case Distinct(exprs)         => ???
-    case Is(arg, fun)            => ???
-    case Let(eqs, body)          => ???
-    case Match(expr, cases, typ) => ???
-    case Note(expr, attr)        => ???
-  }
-
   def lines(any: Any): List[String] = any match {
     case cmd: Cmd   => lines(cmd)
     case prog: Prog => lines(prog)
-    case expr: Expr => lines(expr)
+    case expr: Expr => List(line(expr))
     // Boolean values
     case true  => List("true")
     case false => List("false")
@@ -281,6 +240,46 @@ object Printer extends cuvee.util.Printer {
       }
     // Fall-through: just crash
     // case _ => List()
+  }
+
+  private def line(expr: Expr): String = expr match {
+    case Lit(any, typ)  => any.toString
+    case Var(name, typ) => name.toString
+    case App(inst, Nil) => inst.toString
+    // Map access
+    case Select(arr, idx) =>
+      lines(arr).mkString + "[" + lines(idx).mkString + "]"
+    case Store(arr, idx, newval) =>
+      val assign = (lines(idx) :+ ":=") ++ lines(newval)
+      lines(arr).mkString + "[" + assign.mkString(" ") + "]"
+
+    // TODO: only if necessary
+    // case Old(arg) =>
+    //   "old(" + arg + ")"
+
+    // TODO: explicitly match unary and binary functions
+    // case App(inst, List(left, right)) if infix contains inst.name =>
+    //   val (name, prec, assoc) = infix(inst.name)
+    //    var a = lines(left), b = lines(right)
+    //    decide if we need parens around a and b
+    //    val (aprec, aaosc) = precedence(left)
+    //    if (aprec > prec || aprec == prec && aassoc != assoc) a = "(" + a + ")"
+    // return a + " " + name + " " + b
+
+    // Applications (i.e. function calls)
+    // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
+    case App(inst, args) =>
+      val (assoc, prec) = precedence(expr)
+      format(expr, prec, assoc)
+    case Bind(quant, formals, body, typ) =>
+      val vars = for (x <- formals) yield x + ": " + x.typ
+      val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
+      (quantifier +: lines(body) :+ ";").mkString
+    case Distinct(exprs)         => ???
+    case Is(arg, fun)            => ???
+    case Let(eqs, body)          => ???
+    case Match(expr, cases, typ) => ???
+    case Note(expr, attr)        => ???
   }
 
   /** When printing an infix application such as `a + b` the information from
