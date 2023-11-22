@@ -16,12 +16,32 @@ trait Syntax extends util.Syntax {
 }
 
 object Printer extends cuvee.util.Printer {
+  import easyparse.Assoc
   import easyparse.Non
 
   import boogie.Grammar.syntax
+  import boogie.Parser.translate
 
-  // TODO: create maps for infix, prefix, postifx (?)
-  //       that maps Cuvée functions to prec+assoc+function name as string
+  // cuvee.name -> (boogie.name, assoc, prec)
+  private val infix =
+    for ((k, v) <- syntax.infix_ops) yield {
+      val (assoc, prec) = v
+      var key = "";
+      translate.get(k) match {
+        case Some(s) => key = s
+        case None    => key = k
+      }
+      key -> (k, prec, assoc)
+    }
+  private val prefix =
+    for ((k, v) <- syntax.prefix_ops) yield {
+      var key = "";
+      translate.get(k) match {
+        case Some(s) => key = s
+        case None    => key = k
+      }
+      key -> (k, v, Non)
+    }
 
   def lines(cmd: Cmd): List[String] = cmd match {
     case Labels => cuvee.undefined
@@ -314,7 +334,6 @@ object Printer extends cuvee.util.Printer {
           case _ if (phi.isInstanceOf[App]) =>
             val App(inst, args) = phi
             if (args.nonEmpty && inst.toString != "old") {
-              println(phi)
               val (assoc_, prec_) = precedence(phi)
               if (prec_ < prec) {
                 val pre = ("(" +: lines(phi) :+ ")").mkString
