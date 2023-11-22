@@ -22,7 +22,7 @@ object Printer extends cuvee.util.Printer {
   import boogie.Grammar.syntax
   import boogie.Parser.translate
 
-  // cuvee.name -> (boogie.name, assoc, prec)
+  // cuvee.name -> (boogie.name, prec, assoc)
   private val infix =
     for ((k, v) <- syntax.infix_ops) yield {
       val (assoc, prec) = v
@@ -258,19 +258,21 @@ object Printer extends cuvee.util.Printer {
     //   "old(" + arg + ")"
 
     // TODO: explicitly match unary and binary functions
-    // case App(inst, List(left, right)) if infix contains inst.name =>
-    //   val (name, prec, assoc) = infix(inst.name)
-    //    var a = lines(left), b = lines(right)
-    //    decide if we need parens around a and b
-    //    val (aprec, aaosc) = precedence(left)
-    //    if (aprec > prec || aprec == prec && aassoc != assoc) a = "(" + a + ")"
-    // return a + " " + name + " " + b
+    case App(inst, List(left, right)) if infix contains inst.toString =>
+      val (name, prec, assoc) = infix(inst.toString)
+      var a = lines(left).mkString
+      var b = lines(right).mkString
+      // decide if we need parens around a and b
+      val (precA, assocA) = precedence(left)
+      val (precB, assocB) = precedence(right)
 
+      // TODO the example was with !=. I AM NOT SURE. THINK ABOUT IT
+      if (precA > prec || precA == prec && assocA == assoc) a = "(" + a + ")"
+      if (precB > prec || precB == prec && assocB == assoc) b = "(" + b + ")"
+
+      a + " " + name + " " + b
     // Applications (i.e. function calls)
     // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
-    case App(inst, args) =>
-      val (assoc, prec) = precedence(expr)
-      format(expr, prec, assoc)
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + x.typ
       val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
@@ -282,22 +284,23 @@ object Printer extends cuvee.util.Printer {
     case Note(expr, attr)        => ???
   }
 
+  /*
   /** When printing an infix application such as `a + b` the information from
-    * prec and assoc is used to decide whether parentheses are needed.
-    *
-    * For example `(a + b) * c` needs parentheses because context `_ * c` has a
-    * strictly higher precedence than `+` .assoc is only necessary when prec is
-    * the same as the current function.
-    *
-    * @param expr
-    *   to print
-    * @param prec
-    *   is the precedence of the surrounding context
-    * @param assoc
-    *   the associativity of the given expr
-    * @return
-    *   String to print for the given expr
-    */
+   * prec and assoc is used to decide whether parentheses are needed.
+   *
+   * For example `(a + b) * c` needs parentheses because context `_ * c` has a
+   * strictly higher precedence than `+` .assoc is only necessary when prec is
+   * the same as the current function.
+   *
+   * @param expr
+   *   to print
+   * @param prec
+   *   is the precedence of the surrounding context
+   * @param assoc
+   *   the associativity of the given expr
+   * @return
+   *   String to print for the given expr
+   */
   private def format(expr: Expr, prec: Int, assoc: easyparse.Assoc): String =
     expr match {
       // Logical connectives
@@ -395,36 +398,26 @@ object Printer extends cuvee.util.Printer {
       case UMinus(term) => "-" + term
       case _            => expr.toString
     }
+   */
 
-  /** Provides a tuple containing associativity as well as precedence for the
-    * given expression.
+  /** Provides a tuple containing precedence and assciativity for the given
+    * expression.
     *
     * @param expr
     *   to get prec an assoc for
     * @return
-    *   associativity and precedence for the given expr
+    *   prec and assoc for the given expr
     */
-  private def precedence(expr: Expr): (easyparse.Assoc, Int) = {
-    val infix = boogie.Grammar.syntax.infix_ops
-    val prefix = boogie.Grammar.syntax.prefix_ops
-    val map = boogie.Parser.translate.map(_.swap)
-
-    // TODO: add case when expr is *NOT* an App or not an infix/prefix/postfix operator
-    // and return
-
-    val App(inst, args) = expr
-
-    if (infix.contains(inst.toString)) {
-      infix.get(inst.toString).get
-    } else if (inst.toString == "not") {
-      val prec = prefix.get("!").get
-      (Non, prec)
-    } else if (map.contains(inst.toString)) {
-      val Some(op) = map.get(inst.toString)
-      infix.get(op).get
-    } else {
-      (Non, 9)
-    }
+  private def precedence(expr: Expr): (Int, Assoc) = expr match {
+    case App(inst, _) if infix.contains(inst.toString) =>
+      val prec = infix(inst.toString)._2
+      val assoc = infix(inst.toString)._3
+      (prec, assoc)
+    case App(inst, _) if prefix.contains(inst.toString) =>
+      val prec = prefix(inst.toString)._2
+      val assoc = prefix(inst.toString)._3
+      (prec, assoc)
+    case _ => (0, Non)
   }
 
   private def if_(prog: If): List[String] = {
