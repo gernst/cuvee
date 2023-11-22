@@ -211,12 +211,15 @@ object Printer extends cuvee.util.Printer {
     case App(inst, args) =>
       val (assoc, prec) = precedence(expr)
       List(format(expr, prec, assoc))
-    case Bind(quant, formals, body, typ) => ???
-    case Distinct(exprs)                 => ???
-    case Is(arg, fun)                    => ???
-    case Let(eqs, body)                  => ???
-    case Match(expr, cases, typ)         => ???
-    case Note(expr, attr)                => ???
+    case Bind(quant, formals, body, typ) =>
+      val vars = for (x <- formals) yield x + ": " + x.typ
+      val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
+      quantifier +: lines(body) :+ ";"
+    case Distinct(exprs)         => ???
+    case Is(arg, fun)            => ???
+    case Let(eqs, body)          => ???
+    case Match(expr, cases, typ) => ???
+    case Note(expr, attr)        => ???
   }
 
   def lines(any: Any): List[String] = any match {
