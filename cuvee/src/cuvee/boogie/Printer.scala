@@ -79,8 +79,8 @@ object Printer extends cuvee.util.Printer {
       }
     case Lemma(expr, tactic, _) =>
       tactic match {
-        case None         => List("lemma " + expr + ";")
-        case Some(tactic) => List("lemma " + expr, "proof" + tactic + ";")
+        case None         => List("lemma " + line(expr) + ";")
+        case Some(tactic) => List("lemma " + line(expr), "proof" + tactic + ";")
       }
     case CheckSat                  => cuvee.undefined
     case DeclareSort(name, arity)  => List("type " + name + ";") // add params
@@ -95,7 +95,7 @@ object Printer extends cuvee.util.Printer {
       List(
         "function " + name +
           "(" + formals.toStringTyped.toLowerCase + "): " +
-          res + "{",
+          res.toString.toLowerCase + " {",
         "  " + body,
         "}"
       )
@@ -260,10 +260,9 @@ object Printer extends cuvee.util.Printer {
       val (precA, assocA) = precedence(left)
       val (precB, assocB) = precedence(right)
 
-      // TODO the example was with !=. I AM NOT SURE. THINK ABOUT IT
-      // TODO lor and land and eq
-      if (precA > prec || precA == prec && assocA == assoc) a = "(" + a + ")"
-      if (precB > prec || precB == prec && assocB == assoc) b = "(" + b + ")"
+      // TODO the example was with != and <. I AM NOT SURE. THINK ABOUT IT
+      if (precA < prec || precA == prec && assocA == assoc) a = "(" + a + ")"
+      if (precB < prec || precB == prec && assocB == assoc) b = "(" + b + ")"
 
       a + " " + name + " " + b
     case App(inst, List(expr)) if prefix.contains(inst.toString) =>
@@ -288,7 +287,7 @@ object Printer extends cuvee.util.Printer {
     case Note(expr, attr)        => ???
   }
 
-  /** Provides a tuple containing precedence and assciativity for the given
+  /** Provides a tuple containing precedence and associativity for the given
     * expression.
     *
     * @param expr
@@ -304,7 +303,7 @@ object Printer extends cuvee.util.Printer {
     case App(inst, _) if prefix.contains(inst.toString) =>
       val prec = prefix(inst.toString)._2
       (prec, Non)
-    case _ => (0, Non)
+    case _ => (10, Non)
   }
 
   private def if_(prog: If): List[String] = {
