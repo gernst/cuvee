@@ -572,7 +572,9 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   }
 }
 
-case class Quant(name: String)
+case class Quant(name: String) {
+  def toString = name
+}
 
 object Quant {
   val exists = Quant("exists")

@@ -18,6 +18,11 @@ trait Syntax extends util.Syntax {
 object Printer extends cuvee.util.Printer {
   import easyparse.Non
 
+  import boogie.Grammar.syntax
+
+  // TODO: create maps for infix, prefix, postifx (?)
+  //       that maps Cuvée functions to prec+assoc+function name as string
+
   def lines(cmd: Cmd): List[String] = cmd match {
     case Labels => cuvee.undefined
     case SetLogic(logic) =>
@@ -176,6 +181,7 @@ object Printer extends cuvee.util.Printer {
     case Call(name, in, out) => ???
   }
 
+  // TODO: return single String
   def lines(expr: Expr): List[String] = expr match {
     case Lit(any, typ)  => List(any.toString)
     case Var(name, typ) => List(name.toString)
@@ -186,6 +192,20 @@ object Printer extends cuvee.util.Printer {
     case Store(arr, idx, newval) =>
       val assign = (lines(idx) :+ ":=") ++ lines(newval)
       List(lines(arr).mkString + "[" + assign.mkString(" ") + "]")
+
+    // TODO: only if necessary
+    // case Old(arg) =>
+    //   "old(" + arg + ")"
+
+    // TODO: explicitly match unary and binary functions
+    // case App(inst, List(left, right)) if infix contains inst.name =>
+    //   val (name, prec, assoc) = infix(inst.name)
+    //    var a = lines(left), b = lines(right)
+    //    decide if we need parens around a and b
+    //    val (aprec, aaosc) = precedence(left)
+    //    if (aprec > prec || aprec == prec && aassoc != assoc) a = "(" + a + ")"
+    // return a + " " + name + " " + b
+
     // Applications (i.e. function calls)
     // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
     case App(inst, args) =>
@@ -367,6 +387,9 @@ object Printer extends cuvee.util.Printer {
     val infix = boogie.Grammar.syntax.infix_ops
     val prefix = boogie.Grammar.syntax.prefix_ops
     val map = boogie.Parser.translate.map(_.swap)
+
+    // TODO: add case when expr is *NOT* an App or not an infix/prefix/postfix operator
+    // and return
 
     val App(inst, args) = expr
 
