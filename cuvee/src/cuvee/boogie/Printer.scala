@@ -168,9 +168,9 @@ object Printer extends cuvee.util.Printer {
       List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
-        case (Nil, True, phi) => indent(List("assert " + phi + ";"))
-        case (Nil, phi, True) => indent(List("assume " + phi + ";"))
-        case (xs, True, True) => indent(List("havoc " + xs.mkString(", ")))
+        case (Nil, True, phi) => List("assert " + line(phi) + ";")
+        case (Nil, phi, True) => List("assume " + line(phi) + ";")
+        case (xs, True, True) => List("havoc " + xs.mkString(", "))
         case _ =>
           List(
             "/* ",
@@ -252,12 +252,6 @@ object Printer extends cuvee.util.Printer {
     case Store(arr, idx, newval) =>
       val assign = (lines(idx) :+ ":=") ++ lines(newval)
       lines(arr).mkString + "[" + assign.mkString(" ") + "]"
-
-    // TODO: only if necessary
-    // case Old(arg) =>
-    //   "old(" + arg + ")"
-
-    // TODO: explicitly match unary and binary functions
     case App(inst, List(left, right)) if infix contains inst.toString =>
       val (name, prec, assoc) = infix(inst.toString)
       var a = line(left)
@@ -267,6 +261,7 @@ object Printer extends cuvee.util.Printer {
       val (precB, assocB) = precedence(right)
 
       // TODO the example was with !=. I AM NOT SURE. THINK ABOUT IT
+      // TODO lor and land and eq
       if (precA > prec || precA == prec && assocA == assoc) a = "(" + a + ")"
       if (precB > prec || precB == prec && assocB == assoc) b = "(" + b + ")"
 
@@ -278,139 +273,20 @@ object Printer extends cuvee.util.Printer {
       var arg = line(expr)
       if (prec > prec) arg = "(" + arg + ")"
 
-      name + " " + arg
-    case App(inst, args) => inst.toString + args.toString + "TODO"
+      name + arg
+    case App(inst, args) =>
       val exprs = args map line
-
-      inst.toString + "(" + exprs.mkString + ")"
-    // Applications (i.e. function calls)
-    // TODO how are these supposed to look? calls arent implemented in prog yet (same reason)
+      inst.toString + "(" + exprs.mkString(",") + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + x.typ
       val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
-      (quantifier +: lines(body) :+ ";").mkString
+      (quantifier +: lines(body)).mkString
     case Distinct(exprs)         => ???
     case Is(arg, fun)            => ???
     case Let(eqs, body)          => ???
     case Match(expr, cases, typ) => ???
     case Note(expr, attr)        => ???
   }
-
-  /*
-  /** When printing an infix application such as `a + b` the information from
-   * prec and assoc is used to decide whether parentheses are needed.
-   *
-   * For example `(a + b) * c` needs parentheses because context `_ * c` has a
-   * strictly higher precedence than `+` .assoc is only necessary when prec is
-   * the same as the current function.
-   *
-   * @param expr
-   *   to print
-   * @param prec
-   *   is the precedence of the surrounding context
-   * @param assoc
-   *   the associativity of the given expr
-   * @return
-   *   String to print for the given expr
-   */
-  private def format(expr: Expr, prec: Int, assoc: easyparse.Assoc): String =
-    expr match {
-      // Logical connectives
-      // TODO add prec/ assoc
-      case And(phis) =>
-        val args = phis map lines
-        (args.flatten).mkString(" && ")
-      case Or(phis) =>
-        val args = phis map lines
-        (args.flatten).mkString(" || ")
-      // Iff (<==>), needs special handling, as this is also represented by "=" internally
-      case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
-        lines(lhs).mkString + " <==> " + lines(rhs).mkString
-      case Eq(lhs, rhs) =>
-        lines(lhs).mkString + " == " + lines(rhs).mkString
-      case Imp(phi, psi) =>
-        psi match {
-          case App(inst, args) if args.nonEmpty && inst.toString != "old" =>
-            val (assoc_, prec_) = precedence(psi)
-            if (prec_ < prec) {
-              val con = ("(" +: lines(psi) :+ ")").mkString
-              var pre = ""
-              phi match {
-                case App(inst_, args_) if args_.nonEmpty =>
-                  pre = ("(" +: lines(phi) :+ ")").mkString
-                case _ =>
-                  pre = lines(phi).mkString
-              }
-              pre + " ==> " + con
-            } else {
-              lines(phi).mkString + " ==> " + lines(psi).mkString
-            }
-          case _ if (phi.isInstanceOf[App]) =>
-            val App(inst, args) = phi
-            if (args.nonEmpty && inst.toString != "old") {
-              val (assoc_, prec_) = precedence(phi)
-              if (prec_ < prec) {
-                val pre = ("(" +: lines(phi) :+ ")").mkString
-                val con = lines(psi).mkString
-                return pre + " ==> " + con
-              }
-            }
-            lines(phi).mkString + " ==> " + lines(psi).mkString
-          case _ =>
-            lines(phi).mkString + " ==> " + lines(psi).mkString
-        }
-      // Infix operators
-      case DivBy(lhs, rhs) =>
-        lhs match {
-          case App(inst_, _) if inst_.toString != "old" =>
-            var (assoc_, prec_) = precedence(lhs)
-            if (prec_ < prec) {
-              val inner = ("(" +: lines(lhs) :+ ")").mkString
-              val outer = "/" + lines(rhs).mkString
-              inner + " " + outer.mkString(" ")
-            } else {
-              ((lines(lhs) :+ "/") ++ lines(rhs)).mkString(" ")
-            }
-          case _ =>
-            ((lines(lhs) :+ "/") ++ lines(rhs)).mkString(" ")
-        }
-      case Mod(lhs, rhs) =>
-        lhs match {
-          case App(inst_, _) if inst_.toString != "old" =>
-            var (assoc_, prec_) = precedence(lhs)
-            if (prec_ < prec) {
-              val inner = ("(" +: lines(lhs) :+ ")").mkString
-              val outer = "%" + lines(rhs).mkString
-              inner + " " + outer.mkString(" ")
-            } else {
-              ((lines(lhs) :+ "%") ++ lines(rhs)).mkString(" ")
-            }
-          case _ =>
-            ((lines(lhs) :+ "%") ++ lines(rhs)).mkString(" ")
-        }
-      case App(inst, List(left, right))
-          if Expr.boogieInfix contains inst.toString =>
-        left match {
-          case App(inst_, _) if inst_.toString != "old" =>
-            var (assoc_, prec_) = precedence(left)
-            if (prec_ < prec) {
-              val inner = ("(" +: lines(left) :+ ")").mkString
-              val outer = inst.toString + lines(right).mkString
-              inner + " " + outer.mkString(" ")
-            } else {
-              ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
-            }
-          case _ =>
-            ((lines(left) :+ inst.toString) ++ lines(right)).mkString(" ")
-        }
-      // Unary
-      case Not(psi) => "!" + psi
-      // TODO I have no idea how I am supposed to get the precedence for UMinus
-      // since I do not know how to differentiate between "-" infix and "-" prefix
-      case UMinus(term) => "-" + term
-      case _            => expr.toString
-    }
-   */
 
   /** Provides a tuple containing precedence and assciativity for the given
     * expression.
