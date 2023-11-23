@@ -146,7 +146,7 @@ object Printer extends cuvee.util.Printer {
               header ++ rest
             case Some(s) =>
               val spec_ = lines(s)
-              header ++ spec_ ++ rest
+              header ++ indent(spec_) ++ rest
           }
       }
   }
@@ -158,10 +158,7 @@ object Printer extends cuvee.util.Printer {
     case Local(xs, rhs) =>
       val vars = for (x <- xs) yield x + ": " + btype(x.typ)
       val exprs = for (e <- rhs) yield line(e)
-      List(
-        "var " + vars.mkString(", ") +
-          " := " + exprs.flatten.mkString(", ") + ";"
-      )
+      List("var " + vars.mkString(", ") + " := " + exprs.mkString(", ") + ";")
     case Assign(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
       List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
@@ -267,7 +264,6 @@ object Printer extends cuvee.util.Printer {
       val (precA, assocA) = precedence(left)
       val (precB, assocB) = precedence(right)
 
-      // TODO the example was with != and <. I AM NOT SURE. THINK ABOUT IT
       if (precA < prec || precA == prec && assocA == assoc) a = "(" + a + ")"
       if (precB < prec || precB == prec && assocB == assoc) b = "(" + b + ")"
 
@@ -327,5 +323,13 @@ object Printer extends cuvee.util.Printer {
 
   private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
 
-  private def btype(typ: Type) = typ.toString.toLowerCase
+  private def btype(typ: Type): String = typ match {
+    case Sort(Con.bool, _)           => "bool"
+    case Sort(Con.int, _)            => "int"
+    case Sort(Con.real, _)           => "real"
+    case Sort(Con.list, List(a))     => btype(a)
+    case Sort(Con.array, List(a, b)) => "[" + btype(a) + "]" + btype(b)
+    case Param(name)                 => name.name
+    case _                           => typ.toString
+  }
 }
