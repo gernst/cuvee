@@ -1,15 +1,11 @@
 package cuvee.boogie
 
-import cuvee.error
-import cuvee.util
-import cuvee.pure._
-import cuvee.util.Name
-import cuvee.smtlib.Res
-import cuvee.smtlib
-import cuvee.imp.Prog
-import cuvee.imp._
-import cuvee.smtlib._
 import cuvee.boogie
+import cuvee.imp._
+import cuvee.pure._
+import cuvee.smtlib
+import cuvee.smtlib._
+import cuvee.util
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -217,7 +213,7 @@ object Printer extends cuvee.util.Printer {
     case i: BigInt => List(i.toString)
     case f: Float  => List(f.toString)
     // Name
-    case n: Name           => List(n.toLabel)
+    case n: util.Name      => List(n.toLabel)
     case smtlib.Error(msg) => List(msg.mkString("\"", " ", "\""))
     case res: Res          => List(res.toString())
     // Props
