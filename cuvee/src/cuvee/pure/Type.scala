@@ -3,11 +3,10 @@ package cuvee.pure
 import cuvee.StringOps
 import cuvee.error
 import cuvee.util
-import cuvee.boogie
 import cuvee.util.Name
 import cuvee.util.Alpha
 
-sealed trait Type extends Type.term with util.Syntax with boogie.Syntax {}
+sealed trait Type extends Type.term with util.Syntax {}
 
 case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends util.Syntax
 
@@ -163,7 +162,6 @@ case class Param(name: Name) extends Type with Type.x {
     types exists (this in _)
   }
 
-  def bexpr = List(name)
   override def toString = name.toString
 }
 
@@ -194,12 +192,6 @@ case class Sort(con: Con, args: List[Type]) extends Type {
     Sort(con, args rename re)
   def subst(su: Map[Param, Type]) =
     Sort(con, args subst su)
-
-  def bexpr =
-    if (args.isEmpty)
-      List(con.name)
-    else
-      con.name :: (args intersperse ("<", ",", ">"))
 
   override def toString = this match {
     case Sort(con, Nil) =>

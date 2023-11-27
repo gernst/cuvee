@@ -216,8 +216,6 @@ object Printer extends cuvee.util.Printer {
     case n: util.Name      => List(n.toLabel)
     case smtlib.Error(msg) => List(msg.mkString("\"", " ", "\""))
     case res: Res          => List(res.toString())
-    // Props
-    case p: Prop => (p.bexpr map (_.toString))
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax => lines(s.bexpr)
     // String (= Id)

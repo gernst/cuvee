@@ -8,7 +8,7 @@ import cuvee.util
 import cuvee.util.Alpha
 import cuvee.util.Name
 
-sealed trait Expr extends Expr.term with util.Syntax with boogie.Syntax {
+sealed trait Expr extends Expr.term with util.Syntax {
   def funs: Set[Fun]
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
@@ -288,8 +288,6 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
   def in(that: List[Expr]): Boolean =
     that exists (this in _)
 
-  def bexpr = List(name)
-
   override def toString = name.toString
 }
 
@@ -317,8 +315,6 @@ case class Lit(any: Any, typ: Type) extends Expr {
   def subst(su: Map[Var, Expr]) = this
   def inst(su: Map[Param, Type]) = this
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) = this
-
-  def bexpr = List(any.toString)
 
   override def toString = any.toString
 }
@@ -398,8 +394,6 @@ case class Is(arg: Expr, fun: Fun) extends Expr {
     Is(arg inst su, fun)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Is(arg inst (ty, su), fun)
-
-  def bexpr = cuvee.undefined /// TODO Daniel thinks that this is not part of boogie.
 
   override def toString = {
     arg + " is " + fun.name
@@ -507,38 +501,6 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     App(inst subst ty, args inst (ty, su))
 
-  def bexpr = this match {
-    // Constants
-    case App(inst, Nil) => List(inst.toString)
-    // Logical connectives
-    case And(phis) => phis intersperse ("(", " && ", ")")
-    case Or(phis)  => phis intersperse ("(", " || ", ")")
-    // Iff (<==>), needs special handling, as this is also represented by "=" internally
-    case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
-      List(lhs, " ", "<==>", " ", rhs)
-    case Eq(lhs, rhs) =>
-      List(lhs, " ", "==", " ", rhs)
-    case Imp(phi, psi) =>
-      List("(", phi, " ", "==>", " ", psi, ")")
-    case DivBy(lhs, rhs) =>
-      List(lhs, " ", "/", " ", rhs)
-    case Mod(lhs, rhs) =>
-      List(lhs, " ", "%", " ", rhs)
-    // Infix operators
-    case App(_, List(left, right)) if Expr.boogieInfix contains inst.fun.name.name =>
-      List("(", left, " ", inst, " ", right, ")")
-    // Unary -
-    case Not(psi)     => List("!", "(", psi, ")")
-    case UMinus(term) => List("-", "(", term, ")")
-    // Map access
-    case Select(arr, idx)        => List(arr, "[", idx, "]")
-    case Store(arr, idx, newval) => List(arr, "[", idx, ":=", newval, "]")
-    // Applications (i.e. function calls)
-    case App(_, args)      => inst :: (args intersperse ("(", ", ", ")"))
-    case _ if args.isEmpty => List(inst)
-    case _                 => inst :: args
-  }
-
   override def toString = this match {
     // Constants
     case App(inst, Nil) => inst.toString
@@ -605,20 +567,6 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
     rename(re)
   }
 
-  def bexpr = {
-    val formals_ = formals map { case x =>
-      List(x, ":", " ", x.typ)
-    }
-
-    List(
-      quant.name,
-      " ",
-      new cuvee.ListOps(formals_) intersperse (", "),
-      " :: ",
-      body
-    )
-  }
-
   override def toString =
     quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", " :: ") + body
 }
@@ -642,8 +590,6 @@ case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with util.Syntax 
     Case(pat rename a, expr subst su)
   def inst(su: Map[Param, Type]) =
     Case(pat inst su, expr inst su)
-
-  def bexpr = cuvee.undefined // Not part of Boogie
 }
 
 case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
@@ -657,8 +603,6 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
     Match(expr inst su, cases inst su, typ subst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // need to fix cases, too
-
-  def bexpr = cuvee.undefined // Not part of Boogie
 }
 
 class LetEqList(eqs: List[LetEq]) {
@@ -672,7 +616,7 @@ class LetEqList(eqs: List[LetEq]) {
   def inst(su: Map[Param, Type]) = eqs map (_ inst su)
 }
 
-case class LetEq(x: Var, e: Expr) extends util.Syntax with boogie.Syntax {
+case class LetEq(x: Var, e: Expr) extends util.Syntax {
   def bound = x
   def free = e.free
   def funs = e.funs
@@ -684,8 +628,6 @@ case class LetEq(x: Var, e: Expr) extends util.Syntax with boogie.Syntax {
     LetEq(x inst su, e inst su)
 
   def toEq = Eq(x, e)
-
-  def bexpr = cuvee.undefined
 }
 
 case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
@@ -703,8 +645,6 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
 
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // need to fix let eqs, too
-
-  def bexpr = cuvee.undefined
 }
 
 case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
@@ -721,8 +661,6 @@ case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
     Note(expr inst su, attr)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Note(expr inst (ty, su), attr)
-
-  def bexpr = cuvee.undefined
 }
 
 case class Distinct(exprs: List[Expr]) extends Expr {
@@ -739,6 +677,4 @@ case class Distinct(exprs: List[Expr]) extends Expr {
     Distinct(exprs inst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Distinct(exprs inst (ty, su))
-
-  def bexpr = cuvee.undefined
 }

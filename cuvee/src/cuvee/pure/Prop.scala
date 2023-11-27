@@ -1,10 +1,9 @@
 package cuvee.pure
 
 import cuvee.util
-import cuvee.boogie
 import cuvee.smtlib.Model
 
-sealed trait Prop extends util.Syntax with boogie.Syntax {
+sealed trait Prop extends util.Syntax {
   def isTrue: Boolean
   def toExpr: Expr
   def rename(re: Map[Var, Var]): Prop
@@ -186,10 +185,6 @@ case class Atom(phi: Expr, cex: Option[Model] = None) extends Prop {
     Atom(phi rename re, cex map (_ rename re))
   def subst(su: Map[Var, Expr]) =
     Atom(phi subst su)
-  def bexpr = cex match {
-    case Some(cex) => List(phi.bexpr.mkString(""), "  → counterexample: " + cex.toString)
-    case None      => List(phi.bexpr.mkString(""))
-  }
 }
 
 object Atom {
@@ -219,42 +214,6 @@ case class Disj(xs: List[Var], assms: List[Prop], concls: List[Conj])
     case (_, Nil)   => Forall(xs, Or(concls map (_.toExpr)))
     case _          => Forall(xs, Imp(And(assms map (_.toExpr)), Or(concls map (_.toExpr))))
   }
-
-  def bexpr = {
-    var result: List[String] = Nil
-    var started: Boolean = false
-    val bound =
-      for (x <- xs)
-        yield "|   " + x.name.toString + ": " + x.typ
-
-    val pre =
-      for (phi <- assms; line <- phi.bexpr)
-        yield "|   " + line
-
-    val conclst =
-      for (phi <- concls; line <- phi.bexpr)
-        yield "|   " + line
-
-    if (bound.nonEmpty)
-      result ++= List("| forall") ++ bound
-
-    if (pre.nonEmpty)
-      result ++= List("| assume") ++ pre
-
-    if (concls.isEmpty)
-      result ++= List("| show contradiction")
-
-    if (concls.size == 1)
-      result ++= List("| show") ++ conclst
-
-    if (concls.size > 1)
-      result ++= List("| show one of") ++ conclst
-
-    //
-    result = result.updated(0, result(0).patch(0, "+", 1))
-
-    result
-  }
 }
 
 // represents
@@ -274,33 +233,6 @@ case class Conj(xs: List[Var], props: List[Prop]) extends Expr.bind[Conj] {
   def toExpr: Expr = xs match {
     case Nil => And(props map (_.toExpr))
     case _   => Exists(xs, And(props map (_.toExpr)))
-  }
-
-  def bexpr = {
-    var result: List[String] = Nil
-
-    val bound =
-      for (x <- xs)
-        yield "|   " + x.name.toString + ": " + x.typ
-
-    val indent = "|   " + (if (bound.isEmpty) "" else "  ")
-
-    val concls =
-      for (phi <- props; line <- phi.bexpr)
-        yield indent + line
-
-    if (bound.nonEmpty)
-      result ++= List("| exists") ++ bound
-
-    if (props.size == 1)
-      result ++= List("| show") ++ concls
-
-    if (props.size > 1)
-      result ++= List("| show all of") ++ concls
-
-    result = result.updated(0, result(0).patch(0, "+", 1))
-
-    result
   }
 }
 
