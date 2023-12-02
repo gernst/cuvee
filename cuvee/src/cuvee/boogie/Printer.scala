@@ -90,39 +90,34 @@ object Printer extends cuvee.util.Printer {
           var result: List[String] = Nil
           val bound =
             for (x <- xs)
-              yield "|   " + x.name.toString + ": " + btype(x.typ)
+              yield x.name.toString + ": " + btype(x.typ)
 
           val pre =
             for (phi <- assms)
-              yield "|   " + line(phi.toExpr)
+              yield line(phi.toExpr)
 
           val conclst =
             for (phi <- concls)
-              yield "|   " + line(phi.toExpr)
+              yield line(phi.toExpr)
 
           if (bound.nonEmpty)
-            result ++= "| forall" +: bound
+            result ++= "forall" +: indent(bound)
 
           if (pre.nonEmpty)
-            result ++= "| assume" +: pre
+            result ++= "assume" +: indent(pre)
 
           if (concls.isEmpty)
-            result ++= List("| show contradiction")
-
-          if (concls.size == 1)
-            result ++= "| show" +: conclst
-
-          if (concls.size > 1)
-            result ++= "| show one of" +: conclst
+            result ++= List("show contradiction")
+          else if (concls.size == 1)
+            result ++= "show" +: indent(conclst)
+          else if (concls.size > 1)
+            result ++= "show one of" +: indent(conclst)
 
           if (tactic.nonEmpty)
-            result ++= "| proof " +: tactic_(tactic.orNull)
+            result ++= "proof " +: tactic_(tactic.orNull)
 
-          result = result.updated(0, result.head.patch(0, "+", 1))
-          result =
-            result.updated(result.length - 1, result.last.patch(0, "+", 1))
-
-          result
+          result = indent(result)
+          vblock(result)
         case _ => List("lemma " + line(expr) + ";")
       }
     case CheckSat                  => ???
@@ -363,23 +358,43 @@ object Printer extends cuvee.util.Printer {
   }
 
   private def tactic_(t: Tactic): List[String] = t match {
-    case Show(prop, tactic, cont) => Nil
+    // TODO what about the missing cases?
     case Induction(variable, cases) =>
-      // TODO only multible lines need parens (and linebreak :) )
-      // TODO use indent. Add | after this
-      var result: List[String] = List(
-        "|   induction " + variable.name.toString + " {"
-      )
-      val test =
-        for ((expr, tactic) <- cases)
-          yield ("|     case " + expr.toString + " => ") +: tactic_(tactic)
+      val header = "induction " + variable.name.toString
 
-      result ++= test.flatten
-      result ++ List("|   };")
+      var result: List[String] = Nil
+      if (cases.isEmpty) {
+        result = List(header)
+      } else {
+        val body =
+          for ((expr, tactic) <- cases)
+            yield ("case " + expr.toString + " => ") +: tactic_(tactic)
+
+        result = (header + " {") +: indent(body.flatten) :+ "};"
+      }
+
+      indent(result)
+    case Show(prop, tactic, cont)     => Nil
     case Unfold(target, places, cont) => Nil
     case NoAuto(tactic)               => Nil
     case Auto                         => Nil
     case Sorry                        => Nil
+  }
+
+  private def vblock(lines: List[String]): List[String] = {
+    if (lines.isEmpty)
+      return lines
+
+    val head = lines.head.patch(0, "+", 1)
+    var result =
+      for (line <- lines)
+        yield line.patch(0, "|", 1)
+    val last = lines.last.patch(0, "+", 1)
+
+    result = result.updated(0, head)
+    result = result.updated(result.length - 1, last)
+
+    result
   }
 
   private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
