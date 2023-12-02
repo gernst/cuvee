@@ -389,10 +389,10 @@ object Printer extends cuvee.util.Printer {
       }
 
       indent(result)
+    case Auto                         => indent(List("auto"))
     case Show(prop, tactic, cont)     => Nil
     case Unfold(target, places, cont) => Nil
     case NoAuto(tactic)               => Nil
-    case Auto                         => Nil
     case Sorry                        => Nil
   }
 
