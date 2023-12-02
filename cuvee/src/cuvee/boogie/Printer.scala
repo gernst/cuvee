@@ -76,15 +76,7 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     case Lemma(expr, tactic, _) =>
-      // TODO
-      tactic match {
-        case None =>
-          List("lemma " + line(expr) + ";")
-        case Some(tactic) =>
-          List("lemma " + line(expr), "proof" + tactic + ";")
-      }
       val prop = Prop.from(expr)
-
       prop match {
         case Disj(xs, assms, concls) =>
           var result: List[String] = Nil
@@ -118,6 +110,33 @@ object Printer extends cuvee.util.Printer {
 
           result = indent(result)
           vblock(result)
+
+        /* TODO case Conj -> does not extend Prop
+          var result: List[String] = Nil
+
+          val bound =
+            for (x <- xs)
+              yield "|   " + x.name.toString + ": " + x.typ
+
+          val indent = "|   " + (if (bound.isEmpty) "" else "  ")
+
+          val concls =
+            for (phi <- props; line <- phi.bexpr)
+              yield indent + line
+
+          if (bound.nonEmpty)
+            result ++= List("| exists") ++ bound
+
+          if (props.size == 1)
+            result ++= List("| show") ++ concls
+
+          if (props.size > 1)
+            result ++= List("| show all of") ++ concls
+
+          result = result.updated(0, result(0).patch(0, "+", 1))
+
+          result
+         */
         case _ => List("lemma " + line(expr) + ";")
       }
     case CheckSat                  => ???
@@ -126,7 +145,7 @@ object Printer extends cuvee.util.Printer {
     case x @ DeclareFun(name, params, _, res) =>
       List(
         "function " + name +
-          "(" + x.formals.toStringTyped.toLowerCase + "): " + btype(res) + ";"
+          "(" + vartypes(x.formals) + "): " + btype(res) + ";"
       )
     case DefineFun(name, _, formals, res, body, _) =>
       List(
@@ -143,7 +162,7 @@ object Printer extends cuvee.util.Printer {
               constr.name
             case (constr, sels) =>
               val as = sels map { case Fun(name, _, _, res) =>
-                name + ": " + res
+                name + ": " + btype(res)
               }
               constr.name + as.mkString("(", ", ", ")")
           }
@@ -155,7 +174,7 @@ object Printer extends cuvee.util.Printer {
               constr.name
             case (constr, sels) =>
               val as = sels map { case Fun(name, _, _, res) =>
-                name + ": " + res
+                name + ": " + btype(res)
               }
               constr.name + as.mkString("(", ", ", ")")
           }
@@ -174,17 +193,13 @@ object Printer extends cuvee.util.Printer {
         case Nil =>
           ("procedure " + name + "()") +: rest
         case _ =>
-          val header =
-            List(
-              // TODO use btype
-              "procedure " + name + "(" + in.toStringTyped.toLowerCase + ")"
-            )
+          val header = "procedure " + name + "(" + vartypes(in) + ")"
           spec match {
             case None =>
-              header ++ rest
+              header +: rest
             case Some(s) =>
               val spec_ = lines(s)
-              header ++ indent(spec_) ++ rest
+              (header +: indent(spec_)) ++ rest
           }
       }
   }
@@ -398,6 +413,11 @@ object Printer extends cuvee.util.Printer {
   }
 
   private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
+
+  private def vartypes(vars: List[Var]): String = {
+    val vars_ = for (v <- vars) yield v + ": " + btype(v.typ)
+    vars_.mkString(", ")
+  }
 
   private def btype(typ: Type): String = typ match {
     case Sort(Con.bool, _)           => "bool"
