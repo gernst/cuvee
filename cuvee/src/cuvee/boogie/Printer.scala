@@ -373,7 +373,6 @@ object Printer extends cuvee.util.Printer {
   }
 
   private def tactic_(t: Tactic): List[String] = t match {
-    // TODO what about the missing cases?
     case Induction(variable, cases) =>
       val header = "induction " + variable.name.toString
 
@@ -389,21 +388,34 @@ object Printer extends cuvee.util.Printer {
       }
 
       indent(result)
-    case Auto => indent(List("auto"))
     case Show(prop, tactic, cont) =>
       var result: List[String] = Nil
       val head = "show (" + line(prop) + ")"
 
       if (tactic.nonEmpty)
         result ++= "proof " +: tactic_(tactic.orNull)
-      // TODO how does cont look?
-      if(cont.nonEmpty)
-        result
+      // TODO correct?
+      if (cont.nonEmpty)
+        result ++= "contend " +: tactic_(cont.orNull)
 
       indent(head +: result)
-    case Unfold(target, places, cont) => Nil
-    case NoAuto(tactic)               => Nil
-    case Sorry                        => Nil
+    case Unfold(target, places, cont) =>
+      val (name, num) = target
+
+      var head: String = "unfold " + name
+      var result: List[String] = Nil
+
+      if (places.nonEmpty)
+        head += " at " + places.orNull.mkString(", ") + " then"
+
+      if (cont.nonEmpty)
+        result ++= tactic_(cont.orNull)
+
+      result = head +: result
+      indent(result)
+    case Auto           => indent(List("auto"))
+    case NoAuto(tactic) => tactic_(tactic) // TODO ???
+    case Sorry          => indent(List("sorry;"))
   }
 
   private def vblock(lines: List[String]): List[String] = {
