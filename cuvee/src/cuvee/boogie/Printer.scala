@@ -389,8 +389,18 @@ object Printer extends cuvee.util.Printer {
       }
 
       indent(result)
-    case Auto                         => indent(List("auto"))
-    case Show(prop, tactic, cont)     => Nil
+    case Auto => indent(List("auto"))
+    case Show(prop, tactic, cont) =>
+      var result: List[String] = Nil
+      val head = "show (" + line(prop) + ")"
+
+      if (tactic.nonEmpty)
+        result ++= "proof " +: tactic_(tactic.orNull)
+      // TODO how does cont look?
+      if(cont.nonEmpty)
+        result
+
+      indent(head +: result)
     case Unfold(target, places, cont) => Nil
     case NoAuto(tactic)               => Nil
     case Sorry                        => Nil
