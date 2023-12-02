@@ -6,6 +6,7 @@ import cuvee.pure._
 import cuvee.smtlib
 import cuvee.smtlib._
 import cuvee.util
+import cuvee.prove._
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -75,9 +76,54 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     case Lemma(expr, tactic, _) =>
+      // TODO
       tactic match {
-        case None         => List("lemma " + line(expr) + ";")
-        case Some(tactic) => List("lemma " + line(expr), "proof" + tactic + ";")
+        case None =>
+          List("lemma " + line(expr) + ";")
+        case Some(tactic) =>
+          List("lemma " + line(expr), "proof" + tactic + ";")
+      }
+      val prop = Prop.from(expr)
+
+      prop match {
+        case Disj(xs, assms, concls) =>
+          var result: List[String] = Nil
+          val bound =
+            for (x <- xs)
+              yield "|   " + x.name.toString + ": " + btype(x.typ)
+
+          val pre =
+            for (phi <- assms)
+              yield "|   " + line(phi.toExpr)
+
+          val conclst =
+            for (phi <- concls)
+              yield "|   " + line(phi.toExpr)
+
+          if (bound.nonEmpty)
+            result ++= "| forall" +: bound
+
+          if (pre.nonEmpty)
+            result ++= "| assume" +: pre
+
+          if (concls.isEmpty)
+            result ++= List("| show contradiction")
+
+          if (concls.size == 1)
+            result ++= "| show" +: conclst
+
+          if (concls.size > 1)
+            result ++= "| show one of" +: conclst
+
+          if (tactic.nonEmpty)
+            result ++= "| proof " +: tactic_(tactic.orNull)
+
+          result = result.updated(0, result.head.patch(0, "+", 1))
+          result =
+            result.updated(result.length - 1, result.last.patch(0, "+", 1))
+
+          result
+        case _ => List("lemma " + line(expr) + ";")
       }
     case CheckSat                  => ???
     case DeclareSort(name, arity)  => List("type " + name + ";") // add params
@@ -135,6 +181,7 @@ object Printer extends cuvee.util.Printer {
         case _ =>
           val header =
             List(
+              // TODO use btype
               "procedure " + name + "(" + in.toStringTyped.toLowerCase + ")"
             )
           spec match {
@@ -313,6 +360,26 @@ object Printer extends cuvee.util.Printer {
       case x @ Block(_) => (first :+ "} else {") ++ (lines(x) :+ "}")
       case _ => first :+ ("// Unknown operation in If: " ++ right.toString)
     }
+  }
+
+  private def tactic_(t: Tactic): List[String] = t match {
+    case Show(prop, tactic, cont) => Nil
+    case Induction(variable, cases) =>
+      // TODO only multible lines need parens (and linebreak :) )
+      // TODO use indent. Add | after this
+      var result: List[String] = List(
+        "|   induction " + variable.name.toString + " {"
+      )
+      val test =
+        for ((expr, tactic) <- cases)
+          yield ("|     case " + expr.toString + " => ") +: tactic_(tactic)
+
+      result ++= test.flatten
+      result ++ List("|   };")
+    case Unfold(target, places, cont) => Nil
+    case NoAuto(tactic)               => Nil
+    case Auto                         => Nil
+    case Sorry                        => Nil
   }
 
   private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
