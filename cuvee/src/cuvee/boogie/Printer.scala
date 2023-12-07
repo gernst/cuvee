@@ -152,7 +152,7 @@ object Printer extends cuvee.util.Printer {
       List(
         "function " + name +
           "(" + formals.toStringTyped.toLowerCase + "): " + btype(res) + " {",
-        "  " + body,
+        "  " + line(body),
         "}"
       )
     case DeclareDatatypes(arities, datatypes) =>
@@ -311,6 +311,8 @@ object Printer extends cuvee.util.Printer {
     case Store(arr, idx, newval) =>
       val assign = (lines(idx) :+ ":=") ++ lines(newval)
       lines(arr).mkString + "[" + assign.mkString(" ") + "]"
+    // case Ite(test, left, right) =>
+    //   ??? // TODO
     case App(inst, List(left, right)) if infix contains inst.toString =>
       val (name, prec, assoc) = infix(inst.toString)
       var a = line(left)
