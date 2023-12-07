@@ -297,6 +297,9 @@ object Printer extends cuvee.util.Printer {
     // case _ => List()
   }
 
+  private def lines(prop: Prop): List[String] = ???
+  private def lines(conj: Conj): List[String] = ???
+
   private def line(expr: Expr): String = expr match {
     case Lit(any, typ)  => any.toString
     case Var(name, typ) => name.toString
