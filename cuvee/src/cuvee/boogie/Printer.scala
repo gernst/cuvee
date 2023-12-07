@@ -338,7 +338,7 @@ object Printer extends cuvee.util.Printer {
       val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
       (quantifier +: lines(body)).mkString
     case Distinct(exprs)         => ???
-    case Is(arg, fun)            => ???
+    case Is(arg, fun)            => "is#" + fun.name + "(" + line(arg) + ")"
     case Let(eqs, body)          => ???
     case Match(expr, cases, typ) => ???
     case Note(expr, attr)        => ???
