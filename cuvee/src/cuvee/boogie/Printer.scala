@@ -77,68 +77,16 @@ object Printer extends cuvee.util.Printer {
       }
     case Lemma(expr, tactic, _) =>
       val prop = Prop.from(expr)
-      prop match {
-        case Disj(xs, assms, concls) =>
-          var result: List[String] = Nil
-          val bound =
-            for (x <- xs)
-              yield x.name.toString + ": " + btype(x.typ)
+      var result: List[String] = Nil
 
-          val pre =
-            for (phi <- assms)
-              yield line(phi.toExpr)
+      if (expr.isInstanceOf[Conj]) result ++= lines(expr)
+      else result ++= lines(prop)
 
-          val conclst =
-            for (phi <- concls)
-              yield line(phi.toExpr)
+      if (tactic.nonEmpty)
+        result ++= "proof " +: tactic_(tactic.orNull)
 
-          if (bound.nonEmpty)
-            result ++= "forall" +: indent(bound)
-
-          if (pre.nonEmpty)
-            result ++= "assume" +: indent(pre)
-
-          if (concls.isEmpty)
-            result ++= List("show contradiction")
-          else if (concls.size == 1)
-            result ++= "show" +: indent(conclst)
-          else if (concls.size > 1)
-            result ++= "show one of" +: indent(conclst)
-
-          if (tactic.nonEmpty)
-            result ++= "proof " +: tactic_(tactic.orNull)
-
-          result = indent(result)
-          vblock(result)
-
-        /* TODO case Conj -> does not extend Prop
-          var result: List[String] = Nil
-
-          val bound =
-            for (x <- xs)
-              yield "|   " + x.name.toString + ": " + x.typ
-
-          val indent = "|   " + (if (bound.isEmpty) "" else "  ")
-
-          val concls =
-            for (phi <- props; line <- phi.bexpr)
-              yield indent + line
-
-          if (bound.nonEmpty)
-            result ++= List("| exists") ++ bound
-
-          if (props.size == 1)
-            result ++= List("| show") ++ concls
-
-          if (props.size > 1)
-            result ++= List("| show all of") ++ concls
-
-          result = result.updated(0, result(0).patch(0, "+", 1))
-
-          result
-         */
-        case _ => List("lemma " + line(expr) + ";")
-      }
+      result = indent(result)
+      vblock(result)
     case CheckSat                  => ???
     case DeclareSort(name, arity)  => List("type " + name + ";") // add params
     case DefineSort(name, _, body) => List("type " + name + " = " + body + ";")
@@ -298,8 +246,59 @@ object Printer extends cuvee.util.Printer {
     // case _ => List()
   }
 
-  private def lines(prop: Prop): List[String] = ???
-  private def lines(conj: Conj): List[String] = ???
+  private def lines(prop: Prop): List[String] = prop match {
+    case Disj(xs, assms, concls) =>
+      var result: List[String] = Nil
+      val bound =
+        for (x <- xs)
+          yield x.name.toString + ": " + btype(x.typ)
+
+      val pre =
+        for (phi <- assms)
+          yield lines(phi)
+
+      val conclst =
+        for (phi <- concls)
+          yield lines(phi)
+
+      if (bound.nonEmpty)
+        result ++= "forall" +: indent(bound)
+
+      if (pre.nonEmpty)
+        result ++= "assume" +: indent(pre.flatten)
+
+      if (concls.isEmpty)
+        result ++= List("show contradiction")
+      else if (concls.size == 1)
+        result ++= conclst.flatten
+      else if (concls.size > 1)
+        result ++= "show one of" +: indent(conclst.flatten)
+
+      result
+    case Atom(phi, None)      => List(phi.toString)
+    case Atom(phi, Some(cex)) => ??? // TODO
+  }
+
+  private def lines(conj: Conj): List[String] = {
+    val Conj(xs, props) = conj
+    var result: List[String] = Nil
+
+    val bound = vartypes(xs)
+
+    // TODO How to differentiate between actual Prop and Expr here
+    // Expr would be needed for correct parens
+    val concls = (for (phi <- props) yield lines(phi.toExpr)).flatten
+
+    if (bound.nonEmpty)
+      result ++= indent("exists" :: indent(List(bound)))
+
+    if (props.size == 1)
+      result ++= "show" :: indent(concls)
+    else if (props.size > 1)
+      result ++= "show all of" :: indent(concls)
+
+    result
+  }
 
   private def line(expr: Expr): String = expr match {
     case Lit(any, typ)  => any.toString
