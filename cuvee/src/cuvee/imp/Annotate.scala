@@ -156,6 +156,16 @@ object Annotate extends Stage {
         val before = assume(via, inv && test)
         val (body_, after) = annotate(before, body)
 
+        var ord = {
+          var ord_ : List[Var] = Nil
+          if (body_.isInstanceOf[Block]) {
+            val Block(progs) = body_
+            val vars = for (p <- progs if p.isInstanceOf[Assign]) yield p.mod
+            ord_ = vars.flatten
+          }
+          ord_
+        }
+
         // HERE: after are all states reachable from before,
         //       such that before -- body -> after is exactly one arbitrary loop iteration
 
@@ -206,7 +216,14 @@ object Annotate extends Stage {
             case Var(name, typ) if lhs == a =>
               rhs match {
                 case Select(b, idx_) if idx == idx_ =>
-                  val how = Select(a, x) === Select(b, x)
+                  var old_ = false
+                  for (e <- ord if (rhs.free.diff(vars.toSet).contains(e)))
+                    yield old_ = true
+
+                  var how: Expr = False
+                  if (old_) how = Select(a, x) === Old(Select(b, x))
+                  else how = Select(a, x) === Select(b, x)
+
                   List(Exists(fresh_, where && how))
                 case _ =>
                   val how = Select(a, idx) === rhs rename subst
@@ -359,21 +376,22 @@ object Annotate extends Stage {
           // TODO
           val path = And(st1.path)
 
-          val all =
-            for ((array, assign) <- st2.vars if isModifiedArray(array)) yield {
-              val Store(a, idx, rhs) = assign
-              // Expression which describes all modified indices
-              val (prem, mod_) = boundaries(List(assign), Nil)
-              val premise = And(prem.distinct)
+          val all = for (array <- ord if isModifiedArray(array)) yield {
+            ord = ord.filter(_ != array)
+            val assign = st2.vars.get(array).orNull
+            val Store(a, idx, rhs) = assign
+            // Expression which describes all modified indices
+            val (prem, mod_) = boundaries(List(assign), Nil)
+            val premise = And(prem.distinct)
 
-              // How and at which indices got the array in question modified
-              val yes = modified(array, a, idx, rhs, mod_)
+            // How and at which indices got the array in question modified
+            val yes = modified(array, a, idx, rhs, mod_)
 
-              // Every index which got not visited should not be modified
-              val no = Select(array, x) === Old(Select(array, x))
+            // Every index which got not visited should not be modified
+            val no = Select(array, x) === Old(Select(array, x))
 
-              (premise ==> And(yes)) && (!premise ==> no)
-            }
+            (premise ==> And(yes)) && (!premise ==> no)
+          }
           // TODO ask regarding path
           Forall(List(x), And(all.toList))
         }
