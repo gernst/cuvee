@@ -90,7 +90,8 @@ object Printer extends cuvee.util.Printer {
     case CheckSat                  => ???
     case DeclareSort(name, arity)  => List("type " + name + ";") // add params
     case DefineSort(name, _, body) => List("type " + name + " = " + body + ";")
-    // TODO: case x @ DeclareFun(name, Nil, _, res) => "const"
+    case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
+      List("const " + name + ": " + btype(res) + ";")
     case x @ DeclareFun(name, params, _, res) =>
       List(
         "function " + name +
