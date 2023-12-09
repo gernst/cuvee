@@ -156,16 +156,6 @@ object Annotate extends Stage {
         val before = assume(via, inv && test)
         val (body_, after) = annotate(before, body)
 
-        var ord = {
-          var ord_ : List[Var] = Nil
-          if (body_.isInstanceOf[Block]) {
-            val Block(progs) = body_
-            val vars = for (p <- progs if p.isInstanceOf[Assign]) yield p.mod
-            ord_ = vars.flatten
-          }
-          ord_
-        }
-
         // HERE: after are all states reachable from before,
         //       such that before -- body -> after is exactly one arbitrary loop iteration
 
@@ -177,6 +167,16 @@ object Annotate extends Stage {
         def isModifiedArray(a: Var) = a.typ match {
           case Sort(Con.array, _) if mod.contains(a) => true
           case _                                     => false
+        }
+
+        var ord = {
+          var ord_ : List[Var] = Nil
+          if (body_.isInstanceOf[Block]) {
+            val Block(progs) = body_
+            val vars = for (p <- progs if p.isInstanceOf[Assign]) yield p.mod
+            ord_ = vars.flatten
+          }
+          for (v <- ord_ if isModifiedArray(v)) yield v
         }
 
         /** Provides an expression, which describes an assignment to an array
@@ -217,7 +217,7 @@ object Annotate extends Stage {
               rhs match {
                 case Select(b, idx_) if idx == idx_ =>
                   var old_ = false
-                  for (e <- ord if (rhs.free.diff(vars.toSet).contains(e)))
+                  for (e <- ord if (rhs.free.contains(e)))
                     yield old_ = true
 
                   var how: Expr = False
@@ -376,7 +376,7 @@ object Annotate extends Stage {
           // TODO
           val path = And(st1.path)
 
-          val all = for (array <- ord if isModifiedArray(array)) yield {
+          val all = for (array <- ord) yield {
             ord = ord.filter(_ != array)
             val assign = st2.vars.get(array).orNull
             val Store(a, idx, rhs) = assign
