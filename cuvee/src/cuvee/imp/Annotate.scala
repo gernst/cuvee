@@ -164,6 +164,30 @@ object Annotate extends Stage {
         // Arbitrary integer variable to reason about all of them
         val x = Expr.fresh(Var("x", Sort.int))
 
+        /** Find all assigns in the body for the given path and store them
+          * ordered according to the occurrences in the body.
+          *
+          * @param prog
+          *   body of the currently analyzed loop
+          * @param path
+          *   path to the current position
+          * @return
+          *   list containing all vars which are on the lhs of an assign in the
+          *   body
+          */
+        def assigns(prog: Prog, path: Expr): List[Var] = prog match {
+          case Block(progs) =>
+            val result = for (p <- progs) yield assigns(p, path)
+            result.flatten
+          case If(test, left, _) if test.subtermOf(path) => assigns(left, path)
+          case If(_, _, right)                           => assigns(right, path)
+          case While(test, body, _, _, _, _) if test.subtermOf(path) =>
+            assigns(body, path)
+          case Assign(xs, _) => xs
+          case Local(xs, _)  => xs
+          case _             => Nil
+        }
+
         def isModifiedArray(a: Var) = a.typ match {
           case Sort(Con.array, _) if mod.contains(a) => true
           case _                                     => false
@@ -362,17 +386,8 @@ object Annotate extends Stage {
            *
            * The assigns will be removed as soon as they are processed.
            */
-          var ord: List[Var] = Nil
-
-          ord = {
-            var ord_ : List[Var] = Nil
-            if (body_.isInstanceOf[Block]) {
-              val Block(progs) = body_
-              val vars = for (p <- progs if p.isInstanceOf[Assign]) yield p.mod
-              ord_ = vars.flatten
-            }
-            for (v <- ord_ if isModifiedArray(v)) yield v
-          }
+          var ord: List[Var] = assigns(body, path)
+          ord = for (v <- ord if isModifiedArray(v)) yield v
 
           val all = for (array <- ord) yield {
             ord = ord.filter(_ != array)
