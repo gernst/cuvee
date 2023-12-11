@@ -169,16 +169,6 @@ object Annotate extends Stage {
           case _                                     => false
         }
 
-        var ord = {
-          var ord_ : List[Var] = Nil
-          if (body_.isInstanceOf[Block]) {
-            val Block(progs) = body_
-            val vars = for (p <- progs if p.isInstanceOf[Assign]) yield p.mod
-            ord_ = vars.flatten
-          }
-          for (v <- ord_ if isModifiedArray(v)) yield v
-        }
-
         /** Provides an expression, which describes an assignment to an array
           *
           * @param lhs
@@ -191,6 +181,8 @@ object Annotate extends Stage {
           *   right hand side of the assignment, the value to write into lhs
           * @param vars
           *   variables from idx, to be substituted
+          * @param old
+          *   true if old is needed
           * @return
           *   list of Expr, each reasons about one position at which the given
           *   array (lhs) got modified
@@ -201,7 +193,8 @@ object Annotate extends Stage {
             a: Expr,
             idx: Expr,
             rhs: Expr,
-            vars: List[Var]
+            vars: List[Var],
+            old: Boolean
         ): Expr = {
           val (fresh_, subst) = fresh(vars)
           var result: Expr = False
@@ -213,11 +206,7 @@ object Annotate extends Stage {
             case Var(name, typ) if lhs == a =>
               rhs match {
                 case Select(b, idx_) if idx == idx_ =>
-                  var old_ = false
-                  for (e <- ord if (rhs.free.contains(e)))
-                    yield old_ = true
-
-                  if (old_) result = Select(a, idx) === Old(Select(b, idx_))
+                  if (old) result = Select(a, idx) === Old(Select(b, idx_))
                   else result = Select(a, idx) === Select(b, idx_)
                 case _ =>
                   result = Select(a, idx) === rhs
@@ -225,10 +214,10 @@ object Annotate extends Stage {
             case Var(name, typ) =>
               result = lhs === Store(a, idx, rhs)
             case Store(a_, idx_, _) if idx == idx_ =>
-              return modified(lhs, a_, idx, rhs, vars)
+              return modified(lhs, a_, idx, rhs, vars, old)
             case Store(a_, idx_, rhs_) =>
-              return modified(lhs, a_, idx, rhs, vars) &&
-                modified(lhs, a_, idx_, rhs_, vars)
+              return modified(lhs, a_, idx, rhs, vars, old) &&
+                modified(lhs, a_, idx_, rhs_, vars, old)
             case _ =>
               cuvee.error("Unexpected case in " + this)
           }
@@ -368,6 +357,22 @@ object Annotate extends Stage {
          */
         val derive = for (st <- after) yield {
           val path = And(st.path)
+          /* Every list holds all arrays of one path in the order in which
+           * they occur in the body.
+           *
+           * The assigns will be removed as soon as they are processed.
+           */
+          var ord: List[Var] = Nil
+
+          ord = {
+            var ord_ : List[Var] = Nil
+            if (body_.isInstanceOf[Block]) {
+              val Block(progs) = body_
+              val vars = for (p <- progs if p.isInstanceOf[Assign]) yield p.mod
+              ord_ = vars.flatten
+            }
+            for (v <- ord_ if isModifiedArray(v)) yield v
+          }
 
           val all = for (array <- ord) yield {
             ord = ord.filter(_ != array)
@@ -377,8 +382,12 @@ object Annotate extends Stage {
             val (prem, mod_) = boundaries(List(assign), Nil)
             val premise = And(prem.distinct)
 
+            var old = false
+            for (e <- ord if (rhs.free.contains(e)))
+              yield old = true
+
             // How and at which indices got the array in question modified
-            val yes = modified(array, a, idx, rhs, mod_)
+            val yes = modified(array, a, idx, rhs, mod_, old)
 
             // Every index which got not visited should not be modified
             val no = Select(array, x) === Old(Select(array, x))
