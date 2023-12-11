@@ -179,8 +179,11 @@ object Annotate extends Stage {
           case Block(progs) =>
             val result = for (p <- progs) yield assigns(p, path)
             result.flatten
-          case If(test, left, _) if test.subtermOf(path) => assigns(left, path)
-          case If(_, _, right)                           => assigns(right, path)
+          case If(test, _, right) if Not(test).subtermOf(path) =>
+            if (right.mod.isEmpty) Nil
+            else assigns(right, path)
+          case If(_, left, _) if left.mod.nonEmpty =>
+            assigns(left, path)
           case While(test, body, _, _, _, _) if test.subtermOf(path) =>
             assigns(body, path)
           case Assign(xs, _) => xs
