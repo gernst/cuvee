@@ -366,13 +366,12 @@ object Annotate extends Stage {
          * of the collection of all modified indices and an observation, in
          * which way an array got modified.
          */
-        val derive = for (st1 <- before; st2 <- after) yield {
-          // TODO
-          val path = And(st1.path)
+        val derive = for (st <- after) yield {
+          val path = And(st.path)
 
           val all = for (array <- ord) yield {
             ord = ord.filter(_ != array)
-            val assign = st2.vars.get(array).orNull
+            val assign = st.vars.get(array).orNull
             val Store(a, idx, rhs) = assign
             // Expression which describes all modified indices
             val (prem, mod_) = boundaries(List(assign), Nil)
@@ -386,8 +385,7 @@ object Annotate extends Stage {
 
             (premise ==> yes) && (!premise ==> no)
           }
-          // TODO ask regarding path
-          Forall(List(x), And(all.toList))
+          path ==> Forall(List(x), And(all.toList))
         }
 
         val inv_ = inv && And(derive)
