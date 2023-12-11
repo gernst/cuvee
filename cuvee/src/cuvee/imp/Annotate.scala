@@ -193,6 +193,11 @@ object Annotate extends Stage {
           case _                                     => false
         }
 
+        def dropFirstMatch(xs: List[Var], e: Var) = {
+          val idx = xs.indexOf(e)
+          for ((x, i) <- xs.zipWithIndex if i != idx) yield x
+        }
+
         /** Provides an expression, which describes an assignment to an array
           *
           * @param lhs
@@ -390,7 +395,7 @@ object Annotate extends Stage {
           ord = for (v <- ord if isModifiedArray(v)) yield v
 
           val all = for (array <- ord) yield {
-            ord = ord.filter(_ != array)
+            ord = dropFirstMatch(ord, array)
             val assign = st.vars.get(array).orNull
             val Store(a, idx, rhs) = assign
             // Expression which describes all modified indices
