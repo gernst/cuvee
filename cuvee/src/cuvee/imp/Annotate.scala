@@ -164,16 +164,15 @@ object Annotate extends Stage {
         // Arbitrary integer variable to reason about all of them
         val x = Expr.fresh(Var("x", Sort.int))
 
-        /** Find all assigns in the body for the given path and store them
-          * ordered according to the occurrences in the body.
+        /** Find all assigns in the body for the given path and store them ordered according to the
+          * occurrences in the body.
           *
           * @param prog
           *   body of the currently analyzed loop
           * @param path
           *   path to the current position
           * @return
-          *   list containing all vars which are on the lhs of an assign in the
-          *   body
+          *   list containing all vars which are on the lhs of an assign in the body
           */
         def assigns(prog: Prog, path: Expr): List[Var] = prog match {
           case Block(progs) =>
@@ -216,8 +215,8 @@ object Annotate extends Stage {
           * @param old
           *   true if old is needed
           * @return
-          *   list of Expr, each reasons about one position at which the given
-          *   array (lhs) got modified
+          *   list of Expr, each reasons about one position at which the given array (lhs) got
+          *   modified
           */
         // TODO figure out how to make it distinct
         def modified(
@@ -257,6 +256,47 @@ object Annotate extends Stage {
           Exists(fresh_, result)
         }
 
+        // TODO: use this in the characterization of M
+        def indexEqualities(a: Var, rhs: Expr, re: Map[Var, Var]): Expr =
+          rhs match {
+            case Store(`a`, key, _) =>
+              val m = mOf(key)
+              val key_ = key rename re
+              val here = m.toExpr(x) && (x === key_)
+              here
+
+            case Store(rhs_, key, _) =>
+              val m = mOf(key)
+              val key_ = key rename re
+              val here = m.toExpr(x) && (x === key_)
+              val there = indexEqualities(a, rhs_, re)
+              here || there
+          }
+
+        // TODO: use this characterization for the update
+        def assignmentEqualities(a: Var, rhs: Expr): Expr =
+          rhs match {
+            case Store(`a`, key, value) =>
+              val value_ = maybeOldOtherArrays(value)
+              val here = (x === key) && (Select(a, x) === value_)
+              here
+
+            case Store(rhs_, key, value) =>
+              val value_ = maybeOldOtherArrays(value)
+              val here = (x === key) && (Select(a, x) === value_)
+              val there = (x !== key) && assignmentEqualities(a, rhs_)
+              here || there
+          }
+
+        def maybeOldOtherArrays(rhs: Expr): Expr = rhs topdown {
+          // case Select(b: Var, key) =>
+          //   Select(Ite(key in Mb, b, Old(b)), maybeOldOtherArrays(key))
+          case Select(b: Var, key) if mod contains b =>
+            Select(Old(b), maybeOldOtherArrays(key))
+          case expr =>
+            expr
+        }
+
         /** Gives the value with which x was initialized
           *
           * @param x
@@ -286,8 +326,8 @@ object Annotate extends Stage {
             cuvee.error("Currently only simple tests are supported.")
         }
 
-        /** Builds an instance of Modified which holds the range of indices
-          * which got edited until an arbitrary iteration of the analyzed loop
+        /** Builds an instance of Modified which holds the range of indices which got edited until
+          * an arbitrary iteration of the analyzed loop
           *
           * @param expr
           *   position of an assignment to derive Modified for
@@ -306,15 +346,16 @@ object Annotate extends Stage {
             val List(step) = stepxs.distinct
 
             step match {
-              case Plus(args) if args.contains(One) =>
+              case Plus(List(`n`, One)) | Plus(List(One, `n`)) =>
                 Modified(x0, n, test)
-              case Minus((l, r)) if l == One || r == One =>
+              case Minus(`n`, One) =>
                 Modified(n, x0, test)
-              case _ => cuvee.error("Currently only dense steps are supported.")
+              case _ =>
+                cuvee.error("Currently only dense steps are supported.")
             }
           case c @ Lit(_, Sort.int) =>
             Modified(c, c, Le(c, c))
-          case x @ App(inst, args) =>
+          case x @ App(inst, args) if false =>
             val ranges = args map mOf
             val modified = for (m <- ranges if !m.vars.isEmpty) yield m
 
@@ -327,25 +368,24 @@ object Annotate extends Stage {
             cuvee.error("Could not construct Modified from Expr: " + expr)
         }
 
-        /** Generates one M for every idx of assigns in expr and takes the
-          * boundaries expression from those
+        /** Generates one M for every idx of assigns in expr and takes the boundaries expression
+          * from those
           *
           * @param expr
           *   assign to derive M from
           * @param vars
           *   modified vars of the loop which are used in Modified
           * @return
-          *   boundaries for all Modified and modified vars of the loop which
-          *   are used in Modified
+          *   boundaries for all Modified and modified vars of the loop which are used in Modified
           */
         def boundaries(
-            expr: List[Expr],
+            expr: Expr,
             vars: List[Var]
         ): (List[Expr], List[Var]) =
           expr match {
-            case Store(a, idx, _) :: next =>
+            case Store(a, idx, _) =>
               val m = mOf(idx)
-              val (expr_, vars_) = boundaries(List(a), vars)
+              val (expr_, vars_) = boundaries(a, vars)
 
               val xs = m.vars.union((vars ++ vars_).toSet).intersect(mod)
 
@@ -389,6 +429,30 @@ object Annotate extends Stage {
          */
         val derive = for (st <- after) yield {
           val path = And(st.path)
+          val arrays = st.vars.keySet filter isModifiedArray
+
+          val all = for ((a, rhs) <- st.vars if arrays contains a) yield {
+            val vars = mod -- arrays
+            val (vars1, re1) = fresh(vars.toList)
+            val (vars2, re2) = fresh(vars.toList)
+
+            val prem = inv && test
+            val prem_ = prem rename re1
+            val phi = Exists(vars1, prem_ && indexEqualities(a, rhs, re1))
+
+            val concl = inv && test && assignmentEqualities(a, rhs)
+            val concl_ = concl rename re2
+            val yes = Exists(vars2, concl_)
+            
+            // val yes = Forall(List(x), phi ==> psi)
+            // println(yes)
+
+            // Every index which got not visited should not be modified
+            val no = Select(a, x) === Old(Select(a, x))
+
+            (phi ==> yes) && (!phi ==> no)
+          }
+
           /* Every list holds all arrays of one path in the order in which
            * they occur in the body.
            *
@@ -397,12 +461,12 @@ object Annotate extends Stage {
           var ord: List[Var] = assigns(body, path)
           ord = for (v <- ord if isModifiedArray(v)) yield v
 
-          val all = for (array <- ord) yield {
+          val all_ = for (array <- ord) yield {
             ord = dropFirstMatch(ord, array)
-            val assign = st.vars.get(array).orNull
+            val assign = st.vars(array)
             val Store(a, idx, rhs) = assign
             // Expression which describes all modified indices
-            val (prem, mod_) = boundaries(List(assign), Nil)
+            val (prem, mod_) = boundaries(assign, Nil)
             val premise = And(prem.distinct)
 
             var old = false
@@ -441,24 +505,21 @@ object Annotate extends Stage {
   * @param test
   *   the test from the loop needed for the boundary expression
   * @param step
-  *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
-  *   Can also hold more complicated calculations. However: The expression are *
-  *   held as is and will not be simplified
+  *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2 Can also hold more
+  *   complicated calculations. However: The expression are * held as is and will not be simplified
   */
 sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
 
-  /** Provides an expression describing all indices which got changed to place
-    * into an invariant
+  /** Provides an expression describing all indices which got changed to place into an invariant
     *
     * @param x
     *   an arbitrary integer to reason about the boundings in this instance
     * @return
-    *   one expression containing all necessary informations which indices got
-    *   changed
+    *   one expression containing all necessary informations which indices got changed
     */
-  def toExpr(x: Var): Expr = this.test match {
-    case Lt(_, _) => this.lb <= x && x < this.ub
-    case Le(_, _) => this.lb <= x && x <= this.ub
+  def toExpr(x: Expr): Expr = test match {
+    case Lt(_, _) => lb <= x && x < ub
+    case Le(_, _) => lb <= x && x <= ub
     case _ =>
       cuvee.error(
         "Currently only tests with <= and < are supported. Got: " + test
