@@ -138,6 +138,9 @@ object Printer extends cuvee.util.Printer {
     case DeclareProc(name, params, in, out, spec)      => ???
     case DefineProc(name, params, in, out, spec, body) =>
       // TODO what is 'params' and how does 'out' look?
+      // procedure name<params>(in) returns (out)
+      // for Spec(xs,pre,post) = spec moreover
+      //    modifies xs; requires pre; ensures post;
       val rest = "{" +: lines(body) :+ "}"
       in match {
         case Nil =>
@@ -148,7 +151,7 @@ object Printer extends cuvee.util.Printer {
             case None =>
               header +: rest
             case Some(s) =>
-              val spec_ = lines(s)
+              val spec_ = lines(s) // TODO: don't use the representation as in programs here
               (header +: indent(spec_)) ++ rest
           }
       }
@@ -167,7 +170,6 @@ object Printer extends cuvee.util.Printer {
       List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
-        // TODO does not work in combination with 'returns'
         case (Nil, True, phi) => List("assert " + line(phi) + ";")
         case (Nil, phi, True) => List("assume " + line(phi) + ";")
         case (xs, True, True) => List("havoc " + xs.mkString(", "))
@@ -288,6 +290,8 @@ object Printer extends cuvee.util.Printer {
 
     // TODO How to differentiate between actual Prop and Expr here
     // Expr would be needed for correct parens
+    
+    // don't call lines(phi.toExpr) instead call lines(phi) recursively
     val concls = (for (phi <- props) yield lines(phi.toExpr)).flatten
 
     if (bound.nonEmpty)
@@ -402,7 +406,7 @@ object Printer extends cuvee.util.Printer {
         result ++= "proof " +: tactic_(tactic.orNull)
       // TODO correct?
       if (cont.nonEmpty)
-        result ++= "contend " +: tactic_(cont.orNull)
+        result ++= "then " +: tactic_(cont.orNull)
 
       indent(head +: result)
     case Unfold(target, places, cont) =>
@@ -420,7 +424,7 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
     case Auto           => indent(List("auto"))
-    case NoAuto(tactic) => tactic_(tactic) // TODO ???
+    case NoAuto(tactic) => tactic_(tactic) // TODO: "noauto" vorne dran schreiben
     case Sorry          => indent(List("sorry;"))
   }
 
