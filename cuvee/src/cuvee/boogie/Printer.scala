@@ -151,7 +151,9 @@ object Printer extends cuvee.util.Printer {
             case None =>
               header +: rest
             case Some(s) =>
-              val spec_ = lines(s) // TODO: don't use the representation as in programs here
+              val spec_ = lines(
+                s
+              ) // TODO: don't use the representation as in programs here
               (header +: indent(spec_)) ++ rest
           }
       }
@@ -290,7 +292,7 @@ object Printer extends cuvee.util.Printer {
 
     // TODO How to differentiate between actual Prop and Expr here
     // Expr would be needed for correct parens
-    
+
     // don't call lines(phi.toExpr) instead call lines(phi) recursively
     val concls = (for (phi <- props) yield lines(phi.toExpr)).flatten
 
@@ -423,9 +425,10 @@ object Printer extends cuvee.util.Printer {
 
       result = head +: result
       indent(result)
-    case Auto           => indent(List("auto"))
-    case NoAuto(tactic) => tactic_(tactic) // TODO: "noauto" vorne dran schreiben
-    case Sorry          => indent(List("sorry;"))
+    case Auto => indent(List("auto"))
+    case NoAuto(tactic) =>
+      tactic_(tactic) // TODO: "noauto" vorne dran schreiben
+    case Sorry => indent(List("sorry;"))
   }
 
   private def vblock(lines: List[String]): List[String] = {
@@ -452,12 +455,12 @@ object Printer extends cuvee.util.Printer {
   }
 
   private def btype(typ: Type): String = typ match {
-    case Sort(Con.bool, _)           => "bool"
-    case Sort(Con.int, _)            => "int"
-    case Sort(Con.real, _)           => "real"
+    case Sort.bool                   => "bool"
+    case Sort.int                    => "int"
+    case Sort.real                   => "real"
     case Sort(Con.list, List(a))     => btype(a)
     case Sort(Con.array, List(a, b)) => "[" + btype(a) + "]" + btype(b)
-    case Param(name)                 => name.name
+    case Param(name)                 => name.toString
     case _                           => typ.toString
   }
 }
