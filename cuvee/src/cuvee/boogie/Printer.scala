@@ -135,12 +135,18 @@ object Printer extends cuvee.util.Printer {
           )
       }
       "data " +: lines
-    case DeclareProc(name, params, in, out, spec)      => ???
+    case DeclareProc(name, params, in, out, spec)      => ??? // TODO
     case DefineProc(name, params, in, out, spec, body) =>
       // TODO what is 'params' and how does 'out' look?
       // procedure name<params>(in) returns (out)
       // for Spec(xs,pre,post) = spec moreover
       //    modifies xs; requires pre; ensures post;
+      //
+      //    params.notEmpty
+      //    in.notEmpty
+      //    out.notEmpty
+      //    Some(spec)
+      
       val rest = "{" +: lines(body) :+ "}"
       in match {
         case Nil =>
@@ -191,12 +197,12 @@ object Printer extends cuvee.util.Printer {
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases\t" + lines(term).mkString + ";")
+        spec = spec :+ ("decreases\t" + line(term).mkString + ";")
       if (inv != True)
-        spec = spec :+ ("invariant\t" + lines(inv).mkString + ";")
+        spec = spec :+ ("invariant\t" + line(inv).mkString + ";")
       if (sum != True)
-        spec = spec :+ ("summary\t" + lines(sum).mkString + ";")
-      if (!frames.isEmpty)
+        spec = spec :+ ("summary\t" + line(sum).mkString + ";")
+      if (!frames.isEmpty) // TODO handle Frame
         spec = spec :+ ("frames\t" + lines(frames).mkString + ";")
 
       val body_ = "{" +: lines(body) :+ "}"
@@ -337,13 +343,13 @@ object Printer extends cuvee.util.Printer {
       name + arg
     case App(inst, args) =>
       val exprs = args map line
-      inst.toString + "(" + exprs.mkString(",") + ")"
+      inst.toString + "(" + exprs.mkString(", ") + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
       val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
       (quantifier +: lines(body)).mkString
-    case Distinct(exprs)         => ???
     case Is(arg, fun)            => "is#" + fun.name + "(" + line(arg) + ")"
+    case Distinct(exprs)         => ???
     case Let(eqs, body)          => ???
     case Match(expr, cases, typ) => ???
     case Note(expr, attr)        => ???
