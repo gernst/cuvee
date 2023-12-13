@@ -153,7 +153,7 @@ object Printer extends cuvee.util.Printer {
 
       if (out.isEmpty && spec.isEmpty) {
         val last = result.last.patch(result.last.length, ";", 1)
-        result = result.updated(result.length -1, last)
+        result = result.updated(result.length - 1, last)
       } else
         result ++= List(";")
 
@@ -372,9 +372,12 @@ object Printer extends cuvee.util.Printer {
     val Spec(xs, pre, post) = spec
     var result: List[String] = Nil
 
-    if (xs.nonEmpty) result ++= List("modifies " + vartypes(xs) + ";")
-    if (!pre.equals(Nil)) result ++= List("requires " + line(pre) + ";")
-    if (!post.equals(Nil)) result ++= List("ensures " + line(post) + ";")
+    if (xs.nonEmpty)
+      result ++= List("modifies " + vartypes(xs) + ";")
+    if (!pre.equals(Nil) && pre != True)
+      result ++= List("requires " + line(pre) + ";")
+    if (!post.equals(Nil) && post != True)
+      result ++= List("ensures " + line(post) + ";")
 
     indent(result)
   }
