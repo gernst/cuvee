@@ -135,34 +135,25 @@ object Printer extends cuvee.util.Printer {
           )
       }
       "data " +: lines
-    case DeclareProc(name, params, in, out, spec)      => ??? // TODO
+    case DeclareProc(name, params, in, out, spec) => ??? // TODO
     case DefineProc(name, params, in, out, spec, body) =>
-      // TODO what is 'params' and how does 'out' look?
-      // procedure name<params>(in) returns (out)
-      // for Spec(xs,pre,post) = spec moreover
-      //    modifies xs; requires pre; ensures post;
-      //
-      //    params.notEmpty
-      //    in.notEmpty
-      //    out.notEmpty
-      //    Some(spec)
-      
-      val rest = "{" +: lines(body) :+ "}"
-      in match {
-        case Nil =>
-          ("procedure " + name + "()") +: rest
-        case _ =>
-          val header = "procedure " + name + "(" + vartypes(in) + ")"
-          spec match {
-            case None =>
-              header +: rest
-            case Some(s) =>
-              val spec_ = lines(
-                s
-              ) // TODO: don't use the representation as in programs here
-              (header +: indent(spec_)) ++ rest
-          }
+      var header: String = "procedure " + name
+      if (params.nonEmpty) {
+        val btypes = params map btype
+        header += btypes.mkString("<", ", ", ">")
       }
+      if (in.nonEmpty) header += "(" + vartypes(in) + ")"
+      else header += "()"
+
+      var result: List[String] = List(header)
+
+      if (out.nonEmpty)
+        result ++= indent(List("returns (" + vartypes(out) + ")"))
+      if (spec.nonEmpty)
+        result ++= bspecs(spec.orNull)
+
+      result ++= "{" +: lines(body) :+ "}"
+      result
   }
 
   private def lines(prog: Prog): List[String] = prog match {
@@ -355,6 +346,17 @@ object Printer extends cuvee.util.Printer {
     case Note(expr, attr)        => ???
   }
 
+  private def bspecs(spec: Spec): List[String] = {
+    val Spec(xs, pre, post) = spec
+    var result: List[String] = Nil
+
+    if (xs.nonEmpty) result ++= List("modifies " + vartypes(xs) + ";")
+    if (!pre.equals(Nil)) result ++= List("requires " + line(pre) + ";")
+    if (!post.equals(Nil)) result ++= List("ensures " + line(post) + ";")
+
+    indent(result)
+  }
+
   /** Provides a tuple containing precedence and associativity for the given
     * expression.
     *
@@ -426,9 +428,9 @@ object Printer extends cuvee.util.Printer {
 
       result = head +: result
       indent(result)
-    case Auto => indent(List("auto"))
+    case Auto           => indent(List("auto"))
     case NoAuto(tactic) => indent("no auto " :: tactic_(tactic))
-    case Sorry => indent(List("sorry;"))
+    case Sorry          => indent(List("sorry;"))
   }
 
   private def vblock(lines: List[String]): List[String] = {
