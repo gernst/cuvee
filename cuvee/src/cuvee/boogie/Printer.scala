@@ -226,7 +226,7 @@ object Printer extends cuvee.util.Printer {
     // Name
     case n: util.Name      => List(n.toLabel)
     case smtlib.Error(msg) => List(msg.mkString("\"", " ", "\""))
-    case res: Res          => List(res.toString())
+    case res: Res          => List(res.toString)
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax => lines(s.bexpr)
     // String (= Id)
@@ -280,8 +280,8 @@ object Printer extends cuvee.util.Printer {
         result ++= "show one of" +: indent(conclst.flatten)
 
       result
-    case Atom(phi, None)      => List(phi.toString)
-    case Atom(phi, Some(cex)) => ??? // TODO
+    case Atom(phi, None)      => List(line(phi))
+    case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
   }
 
   private def lines(conj: Conj): List[String] = {
@@ -290,11 +290,7 @@ object Printer extends cuvee.util.Printer {
 
     val bound = vartypes(xs)
 
-    // TODO How to differentiate between actual Prop and Expr here
-    // Expr would be needed for correct parens
-
-    // don't call lines(phi.toExpr) instead call lines(phi) recursively
-    val concls = (for (phi <- props) yield lines(phi.toExpr)).flatten
+    val concls = (for (phi <- props) yield lines(phi)).flatten
 
     if (bound.nonEmpty)
       result ++= indent("exists" :: indent(List(bound)))
@@ -406,7 +402,6 @@ object Printer extends cuvee.util.Printer {
 
       if (tactic.nonEmpty)
         result ++= "proof " +: tactic_(tactic.orNull)
-      // TODO correct?
       if (cont.nonEmpty)
         result ++= "then " +: tactic_(cont.orNull)
 
@@ -426,8 +421,7 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
     case Auto => indent(List("auto"))
-    case NoAuto(tactic) =>
-      tactic_(tactic) // TODO: "noauto" vorne dran schreiben
+    case NoAuto(tactic) => indent("no auto " :: tactic_(tactic))
     case Sorry => indent(List("sorry;"))
   }
 
