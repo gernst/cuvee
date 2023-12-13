@@ -135,7 +135,29 @@ object Printer extends cuvee.util.Printer {
           )
       }
       "data " +: lines
-    case DeclareProc(name, params, in, out, spec) => ??? // TODO
+    case DeclareProc(name, params, in, out, spec) =>
+      var header: String = "procedure " + name
+      if (params.nonEmpty) {
+        val btypes = params map btype
+        header += btypes.mkString("<", ", ", ">")
+      }
+      if (in.nonEmpty) header += "(" + vartypes(in) + ")"
+      else header += "()"
+
+      var result: List[String] = List(header)
+
+      if (out.nonEmpty)
+        result ++= indent(List("returns (" + vartypes(out) + ")"))
+      if (spec.nonEmpty)
+        result ++= bspecs(spec.orNull)
+
+      if (out.isEmpty && spec.isEmpty) {
+        val last = result.last.patch(result.last.length, ";", 1)
+        result = result.updated(result.length -1, last)
+      } else
+        result ++= List(";")
+
+      result
     case DefineProc(name, params, in, out, spec, body) =>
       var header: String = "procedure " + name
       if (params.nonEmpty) {
