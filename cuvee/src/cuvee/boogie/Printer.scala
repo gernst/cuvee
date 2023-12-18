@@ -7,6 +7,7 @@ import cuvee.smtlib
 import cuvee.smtlib._
 import cuvee.util
 import cuvee.prove._
+import scala.collection.immutable
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -198,17 +199,19 @@ object Printer extends cuvee.util.Printer {
       }
     case x @ If(test, left, right) => if_(x)
     case While(test, body, term, inv, sum, frames) =>
-      val con = "while(" + lines(test).mkString + ")"
+      val con = "while(" + line(test) + ")"
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases\t" + line(term).mkString + ";")
+        spec = spec :+ ("decreases\t" + line(term) + ";")
       if (inv != True)
-        spec = spec :+ ("invariant\t" + line(inv).mkString + ";")
+        spec = spec :+ ("invariant\t" + line(inv) + ";")
       if (sum != True)
-        spec = spec :+ ("summary\t" + line(sum).mkString + ";")
-      if (!frames.isEmpty) // TODO handle Frame
-        spec = spec :+ ("frames\t" + lines(frames).mkString + ";")
+        spec = spec :+ ("summary\t" + line(sum) + ";")
+      if (!frames.isEmpty) {
+        val frames_ = for (f <- frames) yield line(f)
+        spec = spec :+ frames_.mkString("frames\t", ",", ";")
+      }
 
       val body_ = "{" +: lines(body) :+ "}"
 
@@ -358,6 +361,11 @@ object Printer extends cuvee.util.Printer {
     case Let(eqs, body)          => ???
     case Match(expr, cases, typ) => ???
     case Note(expr, attr)        => ???
+  }
+
+  private def line(frame: Frame): String = {
+    val Frame(array, index, phi) = frame
+    array.name + "[" + index.name + "] := " + line(phi)
   }
 
   private def bspecs(spec: Spec): List[String] = {
