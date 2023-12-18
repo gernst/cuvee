@@ -132,24 +132,7 @@ case class DeclareProc(
     in: List[Var],
     out: List[Var],
     spec: Option[Spec]
-) extends Decl {
-  def sexpr = (params, spec) match {
-    case (Nil, None) =>
-      List("declare-proc", in.asFormals, out.asFormals)
-    case (Nil, Some(Spec(mod, pre, post))) =>
-      List(
-        "declare-proc",
-        in.asFormals,
-        out.asFormals,
-        ":modifies",
-        mod,
-        ":precondition",
-        pre,
-        ":postcondition",
-        post
-      )
-  }
-}
+) extends Decl
 
 case class DefineProc(
     name: Name,
@@ -158,22 +141,4 @@ case class DefineProc(
     out: List[Var],
     spec: Option[Spec],
     body: Prog
-) extends Decl {
-  def sexpr = (params, spec) match {
-    case (Nil, None) =>
-      List("define-proc", in.asFormals, out.asFormals, body)
-    case (Nil, Some(Spec(mod, pre, post))) =>
-      List(
-        "declare-proc",
-        in.asFormals,
-        out.asFormals,
-        ":modifies",
-        mod,
-        ":precondition",
-        pre,
-        ":postcondition",
-        post,
-        body
-      )
-  }
-}
+) extends Decl
