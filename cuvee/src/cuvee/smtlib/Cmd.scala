@@ -38,9 +38,10 @@ case object Unknown extends IsSat
 
 case class Model(defs: List[DefineFun]) extends Res {
   def rename(re: Map[Var, Var]): Model = {
-    val defs_ = defs map { case DefineFun(name, params, formals, res, body, rec) =>
-      val name_ = re get (Var(name, res)) map (_.name) getOrElse name
-      DefineFun(name_, params, formals rename re, res, body rename re, rec)
+    val defs_ = defs map {
+      case DefineFun(name, params, formals, res, body, rec) =>
+        val name_ = re get (Var(name, res)) map (_.name) getOrElse name
+        DefineFun(name_, params, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
@@ -51,81 +52,37 @@ case class Model(defs: List[DefineFun]) extends Res {
   }
 }
 
-sealed trait Cmd extends util.Syntax with boogie.Syntax
+sealed trait Cmd extends util.Syntax
 sealed trait Decl extends Cmd
 sealed trait Ctrl extends Cmd
 
-case object Labels extends Cmd {
-  def bexpr = cuvee.undefined
-}
+case object Labels extends Cmd
 
-case class Labels(labels: List[String]) extends Res {
-  def bexpr = cuvee.undefined
-}
+case class Labels(labels: List[String]) extends Res
 
-case class SetLogic(logic: String) extends Ctrl {
-  def bexpr =
-    List("/* ", "Command unsupported in boogie:", "set-logic", logic, " */")
-}
+case class SetLogic(logic: String) extends Ctrl
 
-case class SetOption(attr: String, arg: Any) extends Ctrl {
-  def bexpr = List(
-    "/* ",
-    "Command unsupported in boogie:",
-    "set-option",
-    attr,
-    arg,
-    " */"
-  )
-}
+case class SetOption(attr: String, arg: Any) extends Ctrl
 
-case class GetInfo(attr: String) extends Ctrl {
-  def bexpr =
-    List("/* ", "Command unsupported in boogie:", "get-info", attr, " */")
-}
+case class GetInfo(attr: String) extends Ctrl
 
-case class SetInfo(attr: String, arg: Option[Any]) extends Ctrl {
-  def bexpr =
-    List("/* ", "Command unsupported in boogie:", "set-info", attr, " */")
-}
+case class SetInfo(attr: String, arg: Option[Any]) extends Ctrl
 
-case class Push(depth: Int) extends Ctrl {
-  def bexpr = cuvee.undefined
-}
+case class Push(depth: Int) extends Ctrl
 
-case class Pop(depth: Int) extends Ctrl {
-  def bexpr = cuvee.undefined
-}
+case class Pop(depth: Int) extends Ctrl
 
-case object GetModel extends Cmd {
-  def bexpr = cuvee.undefined
-}
-case object Exit extends Ctrl {
-  def bexpr = cuvee.undefined
-}
-case object Reset extends Ctrl {
-  def bexpr = cuvee.undefined
-}
+case object GetModel extends Cmd
 
-case class Assert(expr: Expr) extends Cmd {
-  def bexpr = expr match {
-    case Bind(quant, formals, body, _) =>
-      List(
-        "axiom " + quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", " :: "),
-        body + ";"
-      )
-    case _ =>
-      List("axiom " + expr + ";")
-  }
-}
+case object Exit extends Ctrl
+
+case object Reset extends Ctrl
+
+case class Assert(expr: Expr) extends Cmd
 
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
-case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean) extends Cmd {
-  def bexpr = tactic match {
-    case None         => List("lemma " + expr + ";")
-    case Some(tactic) => List("lemma " + expr, "proof" + tactic + ";")
-  }
-}
+case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean)
+    extends Cmd
 
 // object Lemma extends ((Expr, Option[Tactic]) => Lemma) {
 //   def apply(expr: Expr, tactic: Option[Tactic]): Lemma = {
@@ -133,17 +90,11 @@ case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean) extends Cm
 //   }
 // }
 
-case object CheckSat extends Cmd {
-  def bexpr = cuvee.undefined
-}
+case object CheckSat extends Cmd
 
-case class DeclareSort(name: Name, arity: Int) extends Decl {
-  def bexpr = List("type " + name + ";") // XXX: add params
-}
+case class DeclareSort(name: Name, arity: Int) extends Decl
 
-case class DefineSort(name: Name, params: List[Param], body: Type) extends Decl {
-  def bexpr = List("type " + name + " = " + body + ";")
-}
+case class DefineSort(name: Name, params: List[Param], body: Type) extends Decl
 
 case class DeclareFun(
     name: Name,
@@ -152,7 +103,6 @@ case class DeclareFun(
     res: Type
 ) extends Decl {
   def formals = Expr.vars("x", args)
-  def bexpr = List("function " + name + "(" + formals.toStringTyped + "): " + res + ";")
 }
 
 case class DefineFun(
@@ -164,47 +114,15 @@ case class DefineFun(
     rec: Boolean
 ) extends Decl {
   require(params.isEmpty, "generic functions are currently not supported")
-
-  def bexpr =
-    List("function " + name + "(" + formals.toStringTyped + "): " + res + "{", "  " + body, "}")
 }
 
 case class DeclareDatatypes(
     arities: List[(Name, Int)],
     datatypes: List[Datatype]
 ) extends Decl {
-  def sorts = arities zip datatypes map { case ((name, arity), Datatype(params, constrs)) =>
-    Sort(Con(name, arity), params)
-  }
-
-  def bexpr = {
-    val lines = arities zip datatypes map {
-      case ((name, arity), Datatype(Nil, constrs)) =>
-        val cs = constrs map {
-          case (constr, Nil) =>
-            constr.name
-          case (constr, sels) =>
-            val as = sels map { case Fun(name, _, _, res) =>
-              name + ": " + res
-            }
-            constr.name + as.mkString("(", ", ", ")")
-        }
-
-        name + cs.mkString(" = ", " | ", ";")
-
-      case ((name, arity), Datatype(params, constrs)) =>
-        val cs = constrs map {
-          case (constr, Nil) =>
-            constr.name
-          case (constr, sels) =>
-            val as = sels map { case Fun(name, _,  _, res) => name + ": " + res }
-            constr.name + as.mkString("(", ", ", ")")
-        }
-
-        name + params.mkString("<", ", ", ">") + cs.mkString(" = ", " | ", ";")
-    }
-
-    "data " :: lines
+  def sorts = arities zip datatypes map {
+    case ((name, arity), Datatype(params, constrs)) =>
+      Sort(Con(name, arity), params)
   }
 }
 
@@ -231,8 +149,6 @@ case class DeclareProc(
         post
       )
   }
-
-  def bexpr = cuvee.undefined
 }
 
 case class DefineProc(
@@ -259,8 +175,5 @@ case class DefineProc(
         post,
         body
       )
-
   }
-
-  def bexpr = cuvee.undefined
 }
