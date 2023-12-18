@@ -176,16 +176,15 @@ object Printer extends cuvee.util.Printer {
     case Break        => List("break;")
     case Return       => List("return;")
     case Local(xs, rhs) =>
-      val vars = for (x <- xs) yield x + ": " + btype(x.typ)
       val exprs = for (e <- rhs) yield line(e)
-      List("var " + vars.mkString(", ") + " := " + exprs.mkString(", ") + ";")
+      List("var " + vartypes(xs) + " := " + exprs.mkString(", ") + ";")
     case Assign(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
       List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
-        case (Nil, True, phi) => List("assert " + line(phi) + ";")
-        case (Nil, phi, True) => List("assume " + line(phi) + ";")
+        case (Nil, True, phi) => List("assume " + line(phi) + ";")
+        case (Nil, phi, True) => List("assert " + line(phi) + ";")
         case (xs, True, True) => List("havoc " + xs.mkString(", "))
         case _ =>
           List(
