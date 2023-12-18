@@ -67,7 +67,8 @@ object Printer extends cuvee.util.Printer {
       expr match {
         case Bind(quant, formals, body, _) =>
           List(
-            "axiom " + quant.name + " "+ vartypes(formals) + " :: ", indent(line(body)) + ";"
+            "axiom " + quant.name + " " + vartypes(formals) + " :: ",
+            indent(line(body)) + ";"
           )
         case _ =>
           List("axiom " + line(expr) + ";")
@@ -76,17 +77,20 @@ object Printer extends cuvee.util.Printer {
       val prop = Prop.from(expr)
       var result: List[String] = Nil
 
-      if (expr.isInstanceOf[Conj]) result ++= lines(expr)
-      else result ++= lines(prop)
+      if (expr.isInstanceOf[Conj])
+        result ++= lines(expr)
+      else
+        result ++= lines(prop)
 
       if (tactic.nonEmpty)
         result ++= "proof " +: tactic_(tactic.orNull)
 
       result = indent(result)
       vblock(result)
-    case CheckSat                  => ???
-    case DeclareSort(name, arity)  => List("type " + name + ";") // add params
-    case DefineSort(name, _, body) => List("type " + name + " = " + body + ";")
+    case CheckSat                 => ???
+    case DeclareSort(name, arity) => List("type " + name + ";")
+    case DefineSort(name, _, body) =>
+      List("type " + name + " = " + btype(body) + ";")
     case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
       List("const " + name + ": " + btype(res) + ";")
     case x @ DeclareFun(name, params, _, res) =>
@@ -97,12 +101,12 @@ object Printer extends cuvee.util.Printer {
     case DefineFun(name, _, formals, res, body, _) =>
       List(
         "function " + name +
-          "(" + formals.toStringTyped.toLowerCase + "): " + btype(res) + " {",
+          "(" + vartypes(formals) + "): " + btype(res) + " {",
         "  " + line(body),
         "}"
       )
     case DeclareDatatypes(arities, datatypes) =>
-      val lines = arities zip datatypes map {
+      arities zip datatypes map {
         case ((name, arity), Datatype(Nil, constrs)) =>
           val cs = constrs map {
             case (constr, Nil) =>
@@ -113,7 +117,7 @@ object Printer extends cuvee.util.Printer {
               }
               constr.name + as.mkString("(", ", ", ")")
           }
-          name + cs.mkString(" = ", " | ", ";")
+          "data " + name + cs.mkString(" = ", " | ", ";")
 
         case ((name, arity), Datatype(params, constrs)) =>
           val cs = constrs map {
@@ -125,13 +129,10 @@ object Printer extends cuvee.util.Printer {
               }
               constr.name + as.mkString("(", ", ", ")")
           }
-          name + params.mkString("<", ", ", ">") + cs.mkString(
-            " = ",
-            " | ",
-            ";"
-          )
+          "data " + name +
+            params.mkString("<", ", ", ">") +
+            cs.mkString(" = ", " | ", ";")
       }
-      "data " +: lines
     case DeclareProc(name, params, in, out, spec) =>
       var header: String = "procedure " + name
       if (params.nonEmpty) {
@@ -162,7 +163,7 @@ object Printer extends cuvee.util.Printer {
       var result: List[String] = List(header)
 
       if (out.nonEmpty)
-        result ++= indent(List("returns (" + vartypes(out) + ")"))
+        result = result :+ indent("returns (" + vartypes(out) + ")")
       if (spec.nonEmpty)
         result ++= bspecs(spec.orNull)
 
