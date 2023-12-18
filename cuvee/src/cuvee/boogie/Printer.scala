@@ -67,10 +67,7 @@ object Printer extends cuvee.util.Printer {
       expr match {
         case Bind(quant, formals, body, _) =>
           List(
-            "axiom " + quant.name + formals
-              .map(_.toStringTyped)
-              .mkString(" ", ", ", " :: "),
-            "  " + body + ";"
+            "axiom " + quant.name + " "+ vartypes(formals) + " :: ", indent(line(body)) + ";"
           )
         case _ =>
           List("axiom " + line(expr) + ";")
@@ -470,6 +467,8 @@ object Printer extends cuvee.util.Printer {
   }
 
   private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
+
+  private def indent(line: String) = "  " + line
 
   private def vartypes(vars: List[Var]): String = {
     val vars_ = for (v <- vars) yield v + ": " + btype(v.typ)
