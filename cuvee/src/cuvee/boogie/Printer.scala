@@ -79,6 +79,23 @@ object Printer extends cuvee.util.Printer {
       var result: List[String] = Nil
 
       if (expr.isInstanceOf[Conj])
+        result ++= mformat(expr.asInstanceOf[Conj])
+      else
+        result ++= mformat(prop)
+
+      if (tactic.nonEmpty)
+        result ++= "proof " +: tactic_(tactic.orNull)
+
+      val last = result.last.patch(result.last.length, ";", 1)
+      result = result.updated(result.length - 1, last)
+      result = indent(result)
+
+      "lemma " +: result
+    case Lemma(expr, tactic, _) =>
+      val prop = Prop.from(expr)
+      var result: List[String] = Nil
+
+      if (expr.isInstanceOf[Conj])
         result ++= lines(expr)
       else
         result ++= lines(prop)
@@ -317,6 +334,61 @@ object Printer extends cuvee.util.Printer {
     result
   }
 
+  private def mformat(prop: Prop): List[String] = prop match {
+    case Disj(xs, assms, concls) =>
+      var result: List[String] = Nil
+      val bound =
+        for (x <- xs)
+          yield x.name.toString + ": " + btype(x.typ)
+
+      val pre =
+        for (phi <- assms)
+          yield lines(phi)
+
+      val conclst =
+        for (phi <- concls)
+          yield mformat(phi)
+
+      if (bound.nonEmpty)
+        result = result :+ "forall " + bound.mkString("", ", ", " :: ")
+
+      // TODO What is the correct format here? cuvee does not give out ops
+      // look into the normal forms again
+      // example for strange behaviour exampls/boogie/bdd.bpl
+      if (pre.nonEmpty)
+        result ++= "assume" +: indent(pre.flatten)
+
+      if (concls.isEmpty)
+        result ++= List("show contradiction;")
+      else if (concls.size == 1)
+        result ++= conclst.flatten
+      else if (concls.size > 1)
+        result ++= "show one of" +: indent(conclst.flatten)
+
+      result
+    case Atom(phi, None)      => List(line(phi))
+    case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
+  }
+
+  private def mformat(conj: Conj): List[String] = {
+    val Conj(xs, props) = conj
+    var result: List[String] = Nil
+
+    val bound = vartypes(xs)
+
+    val concls = (for (phi <- props) yield lines(phi)).flatten
+
+    if (bound.nonEmpty)
+      result ++= indent("exists" :: indent(List(bound)))
+
+    if (props.size == 1)
+      result ++= indent(concls)
+    else if (props.size > 1)
+      result = result :+ concls.mkString(" && ")
+
+    result
+  }
+
   private def line(expr: Expr): String = expr match {
     case Lit(any, typ)  => any.toString
     case Var(name, typ) => name.toString
@@ -425,7 +497,7 @@ object Printer extends cuvee.util.Printer {
           for ((expr, tactic) <- cases)
             yield ("case " + expr.toString + " => ") +: tactic_(tactic)
 
-        result = (header + " {") +: indent(body.flatten) :+ "};"
+        result = (header + " {") +: indent(body.flatten) :+ "}"
       }
 
       indent(result)
@@ -454,7 +526,7 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
     case Auto           => indent(List("auto"))
-    case NoAuto(tactic) => indent("no auto " :: tactic_(tactic))
+    case NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
     case Sorry          => indent(List("sorry;"))
   }
 
