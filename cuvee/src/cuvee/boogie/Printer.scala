@@ -7,6 +7,7 @@ import cuvee.smtlib
 import cuvee.smtlib._
 import cuvee.util
 import cuvee.prove._
+import scala.collection.immutable
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -67,10 +68,8 @@ object Printer extends cuvee.util.Printer {
       expr match {
         case Bind(quant, formals, body, _) =>
           List(
-            "axiom " + quant.name + formals
-              .map(_.toStringTyped)
-              .mkString(" ", ", ", " :: "),
-            "  " + body + ";"
+            "axiom " + quant.name + " " + vartypes(formals) + " :: ",
+            indent(line(body)) + ";"
           )
         case _ =>
           List("axiom " + line(expr) + ";")
@@ -79,17 +78,20 @@ object Printer extends cuvee.util.Printer {
       val prop = Prop.from(expr)
       var result: List[String] = Nil
 
-      if (expr.isInstanceOf[Conj]) result ++= lines(expr)
-      else result ++= lines(prop)
+      if (expr.isInstanceOf[Conj])
+        result ++= lines(expr)
+      else
+        result ++= lines(prop)
 
       if (tactic.nonEmpty)
         result ++= "proof " +: tactic_(tactic.orNull)
 
       result = indent(result)
       vblock(result)
-    case CheckSat                  => ???
-    case DeclareSort(name, arity)  => List("type " + name + ";") // add params
-    case DefineSort(name, _, body) => List("type " + name + " = " + body + ";")
+    case CheckSat                 => ???
+    case DeclareSort(name, arity) => List("type " + name + ";")
+    case DefineSort(name, _, body) =>
+      List("type " + name + " = " + btype(body) + ";")
     case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
       List("const " + name + ": " + btype(res) + ";")
     case x @ DeclareFun(name, params, _, res) =>
@@ -100,12 +102,12 @@ object Printer extends cuvee.util.Printer {
     case DefineFun(name, _, formals, res, body, _) =>
       List(
         "function " + name +
-          "(" + formals.toStringTyped.toLowerCase + "): " + btype(res) + " {",
+          "(" + vartypes(formals) + "): " + btype(res) + " {",
         "  " + line(body),
         "}"
       )
     case DeclareDatatypes(arities, datatypes) =>
-      val lines = arities zip datatypes map {
+      arities zip datatypes map {
         case ((name, arity), Datatype(Nil, constrs)) =>
           val cs = constrs map {
             case (constr, Nil) =>
@@ -116,7 +118,7 @@ object Printer extends cuvee.util.Printer {
               }
               constr.name + as.mkString("(", ", ", ")")
           }
-          name + cs.mkString(" = ", " | ", ";")
+          "data " + name + cs.mkString(" = ", " | ", ";")
 
         case ((name, arity), Datatype(params, constrs)) =>
           val cs = constrs map {
@@ -128,33 +130,46 @@ object Printer extends cuvee.util.Printer {
               }
               constr.name + as.mkString("(", ", ", ")")
           }
-          name + params.mkString("<", ", ", ">") + cs.mkString(
-            " = ",
-            " | ",
-            ";"
-          )
+          "data " + name +
+            params.mkString("<", ", ", ">") +
+            cs.mkString(" = ", " | ", ";")
       }
-      "data " +: lines
-    case DeclareProc(name, params, in, out, spec)      => ???
+    case DeclareProc(name, params, in, out, spec) =>
+      var header: String = "procedure " + name
+      if (params.nonEmpty) {
+        val btypes = params map btype
+        header += btypes.mkString("<", ", ", ">")
+      }
+      if (in.nonEmpty) header += "(" + vartypes(in) + ")"
+      else header += "()"
+
+      if (out.nonEmpty)
+        header += "returns (" + vartypes(out) + ");"
+      else
+        header += ";"
+
+      if (spec.nonEmpty)
+        header +: bspecs(spec.orNull)
+      else
+        List(header)
     case DefineProc(name, params, in, out, spec, body) =>
-      // TODO what is 'params' and how does 'out' look?
-      // procedure name<params>(in) returns (out)
-      // for Spec(xs,pre,post) = spec moreover
-      //    modifies xs; requires pre; ensures post;
-      val rest = "{" +: lines(body) :+ "}"
-      in match {
-        case Nil =>
-          ("procedure " + name + "()") +: rest
-        case _ =>
-          val header = "procedure " + name + "(" + vartypes(in) + ")"
-          spec match {
-            case None =>
-              header +: rest
-            case Some(s) =>
-              val spec_ = lines(s) // TODO: don't use the representation as in programs here
-              (header +: indent(spec_)) ++ rest
-          }
+      var header: String = "procedure " + name
+      if (params.nonEmpty) {
+        val btypes = params map btype
+        header += btypes.mkString("<", ", ", ">")
       }
+      if (in.nonEmpty) header += "(" + vartypes(in) + ")"
+      else header += "()"
+
+      var result: List[String] = List(header)
+
+      if (out.nonEmpty)
+        result = result :+ indent("returns (" + vartypes(out) + ")")
+      if (spec.nonEmpty)
+        result ++= bspecs(spec.orNull)
+
+      result ++= "{" +: lines(body) :+ "}"
+      result
   }
 
   private def lines(prog: Prog): List[String] = prog match {
@@ -162,16 +177,15 @@ object Printer extends cuvee.util.Printer {
     case Break        => List("break;")
     case Return       => List("return;")
     case Local(xs, rhs) =>
-      val vars = for (x <- xs) yield x + ": " + btype(x.typ)
       val exprs = for (e <- rhs) yield line(e)
-      List("var " + vars.mkString(", ") + " := " + exprs.mkString(", ") + ";")
+      List("var " + vartypes(xs) + " := " + exprs.mkString(", ") + ";")
     case Assign(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
       List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
-        case (Nil, True, phi) => List("assert " + line(phi) + ";")
-        case (Nil, phi, True) => List("assume " + line(phi) + ";")
+        case (Nil, True, phi) => List("assume " + line(phi) + ";")
+        case (Nil, phi, True) => List("assert " + line(phi) + ";")
         case (xs, True, True) => List("havoc " + xs.mkString(", "))
         case _ =>
           List(
@@ -185,17 +199,19 @@ object Printer extends cuvee.util.Printer {
       }
     case x @ If(test, left, right) => if_(x)
     case While(test, body, term, inv, sum, frames) =>
-      val con = "while(" + lines(test).mkString + ")"
+      val con = "while(" + line(test) + ")"
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases\t" + lines(term).mkString + ";")
+        spec = spec :+ ("decreases\t" + line(term) + ";")
       if (inv != True)
-        spec = spec :+ ("invariant\t" + lines(inv).mkString + ";")
+        spec = spec :+ ("invariant\t" + line(inv) + ";")
       if (sum != True)
-        spec = spec :+ ("summary\t" + lines(sum).mkString + ";")
-      if (!frames.isEmpty)
-        spec = spec :+ ("frames\t" + lines(frames).mkString + ";")
+        spec = spec :+ ("summary\t" + line(sum) + ";")
+      if (!frames.isEmpty) {
+        val frames_ = for (f <- frames) yield line(f)
+        spec = spec :+ frames_.mkString("frames\t", ",", ";")
+      }
 
       val body_ = "{" +: lines(body) :+ "}"
 
@@ -224,7 +240,7 @@ object Printer extends cuvee.util.Printer {
     // Name
     case n: util.Name      => List(n.toLabel)
     case smtlib.Error(msg) => List(msg.mkString("\"", " ", "\""))
-    case res: Res          => List(res.toString())
+    case res: Res          => List(res.toString)
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax => lines(s.bexpr)
     // String (= Id)
@@ -278,8 +294,8 @@ object Printer extends cuvee.util.Printer {
         result ++= "show one of" +: indent(conclst.flatten)
 
       result
-    case Atom(phi, None)      => List(phi.toString)
-    case Atom(phi, Some(cex)) => ??? // TODO
+    case Atom(phi, None)      => List(line(phi))
+    case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
   }
 
   private def lines(conj: Conj): List[String] = {
@@ -288,11 +304,7 @@ object Printer extends cuvee.util.Printer {
 
     val bound = vartypes(xs)
 
-    // TODO How to differentiate between actual Prop and Expr here
-    // Expr would be needed for correct parens
-    
-    // don't call lines(phi.toExpr) instead call lines(phi) recursively
-    val concls = (for (phi <- props) yield lines(phi.toExpr)).flatten
+    val concls = (for (phi <- props) yield lines(phi)).flatten
 
     if (bound.nonEmpty)
       result ++= indent("exists" :: indent(List(bound)))
@@ -339,16 +351,35 @@ object Printer extends cuvee.util.Printer {
       name + arg
     case App(inst, args) =>
       val exprs = args map line
-      inst.toString + "(" + exprs.mkString(",") + ")"
+      inst.toString + "(" + exprs.mkString(", ") + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
       val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
       (quantifier +: lines(body)).mkString
-    case Distinct(exprs)         => ???
     case Is(arg, fun)            => "is#" + fun.name + "(" + line(arg) + ")"
+    case Distinct(exprs)         => ???
     case Let(eqs, body)          => ???
     case Match(expr, cases, typ) => ???
     case Note(expr, attr)        => ???
+  }
+
+  private def line(frame: Frame): String = {
+    val Frame(array, index, phi) = frame
+    array.name + "[" + index.name + "] := " + line(phi)
+  }
+
+  private def bspecs(spec: Spec): List[String] = {
+    val Spec(xs, pre, post) = spec
+    var result: List[String] = Nil
+
+    if (xs.nonEmpty)
+      result ++= List("modifies " + vartypes(xs) + ";")
+    if (!pre.equals(Nil) && pre != True)
+      result ++= List("requires " + line(pre) + ";")
+    if (!post.equals(Nil) && post != True)
+      result ++= List("ensures " + line(post) + ";")
+
+    indent(result)
   }
 
   /** Provides a tuple containing precedence and associativity for the given
@@ -404,7 +435,6 @@ object Printer extends cuvee.util.Printer {
 
       if (tactic.nonEmpty)
         result ++= "proof " +: tactic_(tactic.orNull)
-      // TODO correct?
       if (cont.nonEmpty)
         result ++= "then " +: tactic_(cont.orNull)
 
@@ -424,7 +454,7 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
     case Auto           => indent(List("auto"))
-    case NoAuto(tactic) => tactic_(tactic) // TODO: "noauto" vorne dran schreiben
+    case NoAuto(tactic) => indent("no auto " :: tactic_(tactic))
     case Sorry          => indent(List("sorry;"))
   }
 
@@ -446,18 +476,20 @@ object Printer extends cuvee.util.Printer {
 
   private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
 
+  private def indent(line: String) = "  " + line
+
   private def vartypes(vars: List[Var]): String = {
     val vars_ = for (v <- vars) yield v + ": " + btype(v.typ)
     vars_.mkString(", ")
   }
 
   private def btype(typ: Type): String = typ match {
-    case Sort(Con.bool, _)           => "bool"
-    case Sort(Con.int, _)            => "int"
-    case Sort(Con.real, _)           => "real"
+    case Sort.bool                   => "bool"
+    case Sort.int                    => "int"
+    case Sort.real                   => "real"
     case Sort(Con.list, List(a))     => btype(a)
     case Sort(Con.array, List(a, b)) => "[" + btype(a) + "]" + btype(b)
-    case Param(name)                 => name.name
+    case Param(name)                 => name.toString
     case _                           => typ.toString
   }
 }
