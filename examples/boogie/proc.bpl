@@ -1,3 +1,11 @@
+procedure foo(x: int)
+    returns (y: int)
+    ensures (y > 0);
+    {}
+
+procedure empty(){}
+axiom forall a: bool, b: bool :: a == b;
+
 procedure test(x: int, y: int)
     returns (z: int)
 {

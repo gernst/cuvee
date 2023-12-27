@@ -164,9 +164,9 @@ object Prop {
   }
 }
 
-// atomics should not have inner proconclsitional structure
+// atomics should not have inner conclusion structure
 case class Atom(phi: Expr, cex: Option[Model] = None) extends Prop {
-  require(phi.typ == Sort.bool, "not a boolean proconclsition: " + phi)
+  require(phi.typ == Sort.bool, "not a boolean conclusion: " + phi)
   // require(cex.isEmpty || (expr != True && expr != False), "Atoms with True / False must not carry a model")
 
   phi match {
