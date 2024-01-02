@@ -358,13 +358,17 @@ object Printer extends cuvee.util.Printer {
       if (pre.nonEmpty)
         result ++= "assume" +: indent(pre.flatten)
 
+      println(pre.flatten)
+      println(conclst.flatten)
+
       if (concls.isEmpty)
-        result ++= List("show contradiction;")
+        result ++= List("show contradiction")
       else if (concls.size == 1)
         result ++= conclst.flatten
       else if (concls.size > 1)
         result ++= "show one of" +: indent(conclst.flatten)
 
+      println(result)
       result
     case Atom(phi, None)      => List(line(phi))
     case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
@@ -381,10 +385,8 @@ object Printer extends cuvee.util.Printer {
     if (bound.nonEmpty)
       result ++= indent("exists" :: indent(List(bound)))
 
-    if (props.size == 1)
-      result ++= indent(concls)
-    else if (props.size > 1)
-      result = result :+ concls.mkString(" && ")
+    // TODO this is human readable but what would cuvee need between arguments e.g. simple.bpl
+    result ++= indent(concls)
 
     result
   }
@@ -527,7 +529,7 @@ object Printer extends cuvee.util.Printer {
       indent(result)
     case Auto           => indent(List("auto"))
     case NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
-    case Sorry          => indent(List("sorry;"))
+    case Sorry          => indent(List("sorry"))
   }
 
   private def vblock(lines: List[String]): List[String] = {
