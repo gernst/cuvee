@@ -8,7 +8,7 @@ import scala.collection.immutable
 object Annotate extends Stage {
   case class State(path: List[Expr], vars: Map[Var, Expr])
 
-  def exec(prefix: List[Cmd], cmds: List[Cmd], state: cuvee.State) = {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: cuvee.State) = {
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
         val proc = Proc(name, params, in, out, spec)

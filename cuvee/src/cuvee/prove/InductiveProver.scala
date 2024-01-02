@@ -72,7 +72,7 @@ object InductiveProver {
 
     for ((x, goal_) <- candidates)
       yield {
-        // println("   " + goal_)
+        // println("trying induction over " + x + ": " + goal_)
         (x, solver.check(Not(goal_)))
       }
   }
@@ -130,7 +130,7 @@ object InductiveProver {
         val re = Map(x -> y)
 
         Clause(
-          Nil, // xs filter (_ != x),
+          xs filter (_ != x),
           ant rename re,
           suc rename re
         )

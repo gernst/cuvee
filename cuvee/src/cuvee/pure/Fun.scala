@@ -1,12 +1,11 @@
 package cuvee.pure
 
 import cuvee.smtlib.DeclareFun
-import cuvee.boogie
-import cuvee.sexpr
+import cuvee.util
 import cuvee.StringOps
 import cuvee.util.Name
 
-case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie.Syntax {
+case class Inst(fun: Fun, ty: Map[Param, Type]) extends util.Syntax {
   require(
     ty.keySet == fun.bound,
     "some uninstantiated parameters " + ty.keySet + " for " + fun
@@ -21,15 +20,14 @@ case class Inst(fun: Fun, ty: Map[Param, Type]) extends sexpr.Syntax with boogie
   def res =
     fun.res subst ty
 
+  def replace(f: Fun, g: Fun) =
+    if (fun == f) Inst(g, ty)
+    else this
+
   def apply(args: Expr*) =
     App(this, args.toList)
   def subst(su: Map[Param, Type]) =
     Inst(fun, ty map { case (p, t) => (p, t subst su) })
-
-  def sexpr = List("as", fun.name, res)
-
-  val boogieOperators = boogie.Parser.translate.map(_.swap)
-  def bexpr = List(boogieOperators.getOrElse(fun.name.name, fun.name))
 
   override def toString = fun.name.toString
 }
@@ -68,18 +66,19 @@ case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
   def argsToString =
     args.mkString(" * ") + " -> "
 
-  def in(expr: Expr): Boolean = expr match {
-    case _: Lit | _: Var =>
-      false
-    case App(Inst(fun, _), _) if fun == this =>
-      true
-    case App(_, args) =>
-      args exists (this in _)
-  }
+  def in(expr: Expr): Boolean =
+    expr match {
+      case _: Lit | _: Var                 => false
+      case Note(expr, attr)                => this in expr
+      case Is(arg, fun)                    => (fun == this) || (this in arg)
+      case App(Inst(fun, _), args)         => (fun == this) || (this in args)
+      case Distinct(exprs)                 => this in exprs
+      case Bind(quant, formals, body, typ) => this in body
+      case Let(eqs, body)                  => (eqs exists (this in _.e)) || (this in body)
+    }
 
-  def in(that: List[Expr]): Boolean = {
+  def in(that: List[Expr]): Boolean =
     that exists (this in _)
-  }
 
   override def toString = (params, args) match {
     case (Nil, Nil) =>

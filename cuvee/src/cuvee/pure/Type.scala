@@ -2,33 +2,22 @@ package cuvee.pure
 
 import cuvee.StringOps
 import cuvee.error
-import cuvee.sexpr
-import cuvee.boogie
+import cuvee.util
 import cuvee.util.Name
 import cuvee.util.Alpha
 
-sealed trait Type extends Type.term with sexpr.Syntax with boogie.Syntax {}
+sealed trait Type extends Type.term with util.Syntax {}
 
-case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends sexpr.Syntax {
-  def sexpr = {
-    val constrs_ = for ((k, sels) <- constrs) yield {
-      val sels_ = for (sel <- sels) yield {
-        List(sel.name, sel.res)
-      }
-
-      k.name :: sels_
-    }
-
-    if (params.isEmpty)
-      constrs_
-    else
-      List("par", params, constrs_)
-  }
-}
+case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends util.Syntax
 
 object Type extends Alpha[Type, Param] {
-  case class CannotUnify(reason: String) extends Exception
-  case class CannotBind(reason: String) extends Exception
+  case class CannotUnify(reason: String) extends Exception {
+    override def toString = "cannot unify: " + reason
+  }
+
+  case class CannotBind(typ1: Type, typ2: Type, su: Map[Param, Type]) extends Exception {
+    override def toString = "cannot bind: " + typ1 + " to " + typ2 + " using " + su
+  }
 
   def prune(su: Map[Param, Type]): Map[Param, Type] = {
     for ((p, t) <- su)
@@ -97,14 +86,20 @@ object Type extends Alpha[Type, Param] {
       su: Map[Param, Type] = Map()
   ): Map[Param, Type] = {
     (typ1, typ2) match {
-      case _ if typ1 == typ2 =>
+      // DO NOT DO THIS!
+      // typ1 and typ2 have disjoint set of variables
+      // case _ if typ1 == typ2 =>
+      //   su
+      case (p: Param, _) if su contains p =>
+        if (su(p) != typ2)
+          throw CannotBind(typ1, typ2, su)
         su
       case (p1: Param, _) =>
         su + (p1 -> typ2)
       case (Sort(con1, args1), Sort(con2, args2)) if con1 == con2 =>
         binds(args1, args2, su)
       case _ =>
-        throw CannotBind("cannot bind " + typ1 + " to " + typ2)
+        throw CannotBind(typ1, typ2, su)
     }
   }
 
@@ -128,8 +123,6 @@ object Type extends Alpha[Type, Param] {
         su
       case (typ1 :: types1, typ2 :: types2) =>
         binds(types1, types2, bind(typ1, typ2, su))
-      case _ =>
-        throw CannotBind("cannot bind " + types1 + " to " + types2)
     }
   }
 
@@ -169,8 +162,6 @@ case class Param(name: Name) extends Type with Type.x {
     types exists (this in _)
   }
 
-  def sexpr = name
-  def bexpr = List(name)
   override def toString = name.toString
 }
 
@@ -202,23 +193,14 @@ case class Sort(con: Con, args: List[Type]) extends Type {
   def subst(su: Map[Param, Type]) =
     Sort(con, args subst su)
 
-  def sexpr =
-    if (args.isEmpty)
-      con.name
-    else
-      con.name :: args
-
-  def bexpr =
-    if (args.isEmpty)
-      List(con.name)
-    else
-      con.name :: (args intersperse ("[", ",", "]"))
-
-  override def toString =
-    if (args.isEmpty)
+  override def toString = this match {
+    case Sort(con, Nil) =>
       con.name.toString
-    else
-      con.name.toString + args.mkString("[", ", ", "]")
+    case Sort(Con.array, List(a, b)) =>
+      "[" + a + "]" + b
+    case _ =>
+      con.name.toString + args.mkString("<", ", ", ">")
+  }
 }
 
 object Sort extends ((Con, List[Type]) => Sort) {

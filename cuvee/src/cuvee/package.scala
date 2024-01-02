@@ -1,6 +1,18 @@
 import scala.annotation.tailrec
+import cuvee.smtlib.Lemma
 
 package object cuvee {
+  var level = 0
+  def info(msg: Any*) = log(1, msg)
+  def debug(msg: Any*) = log(2, msg)
+
+  val levelName = Array("[ALL]  ", "[INFO] ", "[DEBUG]")
+
+  def log(self: Int, msg: Seq[Any]) {
+    if (self <= level)
+      System.err.println(levelName(self) + (msg mkString " "))
+  }
+
   def error(msg: => String) = {
     require(false, msg)
     ???
@@ -16,16 +28,24 @@ package object cuvee {
     }
   }
 
+  def parse(file: String) =
+    if (file endsWith ".smt2") {
+      cuvee.smtlib.parse(file)
+    } else if (file endsWith ".bpl") {
+      cuvee.boogie.parse(file)
+    } else if (file endsWith ".th") {
+      cuvee.thesy.parse(file)
+    }  else {
+      error("unsupported file type: " + file)
+    }
+
   def undefined(implicit
       file: sourcecode.File,
       line: sourcecode.Line,
       enclosing: sourcecode.Enclosing,
       name: sourcecode.Name
   ) = {
-    println("internal error: an implementation is missing")
-    println("  " + file.value + ":" + line.value)
-    println("  in " + enclosing.value)
-    error("missing implementation: " + enclosing.value)
+    error("missing implementation at " + file.value + ":" + line.value + " in " + enclosing.value)
   }
 
   val sub = "₀₁₂₃₄₅₆₇₈₉"
@@ -46,6 +66,12 @@ package object cuvee {
       case Some(index) => self + "$" + index
     }
   }
+
+  def Union[A](xs: Iterable[Set[A]]): Set[A] =
+    xs.reduce(_ union _)
+
+  def Intersect[A](xs: Iterable[Set[A]]): Set[A] =
+    xs.reduce(_ intersect _)
 
   implicit class SetOps[A](self: Set[A]) {
     def disjoint(that: Set[A]) = {
@@ -70,7 +96,20 @@ package object cuvee {
 
     def removed(pos: Int) =
       self.patch(pos, Nil, 1)
-  }
+
+    def union(that: List[A]) =
+      self ++ (that -- self)
+
+    def intersect(that: List[A]) =
+      self filter that.contains
+
+    def --(that: List[A]) =
+      self filterNot that.contains
+
+
+    def subsetOf(that: List[A]) =
+      self forall that.contains
+    }
 
   implicit class ListMapOps[A, B](self: List[Map[A, B]]) {
     def merged = {

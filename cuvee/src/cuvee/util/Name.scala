@@ -13,6 +13,10 @@ case class Name(name: String, index: Option[Int] = None) {
   def withName(name_ : String) = Name(name_, index)
   def withIndex(index_ : Int) = Name(name, Some(index_))
 
+  def <(that: Name) = {
+    this.toString < that.toString
+  }
+
   /** Convert the name into a label that may be given to a solver for instance.
     *
     * @return

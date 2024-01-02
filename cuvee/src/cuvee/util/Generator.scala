@@ -25,8 +25,8 @@ object Generator {
       }
 
       for (
-        a <- extra.view ++ Generator.propositionalExprs(atoms, depth - 1, exactDepth);
-        b <- extra.view ++ Generator.propositionalExprs(atoms, depth - 1, exactDepth);
+        a <- extra.view ++ propositionalExprs(atoms, depth - 1, exactDepth);
+        b <- extra.view ++ propositionalExprs(atoms, depth - 1, exactDepth);
         op <- ops.view
       ) yield op(a, b)
   }

@@ -38,17 +38,25 @@ object Fix {
   }
 
   def digraph[X, A](
-      states: Iterable[X],
+      from: X,
       init: X => Iterable[A],
       succ: X => Iterable[X]
-  ) = {
+  ): (List[X], mutable.Map[X, mutable.Set[X]], mutable.Map[X, mutable.Set[A]]) = {
+    digraph(Iterable(from), init, succ)
+  }
+
+  def digraph[X, A](
+      from: Iterable[X],
+      init: X => Iterable[A],
+      succ: X => Iterable[X]
+  ): (List[X], mutable.Map[X, mutable.Set[X]], mutable.Map[X, mutable.Set[A]]) = {
     val stack = mutable.Stack[X]()
     val depth = mutable.Map[X, Int]()
     val result = mutable.Map[X, mutable.Set[A]]()
     var order = Nil: List[X]
     val sccs = mutable.Map[X, mutable.Set[X]]()
 
-    for (x <- states) {
+    for (x <- from) {
       start(x)
     }
 

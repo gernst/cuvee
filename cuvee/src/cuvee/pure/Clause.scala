@@ -20,9 +20,9 @@ object Clause {
   def apply(xs: List[Var], ant: Expr, suc: Expr) =
     (xs, ant) match {
       case (Nil, True) => suc
-      case (Nil, _)   => Imp(ant, suc)
+      case (Nil, _)    => Imp(ant, suc)
       case (_, True)   => Forall(xs, suc)
-      case _          => Forall(xs, Imp(ant, suc))
+      case _           => Forall(xs, Imp(ant, suc))
     }
 
   def unapply(expr: Expr) =
@@ -34,4 +34,30 @@ object Clause {
       case Imp(ant, suc)                  => Some((Nil, List(ant), suc))
       case _                              => Some((Nil, Nil, expr))
     }
+
+  def nnf(phi: Expr): Expr = phi match {
+    case Not(App(Fun.and, List(phi, psi))) =>
+      Or(Simplify.not(nnf(phi)), Simplify.not(nnf(psi)))
+
+    case Not(App(Fun.or, List(phi, psi))) =>
+      And(Simplify.not(nnf(phi)), Simplify.not(nnf(psi)))
+
+    case Not(Not(phi)) =>
+      nnf(phi)
+
+    case _ =>
+      phi
+  }
+
+  def dnf(phi: Expr): List[List[Expr]] = phi match {
+    case App(Fun.or, List(phi, psi)) =>
+      dnf(phi) ++ dnf(psi)
+
+    case App(Fun.and, List(phi, psi)) =>
+      for (a <- dnf(phi); b <- dnf(psi))
+        yield a ++ b
+
+    case _ =>
+      List(List(phi))
+  }
 }

@@ -11,7 +11,7 @@ class SimpleProver(solver: Solver) extends Prover {
 
   def reduce(prop: Prop, state: State): Prop = {
     val expr = prop.toExpr
-    Disj.from(reduce(expr))
+    Prop.from(reduce(expr))
   }
 
   def reduce(expr: Expr): Expr = expr match {

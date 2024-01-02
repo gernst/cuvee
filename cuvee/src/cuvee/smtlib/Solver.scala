@@ -18,19 +18,25 @@ trait Solver extends Sink {
   def ack(cmd: Cmd): Ack
 
   def check(): IsSat
+  def info(attr: String): Info
+  def labels(): Labels
   def model(state: State): Model
 
   def exec(cmd: Cmd, state: State): Res =
     cmd match {
       case CheckSat =>
         check()
-      case Lemma(expr, tactic, assert) => 
-        if(assert)
+      case Lemma(expr, tactic, assert) =>
+        if (assert)
           this.assert(expr)
         else
           Success
       case GetModel =>
         model(state)
+      case GetInfo(attr) =>
+        info(attr)
+      case Labels =>
+        labels()
       case cmd =>
         ack(cmd)
     }
@@ -95,7 +101,9 @@ object Solver {
     def done(state: State) {}
     def ack(cmd: Cmd) = Success
     def check() = Unknown
-    def model(state: State) = cuvee.error("no model")
+    def info(attr: String) = Error("no such info: " + attr)
+    def labels(): Labels = Error("no labels")
+    def model(state: State) = Error("no model")
   }
 
   def z3(timeout: Int = 1000) =
@@ -140,7 +148,7 @@ object Solver {
       for (line <- cmd.lines) {
         out.println(line)
         if (debug)
-          println("> " + line)
+          println(proc.pid + "> " + line)
       }
       out.flush()
     }
@@ -148,7 +156,7 @@ object Solver {
     def read() = {
       val line = res.next()
       if (debug)
-        println("< " + line)
+        println(proc.pid + "< " + line)
       line
     }
 
@@ -157,9 +165,19 @@ object Solver {
       Parser.ack(read())
     }
 
+    def info(attr: String): Info = {
+      write(GetInfo(attr))
+      Info(read())
+    }
+
     def check(): IsSat = {
       write(CheckSat)
       Parser.issat(read())
+    }
+
+    def labels(): Labels = {
+      write(Labels)
+      Parser.labels(read())
     }
 
     def model(state: State): Model = {
@@ -168,4 +186,5 @@ object Solver {
       Model(parser.model(read()))
     }
   }
+  implicit class ProcessWithPid(process: java.lang.Process) { def pid = 0 }
 }

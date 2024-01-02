@@ -1,0 +1,47 @@
+10:17:14 [0m[33m[WARN] [0mCollecting statistics
+(add zero ?n) => ?n
+(add (succ ?m) ?n) => (succ (add ?m ?n))
+(succ (add ?m ?n)) => (add (succ ?m) ?n)
+(snoc nil ?z) => (cons ?z nil)
+(cons ?z nil) => (snoc nil ?z)
+(snoc (cons ?y ?ys) ?z) => (cons ?y (snoc ?ys ?z))
+(cons ?y (snoc ?ys ?z)) => (snoc (cons ?y ?ys) ?z)
+(append nil ?ys) => ?ys
+(append (cons ?x ?xs) ?ys) => (cons ?x (append ?xs ?ys))
+(cons ?x (append ?xs ?ys)) => (append (cons ?x ?xs) ?ys)
+(length nil) => zero
+(length (cons ?x ?xs)) => (succ (length ?xs))
+(count ?x nil) => zero
+(count ?x (cons ?y ?ys)) => (ite (= ?x ?y) (succ (count ?x ?ys)) (count ?x ?ys))
+(ite (= ?x ?y) (succ (count ?x ?ys)) (count ?x ?ys)) => (count ?x (cons ?y ?ys))
+10:17:14 [0m[33m[WARN] [0m ex is: zero
+10:17:14 [0m[33m[WARN] [0m ex is: (succ zero)
+10:17:14 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+10:17:14 [0m[33m[WARN] [0m ex is: nil
+10:17:14 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+10:17:14 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+10:17:14 [0m[33m[WARN] [0mProof mode: false
+10:17:14 [0m[33m[WARN] [0m ex is: zero
+10:17:14 [0m[33m[WARN] [0m ex is: (succ zero)
+10:17:14 [0m[33m[WARN] [0m ex is: (succ (succ zero))
+10:17:14 [0m[33m[WARN] [0m ex is: nil
+10:17:14 [0m[33m[WARN] [0m ex is: (cons autovar_nat_0 nil)
+10:17:14 [0m[33m[WARN] [0m ex is: (cons autovar_nat_1 (cons autovar_nat_0 nil))
+10:17:14 [0m[33m[WARN] [0mProof mode: false
+10:17:14 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 zero) => ?ts_ph_nat_0
+10:17:14 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 nil) => ?ts_ph_list_0
+10:17:48 [0m[33m[WARN] [0mproved: (length (snoc ?ts_ph_list_0 ?ts_ph_nat_0)) => (succ (length ?ts_ph_list_0))
+10:17:48 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (cons ?ts_ph_nat_1 ?ts_ph_list_1)) => (append (snoc ?ts_ph_list_0 ?ts_ph_nat_1) ?ts_ph_list_1)
+10:17:48 [0m[33m[WARN] [0mproved: (append (snoc ?ts_ph_list_0 ?ts_ph_nat_1) ?ts_ph_list_1) => (append ?ts_ph_list_0 (cons ?ts_ph_nat_1 ?ts_ph_list_1))
+10:17:48 [0m[33m[WARN] [0mproved: (length (append ?ts_ph_list_0 ?ts_ph_list_1)) => (add (length ?ts_ph_list_0) (length ?ts_ph_list_1))
+10:17:48 [0m[33m[WARN] [0mproved: (add (length ?ts_ph_list_0) (length ?ts_ph_list_1)) => (length (append ?ts_ph_list_0 ?ts_ph_list_1))
+10:17:48 [0m[33m[WARN] [0mproved: (succ (length ?ts_ph_list_0)) => (add (length ?ts_ph_list_0) (succ zero))
+10:17:48 [0m[33m[WARN] [0mproved: (add (length ?ts_ph_list_0) (succ zero)) => (succ (length ?ts_ph_list_0))
+10:17:48 [0m[33m[WARN] [0mproved: (succ (succ ?ts_ph_nat_0)) => (add (succ ?ts_ph_nat_0) (succ zero))
+10:17:48 [0m[33m[WARN] [0mproved: (add (succ ?ts_ph_nat_0) (succ zero)) => (succ (succ ?ts_ph_nat_0))
+10:17:48 [0m[33m[WARN] [0mproved: (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1)) => (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1))
+10:17:48 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 (succ ?ts_ph_nat_1)) => (succ (add ?ts_ph_nat_0 ?ts_ph_nat_1))
+10:17:51 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_1 ?ts_ph_nat_0) => (add ?ts_ph_nat_0 ?ts_ph_nat_1)
+10:17:51 [0m[33m[WARN] [0mproved: (add ?ts_ph_nat_0 ?ts_ph_nat_1) => (add ?ts_ph_nat_1 ?ts_ph_nat_0)
+10:21:46 [0m[33m[WARN] [0mproved: (append ?ts_ph_list_0 (snoc ?ts_ph_list_1 ?ts_ph_nat_1)) => (snoc (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_nat_1)
+10:21:46 [0m[33m[WARN] [0mproved: (snoc (append ?ts_ph_list_0 ?ts_ph_list_1) ?ts_ph_nat_1) => (append ?ts_ph_list_0 (snoc ?ts_ph_list_1 ?ts_ph_nat_1))

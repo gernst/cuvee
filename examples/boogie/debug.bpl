@@ -1,11 +1,5 @@
-data nat
-  = zero | succ(pred: nat);
+function not_(p: bool): bool;
+axiom not_(false) == true;
+axiom not_(true) == false;
 
-function minus(x: nat, y: nat): nat;
-
-axiom forall y: nat ::
-  minus(zero, y) == zero;
-axiom forall z: nat ::
-  minus(succ(z), zero) == succ(z);
-axiom forall z: nat, y2: nat ::
-  minus(succ(z), succ(y2)) == minus(z, y2);
+lemma forall b: bool :: not_(not_(b)) == b;

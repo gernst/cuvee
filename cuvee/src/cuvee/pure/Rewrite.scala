@@ -1,7 +1,6 @@
 package cuvee.pure
 
 import cuvee.error
-import cuvee.sexpr.Syntax
 import cuvee.State
 import cuvee.util.Fix
 import cuvee.smtlib._
@@ -12,6 +11,30 @@ object Rewrite {
   case object PremiseNotValid extends Exception
 
   case class RewriteDepthExceeded(exprs: List[Expr], rules: Map[Fun, List[Rule]]) extends Exception
+
+  def catchRewritingDepthExceeded[A](f: => A) = {
+    try {
+      f
+    } catch {
+      case e @ Rewrite.RewriteDepthExceeded(trace, rules) =>
+        println("rewriting depth exceeded")
+        println()
+
+        println("trace:")
+        for (expr <- trace)
+          println("  " + expr)
+        println()
+        println("rewrite rules:")
+        for ((fun, eqs) <- rules) {
+          println("  " + fun)
+          for (eq <- eqs)
+            println("    " + eq)
+        }
+        println()
+
+        throw e
+    }
+  }
 
   def from(
       cmd: Cmd,
@@ -50,6 +73,7 @@ object Rewrite {
 
   def safe(rules: List[Rule], st: State): List[Rule] = {
     val deps = Rewrite.deps(rules)
+    println(deps)
 
     for (
       rule @ Rule(App(Inst(fun, _), pats), rhs, _, _) <- rules

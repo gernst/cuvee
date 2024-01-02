@@ -2,7 +2,7 @@ package cuvee.sexpr
 
 import easyparse._
 
-sealed trait Expr extends cuvee.sexpr.Syntax {
+sealed trait Expr extends cuvee.util.Syntax {
   def apply(index: Int) =
     this match {
       case App(args @ _*) => args(index)
@@ -14,7 +14,6 @@ sealed trait Expr extends cuvee.sexpr.Syntax {
 sealed trait Atom extends Expr with Token {}
 
 sealed trait Lit extends Atom {
-  def sexpr = toString
   def replace(re: Map[String, Expr]) = this
 }
 
@@ -54,13 +53,11 @@ object Lit {
 
 case class Kw(name: String) extends Atom {
   def replace(re: Map[String, Expr]) = this
-  def sexpr = ":" + name
   override def toString = ":" + name
 }
 
 case class Id(name: String) extends Atom {
   def replace(re: Map[String, Expr]) = re getOrElse (name, this)
-  def sexpr = List(name)
   override def toString = name
 }
 
@@ -69,7 +66,6 @@ object App {
 }
 
 case class App(args: Expr*) extends Expr {
-  def sexpr = List(args: _*)
   def replace(re: Map[String, Expr]) =
     App(args map (_ replace re): _*)
   override def toString =

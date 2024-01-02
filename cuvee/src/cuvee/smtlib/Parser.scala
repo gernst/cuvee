@@ -35,6 +35,16 @@ object Parser {
       case _ =>
         error("invalid status: " + from)
     }
+
+  def labels(from: Expr): Labels =
+    from match {
+      case App(Id("labels"), ids @ _*) =>
+        Labels(ids.toList map { case Id(name) => name })
+      case App(Id("error"), args @ _*) =>
+        Error(args.toList)
+      case _ =>
+        error("invalid label: " + from)
+    }
 }
 
 class Parser(init: State) {
@@ -80,13 +90,21 @@ class Parser(init: State) {
         stack = stack drop n
         Pop(n)
 
+      case App(Id("push")) =>
+        val n = 1
+        stack = List.tabulate(n)(_ => stack.head) ++ stack
+        Push(n)
+
+      case App(Id("pop")) =>
+        val n = 1
+        stack = stack drop n
+        Pop(n)
+
       case App(Id("reset")) =>
         stack = List(init)
         Reset
 
       case App(Id("exit")) =>
-        // println("!!! exit in parser")
-        // cuvee.undefined
         Exit
 
       case App(Id("assert"), phi) =>
@@ -187,7 +205,7 @@ class Parser(init: State) {
     from match {
       case App(Id(name), arg) =>
         val out = typ(arg, ctx)
-        Fun(name, params, List(in), out)
+        st.fun(name, params, List(in), out)
 
       case _ =>
         error("invalid selector declaration: " + from)
@@ -277,7 +295,9 @@ class Parser(init: State) {
           val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
           DefineFun(name, Nil, formals_, res_, body_, false)
         }
-      case _ => cuvee.error("Unexpected format in model response")
+
+      case _ =>
+        error("unexpected format in model response")
     }
 
   def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
@@ -377,6 +397,11 @@ class Parser(init: State) {
           check(body, bool)
           bind(name, xs, body, bool)
 
+        // qualified constant
+        case App(Id("as"), Id(name), from) if st.funs contains (name, 0) =>
+          const(name, Some(typ(from, ctx)))
+
+        // qualified function application
         case App(App(Id("as"), Id(name), from), args @ _*)
             if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope), Some(typ(from, ctx)))
@@ -419,7 +444,7 @@ class Parser(init: State) {
           val e_ = expr(e, ctx, scope ++ scope_)
           (p_, e_)
         case _ =>
-          error("invalid case: " + from)
+          error("invalid match case: " + from)
       }
 
     def cases(

@@ -1,6 +1,8 @@
 package cuvee.pure
 
 import cuvee.smtlib.Model
+import cuvee.pure.True
+import cuvee.Intersect
 
 object Simplify {
   def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
@@ -19,6 +21,9 @@ object Simplify {
     case Imp(phi, psi)     => imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
     case Forall(vars, phi) => forall(vars, simplify(phi, rules, constrs))
     case Exists(vars, phi) => exists(vars, simplify(phi, rules, constrs))
+
+    case Is(arg, fun) =>
+      is(arg, fun)
 
     case Eq(left, right) if left.typ == Sort.bool =>
       eqv(simplify(left, rules, constrs), simplify(right, rules, constrs))
@@ -45,26 +50,80 @@ object Simplify {
       expr
   }
 
-  // TODO: maybe simplify should be part of Prop and expr, because this sucks:
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
+    case Atom(expr, None) =>
+      Prop.from(simplify(expr, rules, constrs))
+
     case Atom(expr, model) =>
-      atom(simplify(expr, rules, constrs), model)
-    case Disj(xs, neg, pos) =>
-      disj(xs, neg map (simplify(_, rules, constrs)), pos map (simplify(_, rules, constrs)))
-    case Conj(xs, neg) =>
-      conj(xs, neg map (simplify(_, rules, constrs)))
+      Atom(simplify(expr, rules, constrs), model)
+
+    case Disj(xs_, assms_, concls_) =>
+      // TODO:
+      // - substitute equations
+      // - omit unused variables
+      // - pull common antecedents out (A ==> B) /\ (A ==> C) ~~> A ==> (B /\ C)
+      // - shift negations around?
+
+      var xs = xs_
+      var assms = assms_
+      var concls = concls_
+
+      var eqs = assms collect {
+        case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
+        case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
+      }
+
+      val su = Expr.subst(eqs)
+      assms = assms map (_ subst su)
+      concls = concls map (_ subst su)
+
+      var defs = assms collect {
+        case Atom(Eq(x @ App(Inst(f, _), Nil), e), _) if !(f in e) => Rule(x, e)
+        case Atom(Eq(e, x @ App(Inst(f, _), Nil)), _) if !(f in e) => Rule(x, e)
+      }
+
+      val more = defs.groupBy(_.fun)
+
+      assms = assms_ map (simplify(_, rules ++ more, constrs))
+      concls = concls_ map (simplify(_, rules ++ more, constrs))
+
+      val all = concls flatMap { case Conj(xs, props) =>
+        props map {
+          case _: Atom =>
+            Set[Prop]()
+          case Disj(xs, assms, concls) =>
+            Set(assms: _*)
+        }
+      }
+
+      if (all.nonEmpty) {
+        val common = Intersect(all)
+
+        concls = concls map { case Conj(xs, props) =>
+          Conj(
+            xs,
+            props map {
+              case atom: Atom =>
+                atom
+              case Disj(xs, assms, concls) =>
+                Disj(xs, assms filterNot common, concls)
+            }
+          )
+        }
+
+        assms = assms ++ common
+      }
+
+      xs = xs filter { case x =>
+        assms exists (x in _)
+      }
+
+      Disj.reduce(xs, assms, concls)
   }
 
-  def simplify(prop: Pos, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Pos = prop match {
-    case Atom(expr, model) => atom(simplify(expr, rules, constrs), model)
-    case Conj(xs, neg)     => conj(xs, neg map (simplify(_, rules, constrs)))
-  }
-
-  def simplify(prop: Neg, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Neg = prop match {
-    case Atom(expr, model) =>
-      atom(simplify(expr, rules, constrs), model)
-    case Disj(xs, neg, pos) =>
-      disj(xs, neg map (simplify(_, rules, constrs)), pos map (simplify(_, rules, constrs)))
+  def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
+    case Conj(xs, props) =>
+      Conj.reduce(xs, props map (simplify(_, rules, constrs)))
   }
 
   def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Expr] = {
@@ -72,10 +131,25 @@ object Simplify {
       yield simplify(expr, rules, constrs)
   }
 
+  def is(arg: Expr, fun: Fun): Expr = if (true) {
+    Is(arg, fun)
+  } else {
+    val ty = Type.bind(fun.res, arg.typ)
+    val unbound = arg.typ.free -- ty.keySet
+    require(unbound.isEmpty, "unbound type parameters in " + Is(arg, fun))
+    val ts = fun.args subst ty
+    val xs = Expr.vars("x", ts)
+    Exists(xs, Eq(arg, App(fun, xs)))
+  }
+
   def eq(left: Expr, right: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = {
     (left, right) match {
       case _ if left == right =>
         True
+
+      case (Lit(left, _), Lit(right, _)) =>
+        if (left == right) True
+        else False
 
       case (App(Inst(f, _), la), App(Inst(g, _), ra))
           if (constrs contains f) && (constrs contains g) =>
@@ -91,15 +165,24 @@ object Simplify {
           False
         }
 
+      case (App(Inst(f, _), la), r) if (constrs contains f) && (la contains r) =>
+        False
+      case (l, App(Inst(g, _), ra)) if (constrs contains g) && (ra contains l) =>
+        False
+
       case _ =>
         Eq(left, right)
     }
   }
 
-  def bind(quant: Quant, formals: List[Var], body: Expr, typ: Type) = {
-    val formals_ = formals filter body.free
-    if (formals_.isEmpty) body
-    else Bind(quant, formals_, body, typ)
+  def bind(quant: Quant, formals: List[Var], body: Expr, typ: Type) = quant match {
+    case Quant.lambda =>
+      ???
+
+    case Quant.exists | Quant.forall =>
+      val formals_ = formals filter body.free
+      if (formals_.isEmpty) body
+      else Bind(quant, formals_, body, typ)
   }
 
   def and(phis: List[Expr]): Expr = {
@@ -151,48 +234,5 @@ object Simplify {
 
   def exists(bound: List[Var], psi: Expr): Expr = {
     Exists(bound, psi) // simplified by quant.apply already
-  }
-
-  def atom(expr: Expr, model: Option[Model] = None) = {
-    Atom(simplify(expr, Map(), Set()), model)
-  }
-
-  def disj(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
-    Disj.from(xs, neg, pos)
-  }
-
-  def conj(xs: List[Var], neg: List[Neg]): Pos = {
-    val neg_ = neg map (_.toExpr)
-    Conj.from(xs, neg_)
-  }
-
-  def prop_(p: Prop): Prop = p match {
-    case Atom(expr, cex)    => atom(expr, cex)
-    case Disj(xs, neg, pos) => disj_(xs, neg, pos)
-    case Conj(xs, neg)      => conj_(xs, neg)
-  }
-
-  def disj_(xs: List[Var], neg: List[Neg], pos: List[Pos]): Neg = {
-    val neg_ = neg filter (_ != Atom(True))
-    val pos_ = pos filter (_ != Atom(False))
-
-    if (neg_ contains Atom.f)
-      return Atom.t
-    if (pos_ contains Atom.t)
-      return Atom.t
-
-    // TODO: special case when we collapse to a single pos without bound vars
-    // remove irrelevant bound vars
-
-    Disj(xs, neg_, pos_)
-  }
-
-  def conj_(xs: List[Var], neg: List[Neg]): Pos = {
-    val neg_ = neg filter (_ != Atom(True))
-
-    if (neg_ contains Atom.f)
-      return Atom.f
-
-    Conj(xs, neg_)
   }
 }

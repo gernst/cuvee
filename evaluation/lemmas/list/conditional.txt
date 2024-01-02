@@ -1,0 +1,64 @@
+evaluation/lemmas/list/append.conditional.bpl
+  12  number of lemmas
+  11  nontrivial
+  10  reduced greedily
+  6  independent
+  0  evaluation/lemmas/list/append.structural.bpl
+  1  evaluation/lemmas/list/append.enumerate.bpl
+  1  evaluation/lemmas/list/append.th.log
+evaluation/lemmas/list/filter.conditional.bpl
+  6  number of lemmas
+  5  nontrivial
+  3  reduced greedily
+  2  independent
+  4  evaluation/lemmas/list/filter.structural.bpl
+  4  evaluation/lemmas/list/filter.enumerate.bpl
+  2  evaluation/lemmas/list/filter.th.log
+evaluation/lemmas/list/length.conditional.bpl
+  1  number of lemmas
+  1  nontrivial
+  1  reduced greedily
+  1  independent
+  1  evaluation/lemmas/list/length.structural.bpl
+  0  evaluation/lemmas/list/length.enumerate.bpl
+  0  evaluation/lemmas/list/length.th.log
+evaluation/lemmas/list/map.conditional.bpl
+  16  number of lemmas
+  16  nontrivial
+  12  reduced greedily
+  10  independent
+  10  evaluation/lemmas/list/map.structural.bpl
+  11  evaluation/lemmas/list/map.enumerate.bpl
+  10  evaluation/lemmas/list/map.th.log
+evaluation/lemmas/list/remove.conditional.bpl
+  6  number of lemmas
+  5  nontrivial
+  5  reduced greedily
+  4  independent
+  3  evaluation/lemmas/list/remove.structural.bpl
+  4  evaluation/lemmas/list/remove.enumerate.bpl
+  3  evaluation/lemmas/list/remove.th.log
+evaluation/lemmas/list/reverse.conditional.bpl
+  11  number of lemmas
+  10  nontrivial
+  5  reduced greedily
+  0  independent
+  0  evaluation/lemmas/list/reverse.structural.bpl
+  0  evaluation/lemmas/list/reverse.enumerate.bpl
+  0  evaluation/lemmas/list/reverse.th.log
+evaluation/lemmas/list/rotate.conditional.bpl
+  8  number of lemmas
+  8  nontrivial
+  7  reduced greedily
+  7  independent
+  1  evaluation/lemmas/list/rotate.structural.bpl
+  1  evaluation/lemmas/list/rotate.enumerate.bpl
+  3  evaluation/lemmas/list/rotate.th.log
+evaluation/lemmas/list/runlength.conditional.bpl
+  6  number of lemmas
+  6  nontrivial
+  6  reduced greedily
+  6  independent
+  0  evaluation/lemmas/list/runlength.structural.bpl
+  1  evaluation/lemmas/list/runlength.enumerate.bpl
+  4  evaluation/lemmas/list/runlength.th.log

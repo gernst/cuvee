@@ -1,0 +1,88 @@
+evaluation/lemmas/list/append.th.log
+  17  number of lemmas
+  0  wrong
+  17  nontrivial
+  9  reduced greedily
+  9  evaluation/lemmas/list/append.structural.bpl
+  9  evaluation/lemmas/list/append.conditional.bpl
+  0  evaluation/lemmas/list/append.enumerate.bpl
+evaluation/lemmas/list/filter.th.log
+  9  number of lemmas
+  0  wrong
+  9  nontrivial
+  5  reduced greedily
+  7  evaluation/lemmas/list/filter.structural.bpl
+  7  evaluation/lemmas/list/filter.conditional.bpl
+  5  evaluation/lemmas/list/filter.enumerate.bpl
+evaluation/lemmas/list/length.th.log
+  22  number of lemmas
+  0  wrong
+  22  nontrivial
+  5  reduced greedily
+  20  evaluation/lemmas/list/length.structural.bpl
+  20  evaluation/lemmas/list/length.conditional.bpl
+  0  evaluation/lemmas/list/length.enumerate.bpl
+evaluation/lemmas/list/map.th.log
+  45  number of lemmas
+  0  wrong
+  36  nontrivial
+  21  reduced greedily
+  26  evaluation/lemmas/list/map.structural.bpl
+  28  evaluation/lemmas/list/map.conditional.bpl
+  27  evaluation/lemmas/list/map.enumerate.bpl
+evaluation/lemmas/list/remove.th.log
+  26  number of lemmas
+  0  wrong
+  21  nontrivial
+  13  reduced greedily
+  18  evaluation/lemmas/list/remove.structural.bpl
+  18  evaluation/lemmas/list/remove.conditional.bpl
+  18  evaluation/lemmas/list/remove.enumerate.bpl
+evaluation/lemmas/list/reverse.th.log
+  24  number of lemmas
+  0  wrong
+  24  nontrivial
+  13  reduced greedily
+  0  evaluation/lemmas/list/reverse.structural.bpl
+  0  evaluation/lemmas/list/reverse.conditional.bpl
+  0  evaluation/lemmas/list/reverse.enumerate.bpl
+evaluation/lemmas/list/rotate.th.log
+  32  number of lemmas
+  0  wrong
+  24  nontrivial
+  19  reduced greedily
+  18  evaluation/lemmas/list/rotate.structural.bpl
+  18  evaluation/lemmas/list/rotate.conditional.bpl
+  7  evaluation/lemmas/list/rotate.enumerate.bpl
+evaluation/lemmas/list/runlength.th.log
+  10  number of lemmas
+  0  wrong
+  4  nontrivial
+  4  reduced greedily
+  4  evaluation/lemmas/list/runlength.structural.bpl
+  4  evaluation/lemmas/list/runlength.conditional.bpl
+  5  evaluation/lemmas/list/runlength.enumerate.bpl
+evaluation/lemmas/nat.th.log
+  59  number of lemmas
+  0  wrong
+  49  nontrivial
+  36  reduced greedily
+  47  evaluation/lemmas/nat.structural.bpl
+  37  evaluation/lemmas/nat.conditional.bpl
+  51  evaluation/lemmas/nat.enumerate.bpl
+evaluation/lemmas/list.th.log
+  6  number of lemmas
+  0  wrong
+  3  nontrivial
+  2  reduced greedily
+  1  evaluation/lemmas/list.structural.bpl
+  0  evaluation/lemmas/list.conditional.bpl
+  3  evaluation/lemmas/list.enumerate.bpl
+evaluation/lemmas/tree.th.log
+  2  number of lemmas
+  0  wrong
+  2  nontrivial
+  2  reduced greedily
+  2  independent
+  0  evaluation/lemmas/tree.structural.bpl
+  0  evaluation/lemmas/tree.conditional.bpl

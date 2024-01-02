@@ -8,8 +8,12 @@ trait Report {
   var printSuccess: Boolean
   def report(f: => Res)
 
-  def apply(f: => Res) = try {
+  def apply(f: => Res) = safe {
     report(f)
+  }
+
+  def safe[A](f: => A) = try {
+    f
   } catch {
     case e: cuvee.smtlib.Error =>
       report(e)
@@ -21,8 +25,8 @@ trait Report {
 }
 
 object Report {
-  def stdout(implicit printer: Printer)  = new print(System.out)
-  def stderr(implicit printer: Printer)  = new print(System.err)
+  def stdout(implicit printer: Printer) = new print(System.out)
+  def stderr(implicit printer: Printer) = new print(System.err)
 
   class print(stream: PrintStream)(implicit printer: Printer) extends Report {
     var printSuccess = false

@@ -3,13 +3,13 @@ package cuvee.imp
 import cuvee.pure._
 import cuvee.smtlib.Assert
 
-sealed trait Conf
+sealed trait Final
 
 /* Note: all path formulas and phi are already evaluated */
-case class Asserted(fresh: List[Var], path: List[Expr], phi: Expr) extends Conf
-case class Returned(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Conf
-case class Breaked(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Conf
-case class Stopped(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Conf
+case class Asserted(fresh: List[Var], path: List[Expr], phi: Expr) extends Final
+case class Returned(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
+case class Breaked(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
+case class Stopped(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
 
 class Exec(val evals: Eval) {
   import evals.state
@@ -25,7 +25,7 @@ class Exec(val evals: Eval) {
       scope: Map[Var, Expr], // assignment of logical variables, perhaps renaming to avoid clashes
       st: Map[Var, Expr], // all program variables
       old: List[Map[Var, Expr]]
-  ): List[Conf] = {
+  ): List[Final] = {
     progs match {
       case Nil =>
         cont match {

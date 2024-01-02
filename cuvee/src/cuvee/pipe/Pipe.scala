@@ -3,16 +3,27 @@ package cuvee.pipe
 import cuvee.util.Printer
 import cuvee.smtlib._
 import cuvee.State
+import cuvee.sexpr.Id
 
 object Pipe {
   var debug = true
+  var printSuccess = false
 
   def run(source: Source, sink: Sink, report: Report) {
-    for (cmd <- source) {
-      report { sink.exec(cmd, source.state) }
+    source foreach {
+      case SetOption("print-success", Id("true")) =>
+        report.printSuccess = true
+      case SetOption("print-success", Id("false")) =>
+        report.printSuccess = false
+      case cmd =>
+        report {
+          sink.exec(cmd, source.state)
+        }
     }
 
-    sink.done(source.state)
+    report.safe {
+      sink.done(source.state)
+    }
   }
 }
 
@@ -24,66 +35,96 @@ object Pipe {
 // as long as copy produces an independent copy.
 
 trait Stage {
-  // need to override for stateful components
-  def copy(): Stage = this
-
   // executed with every check-sat command (but not lemmas, they just return success or not)
-  def exec(prefix: List[Cmd], cmds: List[Cmd], in: State): List[Cmd]
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, in: State): List[Cmd]
 }
 
-class Incremental(stage: Stage, sink: Sink, flushDone: Boolean = true) extends Sink {
+class Incremental(stage: Stage, sink: Sink) extends Sink {
   override def toString = "incremental " + stage + " -> " + sink
 
-  class Entry(var prefix: List[Cmd], val stage: Stage, val state: State) {
-    def copy() = new Entry(prefix, stage.copy(), out.copy())
+  class Entry(var prefix: List[Cmd], val state: State) {
+    def copy() = new Entry(prefix, state.copy())
   }
-
-  var stack = List(new Entry(Nil, stage, State.default))
-  def top = stack.head
-  def out = top.state
 
   var pending: List[Cmd] = Nil
 
+  def reset = List(new Entry(Nil, State.default))
+  var stack = reset
+  def top = stack.head
+
   def done(state: State) {
-    if (flushDone) {
-      flush(state)
-      sink.done(out)
-    }
+    flush(Exit, state)
+    sink.done(top.state)
   }
 
-  def flush(in: State) {
-    val cmds = stage.exec(top.prefix, pending.reverse, in)
-    out add cmds
+  var added: Set[AnyRef] = Set()
 
-    for (cmd <- cmds) {
-      sink.exec(cmd, out)
+  def flush(last: Cmd, in: State) {
+    val add = pending.reverse
+    // println("flush")
+    // println("  prefix: " + top.prefix)
+    // println("  add:    " + add)
+
+    val cmds = stage.exec(top.prefix, add, last, in)
+    // println("  cmds:   " + cmds)
+
+    top.prefix = top.prefix ++ add
+    val distinct = top.prefix.distinct
+
+    if (distinct != top.prefix) {
+      // println(distinct)
+      // println(top.prefix)
+      // println(last)
+      assert(false, "duplicate entries")
     }
 
     pending = Nil
+    top.state add cmds
+    sink.exec(cmds, top.state)
   }
 
-  def exec(cmd: Cmd, in: State) = cmd match {
-    case Push(n) =>
-      val add = List.tabulate(n) { _ => stack.head.copy }
-      stack = add ++ stack
-      sink.exec(cmd, out)
+  def exec(cmd: Cmd, in: State) = {
+    // println(cmd.getClass().getSimpleName())
 
-    case Pop(n) =>
-      stack = stack drop n
-      sink.exec(cmd, out)
+    cmd match {
+      case Push(n) =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
 
-    // check-sat flushes, lemmas don't
-    case CheckSat =>
-      flush(in)
-      sink.exec(cmd, out)
+        val add = List.tabulate(n) { _ => stack.head.copy }
+        stack = add ++ stack
+        sink.exec(cmd, top.state)
 
-    case GetModel =>
-      // assume here that the model is provided always by the backend,
+      case Pop(n) =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
+
+        stack = stack drop n
+        sink.exec(cmd, top.state)
+
+      case Reset =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
+        stack = reset
+        sink.exec(cmd, top.state)
+
+      case Exit =>
+        ???
+
+      // check-sat flushes, lemmas don't
+      case CheckSat =>
+        flush(cmd, in)
+        assert(pending.isEmpty)
+        sink.exec(cmd, top.state)
+
+      // assume here that the model and labels are provided always by the backend,
       // perhaps we can find some more flexible option in the future.
-      sink.exec(cmd, out)
+      case Labels | GetModel | _: GetInfo =>
+        sink.exec(cmd, top.state)
 
-    case _ =>
-      pending = cmd :: pending
-      Success
+      case _ =>
+        pending = cmd :: pending
+        Success
+    }
   }
 }

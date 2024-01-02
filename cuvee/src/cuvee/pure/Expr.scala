@@ -4,10 +4,11 @@ import cuvee.error
 import cuvee.trace
 import cuvee.boogie
 import cuvee.sexpr
+import cuvee.util
 import cuvee.util.Alpha
 import cuvee.util.Name
 
-sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
+sealed trait Expr extends Expr.term with util.Syntax {
   def funs: Set[Fun]
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
@@ -36,6 +37,10 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
   // def ::(that: Expr) = App(Fun.cons, List(that, this))
   // def ++(that: Expr) = App(Fun.append, List(this, that))
   // def append(that: Expr) = App(Fun.append, List(this, that))
+  def stripNotes = bottomup {
+    case Note(expr, attr) => expr
+    case expr             => expr
+  }
 
   def bottomup(g: Expr => Expr): Expr = {
     map(identity, g)
@@ -51,12 +56,18 @@ sealed trait Expr extends Expr.term with sexpr.Syntax with boogie.Syntax {
         g(lit)
       case id: Var =>
         g(id)
+      case Note(expr, attr) =>
+        g(Note(expr.map(f, g), attr))
       case Is(arg, fun) =>
         g(Is(arg map (f, g), fun))
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
+      case Distinct(exprs) =>
+        g(Distinct(exprs map (_.map(f, g))))
+      case Let(eqs, body) =>
+        g(Let(eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }, body.map(f, g)))
       case Bind(quant, formals, body, typ) =>
-        println("recursive map at bind, beware! " + this)
+        // println("recursive map at bind, beware! " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
     }
   }
@@ -103,7 +114,7 @@ object Expr extends Alpha[Expr, Var] {
   }
 
   val infix =
-    Set("=", "<=", ">=", "<", ">", "+", "-", "*", "and", "or", "=>", "⊕")
+    Set("<=", ">=", "<", ">", "+", "-", "*", "and", "or")
   val boogieInfix =
     boogie.Grammar.syntax.infix_ops.keySet
 
@@ -187,8 +198,8 @@ object Expr extends Alpha[Expr, Var] {
         (ty, su)
       case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
         val ty_ = Type.binds(inst1.args, inst1.res, inst2.args, inst2.res, ty)
-        val su_ = bind(pats, args, ty_, su)
-        (ty_, su_)
+        val (ty__, su_) = bind(pats, args, ty_, su)
+        (ty__, su_)
       case _ =>
         throw CannotBind(pat, arg, ty, su)
     }
@@ -199,10 +210,10 @@ object Expr extends Alpha[Expr, Var] {
       args: List[Expr],
       ty: Map[Param, Type],
       su: Map[Var, Expr]
-  ): Map[Var, Expr] = {
+  ): (Map[Param, Type], Map[Var, Expr]) = {
     (pats, args) match {
       case (Nil, Nil) =>
-        su
+        (ty, su)
       case (pat :: pats, arg :: args) =>
         val (ty_, su_) = bind(pat, arg, ty, su)
         bind(pats, args, ty_, su_)
@@ -244,25 +255,38 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
   def prime: Var =
     Var(name.withName(name.name + "^"), typ)
 
-  def in(that: Expr): Boolean = {
+  def in(that: Expr): Boolean =
     that match {
-      case that: Var =>
-        this == that
-      case App(_, args) =>
-        args exists (this in _)
-      case _: Lit =>
-        false
-      case _ =>
-        cuvee.undefined
+      case that: Var        => this == that
+      case App(_, args)     => this in args
+      case _: Lit           => false
+      case Distinct(exprs)  => this in exprs
+      case Is(arg, fun)     => this in arg
+      case Note(expr, attr) => this in expr
+      case self @ Let(eqs, body) =>
+        val bound = self.bound
+        (eqs exists (this in _.e)) || ((this in body) && !(bound contains this))
+      case Bind(quant, formals, body, typ) =>
+        (this in body) && !(formals contains this)
     }
-  }
 
-  def in(that: List[Expr]): Boolean = {
+  def in(that: Prop): Boolean =
+    that match {
+      case Atom(expr, cex) =>
+        this in expr
+
+      case Disj(xs, assms, concls) =>
+        (assms exists (this in _)) || (concls exists (this in _))
+    }
+
+  def in(that: Conj): Boolean =
+    that match {
+      case Conj(xs, props) =>
+        (props exists (this in _))
+    }
+
+  def in(that: List[Expr]): Boolean =
     that exists (this in _)
-  }
-
-  def sexpr = name
-  def bexpr = List(name)
 
   override def toString = name.toString
 }
@@ -276,6 +300,8 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
   def asScope = vars map { case x @ Var(name, typ) => name -> x }
+
+  def toStringTyped = vars.map(_.toStringTyped).mkString(", ")
 }
 
 class VarSet(vars: Set[Var]) {
@@ -289,9 +315,6 @@ case class Lit(any: Any, typ: Type) extends Expr {
   def subst(su: Map[Var, Expr]) = this
   def inst(su: Map[Param, Type]) = this
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) = this
-
-  def sexpr = any
-  def bexpr = List(any.toString)
 
   override def toString = any.toString
 }
@@ -372,9 +395,6 @@ case class Is(arg: Expr, fun: Fun) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Is(arg inst (ty, su), fun)
 
-  def sexpr = List(List("_", "is", fun.name), arg)
-  def bexpr = cuvee.undefined /// TODO Daniel thinks that this is not part of boogie.
-
   override def toString = {
     arg + " is " + fun.name
   }
@@ -435,7 +455,9 @@ object App extends ((Inst, List[Expr]) => App) {
     val ps = fun.params filterNot su.contains
     require(
       ps.isEmpty,
-      "unbound params casting " + fun + " to " + typ + ": " + ps
+      "unbound params casting " + fun + " to " + typ + ": " + ps.mkString(
+        ", "
+      ) + " with inst: " + su
     )
 
     new App(Inst(fun, su), Nil)
@@ -479,62 +501,42 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     App(inst subst ty, args inst (ty, su))
 
-  def sexpr = this match {
-    case And(phis)  => "and" :: phis
-    case Or(phis)   => "or" :: phis
-    case Const(arg) => List(List("as", "const", typ), arg)
-
-    case _ if args.isEmpty && inst.params.nonEmpty => inst
-
-    case _ if args.isEmpty => inst.fun.name
-
-    case _ => inst.fun.name :: args
-  }
-
-  def bexpr = this match {
+  override def toString = this match {
     // Constants
-    case App(inst, Nil) => List(inst.toString)
+    case App(inst, Nil) => inst.toString
     // Logical connectives
-    case And(phis) => phis intersperse ("(", " && ", ")")
-    case Or(phis)  => phis intersperse ("(", " || ", ")")
+    case And(phis) => phis mkString ("(", " && ", ")")
+    case Or(phis)  => phis mkString ("(", " || ", ")")
     // Iff (<==>), needs special handling, as this is also represented by "=" internally
     case Eq(lhs, rhs) if lhs.typ == Sort.bool =>
-      List(lhs, " ", "<==>", " ", rhs)
+      "(" + lhs + " <==> " + rhs + ")"
     case Eq(lhs, rhs) =>
-      List(lhs, " ", "==", " ", rhs)
+      "(" + lhs + " == " + rhs + ")"
     case Imp(phi, psi) =>
-      List("(", phi, " ", "==>", " ", psi, ")")
+      "(" + phi + " ==> " + psi + ")"
     case DivBy(lhs, rhs) =>
-      List(lhs, " ", "/", " ", rhs)
+      "(" + lhs + " / " + rhs + ")"
     case Mod(lhs, rhs) =>
-      List(lhs, " ", "%", " ", rhs)
+      "(" + lhs + " % " + rhs + ")"
+    case Ite(test, left, right) =>
+      "(if " + test + " then " + left + " else " + right + ")"
     // Infix operators
-    case App(_, List(left, right)) if Expr.boogieInfix contains inst.fun.name.name =>
-      List("(", left, " ", inst, " ", right, ")")
+    case App(_, List(lhs, rhs)) if Expr.boogieInfix contains inst.fun.name.name =>
+      "(" + lhs + " " + inst.toString + " " + rhs + ")"
     // Unary -
-    case Not(psi)     => List("!", "(", psi, ")")
-    case UMinus(term) => List("-", "(", term, ")")
+    case Not(psi)    => "! (" + psi + ")"
+    case UMinus(arg) => "- (" + arg + ")"
     // Map access
-    case Select(arr, idx)        => List(arr, "[", idx, "]")
-    case Store(arr, idx, newval) => List(arr, "[", idx, ":=", newval, "]")
+    case Select(arr, idx)        => arr + "[" + idx + "]"
+    case Store(arr, idx, newval) => arr + "[" + idx + ":=" + newval + "]"
     // Applications (i.e. function calls)
-    case App(_, args)      => inst :: (args intersperse ("(", ", ", ")"))
-    case _ if args.isEmpty => List(inst)
-    case _                 => inst :: args
+    case App(_, args) => inst + (args mkString ("(", ", ", ")"))
   }
-
-  override def toString =
-    (inst, args) match {
-      case (_, Nil) =>
-        inst.toString
-      case (_, List(left, right)) if Expr.infix contains inst.fun.name.name =>
-        "(" + left + " " + inst + " " + right + ")"
-      case _ =>
-        inst + args.mkString("(", ", ", ")")
-    }
 }
 
-case class Quant(name: String)
+case class Quant(name: String) {
+  override def toString = name
+}
 
 object Quant {
   val exists = Quant("exists")
@@ -560,34 +562,13 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // uh oh mess with bound variables
 
-  def refresh(avoid: Iterable[Var]) = {
-    val xs = avoid filter bound
-    val re = Expr.fresh(xs)
-    rename(re)
-  }
-
   def refreshAll = {
     val re = Expr.fresh(formals)
     rename(re)
   }
 
-  def sexpr = List(quant.name, formals.asFormals, body)
-  def bexpr = {
-    val formals_ = formals map { case x =>
-      List(x, ":", " ", x.typ)
-    }
-
-    List(
-      quant.name,
-      " ",
-      new cuvee.ListOps(formals_) intersperse (", "),
-      " :: ",
-      body
-    )
-  }
-
   override def toString =
-    quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", ". ") + body
+    quant.name + formals.map(_.toStringTyped).mkString(" ", ", ", " :: ") + body
 }
 
 class CaseList(cases: List[Case]) {
@@ -598,7 +579,7 @@ class CaseList(cases: List[Case]) {
   def inst(su: Map[Param, Type]) = cases map (_ inst su)
 }
 
-case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with sexpr.Syntax {
+case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with util.Syntax {
 
   def funs = pat.funs ++ expr.funs
   def bound = pat.free
@@ -609,9 +590,6 @@ case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with sexpr.Syntax
     Case(pat rename a, expr subst su)
   def inst(su: Map[Param, Type]) =
     Case(pat inst su, expr inst su)
-
-  def sexpr = List(pat, expr)
-  def bexpr = cuvee.undefined // Not part of Boogie
 }
 
 case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
@@ -625,9 +603,6 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
     Match(expr inst su, cases inst su, typ subst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // need to fix cases, too
-
-  def sexpr = List("match", expr, cases)
-  def bexpr = cuvee.undefined // Not part of Boogie
 }
 
 class LetEqList(eqs: List[LetEq]) {
@@ -641,7 +616,7 @@ class LetEqList(eqs: List[LetEq]) {
   def inst(su: Map[Param, Type]) = eqs map (_ inst su)
 }
 
-case class LetEq(x: Var, e: Expr) extends sexpr.Syntax with boogie.Syntax {
+case class LetEq(x: Var, e: Expr) extends util.Syntax {
   def bound = x
   def free = e.free
   def funs = e.funs
@@ -649,10 +624,10 @@ case class LetEq(x: Var, e: Expr) extends sexpr.Syntax with boogie.Syntax {
     LetEq(x rename a, e rename re)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
     LetEq(x rename a, e subst su)
-  def inst(su: Map[Param, Type]) = LetEq(x, e inst su)
+  def inst(su: Map[Param, Type]) =
+    LetEq(x inst su, e inst su)
 
-  def sexpr = List(x, e)
-  def bexpr = cuvee.undefined
+  def toEq = Eq(x, e)
 }
 
 case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
@@ -670,9 +645,6 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
 
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined // need to fix let eqs, too
-
-  def sexpr = List("let", eqs, body)
-  def bexpr = cuvee.undefined
 }
 
 case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
@@ -689,10 +661,6 @@ case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
     Note(expr inst su, attr)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Note(expr inst (ty, su), attr)
-
-  def sexpr = expr
-  // def sexpr = "!" :: expr :: attr
-  def bexpr = cuvee.undefined
 }
 
 case class Distinct(exprs: List[Expr]) extends Expr {
@@ -709,7 +677,4 @@ case class Distinct(exprs: List[Expr]) extends Expr {
     Distinct(exprs inst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Distinct(exprs inst (ty, su))
-
-  def sexpr = "distinct" :: exprs
-  def bexpr = cuvee.undefined
 }
