@@ -29,7 +29,7 @@ class Discover(
   var useConditional = false
   var printTiming = false // may be undesirable if counting duplicates
 
-  var debug = false
+  var debug = true
 
   val constrs = st.constrs
 
@@ -87,6 +87,18 @@ class Discover(
   var replace: List[Rule] = Nil
   var recover: List[Rule] = Nil
 
+  def safe(eqs: List[Rule]): List[Rule] = {
+    eqs filterNot {
+      case eq@Rule(App(f, List(x1,x2)), App(g, List(y1,y2)), True, avoid) => 
+        val bad = f == g && x1 == y2 && x2 == y1
+        if(bad) println("bad: " + eq) // not sufficient
+        bad
+
+      case _ =>
+        false
+    }
+  }
+
   def normalize = {
     // collect all rewrite rules to make progress
     val rw1 = replace
@@ -95,7 +107,7 @@ class Discover(
       case (why, eq) if eq.funs subsetOf original =>
         eq
     }
-    val rws = rw1 ++ rw2 ++ rw3
+    val rws = safe(rw1 ++ rw2 ++ rw3)
     rws.groupBy(_.fun)
   }
 
@@ -105,7 +117,7 @@ class Discover(
     val rw2 = definitions flatMap (_.rules)
     val rw3 = lemmas map (_._2)
     val rw4 = recover
-    var rws = rw1 ++ rw2 ++ rw3 ++ rw4
+    var rws = safe(rw1 ++ rw2 ++ rw3 ++ rw4)
     // rws = rws filterNot { case Rule(lhs, rhs, cond, avoid) => lhs == rhs }
     rws.groupBy(_.fun)
   }
@@ -128,7 +140,8 @@ class Discover(
 
   def addLemma(origin: String, eq: Rule) {
     maybeAddNeutral(eq)
-    // println("adding lemma: " + eq)
+    if (debug)
+      println("adding lemma: " + eq + " (" + origin + ")")
     lemmas = (origin, eq) :: lemmas
   }
 
@@ -361,7 +374,7 @@ class Discover(
 
           val funs = funs0 ++ funs1
 
-          val debugDeaccumulation = true
+          val debugDeaccumulation = false
 
           if (debugDeaccumulation) {
             println("goal: " + lhs + " == " + rhs)
@@ -513,8 +526,8 @@ class Discover(
               )
             }
 
-            // TODO: by self-recognition
-            // filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
+          // TODO: by self-recognition
+          // filter(x₀, filter(y₀, y₁)) == filter(y₀, filter(x₀, y₁)))
 
           val all = rhs1 ++ rhs2 ++ rhs3 ++ rhs4
 
@@ -540,7 +553,7 @@ class Discover(
             if (definitions exists (_.fun == df_.fun)) {
               // note this definition may have been simplified
               if (debug)
-                println(" exists")
+                println(" computed already")
             } else {
               if (debug)
                 println(" new")
@@ -589,7 +602,7 @@ class Discover(
           // only apply this to original definitions, it's quite costly
           for (
             dg <- definitions
-            if df.name < dg.name && (original contains df.fun) && (original contains dg.fun) && (df.fun != dg.fun) && (df.typ == dg.typ);
+            if df.name < dg.name  && (df.fun != dg.fun) && (df.typ == dg.typ); // && (original contains df.fun) && (original contains dg.fun);
             (dpre, xs, pre, lhs, rhs) <- Compare.compare(df, dg, Map(), st.constrs)
           ) {
             addConditionalLemma("conditional comparison", xs, pre, lhs, rhs)

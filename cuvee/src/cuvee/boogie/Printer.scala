@@ -74,6 +74,8 @@ object Printer extends cuvee.util.Printer {
         case _ =>
           List("axiom " + line(expr) + ";")
       }
+    case Lemma(expr, _, _) =>
+          List("lemma " + line(expr) + ";")
     case Lemma(expr, tactic, _) =>
       val prop = Prop.from(expr)
       var result: List[String] = Nil
