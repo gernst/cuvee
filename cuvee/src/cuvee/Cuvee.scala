@@ -75,7 +75,7 @@ class Config {
     option("-prove:quickcheck", "quick check lemmas for counterexamples (default)") {
       quickcheck = true
     },
-    option("-prove:no-quickcheck", "quick check lemmas for counterexamples") {
+    option("-prove:no-quickcheck", "do not make a quick check for counterexamples for lemmas") {
       quickcheck = false
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
