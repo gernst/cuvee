@@ -520,6 +520,8 @@ sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
   def toExpr(x: Expr): Expr = test match {
     case Lt(_, _) => lb <= x && x < ub
     case Le(_, _) => lb <= x && x <= ub
+    case Gt(_, _) => lb < x && x < ub
+    case Ge(_, _) => lb < x && x <= ub
     case _ =>
       cuvee.error(
         "Currently only tests with <= and < are supported. Got: " + test
