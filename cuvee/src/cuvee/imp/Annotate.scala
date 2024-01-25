@@ -8,7 +8,12 @@ import scala.collection.immutable
 object Annotate extends Stage {
   case class State(path: List[Expr], vars: Map[Var, Expr])
 
-  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: cuvee.State) = {
+  def exec(
+      prefix: List[Cmd],
+      cmds: List[Cmd],
+      last: Cmd,
+      state: cuvee.State
+  ) = {
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
         val proc = Proc(name, params, in, out, spec)
@@ -164,96 +169,9 @@ object Annotate extends Stage {
         // Arbitrary integer variable to reason about all of them
         val x = Expr.fresh(Var("x", Sort.int))
 
-        /** Find all assigns in the body for the given path and store them ordered according to the
-          * occurrences in the body.
-          *
-          * @param prog
-          *   body of the currently analyzed loop
-          * @param path
-          *   path to the current position
-          * @return
-          *   list containing all vars which are on the lhs of an assign in the body
-          */
-        def assigns(prog: Prog, path: Expr): List[Var] = prog match {
-          case Block(progs) =>
-            val result = for (p <- progs) yield assigns(p, path)
-            result.flatten
-          case If(test, _, right) if Not(test).subtermOf(path) =>
-            if (right.mod.isEmpty) Nil
-            else assigns(right, path)
-          case If(_, left, _) if left.mod.nonEmpty =>
-            assigns(left, path)
-          case While(test, body, _, _, _, _) if test.subtermOf(path) =>
-            assigns(body, path)
-          case Assign(xs, _) => xs
-          case Local(xs, _)  => xs
-          case _             => Nil
-        }
-
         def isModifiedArray(a: Var) = a.typ match {
           case Sort(Con.array, _) if mod.contains(a) => true
           case _                                     => false
-        }
-
-        def dropFirstMatch(xs: List[Var], e: Var) = {
-          val idx = xs.indexOf(e)
-          for ((x, i) <- xs.zipWithIndex if i != idx) yield x
-        }
-
-        /** Provides an expression, which describes an assignment to an array
-          *
-          * @param lhs
-          *   left hand side of the assignment, the array to write to
-          * @param a
-          *   array from which to take the values
-          * @param idx
-          *   index from a to read from
-          * @param rhs
-          *   right hand side of the assignment, the value to write into lhs
-          * @param vars
-          *   variables from idx, to be substituted
-          * @param old
-          *   true if old is needed
-          * @return
-          *   list of Expr, each reasons about one position at which the given array (lhs) got
-          *   modified
-          */
-        // TODO figure out how to make it distinct
-        def modified(
-            lhs: Var,
-            a: Expr,
-            idx: Expr,
-            rhs: Expr,
-            vars: List[Var],
-            old: Boolean
-        ): Expr = {
-          val (fresh_, subst) = fresh(vars)
-          var result: Expr = False
-          a match {
-            case Var(name, typ) if lhs == a && rhs.isInstanceOf[Var] =>
-              result = Select(a, idx) === rhs
-            case Var(name, typ) if lhs == a && rhs.isInstanceOf[Lit] =>
-              result = Select(a, idx) === rhs
-            case Var(name, typ) if lhs == a =>
-              rhs match {
-                case Select(b, idx_) if idx == idx_ =>
-                  if (old) result = Select(a, idx) === Old(Select(b, idx_))
-                  else result = Select(a, idx) === Select(b, idx_)
-                case _ =>
-                  result = Select(a, idx) === rhs
-              }
-            case Var(name, typ) =>
-              result = lhs === Store(a, idx, rhs)
-            case Store(a_, idx_, _) if idx == idx_ =>
-              return modified(lhs, a_, idx, rhs, vars, old)
-            case Store(a_, idx_, rhs_) =>
-              return modified(lhs, a_, idx, rhs, vars, old) &&
-                modified(lhs, a_, idx_, rhs_, vars, old)
-            case _ =>
-              cuvee.error("Unexpected case in " + this)
-          }
-          result = x === idx && result rename subst
-          Exists(fresh_, result)
         }
 
         // TODO: use this in the characterization of M
@@ -326,8 +244,8 @@ object Annotate extends Stage {
             cuvee.error("Currently only simple tests are supported.")
         }
 
-        /** Builds an instance of Modified which holds the range of indices which got edited until
-          * an arbitrary iteration of the analyzed loop
+        /** Builds an instance of Modified which holds the range of indices
+          * which got edited until an arbitrary iteration of the analyzed loop
           *
           * @param expr
           *   position of an assignment to derive Modified for
@@ -355,43 +273,9 @@ object Annotate extends Stage {
             }
           case c @ Lit(_, Sort.int) =>
             Modified(c, c, Le(c, c))
-          case x @ App(inst, args) if false =>
-            val ranges = args map mOf
-            val modified = for (m <- ranges if !m.vars.isEmpty) yield m
-
-            if (modified.length == 1) modified.head
-            else
-              cuvee.error(
-                "Multible variables in one assign are not supported at the moment."
-              )
           case _ =>
             cuvee.error("Could not construct Modified from Expr: " + expr)
         }
-
-        /** Generates one M for every idx of assigns in expr and takes the boundaries expression
-          * from those
-          *
-          * @param expr
-          *   assign to derive M from
-          * @param vars
-          *   modified vars of the loop which are used in Modified
-          * @return
-          *   boundaries for all Modified and modified vars of the loop which are used in Modified
-          */
-        def boundaries(
-            expr: Expr,
-            vars: List[Var]
-        ): (List[Expr], List[Var]) =
-          expr match {
-            case Store(a, idx, _) =>
-              val m = mOf(idx)
-              val (expr_, vars_) = boundaries(a, vars)
-
-              val xs = m.vars.union((vars ++ vars_).toSet).intersect(mod)
-
-              (m.toExpr(x) :: expr_, xs.toList)
-            case _ => (Nil, vars)
-          }
 
         /** Generates a new variable for each element in xs
           *
@@ -404,20 +288,6 @@ object Annotate extends Stage {
           val re = Expr.fresh(xs)
           val xs_ = xs rename re
           (xs_, re)
-        }
-
-        /** Substitutes a given List of variables with one given variable
-          *
-          * @param xs
-          *   list of Var to be replaced
-          * @param v
-          *   Var to map elements from xs to
-          * @return
-          *   Map from elements of xs to v
-          */
-        def subst(xs: List[Var], v: Var) = {
-          val subst_ = for (e <- xs) yield e -> v
-          subst_.toMap
         }
 
         /* Try to derive an invariant for a given while loop possibly
@@ -443,43 +313,11 @@ object Annotate extends Stage {
             val concl = inv && test && assignmentEqualities(a, rhs)
             val concl_ = concl rename re2
             val yes = Exists(vars2, concl_)
-            
-            // val yes = Forall(List(x), phi ==> psi)
-            // println(yes)
 
             // Every index which got not visited should not be modified
             val no = Select(a, x) === Old(Select(a, x))
 
             (phi ==> yes) && (!phi ==> no)
-          }
-
-          /* Every list holds all arrays of one path in the order in which
-           * they occur in the body.
-           *
-           * The assigns will be removed as soon as they are processed.
-           */
-          var ord: List[Var] = assigns(body, path)
-          ord = for (v <- ord if isModifiedArray(v)) yield v
-
-          val all_ = for (array <- ord) yield {
-            ord = dropFirstMatch(ord, array)
-            val assign = st.vars(array)
-            val Store(a, idx, rhs) = assign
-            // Expression which describes all modified indices
-            val (prem, mod_) = boundaries(assign, Nil)
-            val premise = And(prem.distinct)
-
-            var old = false
-            for (e <- ord if (rhs.free.contains(e)))
-              yield old = true
-
-            // How and at which indices got the array in question modified
-            val yes = modified(array, a, idx, rhs, mod_, old)
-
-            // Every index which got not visited should not be modified
-            val no = Select(array, x) === Old(Select(array, x))
-
-            (premise ==> yes) && (!premise ==> no)
           }
           path ==> Forall(List(x), And(all.toList))
         }
@@ -505,17 +343,20 @@ object Annotate extends Stage {
   * @param test
   *   the test from the loop needed for the boundary expression
   * @param step
-  *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2 Can also hold more
-  *   complicated calculations. However: The expression are * held as is and will not be simplified
+  *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
+  *   Can also hold more complicated calculations. However: The expression are *
+  *   held as is and will not be simplified
   */
 sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
 
-  /** Provides an expression describing all indices which got changed to place into an invariant
+  /** Provides an expression describing all indices which got changed to place
+    * into an invariant
     *
     * @param x
     *   an arbitrary integer to reason about the boundings in this instance
     * @return
-    *   one expression containing all necessary informations which indices got changed
+    *   one expression containing all necessary informations which indices got
+    *   changed
     */
   def toExpr(x: Expr): Expr = test match {
     case Lt(_, _) => lb <= x && x < ub
@@ -524,35 +365,7 @@ sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
     case Ge(_, _) => lb < x && x <= ub
     case _ =>
       cuvee.error(
-        "Currently only tests with <= and < are supported. Got: " + test
+        "Currently only tests with <=, <, >, >= are supported. Got: " + test
       )
-  }
-
-  /** Find all variables that are part of the expressions
-    *
-    * @return
-    *   List of all variables who are part of the expressions from this instance
-    */
-  def vars(): Set[Var] = {
-    val first = lb match {
-      case Var(name, typ)  => Set(Var(name, typ))
-      case App(inst, args) => vars(args).toSet
-      case _               => Set()
-    }
-
-    val second = ub match {
-      case Var(name, typ)  => Set(Var(name, typ))
-      case App(inst, args) => vars(args).toSet
-      case _               => Set()
-    }
-
-    first ++ second
-  }
-
-  private[this] def vars(args: List[Expr]): List[Var] = args match {
-    case Var(name, typ) :: next => Var(name, typ) :: vars(next)
-    case App(_, args_) :: next  => vars(args_) ++ vars(next)
-    case head :: next           => vars(next)
-    case Nil                    => Nil
   }
 }
