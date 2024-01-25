@@ -322,7 +322,8 @@ object Annotate extends Stage {
           path ==> Forall(List(x), And(all.toList))
         }
 
-        val inv_ = inv && And(derive)
+        val derive_ = Simplify.simplify(derive, Map(), Set())
+        val inv_ = inv && And(derive_)
 
         val prog_ = While(test, body_, term, inv_, sum, frames)
 
