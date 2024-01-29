@@ -74,7 +74,7 @@ object Printer extends cuvee.util.Printer {
         case _ =>
           List("axiom " + line(expr) + ";")
       }
-    case Lemma(expr, tactic, _) =>
+    case Lemma(expr, tactic, _) if false =>
       val prop = Prop.from(expr)
       var result: List[String] = Nil
 
@@ -428,7 +428,7 @@ object Printer extends cuvee.util.Printer {
       inst.toString + "(" + exprs.mkString(", ") + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
-      val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
+      val quantifier = quant.toString + vars.mkString(" ",", ", " :: ")
       (quantifier +: lines(body)).mkString
     case Is(arg, fun)            => "is#" + fun.name + "(" + line(arg) + ")"
     case Distinct(exprs)         => ???
