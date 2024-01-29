@@ -358,9 +358,6 @@ object Printer extends cuvee.util.Printer {
       if (pre.nonEmpty)
         result ++= "assume" +: indent(pre.flatten)
 
-      println(pre.flatten)
-      println(conclst.flatten)
-
       if (concls.isEmpty)
         result ++= List("show contradiction")
       else if (concls.size == 1)
@@ -368,7 +365,6 @@ object Printer extends cuvee.util.Printer {
       else if (concls.size > 1)
         result ++= "show one of" +: indent(conclst.flatten)
 
-      println(result)
       result
     case Atom(phi, None)      => List(line(phi))
     case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
@@ -411,8 +407,12 @@ object Printer extends cuvee.util.Printer {
       val (precA, assocA) = precedence(left)
       val (precB, assocB) = precedence(right)
 
-      if (precA < prec || precA == prec && assocA == assoc) a = "(" + a + ")"
-      if (precB < prec || precB == prec && assocB == assoc) b = "(" + b + ")"
+      /* Parens are needed if the precedence of the child (precA, precB) is
+       * smaller than that of the current node (prec).
+       * In theory they are also needed if the precedence of both is the same
+       * but the associativity divers.*/
+      if (precA < prec || (precA == prec && assocA != assoc)) a = "(" + a + ")"
+      if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
 
       a + " " + name + " " + b
     case App(inst, List(expr)) if prefix.contains(inst.toString) =>
@@ -428,8 +428,8 @@ object Printer extends cuvee.util.Printer {
       inst.toString + "(" + exprs.mkString(", ") + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
-      val quantifier = quant.toString + vars.mkString(" ",", ", " :: ")
-      (quantifier +: lines(body)).mkString
+      val quantifier = quant.toString + vars.mkString(" ", ", ", " :: ")
+      quantifier + line(body)
     case Is(arg, fun)            => "is#" + fun.name + "(" + line(arg) + ")"
     case Distinct(exprs)         => ???
     case Let(eqs, body)          => ???
@@ -464,6 +464,7 @@ object Printer extends cuvee.util.Printer {
     * @return
     *   prec and assoc for the given expr
     */
+  // TODO check prec for everything thats !App
   private def precedence(expr: Expr): (Int, Assoc) = expr match {
     case App(inst, _) if infix.contains(inst.toString) =>
       val prec = infix(inst.toString)._2
@@ -472,7 +473,10 @@ object Printer extends cuvee.util.Printer {
     case App(inst, _) if prefix.contains(inst.toString) =>
       val prec = prefix(inst.toString)._2
       (prec, Non)
-    case _ => (10, Non)
+    case Bind(_, _, _, _) =>
+      (0, Non)
+    case _ =>
+      (10, Non)
   }
 
   private def if_(prog: If): List[String] = {
