@@ -306,11 +306,12 @@ object Annotate extends Stage {
             val (vars1, re1) = fresh(vars.toList)
             val (vars2, re2) = fresh(vars.toList)
 
-            val prem = inv && test
+            val prem = path && inv && test
             val prem_ = prem rename re1
-            val phi = Exists(vars1, prem_ && indexEqualities(a, rhs, re1))
+            val eqs = indexEqualities(a, rhs, re1)
+            val phi = Exists(vars1, prem_ && eqs)
 
-            val concl = inv && test && assignmentEqualities(a, rhs)
+            val concl = path && inv && test && assignmentEqualities(a, rhs)
             val concl_ = concl rename re2
             val yes = Exists(vars2, concl_)
 
@@ -319,7 +320,8 @@ object Annotate extends Stage {
 
             (phi ==> yes) && (!phi ==> no)
           }
-          path ==> Forall(List(x), And(all.toList))
+          
+          Forall(List(x), And(all.toList))
         }
 
         val derive_ = Simplify.simplify(derive, Map(), Set())
