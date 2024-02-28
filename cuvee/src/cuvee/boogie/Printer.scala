@@ -7,7 +7,6 @@ import cuvee.smtlib
 import cuvee.smtlib._
 import cuvee.util
 import cuvee.prove._
-import scala.collection.immutable
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -74,6 +73,7 @@ object Printer extends cuvee.util.Printer {
         case _ =>
           List("axiom " + line(expr) + ";")
       }
+    // Work in progress - print lemmas in cuvee format
     case Lemma(expr, tactic, _) if false =>
       val prop = Prop.from(expr)
       var result: List[String] = Nil
@@ -430,7 +430,8 @@ object Printer extends cuvee.util.Printer {
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
       val quantifier = quant.toString + vars.mkString(" ", ", ", " :: ")
       quantifier + line(body)
-    case Is(arg, fun)            => "is#" + fun.name + "(" + line(arg) + ")"
+    case Is(arg, fun) =>
+      "is#" + fun.name + "(" + line(arg) + ")"
     case Distinct(exprs)         => ???
     case Let(eqs, body)          => ???
     case Match(expr, cases, typ) => ???
@@ -460,11 +461,10 @@ object Printer extends cuvee.util.Printer {
     * expression.
     *
     * @param expr
-    *   to get prec an assoc for
+    *   to get prec and assoc for
     * @return
     *   prec and assoc for the given expr
     */
-  // TODO check prec for everything thats !App
   private def precedence(expr: Expr): (Int, Assoc) = expr match {
     case App(inst, _) if infix.contains(inst.toString) =>
       val prec = infix(inst.toString)._2
@@ -485,9 +485,12 @@ object Printer extends cuvee.util.Printer {
     right match {
       case x @ If(test_, left_, right_) =>
         (first :+ "} else " + if_(x).head) ++ if_(x).tail
-      case Block(Nil)   => first :+ "}"
-      case x @ Block(_) => (first :+ "} else {") ++ (lines(x) :+ "}")
-      case _ => first :+ ("// Unknown operation in If: " ++ right.toString)
+      case Block(Nil) =>
+        first :+ "}"
+      case x @ Block(_) =>
+        (first :+ "} else {") ++ (lines(x) :+ "}")
+      case _ =>
+        first :+ ("// Unknown operation in If: " ++ right.toString)
     }
   }
 
