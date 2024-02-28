@@ -255,7 +255,7 @@ class Eval(val state: State = State.default) {
 
         how split (test_, left_, right_)
 
-      case While(test, body, term, inv, sum_, frames) :: rest =>
+      case While(test, body, term, inv_, sum_, frames) :: rest =>
         require(
           how != Dia,
           "while within diamond: reachability not implemented"
@@ -266,7 +266,11 @@ class Eval(val state: State = State.default) {
         val xs0 = xm.toList
         val (xs1, re) = havoc(xs0)
 
+        var inv = inv_
         var sum = sum_
+
+        // Add requirement that decreases clause is non-negative to invariant
+        inv = inv && (Zero <= term)
 
         // Prepare some states:
         // 0. current state at loop entry

@@ -15,6 +15,7 @@ import cuvee.lemmas.recognize.Neutral
 import cuvee.prove.QuickCheck
 import cuvee.smtlib.Lemma
 import cuvee.pure.Rewrite
+import cuvee.ai.Abstract
 
 class Config {
   var file: Option[String] = None
@@ -30,6 +31,8 @@ class Config {
   var lemmasRounds = 3
   var conditionalLemmas = false
   var lemmasWithSyntheticFunctions = false
+
+  var annotationsAbstractInterpreter = false
 
   var simplify = false
   var rewrite = false
@@ -75,7 +78,7 @@ class Config {
     option("-prove:quickcheck", "quick check lemmas for counterexamples (default)") {
       quickcheck = true
     },
-    option("-prove:no-quickcheck", "quick check lemmas for counterexamples") {
+    option("-prove:no-quickcheck", "do not make a quick check for counterexamples for lemmas") {
       quickcheck = false
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
@@ -142,6 +145,9 @@ class Config {
     },
     option("-eval", "evaluate correctness of programs to expressions") {
       eval = true
+    },
+    option("-abstract", "infer loop annotations with abstract interpretation") {
+      annotationsAbstractInterpreter = true
     },
     option("-annotate", "infer loop annotations") {
       annotate = true
@@ -298,6 +304,10 @@ object Config {
 
     if (config.eval) {
       sink = new Incremental(Eval, sink)
+    }
+
+    if (config.annotationsAbstractInterpreter) {
+      sink = new Incremental(Abstract, sink)
     }
 
     if (config.annotate) {
