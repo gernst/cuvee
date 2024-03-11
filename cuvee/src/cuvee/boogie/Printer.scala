@@ -80,6 +80,11 @@ object Printer extends cuvee.util.Printer {
       }
     // Work in progress - print lemmas in cuvee format
     case Lemma(expr, tactic, _) if false =>
+      // TODO: hier sowas wie List("lemma " + formula(expr))
+      // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
+      //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
+      // TODO: spaeter dann auch bei invariant, requires, ensures, Spec extends Prog, und Assert extends Cmd ("axiom")
+
       val prop = Prop.from(expr)
       var result: List[String] = Nil
 
