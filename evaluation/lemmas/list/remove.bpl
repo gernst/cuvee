@@ -37,6 +37,18 @@ axiom forall x: nat ::
 axiom forall x: nat, y: nat, ys: list ::
   remove(x, cons(y, ys)) == if x == y then remove(x, ys) else cons(y, remove(x, ys));
 
+function keep(x: nat, xs: list): list;
+axiom forall x: nat ::
+  keep(x, nil) == nil;
+axiom forall x: nat, y: nat, ys: list ::
+  keep(x, cons(y, ys)) == if x == y then cons(y, keep(x, ys)) else keep(x, ys);
+
+function append(xs: list, ys: list): list;
+axiom forall ys: list ::
+  append(nil, ys) == ys;
+axiom forall x: nat, xs: list, ys: list ::
+  append(cons(x,xs), ys) == cons(x, append(xs, ys));
+
 function count(x: nat, xs: list): nat;
 axiom forall x: nat ::
   count(x, nil) == zero;

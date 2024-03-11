@@ -32,32 +32,6 @@ class EClass(
     this.nodes ++= that.nodes
   }
 
-  def replace(f: Fun, g: Fun) {
-    parents =
-      for ((pnd, pec) <- parents)
-        yield (pnd.replace(f, g), pec)
-
-    nodes =
-      for (nd <- nodes)
-        yield nd.replace(f, g)
-  }
-
-  def transfer(map: Map[EClass, EClass]) = {
-    val that = map(this)
-
-    that.canon = canon.transfer(map)
-
-    that.parents =
-      for ((pnd, pec) <- parents)
-        yield pnd.transfer(map) -> map(pec)
-
-    that.nodes =
-      for (nd <- nodes)
-        yield nd.transfer(map)
-
-    that
-  }
-
   def free = {
     val (_, _, res) = Fix.digraph[EClass, Var](
       this,

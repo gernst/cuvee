@@ -37,6 +37,7 @@ object Eval extends Stage {
         val old = List(st)
 
         val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
+        // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
         List(Lemma(phi, None, false))
 
       case cmd =>

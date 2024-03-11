@@ -602,7 +602,7 @@ class Discover(
           // only apply this to original definitions, it's quite costly
           for (
             dg <- definitions
-            if df.name < dg.name  && (df.fun != dg.fun) && (df.typ == dg.typ); // && (original contains df.fun) && (original contains dg.fun);
+            if df.name < dg.name  && (df.fun != dg.fun) && (df.typ == dg.typ) && (original contains df.fun) && (original contains dg.fun);
             (dpre, xs, pre, lhs, rhs) <- Compare.compare(df, dg, Map(), st.constrs)
           ) {
             addConditionalLemma("conditional comparison", xs, pre, lhs, rhs)

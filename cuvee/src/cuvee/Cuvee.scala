@@ -16,6 +16,7 @@ import cuvee.prove.QuickCheck
 import cuvee.smtlib.Lemma
 import cuvee.pure.Rewrite
 import cuvee.ai.Abstract
+import cuvee.pure.Horn
 
 class Config {
   var file: Option[String] = None
@@ -40,6 +41,7 @@ class Config {
   var prove = "none"
   var induct = false
   var quickcheck = true
+  var split = false
 
   var proveNegatedAsserts = true
   var crosscheckProver = false
@@ -154,6 +156,9 @@ class Config {
     },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
+    },
+    option("-split", "split VCs as Horn clauses") {
+      split = true
     }
   )
 
@@ -302,6 +307,10 @@ object Config {
       sink = new Incremental(Neutral, sink)
     }
 
+    if (config.split) {
+      sink = new Incremental(Horn, sink)
+    }
+
     if (config.eval) {
       sink = new Incremental(Eval, sink)
     }
@@ -396,7 +405,6 @@ object CompareTheories {
           }
 
         case "paper" =>
-
 
       }
     } catch {

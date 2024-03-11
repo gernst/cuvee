@@ -34,26 +34,6 @@ class EGraph {
     }
   }
 
-  // descructively replaces a function symbol,
-  // g must not occur yet
-  def replace(f: Fun, g: Fun) {
-    invariants()
-
-    assert(!(funs contains g))
-    assert(f.params == g.params)
-    assert(f.args == g.args)
-    assert(f.res == g.res)
-
-    for (ec <- classes)
-      ec.replace(f, g)
-
-    hash =
-      for ((nd, ec) <- hash)
-        yield (nd.replace(f, g), ec)
-
-    invariants()
-  }
-
   def lookup(nd: ENode) = {
     val ec = hash(nd.canon)
     ec.find

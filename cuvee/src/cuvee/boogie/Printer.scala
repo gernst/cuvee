@@ -85,6 +85,19 @@ object Printer extends cuvee.util.Printer {
       //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
       // TODO: spaeter dann auch bei invariant, requires, ensures, Spec extends Prog, und Assert extends Cmd ("axiom")
 
+      /* moegliches Format
+
+lemma forall x: int :: // hier Zeilenumbruch
+     P1
+  && (forall y: int ::
+        A1
+          ==> A2)
+  && P3
+      ==>    Q1
+          || Q2;
+
+       */
+
       val prop = Prop.from(expr)
       var result: List[String] = Nil
 
