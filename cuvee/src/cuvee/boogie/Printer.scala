@@ -42,7 +42,8 @@ object Printer extends cuvee.util.Printer {
     }
 
   private def lines(cmd: Cmd): List[String] = cmd match {
-    case Labels => ???
+    case Labels =>
+      List("get labels;")
     case SetLogic(logic) =>
       List("/* ", "Command unsupported in boogie:", "set-logic", logic, " */")
     case SetOption(attr, arg) =>
@@ -55,14 +56,18 @@ object Printer extends cuvee.util.Printer {
         " */"
       )
     case GetInfo(attr) =>
-      List("/* ", "Command unsupported in boogie:", "get-info", attr, " */")
+      List("get attribute " + attr + ";")
+      // List("/* ", "Command unsupported in boogie:", "get-info", attr, " */")
     case SetInfo(attr, _) =>
       List("/* ", "Command unsupported in boogie:", "set-info", attr, " */")
-    case Push(depth) => ???
+    case Push(depth) =>
+      List("push " + depth + ";")
     case Pop(depth)  => ???
-    case GetModel    => ???
+    case GetModel    =>
+      List("get model;")
     case Exit        => ???
-    case Reset       => ???
+    case Reset       =>
+      List("reset;")
     case Assert(expr) =>
       expr match {
         case Bind(quant, formals, body, _) =>
@@ -106,8 +111,11 @@ object Printer extends cuvee.util.Printer {
       result = indent(result)
       vblock(result)
     case CheckSat                 => ???
-    case DeclareSort(name, arity) => List("type " + name + ";")
-    case DefineSort(name, _, body) =>
+    case DeclareSort(name, 0) =>
+      List("type " + name + ";")
+    case DeclareSort(name, arity) =>
+      List("type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";")
+    case DefineSort(name, params, body) =>
       List("type " + name + " = " + btype(body) + ";")
     case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
       List("const " + name + ": " + btype(res) + ";")
