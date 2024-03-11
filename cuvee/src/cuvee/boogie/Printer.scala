@@ -45,28 +45,22 @@ object Printer extends cuvee.util.Printer {
     case Labels =>
       List("get labels;")
     case SetLogic(logic) =>
-      List("/* ", "Command unsupported in boogie:", "set-logic", logic, " */")
+      List("set logic " + logic + ";")
     case SetOption(attr, arg) =>
-      List(
-        "/* ",
-        "Command unsupported in boogie:",
-        "set-option",
-        attr,
-        arg.toString,
-        " */"
-      )
+      List("set option " + attr + arg + ";")
     case GetInfo(attr) =>
       List("get attribute " + attr + ";")
-      // List("/* ", "Command unsupported in boogie:", "get-info", attr, " */")
     case SetInfo(attr, _) =>
-      List("/* ", "Command unsupported in boogie:", "set-info", attr, " */")
+      List("set info " + attr + ";")
     case Push(depth) =>
       List("push " + depth + ";")
-    case Pop(depth)  => ???
-    case GetModel    =>
+    case Pop(depth) =>
+      List("pop " + depth + ";")
+    case GetModel =>
       List("get model;")
-    case Exit        => ???
-    case Reset       =>
+    case Exit =>
+      List("exit;")
+    case Reset =>
       List("reset;")
     case Assert(expr) =>
       expr match {
@@ -128,11 +122,14 @@ lemma forall x: int :: // hier Zeilenumbruch
 
       result = indent(result)
       vblock(result)
-    case CheckSat                 => ???
+    case CheckSat =>
+      List("check sat;")
     case DeclareSort(name, 0) =>
       List("type " + name + ";")
     case DeclareSort(name, arity) =>
-      List("type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";")
+      List(
+        "type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";"
+      )
     case DefineSort(name, params, body) =>
       List("type " + name + " = " + btype(body) + ";")
     case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
@@ -458,10 +455,15 @@ lemma forall x: int :: // hier Zeilenumbruch
       quantifier + line(body)
     case Is(arg, fun) =>
       "is#" + fun.name + "(" + line(arg) + ")"
-    case Distinct(exprs)         => ???
-    case Let(eqs, body)          => ???
-    case Match(expr, cases, typ) => ???
-    case Note(expr, attr)        => ???
+    case Distinct(exprs) =>
+      "distinct " + lines(exprs) + ";"
+    case Let(eqs, body) =>
+      "let " + lines(eqs) + lines(body) + ";"
+    case Match(expr, cases, typ) =>
+      // TODO solution for cases in method
+      "match " + line(expr) + cases.toString + btype(typ) + ";"
+    case Note(expr, attr) =>
+      "/* note" + line(expr) + attr.toString + "*/"
   }
 
   private def line(frame: Frame): String = {
