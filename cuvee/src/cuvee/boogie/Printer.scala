@@ -256,7 +256,13 @@ lemma forall x: int :: // hier Zeilenumbruch
       val body_ = "{" +: lines(body) :+ "}"
 
       (con +: indent(spec)) ++ body_
-    case Call(name, in, out) => ???
+    case Call(name, in, out) =>
+      val args = for (e <- in) yield line(e)
+      List(
+        "call " + vartypes(out) + " := " + name + "(" + args.mkString(
+          ", "
+        ) + "):"
+      )
   }
 
   /** Takes care of formatting the given argument to print formated boogie.
