@@ -78,6 +78,7 @@ case object Exit extends Ctrl
 
 case object Reset extends Ctrl
 
+// (Currently) corresponds to "axiom" in Boogie and "(assert )" in SMT-LIB
 case class Assert(expr: Expr) extends Cmd
 
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
