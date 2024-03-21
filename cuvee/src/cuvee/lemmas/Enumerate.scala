@@ -141,7 +141,7 @@ class Enumerate(rounds: Int) extends Stage {
 
       val init =
         for (
-          f <- nonconstfuns if f.params.isEmpty;
+          f <- nonconstfuns if f.params.isEmpty && !(constrs contains f);
           g <- nonconstfuns;
           (typ, pos) <- f.args.zipWithIndex;
           ty <- list(Type.bind(g.res, typ)) // instantiate g, was if typ == g.res

@@ -77,6 +77,9 @@ axiom forall p: prop, q: prop ::
 //     eval(v, neg(p)) == (not_eval(v, p))
 // proof induction p;
 
-// lemma forall v: [nat]bool, p: prop ::
-//     eval(v, nnf(p)) == eval(v, p)
-// proof induction p;
+lemma forall v: [nat]bool, p: prop ::
+    eval(v, nnf(p)) == eval(v, p)
+proof induction p {
+    case Not(phi) =>
+        induction phi
+};
