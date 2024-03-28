@@ -73,7 +73,7 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     // Work in progress - print lemmas in cuvee format
-    case Lemma(expr, tactic, _) if false =>
+    case Lemma(expr, tactic, _) =>
       // TODO: hier sowas wie List("lemma " + formula(expr))
       // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
       //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
@@ -92,22 +92,7 @@ lemma forall x: int :: // hier Zeilenumbruch
 
        */
 
-      val prop = Prop.from(expr)
-      var result: List[String] = Nil
-
-      if (expr.isInstanceOf[Conj])
-        result ++= mformat(expr.asInstanceOf[Conj])
-      else
-        result ++= mformat(prop)
-
-      if (tactic.nonEmpty)
-        result ++= "proof " +: tactic_(tactic.orNull)
-
-      val last = result.last.patch(result.last.length, ";", 1)
-      result = result.updated(result.length - 1, last)
-      result = indent(result)
-
-      "lemma " +: result
+      "lemma " +: formula(expr) :+ ";"
     case Lemma(expr, tactic, _) =>
       val prop = Prop.from(expr)
       var result: List[String] = Nil
@@ -210,6 +195,46 @@ lemma forall x: int :: // hier Zeilenumbruch
 
       result ++= "{" +: lines(body) :+ "}"
       result
+  }
+
+  // TODO: add operations ;D
+  // TODO: add position for arguments
+  //
+  /* moegliches Format
+
+lemma forall x: int :: // hier Zeilenumbruch
+     P1
+  && (forall y: int ::
+        A1
+          ==> A2)
+  && P3
+      ==>    Q1
+          || Q2;
+
+   */
+  private def formula(expr: Expr): List[String] = expr match {
+    case And(phis) =>
+      val result = for (phi <- phis) yield formula(phi)
+      println("&&", result)
+      indent(result.flatten)
+    case Or(phis) =>
+      val result = for (phi <- phis) yield formula(phi)
+      println("||", result)
+      indent(result.flatten)
+    case Imp(pre, ant) =>
+      println("==>", pre, ant)
+      formula(pre) ++ List(" ==> ") ++ formula(ant)
+    case Not(phi) =>
+      indent(List("!" ++ line(phi)))
+    case Forall(x, phi) =>
+      val quant = "forall " ++ vartypes(x) ++ " ::"
+      quant :: formula(phi)
+    case Exists(x, phi) =>
+      val quant = "exists " ++ vartypes(x) ++ " ::"
+      quant :: formula(phi)
+    case _ =>
+      println(expr)
+      List(indent(line(expr)))
   }
 
   private def lines(prog: Prog): List[String] = prog match {
