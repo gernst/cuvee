@@ -214,19 +214,30 @@ lemma forall x: int :: // hier Zeilenumbruch
    */
   private def formula(expr: Expr): List[String] = expr match {
     case And(phis) =>
-      val result = for (phi <- phis) yield formula(phi)
-      println("&&", result.flatten)
-      // TODO
-      // op before any elements except last
-      // same indent for all elements (op somehow before)
-      indent(result.flatten)
+      val head = formula(phis.head)
+      val align = "   " + head.head
+
+      val tail = for (phi <- phis.tail) yield {
+        val rest = formula(phi)
+        val first = "&& " + rest.head
+        first :: rest.tail
+      }
+
+      indent((align :: head.tail) ++ tail.flatten)
     case Or(phis) =>
-      val result = for (phi <- phis) yield formula(phi)
-      println("||", result)
-      indent(result.flatten)
+      val head = formula(phis.head)
+      val align = "   " + head.head
+
+      val tail = for (phi <- phis.tail) yield {
+        val rest = formula(phi)
+        val first = "|| " + rest.head
+        first :: rest.tail
+      }
+
+      indent((align :: head.tail) ++ tail.flatten)
     case Imp(pre, ant) =>
       val ant_ = formula(ant)
-      formula(pre) ++ indent(List("==> " ++ ant_.head)) ++ indent(ant_.tail)
+      formula(pre) ++ indent(List("==> " + ant_.head)) ++ indent(ant_.tail)
     case Not(phi) =>
       val phi_ = formula(phi)
       indent(("!" + phi_.head) +: phi_.tail)
@@ -240,7 +251,7 @@ lemma forall x: int :: // hier Zeilenumbruch
       val quant = "exists " ++ vartypes(x) ++ " ::"
       quant :: formula(phi)
     case _ =>
-      List(indent(line(expr)))
+      List(line(expr))
   }
 
   private def lines(prog: Prog): List[String] = prog match {
