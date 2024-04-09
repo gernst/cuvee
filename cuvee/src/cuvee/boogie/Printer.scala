@@ -204,9 +204,7 @@ lemma forall x: int :: // hier Zeilenumbruch
 
 lemma forall x: int :: // hier Zeilenumbruch
      P1
-  && (forall y: int ::
-        A1
-          ==> A2)
+  && (forall y: int :: A1 ==> A2)
   && P3
       ==>    Q1
           || Q2;
@@ -237,19 +235,23 @@ lemma forall x: int :: // hier Zeilenumbruch
       indent((align :: head.tail) ++ tail.flatten)
     case Imp(pre, ant) =>
       val ant_ = formula(ant)
-      formula(pre) ++ indent(List("==> " + ant_.head)) ++ indent(ant_.tail)
+      // TODO Gidon: Needs one additional space (3 is a horrible number)
+      // Where do you want it? Either " ==> " or "==>  "
+      val impl = indent(List(" ==> " + ant_.head.trim))
+      formula(pre) ++ impl ++ indent(ant_.tail)
     case Not(phi) =>
       val phi_ = formula(phi)
-      indent(("!" + phi_.head) +: phi_.tail)
+      ("!" + phi_.head) +: phi_.tail
     case Forall(x, phi) =>
       val quant = "(forall " ++ vartypes(x) ++ " ::"
-      // TODO hide in method
-      val phi_ = indent(formula(phi), 2)
-      val last = phi_.last.patch(phi_.last.length, ")", 1)
+      val phi_ = indent(formula(phi), 3)
+      val last = phi_.last + ")"
       quant :: phi_.updated(phi_.length - 1, last)
     case Exists(x, phi) =>
       val quant = "exists " ++ vartypes(x) ++ " ::"
-      quant :: formula(phi)
+      val phi_ = indent(formula(phi), 3)
+      val last = phi_.last + ")"
+      quant :: phi_.updated(phi_.length - 1, last)
     case _ =>
       List(line(expr))
   }
