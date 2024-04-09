@@ -80,19 +80,24 @@ object Printer extends cuvee.util.Printer {
       // TODO: spaeter dann auch bei invariant, requires, ensures, Spec extends Prog, und Assert extends Cmd ("axiom")
 
       /* moegliches Format
-
-lemma forall x: int :: // hier Zeilenumbruch
-     P1
-  && (forall y: int ::
-        A1
-          ==> A2)
-  && P3
-      ==>    Q1
-          || Q2;
+        lemma forall x: int :: // hier Zeilenumbruch
+             P1
+          && (forall y: int ::
+                A1
+                  ==> A2)
+          && P3
+              ==>    Q1
+                  || Q2;
 
        */
+      var phi = formula(expr)
+      val head = "lemma " + phi.head
+      val last = phi.last + ";"
 
-      "lemma " +: formula(expr) :+ ";"
+      phi = phi.updated(0, head)
+      phi = phi.updated(phi.length - 1, last)
+
+      phi
     case Lemma(expr, tactic, _) =>
       val prop = Prop.from(expr)
       var result: List[String] = Nil
@@ -197,19 +202,6 @@ lemma forall x: int :: // hier Zeilenumbruch
       result
   }
 
-  // TODO: add operations ;D
-  // TODO: add position for arguments
-  //
-  /* moegliches Format
-
-lemma forall x: int :: // hier Zeilenumbruch
-     P1
-  && (forall y: int :: A1 ==> A2)
-  && P3
-      ==>    Q1
-          || Q2;
-
-   */
   private def formula(expr: Expr): List[String] = expr match {
     case And(phis) =>
       val head = formula(phis.head)
@@ -234,11 +226,17 @@ lemma forall x: int :: // hier Zeilenumbruch
 
       indent((align :: head.tail) ++ tail.flatten)
     case Imp(pre, ant) =>
-      val ant_ = formula(ant)
+      val a = formula(pre)
+      val a_ = "(" + a.head
+      val pre_ = a_ :: a.tail
+
+      val b = formula(ant)
+      val b_ = b.last + ")"
+      val ant_ = b.updated(b.length - 1, b_)
       // TODO Gidon: Needs one additional space (3 is a horrible number)
       // Where do you want it? Either " ==> " or "==>  "
       val impl = indent(List(" ==> " + ant_.head.trim))
-      formula(pre) ++ impl ++ indent(ant_.tail)
+      pre_ ++ impl ++ indent(ant_.tail)
     case Not(phi) =>
       val phi_ = formula(phi)
       ("!" + phi_.head) +: phi_.tail
