@@ -215,25 +215,31 @@ lemma forall x: int :: // hier Zeilenumbruch
   private def formula(expr: Expr): List[String] = expr match {
     case And(phis) =>
       val result = for (phi <- phis) yield formula(phi)
-      println("&&", result)
+      println("&&", result.flatten)
+      // TODO
+      // op before any elements except last
+      // same indent for all elements (op somehow before)
       indent(result.flatten)
     case Or(phis) =>
       val result = for (phi <- phis) yield formula(phi)
       println("||", result)
       indent(result.flatten)
     case Imp(pre, ant) =>
-      println("==>", pre, ant)
-      formula(pre) ++ List(" ==> ") ++ formula(ant)
+      val ant_ = formula(ant)
+      formula(pre) ++ indent(List("==> " ++ ant_.head)) ++ indent(ant_.tail)
     case Not(phi) =>
-      indent(List("!" ++ line(phi)))
+      val phi_ = formula(phi)
+      indent(("!" + phi_.head) +: phi_.tail)
     case Forall(x, phi) =>
-      val quant = "forall " ++ vartypes(x) ++ " ::"
-      quant :: formula(phi)
+      val quant = "(forall " ++ vartypes(x) ++ " ::"
+      // TODO hide in method
+      val phi_ = indent(formula(phi), 2)
+      val last = phi_.last.patch(phi_.last.length, ")", 1)
+      quant :: phi_.updated(phi_.length - 1, last)
     case Exists(x, phi) =>
       val quant = "exists " ++ vartypes(x) ++ " ::"
       quant :: formula(phi)
     case _ =>
-      println(expr)
       List(indent(line(expr)))
   }
 
@@ -614,7 +620,8 @@ lemma forall x: int :: // hier Zeilenumbruch
     result
   }
 
-  private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
+  private def indent(lines: List[String], times: Int = 1) =
+    for (l <- lines) yield ("  " * times) + l
 
   private def indent(line: String) = "  " + line
 
