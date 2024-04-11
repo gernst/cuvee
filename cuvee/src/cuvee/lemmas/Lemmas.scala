@@ -94,12 +94,12 @@ class Lemmas(rounds: Int, conditionalLemmas: Boolean, lemmasWithSyntheticFunctio
 
           val lems =
             for ((origin, phi) <- results if (origin != "provided"))
-              yield Lemma(phi, None, true)
+              yield Lemma(phi, None, None)
 
           defn ++ lems
         } else {
           for ((origin, phi) <- results if (origin != "provided") && (phi.funs subsetOf known))
-            yield Lemma(phi, None, true)
+            yield Lemma(phi, None, None)
         }
 
       val (pre, post) = cmds partition {

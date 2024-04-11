@@ -81,8 +81,12 @@ case object Reset extends Ctrl
 // (Currently) corresponds to "axiom" in Boogie and "(assert )" in SMT-LIB
 case class Assert(expr: Expr) extends Cmd
 
+sealed trait Mode
+case object Free extends Mode
+case object Goal extends Mode
+
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
-case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean)
+case class Lemma(expr: Expr, tactic: Option[Tactic], mode: Option[Mode])
     extends Cmd
 
 // object Lemma extends ((Expr, Option[Tactic]) => Lemma) {

@@ -403,7 +403,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
   }
 
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(true)))
+    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None)))
 
   val datadef =
     P(make_datatype(("data" ~ name ~ gens ~ "=") ~@ constrs ~ ";"))
