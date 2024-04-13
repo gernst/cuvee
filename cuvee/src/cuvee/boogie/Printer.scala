@@ -198,7 +198,8 @@ object Printer extends cuvee.util.Printer {
 
     if (phi.length > 1) {
       phi = phi.updated(0, head)
-      head :: phi.updated(phi.length - 1, last)
+      phi = phi.updated(phi.length - 1, last)
+      head :: phi.tail
     } else {
       List(head + ";")
     }
