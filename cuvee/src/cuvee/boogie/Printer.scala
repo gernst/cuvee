@@ -196,10 +196,12 @@ object Printer extends cuvee.util.Printer {
     val head = name + " " + phi.head.trim
     val last = phi.last + ";"
 
-    phi = phi.updated(0, head)
-    phi = phi.updated(phi.length - 1, last)
-
-    phi
+    if (phi.length > 1) {
+      phi = phi.updated(0, head)
+      head :: phi.updated(phi.length - 1, last)
+    } else {
+      List(head + ";")
+    }
   }
 
   private def formula(expr: Expr): List[String] = expr match {
