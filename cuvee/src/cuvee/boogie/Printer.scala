@@ -89,7 +89,18 @@ object Printer extends cuvee.util.Printer {
               ==>    Q1
                   || Q2;
        */
-      format("lemma", expr)
+      var result = format("lemma", expr)
+
+      if (tactic.nonEmpty) {
+        val old = result.last.patch(result.last.length - 1, "", 1)
+        result = result.updated(result.length - 1, old)
+        result ++= "proof " +: tactic_(tactic.orNull)
+
+        val last = result.last.patch(result.last.length, ";", 1)
+        result = result.updated(result.length - 1, last)
+      }
+
+      result
     case Lemma(expr, tactic, _) =>
       val prop = Prop.from(expr)
       var result: List[String] = Nil
@@ -286,7 +297,7 @@ object Printer extends cuvee.util.Printer {
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec ++=  format("decreases", term)
+        spec ++= format("decreases", term)
       if (inv != True)
         spec ++= format("invariant", inv)
       if (sum != True)
