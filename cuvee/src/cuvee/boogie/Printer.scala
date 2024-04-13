@@ -101,20 +101,6 @@ object Printer extends cuvee.util.Printer {
       }
 
       result
-    case Lemma(expr, tactic, _) =>
-      val prop = Prop.from(expr)
-      var result: List[String] = Nil
-
-      if (expr.isInstanceOf[Conj])
-        result ++= lines(expr)
-      else
-        result ++= lines(prop)
-
-      if (tactic.nonEmpty)
-        result ++= "proof " +: tactic_(tactic.orNull)
-
-      result = indent(result)
-      vblock(result)
     case CheckSat =>
       List("check sat;")
     case DeclareSort(name, 0) =>
@@ -417,59 +403,6 @@ object Printer extends cuvee.util.Printer {
     result
   }
 
-  private def mformat(prop: Prop): List[String] = prop match {
-    case Disj(xs, assms, concls) =>
-      var result: List[String] = Nil
-      val bound =
-        for (x <- xs)
-          yield x.name.toString + ": " + btype(x.typ)
-
-      val pre =
-        for (phi <- assms)
-          yield lines(phi)
-
-      val conclst =
-        for (phi <- concls)
-          yield mformat(phi)
-
-      if (bound.nonEmpty)
-        result = result :+ "forall " + bound.mkString("", ", ", " :: ")
-
-      // TODO What is the correct format here? cuvee does not give out ops
-      // look into the normal forms again
-      // example for strange behaviour exampls/boogie/bdd.bpl
-      if (pre.nonEmpty)
-        result ++= "assume" +: indent(pre.flatten)
-
-      if (concls.isEmpty)
-        result ++= List("show contradiction")
-      else if (concls.size == 1)
-        result ++= conclst.flatten
-      else if (concls.size > 1)
-        result ++= "show one of" +: indent(conclst.flatten)
-
-      result
-    case Atom(phi, None)      => List(line(phi))
-    case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
-  }
-
-  private def mformat(conj: Conj): List[String] = {
-    val Conj(xs, props) = conj
-    var result: List[String] = Nil
-
-    val bound = vartypes(xs)
-
-    val concls = (for (phi <- props) yield lines(phi)).flatten
-
-    if (bound.nonEmpty)
-      result ++= indent("exists" :: indent(List(bound)))
-
-    // TODO this is human readable but what would cuvee need between arguments e.g. simple.bpl
-    result ++= indent(concls)
-
-    result
-  }
-
   private def line(expr: Expr): String = expr match {
     case Lit(any, typ)  => any.toString
     case Var(name, typ) => name.toString
@@ -625,22 +558,6 @@ object Printer extends cuvee.util.Printer {
     case Auto           => indent(List("auto"))
     case NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
     case Sorry          => indent(List("sorry"))
-  }
-
-  private def vblock(lines: List[String]): List[String] = {
-    if (lines.isEmpty)
-      return lines
-
-    val head = lines.head.patch(0, "+", 1)
-    var result =
-      for (line <- lines)
-        yield line.patch(0, "|", 1)
-    val last = lines.last.patch(0, "+", 1)
-
-    result = result.updated(0, head)
-    result = result.updated(result.length - 1, last)
-
-    result
   }
 
   private def indent(lines: List[String], times: Int = 1) =
