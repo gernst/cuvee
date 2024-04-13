@@ -7,7 +7,6 @@ import cuvee.smtlib
 import cuvee.smtlib._
 import cuvee.util
 import cuvee.prove._
-import scala.collection.immutable
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -43,27 +42,26 @@ object Printer extends cuvee.util.Printer {
     }
 
   private def lines(cmd: Cmd): List[String] = cmd match {
-    case Labels => ???
+    case Labels =>
+      List("get labels;")
     case SetLogic(logic) =>
-      List("/* ", "Command unsupported in boogie:", "set-logic", logic, " */")
+      List("set logic " + logic + ";")
     case SetOption(attr, arg) =>
-      List(
-        "/* ",
-        "Command unsupported in boogie:",
-        "set-option",
-        attr,
-        arg.toString,
-        " */"
-      )
+      List("set option " + attr + arg + ";")
     case GetInfo(attr) =>
-      List("/* ", "Command unsupported in boogie:", "get-info", attr, " */")
+      List("get attribute " + attr + ";")
     case SetInfo(attr, _) =>
-      List("/* ", "Command unsupported in boogie:", "set-info", attr, " */")
-    case Push(depth) => ???
-    case Pop(depth)  => ???
-    case GetModel    => ???
-    case Exit        => ???
-    case Reset       => ???
+      List("set info " + attr + ";")
+    case Push(depth) =>
+      List("push " + depth + ";")
+    case Pop(depth) =>
+      List("pop " + depth + ";")
+    case GetModel =>
+      List("get model;")
+    case Exit =>
+      List("exit;")
+    case Reset =>
+      List("reset;")
     case Assert(expr) =>
       expr match {
         case Bind(quant, formals, body, _) =>
@@ -74,23 +72,44 @@ object Printer extends cuvee.util.Printer {
         case _ =>
           List("axiom " + line(expr) + ";")
       }
+    // Work in progress - print lemmas in cuvee format
     case Lemma(expr, tactic, _) =>
-      val prop = Prop.from(expr)
-      var result: List[String] = Nil
+      // TODO: hier sowas wie List("lemma " + formula(expr))
+      // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
+      //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
+      // TODO: spaeter dann auch bei invariant, requires, ensures, Spec extends Prog, und Assert extends Cmd ("axiom")
 
-      if (expr.isInstanceOf[Conj])
-        result ++= lines(expr)
-      else
-        result ++= lines(prop)
+      /* moegliches Format
+        lemma forall x: int :: // hier Zeilenumbruch
+             P1
+          && (forall y: int ::
+                A1
+                  ==> A2)
+          && P3
+              ==>    Q1
+                  || Q2;
+       */
+      var result = format("lemma", expr)
 
-      if (tactic.nonEmpty)
+      if (tactic.nonEmpty) {
+        val old = result.last.patch(result.last.length - 1, "", 1)
+        result = result.updated(result.length - 1, old)
         result ++= "proof " +: tactic_(tactic.orNull)
 
-      result = indent(result)
-      vblock(result)
-    case CheckSat                 => ???
-    case DeclareSort(name, arity) => List("type " + name + ";")
-    case DefineSort(name, _, body) =>
+        val last = result.last.patch(result.last.length, ";", 1)
+        result = result.updated(result.length - 1, last)
+      }
+
+      result
+    case CheckSat =>
+      List("check sat;")
+    case DeclareSort(name, 0) =>
+      List("type " + name + ";")
+    case DeclareSort(name, arity) =>
+      List(
+        "type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";"
+      )
+    case DefineSort(name, params, body) =>
       List("type " + name + " = " + btype(body) + ";")
     case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
       List("const " + name + ": " + btype(res) + ";")
@@ -172,6 +191,70 @@ object Printer extends cuvee.util.Printer {
       result
   }
 
+  private def format(name: String, expr: Expr): List[String] = {
+    var phi = formula(expr)
+    val head = name + " " + phi.head.trim
+    val last = phi.last + ";"
+
+    if (phi.length > 1) {
+      phi = phi.updated(0, head)
+      phi = phi.updated(phi.length - 1, last)
+      head :: phi.tail
+    } else {
+      List(head + ";")
+    }
+  }
+
+  private def formula(expr: Expr): List[String] = expr match {
+    case And(phis) =>
+      val head = formula(phis.head)
+
+      val tail = for (phi <- phis.tail) yield {
+        val rest = formula(phi)
+        val first = "&& " + rest.head
+        first :: rest.tail
+      }
+
+      indent(head ++ tail.flatten)
+    case Or(phis) =>
+      val head = formula(phis.head)
+
+      val tail = for (phi <- phis.tail) yield {
+        val rest = formula(phi)
+        val first = "|| " + rest.head
+        first :: rest.tail
+      }
+
+      indent(head ++ tail.flatten)
+    case Imp(pre, ant) =>
+      val a = formula(pre)
+      val a_ = "(" + a.head
+      val pre_ = a_ :: a.tail
+
+      val b = formula(ant)
+      val b_ = b.last + ")"
+      val ant_ = b.updated(b.length - 1, b_)
+      // TODO Gidon: Needs one additional space (3 is a horrible number)
+      // Where do you want it? Either " ==> " or "==>  "
+      val impl = indent(List(" ==> " + ant_.head.trim))
+      pre_ ++ impl ++ indent(ant_.tail)
+    case Not(phi) =>
+      val phi_ = formula(phi)
+      ("!" + phi_.head) +: phi_.tail
+    case Forall(x, phi) =>
+      val quant = "(forall " ++ vartypes(x) ++ " ::"
+      val phi_ = indent(formula(phi), 3)
+      val last = phi_.last + ")"
+      quant :: phi_.updated(phi_.length - 1, last)
+    case Exists(x, phi) =>
+      val quant = "exists " ++ vartypes(x) ++ " ::"
+      val phi_ = indent(formula(phi), 3)
+      val last = phi_.last + ")"
+      quant :: phi_.updated(phi_.length - 1, last)
+    case _ =>
+      List(line(expr))
+  }
+
   private def lines(prog: Prog): List[String] = prog match {
     case Block(progs) => indent(progs flatMap lines)
     case Break        => List("break;")
@@ -203,11 +286,11 @@ object Printer extends cuvee.util.Printer {
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases\t" + line(term) + ";")
+        spec ++= format("decreases", term)
       if (inv != True)
-        spec = spec :+ ("invariant\t" + line(inv) + ";")
+        spec ++= format("invariant", inv)
       if (sum != True)
-        spec = spec :+ ("summary\t" + line(sum) + ";")
+        spec ++= format("summary", sum)
       if (!frames.isEmpty) {
         val frames_ = for (f <- frames) yield line(f)
         spec = spec :+ frames_.mkString("frames\t", ",", ";")
@@ -216,7 +299,13 @@ object Printer extends cuvee.util.Printer {
       val body_ = "{" +: lines(body) :+ "}"
 
       (con +: indent(spec)) ++ body_
-    case Call(name, in, out) => ???
+    case Call(name, in, out) =>
+      val args = for (e <- in) yield line(e)
+      List(
+        "call " + vartypes(out) + " := " + name + "(" + args.mkString(
+          ", "
+        ) + "):"
+      )
   }
 
   /** Takes care of formatting the given argument to print formated boogie.
@@ -337,8 +426,12 @@ object Printer extends cuvee.util.Printer {
       val (precA, assocA) = precedence(left)
       val (precB, assocB) = precedence(right)
 
-      if (precA < prec || precA == prec && assocA == assoc) a = "(" + a + ")"
-      if (precB < prec || precB == prec && assocB == assoc) b = "(" + b + ")"
+      /* Parens are needed if the precedence of the child (precA, precB) is
+       * smaller than that of the current node (prec).
+       * In theory they are also needed if the precedence of both is the same
+       * but the associativity divers.*/
+      if (precA < prec || (precA == prec && assocA != assoc)) a = "(" + a + ")"
+      if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
 
       a + " " + name + " " + b
     case App(inst, List(expr)) if prefix.contains(inst.toString) =>
@@ -354,13 +447,19 @@ object Printer extends cuvee.util.Printer {
       inst.toString + "(" + exprs.mkString(", ") + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
-      val quantifier = quant.toString + " " + vars.mkString(" ") + " :: "
-      (quantifier +: lines(body)).mkString
-    case Is(arg, fun)            => "is#" + fun.name + "(" + line(arg) + ")"
-    case Distinct(exprs)         => ???
-    case Let(eqs, body)          => ???
-    case Match(expr, cases, typ) => ???
-    case Note(expr, attr)        => ???
+      val quantifier = quant.toString + vars.mkString(" ", ", ", " :: ")
+      quantifier + line(body)
+    case Is(arg, fun) =>
+      "is#" + fun.name + "(" + line(arg) + ")"
+    case Distinct(exprs) =>
+      "distinct " + lines(exprs) + ";"
+    case Let(eqs, body) =>
+      "let " + lines(eqs) + lines(body) + ";"
+    case Match(expr, cases, typ) =>
+      // TODO solution for cases in method
+      "match " + line(expr) + cases.toString + btype(typ) + ";"
+    case Note(expr, attr) =>
+      "/* note" + line(expr) + attr.toString + "*/"
   }
 
   private def line(frame: Frame): String = {
@@ -375,9 +474,9 @@ object Printer extends cuvee.util.Printer {
     if (xs.nonEmpty)
       result ++= List("modifies " + vartypes(xs) + ";")
     if (!pre.equals(Nil) && pre != True)
-      result ++= List("requires " + line(pre) + ";")
+      result ++= format("requires", pre)
     if (!post.equals(Nil) && post != True)
-      result ++= List("ensures " + line(post) + ";")
+      result ++= format("ensures", post)
 
     indent(result)
   }
@@ -386,7 +485,7 @@ object Printer extends cuvee.util.Printer {
     * expression.
     *
     * @param expr
-    *   to get prec an assoc for
+    *   to get prec and assoc for
     * @return
     *   prec and assoc for the given expr
     */
@@ -398,7 +497,10 @@ object Printer extends cuvee.util.Printer {
     case App(inst, _) if prefix.contains(inst.toString) =>
       val prec = prefix(inst.toString)._2
       (prec, Non)
-    case _ => (10, Non)
+    case Bind(_, _, _, _) =>
+      (0, Non)
+    case _ =>
+      (10, Non)
   }
 
   private def if_(prog: If): List[String] = {
@@ -407,9 +509,12 @@ object Printer extends cuvee.util.Printer {
     right match {
       case x @ If(test_, left_, right_) =>
         (first :+ "} else " + if_(x).head) ++ if_(x).tail
-      case Block(Nil)   => first :+ "}"
-      case x @ Block(_) => (first :+ "} else {") ++ (lines(x) :+ "}")
-      case _ => first :+ ("// Unknown operation in If: " ++ right.toString)
+      case Block(Nil) =>
+        first :+ "}"
+      case x @ Block(_) =>
+        (first :+ "} else {") ++ (lines(x) :+ "}")
+      case _ =>
+        first :+ ("// Unknown operation in If: " ++ right.toString)
     }
   }
 
@@ -425,7 +530,7 @@ object Printer extends cuvee.util.Printer {
           for ((expr, tactic) <- cases)
             yield ("case " + expr.toString + " => ") +: tactic_(tactic)
 
-        result = (header + " {") +: indent(body.flatten) :+ "};"
+        result = (header + " {") +: indent(body.flatten) :+ "}"
       }
 
       indent(result)
@@ -454,27 +559,12 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
     case Auto           => indent(List("auto"))
-    case NoAuto(tactic) => indent("no auto " :: tactic_(tactic))
-    case Sorry          => indent(List("sorry;"))
+    case NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
+    case Sorry          => indent(List("sorry"))
   }
 
-  private def vblock(lines: List[String]): List[String] = {
-    if (lines.isEmpty)
-      return lines
-
-    val head = lines.head.patch(0, "+", 1)
-    var result =
-      for (line <- lines)
-        yield line.patch(0, "|", 1)
-    val last = lines.last.patch(0, "+", 1)
-
-    result = result.updated(0, head)
-    result = result.updated(result.length - 1, last)
-
-    result
-  }
-
-  private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
+  private def indent(lines: List[String], times: Int = 1) =
+    for (l <- lines) yield ("  " * times) + l
 
   private def indent(line: String) = "  " + line
 

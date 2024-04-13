@@ -1,28 +1,31 @@
 type state;
 
 function P(s: state): bool;
-function Q(s: state): bool;
-function I(s: state, s: state): bool;
-function R(s: state, s: state): bool;
+function Q(s: state, s_: state): bool;
+function I(s: state, s_: state): bool;
+function R(s: state, s_: state): bool;
 
 function d(s: state): int;
 function t(s: state): bool;
+function b(s: state): bool;
+function A(s: state, s: state): bool;
 function B(s: state, s: state): bool;
 
-procedure loop()
+procedure loop(s: state)
+    returns (s_: state)
+    requires P(s);
+    ensures Q(s, s_);
 {
-    var s: state;
-    assume P(s);
-
     while(t(s))
         decreases d(s);
         invariant I(old(s), s);
-        summary   R(old(s), s);
+        summary   R(s, final(s));
     {
-        var s_: state;
-        assume B(s, s_);
-        s := s_;
+        var t: state;
+        assume B(s, t);
+        s := t;
+        if(!b(t)) { break; }
     }
 
-    assert Q(s);
+    s_ := s;
 }

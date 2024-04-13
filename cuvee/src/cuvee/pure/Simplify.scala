@@ -74,6 +74,8 @@ object Simplify {
       }
 
       val su = Expr.subst(eqs)
+
+      // TODO: this is wrong; substitutions need to chain on
       assms = assms map (_ subst su)
       concls = concls map (_ subst su)
 

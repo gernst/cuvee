@@ -3,12 +3,12 @@ import mill.scalalib._
 
 object easyparse extends ScalaModule {
   def millSourcePath = super.millSourcePath / "easyparse"
-  def scalaVersion = "2.13.8"
+  def scalaVersion = "2.13.12"
   def ivyDeps = Agg(ivy"com.lihaoyi::sourcecode:0.2.7")
 }
 
 object cuvee extends ScalaModule {
-  def scalaVersion = "2.13.8"
+  def scalaVersion = "2.13.12"
   def forkArgs = Seq("-Xss32m")
 
   def moduleDeps = Seq(easyparse)
@@ -16,9 +16,9 @@ object cuvee extends ScalaModule {
   def mainClass = Some("cuvee.Cuvee")
 
   def ivyDeps = Agg(
-    ivy"com.lihaoyi::sourcecode:0.2.0",
-    ivy"com.lihaoyi::fastparse:2.2.2",
-    ivy"com.lihaoyi::pythonparse:2.3.0"
+    ivy"com.lihaoyi::sourcecode:0.3.1",
+    ivy"com.lihaoyi::fastparse:3.0.2",
+    ivy"com.lihaoyi::pythonparse:3.0.2"
   )
 }
 

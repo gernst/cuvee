@@ -1,11 +1,13 @@
+data nat = zero | succ(pred: nat);
+data list = nil | cons(head: nat, tail: list);
+
 data regex
   = empty | epsilon
+  | letter(sym: nat)
   | seq(first: regex, second: regex)
   | choice(left: regex, right: regex)
   ;
 
-data nat = zero | succ(pred: nat);
-data list = nil | cons(head: nat, tail: list);
 
 function append(xs: list, ys: list): list;
 axiom forall ys: list ::
@@ -22,14 +24,17 @@ axiom
 axiom
   nullable(epsilon) == true;
 
-axiom forall w1: list, w2: list ::
-  nullable(seq(w1, w2)) == (nullable(w1) && nullable(w2));
+axiom forall a: nat ::
+  nullable(letter(a)) == false;
 
-axiom forall w1: list, w2: list ::
-  nullable(choice(w1, w2)) == (nullable(w1) || nullable(w2));
+axiom forall r1: regex, r2: regex ::
+  nullable(seq(r1, r2)) == (nullable(r1) && nullable(r2));
+
+axiom forall r1: regex, r2: regex ::
+  nullable(choice(r1, r2)) == (nullable(r1) || nullable(r2));
 
 
-function derive(a: nat, r: regex): bool;
+function derive(a: nat, r: regex): regex;
 
 axiom forall a: nat ::
   derive(a, empty) == empty;
@@ -37,5 +42,16 @@ axiom forall a: nat ::
 axiom forall a: nat ::
   derive(a, epsilon) == empty;
 
+axiom forall a: nat, b: nat ::
+  derive(a, letter(b)) ==
+    if a == b then epsilon
+    else empty;
+
 axiom forall a: nat, r1: regex, r2: regex ::
   derive(a, choice(r1, r2)) == choice(derive(a, r1), derive(a, r2));
+
+axiom forall a: nat, r1: regex, r2: regex ::
+  derive(a, seq(r1, r2)) == 
+    if nullable(r1)
+    then choice(derive(a, r2), seq(derive(a, r1), r2))
+    else seq(derive(a, r1), r2);

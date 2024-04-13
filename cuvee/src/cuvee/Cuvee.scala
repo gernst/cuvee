@@ -15,6 +15,8 @@ import cuvee.lemmas.recognize.Neutral
 import cuvee.prove.QuickCheck
 import cuvee.smtlib.Lemma
 import cuvee.pure.Rewrite
+import cuvee.ai.Abstract
+import cuvee.pure.Horn
 
 class Config {
   var file: Option[String] = None
@@ -32,12 +34,15 @@ class Config {
   var conditionalLemmas = false
   var lemmasWithSyntheticFunctions = false
 
+  var annotationsAbstractInterpreter = false
+
   var simplify = false
   var rewrite = false
 
   var prove = "none"
   var induct = false
   var quickcheck = true
+  var split = false
 
   var proveNegatedAsserts = true
   var crosscheckProver = false
@@ -76,7 +81,7 @@ class Config {
     option("-prove:quickcheck", "quick check lemmas for counterexamples (default)") {
       quickcheck = true
     },
-    option("-prove:no-quickcheck", "quick check lemmas for counterexamples") {
+    option("-prove:no-quickcheck", "do not make a quick check for counterexamples for lemmas") {
       quickcheck = false
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
@@ -147,11 +152,17 @@ class Config {
     option("-eval", "evaluate correctness of programs to expressions") {
       eval = true
     },
+    option("-abstract", "infer loop annotations with abstract interpretation") {
+      annotationsAbstractInterpreter = true
+    },
     option("-annotate", "infer loop annotations") {
       annotate = true
     },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
+    },
+    option("-split", "split VCs as Horn clauses") {
+      split = true
     }
   )
 
@@ -303,8 +314,16 @@ object Config {
       sink = new Incremental(Neutral, sink)
     }
 
+    if (config.split) {
+      sink = new Incremental(Horn, sink)
+    }
+
     if (config.eval) {
       sink = new Incremental(Eval, sink)
+    }
+
+    if (config.annotationsAbstractInterpreter) {
+      sink = new Incremental(Abstract, sink)
     }
 
     if (config.annotate) {
@@ -393,7 +412,6 @@ object CompareTheories {
           }
 
         case "paper" =>
-
 
       }
     } catch {

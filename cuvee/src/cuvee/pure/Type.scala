@@ -15,6 +15,11 @@ object Type extends Alpha[Type, Param] {
     override def toString = "cannot unify: " + reason
   }
 
+  def params(name: Name, arity: Int) = {
+    for (i <- 0 until arity)
+      yield Param(name withIndex i)
+  }
+
   case class CannotBind(typ1: Type, typ2: Type, su: Map[Param, Type]) extends Exception {
     override def toString = "cannot bind: " + typ1 + " to " + typ2 + " using " + su
   }
