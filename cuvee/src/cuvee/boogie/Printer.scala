@@ -88,16 +88,8 @@ object Printer extends cuvee.util.Printer {
           && P3
               ==>    Q1
                   || Q2;
-
        */
-      var phi = formula(expr)
-      val head = "lemma " + phi.head
-      val last = phi.last + ";"
-
-      phi = phi.updated(0, head)
-      phi = phi.updated(phi.length - 1, last)
-
-      phi
+      format("lemma", expr)
     case Lemma(expr, tactic, _) =>
       val prop = Prop.from(expr)
       var result: List[String] = Nil
@@ -202,6 +194,17 @@ object Printer extends cuvee.util.Printer {
       result
   }
 
+  private def format(name: String, expr: Expr): List[String] = {
+    var phi = formula(expr)
+    val head = name + " " + phi.head.trim
+    val last = phi.last + ";"
+
+    phi = phi.updated(0, head)
+    phi = phi.updated(phi.length - 1, last)
+
+    phi
+  }
+
   private def formula(expr: Expr): List[String] = expr match {
     case And(phis) =>
       val head = formula(phis.head)
@@ -285,11 +288,11 @@ object Printer extends cuvee.util.Printer {
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases\t" + line(term) + ";")
+        spec ++=  format("decreases", term)
       if (inv != True)
-        spec = spec :+ ("invariant\t" + line(inv) + ";")
+        spec ++= format("invariant", inv)
       if (sum != True)
-        spec = spec :+ ("summary\t" + line(sum) + ";")
+        spec ++= format("summary", sum)
       if (!frames.isEmpty) {
         val frames_ = for (f <- frames) yield line(f)
         spec = spec :+ frames_.mkString("frames\t", ",", ";")
