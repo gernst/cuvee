@@ -208,7 +208,6 @@ object Printer extends cuvee.util.Printer {
   private def formula(expr: Expr): List[String] = expr match {
     case And(phis) =>
       val head = formula(phis.head)
-      val align = "   " + head.head
 
       val tail = for (phi <- phis.tail) yield {
         val rest = formula(phi)
@@ -216,10 +215,9 @@ object Printer extends cuvee.util.Printer {
         first :: rest.tail
       }
 
-      indent((align :: head.tail) ++ tail.flatten)
+      indent(head ++ tail.flatten)
     case Or(phis) =>
       val head = formula(phis.head)
-      val align = "   " + head.head
 
       val tail = for (phi <- phis.tail) yield {
         val rest = formula(phi)
@@ -227,7 +225,7 @@ object Printer extends cuvee.util.Printer {
         first :: rest.tail
       }
 
-      indent((align :: head.tail) ++ tail.flatten)
+      indent(head ++ tail.flatten)
     case Imp(pre, ant) =>
       val a = formula(pre)
       val a_ = "(" + a.head
@@ -529,9 +527,9 @@ object Printer extends cuvee.util.Printer {
     if (xs.nonEmpty)
       result ++= List("modifies " + vartypes(xs) + ";")
     if (!pre.equals(Nil) && pre != True)
-      result ++= List("requires " + line(pre) + ";")
+      result ++= format("requires", pre)
     if (!post.equals(Nil) && post != True)
-      result ++= List("ensures " + line(post) + ";")
+      result ++= format("ensures", post)
 
     indent(result)
   }
