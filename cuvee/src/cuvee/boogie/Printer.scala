@@ -88,30 +88,19 @@ object Printer extends cuvee.util.Printer {
           && P3
               ==>    Q1
                   || Q2;
-
        */
-      var phi = formula(expr)
-      val head = "lemma " + phi.head
-      val last = phi.last + ";"
+      var result = format("lemma", expr)
 
-      phi = phi.updated(0, head)
-      phi = phi.updated(phi.length - 1, last)
-
-      phi
-    case Lemma(expr, tactic, _) =>
-      val prop = Prop.from(expr)
-      var result: List[String] = Nil
-
-      if (expr.isInstanceOf[Conj])
-        result ++= lines(expr)
-      else
-        result ++= lines(prop)
-
-      if (tactic.nonEmpty)
+      if (tactic.nonEmpty) {
+        val old = result.last.patch(result.last.length - 1, "", 1)
+        result = result.updated(result.length - 1, old)
         result ++= "proof " +: tactic_(tactic.orNull)
 
-      result = indent(result)
-      vblock(result)
+        val last = result.last.patch(result.last.length, ";", 1)
+        result = result.updated(result.length - 1, last)
+      }
+
+      result
     case CheckSat =>
       List("check sat;")
     case DeclareSort(name, 0) =>
@@ -202,10 +191,23 @@ object Printer extends cuvee.util.Printer {
       result
   }
 
+  private def format(name: String, expr: Expr): List[String] = {
+    var phi = formula(expr)
+    val head = name + " " + phi.head.trim
+    val last = phi.last + ";"
+
+    if (phi.length > 1) {
+      phi = phi.updated(0, head)
+      phi = phi.updated(phi.length - 1, last)
+      head :: phi.tail
+    } else {
+      List(head + ";")
+    }
+  }
+
   private def formula(expr: Expr): List[String] = expr match {
     case And(phis) =>
       val head = formula(phis.head)
-      val align = "   " + head.head
 
       val tail = for (phi <- phis.tail) yield {
         val rest = formula(phi)
@@ -213,10 +215,9 @@ object Printer extends cuvee.util.Printer {
         first :: rest.tail
       }
 
-      indent((align :: head.tail) ++ tail.flatten)
+      indent(head ++ tail.flatten)
     case Or(phis) =>
       val head = formula(phis.head)
-      val align = "   " + head.head
 
       val tail = for (phi <- phis.tail) yield {
         val rest = formula(phi)
@@ -224,7 +225,7 @@ object Printer extends cuvee.util.Printer {
         first :: rest.tail
       }
 
-      indent((align :: head.tail) ++ tail.flatten)
+      indent(head ++ tail.flatten)
     case Imp(pre, ant) =>
       val a = formula(pre)
       val a_ = "(" + a.head
@@ -285,11 +286,11 @@ object Printer extends cuvee.util.Printer {
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases\t" + line(term) + ";")
+        spec ++= format("decreases", term)
       if (inv != True)
-        spec = spec :+ ("invariant\t" + line(inv) + ";")
+        spec ++= format("invariant", inv)
       if (sum != True)
-        spec = spec :+ ("summary\t" + line(sum) + ";")
+        spec ++= format("summary", sum)
       if (!frames.isEmpty) {
         val frames_ = for (f <- frames) yield line(f)
         spec = spec :+ frames_.mkString("frames\t", ",", ";")
@@ -405,59 +406,6 @@ object Printer extends cuvee.util.Printer {
     result
   }
 
-  private def mformat(prop: Prop): List[String] = prop match {
-    case Disj(xs, assms, concls) =>
-      var result: List[String] = Nil
-      val bound =
-        for (x <- xs)
-          yield x.name.toString + ": " + btype(x.typ)
-
-      val pre =
-        for (phi <- assms)
-          yield lines(phi)
-
-      val conclst =
-        for (phi <- concls)
-          yield mformat(phi)
-
-      if (bound.nonEmpty)
-        result = result :+ "forall " + bound.mkString("", ", ", " :: ")
-
-      // TODO What is the correct format here? cuvee does not give out ops
-      // look into the normal forms again
-      // example for strange behaviour exampls/boogie/bdd.bpl
-      if (pre.nonEmpty)
-        result ++= "assume" +: indent(pre.flatten)
-
-      if (concls.isEmpty)
-        result ++= List("show contradiction")
-      else if (concls.size == 1)
-        result ++= conclst.flatten
-      else if (concls.size > 1)
-        result ++= "show one of" +: indent(conclst.flatten)
-
-      result
-    case Atom(phi, None)      => List(line(phi))
-    case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
-  }
-
-  private def mformat(conj: Conj): List[String] = {
-    val Conj(xs, props) = conj
-    var result: List[String] = Nil
-
-    val bound = vartypes(xs)
-
-    val concls = (for (phi <- props) yield lines(phi)).flatten
-
-    if (bound.nonEmpty)
-      result ++= indent("exists" :: indent(List(bound)))
-
-    // TODO this is human readable but what would cuvee need between arguments e.g. simple.bpl
-    result ++= indent(concls)
-
-    result
-  }
-
   private def line(expr: Expr): String = expr match {
     case Lit(any, typ)  => any.toString
     case Var(name, typ) => name.toString
@@ -526,9 +474,9 @@ object Printer extends cuvee.util.Printer {
     if (xs.nonEmpty)
       result ++= List("modifies " + vartypes(xs) + ";")
     if (!pre.equals(Nil) && pre != True)
-      result ++= List("requires " + line(pre) + ";")
+      result ++= format("requires", pre)
     if (!post.equals(Nil) && post != True)
-      result ++= List("ensures " + line(post) + ";")
+      result ++= format("ensures", post)
 
     indent(result)
   }
@@ -613,22 +561,6 @@ object Printer extends cuvee.util.Printer {
     case Auto           => indent(List("auto"))
     case NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
     case Sorry          => indent(List("sorry"))
-  }
-
-  private def vblock(lines: List[String]): List[String] = {
-    if (lines.isEmpty)
-      return lines
-
-    val head = lines.head.patch(0, "+", 1)
-    var result =
-      for (line <- lines)
-        yield line.patch(0, "|", 1)
-    val last = lines.last.patch(0, "+", 1)
-
-    result = result.updated(0, head)
-    result = result.updated(result.length - 1, last)
-
-    result
   }
 
   private def indent(lines: List[String], times: Int = 1) =
