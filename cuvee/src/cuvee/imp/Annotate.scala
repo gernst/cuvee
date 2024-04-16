@@ -313,7 +313,7 @@ object Annotate extends Stage {
             // Every index which got not visited should not be modified
             val no = Select(a, x) === Old(Select(a, x))
 
-            phi // && (!phi ==> no)
+            phi && (!phi ==> no)
           }
           And(all.toList)
         }
