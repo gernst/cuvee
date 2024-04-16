@@ -189,6 +189,9 @@ object Annotate extends Stage {
               val here = m.toExpr(x) && (x === key_)
               val there = indexEqualities(a, rhs_, re)
               here || there
+
+            case `a` =>
+              True
           }
 
         // TODO: use this characterization for the update
@@ -204,6 +207,9 @@ object Annotate extends Stage {
               val here = (x === key) && (Select(a, x) === value_)
               val there = (x !== key) && assignmentEqualities(a, rhs_)
               here || there
+
+            case `a` =>
+              True
           }
 
         def maybeOldOtherArrays(rhs: Expr): Expr = rhs topdown {
@@ -256,12 +262,8 @@ object Annotate extends Stage {
           case n @ Var(_, Sort.int) =>
             val x0 = init(n)
 
-            val candidates = mod.filter(v => v.typ == Sort.int)
-            val testVars_ = testVars.toSet
-            val List(dec) = candidates.intersect(testVars_).toList.distinct
-
-            val stepxs = after map { st => st.vars(dec) }
-            val List(step) = stepxs.distinct
+            val stepxs = after map { st => st.vars(n) }
+            val List(step) = stepxs.filter(_ != n).distinct
 
             step match {
               case Plus(List(`n`, One)) | Plus(List(One, `n`)) =>
@@ -301,6 +303,7 @@ object Annotate extends Stage {
           val path = And(st.path)
           val arrays = st.vars.keySet filter isModifiedArray
 
+          // TODO empty else block leads to match error
           val all = for ((a, rhs) <- st.vars if arrays contains a) yield {
             val vars = mod -- arrays
             val (vars_, re) = fresh(vars.toList)
@@ -366,6 +369,13 @@ object Annotate extends Stage {
   *   held as is and will not be simplified
   */
 sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
+
+  // TODO you are an idiot!!!
+  // 1. testvar is not important
+  // 2. [init, current) if inc after assign
+  // 3. (init, current] if inc before <- if it is before the assign is part of the var
+  // resulting in [init_inc, current_inc)
+
 
   /** Provides an expression describing all indices which got changed to place
     * into an invariant
