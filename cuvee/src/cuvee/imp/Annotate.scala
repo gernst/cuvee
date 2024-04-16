@@ -267,14 +267,14 @@ object Annotate extends Stage {
 
             step match {
               case Plus(List(`n`, One)) | Plus(List(One, `n`)) =>
-                Modified(x0, n)
+                Modified(x0, n, Inc)
               case Minus(`n`, One) =>
-                Modified(n, x0)
+                Modified(n, x0, Dec)
               case _ =>
                 cuvee.error("Currently only dense steps are supported.")
             }
           case c @ Lit(_, Sort.int) =>
-            Modified(c, Plus(c, One))
+            Modified(c, c, Cst)
           case _ =>
             cuvee.error("Could not construct Modified from Expr: " + expr)
         }
@@ -361,12 +361,19 @@ object Annotate extends Stage {
   *   lower bound of the modified range
   * @param ub
   *   upper bound of the modified range
+  * @param b
+  *   indicating increment oder decrement of variable
   * @param step
   *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
   *   Can also hold more complicated calculations. However: The expression are *
   *   held as is and will not be simplified
   */
-sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
+sealed case class Modified(
+    lb: Expr,
+    ub: Expr,
+    b: Boundaries,
+    step: Expr = One
+) {
 
   /** Provides an expression describing all indices which got changed to place
     * into an invariant
@@ -376,5 +383,17 @@ sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
     * @return
     *   [lb, ub) describing the modified indices
     */
-  def toExpr(x: Expr): Expr = lb <= x && x < ub
+  def toExpr(x: Expr): Expr = b match {
+    case Inc =>
+      lb <= x && x < ub
+    case Dec =>
+      lb < x && x <= ub
+    case Cst =>
+      lb === x
+  }
 }
+
+sealed trait Boundaries
+case object Inc extends Boundaries
+case object Dec extends Boundaries
+case object Cst extends Boundaries
