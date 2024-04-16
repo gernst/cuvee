@@ -174,7 +174,6 @@ object Annotate extends Stage {
           case _                                     => false
         }
 
-        // TODO: use this in the characterization of M
         def indexEqualities(a: Var, rhs: Expr, re: Map[Var, Var]): Expr =
           rhs match {
             case Store(`a`, key, _) =>
@@ -194,7 +193,6 @@ object Annotate extends Stage {
               True
           }
 
-        // TODO: use this characterization for the update
         def assignmentEqualities(a: Var, rhs: Expr): Expr =
           rhs match {
             case Store(`a`, key, value) =>
@@ -213,8 +211,6 @@ object Annotate extends Stage {
           }
 
         def maybeOldOtherArrays(rhs: Expr): Expr = rhs topdown {
-          // case Select(b: Var, key) =>
-          //   Select(Ite(key in Mb, b, Old(b)), maybeOldOtherArrays(key))
           case Select(b: Var, key) if mod contains b =>
             Select(Old(b), maybeOldOtherArrays(key))
           case expr =>
@@ -234,20 +230,6 @@ object Annotate extends Stage {
           // try to get the single value for i0, just fail otherwise
           val List(x_) = xs.distinct
           x_
-        }
-
-        /** Provides a list of all variables occuring in the test
-          *
-          * @return
-          *   List of Var used in the test
-          */
-        def testVars() = test match {
-          case App(_, args)
-              if args
-                .forall(e => e.isInstanceOf[Var] || e.isInstanceOf[Lit]) =>
-            for (e <- args if e.isInstanceOf[Var]) yield e.asInstanceOf[Var]
-          case _ =>
-            cuvee.error("Currently only simple tests are supported.")
         }
 
         /** Builds an instance of Modified which holds the range of indices
@@ -293,17 +275,15 @@ object Annotate extends Stage {
         }
 
         /* Try to derive an invariant for a given while loop possibly
-         * containing assignments to array.
+         * containing assignments to arrays.
          *
          * In case of an assignment to an array the utilized approach consists
-         * of the collection of all modified indices and an observation, in
-         * which way an array got modified.
+         * of the collection of all modified indices as the first part.
          */
         val indices = for (st <- after) yield {
           val path = And(st.path)
           val arrays = st.vars.keySet filter isModifiedArray
 
-          // TODO empty else block leads to match error
           val all = for ((a, rhs) <- st.vars if arrays contains a) yield {
             val vars = mod -- arrays
             val (vars_, re) = fresh(vars.toList)
@@ -321,6 +301,9 @@ object Annotate extends Stage {
           And(all.toList)
         }
 
+        /* The second part of the invariant is an observation, in which way an
+         * array got modified.
+         */
         val modifications = for (st <- after) yield {
           val path = And(st.path)
           val arrays = st.vars.keySet filter isModifiedArray
