@@ -267,14 +267,14 @@ object Annotate extends Stage {
 
             step match {
               case Plus(List(`n`, One)) | Plus(List(One, `n`)) =>
-                Modified(x0, n, test)
+                Modified(x0, n)
               case Minus(`n`, One) =>
-                Modified(n, x0, test)
+                Modified(n, x0)
               case _ =>
                 cuvee.error("Currently only dense steps are supported.")
             }
           case c @ Lit(_, Sort.int) =>
-            Modified(c, c, Le(c, c))
+            Modified(c, Plus(c, One))
           case _ =>
             cuvee.error("Could not construct Modified from Expr: " + expr)
         }
@@ -361,21 +361,12 @@ object Annotate extends Stage {
   *   lower bound of the modified range
   * @param ub
   *   upper bound of the modified range
-  * @param test
-  *   the test from the loop needed for the boundary expression
   * @param step
   *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
   *   Can also hold more complicated calculations. However: The expression are *
   *   held as is and will not be simplified
   */
-sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
-
-  // TODO you are an idiot!!!
-  // 1. testvar is not important
-  // 2. [init, current) if inc after assign
-  // 3. (init, current] if inc before <- if it is before the assign is part of the var
-  // resulting in [init_inc, current_inc)
-
+sealed case class Modified(lb: Expr, ub: Expr, step: Expr = One) {
 
   /** Provides an expression describing all indices which got changed to place
     * into an invariant
@@ -383,17 +374,7 @@ sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
     * @param x
     *   an arbitrary integer to reason about the boundings in this instance
     * @return
-    *   one expression containing all necessary informations which indices got
-    *   changed
+    *   [lb, ub) describing the modified indices
     */
-  def toExpr(x: Expr): Expr = test match {
-    case Lt(_, _) => lb <= x && x < ub
-    case Le(_, _) => lb <= x && x <= ub
-    case Gt(_, _) => lb < x && x < ub
-    case Ge(_, _) => lb < x && x <= ub
-    case _ =>
-      cuvee.error(
-        "Currently only tests with <=, <, >, >= are supported. Got: " + test
-      )
-  }
+  def toExpr(x: Expr): Expr = lb <= x && x < ub
 }
