@@ -297,35 +297,50 @@ object Annotate extends Stage {
          * of the collection of all modified indices and an observation, in
          * which way an array got modified.
          */
-        val derive = for (st <- after) yield {
+        val indices = for (st <- after) yield {
           val path = And(st.path)
           val arrays = st.vars.keySet filter isModifiedArray
 
           val all = for ((a, rhs) <- st.vars if arrays contains a) yield {
             val vars = mod -- arrays
-            val (vars1, re1) = fresh(vars.toList)
-            val (vars2, re2) = fresh(vars.toList)
+            val (vars_, re) = fresh(vars.toList)
 
             val prem = path && inv && test
-            val prem_ = prem rename re1
-            val eqs = indexEqualities(a, rhs, re1)
-            val phi = Exists(vars1, prem_ && eqs)
-
-            val concl = path && inv && test && assignmentEqualities(a, rhs)
-            val concl_ = concl rename re2
-            val yes = Exists(vars2, concl_)
+            val prem_ = prem rename re
+            val eqs = indexEqualities(a, rhs, re)
+            val phi = Exists(vars_, prem_ && eqs)
 
             // Every index which got not visited should not be modified
             val no = Select(a, x) === Old(Select(a, x))
 
-            (phi ==> yes) && (!phi ==> no)
+            phi // && (!phi ==> no)
           }
-          
-          Forall(List(x), And(all.toList))
+          And(all.toList)
         }
 
+        val modifications = for (st <- after) yield {
+          val path = And(st.path)
+          val arrays = st.vars.keySet filter isModifiedArray
+
+          val all =
+            for ((a, rhs) <- st.vars if arrays contains a) yield {
+              val vars = mod -- arrays
+              val (vars_, re) = fresh(vars.toList)
+
+              val concl = path && inv && test && assignmentEqualities(a, rhs)
+              val concl_ = concl rename re
+              val yes = Exists(vars_, concl_)
+
+              yes
+            }
+          And(all.toList)
+        }
+
+        val derive =
+          Forall(List(x), Or(indices.toList) ==> Or(modifications.toList))
+
         val derive_ = Simplify.simplify(derive, Map(), Set())
-        val inv_ = inv && And(derive_)
+        val inv_ = inv && derive_
 
         val prog_ = While(test, body_, term, inv_, sum, frames)
 
