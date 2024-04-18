@@ -298,7 +298,7 @@ object Annotate extends Stage {
 
             phi && (!phi ==> no)
           }
-          And(all.toList)
+          Or(all.toList)
         }
 
         /* The second part of the invariant is an observation, in which way an
@@ -319,7 +319,7 @@ object Annotate extends Stage {
 
               yes
             }
-          And(all.toList)
+          Or(all.toList)
         }
 
         val derive =

@@ -85,6 +85,25 @@ procedure copy_absolute(blength: int, b: [int]int)
 	while(i < blength)
     decreases blength - i;
     invariant 0 <= i;
+    invariant forall x: int :: 0 <= x && x < i ==> (
+      (exists t: int :: 
+          0 <= t && t < i && b[t] >= 0 && x == t
+        &&
+      (!exists t: int ::
+          0 <= t && t < i && b[t] >= 0 && x == t ==> a[x] == old(a[x])))
+        ||
+      (exists f: int ::
+          0 <= f && f < i && !(b[f] >= 0) && x == f
+        &&
+      (!exists f: int :: 
+          0 <= f && f < i && !(b[f] >= 0) && x == f ==> a[x] == old(a[x])))
+       ==>
+      exists tt: int :: 
+          0 <= tt && tt < i && b[tt] >= 0 && x == tt && a[x] == b[tt]
+        ||
+      exists ff: int ::
+          0 <= ff && ff < i && !(b[ff] >= 0) && x == ff && a[x] == 0 - b[ff]
+    );
 	{
 		if(b[i] >= 0)
 		{
