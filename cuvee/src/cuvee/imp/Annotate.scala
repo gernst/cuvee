@@ -276,15 +276,17 @@ object Annotate extends Stage {
 
         /* Try to derive an invariant for a given while loop possibly
          * containing assignments to arrays.
-         *
-         * In case of an assignment to an array the utilized approach consists
-         * of the collection of all modified indices as the first part.
          */
-        val indices = for (st <- after) yield {
-          val path = And(st.path)
-          val arrays = st.vars.keySet filter isModifiedArray
+        val all = for (a <- mod if isModifiedArray(a)) yield {
+          /*
+           * In case of an assignment to an array the utilized approach consists
+           * of the collection of all modified indices as the first part.
+           */
+          val indices = for (st <- after) yield {
+            val path = And(st.path)
+            val arrays = st.vars.keySet filter isModifiedArray
+            val rhs = st.vars.get(a).orNull
 
-          val all = for ((a, rhs) <- st.vars if arrays contains a) yield {
             val vars = mod -- arrays
             val (vars_, re) = fresh(vars.toList)
 
@@ -293,37 +295,33 @@ object Annotate extends Stage {
             val eqs = indexEqualities(a, rhs, re)
             val phi = Exists(vars_, prem_ && eqs)
 
-            // Every index which got not visited should not be modified
-            val no = Select(a, x) === Old(Select(a, x))
-
-            phi && (!phi ==> no)
+            phi
           }
-          Or(all.toList)
+
+          /* The second part of the invariant is an observation, in which way an
+           * array got modified.
+           */
+          val modifications = for (st <- after) yield {
+            val path = And(st.path)
+            val arrays = st.vars.keySet filter isModifiedArray
+            val rhs = st.vars.get(a).orNull
+
+            val vars = mod -- arrays
+            val (vars_, re) = fresh(vars.toList)
+
+            val concl = path && inv && test && assignmentEqualities(a, rhs)
+            val concl_ = concl rename re
+            val yes = Exists(vars_, concl_)
+
+            yes
+          }
+          // Every index which got not visited should not be modified
+          val no = Select(a, x) === Old(Select(a, x))
+
+          Ite(Or(indices), Or(modifications), no)
         }
 
-        /* The second part of the invariant is an observation, in which way an
-         * array got modified.
-         */
-        val modifications = for (st <- after) yield {
-          val path = And(st.path)
-          val arrays = st.vars.keySet filter isModifiedArray
-
-          val all =
-            for ((a, rhs) <- st.vars if arrays contains a) yield {
-              val vars = mod -- arrays
-              val (vars_, re) = fresh(vars.toList)
-
-              val concl = path && inv && test && assignmentEqualities(a, rhs)
-              val concl_ = concl rename re
-              val yes = Exists(vars_, concl_)
-
-              yes
-            }
-          Or(all.toList)
-        }
-
-        val derive =
-          Forall(List(x), Or(indices.toList) ==> Or(modifications.toList))
+        val derive = Forall(List(x), And(all.toList))
 
         val derive_ = Simplify.simplify(derive, Map(), Set())
         val inv_ = inv && derive_
