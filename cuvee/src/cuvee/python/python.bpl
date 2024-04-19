@@ -14,7 +14,7 @@ axiom
     pyIsTrue(pyNone) 
       == false;
 axiom forall b: bool ::
-    pyIsTrue(pyBool(b)) 
+    pyIsTrue(pyBool(b))
       == b;
 axiom forall i: int ::
     pyIsTrue(pyInt(i)) 

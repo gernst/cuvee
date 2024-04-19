@@ -309,6 +309,12 @@ class VarSet(vars: Set[Var]) {
 }
 
 case class Lit(any: Any, typ: Type) extends Expr {
+  typ match {
+    case Sort.int =>
+      require(any.isInstanceOf[BigInt], "only BigInts are allowed in literals: " + this)
+    case _ =>
+  }
+
   def funs = Set()
   def free = Set()
   def rename(re: Map[Var, Var]) = this

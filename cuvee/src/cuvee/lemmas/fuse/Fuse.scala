@@ -117,25 +117,33 @@ object Fuse {
     val args = xs updated (pos, gbody_)
     val body = App(f, args)
     val body_ = Rewrite.app(body, f, args, rules_)
+
+    // Note: simplify again, in case we actually have rewritten f over g,
+    // for example size:0:insert on binary trees produces
+    // gbody:  node(x, leaf, leaf)
+    // body:  size(node(x, leaf, leaf))
+    // body_: ((0 + 0) + 1)
+    val body__ = Simplify.simplify(body_, rules, constrs)
+
     // println("gbody:  " + gbody)
     // println("gbody_:  " + gbody_)
     // println("body:  " + body)
-    // println("body_: " + body_)
+    // println("body__: " + body__)
     // println("args:  " + args)
     // println()
 
-    if (isFused(f, g, body_)) {
+    if (isFused(f, g, body__)) {
       val args = xs patch (pos, gargs, 1)
       val guard = gguard
-      // if (debug) {
-      //   println("gbody:  " + gbody)
-      //   println("body:  " + body)
-      //   println("body_: " + body_)
-      //   println("args:  " + args)
-      //   println("guard: " + guard)
-      //   println()
-      // }
-      List(C(args, guard, body_))
+      if (debug) {
+        println("gbody:  " + gbody)
+        println("body:  " + body)
+        println("body__: " + body__)
+        println("args:  " + args)
+        println("guard: " + guard)
+        println()
+      }
+      List(C(args, guard, body__))
     } else {
       val fpats = fcases flatMap (_.args)
       val critical = gargs.free & fpats.free

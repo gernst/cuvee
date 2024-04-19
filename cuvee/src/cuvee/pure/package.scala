@@ -16,6 +16,6 @@ package object pure {
   def bool(b: Boolean) =
     if(b) True else False
 
-  val Zero = Lit(0, Sort.int)
-  val One = Lit(1, Sort.int)
+  val Zero = Lit(BigInt(0), Sort.int)
+  val One = Lit(BigInt(1), Sort.int)
 }

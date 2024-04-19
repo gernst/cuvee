@@ -9,6 +9,7 @@ import cuvee.imp._
 import cuvee.prove._
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Lemma
+import cuvee.smtlib.Cmd
 
 class Grammar(parser: cuvee.boogie.Parser) {
   import easyparse.implicits._
@@ -296,11 +297,14 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def constr(implicit params: List[Param], res: Type, ctx: Map[Name, Param]) =
     P(make_constr(name ~ ret(params) ~ sels ~ ret(res)))
 
-  def constrs(lhs: (Name, List[Param])) = {
+  def constrs(declare: Boolean)(lhs: (Name, List[Param])) = {
     val ctx: Map[Name, Param] = Map()
     val (dt, params) = lhs
-    val arity = params.length
-    state.con(dt, arity)
+    if (declare) {
+      val arity = params.length
+      state.con(dt, arity)
+    }
+
     val res = state.sort(dt, params)
     val inner = constr(params, res, ctx ++ params.asContext)
     inner ~* "|"
@@ -405,11 +409,29 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(true)))
 
+  def datadef_(kw: String, declare: Boolean) =
+    (kw ?~ name ?~ gens ?~ "=") ~@ constrs(declare)
+
   val datadef =
-    P(make_datatype(("data" ~ name ~ gens ~ "=") ~@ constrs ~ ";"))
+    P(make_datatype(datadef_("data", declare = true) ~ ";"))
+
+  def datadefs_(sorts: List[(Name, List[Param])]) = {
+    for ((dt, params) <- sorts) {
+      val arity = params.length
+      state.con(dt, arity)
+    }
+
+    P(datadef_("where", declare = false).*)
+  }
+
+  val datadefs =
+    P(make_datatypes("data" ~ ((name ~ gens) ~+ ",") ~>@ datadefs_ ~ ";"))
 
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(sortdef | datadef | constdef | fundef | procdef | axiom | lemma | easyparse.Parser.Fail())
+    P(
+      sortdef | datadef | datadefs | constdef | fundef | procdef | axiom | lemma | easyparse.Parser
+        .Fail()
+    )
 
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(cmd.*)

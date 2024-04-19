@@ -43,8 +43,22 @@ object Simplify {
       if (expr != res_)
         simplify(res_, rules, constrs)
       else
-        res_
+        builtin(res_, rules, constrs)
     // Rewrite.rewrite(expr, rules, constrs)
+
+    case _ =>
+      builtin(expr, rules, constrs)
+  }
+
+  def builtin(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr.typ match {
+    case Sort.int =>
+      val poly = Poly(expr)
+      val expr_ = poly.compact.toExpr
+
+      if (expr != expr)
+        simplify(expr_, rules, constrs)
+      else
+        expr_
 
     case _ =>
       expr

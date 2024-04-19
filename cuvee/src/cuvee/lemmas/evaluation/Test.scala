@@ -46,6 +46,7 @@ object reverse
 object contains extends Run(Test, "examples/smtlib/contains_only.smt2")
 object tree2 extends Run(Test, "-no:shortcut", "examples/boogie/tree2.bpl")
 object tree_update extends Run(Test, "examples/boogie/tree-update.bpl")
+object mergesort extends Run(Test, "examples/boogie/mergesort.bpl")
 object debug extends Run(Test, "examples/boogie/debug.bpl")
 
 object compiler extends Run(Test, "examples/boogie/compiler.bpl")
@@ -62,7 +63,7 @@ object bool extends Run(Test, "evaluation/lemmas/bool.bpl")
 object nat extends Run(Test, "evaluation/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "evaluation/lemmas/list.bpl")
 object tree extends Run(Test, "evaluation/lemmas/tree.bpl")
-object prop extends Run(Test, "evaluation/lemmas/tree/prop.bpl")
+object prop extends Run(Test, "-use:shortcut", "evaluation/lemmas/tree/prop.bpl")
 
 object runlength extends Run(Test, "examples/lemmas/runlength.bpl")
 object runlength_other extends Run(Test, "examples/lemmas/runlength_other.bpl")

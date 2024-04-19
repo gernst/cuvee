@@ -220,6 +220,18 @@ class Parser(val state: State = State.default) {
       DeclareDatatypes(List((name, arity)), List(dt))
   }
 
+  def make_datatypes: (List[((Name, List[Param]), List[(Fun, List[Fun])])] => Cmd) = { case descr =>
+    val stuff = for (((name, params), constrs) <- descr) yield {
+      val arity = params.length
+      val dt = Datatype(params, constrs)
+      state.datatype(name, dt)
+      (name, arity) -> dt
+    }
+
+    val (arities, dts) = stuff.unzip
+    DeclareDatatypes(arities, dts)
+  }
+
   val make_script: (List[Cmd] => (List[Cmd], State)) = { case cmds =>
     (cmds, state)
   }
