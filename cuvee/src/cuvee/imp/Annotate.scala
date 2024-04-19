@@ -164,15 +164,8 @@ object Annotate extends Stage {
         // HERE: after are all states reachable from before,
         //       such that before -- body -> after is exactly one arbitrary loop iteration
 
-        // TODO: compute some new invariants here
-
         // Arbitrary integer variable to reason about all of them
         val x = Expr.fresh(Var("x", Sort.int))
-
-        def isModifiedArray(a: Var) = a.typ match {
-          case Sort(Con.array, _) if mod.contains(a) => true
-          case _                                     => false
-        }
 
         def indexEqualities(a: Var, rhs: Expr, re: Map[Var, Var]): Expr =
           rhs match {
@@ -274,28 +267,28 @@ object Annotate extends Stage {
           (xs_, re)
         }
 
-        /* Try to derive an invariant for a given while loop possibly
-         * containing assignments to arrays.
+        val (modArray, modOther) = mod.toList partition {
+          case a @ Var(_, Sort(Con.array, _)) => true
+          case _                              => false
+        }
+
+        /* Try to derive an invariant for a given while loop if it contains
+         * assignments to arrays.
          */
-        val all = for (a <- mod if isModifiedArray(a)) yield {
-          /*
-           * In case of an assignment to an array the utilized approach consists
+        val all = for (a <- modArray) yield {
+          /* In case of an assignment to an array the utilized approach consists
            * of the collection of all modified indices as the first part.
            */
           val indices = for (st <- after) yield {
             val path = And(st.path)
-            val arrays = st.vars.keySet filter isModifiedArray
-            val rhs = st.vars.get(a).orNull
-
-            val vars = mod -- arrays
-            val (vars_, re) = fresh(vars.toList)
+            val rhs = st.vars(a)
+            val (vars, re) = fresh(modOther)
 
             val prem = path && inv && test
             val prem_ = prem rename re
             val eqs = indexEqualities(a, rhs, re)
-            val phi = Exists(vars_, prem_ && eqs)
 
-            phi
+            Exists(vars, prem_ && eqs)
           }
 
           /* The second part of the invariant is an observation, in which way an
@@ -303,17 +296,13 @@ object Annotate extends Stage {
            */
           val modifications = for (st <- after) yield {
             val path = And(st.path)
-            val arrays = st.vars.keySet filter isModifiedArray
-            val rhs = st.vars.get(a).orNull
-
-            val vars = mod -- arrays
-            val (vars_, re) = fresh(vars.toList)
+            val rhs = st.vars(a)
+            val (vars, re) = fresh(modOther)
 
             val concl = path && inv && test && assignmentEqualities(a, rhs)
             val concl_ = concl rename re
-            val yes = Exists(vars_, concl_)
 
-            yes
+            Exists(vars, concl_)
           }
           // Every index which got not visited should not be modified
           val no = Select(a, x) === Old(Select(a, x))
@@ -343,7 +332,7 @@ object Annotate extends Stage {
   * @param ub
   *   upper bound of the modified range
   * @param b
-  *   indicating increment oder decrement of variable
+  *   indicating increment oder decrement of variable or constant
   * @param step
   *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
   *   Can also hold more complicated calculations. However: The expression are *
@@ -355,14 +344,13 @@ sealed case class Modified(
     b: Boundaries,
     step: Expr = One
 ) {
-
   /** Provides an expression describing all indices which got changed to place
     * into an invariant
     *
     * @param x
     *   an arbitrary integer to reason about the boundings in this instance
     * @return
-    *   [lb, ub) describing the modified indices
+    *   interval describing the modified indices
     */
   def toExpr(x: Expr): Expr = b match {
     case Inc =>
