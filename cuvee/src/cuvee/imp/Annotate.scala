@@ -164,17 +164,9 @@ object Annotate extends Stage {
         // HERE: after are all states reachable from before,
         //       such that before -- body -> after is exactly one arbitrary loop iteration
 
-        // TODO: compute some new invariants here
-
         // Arbitrary integer variable to reason about all of them
         val x = Expr.fresh(Var("x", Sort.int))
 
-        def isModifiedArray(a: Var) = a.typ match {
-          case Sort(Con.array, _) if mod.contains(a) => true
-          case _                                     => false
-        }
-
-        // TODO: use this in the characterization of M
         def indexEqualities(a: Var, rhs: Expr, re: Map[Var, Var]): Expr =
           rhs match {
             case Store(`a`, key, _) =>
@@ -189,9 +181,11 @@ object Annotate extends Stage {
               val here = m.toExpr(x) && (x === key_)
               val there = indexEqualities(a, rhs_, re)
               here || there
+
+            case `a` =>
+              True
           }
 
-        // TODO: use this characterization for the update
         def assignmentEqualities(a: Var, rhs: Expr): Expr =
           rhs match {
             case Store(`a`, key, value) =>
@@ -204,11 +198,12 @@ object Annotate extends Stage {
               val here = (x === key) && (Select(a, x) === value_)
               val there = (x !== key) && assignmentEqualities(a, rhs_)
               here || there
+
+            case `a` =>
+              True
           }
 
         def maybeOldOtherArrays(rhs: Expr): Expr = rhs topdown {
-          // case Select(b: Var, key) =>
-          //   Select(Ite(key in Mb, b, Old(b)), maybeOldOtherArrays(key))
           case Select(b: Var, key) if mod contains b =>
             Select(Old(b), maybeOldOtherArrays(key))
           case expr =>
@@ -230,20 +225,6 @@ object Annotate extends Stage {
           x_
         }
 
-        /** Provides a list of all variables occuring in the test
-          *
-          * @return
-          *   List of Var used in the test
-          */
-        def testVars() = test match {
-          case App(_, args)
-              if args
-                .forall(e => e.isInstanceOf[Var] || e.isInstanceOf[Lit]) =>
-            for (e <- args if e.isInstanceOf[Var]) yield e.asInstanceOf[Var]
-          case _ =>
-            cuvee.error("Currently only simple tests are supported.")
-        }
-
         /** Builds an instance of Modified which holds the range of indices
           * which got edited until an arbitrary iteration of the analyzed loop
           *
@@ -256,23 +237,19 @@ object Annotate extends Stage {
           case n @ Var(_, Sort.int) =>
             val x0 = init(n)
 
-            val candidates = mod.filter(v => v.typ == Sort.int)
-            val testVars_ = testVars.toSet
-            val List(dec) = candidates.intersect(testVars_).toList.distinct
-
-            val stepxs = after map { st => st.vars(dec) }
-            val List(step) = stepxs.distinct
+            val stepxs = after map { st => st.vars(n) }
+            val List(step) = stepxs.filter(_ != n).distinct
 
             step match {
               case Plus(List(`n`, One)) | Plus(List(One, `n`)) =>
-                Modified(x0, n, test)
+                Modified(x0, n, Inc)
               case Minus(`n`, One) =>
-                Modified(n, x0, test)
+                Modified(n, x0, Dec)
               case _ =>
                 cuvee.error("Currently only dense steps are supported.")
             }
           case c @ Lit(_, Sort.int) =>
-            Modified(c, c, Le(c, c))
+            Modified(c, c, Cst)
           case _ =>
             cuvee.error("Could not construct Modified from Expr: " + expr)
         }
@@ -290,42 +267,53 @@ object Annotate extends Stage {
           (xs_, re)
         }
 
-        /* Try to derive an invariant for a given while loop possibly
-         * containing assignments to array.
-         *
-         * In case of an assignment to an array the utilized approach consists
-         * of the collection of all modified indices and an observation, in
-         * which way an array got modified.
-         */
-        val derive = for (st <- after) yield {
-          val path = And(st.path)
-          val arrays = st.vars.keySet filter isModifiedArray
-
-          val all = for ((a, rhs) <- st.vars if arrays contains a) yield {
-            val vars = mod -- arrays
-            val (vars1, re1) = fresh(vars.toList)
-            val (vars2, re2) = fresh(vars.toList)
-
-            val prem = path && inv && test
-            val prem_ = prem rename re1
-            val eqs = indexEqualities(a, rhs, re1)
-            val phi = Exists(vars1, prem_ && eqs)
-
-            val concl = path && inv && test && assignmentEqualities(a, rhs)
-            val concl_ = concl rename re2
-            val yes = Exists(vars2, concl_)
-
-            // Every index which got not visited should not be modified
-            val no = Select(a, x) === Old(Select(a, x))
-
-            (phi ==> yes) && (!phi ==> no)
-          }
-          
-          Forall(List(x), And(all.toList))
+        val (modArray, modOther) = mod.toList partition {
+          case a @ Var(_, Sort(Con.array, _)) => true
+          case _                              => false
         }
 
+        /* Try to derive an invariant for a given while loop if it contains
+         * assignments to arrays.
+         */
+        val all = for (a <- modArray) yield {
+          /* In case of an assignment to an array the utilized approach consists
+           * of the collection of all modified indices as the first part.
+           */
+          val indices = for (st <- after) yield {
+            val path = And(st.path)
+            val rhs = st.vars(a)
+            val (vars, re) = fresh(modOther)
+
+            val prem = path && inv && test
+            val prem_ = prem rename re
+            val eqs = indexEqualities(a, rhs, re)
+
+            Exists(vars, prem_ && eqs)
+          }
+
+          /* The second part of the invariant is an observation, in which way an
+           * array got modified.
+           */
+          val modifications = for (st <- after) yield {
+            val path = And(st.path)
+            val rhs = st.vars(a)
+            val (vars, re) = fresh(modOther)
+
+            val concl = path && inv && test && assignmentEqualities(a, rhs)
+            val concl_ = concl rename re
+
+            Exists(vars, concl_)
+          }
+          // Every index which got not visited should not be modified
+          val no = Select(a, x) === Old(Select(a, x))
+
+          Ite(Or(indices), Or(modifications), no)
+        }
+
+        val derive = Forall(List(x), And(all.toList))
+
         val derive_ = Simplify.simplify(derive, Map(), Set())
-        val inv_ = inv && And(derive_)
+        val inv_ = inv && derive_
 
         val prog_ = While(test, body_, term, inv_, sum, frames)
 
@@ -343,32 +331,38 @@ object Annotate extends Stage {
   *   lower bound of the modified range
   * @param ub
   *   upper bound of the modified range
-  * @param test
-  *   the test from the loop needed for the boundary expression
+  * @param b
+  *   indicating increment oder decrement of variable or constant
   * @param step
   *   in which the indices change e.g. One for i := i + 1 and Two for i := i + 2
   *   Can also hold more complicated calculations. However: The expression are *
   *   held as is and will not be simplified
   */
-sealed case class Modified(lb: Expr, ub: Expr, test: Expr, step: Expr = One) {
-
+sealed case class Modified(
+    lb: Expr,
+    ub: Expr,
+    b: Boundaries,
+    step: Expr = One
+) {
   /** Provides an expression describing all indices which got changed to place
     * into an invariant
     *
     * @param x
     *   an arbitrary integer to reason about the boundings in this instance
     * @return
-    *   one expression containing all necessary informations which indices got
-    *   changed
+    *   interval describing the modified indices
     */
-  def toExpr(x: Expr): Expr = test match {
-    case Lt(_, _) => lb <= x && x < ub
-    case Le(_, _) => lb <= x && x <= ub
-    case Gt(_, _) => lb < x && x < ub
-    case Ge(_, _) => lb < x && x <= ub
-    case _ =>
-      cuvee.error(
-        "Currently only tests with <=, <, >, >= are supported. Got: " + test
-      )
+  def toExpr(x: Expr): Expr = b match {
+    case Inc =>
+      lb <= x && x < ub
+    case Dec =>
+      lb < x && x <= ub
+    case Cst =>
+      lb === x
   }
 }
+
+sealed trait Boundaries
+case object Inc extends Boundaries
+case object Dec extends Boundaries
+case object Cst extends Boundaries
