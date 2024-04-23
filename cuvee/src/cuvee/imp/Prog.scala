@@ -152,6 +152,14 @@ object Assign extends ((List[Var], List[Expr]) => Assign) {
       flat(a, Store(a, i, r))
   }
 
+  def flats: ((List[Expr], List[Expr]) => Assign) = { case (lhs, rhs) =>
+    val asgs =
+      for ((l, r) <- lhs zip rhs)
+        yield flat(l, r)
+    val (lhs_, rhs_) = asgs.unzip
+    Assign(lhs_, rhs_)
+  }
+
   val flatten = (xs: List[Expr], rhs: List[Expr]) => {
     require(
       xs.length == rhs.length,

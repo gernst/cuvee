@@ -196,9 +196,13 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(While(head ~ block))
   }
 
-  def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
+  // def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+  //   P(Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
+
+
+  def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Assign.flats((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
 
   def local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";"))

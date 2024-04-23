@@ -14,8 +14,8 @@ var alloc: [ref][field]bool;
 procedure __init__(self: ref, field: field)
     modifies heap, alloc;
 {
-    // heap[self][field]  := pyNone;
-    // alloc[self][field] := true;
-    heap  := heap [self := heap[self] [field := pyNone]];
-    alloc := alloc[self := alloc[self][field := true]];
+    heap[self][field]  := pyNone;
+    alloc[self][field] := true;
+    // heap  := heap [self := heap[self] [field := pyNone]];
+    // alloc := alloc[self := alloc[self][field := true]];
 }
