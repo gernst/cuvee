@@ -14,6 +14,7 @@ object State {
       Map.empty,
       Map.empty,
       Map.empty,
+      Map.empty,
       Map.empty
     )
 
@@ -84,6 +85,7 @@ class State(
     var cons: Map[Name, Con],
     var condefs: Map[Name, (List[Param], Type)],
     var datatypes: Map[Name, Datatype],
+    var vars: Map[Name, Var],
     var funs: Map[(Name, Int), Fun],
     var fundefs: Map[(Name, Int), (List[Var], Expr)],
     var procs: Map[Name, Proc],
@@ -100,12 +102,13 @@ class State(
       cons: Map[Name, Con] = cons,
       condefs: Map[Name, (List[Param], Type)] = condefs,
       datatypes: Map[Name, Datatype] = datatypes,
+      vars: Map[Name, Var] = vars,
       funs: Map[(Name, Int), Fun] = funs,
       fundefs: Map[(Name, Int), (List[Var], Expr)] = fundefs,
       procs: Map[Name, Proc] = procs,
       procdefs: Map[Name, (List[Var], List[Var], Prog)] = procdefs
   ) = {
-    new State(cons, condefs, datatypes, funs, fundefs, procs, procdefs)
+    new State(cons, condefs, datatypes, vars, funs, fundefs, procs, procdefs)
   }
 
   def param(name: Name): Param = {
@@ -193,6 +196,13 @@ class State(
     )
 
     Sort(con, args)
+  }
+
+  def global(name: Name, typ: Type): Var = {
+    require(!(vars contains name), "global variable already declared: " + name)
+    val x = Var(name, typ)
+    vars = vars + (name -> x)
+    x
   }
 
   def typ(name: Name, args: List[Type] = Nil): Type = {

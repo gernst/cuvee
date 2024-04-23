@@ -1,4 +1,4 @@
-from help_methods import requires, ensures, out
+from cuvee import requires, ensures, out
 
 
 def add(x, y):

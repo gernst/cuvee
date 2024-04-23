@@ -73,7 +73,7 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     // Work in progress - print lemmas in cuvee format
-    case Lemma(expr, tactic, _) if false =>
+    case Lemma(expr, tactic, _) if true =>
       // TODO: hier sowas wie List("lemma " + formula(expr))
       // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
       //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
@@ -132,6 +132,8 @@ lemma forall x: int :: // hier Zeilenumbruch
       )
     case DefineSort(name, params, body) =>
       List("type " + name + " = " + btype(body) + ";")
+    case DeclareVar(name, typ) =>
+      List("var " + name + ": " + btype(typ) + ";")
     case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
       List("const " + name + ": " + btype(res) + ";")
     case x @ DeclareFun(name, params, _, res) =>

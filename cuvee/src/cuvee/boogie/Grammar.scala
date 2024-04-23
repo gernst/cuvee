@@ -63,6 +63,9 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def var_(implicit scope: Map[Name, Var]) =
     P(make_var(scope)(name))
 
+  def vars(implicit scope: Map[Name, Var]) =
+    P(var_ ~* ",")
+
   def formal(implicit ctx: Map[Name, Param]) =
     P(Var(name ~ ":" ~ typ))
 
@@ -185,7 +188,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(assert("invariant") | assume_final_to_old("summary"))
 
   def proc_spec(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(assert("requires") | assume("ensures") | havoc("modifies"))
+    P(assert("requires") | assume("ensures"))
 
   def while_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
     val head =
@@ -217,23 +220,27 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(Block("{" ~ block_))
 
   def scoped_body(implicit ctx: Map[Name, Param]) =
-    (sig: (List[Var], List[Var])) => {
+    (sig: (List[Var] ~ List[Var] ~ List[Var])) => {
       // import toplevel.scope
 
-      val (in, out) = sig
-      val bound = in ++ out
+      val (in ~ out ~ mod) = sig
+      val bound = in ++ out ++ mod
       implicit val scope = toplevel.scope ++ bound.asScope
 
       val body = None(";") | some(block)
 
-      maybe_merge(proc_spec.*) ~ body
+      maybe_merge(mod)(proc_spec.*) ~ body
     }
 
   def maybe_returns(implicit ctx: Map[Name, Param]) =
     ("returns" ~ parens(formals)) | ret(Nil)
 
+  def maybe_modifies(implicit scope: Map[Name, Var]) =
+    ("modifies" ~ vars ~ ";") | ret(Nil)
+
   def proc(implicit ctx: Map[Name, Param]) = {
-    P(((parens(formals) ~ maybe_returns) ~@ scoped_body))
+    implicit val scope = state.vars
+    P(((parens(formals) ~ maybe_returns ~ maybe_modifies) ~@ scoped_body))
   }
 
   def rhs(name: Name, params: List[Param])(implicit ctx: Map[Name, Param]) =
@@ -281,6 +288,11 @@ class Grammar(parser: cuvee.boogie.Parser) {
       implicit val ctx = Map(params.asContext: _*)
       proc(ctx)
     }
+
+  val vardecl = {
+    import toplevel.ctx
+    P(declare_var("var" ~ name ~ ":" ~ typ ~ ";"))
+  }
 
   val procdef =
     P(define_proc("procedure" ~ name ~ gens ~@ gen_proc))
@@ -429,7 +441,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(
-      sortdef | datadef | datadefs | constdef | fundef | procdef | axiom | lemma | easyparse.Parser
+      vardecl | sortdef | datadef | datadefs | constdef | fundef | procdef | axiom | lemma | easyparse.Parser
         .Fail()
     )
 

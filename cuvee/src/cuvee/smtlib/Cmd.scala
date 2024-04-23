@@ -97,6 +97,8 @@ case class DeclareSort(name: Name, arity: Int) extends Decl
 
 case class DefineSort(name: Name, params: List[Param], body: Type) extends Decl
 
+case class DeclareVar(name: Name, typ: Type) extends Decl
+
 case class DeclareFun(
     name: Name,
     params: List[Param],

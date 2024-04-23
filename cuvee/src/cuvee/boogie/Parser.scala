@@ -19,6 +19,7 @@ import cuvee.smtlib.Lemma
 import cuvee.smtlib.DeclareDatatypes
 import cuvee.smtlib.DeclareProc
 import cuvee.smtlib.DefineProc
+import cuvee.smtlib.DeclareVar
 
 class Parser(val state: State = State.default) {
   object toplevel {
@@ -141,6 +142,8 @@ class Parser(val state: State = State.default) {
   def make_var(scope: Map[Name, Var]): (Name => Var) = {
     case name if scope contains name =>
       scope(name)
+    case name if state.vars contains name =>
+      state.vars(name)
     case name =>
       error(s"unknown variable: ${name.toString}")
   }
@@ -173,6 +176,12 @@ class Parser(val state: State = State.default) {
       DefineSort(name, params, typ)
   }
 
+  val declare_var: ((Name ~ Type) => Cmd) = {
+    case (name ~ typ) =>
+      state global (name, typ)
+      DeclareVar(name, typ)
+  }
+
   val define_fun: ((Name ~ List[Param] ~ (List[Var] ~ Type ~ Option[Expr])) => Cmd) = {
     case (name ~ params ~ (args ~ typ ~ None)) =>
       // state.fun(name, Nil, args.types, typ)
@@ -185,12 +194,12 @@ class Parser(val state: State = State.default) {
   }
 
   val define_proc
-      : ((Name ~ List[Param], ((List[Var], List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
-    case (name ~ params, ((in, out), (spec, None))) =>
+      : ((Name ~ List[Param], ((List[Var] ~ List[Var] ~ List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
+    case (name ~ params, (in ~ out ~ mod, (spec, None))) =>
       state.proc(name, Nil, in, out, spec)
       DeclareProc(name, Nil, in, out, spec)
 
-    case (name ~ params, ((in, out), (spec, Some(body)))) =>
+    case (name ~ params, (in ~ out ~ mod, (spec, Some(body)))) =>
       state.proc(name, Nil, in, out, spec)
       state.procdef(name, in, out, body)
       DefineProc(name, Nil, in, out, spec, body)
@@ -243,9 +252,16 @@ class Parser(val state: State = State.default) {
     Spec(xs, pre, post)
   }
 
-  val maybe_merge = (specs: List[Spec]) => {
-    if (specs.isEmpty) None
-    else Some(merge(specs))
+  def maybe_merge(mod: List[Var]) = (specs: List[Spec]) => {
+    if (specs.isEmpty) {
+      None
+    } else {
+      val xs = specs flatMap (_.xs)
+      val pre = And(specs map (_.pre))
+      val post = And(specs map (_.post))
+      val spec = Spec(mod ++ xs, pre, post)
+      Some(spec)
+    }
   }
 
   val final_to_old: (Expr => Expr) =
