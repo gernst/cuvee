@@ -181,9 +181,6 @@ object Annotate extends Stage {
               val here = m.toExpr(x) && (x === key_)
               val there = indexEqualities(a, rhs_, re)
               here || there
-
-            case `a` =>
-              True
           }
 
         def assignmentEqualities(a: Var, rhs: Expr): Expr =
@@ -198,9 +195,6 @@ object Annotate extends Stage {
               val here = (x === key) && (Select(a, x) === value_)
               val there = (x !== key) && assignmentEqualities(a, rhs_)
               here || there
-
-            case `a` =>
-              True
           }
 
         def maybeOldOtherArrays(rhs: Expr): Expr = rhs topdown {
@@ -279,7 +273,7 @@ object Annotate extends Stage {
           /* In case of an assignment to an array the utilized approach consists
            * of the collection of all modified indices as the first part.
            */
-          val indices = for (st <- after) yield {
+          val indices = for (st <- after if st.vars(a) != a) yield {
             val path = And(st.path)
             val rhs = st.vars(a)
             val (vars, re) = fresh(modOther)
@@ -294,7 +288,7 @@ object Annotate extends Stage {
           /* The second part of the invariant is an observation, in which way an
            * array got modified.
            */
-          val modifications = for (st <- after) yield {
+          val modifications = for (st <- after if st.vars(a) != a) yield {
             val path = And(st.path)
             val rhs = st.vars(a)
             val (vars, re) = fresh(modOther)
