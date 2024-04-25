@@ -114,6 +114,9 @@ class Config {
     ) {
       crosscheckProver = true
     },
+    option("-prove:simple", "simple recursive prover") {
+      prove = "simple"
+    },
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
     },
@@ -234,6 +237,22 @@ object Config {
       case "auto" =>
         val solver = Solver.z3()
         val prover = new PositiveProver(solver)
+        if (config.induct)
+          error("induction not supported by auto prover")
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
+
+      case "simple" =>
+        val solver = Solver.z3()
+        val prover = new SimpleProver(solver)
         if (config.induct)
           error("induction not supported by auto prover")
         sink = new Incremental(

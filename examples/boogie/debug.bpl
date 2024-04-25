@@ -1,28 +1,28 @@
-type elem;
-data nat = zero | succ(pred: nat);
-data list<a> = nil | cons(head: a, tail: list<a>);
-
-function add(m: nat, n: nat): nat;
-function length(xs: list<elem>): nat;
-function reverse(xs: list<elem>): list<elem>;
-function append(xs: list<elem>, ys: list<elem>): list<elem>;
-
-lemma forall m: nat, n: nat ::
-  add(m, succ(n)) == succ(add(m, n));
-
-axiom forall n: nat ::
-  add(zero, n) == n;
-axiom forall m: nat, n: nat ::
-  add(succ(m), n) == succ(add(m, n));
-
-axiom
-  length(nil) == zero;
-axiom forall x: elem, xs: list<elem> ::
-  length(cons(x,xs)) == succ(length(xs));
-
-axiom
-  reverse(nil) == nil;
-axiom forall y: elem, ys: list<elem> ::
-  reverse(cons(y, ys)) == append(reverse(ys), cons(y, nil));
-
-
+procedure copy_nonzero(b: [int]int, blength: int)
+  returns (a: [int]int, alength: int)
+  requires 0 <= blength
+    && true;
+  ensures true
+    && (forall k: int ::
+          (  0 <= blength
+            && 0 <= k
+            && k < alength
+             ==> !a[k] == 0));
+{
+  var i: int := 0;
+  alength := 0;
+  while(i < blength)
+    decreases blength - i;
+    invariant 0 <= i
+      && 0 <= alength && alength <= i && i <= blength
+      && (forall x₄: int ::
+            (0 <= x₄ && x₄ < alength)
+               ==> (a[x₄] != 0 && (exists i₈: int :: true)));
+  {
+    if(!b[i] == 0) {
+      a := a[alength := b[i]];
+      alength := alength + 1;
+    }
+    i := i + 1;
+  }
+}

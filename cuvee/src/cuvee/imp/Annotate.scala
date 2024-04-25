@@ -298,15 +298,22 @@ object Annotate extends Stage {
 
             Exists(vars, concl_)
           }
+
           // Every index which got not visited should not be modified
+          val p = Or(indices)
+          val yes = Or(modifications)
           val no = Select(a, x) === Old(Select(a, x))
 
-          Ite(Or(indices), Or(modifications), no)
+          (p ==> yes) // && (Not(p) ==> no)
         }
 
         val derive = Forall(List(x), And(all.toList))
 
+        // val prop = Prop.from(derive)
+        // val prop_ = Simplify.simplify(prop, Map(), Set())
+
         val derive_ = Simplify.simplify(derive, Map(), Set())
+        // val derive_ = prop_.toExpr
         val inv_ = inv && derive_
 
         val prog_ = While(test, body_, term, inv_, sum, frames)

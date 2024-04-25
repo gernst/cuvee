@@ -76,8 +76,10 @@ object Simplify {
       val su = Expr.subst(eqs)
 
       // TODO: this is wrong; substitutions need to chain on
-      assms = assms map (_ subst su)
-      concls = concls map (_ subst su)
+      // assms = assms map (_ subst su)
+      // concls = concls map (_ subst su)
+
+      println(su)
 
       var defs = assms collect {
         case Atom(Eq(x @ App(Inst(f, _), Nil), e), _) if !(f in e) => Rule(x, e)
@@ -125,6 +127,14 @@ object Simplify {
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
     case Conj(xs, props) =>
+      
+      var eqs = props collect {
+        case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
+        case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
+      }
+
+      println(eqs)
+
       Conj.reduce(xs, props map (simplify(_, rules, constrs)))
   }
 
