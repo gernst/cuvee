@@ -9,6 +9,8 @@ import cuvee.imp._
 import cuvee.prove._
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Lemma
+import cuvee.smtlib.Free
+import cuvee.smtlib.Goal
 
 class Grammar(parser: cuvee.boogie.Parser) {
   import easyparse.implicits._
@@ -405,11 +407,17 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None)))
 
+  def free_lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Lemma("free lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Free))))
+
+  def goal(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Lemma("goal" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Goal))))
+
   val datadef =
     P(make_datatype(("data" ~ name ~ gens ~ "=") ~@ constrs ~ ";"))
 
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(sortdef | datadef | constdef | fundef | procdef | axiom | lemma | easyparse.Parser.Fail())
+    P(sortdef | datadef | constdef | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser.Fail())
 
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(cmd.*)
