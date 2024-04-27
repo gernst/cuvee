@@ -3,6 +3,7 @@ package cuvee.pure
 import cuvee.smtlib.Model
 import cuvee.pure.True
 import cuvee.Intersect
+import cuvee.ai.AInt.one
 
 object Simplify {
   def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
@@ -15,12 +16,24 @@ object Simplify {
   }
 
   def simplify(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr match {
-    case And(phis)         => and(simplify(phis, rules, constrs))
-    case Or(phis)          => or(simplify(phis, rules, constrs))
-    case Not(phi)          => not(simplify(phi, rules, constrs))
-    case Imp(phi, psi)     => imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
-    case Forall(vars, phi) => forall(vars, simplify(phi, rules, constrs))
-    case Exists(vars, phi) => exists(vars, simplify(phi, rules, constrs))
+    case And(phis) =>
+      and(simplify(phis, rules, constrs))
+
+    case Or(phis) =>
+      or(simplify(phis, rules, constrs))
+
+    case Not(phi) =>
+      not(simplify(phi, rules, constrs))
+
+    case Imp(phi, psi) =>
+      imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
+
+    case Ite(test, left, right) =>
+      ite(
+        simplify(test, rules, constrs),
+        simplify(left, rules, constrs),
+        simplify(right, rules, constrs)
+      )
 
     case Is(arg, fun) =>
       is(arg, fun)
@@ -33,6 +46,9 @@ object Simplify {
 
     case Bind(quant, formals, body, typ) =>
       bind(quant, formals, simplify(body, rules, constrs), typ)
+
+    case Select(base, index) =>
+      select(simplify(base, rules, constrs), simplify(index, rules, constrs))
 
     case App(inst, args) if rules.nonEmpty =>
       // println(" try rewriting: " + expr + " with rules: " + rules, constrs)
@@ -50,60 +66,78 @@ object Simplify {
       builtin(expr, rules, constrs)
   }
 
-  def builtin(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr.typ match {
-    case Sort.int =>
+  def builtin(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr match {
+    case _ if expr.typ == Sort.int =>
       val poly = Poly(expr)
       val expr_ = poly.compact.toExpr
+      // println("expr = " + expr)
+      // println("poly = " + poly)
+      // println("expr_ = " + expr_)
 
-      if (expr != expr)
+      if (expr != expr_)
         simplify(expr_, rules, constrs)
       else
         expr_
+
+    case App(inst, args) =>
+      App(inst, args map (builtin(_, rules, constrs)))
 
     case _ =>
       expr
   }
 
+  def onePoint(assms: List[Prop], su: Map[Var, Expr]): (List[Prop], Map[Var, Expr]) = {
+    assms match {
+      case Nil =>
+        (assms, su)
+
+      case Atom(Eq(x: Var, e), _) :: rest if !(x in e) =>
+        val su_ = su + (x -> e)
+        val rest_ = rest map (_ subst su_)
+        onePoint(rest_, su_)
+
+      case assm :: rest =>
+        val (rest_, su_) = onePoint(rest, su)
+        (assm :: rest_, su_)
+    }
+  }
+
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
     case Atom(expr, None) =>
-      Prop.from(simplify(expr, rules, constrs))
+      val expr_ = simplify(expr, rules, constrs)
+      // println("expr_ = " + expr_)
+      Prop.from(expr_)
 
     case Atom(expr, model) =>
       Atom(simplify(expr, rules, constrs), model)
 
-    case Disj(xs_, assms_, concls_) =>
+    case Disj(xs0, assms0, concls0) =>
       // TODO:
       // - substitute equations
       // - omit unused variables
       // - pull common antecedents out (A ==> B) /\ (A ==> C) ~~> A ==> (B /\ C)
       // - shift negations around?
 
-      var xs = xs_
-      var assms = assms_
-      var concls = concls_
+      val (assms1, su) = onePoint(assms0, Map())
+      // println("su = " + su)
+      // println("assms1 = " + assms1)
 
-      var eqs = assms collect {
-        case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
-        case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
-      }
+      val concls1 = concls0 map (_ subst su)
+      // println("concls1 = " + concls1)
 
-      val su = Expr.subst(eqs)
-
-      // TODO: this is wrong; substitutions need to chain on
-      assms = assms map (_ subst su)
-      concls = concls map (_ subst su)
-
-      var defs = assms collect {
+      var defs = assms1 collect {
         case Atom(Eq(x @ App(Inst(f, _), Nil), e), _) if !(f in e) => Rule(x, e)
         case Atom(Eq(e, x @ App(Inst(f, _), Nil)), _) if !(f in e) => Rule(x, e)
       }
 
       val more = defs.groupBy(_.fun)
 
-      assms = assms_ map (simplify(_, rules ++ more, constrs))
-      concls = concls_ map (simplify(_, rules ++ more, constrs))
+      val assms2 = assms1 map (simplify(_, rules ++ more, constrs))
+      val concls2 = concls1 map (simplify(_, rules ++ more, constrs))
+      // println("assms2 = " + assms2)
+      // println("concls2 = " + concls2)
 
-      val all = concls flatMap { case Conj(xs, props) =>
+      val all = concls2 flatMap { case Conj(xs, props) =>
         props map {
           case _: Atom =>
             Set[Prop]()
@@ -112,29 +146,34 @@ object Simplify {
         }
       }
 
-      if (all.nonEmpty) {
-        val common = Intersect(all)
+      val (assms3, concls3) =
+        if (all.nonEmpty) {
+          val common = Intersect(all)
 
-        concls = concls map { case Conj(xs, props) =>
-          Conj(
-            xs,
-            props map {
-              case atom: Atom =>
-                atom
-              case Disj(xs, assms, concls) =>
-                Disj(xs, assms filterNot common, concls)
-            }
-          )
+          val concls3 = concls2 map { case Conj(xs, props) =>
+            Conj(
+              xs,
+              props map {
+                case atom: Atom =>
+                  atom
+                case Disj(xs, assms, concls) =>
+                  Disj(xs, assms filterNot common, concls)
+              }
+            )
+          }
+
+          val assms3 = assms2 ++ common
+
+          (assms3, concls3)
+        } else {
+          (assms2, concls2)
         }
 
-        assms = assms ++ common
+      val xs3 = xs0 filter { case x =>
+        (assms3 exists x.in) || (concls3 exists x.in)
       }
 
-      xs = xs filter { case x =>
-        assms exists (x in _)
-      }
-
-      Disj.reduce(xs, assms, concls)
+      Disj.reduce(xs3, assms3, concls3)
   }
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
@@ -156,6 +195,21 @@ object Simplify {
     val ts = fun.args subst ty
     val xs = Expr.vars("x", ts)
     Exists(xs, Eq(arg, App(fun, xs)))
+  }
+
+  def select(base: Expr, index: Expr) = {
+    base match {
+      case Store(`base`, `index`, value) => value
+      case _                             => Select(base, index)
+    }
+  }
+
+  def store(base: Expr, index: Expr, value: Expr): Expr = {
+    (base, value) match {
+      case (_, Select(`base`, `index`))   => base
+      case (Store(`base`, `index`, _), _) => store(base, index, value)
+      case _                              => Store(base, index, value)
+    }
   }
 
   def eq(left: Expr, right: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = {
@@ -196,10 +250,36 @@ object Simplify {
       ???
 
     case Quant.exists | Quant.forall =>
+      // ???
+      // val eqs = onePoint(formals, body, quant == Quant.exists)
+      // println(eqs)
+
       val formals_ = formals filter body.free
       if (formals_.isEmpty) body
       else Bind(quant, formals_, body, typ)
   }
+
+  // def onePoint(bound: List[Var], expr: Expr, ok: Boolean): List[(Var, Expr)] = expr match {
+  //   case Eq(x: Var, rhs) if ok && (bound contains x) && !(x in rhs) =>
+  //     List(x -> rhs)
+
+  //   case Not(phi) =>
+  //     onePoint(bound, expr, !ok)
+
+  //   case And(phis) if ok =>
+  //     for (phi <- phis; pair <- onePoint(bound, expr, ok))
+  //       yield pair
+
+  //   case Or(phis) if !ok =>
+  //     for (phi <- phis; pair <- onePoint(bound, expr, ok))
+  //       yield pair
+
+  //   case Imp(phi, psi) =>
+  //     onePoint(bound, phi, !ok) ++ onePoint(bound, psi, ok)
+
+  //   case _ =>
+  //     Nil
+  // }
 
   def and(phis: List[Expr]): Expr = {
     val phis_ = And.flatten(phis)
@@ -241,6 +321,19 @@ object Simplify {
       case True     => False
       case Not(psi) => psi
       case _        => Not(phi)
+    }
+  }
+
+  def ite(test: Expr, left: Expr, right: Expr) = {
+    (test, left, right) match {
+      case _ if left == right => left
+      case (True, _, _)       => left
+      case (False, _, _)      => right
+      case (_, _, True)       => imp(test, left)
+      case (_, True, _)       => imp(not(test), right)
+      case (_, _, False)      => and(List(test, left))
+      case (_, False, _)      => and(List(not(test), right))
+      case _                  => Ite(test, left, right)
     }
   }
 

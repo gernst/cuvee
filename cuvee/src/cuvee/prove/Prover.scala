@@ -11,6 +11,7 @@ import java.io.PrintStream
 import java.io.FileOutputStream
 import cuvee.smtlib.Assert
 import cuvee.smtlib.CheckSat
+import cuvee.pure.Simplify
 
 trait Prover {
   def exec(cmd: Cmd, state: State)
@@ -21,6 +22,16 @@ object Prover {
   object dummy extends Prover {
     def exec(cmd: Cmd, state: State) {}
     def reduce(prop: Prop, state: State) = prop
+  }
+
+  val fromSimplifier = new Prover {
+    def exec(cmd: Cmd, state: State) {}
+
+    def reduce(prop: Prop, state: State) = {
+      val constrs = state.constrs
+      val prop_ = Simplify.simplify(prop, Map(), constrs)
+      prop_
+    }
   }
 
   def fromSolver(solver: Solver, useInduction: Boolean = false) = new Prover {
@@ -34,7 +45,7 @@ object Prover {
       if (solver.isTrue(phi)) {
         // println("success!")
         Atom.t
-      } else if(useInduction && InductiveProver.holdsByInduction(solver, phi, state.datatypes)) {
+      } else if (useInduction && InductiveProver.holdsByInduction(solver, phi, state.datatypes)) {
         Atom.t
       } else {
         // println("unknown.")

@@ -356,7 +356,7 @@ object Not extends Sugar.unary(Fun.not) {
     args map this
 }
 
-object Imp extends Sugar.associative(Fun.imp, Assoc.right)
+object Imp extends Sugar.binary(Fun.imp)
 object And extends Sugar.commutative(Fun.and, True, Assoc.left)
 object Or extends Sugar.commutative(Fun.or, False, Assoc.left)
 
