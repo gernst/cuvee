@@ -336,9 +336,9 @@ object Config {
       sink = new Incremental(Abstract, sink)
     }
 
-    if (config.annotate) {
-      sink = new Incremental(Annotate, sink)
-    }
+    // if (config.annotate) {
+    //   sink = new Incremental(Annotate, sink)
+    // }
 
     // println("pipeline: " + sink)
 
