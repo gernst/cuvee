@@ -93,11 +93,11 @@ object Printer extends cuvee.util.Printer {
       var result: List[String] = Nil
       mode match {
         case Some(Goal) =>
-          result = result ++ format("goal", expr)
+          result = format("goal", expr)
         case Some(Free) =>
-          result = result ++ format("free lemma", expr)
+          result = format("free lemma", expr)
         case None =>
-          result = result ++ format("lemma", expr)
+          result = format("lemma", expr)
       }
 
       if (tactic.nonEmpty) {
@@ -256,7 +256,7 @@ object Printer extends cuvee.util.Printer {
       val last = phi_.last + ")"
       quant :: phi_.updated(phi_.length - 1, last)
     case Exists(x, phi) =>
-      val quant = "exists " ++ vartypes(x) ++ " ::"
+      val quant = "(exists " ++ vartypes(x) ++ " ::"
       val phi_ = indent(formula(phi), 3)
       val last = phi_.last + ")"
       quant :: phi_.updated(phi_.length - 1, last)
