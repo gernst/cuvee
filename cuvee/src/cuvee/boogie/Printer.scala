@@ -73,7 +73,7 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     // Work in progress - print lemmas in cuvee format
-    case Lemma(expr, tactic, _) =>
+    case Lemma(expr, tactic, mode) =>
       // TODO: hier sowas wie List("lemma " + formula(expr))
       // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
       //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
@@ -89,7 +89,16 @@ object Printer extends cuvee.util.Printer {
               ==>    Q1
                   || Q2;
        */
-      var result = format("lemma", expr)
+
+      var result: List[String] = Nil
+      mode match {
+        case Some(Goal) =>
+          result = result ++ format("goal", expr)
+        case Some(Free) =>
+          result = result ++ format("free lemma", expr)
+        case None =>
+          result = result ++ format("lemma", expr)
+      }
 
       if (tactic.nonEmpty) {
         val old = result.last.patch(result.last.length - 1, "", 1)
