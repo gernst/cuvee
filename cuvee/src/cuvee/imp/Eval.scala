@@ -46,7 +46,7 @@ object Eval extends Stage {
   }
 }
 
-class Eval(val state: State = State.default) {
+class Eval(val state: State) {
   def eval(
       expr: Expr,
       scope: Map[Var, Expr] = Map(),
