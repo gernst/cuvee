@@ -121,9 +121,16 @@ object Prop {
         from(body :: rest, xs ++ ys, assms, concls)
 
       case (let @ Let(_, _)) :: rest =>
+        ???
+
+        // this is implemented wrong
+        // - it does not chain substitions for the inline equations
+        // - it does not rename the ys variables if needed
+        // - we may want to remember not to substitute these in the display
+
         val Let(eqs, body) = let refresh xs
         val (keep, inline) = eqs partition { case LetEq(x, e) =>
-          e.free contains x
+          x in e // e.free contains x
         }
 
         val ys = keep map (_.x)
@@ -357,6 +364,8 @@ object Conj {
       from(rest, xs, props ++ List(Atom(phi)))
   }
 
+  // TODO: only move non-atomic negations to the right?
+  //       alternatively, if there is a single main head form, use that
   def from(
       neg: List[Expr],
       pos: List[Expr],
