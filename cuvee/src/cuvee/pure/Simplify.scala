@@ -16,6 +16,9 @@ object Simplify {
   }
 
   def simplify(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr match {
+    case x: Var =>
+      x
+
     case And(phis) =>
       and(simplify(phis, rules, constrs))
 
@@ -50,20 +53,26 @@ object Simplify {
     case Select(base, index) =>
       select(simplify(base, rules, constrs), simplify(index, rules, constrs))
 
-    case App(inst, args) if rules.nonEmpty =>
-      // println(" try rewriting: " + expr + " with rules: " + rules, constrs)
-      val args_ = Rewrite.rewrites(args, rules)
-      val expr_ = App(inst, args_)
-      // println(" args: " + args_)
-      val res_ = Rewrite.app(expr_, inst.fun, args_, rules, depth = 0)
-      if (expr != res_)
-        simplify(res_, rules, constrs)
-      else
-        builtin(res_, rules, constrs)
-    // Rewrite.rewrite(expr, rules, constrs)
+    case App(inst, args) =>
+      app(expr, inst, simplify(args, rules, constrs), rules, constrs)
+  }
 
-    case _ =>
-      builtin(expr, rules, constrs)
+  def app(
+      expr: Expr,
+      inst: Inst,
+      args: List[Expr],
+      rules: Map[Fun, List[Rule]],
+      constrs: Set[Fun]
+  ): Expr = {
+    // println(" try rewriting: " + expr + " with rules: " + rules, constrs)
+    val args_ = Rewrite.rewrites(args, rules)
+    val expr_ = App(inst, args_)
+    // println(" args: " + args_)
+    val res_ = Rewrite.app(expr_, inst.fun, args_, rules, depth = 0)
+    if (expr != res_)
+      simplify(res_, rules, constrs)
+    else
+      builtin(res_, rules, constrs)
   }
 
   def builtin(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr match {
@@ -173,6 +182,7 @@ object Simplify {
         (assms3 exists x.in) || (concls3 exists x.in)
       }
 
+      println(assms3)
       Disj.reduce(xs3, assms3, concls3)
   }
 
@@ -186,7 +196,7 @@ object Simplify {
       yield simplify(expr, rules, constrs)
   }
 
-  def is(arg: Expr, fun: Fun): Expr = if (true) {
+  def is(arg: Expr, fun: Fun): Expr = if (false) {
     Is(arg, fun)
   } else {
     val ty = Type.bind(fun.res, arg.typ)

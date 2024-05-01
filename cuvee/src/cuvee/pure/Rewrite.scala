@@ -8,6 +8,8 @@ import cuvee.smtlib._
 object Rewrite {
   val MaxDepth = 10
 
+  var debug = false
+
   case object PremiseNotValid extends Exception
 
   case class RewriteDepthExceeded(exprs: List[Expr], rules: Map[Fun, List[Rule]]) extends Exception
@@ -48,7 +50,7 @@ object Rewrite {
         Rules.from(expr, ok)
       case DefineFun(name, params, xs, _, body, rec) if define =>
         val fun = st.funs(name, xs.length)
-        Rules.from(fun, xs, body, ok)
+        Rules.from(fun, xs, body, ok + fun)
       case _ =>
         Nil
     }
@@ -63,7 +65,6 @@ object Rewrite {
     val ok =
       for (DeclareFun(name, params, args, res) <- cmds)
         yield st.funs(name, args.length)
-
     for (
       cmd <- cmds;
       rule <- from(cmd, ok.toSet, st, assert, define)
@@ -165,7 +166,8 @@ object Rewrite {
       depth: Int = 0
   ): Expr = {
     if (rules contains fun) {
-      // println("  rewriting " + expr + "  with " + rules(fun))
+      if (debug)
+        println("  rewriting " + expr + "  with " + rules(fun))
       val _expr = rewrite(expr, fun, rules(fun), rules, depth)
       _expr
     } else {
@@ -195,22 +197,27 @@ object Rewrite {
 
           val _cond = cond // simplify(cond subst env, ctx, st)
 
-          if (_cond != True)
+          if (_cond != True) {
+            if (debug)
+              println("  " * depth + "condition not satisfied " + _cond)
             throw PremiseNotValid // ("side-condition not satisfied " + _cond)
+          }
 
           val dont = avoid exists { case (a, b) =>
             (a inst (ty, su)) == (b inst (ty, su))
           }
 
           if (dont) {
-            // println("avoiding cycle for " + expr + " via rule " + rule)
+            if (debug)
+              println("avoiding cycle for " + expr + " via rule " + rule)
             val res = rewrite(expr, fun, rest, rules, depth)
-            // println(res)
             res
           } else {
             val rhs_ = rhs inst (ty, su)
-            // println("  "*depth + "rewrite " + expr)
-            // println("  "*depth + "  ~~> " + rhs_)
+            if (debug) {
+              println("  " * depth + "rewrite " + expr)
+              println("  " * depth + "  ~~> " + rhs_)
+            }
             rewrite(rhs_, rules, depth + 1)
           }
         } catch {

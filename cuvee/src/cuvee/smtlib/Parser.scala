@@ -354,7 +354,7 @@ class Parser(init: State) {
     def expr(from: Expr, ctx: Set[Name], scope: Map[Name, Type]): Pre =
       from match {
         case Lit.num(digits) =>
-          lit(digits.toInt, int)
+          lit(BigInt(digits), int)
 
         case Lit.dec(digits) =>
           lit(digits.toDouble, real)
@@ -396,6 +396,14 @@ class Parser(init: State) {
           val body = expr(arg, ctx, scope ++ xs.pairs)
           check(body, bool)
           bind(name, xs, body, bool)
+
+        case App(App(Id("_"), Id("is"), Id(name)), arg) =>
+          st.constr(name) match {
+            case Some(fun) =>
+              is(expr(arg, ctx, scope), fun)
+            case None =>
+              error("invalid constructor: " + name)
+          }
 
         // qualified constant
         case App(Id("as"), Id(name), from) if st.funs contains (name, 0) =>
