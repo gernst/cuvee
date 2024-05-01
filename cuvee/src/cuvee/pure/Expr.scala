@@ -133,6 +133,29 @@ object Expr extends Alpha[Expr, Var] {
       yield Var(name.withIndex(i), t)
   }
 
+  def liftIte(build: List[Expr] => Expr, rdone: List[Expr], todo: List[Expr]): Expr = {
+    todo match {
+      case Nil =>
+        build(rdone.reverse)
+      case Ite(test, left, right) :: rest =>
+        val _left = liftIte(build, rdone, left :: rest)
+        val _right = liftIte(build, rdone, right :: rest)
+        Ite(test, _left, _right)
+      case arg :: rest =>
+        liftIte(build, arg :: rdone, rest)
+    }
+  }
+
+  def liftIte(expr: Expr): Expr = {
+    expr match {
+      case App(inst, args) =>
+        liftIte(App(inst, _), Nil, args)
+      // TODO: add more cases!
+      case _ =>
+        expr
+    }
+  }
+
   def unify(
       expr1: Expr,
       expr2: Expr,

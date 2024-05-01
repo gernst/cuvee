@@ -35,9 +35,9 @@ object Prover {
     def reduce(prop: Prop, state: State) = {
       val constrs = state.constrs
       val rules = Rewrite.from(cmds, state) // add some new rewrite rules
-      println("safe rules:")
-      for (rule <- rules)
-        println("  " + rule)
+      // println("safe rules:")
+      // for (rule <- rules)
+      //   println("  " + rule)
       val rws = rules.groupBy(_.fun)
       val prop_ = Simplify.simplify(prop, rws, constrs)
       prop_
