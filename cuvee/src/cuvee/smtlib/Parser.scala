@@ -111,7 +111,17 @@ class Parser(init: State) {
         val phi_ = expr_typed(phi, bool)
         Assert(phi_)
 
+      // these are extensions to SMT-LIB
       case App(Id("lemma"), phi) =>
+        val phi_ = expr_typed(phi, bool)
+        Lemma(phi_, None, None)
+
+      // case App(Id("free-lemma"), phi) =>
+      //   val phi_ = expr_typed(phi, bool)
+      //   Lemma(phi_, None, Some(Free))
+
+      // prove is used in TIP https://github.com/tip-org/
+      case App(Id("prove"), phi) =>
         val phi_ = expr_typed(phi, bool)
         Lemma(phi_, None, Some(Goal))
 

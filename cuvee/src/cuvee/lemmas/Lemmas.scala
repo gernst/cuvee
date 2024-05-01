@@ -36,7 +36,7 @@ class Lemmas(rounds: Int, conditionalLemmas: Boolean, lemmasWithSyntheticFunctio
       lemmas.useConditional = conditionalLemmas
 
       for (
-        Lemma(phi, _, _) <- cmds;
+        lemma@Lemma(phi, _, _) <- cmds if !lemma.isGoal;
         Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
       ) {
         lemmas.addLemma("provided", lhs, rhs, cond)
@@ -94,12 +94,12 @@ class Lemmas(rounds: Int, conditionalLemmas: Boolean, lemmasWithSyntheticFunctio
 
           val lems =
             for ((origin, phi) <- results if (origin != "provided"))
-              yield Lemma(phi, None, None)
+              yield Lemma(phi, None, Some(Free))
 
           defn ++ lems
         } else {
           for ((origin, phi) <- results if (origin != "provided") && (phi.funs subsetOf known))
-            yield Lemma(phi, None, None)
+            yield Lemma(phi, None, Some(Free))
         }
 
       val (pre, post) = cmds partition {

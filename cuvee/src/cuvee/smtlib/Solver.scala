@@ -26,10 +26,16 @@ trait Solver extends Sink {
     cmd match {
       case CheckSat =>
         check()
-      case Lemma(expr, tactic, Some(Free)) =>
-        Success
-      case Lemma(expr, tactic, _) =>
+      case Lemma(expr, tactic, None) =>
+        println("warning: assuming non-free lemma: " + cmd)
+        ???
         this.assert(expr)
+      case Lemma(expr, tactic, Some(Free)) =>
+        this.assert(expr)
+      case Lemma(expr, tactic, Some(Goal)) =>
+        println("warning: ignoring goal: " + cmd)
+        ???
+        Success
       case GetModel =>
         model(state)
       case GetInfo(attr) =>

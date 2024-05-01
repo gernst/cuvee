@@ -33,11 +33,11 @@ class Prove(
     }
 
     cmds flatMap {
-      case cmd @ Lemma(expr, tactic, assert) =>
+      case cmd @ Lemma(expr, tactic, mode) =>
         val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
           yield {
-            Lemma(goal_.toExpr, None, assert)
+            Lemma(goal_.toExpr, None, mode)
           }
 
       case cmd @ Assert(Not(App(Inst(fun, _), _)))
