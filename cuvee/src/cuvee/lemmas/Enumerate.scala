@@ -225,7 +225,7 @@ class Enumerate(rounds: Int) extends Stage {
                   if (debug) println(" proved")
                   solver.assert(goal)
                   reinit += Assert(goal)
-                  lemmas = Lemma(goal, None, true) :: lemmas
+                  lemmas = Lemma(goal, None, Some(Goal)) :: lemmas
                 } else {
                   if (debug) println(" unknown")
                   candidates += goal

@@ -26,11 +26,10 @@ trait Solver extends Sink {
     cmd match {
       case CheckSat =>
         check()
-      case Lemma(expr, tactic, assert) =>
-        if (assert)
-          this.assert(expr)
-        else
-          Success
+      case Lemma(expr, tactic, Some(Free)) =>
+        Success
+      case Lemma(expr, tactic, _) =>
+        this.assert(expr)
       case GetModel =>
         model(state)
       case GetInfo(attr) =>

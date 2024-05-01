@@ -63,7 +63,7 @@ object bool extends Run(Test, "evaluation/lemmas/bool.bpl")
 object nat extends Run(Test, "evaluation/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "evaluation/lemmas/list.bpl")
 object tree extends Run(Test, "evaluation/lemmas/tree.bpl")
-object prop extends Run(Test, "-use:shortcut", "evaluation/lemmas/tree/prop.bpl")
+object prop extends Run(Test, "evaluation/lemmas/tree/prop.bpl")
 
 object runlength extends Run(Test, "examples/lemmas/runlength.bpl")
 object runlength_other extends Run(Test, "examples/lemmas/runlength_other.bpl")

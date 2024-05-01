@@ -10,6 +10,8 @@ import cuvee.prove._
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Lemma
 import cuvee.smtlib.Cmd
+import cuvee.smtlib.Free
+import cuvee.smtlib.Goal
 
 class Grammar(parser: cuvee.boogie.Parser) {
   import easyparse.implicits._
@@ -423,7 +425,13 @@ class Grammar(parser: cuvee.boogie.Parser) {
   }
 
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(true)))
+    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None)))
+
+  def free_lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Lemma("free lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Free))))
+
+  def goal(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Lemma("goal" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Goal))))
 
   def datadef_(kw: String, declare: Boolean) =
     (kw ?~ name ?~ gens ?~ "=") ~@ constrs(declare)
@@ -444,10 +452,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(make_datatypes("data" ~ ((name ~ gens) ~+ ",") ~>@ datadefs_ ~ ";"))
 
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(
-      vardecl | sortdef | datadef | datadefs | constdef | fundef | procdef | axiom | lemma | easyparse.Parser
-        .Fail()
-    )
+    P(sortdef | datadef | datadefs | constdef | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser.Fail())
 
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(cmd.*)
