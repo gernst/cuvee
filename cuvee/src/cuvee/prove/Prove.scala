@@ -9,7 +9,7 @@ import cuvee.pure._
 import cuvee.sub
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Solver
-import cuvee.smtlib
+import cuvee.smtlib.Free
 
 class Prove(
     prover: Prover,
@@ -33,6 +33,10 @@ class Prove(
     }
 
     cmds flatMap {
+      case cmd @ Lemma(expr, tactic, Some(Free)) =>
+        prover.exec(cmd, state)
+        List(cmd)
+
       case cmd @ Lemma(expr, tactic, mode) =>
         val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
@@ -58,7 +62,7 @@ class Prove(
               val solver = Solver.z3(timeout = 10000)
               try { solver.exec(prefix ++ cmds, state) }
               catch {
-                case smtlib.Error(info) =>
+                case cuvee.smtlib.Error(info) =>
                   println(info)
                   ???
               }
@@ -141,7 +145,7 @@ class Prove(
           (subgoal, subtactic) <- tactic.apply(state, goal);
           goal_ <- reduce(subgoal, subtactic, rws, state)
         ) yield {
-           goal_
+          goal_
         }
     }
 }
