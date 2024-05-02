@@ -452,7 +452,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(make_datatypes("data" ~ ((name ~ gens) ~+ ",") ~>@ datadefs_ ~ ";"))
 
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(sortdef | datadef | datadefs | constdef | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser.Fail())
+    P(sortdef | datadef | datadefs | constdef | vardecl | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser.Fail())
 
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(cmd.*)
