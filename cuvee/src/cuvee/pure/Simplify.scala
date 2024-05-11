@@ -201,6 +201,14 @@ object Simplify {
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
     case Conj(xs, props) =>
+      
+      var eqs = props collect {
+        case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
+        case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
+      }
+
+      println(eqs)
+
       Conj.reduce(xs, props map (simplify(_, rules, constrs)))
   }
 

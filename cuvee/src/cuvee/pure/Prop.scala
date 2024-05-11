@@ -187,8 +187,8 @@ case class Atom(phi: Expr, cex: Option[Model] = None) extends Prop {
   phi match {
     case Not(_) | And(_) | Or(_) | Imp(_, _) =>
       cuvee.error("invalid atom: " + phi)
-    case Bind(_, _, _, _) =>
-      cuvee.error("invalid atom: " + phi)
+    // case Bind(_, _, _, _) =>
+    //   cuvee.error("invalid atom: " + phi)
     case _ =>
   }
 

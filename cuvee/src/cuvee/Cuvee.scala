@@ -21,6 +21,7 @@ import cuvee.pure.Horn
 class Config {
   var file: Option[String] = None
   var printer: Printer = smtlib.printer
+  var overridePrinter = false
 
   var source: Source = smtlib.source()
   var sink: (Printer => Sink) = Sink.stdout(_)
@@ -85,12 +86,15 @@ class Config {
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
+      overridePrinter = true
     },
     option("-print:boogie", "force output to Boogie format") {
       printer = cuvee.boogie.printer
+      overridePrinter = true
     },
     option("-print:thesy", "force output to TheSy format") {
       printer = cuvee.thesy.printer
+      overridePrinter = true
     },
     // option("-print:none", "suppress output") {
     //   printer = Printer.dummy
@@ -112,6 +116,9 @@ class Config {
       "cross-check simplifications of prover by Z3 (may fail due to incompleteness)"
     ) {
       crosscheckProver = true
+    },
+    option("-prove:simple", "simple recursive prover") {
+      prove = "simple"
     },
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
@@ -194,19 +201,22 @@ class Config {
       error("not an option: " + first)
 
     case path :: rest =>
-      require(file.isEmpty, "only a single file is allowed, already given: " + file.get)
+      require(
+        file.isEmpty,
+        "only a single file is allowed, already given: " + file.get
+      )
       file = Some(path)
 
       if (path endsWith ".bpl") {
-        printer = boogie.printer
+        if (!overridePrinter) printer = boogie.printer
         source = boogie.source(path)
       } else if (path endsWith ".smt2") {
-        printer = smtlib.printer
+        if (!overridePrinter) printer = smtlib.printer
         source = smtlib.source(path)
       } else if (path endsWith ".py") {
         source = python.source(path)
       } else if (path endsWith ".th") {
-        printer = thesy.printer
+        if (!overridePrinter) printer = thesy.printer
         source = thesy.source(path)
       } else {
         error("unknown file format: " + path)
@@ -230,6 +240,22 @@ object Config {
       case "auto" =>
         val solver = Solver.z3()
         val prover = new PositiveProver(solver)
+        if (config.induct)
+          error("induction not supported by auto prover")
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
+
+      case "simple" =>
+        val solver = Solver.z3()
+        val prover = new SimpleProver(solver)
         if (config.induct)
           error("induction not supported by auto prover")
         sink = new Incremental(
