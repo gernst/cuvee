@@ -2,46 +2,31 @@ package cuvee.imp
 
 import cuvee.pure._
 
-object Interpret {
-  case class Path(
-      fresh: List[Var],
-      constraints: List[Expr],
-      vars: Map[Var, Expr],
-      old: List[Map[Var, Expr]]
-  ) {
-    def assign(xs: List[Var], rhs: List[Expr]) = {
-      copy(vars = vars ++ (xs zip rhs))
-    }
-  }
-
-  trait Symbolic extends Interpret[Path] {
-    def eval(state: Path, expr: Expr) =
-      expr subst state.vars
-
-    def spec(states: List[Path], xs: List[Var], pre: Expr, post: Expr): List[Path] = {
-      val re = Expr.fresh(xs)
-      val xs_ = xs rename re
-
-      for (Path(fresh, constraints, vars, old) <- states)
-        yield ???
-    }
-
-    def local(states: List[Path], xs: List[Var], rhs: List[Expr]): List[Path] = {
-      val re = Expr.fresh(xs)
-      val xs_ = xs rename re
-
-      for (Path(fresh, constraints, vars, old) <- states)
-        yield ???
-    }
-
-    def assign(states: List[Path], xs: List[Var], rhs: List[Expr]): List[Path] = {
+object InterpretNew {
+  trait WithPath {
+    def local(states: List[Path], xs: List[Var], rhs: List[Expr]) =
       for (path <- states)
-        yield path assign (xs, rhs map (eval(path, _)))
+        yield path.local(xs, rhs)
+
+    def assign(states: List[Path], xs: List[Var], rhs: List[Expr]) =
+      for (path <- states)
+        yield path.assign(xs, rhs)
+
+    def spec(states: List[Path], xs: List[Var], pre: Expr, post: Expr) =
+      for (path <- states)
+        yield path.spec(xs, pre, post)
+
+    def withOld(states0: List[Path])(f: List[Path] => List[Path]) = {
+      val states1 = states0 map (_.pushOld)
+      val states2 = f(states1)
+      val states3 = states2 map (_.popOld)
+      states3
     }
   }
 
   trait WithFixpoint[S] {
-    this: Interpret[S] =>
+    this: InterpretNew[S] =>
+
     def isSubsetOf(states1: List[S], states2: List[S]): Boolean
     def widen(states1: List[S], states2: List[S]): List[S]
     def narrow(states1: List[S], states2: List[S]): List[S]
@@ -91,7 +76,7 @@ object Interpret {
   }
 }
 
-trait Interpret[S] {
+trait InterpretNew[S] {
   def while_(
       states0: List[S],
       test: Expr,
@@ -102,27 +87,26 @@ trait Interpret[S] {
       frames: List[Frame]
   ): List[S]
 
+  def break_(states: List[S]): List[S]
+  def return_(states: List[S]): List[S]
+
   def spec(states: List[S], xs: List[Var], pre: Expr, post: Expr): List[S]
   def local(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
   def assign(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
 
   // Note: default implementations
 
-  def join(states1: List[S], states2: List[S]): List[S] = {
+  def join(states1: List[S], states2: List[S]) =
     states1 ++ states2
-  }
 
-  def assume(states: List[S], pre: Expr): List[S] = {
+  def assume(states: List[S], pre: Expr) =
     spec(states, Nil, pre, True)
-  }
 
-  def assert(states: List[S], post: Expr): List[S] = {
+  def assert(states: List[S], post: Expr) =
     spec(states, Nil, True, post)
-  }
 
-  def block(states: List[S], progs: List[Prog]): List[S] = {
+  def block(states: List[S], progs: List[Prog]) =
     progs.foldLeft(states)(exec)
-  }
 
   def if_(states0: List[S], test: Expr, left: Prog, right: Prog): List[S] = {
     val states1 = exec(assume(states0, test), left)
@@ -131,6 +115,12 @@ trait Interpret[S] {
   }
 
   def exec(states: List[S], prog: Prog): List[S] = prog match {
+    case Break =>
+      break_(states)
+
+    case Return =>
+      return_(states)
+
     case Block(progs) =>
       block(states, progs)
 

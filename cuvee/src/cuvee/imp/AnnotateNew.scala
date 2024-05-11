@@ -2,7 +2,7 @@ package cuvee.imp
 
 import cuvee.pure._
 
-abstract class Annotate[S](val interpret: Interpret[S]) {
+abstract class AnnotateNew[S](interpret: InterpretNew[S]) {
   def while_(
       states: List[S],
       test: Expr,
@@ -15,17 +15,20 @@ abstract class Annotate[S](val interpret: Interpret[S]) {
 
   // Note: default implementations
 
-  def spec(states: List[S], xs: List[Var], pre: Expr, post: Expr): (List[S], Prog) = {
+  def break_(states: List[S]) =
+    (interpret.break_(states), Break)
+
+  def return_(states: List[S]) =
+    (interpret.return_(states), Return)
+
+  def spec(states: List[S], xs: List[Var], pre: Expr, post: Expr) =
     (interpret.spec(states, xs, pre, post), Spec(xs, pre, post))
-  }
 
-  def local(states: List[S], xs: List[Var], rhs: List[Expr]): (List[S], Prog) = {
+  def local(states: List[S], xs: List[Var], rhs: List[Expr]) =
     (interpret.local(states, xs, rhs), Local(xs, rhs))
-  }
 
-  def assign(states: List[S], xs: List[Var], rhs: List[Expr]): (List[S], Prog) = {
+  def assign(states: List[S], xs: List[Var], rhs: List[Expr]) =
     (interpret.assign(states, xs, rhs), Assign(xs, rhs))
-  }
 
   // def join(states1: List[S], states2: List[S]): List[S]
   // def widen(states1: List[S], states2: List[S]): List[S]
@@ -41,15 +44,18 @@ abstract class Annotate[S](val interpret: Interpret[S]) {
   }
 
   def if_(states0: List[S], test: Expr, left: Prog, right: Prog): (List[S], Prog) = {
-    import interpret.assume
-    import interpret.join
-
-    val (states1, left_) = annotate(assume(states0, test), left)
-    val (states2, right_) = annotate(assume(states0, !test), right)
-    (join(states1, states2), If(test, left_, right_))
+    val (states1, left_) = annotate(interpret.assume(states0, test), left)
+    val (states2, right_) = annotate(interpret.assume(states0, !test), right)
+    (interpret.join(states1, states2), If(test, left_, right_))
   }
 
   def annotate(states: List[S], prog: Prog): (List[S], Prog) = prog match {
+    case Break =>
+      break_(states)
+
+    case Return =>
+      return_(states)
+
     case Block(progs) =>
       val (states_, progs_) = block(states, progs)
       (states_, Block(progs_))
