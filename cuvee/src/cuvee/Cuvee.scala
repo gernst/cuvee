@@ -17,6 +17,7 @@ import cuvee.smtlib.Lemma
 import cuvee.pure.Rewrite
 import cuvee.ai.Abstract
 import cuvee.pure.Horn
+import cuvee.imp.annotate
 
 class Config {
   var file: Option[String] = None
@@ -35,6 +36,8 @@ class Config {
   var lemmasWithSyntheticFunctions = false
 
   var annotationsAbstractInterpreter = false
+
+  var accelerate: Set[String] = Set()
 
   var simplify = false
   var rewrite = false
@@ -163,6 +166,9 @@ class Config {
     },
     option("-annotate", "infer loop annotations") {
       annotate = true
+    },
+    option("-accelerate:arrays", "infer loop annotations") {
+      accelerate += "arrays"
     },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
@@ -362,9 +368,13 @@ object Config {
       sink = new Incremental(Abstract, sink)
     }
 
-    // if (config.annotate) {
-    //   sink = new Incremental(Annotate, sink)
-    // }
+    if (config.annotate) {
+      sink = new Incremental(Annotate, sink)
+    }
+
+    if (config.accelerate contains "arrays") {
+      sink = new Incremental(annotate.Arrays, sink)
+    }
 
     // println("pipeline: " + sink)
 

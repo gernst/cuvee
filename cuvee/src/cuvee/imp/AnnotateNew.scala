@@ -1,8 +1,28 @@
 package cuvee.imp
 
 import cuvee.pure._
+import cuvee.pipe.Stage
+import cuvee.smtlib.Cmd
+import cuvee.smtlib.DefineProc
 
-abstract class AnnotateNew[S](interpret: InterpretNew[S]) {
+abstract class AnnotateNew[S](val interpret: InterpretNew[S]) extends Stage {
+  def exec(
+      prefix: List[Cmd],
+      cmds: List[Cmd],
+      last: Cmd,
+      state: cuvee.State
+  ) = {
+    cmds flatMap {
+      case DefineProc(name, params, in, out, spec, body) =>
+        val states = interpret.entry(in, out, spec)
+        val (states_, body_) = annotate(states, body)
+        List(DefineProc(name, params, in, out, spec, body_))
+
+      case cmd =>
+        List(cmd)
+    }
+  }
+
   def while_(
       states: List[S],
       test: Expr,

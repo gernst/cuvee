@@ -4,6 +4,25 @@ import cuvee.pure._
 
 object InterpretNew {
   trait WithPath {
+    def entry(in: List[Var], out: List[Var], spec: Option[Spec]) =
+      spec match {
+        case None =>
+          val su = Expr.id(in ++ out)
+          val fresh = Nil
+          val constraints = Nil
+          val vars = List(su)
+          val init = Path(fresh, constraints, vars, List(vars))
+          List(init)
+
+        case Some(Spec(globals, pre, post)) =>
+          val su = Expr.id(in ++ out ++ globals)
+          val fresh = Nil
+          val constraints = List(pre)
+          val vars = List(su)
+          val init = Path(fresh, constraints, vars, List(vars))
+          List(init)
+      }
+
     def local(states: List[Path], xs: List[Var], rhs: List[Expr]) =
       for (path <- states)
         yield path.local(xs, rhs)
@@ -86,6 +105,8 @@ trait InterpretNew[S] {
       sum: Expr,
       frames: List[Frame]
   ): List[S]
+
+  def entry(in: List[Var], out: List[Var], spec: Option[Spec]): List[S]
 
   def break_(states: List[S]): List[S]
   def return_(states: List[S]): List[S]
