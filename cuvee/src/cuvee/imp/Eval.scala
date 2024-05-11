@@ -14,8 +14,8 @@ object Eval extends Stage {
       case Assert(expr) =>
         List(Assert(eval.eval(expr)))
 
-      case Lemma(expr, tactic, assert) =>
-        List(Lemma(eval.eval(expr), tactic, assert))
+      case Lemma(expr, tactic, mode) =>
+        List(Lemma(eval.eval(expr), tactic, mode))
 
       case DefineFun(name, params, formals, res, body, rec) =>
         val scope = Expr.id(formals)
@@ -38,7 +38,7 @@ object Eval extends Stage {
 
         val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
-        List(Lemma(phi, None, false))
+        List(Lemma(phi, None, Some(Goal)))
 
       case cmd =>
         List(cmd)
@@ -46,7 +46,7 @@ object Eval extends Stage {
   }
 }
 
-class Eval(val state: State = State.default) {
+class Eval(val state: State) {
   def eval(
       expr: Expr,
       scope: Map[Var, Expr] = Map(),

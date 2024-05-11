@@ -38,10 +38,9 @@ case object Unknown extends IsSat
 
 case class Model(defs: List[DefineFun]) extends Res {
   def rename(re: Map[Var, Var]): Model = {
-    val defs_ = defs map {
-      case DefineFun(name, params, formals, res, body, rec) =>
-        val name_ = re get (Var(name, res)) map (_.name) getOrElse name
-        DefineFun(name_, params, formals rename re, res, body rename re, rec)
+    val defs_ = defs map { case DefineFun(name, params, formals, res, body, rec) =>
+      val name_ = re get (Var(name, res)) map (_.name) getOrElse name
+      DefineFun(name_, params, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
@@ -81,9 +80,22 @@ case object Reset extends Ctrl
 // (Currently) corresponds to "axiom" in Boogie and "(assert )" in SMT-LIB
 case class Assert(expr: Expr) extends Cmd
 
+sealed trait Mode
+case object Free extends Mode
+case object Goal extends Mode
+
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
-case class Lemma(expr: Expr, tactic: Option[Tactic], assert: Boolean)
-    extends Cmd
+case class Lemma(expr: Expr, tactic: Option[Tactic], mode: Option[Mode]) extends Cmd {
+  def isGoal = mode match {
+    case Some(Goal) => true
+    case _          => false
+  }
+
+  def isFree = mode match {
+    case Some(Free) => true
+    case _          => false
+  }
+}
 
 // object Lemma extends ((Expr, Option[Tactic]) => Lemma) {
 //   def apply(expr: Expr, tactic: Option[Tactic]): Lemma = {
@@ -123,9 +135,8 @@ case class DeclareDatatypes(
     arities: List[(Name, Int)],
     datatypes: List[Datatype]
 ) extends Decl {
-  def sorts = arities zip datatypes map {
-    case ((name, arity), Datatype(params, constrs)) =>
-      Sort(Con(name, arity), params)
+  def sorts = arities zip datatypes map { case ((name, arity), Datatype(params, constrs)) =>
+    Sort(Con(name, arity), params)
   }
 }
 

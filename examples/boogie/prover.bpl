@@ -1,8 +1,8 @@
 const A: bool;
 const B: bool;
 const C: bool;
+const D: bool;
+const E: bool;
 
-axiom A;
-lemma A && B ==> B;
-lemma B ==> !A;
-lemma C || (B ==> !A);
+goal
+    A && B ==> (D ==> E) && C;

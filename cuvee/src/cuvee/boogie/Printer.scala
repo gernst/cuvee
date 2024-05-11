@@ -73,55 +73,43 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     // Work in progress - print lemmas in cuvee format
-    case Lemma(expr, tactic, _) if true =>
+    case Lemma(expr, tactic, mode) =>
       // TODO: hier sowas wie List("lemma " + formula(expr))
       // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
       //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
       // TODO: spaeter dann auch bei invariant, requires, ensures, Spec extends Prog, und Assert extends Cmd ("axiom")
 
       /* moegliches Format
-
-lemma forall x: int :: // hier Zeilenumbruch
-     P1
-  && (forall y: int ::
-        A1
-          ==> A2)
-  && P3
-      ==>    Q1
-          || Q2;
-
+        lemma forall x: int :: // hier Zeilenumbruch
+             P1
+          && (forall y: int ::
+                A1
+                  ==> A2)
+          && P3
+              ==>    Q1
+                  || Q2;
        */
 
-      val prop = Prop.from(expr)
       var result: List[String] = Nil
+      mode match {
+        case Some(Goal) =>
+          result = format("goal", expr)
+        case Some(Free) =>
+          result = format("free lemma", expr)
+        case None =>
+          result = format("lemma", expr)
+      }
 
-      if (expr.isInstanceOf[Conj])
-        result ++= mformat(expr.asInstanceOf[Conj])
-      else
-        result ++= mformat(prop)
-
-      if (tactic.nonEmpty)
+      if (tactic.nonEmpty) {
+        val old = result.last.patch(result.last.length - 1, "", 1)
+        result = result.updated(result.length - 1, old)
         result ++= "proof " +: tactic_(tactic.orNull)
 
-      val last = result.last.patch(result.last.length, ";", 1)
-      result = result.updated(result.length - 1, last)
-      result = indent(result)
+        val last = result.last.patch(result.last.length, ";", 1)
+        result = result.updated(result.length - 1, last)
+      }
 
-      "lemma " +: result
-    case Lemma(expr, tactic, _) =>
-      val prop = Prop.from(expr)
-      var result: List[String] = Nil
-
-      if (expr.isInstanceOf[Conj])
-        result ++= lines(expr)
-      else
-        result ++= lines(prop)
-
-      if (tactic.nonEmpty)
-        result ++= "proof " +: tactic_(tactic.orNull)
-
-      result = indent(result)
-      vblock(result)
+      result
     case CheckSat =>
       List("check sat;")
     case DeclareSort(name, 0) =>
@@ -214,6 +202,70 @@ lemma forall x: int :: // hier Zeilenumbruch
       result
   }
 
+  private def format(name: String, expr: Expr): List[String] = {
+    var phi = formula(expr)
+    val head = name + " " + phi.head.trim
+    val last = phi.last + ";"
+
+    if (phi.length > 1) {
+      phi = phi.updated(0, head)
+      phi = phi.updated(phi.length - 1, last)
+      head :: phi.tail
+    } else {
+      List(head + ";")
+    }
+  }
+
+  private def formula(expr: Expr): List[String] = expr match {
+    case And(phis) =>
+      val head = formula(phis.head)
+
+      val tail = for (phi <- phis.tail) yield {
+        val rest = formula(phi)
+        val first = "&& " + rest.head
+        first :: rest.tail
+      }
+
+      indent(head ++ tail.flatten)
+    case Or(phis) =>
+      val head = formula(phis.head)
+
+      val tail = for (phi <- phis.tail) yield {
+        val rest = formula(phi)
+        val first = "|| " + rest.head
+        first :: rest.tail
+      }
+
+      indent(head ++ tail.flatten)
+    case Imp(pre, ant) =>
+      val a = formula(pre)
+      val a_ = "(" + a.head
+      val pre_ = a_ :: a.tail
+
+      val b = formula(ant)
+      val b_ = b.last + ")"
+      val ant_ = b.updated(b.length - 1, b_)
+      // TODO Gidon: Needs one additional space (3 is a horrible number)
+      // Where do you want it? Either " ==> " or "==>  "
+      val impl = indent(List(" ==> " + ant_.head.trim))
+      pre_ ++ impl ++ indent(ant_.tail)
+    case Not(phi) =>
+      val phi_ = formula(phi)
+      ("!" + phi_.head) +: phi_.tail
+    case Forall(x, phi) =>
+      val quant = "(forall " ++ vartypes(x) ++ " ::"
+      val phi_ = indent(formula(phi), 3)
+      val last = phi_.last + ")"
+      quant :: phi_.updated(phi_.length - 1, last)
+    case Exists(x, phi) =>
+      val quant = "(exists " ++ vartypes(x) ++ " ::"
+      val phi_ = indent(formula(phi), 3)
+      val last = phi_.last + ")"
+      quant :: phi_.updated(phi_.length - 1, last)
+    case _ =>
+      List(line(expr))
+  }
+
   private def lines(prog: Prog): List[String] = prog match {
     case Block(progs) => indent(progs flatMap lines)
     case Break        => List("break;")
@@ -245,11 +297,11 @@ lemma forall x: int :: // hier Zeilenumbruch
 
       var spec: List[String] = List()
       if (term != Zero)
-        spec = spec :+ ("decreases\t" + line(term) + ";")
+        spec ++= format("decreases", term)
       if (inv != True)
-        spec = spec :+ ("invariant\t" + line(inv) + ";")
+        spec ++= format("invariant", inv)
       if (sum != True)
-        spec = spec :+ ("summary\t" + line(sum) + ";")
+        spec ++= format("summary", sum)
       if (!frames.isEmpty) {
         val frames_ = for (f <- frames) yield line(f)
         spec = spec :+ frames_.mkString("frames\t", ",", ";")
@@ -365,59 +417,6 @@ lemma forall x: int :: // hier Zeilenumbruch
     result
   }
 
-  private def mformat(prop: Prop): List[String] = prop match {
-    case Disj(xs, assms, concls) =>
-      var result: List[String] = Nil
-      val bound =
-        for (x <- xs)
-          yield x.name.toString + ": " + btype(x.typ)
-
-      val pre =
-        for (phi <- assms)
-          yield lines(phi)
-
-      val conclst =
-        for (phi <- concls)
-          yield mformat(phi)
-
-      if (bound.nonEmpty)
-        result = result :+ "forall " + bound.mkString("", ", ", " :: ")
-
-      // TODO What is the correct format here? cuvee does not give out ops
-      // look into the normal forms again
-      // example for strange behaviour exampls/boogie/bdd.bpl
-      if (pre.nonEmpty)
-        result ++= "assume" +: indent(pre.flatten)
-
-      if (concls.isEmpty)
-        result ++= List("show contradiction")
-      else if (concls.size == 1)
-        result ++= conclst.flatten
-      else if (concls.size > 1)
-        result ++= "show one of" +: indent(conclst.flatten)
-
-      result
-    case Atom(phi, None)      => List(line(phi))
-    case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
-  }
-
-  private def mformat(conj: Conj): List[String] = {
-    val Conj(xs, props) = conj
-    var result: List[String] = Nil
-
-    val bound = vartypes(xs)
-
-    val concls = (for (phi <- props) yield lines(phi)).flatten
-
-    if (bound.nonEmpty)
-      result ++= indent("exists" :: indent(List(bound)))
-
-    // TODO this is human readable but what would cuvee need between arguments e.g. simple.bpl
-    result ++= indent(concls)
-
-    result
-  }
-
   private def line(expr: Expr): String = expr match {
     case Lit(any, typ)  => any.toString
     case Var(name, typ) => name.toString
@@ -486,9 +485,9 @@ lemma forall x: int :: // hier Zeilenumbruch
     if (xs.nonEmpty)
       result ++= List("modifies " + vartypes(xs) + ";")
     if (!pre.equals(Nil) && pre != True)
-      result ++= List("requires " + line(pre) + ";")
+      result ++= format("requires", pre)
     if (!post.equals(Nil) && post != True)
-      result ++= List("ensures " + line(post) + ";")
+      result ++= format("ensures", post)
 
     indent(result)
   }
@@ -575,23 +574,8 @@ lemma forall x: int :: // hier Zeilenumbruch
     case Sorry          => indent(List("sorry"))
   }
 
-  private def vblock(lines: List[String]): List[String] = {
-    if (lines.isEmpty)
-      return lines
-
-    val head = lines.head.patch(0, "+", 1)
-    var result =
-      for (line <- lines)
-        yield line.patch(0, "|", 1)
-    val last = lines.last.patch(0, "+", 1)
-
-    result = result.updated(0, head)
-    result = result.updated(result.length - 1, last)
-
-    result
-  }
-
-  private def indent(lines: List[String]) = for (l <- lines) yield "  " + l
+  private def indent(lines: List[String], times: Int = 1) =
+    for (l <- lines) yield ("  " * times) + l
 
   private def indent(line: String) = "  " + line
 

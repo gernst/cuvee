@@ -40,7 +40,8 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
     }
 
     def refresh(xs: Iterable[V]) = {
-      rename(avoid(xs))
+      val alpha = avoid(xs)
+      rename(alpha, alpha)
     }
 
     def rename(re: Map[V, V]): A = {

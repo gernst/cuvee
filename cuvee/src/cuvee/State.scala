@@ -91,6 +91,9 @@ class State(
     var procs: Map[Name, Proc],
     var procdefs: Map[Name, (List[Var], List[Var], Prog)]
 ) {
+  def constr(name: Name) =
+    constrs.find(_.name == name)
+
   def constrs =
     for (
       (_, dt) <- datatypes.toSet;
@@ -243,6 +246,10 @@ class State(
 
     def lit(any: Any, typ: Type) = {
       Pre(Lit(any, typ))
+    }
+
+    def is(arg: Pre, fun: Fun) = {
+      Pre(Is(arg.expr, fun))
     }
 
     def bind(

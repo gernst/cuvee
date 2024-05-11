@@ -12,6 +12,7 @@ import java.io.FileOutputStream
 import cuvee.smtlib.Assert
 import cuvee.smtlib.CheckSat
 import cuvee.pure.Simplify
+import cuvee.pure.Rewrite
 
 trait Prover {
   def exec(cmd: Cmd, state: State)
@@ -25,11 +26,20 @@ object Prover {
   }
 
   val fromSimplifier = new Prover {
-    def exec(cmd: Cmd, state: State) {}
+    var cmds: List[Cmd] = Nil
+    def exec(cmd: Cmd, state: State) {
+      // XXX: does not consider push/pop
+      cmds = cmd :: cmds
+    }
 
     def reduce(prop: Prop, state: State) = {
       val constrs = state.constrs
-      val prop_ = Simplify.simplify(prop, Map(), constrs)
+      val rules = Rewrite.from(cmds, state) // add some new rewrite rules
+      // println("safe rules:")
+      // for (rule <- rules)
+      //   println("  " + rule)
+      val rws = rules.groupBy(_.fun)
+      val prop_ = Simplify.simplify(prop, rws, constrs)
       prop_
     }
   }

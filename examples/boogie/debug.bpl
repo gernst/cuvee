@@ -1,21 +1,18 @@
-data pyValue
-  = pyNone
-  | pyInt(pyGetInt: int)
-  | pyBool(pyGetBool: bool)
-  | pyArray(pyGetValues: [int]pyValue, pyGetLength: int)
-  ;
+data nat = zero | succ(pred: nat);
+data list = nil | cons(head: nat, tail: list);
 
-type ref;
-type field;
+function not_(b: bool): bool;
+axiom not_(false) == true;
+axiom not_(true)  == false;
 
-var heap:  [ref][field]pyValue;
-var alloc: [ref][field]bool;
+function contains(x: nat, xs: list): bool;
+axiom forall x: nat ::
+  contains(x, nil) == false;
+axiom forall x: nat, y: nat, ys: list ::
+  contains(x, cons(y, ys)) == (x == y || contains(x, ys));
 
-procedure __init__(self: ref, field: field)
-    modifies heap, alloc;
-{
-    heap[self][field]  := pyNone;
-    alloc[self][field] := true;
-    // heap  := heap [self := heap[self] [field := pyNone]];
-    // alloc := alloc[self := alloc[self][field := true]];
-}
+function remove(x: nat, xs: list): list;
+axiom forall x: nat ::
+  remove(x, nil) == nil;
+axiom forall x: nat, y: nat, ys: list ::
+  remove(x, cons(y, ys)) == if x == y then remove(x, ys) else cons(y, remove(x, ys));

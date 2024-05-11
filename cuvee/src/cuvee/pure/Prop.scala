@@ -51,6 +51,9 @@ object Prop {
       case Not(phi) :: rest =>
         from(rest, phi :: post, xs, assms, concls)
 
+      case Ite(test, left, right) :: rest =>
+        from((test ==> left) :: (!test ==> right) :: rest, post, xs, assms, concls)
+
       case And(phis) :: rest =>
         from(phis ++ rest, post, xs, assms, concls)
 
@@ -89,6 +92,8 @@ object Prop {
         (xs, assms, concls) match {
           case (Nil, Nil, Nil) =>
             Atom.f
+          case (Nil, Nil, List(Conj(Nil, List(atom: Atom)))) =>
+            atom
           case (Nil, Nil, List(Conj(Nil, List(Disj(ys, assms, concls))))) =>
             Disj(xs ++ ys, assms, concls)
           case _ =>
@@ -109,6 +114,9 @@ object Prop {
 
       // case Eq(phi, psi) :: rest if phi.typ == Sort.bool =>
       //   show(And(Imp(phi, psi), Imp(psi, phi)) :: rest, xs, assms, concls)
+
+      case Ite(test, left, right) :: rest =>
+        from((test && left) :: (!test && right) :: rest, xs, assms, concls)
 
       case Imp(phi, psi) :: rest =>
         from(List(phi), psi :: rest, xs, assms, concls)
@@ -226,7 +234,7 @@ case class Disj(xs: List[Var], assms: List[Prop], concls: List[Conj])
 // represents
 //   exists xs. /\ {props}
 case class Conj(xs: List[Var], props: List[Prop]) extends Expr.bind[Conj] {
-  require(xs == xs.distinct)
+  require(xs == xs.distinct, "duplicate vars in " + this)
 
   def map(f: Atom => Prop): Conj =
     Conj(xs, props map (_ map f))

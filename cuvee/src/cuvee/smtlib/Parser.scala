@@ -111,9 +111,19 @@ class Parser(init: State) {
         val phi_ = expr_typed(phi, bool)
         Assert(phi_)
 
+      // these are extensions to SMT-LIB
       case App(Id("lemma"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, true)
+        Lemma(phi_, None, None)
+
+      // case App(Id("free-lemma"), phi) =>
+      //   val phi_ = expr_typed(phi, bool)
+      //   Lemma(phi_, None, Some(Free))
+
+      // prove is used in TIP https://github.com/tip-org/
+      case App(Id("prove"), phi) =>
+        val phi_ = expr_typed(phi, bool)
+        Lemma(phi_, None, Some(Goal))
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
@@ -354,7 +364,7 @@ class Parser(init: State) {
     def expr(from: Expr, ctx: Set[Name], scope: Map[Name, Type]): Pre =
       from match {
         case Lit.num(digits) =>
-          lit(digits.toInt, int)
+          lit(BigInt(digits), int)
 
         case Lit.dec(digits) =>
           lit(digits.toDouble, real)
@@ -396,6 +406,14 @@ class Parser(init: State) {
           val body = expr(arg, ctx, scope ++ xs.pairs)
           check(body, bool)
           bind(name, xs, body, bool)
+
+        case App(App(Id("_"), Id("is"), Id(name)), arg) =>
+          st.constr(name) match {
+            case Some(fun) =>
+              is(expr(arg, ctx, scope), fun)
+            case None =>
+              error("invalid constructor: " + name)
+          }
 
         // qualified constant
         case App(Id("as"), Id(name), from) if st.funs contains (name, 0) =>

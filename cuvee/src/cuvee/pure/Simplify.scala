@@ -15,55 +15,68 @@ object Simplify {
     Rule(lhs_, rhs_, cond_, avoid_)
   }
 
-  def simplify(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr match {
-    case And(phis) =>
-      and(simplify(phis, rules, constrs))
+  def simplify(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr =
+    Expr.liftIte(expr) match {
+      case x: Var =>
+        x
 
-    case Or(phis) =>
-      or(simplify(phis, rules, constrs))
+      case l: Lit =>
+        l
 
-    case Not(phi) =>
-      not(simplify(phi, rules, constrs))
+      case And(phis) =>
+        and(simplify(phis, rules, constrs))
 
-    case Imp(phi, psi) =>
-      imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
+      case Or(phis) =>
+        or(simplify(phis, rules, constrs))
 
-    case Ite(test, left, right) =>
-      ite(
-        simplify(test, rules, constrs),
-        simplify(left, rules, constrs),
-        simplify(right, rules, constrs)
-      )
+      case Not(phi) =>
+        not(simplify(phi, rules, constrs))
 
-    case Is(arg, fun) =>
-      is(arg, fun)
+      case Imp(phi, psi) =>
+        imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
 
-    case Eq(left, right) if left.typ == Sort.bool =>
-      eqv(simplify(left, rules, constrs), simplify(right, rules, constrs))
+      case Ite(test, left, right) =>
+        ite(
+          simplify(test, rules, constrs),
+          simplify(left, rules, constrs),
+          simplify(right, rules, constrs)
+        )
 
-    case Eq(left, right) =>
-      eq(simplify(left, rules, constrs), simplify(right, rules, constrs), rules, constrs)
+      case Is(arg, fun) =>
+        is(arg, fun)
 
-    case Bind(quant, formals, body, typ) =>
-      bind(quant, formals, simplify(body, rules, constrs), typ)
+      case Eq(left, right) if left.typ == Sort.bool =>
+        eqv(simplify(left, rules, constrs), simplify(right, rules, constrs))
 
-    case Select(base, index) =>
-      select(simplify(base, rules, constrs), simplify(index, rules, constrs))
+      case Eq(left, right) =>
+        eq(simplify(left, rules, constrs), simplify(right, rules, constrs), rules, constrs)
 
-    case App(inst, args) if rules.nonEmpty =>
-      // println(" try rewriting: " + expr + " with rules: " + rules, constrs)
-      val args_ = Rewrite.rewrites(args, rules)
-      val expr_ = App(inst, args_)
-      // println(" args: " + args_)
-      val res_ = Rewrite.app(expr_, inst.fun, args_, rules, depth = 0)
-      if (expr != res_)
-        simplify(res_, rules, constrs)
-      else
-        builtin(res_, rules, constrs)
-    // Rewrite.rewrite(expr, rules, constrs)
+      case Bind(quant, formals, body, typ) =>
+        bind(quant, formals, simplify(body, rules, constrs), typ)
 
-    case _ =>
-      builtin(expr, rules, constrs)
+      case Select(base, index) =>
+        select(simplify(base, rules, constrs), simplify(index, rules, constrs))
+
+      case App(inst, args) =>
+        app(expr, inst, simplify(args, rules, constrs), rules, constrs)
+    }
+
+  def app(
+      expr: Expr,
+      inst: Inst,
+      args: List[Expr],
+      rules: Map[Fun, List[Rule]],
+      constrs: Set[Fun]
+  ): Expr = {
+    // println(" try rewriting: " + expr + " with rules: " + rules, constrs)
+    val args_ = Rewrite.rewrites(args, rules)
+    val expr_ = App(inst, args_)
+    // println(" args: " + args_)
+    val res_ = Rewrite.app(expr_, inst.fun, args_, rules, depth = 0)
+    if (expr != res_)
+      simplify(res_, rules, constrs)
+    else
+      builtin(res_, rules, constrs)
   }
 
   def builtin(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr = expr match {
@@ -105,8 +118,13 @@ object Simplify {
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
     case Atom(expr, None) =>
       val expr_ = simplify(expr, rules, constrs)
-      // println("expr_ = " + expr_)
-      Prop.from(expr_)
+      val prop_ = Prop.from(expr_)
+      println(prop)
+      println(prop_)
+      if (prop != prop_)
+        simplify(prop_, rules, constrs)
+      else
+        prop
 
     case Atom(expr, model) =>
       Atom(simplify(expr, rules, constrs), model)
@@ -173,7 +191,12 @@ object Simplify {
         (assms3 exists x.in) || (concls3 exists x.in)
       }
 
-      Disj.reduce(xs3, assms3, concls3)
+      // println(assms3)
+      val prop_ = Disj.reduce(xs3, assms3, concls3)
+      if (prop != prop_)
+        simplify(prop_, rules, constrs)
+      else
+        prop_
   }
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
@@ -186,7 +209,7 @@ object Simplify {
       yield simplify(expr, rules, constrs)
   }
 
-  def is(arg: Expr, fun: Fun): Expr = if (true) {
+  def is(arg: Expr, fun: Fun): Expr = if (false) {
     Is(arg, fun)
   } else {
     val ty = Type.bind(fun.res, arg.typ)
@@ -333,6 +356,8 @@ object Simplify {
       case (_, True, _)       => imp(not(test), right)
       case (_, _, False)      => and(List(test, left))
       case (_, False, _)      => and(List(not(test), right))
+      case _ if test == left  => Or(test, right)
+      case _ if test == right => And(test, left)
       case _                  => Ite(test, left, right)
     }
   }

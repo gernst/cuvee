@@ -6,6 +6,8 @@ import cuvee.pure._
 import cuvee.imp.WP
 
 object Compare {
+  var debug = false
+
   def main(args: Array[String]) {
     val (cmds, st) = cuvee.boogie.parse("examples/boogie/debug.bpl")
     val (decls, eqs, defs) = cuvee.lemmas.prepare(cmds, st)
@@ -95,12 +97,19 @@ object Compare {
         val dpre = Def(pre, precases)
         Some((dpre, xs, App(pre, xs), lhs, rhs))
       } else {
+        if(debug)
+        println("discarding as trivial: " + precases)
         None
       }
     } catch {
       // case CannotCompare =>
       //   None
       case _: Type.CannotUnify =>
+        if(debug) {
+        println("cannot unify: ")
+        println(df)
+        println(dg)
+        }
         None
     }
   }
@@ -152,6 +161,12 @@ object Compare {
         val gbody_ = Simplify.simplify(gbody subst su, rules, constrs)
         val body = meet(pre, f, fbody_, i, g, gbody_, j, constrs)
 
+        if(debug) {
+        println("  meet " + fbody_ + " and " + gbody_)
+        println("  = " + body)
+        println()
+        }
+
         // simplify again
         val body_ = Simplify.simplify(And(body), rules, constrs)
         List(C((pat subst su) :: pats, guard, body_))
@@ -193,7 +208,7 @@ object Compare {
         Nil
 
       // non-recursive cases, resp. non-recursive part of the body
-      case _ if !(f in fexpr) && !(g in gexpr) =>
+      case _ => // if !(f in fexpr) && !(g in gexpr) =>
         List(Eq(fexpr, gexpr))
 
       case _ =>
