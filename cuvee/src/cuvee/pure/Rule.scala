@@ -85,7 +85,7 @@ case class Rule(
 }
 
 object Rules {
-  var ite = false
+  var ite = true
   var shortcut = true
 
   def from(

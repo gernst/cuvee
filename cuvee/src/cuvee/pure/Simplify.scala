@@ -20,6 +20,9 @@ object Simplify {
       case x: Var =>
         x
 
+      case l: Lit =>
+        l
+
       case And(phis) =>
         and(simplify(phis, rules, constrs))
 
