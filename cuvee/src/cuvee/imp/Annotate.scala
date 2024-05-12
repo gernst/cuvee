@@ -5,7 +5,9 @@ import cuvee.pipe.Stage
 import cuvee.smtlib.Cmd
 import cuvee.smtlib.DefineProc
 
-abstract class Annotate[S](val interpret: Interpret[S]) extends Stage {
+abstract class Annotate[S] extends Stage {
+  def exec: Exec[S]
+
   def exec(
       prefix: List[Cmd],
       cmds: List[Cmd],
@@ -14,7 +16,7 @@ abstract class Annotate[S](val interpret: Interpret[S]) extends Stage {
   ) = {
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
-        val states = interpret.entry(in, out, spec)
+        val states = exec.entry(in, out, spec)
         val (states_, body_) = annotate(states, body)
         List(DefineProc(name, params, in, out, spec, body_))
 
@@ -36,19 +38,19 @@ abstract class Annotate[S](val interpret: Interpret[S]) extends Stage {
   // Note: default implementations
 
   def break_(states: List[S]) =
-    (interpret.break_(states), Break)
+    (exec.break_(states), Break)
 
   def return_(states: List[S]) =
-    (interpret.return_(states), Return)
+    (exec.return_(states), Return)
 
   def spec(states: List[S], xs: List[Var], pre: Expr, post: Expr) =
-    (interpret.spec(states, xs, pre, post), Spec(xs, pre, post))
+    (exec.spec(states, xs, pre, post), Spec(xs, pre, post))
 
   def local(states: List[S], xs: List[Var], rhs: List[Expr]) =
-    (interpret.local(states, xs, rhs), Local(xs, rhs))
+    (exec.local(states, xs, rhs), Local(xs, rhs))
 
   def assign(states: List[S], xs: List[Var], rhs: List[Expr]) =
-    (interpret.assign(states, xs, rhs), Assign(xs, rhs))
+    (exec.assign(states, xs, rhs), Assign(xs, rhs))
 
   // def join(states1: List[S], states2: List[S]): List[S]
   // def widen(states1: List[S], states2: List[S]): List[S]
@@ -64,9 +66,9 @@ abstract class Annotate[S](val interpret: Interpret[S]) extends Stage {
   }
 
   def if_(states0: List[S], test: Expr, left: Prog, right: Prog): (List[S], Prog) = {
-    val (states1, left_) = annotate(interpret.assume(states0, test), left)
-    val (states2, right_) = annotate(interpret.assume(states0, !test), right)
-    (interpret.join(states1, states2), If(test, left_, right_))
+    val (states1, left_) = annotate(exec.assume(states0, test), left)
+    val (states2, right_) = annotate(exec.assume(states0, !test), right)
+    (exec.join(states1, states2), If(test, left_, right_))
   }
 
   def annotate(states: List[S], prog: Prog): (List[S], Prog) = prog match {

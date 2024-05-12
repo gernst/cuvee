@@ -3,21 +3,7 @@ package cuvee.imp.annotate
 import cuvee.pure._
 import cuvee.imp._
 
-object SymbolicInterpreter extends Interpret[Path] with Interpret.WithPath {
-  def while_(
-      states0: List[Path],
-      test: Expr,
-      body: Prog,
-      term: Expr,
-      inv: Expr,
-      sum: Expr,
-      frames: List[Frame]
-  ): List[Path] = ???
-  def break_(states: List[Path]): List[Path] = ???
-  def return_(states: List[Path]): List[Path] = ???
-}
-
-object Arrays extends Annotate(SymbolicInterpreter) {
+object Arrays extends Annotate[Path] {
   def while_(
       states: List[Path],
       test: Expr,
@@ -57,7 +43,7 @@ object Arrays extends Annotate(SymbolicInterpreter) {
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
 
-    val states__ = interpret.spec(states, mod.toList, inv_, inv_ && !test)
+    val states__ = exec.spec(states, mod.toList, inv_, inv_ && !test)
 
     (states__, prog_)
   }
@@ -157,5 +143,19 @@ object Arrays extends Annotate(SymbolicInterpreter) {
       Select(Old(b), maybeOldOtherArrays(mod, key))
     case expr =>
       expr
+  }
+
+  object exec extends Exec[Path] with Exec.WithPath {
+    def while_(
+        states0: List[Path],
+        test: Expr,
+        body: Prog,
+        term: Expr,
+        inv: Expr,
+        sum: Expr,
+        frames: List[Frame]
+    ): List[Path] = ???
+    def break_(states: List[Path]): List[Path] = ???
+    def return_(states: List[Path]): List[Path] = ???
   }
 }

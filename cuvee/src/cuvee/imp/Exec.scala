@@ -1,166 +1,170 @@
 package cuvee.imp
 
 import cuvee.pure._
-import cuvee.smtlib.Assert
 
-sealed trait Final
+sealed trait Final[S]
+case class Stopped[S](st: S) extends Final[S]
+case class Returned[S](st: S) extends Final[S]
+case class Breaked[S](st: S) extends Final[S]
+case class Asserted[S](st: S, phi: Expr) extends Final[S]
 
-/* Note: all path formulas and phi are already evaluated */
-case class Asserted(fresh: List[Var], path: List[Expr], phi: Expr) extends Final
-case class Returned(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
-case class Breaked(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
-case class Stopped(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
+trait Exec[S] {
+  def while_(
+      states0: List[S],
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): List[S]
 
-class Exec(val evals: Eval) {
-  import evals.state
-  import evals.havoc
-  import evals.assign
-  import evals.eval
+  def entry(in: List[Var], out: List[Var], spec: Option[Spec]): List[S]
 
-  def exec(
-      progs: List[Prog], // current block, affected by local variables
-      cont: List[List[Prog]], // anything after the current block
-      fresh: List[Var], // any new variables introduced
-      path: List[Expr], // current path condition
-      scope: Map[Var, Expr], // assignment of logical variables, perhaps renaming to avoid clashes
-      st: Map[Var, Expr], // all program variables
-      old: List[Map[Var, Expr]]
-  ): List[Final] = {
-    progs match {
-      case Nil =>
-        cont match {
-          case Nil =>
-            List(Stopped(fresh, path, st))
+  def spec(states: List[S], xs: List[Var], pre: Expr, post: Expr): List[S]
+  def local(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
+  def assign(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
 
-          case progs :: cont =>
-            exec(progs, cont, fresh, path, scope, st, old)
-        }
+  // Note: default implementations
 
-      case Block(progs) :: rest =>
-        exec(progs, rest :: cont, fresh, path, scope, st, old)
+  def join(states1: List[S], states2: List[S]) =
+    states1 ++ states2
 
-      case Return :: rest =>
-        List(Returned(fresh, path, st))
+  def assume(states: List[S], pre: Expr) =
+    spec(states, Nil, pre, True)
 
-      case Break :: rest =>
-        List(Breaked(fresh, path, st))
+  def assert(states: List[S], post: Expr) =
+    spec(states, Nil, True, post)
 
-      case Local(xs, init) :: rest =>
-        // Note: ensure we introduce fresh names for the locals
-        //       and compute on these within the current block (but not in cont)
-        val (ys, zs) = xs partition st.contains
-        val (ys_, re) = havoc(ys)
-        val xs_ = ys_ ++ zs
-        val rest_ = rest replace re
-        val init_ = if (init.isEmpty) xs_ else init subst st
-        val st_ = assign(st, xs_, init_)
+  def break_(states: List[S]): List[S]
+  def return_(states: List[S]): List[S]
 
-        exec(rest_, cont, fresh, path, scope, st_, old)
+  def block(states: List[S], progs: List[Prog]) =
+    progs.foldLeft(states)(exec)
 
-      case Assign(xs, rhs) :: rest =>
-        val rhs_ = rhs subst st // don't use eval, old is specification-only
-        val st_ = assign(st, xs, rhs_)
-        exec(rest, cont, fresh, path, scope, st_, old)
+  def if_(states0: List[S], test: Expr, left: Prog, right: Prog): List[S] = {
+    val states1 = exec(assume(states0, test), left)
+    val states2 = exec(assume(states0, !test), right)
+    join(states1, states2)
+  }
 
-      case Spec(xs, phi, psi) :: rest =>
-        val (xs_, re) = havoc(xs)
-        val fresh_ = fresh ++ xs_
-        val st_ = assign(st, xs, xs_)
-        val phi_ = eval(phi, scope, st, old)
-        val psi_ = eval(psi, scope, st_, st :: old)
+  def exec(states: List[S], prog: Prog): List[S] = prog match {
+    case Break =>
+      break_(states)
 
-        val first_ = Asserted(fresh_, path, phi_)
-        val rest_ = exec(rest, cont, fresh_, path ++ List(psi_), scope, st_, old)
-        first_ :: rest_
+    case Return =>
+      return_(states)
 
-      case Call(name, in, out) :: rest =>
-        require(state.procs contains name, "unknown procedure: " + name)
-        val Proc(_, params, xs, zs, spec) = state procs name
+    case Block(progs) =>
+      block(states, progs)
 
-        spec match {
-          case None =>
-            cuvee.error(
-              "inlining procedures not implemented, consider adding a contract to: " + name
-            )
+    case Local(xs, rhs) =>
+      local(states, xs, rhs)
 
-          case Some(Spec(mod, phi, psi)) =>
-            val su = Expr.subst(xs, in)
-            val re = Expr.subst(zs, out)
-            val spec_ = Spec(mod, phi subst su, psi subst (su ++ re))
-            exec(spec_ :: rest, cont, fresh, path, scope, st, old)
-        }
+    case Assign(xs, rhs) =>
+      assign(states, xs, rhs)
 
-      case If(test, left, right) :: rest =>
-        val test_ = test subst st
-        val left_ = exec(List(left), cont, fresh, path ++ List(test_), scope, st, old)
-        val right_ = exec(List(right), cont, fresh, path ++ List(!test_), scope, st, old)
-        left_ ++ right_
+    case Spec(xs, pre, post) =>
+      spec(states, xs, pre, post)
 
-      case While(test, body, term, inv, True, frames) :: rest =>
-        // variables modified by the loop
-        val xm = body.mod
-        val xs0 = xm.toList
-        val (xs1, re) = havoc(xs0)
+    case If(test, left, right) =>
+      if_(states, test, left, right)
 
-        // Prepare some states:
-        // 0. current state at loop entry
-        // 1. arbitrary state at loop head before some iteration
-        val st0 = st
-        val st1 = assign(st, xs0, xs1)
-        val old_ = st0 :: old
+    case While(test, body, term, inv, sum, frames) =>
+      while_(states, test, body, term, inv, sum, frames)
+  }
+}
 
-        // invariant to show at loop head upon entry
-        val inv0 = eval(inv, scope, st0, old_)
+object Exec {
+  // TODO: de-duplicate this with the domain-based interpreter
+  trait WithPath {
+    def entry(in: List[Var], out: List[Var], spec: Option[Spec]) =
+      spec match {
+        case None =>
+          val su = Expr.id(in ++ out)
+          val fresh = Nil
+          val constraints = Nil
+          val vars = List(su)
+          val init = Path(fresh, constraints, vars, List(vars))
+          List(init)
 
-        // test and invariant at loop head before some iteration
-        val test1 = test subst st1
-        val inv1 = eval(inv, scope, st1, old_)
+        case Some(Spec(globals, pre, post)) =>
+          val su = Expr.id(in ++ out ++ globals)
+          val fresh = Nil
+          val constraints = List(pre)
+          val vars = List(su)
+          val init = Path(fresh, constraints, vars, List(vars))
+          List(init)
+      }
 
-        // path condition with the invariant at an arbitrary state
-        val path_ = path ++ List(inv1)
+    def local(states: List[Path], xs: List[Var], rhs: List[Expr]) =
+      for (path <- states)
+        yield path.local(xs, rhs)
 
-        // assertion for invariant on loop entry
-        val init = Asserted(fresh, path, inv0)
+    def assign(states: List[Path], xs: List[Var], rhs: List[Expr]) =
+      for (path <- states)
+        yield path.assign(xs, rhs)
 
-        // final states of executing an arbitrary loop iteration
-        val body_ = exec(List(body), Nil, fresh, path_ ++ List(test1), scope, st1, old_)
+    def spec(states: List[Path], xs: List[Var], pre: Expr, post: Expr) =
+      for (path <- states)
+        yield path.spec(xs, pre, post)
 
-        // TODO: here can be a loop that goes through body_, for example like this
-        //       which collects some additional information from
-        //       the relation between st1 and st2
-        for(Stopped(fresh, path, st2) <- body_) {
+    def withOld(states0: List[Path])(f: List[Path] => List[Path]) = {
+      val states1 = states0 map (_.pushOld)
+      val states2 = f(states1)
+      val states3 = states2 map (_.popOld)
+      states3
+    }
+  }
 
-        }
+  trait WithFixpoint[S] {
+    this: Exec[S] =>
 
-        // now collect all successor states which don't break out of the loop
-        val step = body_ flatMap {
-          // keep assertions inside the body for later
-          case conf: Asserted =>
-            List(conf)
+    def isSubsetOf(states1: List[S], states2: List[S]): Boolean
+    def widen(states1: List[S], states2: List[S]): List[S]
+    def narrow(states1: List[S], states2: List[S]): List[S]
 
-          // similarly, propagate returns
-          case conf: Returned =>
-            List(conf)
+    def fixpoint(init: List[S], fuel: Int = 5)(next: List[S] => List[S]): List[S] = {
+      require(fuel >= 0, "too many iterations in fixpoint")
 
-          // breaking out of the loop just continues after the loop,
-          // similarly to rest_ above but from that intermediate state
-          case Breaked(fresh, path, st2) =>
-            exec(rest, cont, fresh, path, scope, st2, old_)
+      val states = next(init)
 
-          // regular executions of the body just need to theck the invariant
-          case Stopped(fresh, path, st2) =>
-            val inv2 = eval(inv, scope, st2, old_)
-            List(Asserted(fresh, path, inv2))
-        }
+      if (isSubsetOf(states, init))
+        states
+      else
+        fixpoint(states, fuel - 1)(next)
+    }
 
-        // final states of executing the rest of the program after the loop
-        val exit = exec(rest, cont, fresh, path_ ++ List(!test1), scope, st1, old_)
+    def iter(
+        states0: List[S],
+        test: Expr,
+        body: Prog
+    ): List[S] = {
+      val widened = fixpoint(states0) { states =>
+        val states1 = exec(assume(states0, test), body)
+        val result = widen(states0, states1)
+        result
+      }
 
-        // collect the assertion and all potential outcomes
-        List(init) ++ step ++ exit
+      val narrowed = fixpoint(widened) { states =>
+        val states1 = exec(assume(states0, test), body)
+        val result = narrow(states0, states1)
+        result
+      }
 
-      case While(test, body, term, inv, sum, frames) :: rest =>
-        ???
+      narrowed
+    }
+
+    def while_(
+        states0: List[S],
+        test: Expr,
+        body: Prog,
+        term: Expr,
+        inv: Expr,
+        sum: Expr,
+        frames: List[Frame]
+    ): List[S] = {
+      assume(iter(states0, test, body), !test)
     }
   }
 }
