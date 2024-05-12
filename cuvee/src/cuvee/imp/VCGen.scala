@@ -6,9 +6,9 @@ import cuvee.State
 import cuvee.pipe.Stage
 import cuvee.smtlib._
 
-object Eval extends Stage {
+object VCGen extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
-    val eval = new Eval(state)
+    val eval = new VCGen(state)
 
     cmds flatMap {
       case Assert(expr) =>
@@ -46,7 +46,7 @@ object Eval extends Stage {
   }
 }
 
-class Eval(val state: State) {
+class VCGen(val state: State) {
   def eval(
       expr: Expr,
       scope: Map[Var, Expr] = Map(),

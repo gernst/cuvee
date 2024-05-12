@@ -30,10 +30,20 @@ object Accelerate {
 
   def isEarlierValueOf(counters: Map[Var, Counter], expr: Expr, now: Expr): Option[Expr] =
     expr match {
+      case _: Lit =>
+        ??? // the condition below should be trivially satisfied!
+        require(expr == now)
+        Some(expr === now)
+
       case i: Var if counters contains i =>
         isEarlierValueOf(counters(i), i, now)
 
       case App(inst, args) =>
+        ???
+
+        // TODO: expr and now will definitely have the same structure,
+        //       as now = expr rename re for some renaming
+        //       therefore we do not need to introduce additional variables, but just descend lockstep
         val ys = Expr.vars("y", args.types)
         val re = Expr.fresh(ys)
         val ys_ = ys rename re
@@ -45,8 +55,12 @@ object Accelerate {
           )
             yield phi
 
+        println(args)
+        println(phis)
+
         if (args.length == phis.length) {
-          Some(Exists(ys_, now === App(inst, ys)))
+          val eq = now === App(inst, ys_)
+          Some(Exists(ys_, And(eq :: phis)))
         } else {
           None
         }

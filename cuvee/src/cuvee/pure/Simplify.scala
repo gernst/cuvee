@@ -119,8 +119,8 @@ object Simplify {
     case Atom(expr, None) =>
       val expr_ = simplify(expr, rules, constrs)
       val prop_ = Prop.from(expr_)
-      println(prop)
-      println(prop_)
+      // println(prop)
+      // println(prop_)
       if (prop != prop_)
         simplify(prop_, rules, constrs)
       else
@@ -207,7 +207,7 @@ object Simplify {
         case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
       }
 
-      println(eqs)
+      // println(eqs)
 
       Conj.reduce(xs, props map (simplify(_, rules, constrs)))
   }
