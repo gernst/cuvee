@@ -99,8 +99,10 @@ object Arrays extends Annotate[Path] {
     val branch = path.constraint rename re
 
     val rhs = path lookup a
+
+    // TODO: these two share most of their computations
     val prem = indexEqualities(counters, re, a, x, rhs)
-    val concl = assignmentEqualities(mod, re, a, x, rhs)
+    val concl = assignmentEqualities(mod, counters, re, a, x, rhs)
 
     val index = Exists(vars, branch && prem)
     val value = Exists(vars, branch && concl)
@@ -120,12 +122,19 @@ object Arrays extends Annotate[Path] {
 
     case Store(rhs_, key, _) =>
       val now = key rename re
-      val here = Accelerate.checkEarlierValueOf(counters, key, now)
+      val earlier = Accelerate.checkEarlierValueOf(counters, key, now)
       val there = indexEqualities(counters, re, a, x, rhs_)
-      Ite(x === now, here, there)
+      Ite(x === now, earlier, there)
   }
 
-  def assignmentEqualities(mod: Set[Var], re: Map[Var, Var], a: Var, x: Var, rhs: Expr): Expr =
+  def assignmentEqualities(
+      mod: Set[Var],
+      counters: Map[Var, Counter],
+      re: Map[Var, Var],
+      a: Var,
+      x: Var,
+      rhs: Expr
+  ): Expr =
     rhs match {
       case `a` =>
         False
@@ -133,9 +142,10 @@ object Arrays extends Annotate[Path] {
       case Store(rhs_, key, value) =>
         val now = key rename re
         val value_ = maybeOldOtherArrays(mod, value)
+        val earlier = Accelerate.checkEarlierValueOf(counters, key, now)
         val here = Select(a, x) === (value_ rename re)
-        val there = assignmentEqualities(mod, re, a, x, rhs_)
-        Ite(x === now, here, there)
+        val there = assignmentEqualities(mod, counters, re, a, x, rhs_)
+        Ite(x === now, earlier && here, there)
     }
 
   def maybeOldOtherArrays(mod: Set[Var], rhs: Expr): Expr = rhs topdown {
