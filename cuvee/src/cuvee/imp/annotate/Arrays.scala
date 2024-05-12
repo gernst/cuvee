@@ -5,7 +5,7 @@ import cuvee.imp._
 
 object Arrays extends Annotate[Path] {
   def while_(
-      states: List[Path],
+      states: States[Path],
       test: Expr,
       body: Prog,
       term: Expr,
@@ -27,16 +27,16 @@ object Arrays extends Annotate[Path] {
     val vars = List(su)
 
     val init = Path(fresh, constraints, vars, List(vars))
-    val arbitrary = List(init)
+    val arbitrary = States(List(init))
 
     val (states_, body_) = annotate(arbitrary, body)
-    val counters = Accelerate.counters(states, states_, ys)
+    val counters = Accelerate.counters(states.running, states_.running, ys)
 
     // println(states)
     // println(states_)
     // println(counters)
 
-    val phi = accelerateWrites(mod, as, ys, counters, states_)
+    val phi = accelerateWrites(mod, as, ys, counters, states_.running)
     val add = And(phi)
     val inv_ = Simplify.simplify(inv && add, Map(), Set())
     // val inv_ = inv && add
@@ -146,16 +146,15 @@ object Arrays extends Annotate[Path] {
   }
 
   object exec extends Exec[Path] with Exec.WithPath {
-    def while_(
-        states0: List[Path],
+
+    override def while_(
+        states0: States[Path],
         test: Expr,
         body: Prog,
         term: Expr,
         inv: Expr,
         sum: Expr,
         frames: List[Frame]
-    ): List[Path] = ???
-    def break_(states: List[Path]): List[Path] = ???
-    def return_(states: List[Path]): List[Path] = ???
+    ): States[Path] = ???
   }
 }

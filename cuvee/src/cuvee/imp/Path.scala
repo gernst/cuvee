@@ -55,17 +55,19 @@ case class Path(
     Path(fresh, constraints, vars_, old)
   }
 
-  def spec(xs: List[Var], pre: Expr, post: Expr) = {
+  def assume(phi: Expr) = {
+    val phi_ = Path.eval(vars, old, phi)
+    val constraints_ = phi_ :: constraints
+    Path(fresh, constraints_, vars, old)
+  }
+
+  def step(xs: List[Var], rel: Expr) = {
     val su = Expr.fresh(xs)
     val xs_ = xs rename su
-    val pre_ = Path.eval(vars, old, pre)
-    val post_ = Path.eval(su :: vars, vars :: old, pre)
+    val rel_ = Path.eval(su :: vars, vars :: old, rel)
 
-    // Note, assume instead of assert pre_ here
-    // because we aim to construct a path with all constraints that
-    // are known to hold if execution passes on
     val fresh_ = fresh ++ xs_
-    val constraints_ = post_ :: pre_ :: constraints
+    val constraints_ = rel_ :: constraints
     val vars_ = su :: vars
     Path(fresh_, constraints_, vars_, old)
   }

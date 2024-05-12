@@ -16,7 +16,7 @@ abstract class Annotate[S] extends Stage {
   ) = {
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
-        val states = exec.entry(in, out, spec)
+        val states = States(exec.entry(in, out, spec))
         val (states_, body_) = annotate(states, body)
         List(DefineProc(name, params, in, out, spec, body_))
 
@@ -26,36 +26,36 @@ abstract class Annotate[S] extends Stage {
   }
 
   def while_(
-      states: List[S],
+      states: States[S],
       test: Expr,
       body: Prog,
       term: Expr,
       inv: Expr,
       sum: Expr,
       frames: List[Frame]
-  ): (List[S], Prog)
+  ): (States[S], Prog)
 
   // Note: default implementations
 
-  def break_(states: List[S]) =
-    (exec.break_(states), Break)
+  def break_(states: States[S]) =
+    (exec.break(states), Break)
 
-  def return_(states: List[S]) =
+  def return_(states: States[S]) =
     (exec.return_(states), Return)
 
-  def spec(states: List[S], xs: List[Var], pre: Expr, post: Expr) =
+  def spec(states: States[S], xs: List[Var], pre: Expr, post: Expr) =
     (exec.spec(states, xs, pre, post), Spec(xs, pre, post))
 
-  def local(states: List[S], xs: List[Var], rhs: List[Expr]) =
+  def local(states: States[S], xs: List[Var], rhs: List[Expr]) =
     (exec.local(states, xs, rhs), Local(xs, rhs))
 
-  def assign(states: List[S], xs: List[Var], rhs: List[Expr]) =
+  def assign(states: States[S], xs: List[Var], rhs: List[Expr]) =
     (exec.assign(states, xs, rhs), Assign(xs, rhs))
 
   // def join(states1: List[S], states2: List[S]): List[S]
   // def widen(states1: List[S], states2: List[S]): List[S]
 
-  def block(states0: List[S], progs: List[Prog]): (List[S], List[Prog]) = progs match {
+  def block(states0: States[S], progs: List[Prog]): (States[S], List[Prog]) = progs match {
     case Nil =>
       (states0, Nil)
 
@@ -65,13 +65,13 @@ abstract class Annotate[S] extends Stage {
       (states2, prog_ :: rest_)
   }
 
-  def if_(states0: List[S], test: Expr, left: Prog, right: Prog): (List[S], Prog) = {
+  def if_(states0: States[S], test: Expr, left: Prog, right: Prog): (States[S], Prog) = {
     val (states1, left_) = annotate(exec.assume(states0, test), left)
     val (states2, right_) = annotate(exec.assume(states0, !test), right)
     (exec.join(states1, states2), If(test, left_, right_))
   }
 
-  def annotate(states: List[S], prog: Prog): (List[S], Prog) = prog match {
+  def annotate(states: States[S], prog: Prog): (States[S], Prog) = prog match {
     case Break =>
       break_(states)
 
