@@ -2,7 +2,7 @@ package cuvee.imp
 
 import cuvee.pure._
 
-object InterpretNew {
+object Interpret {
   trait WithPath {
     def entry(in: List[Var], out: List[Var], spec: Option[Spec]) =
       spec match {
@@ -44,7 +44,7 @@ object InterpretNew {
   }
 
   trait WithFixpoint[S] {
-    this: InterpretNew[S] =>
+    this: Interpret[S] =>
 
     def isSubsetOf(states1: List[S], states2: List[S]): Boolean
     def widen(states1: List[S], states2: List[S]): List[S]
@@ -95,7 +95,7 @@ object InterpretNew {
   }
 }
 
-trait InterpretNew[S] {
+trait Interpret[S] {
   def while_(
       states0: List[S],
       test: Expr,

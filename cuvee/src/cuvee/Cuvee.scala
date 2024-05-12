@@ -29,15 +29,12 @@ class Config {
   var report: (Printer => Report) = Report.stderr(_)
 
   var eval = false
-  var annotate = false
   var lemmas = "none"
   var lemmasRounds = 3
   var conditionalLemmas = false
   var lemmasWithSyntheticFunctions = false
 
-  var annotationsAbstractInterpreter = false
-
-  var accelerate: Set[String] = Set()
+  var annotate: Set[String] = Set()
 
   var simplify = false
   var rewrite = false
@@ -161,14 +158,11 @@ class Config {
     option("-eval", "evaluate correctness of programs to expressions") {
       eval = true
     },
-    option("-abstract", "infer loop annotations with abstract interpretation") {
-      annotationsAbstractInterpreter = true
+    option("-annotate:polyhedra", "infer loop annotations (polyhedra abstract domain)") {
+      annotate += "polyhedra"
     },
-    option("-annotate", "infer loop annotations") {
-      annotate = true
-    },
-    option("-accelerate:arrays", "infer loop annotations") {
-      accelerate += "arrays"
+    option("-annotate:arrays", "infer loop annotations (array acceleration)") {
+      annotate += "arrays"
     },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
@@ -364,15 +358,11 @@ object Config {
       sink = new Incremental(Eval, sink)
     }
 
-    if (config.annotationsAbstractInterpreter) {
+    if (config.annotate contains "polyhedra") {
       sink = new Incremental(Abstract, sink)
     }
 
-    if (config.annotate) {
-      sink = new Incremental(Annotate, sink)
-    }
-
-    if (config.accelerate contains "arrays") {
+    if (config.annotate contains "arrays") {
       sink = new Incremental(annotate.Arrays, sink)
     }
 

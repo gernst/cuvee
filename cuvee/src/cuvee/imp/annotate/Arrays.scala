@@ -3,7 +3,7 @@ package cuvee.imp.annotate
 import cuvee.pure._
 import cuvee.imp._
 
-object SymbolicInterpreter extends InterpretNew[Path] with InterpretNew.WithPath {
+object SymbolicInterpreter extends Interpret[Path] with Interpret.WithPath {
   def while_(
       states0: List[Path],
       test: Expr,
@@ -17,7 +17,7 @@ object SymbolicInterpreter extends InterpretNew[Path] with InterpretNew.WithPath
   def return_(states: List[Path]): List[Path] = ???
 }
 
-object Arrays extends AnnotateNew(SymbolicInterpreter) {
+object Arrays extends Annotate(SymbolicInterpreter) {
   def while_(
       states: List[Path],
       test: Expr,
