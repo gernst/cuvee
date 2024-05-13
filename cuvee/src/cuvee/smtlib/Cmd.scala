@@ -156,3 +156,10 @@ case class DefineProc(
     spec: Option[Spec],
     body: Prog
 ) extends Decl
+
+case class DeclareContracts(
+    name: Name,
+    params: List[Param],
+    formals: List[(cuvee.imp.Mode, Var)],
+    contracts: List[(Expr, Expr)]
+) extends Decl

@@ -15,6 +15,7 @@ object State {
       Map.empty,
       Map.empty,
       Map.empty,
+      Map.empty,
       Map.empty
     )
 
@@ -89,7 +90,8 @@ class State(
     var funs: Map[(Name, Int), Fun],
     var fundefs: Map[(Name, Int), (List[Var], Expr)],
     var procs: Map[Name, Proc],
-    var procdefs: Map[Name, (List[Var], List[Var], Prog)]
+    var procdefs: Map[Name, (List[Var], List[Var], Prog)],
+    var contracts: Map[Name, Contracts]
 ) {
   def constr(name: Name) =
     constrs.find(_.name == name)
@@ -109,9 +111,10 @@ class State(
       funs: Map[(Name, Int), Fun] = funs,
       fundefs: Map[(Name, Int), (List[Var], Expr)] = fundefs,
       procs: Map[Name, Proc] = procs,
-      procdefs: Map[Name, (List[Var], List[Var], Prog)] = procdefs
+      procdefs: Map[Name, (List[Var], List[Var], Prog)] = procdefs,
+      contracts: Map[Name, Contracts] = contracts
   ) = {
-    new State(cons, condefs, datatypes, vars, funs, fundefs, procs, procdefs)
+    new State(cons, condefs, datatypes, vars, funs, fundefs, procs, procdefs, contracts)
   }
 
   def param(name: Name): Param = {
@@ -187,6 +190,22 @@ class State(
       "procedure already defined: " + name
     )
     procdefs += (name -> (in, out, body))
+  }
+
+  def contract(
+      name: Name,
+      params: List[Param],
+      formals: List[(cuvee.imp.Mode, Var)],
+      pairs: List[(Expr, Expr)]
+  ): Contracts = {
+    require(
+      !(contracts contains name),
+      "contract already declared: " + name
+    )
+
+    val entry = Contracts(name, params, formals, pairs)
+    contracts += (name -> entry)
+    entry
   }
 
   def sort(name: Name, args: List[Type] = Nil): Sort = {

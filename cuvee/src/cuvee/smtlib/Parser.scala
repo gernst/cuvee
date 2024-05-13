@@ -191,6 +191,16 @@ class Parser(init: State) {
         val dts = datatypes(decls, froms.toList)
         DeclareDatatypes(decls, dts)
 
+      case App(Id("declare-conract"), Id(name), App(formals @ _*), App(contracts @ _*)) =>
+        val params_ : List[Param] = Nil
+
+        val formals_ = formals_with_mode(formals.toList)
+        val scope = formals_ map { case (_, cuvee.pure.Var(name, t)) => name -> t }
+        val contracts_ = expr_pairs_typed(contracts.toList, (bool, bool), params_.names, scope)
+
+        st.contract(name, params_, formals_, contracts_)
+        DeclareContracts(name, params_, formals_, contracts_)
+
       case _ =>
         error("invalid command: " + from)
     }
@@ -273,6 +283,18 @@ class Parser(init: State) {
         error("invalid formal parameter: " + from)
     }
 
+  def formal_with_mode(from: Expr, ctx: Set[Name] = Set()): (cuvee.imp.Mode, Var) =
+    from match {
+      case App(Id(name), App(Id("in"), what)) =>
+        (cuvee.imp.Mode.In, Var(name, typ(what, ctx)))
+      case App(Id(name), App(Id("out"), what)) =>
+        (cuvee.imp.Mode.Out, Var(name, typ(what, ctx)))
+      case App(Id(name), App(Id("inout"), what)) =>
+        (cuvee.imp.Mode.InOut, Var(name, typ(what, ctx)))
+      case _ =>
+        error("invalid formal parameter: " + from)
+    }
+
   def param(from: Expr): Param =
     from match {
       case Id(name) =>
@@ -313,6 +335,9 @@ class Parser(init: State) {
   def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
     from map (formal(_, ctx))
 
+  def formals_with_mode(from: List[Expr], ctx: Set[Name] = Set()): List[(cuvee.imp.Mode, Var)] =
+    from map (formal_with_mode(_, ctx))
+
   def types(from: List[Expr], ctx: Set[Name] = Set()): List[Type] =
     from map (typ(_, ctx))
 
@@ -346,6 +371,25 @@ class Parser(init: State) {
     val inner = exprs(st)
     val pre = inner.expr(from, ctx.toSet, scope.toMap)
     pre.resolve
+  }
+
+  def expr_pairs_typed(
+      from: List[Expr],
+      expect: (Type, Type),
+      ctx: Iterable[Name] = Set(),
+      scope: Iterable[(Name, Type)] = Map()
+  ) = from map {
+    case App(e1, e2) =>
+      val (t1, t2) = expect
+      val inner = exprs(st)
+      val pre = inner.expr(e1, ctx.toSet, scope.toMap)
+      val post = inner.expr(e2, ctx.toSet, scope.toMap)
+      inner.check(pre, t1)
+      inner.check(post, t2)
+      (pre.resolve, post.resolve)
+
+    case _ =>
+      cuvee.error("expected pair of expressions: " + from)
   }
 
   def expr_typed(
