@@ -133,7 +133,8 @@ class Parser(init: State) {
       case App(Id("define-sort"), Id(name), App(args @ _*), res) =>
         val params_ = params(args.toList)
         val n = params_.length
-        val res_ = typ(res)
+        val ctx = params_.names.toSet
+        val res_ = typ(res, ctx)
         st.con(name, n)
         st.condef(name, params_, res_)
         DefineSort(name, params_, res_)
@@ -150,6 +151,14 @@ class Parser(init: State) {
         st.fun(name, Nil, args_, res_)
         DeclareFun(name, Nil, args_, res_)
 
+      case App(Id("declare-fun"), Id(name), App(Id("par"), App(gen @ _*), App(args @ _*), res)) =>
+        val params_ = params(gen.toList)
+        val ctx = params_.names.toSet
+        val args_ = types(args.toList, ctx)
+        val res_ = typ(res, ctx)
+        st.fun(name, params_, args_, res_)
+        DeclareFun(name, params_, args_, res_)
+
       case App(Id(cmd), Id(name), App(args @ _*), res, body)
           if cmd == "define-fun" || cmd == "define-fun-rec" =>
         val formals_ = formals(args.toList)
@@ -157,6 +166,19 @@ class Parser(init: State) {
         st.fun(name, Nil, formals_.types, res_)
 
         val body_ = expr_typed(body, res_, ctx0, formals_.pairs)
+        st.fundef(name, formals_, body_)
+
+        DefineFun(name, Nil, formals_, res_, body_, cmd == "define-fun-rec")
+
+      case App(Id(cmd), Id(name), App(Id("par"), App(gen @ _*), App(args @ _*), res, body))
+          if cmd == "define-fun" || cmd == "define-fun-rec" =>
+        val params_ = params(gen.toList)
+        val ctx = params_.names.toSet
+        val formals_ = formals(args.toList, ctx)
+        val res_ = typ(res, ctx)
+        st.fun(name, params_, formals_.types, res_)
+
+        val body_ = expr_typed(body, res_, ctx, formals_.pairs)
         st.fundef(name, formals_, body_)
 
         DefineFun(name, Nil, formals_, res_, body_, cmd == "define-fun-rec")
@@ -192,9 +214,8 @@ class Parser(init: State) {
         DeclareDatatypes(decls, dts)
 
       case App(Id("declare-contract"), Id(name), App(formals @ _*), App(contracts @ _*)) =>
-        // once we know we parse contracts, add old to the state
-        val a = Param("a")
-        val old = st.fun("old", List(a), List(a), a)
+        // once we know we parse contracts, add some stuff to the state
+        init_contractlib()
 
         val params_ : List[Param] = Nil
 
@@ -208,6 +229,12 @@ class Parser(init: State) {
       case _ =>
         error("invalid command: " + from)
     }
+  }
+
+  def init_contractlib() = {
+    val a = Param("a")
+    if (!(st.funs contains (Name("old"), 1)))
+      st.fun("old", List(a), List(a), a)
   }
 
   def datatypes(
