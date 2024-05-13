@@ -192,6 +192,10 @@ class Parser(init: State) {
         DeclareDatatypes(decls, dts)
 
       case App(Id("declare-contract"), Id(name), App(formals @ _*), App(contracts @ _*)) =>
+        // once we know we parse contracts, add old to the state
+        val a = Param("a")
+        val old = st.fun("old", List(a), List(a), a)
+
         val params_ : List[Param] = Nil
 
         val formals_ = formals_with_mode(formals.toList)
@@ -470,9 +474,6 @@ class Parser(init: State) {
 
         case App(Id(name), args @ _*) if st.funs contains (name, args.length) =>
           app(name, exprs(args.toList, ctx, scope))
-
-        case App(Id("old"), from) =>
-          old(expr(from, ctx, scope))
 
         case _ =>
           error("invalid expression: " + from)
