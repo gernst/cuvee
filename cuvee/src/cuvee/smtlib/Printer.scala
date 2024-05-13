@@ -44,6 +44,10 @@ object Printer extends cuvee.util.Printer {
     case s: String => just(s)
     case f: Float  => just(f)
 
+    case Mode.In    => just("in")
+    case Mode.Out   => just("out")
+    case Mode.InOut => just("inout")
+
     // Name
     case n: Name => List(cuvee.sexpr.mangle(n.toLabel))
 
@@ -101,6 +105,13 @@ object Printer extends cuvee.util.Printer {
         pre,
         ":postcondition",
         post
+      )
+
+    case DeclareContracts(name, params, formals, contracts) =>
+      parens(
+        "declare-contract",
+        formals,
+        contracts
       )
 
     case DefineProc(name, Nil, in, out, None, body) =>

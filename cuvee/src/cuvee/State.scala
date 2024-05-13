@@ -366,6 +366,10 @@ class State(
       Pre(Distinct(exprs))
     }
 
+    def old(arg: Pre) = {
+      Pre(Old(arg.expr))
+    }
+
     def check(arg: Pre, typ: Type) {
       trace("checking\n  " + arg.expr + ":\n    " + typ) {
         unify(arg.expr.typ, typ)
