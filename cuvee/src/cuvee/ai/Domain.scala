@@ -46,59 +46,61 @@ object Domain {
   object NotNumeric extends Exception
 
   trait Numeric[E, S] {
-    def literal(value: BigInt): E
-    def variable(name: Name): E
+    def arbitrary: E
 
-    def plus(exprs: List[E]): E
-    def times(exprs: List[E]): E
-    def minus(left: E, right: E): E
-    def divBy(left: E, right: E): E
+    def literal(s: S, value: BigInt): E
+    def variable(s: S, x: Var): E
+
+    def plus(s: S, exprs: List[E]): E
+    def times(s: S, exprs: List[E]): E
+    def minus(s: S, left: E, right: E): E
+    def divBy(s: S, left: E, right: E): E
 
     def neq(s: S, left: E, right: E): S
     def eq(s: S, left: E, right: E): S
     def le(s: S, left: E, right: E): S
     def lt(s: S, left: E, right: E): S
 
-    def term(expr: Expr): E = expr match {
+    def eval(s: S, exprs: List[Expr]): List[E] =
+      exprs map { eval(s, _) }
+
+    def eval(s: S, expr: Expr): E = expr match {
       case Lit(value: BigInt, Sort.int) =>
-        literal(value)
+        literal(s, value)
 
-      case Var(name, typ) =>
-        variable(name)
+      case x: Var =>
+        variable(s, x)
 
-      case Plus(exprs) =>
-        plus(exprs map term)
+      case Plus(args) =>
+        plus(s, eval(s, args))
 
-      case Times(exprs) =>
-        times(exprs map term)
+      case Times(args) =>
+        times(s, eval(s, args))
 
-      case Minus(left, right) =>
-        minus(term(left), term(right))
+      case Minus(arg1, arg2) =>
+        minus(s, eval(s, arg1), eval(s, arg2))
 
-      case DivBy(left, right) =>
-        divBy(term(left), term(right))
+      case DivBy(arg1, arg2) =>
+        divBy(s, eval(s, arg1), eval(s, arg2))
 
       case _ =>
-        throw NotNumeric
+        arbitrary
     }
 
-    def tryNumeric(s: S, e: Expr)(f: => S) = {
-      try {
-        (List(f -> Nil))
-      } catch {
-        case NotNumeric =>
-          List(s -> List(e))
-      }
-    }
+    def yes(s: S) =
+      List(s -> Nil)
 
-    def constraints(s: S, expr: Expr): List[(S, List[Expr])] = expr match {
+    def no(s: S, e: Expr) =
+      List(s -> List(e))
+
+    def assume(s: S, expr: Expr): List[(S, List[Expr])] = expr match {
       case And(args) =>
         val cs0 = List(s -> (Nil: List[Expr]))
 
         args.foldRight(cs0) { case (arg, cs) =>
           for (
             (s, es) <- cs;
-            (s_, e) <- constraints(s, arg)
+            (s_, e) <- assume(s, arg)
           )
             yield (s_, e ++ es)
         }
@@ -106,55 +108,55 @@ object Domain {
       case Not(arg) =>
         arg match {
           case Eq(left, right) =>
-            tryNumeric(s, expr) { neq(s, term(left), term(right)) }
+            yes { neq(s, eval(s, left), eval(s, right)) }
 
           case Le(left, right) =>
-            tryNumeric(s, expr) { lt(s, term(right), term(left)) }
+            yes { lt(s, eval(s, right), eval(s, left)) }
 
           case Lt(left, right) =>
-            tryNumeric(s, expr) { le(s, term(right), term(left)) }
+            yes { le(s, eval(s, right), eval(s, left)) }
 
           case Ge(left, right) =>
-            tryNumeric(s, expr) { lt(s, term(left), term(right)) }
+            yes { lt(s, eval(s, left), eval(s, right)) }
 
           case Gt(left, right) =>
-            tryNumeric(s, expr) { le(s, term(left), term(right)) }
+            yes { le(s, eval(s, left), eval(s, right)) }
 
           case And(args) =>
             // De Morgan:  Not(And(a, b)) transforms to Or(Not(a), Not(b))
-            constraints(s, Or(Not(args)))
+            assume(s, Or(Not(args)))
 
           case Imp(phi, psi) =>
             // Not(phi → psi) transforms to phi ∧ Not(psi)
-            constraints(s, And(phi, Not(psi)))
+            assume(s, And(phi, Not(psi)))
 
           case Not(arg) =>
-            constraints(s, arg) // Not(Not(arg)) == arg
+            assume(s, arg) // Not(Not(arg)) == arg
 
           case _ =>
-            List(s -> List(expr)) // we don't know
+            no(s, expr) // we don't know
         }
 
       case Imp(phi, psi) =>
-        constraints(s, Or(List(Not(phi), psi)))
+        assume(s, Or(List(Not(phi), psi)))
 
       case Eq(left, right) if left.typ == Sort.int =>
-        tryNumeric(s, expr) { eq(s, term(left), term(right)) }
+        yes { eq(s, eval(s, left), eval(s, right)) }
 
       case Le(left, right) =>
-        tryNumeric(s, expr) { le(s, term(left), term(right)) }
+        yes { le(s, eval(s, left), eval(s, right)) }
 
       case Lt(left, right) =>
-        tryNumeric(s, expr) { lt(s, term(left), term(right)) }
+        yes { lt(s, eval(s, left), eval(s, right)) }
 
       case Ge(left, right) =>
-        tryNumeric(s, expr) { le(s, term(right), term(left)) }
+        yes { le(s, eval(s, right), eval(s, left)) }
 
       case Gt(left, right) =>
-        tryNumeric(s, expr) { lt(s, term(right), term(left)) }
+        yes { lt(s, eval(s, right), eval(s, left)) }
 
       case _ =>
-        List((s -> List(expr))) // we don't know
+        no(s, expr) // we don't know
     }
   }
 }

@@ -30,6 +30,9 @@ class AI[S](domain: Domain[S]) extends Annotate[S] {
   }
 
   object exec extends Exec[S] with Exec.WithFixpoint[S] {
+
+    def scoped(states: List[S])(f: List[S] => List[S]): List[S] = ???
+
     def entry(in: List[Var], out: List[Var], spec: Option[Spec]): List[S] =
       domain.entry(in, out, spec)
 

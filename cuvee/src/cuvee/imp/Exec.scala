@@ -45,6 +45,7 @@ trait Exec[S] {
   def step(states: List[S], xs: List[Var], rel: Expr): List[S]
   def local(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
   def assign(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
+  def scoped(states: List[S])(f: List[S] => List[S]): List[S]
 
   // Note: default implementations
 
@@ -68,6 +69,10 @@ trait Exec[S] {
 
   def spec(states: States[S], xs: List[Var], pre: Expr, post: Expr): States[S] = {
     assert(states, pre) run { step(_, xs, post) }
+  }
+
+  def scoped(states: States[S])(f: States[S] => States[S]): States[S] = {
+    ???
   }
 
   def join(states1: States[S], states2: States[S]) = {
@@ -110,7 +115,7 @@ trait Exec[S] {
       return_(states)
 
     case Block(progs) =>
-      block(states, progs)
+      scoped(states) { block(_, progs) }
 
     case Local(xs, rhs) =>
       local(states, xs, rhs)
@@ -171,6 +176,13 @@ object Exec {
       val states1 = states0 map (_.pushOld)
       val states2 = f(states1)
       val states3 = states2 map (_.popOld)
+      states3
+    }
+
+    def scoped(states0: List[Path])(f: List[Path] => List[Path]) = {
+      val states1 = states0 map (_.pushScope)
+      val states2 = f(states1)
+      val states3 = states2 map (_.popScope)
       states3
     }
   }

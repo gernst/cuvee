@@ -156,7 +156,6 @@ object Arrays extends Annotate[Path] {
   }
 
   object exec extends Exec[Path] with Exec.WithPath {
-
     override def while_(
         states0: States[Path],
         test: Expr,

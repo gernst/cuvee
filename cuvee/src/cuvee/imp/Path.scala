@@ -20,6 +20,14 @@ case class Path(
     copy(old = old.tail)
   }
 
+  def pushScope = {
+    copy(vars = Map[Var, Expr]() :: vars)
+  }
+
+  def popScope = {
+    copy(vars = vars.tail)
+  }
+
   def lookup(x: Var) = {
     Path.lookup(vars, x)
   }
