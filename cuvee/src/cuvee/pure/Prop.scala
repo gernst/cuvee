@@ -324,52 +324,54 @@ object Conj {
       pos: List[Expr],
       xs: List[Var],
       props: List[Prop]
-  ): Conj = pos match {
-    case Nil =>
-      props match {
-        case Nil =>
-          Conj.t
+  ): Conj = {
+    pos match {
+      case Nil =>
+        props match {
+          case Nil =>
+            Conj.t
 
-        case List(Disj(Nil, Nil, List(conj))) =>
-          conj
+          case List(Disj(Nil, Nil, List(conj))) =>
+            conj
 
-        case _ =>
-          Conj(xs, props)
-      }
+          case _ =>
+            Conj(xs, props)
+        }
 
-    case False :: rest =>
-      Conj.f
+      case False :: rest =>
+        Conj.f
 
-    case True :: rest =>
-      from(rest, xs, props)
+      case True :: rest =>
+        from(rest, xs, props)
 
-    case Note(phi, _) :: rest =>
-      from(phi :: rest, xs, props)
+      case Note(phi, _) :: rest =>
+        from(phi :: rest, xs, props)
 
-    case Not(phi) :: rest =>
-      from(List(phi), rest, xs, props)
+      case Not(phi) :: rest =>
+        from(List(phi), rest, xs, props)
 
-    case And(phis) :: rest =>
-      from(phis ++ rest, xs, props)
+      case And(phis) :: rest =>
+        from(phis ++ rest, xs, props)
 
-    case (expr @ Exists(_, _)) :: rest =>
-      val Exists(ys, body) = expr refresh xs
-      from(body :: rest, xs ++ ys, props)
+      case (expr @ Exists(_, _)) :: rest =>
+        val Exists(ys, body) = expr refresh xs
+        from(body :: rest, xs ++ ys, props)
 
-    case (phi @ (Imp(_, _) | Or(_) | Forall(_, _))) :: rest =>
-      Prop.from(phi) match {
-        case Atom(False, _) =>
-          Conj.f
+      case (phi @ (Imp(_, _) | Or(_) | Forall(_, _))) :: rest =>
+        Prop.from(phi) match {
+          case Atom(False, _) =>
+            Conj.f
 
-        case Atom(True, _) =>
-          from(rest, xs, props)
+          case Atom(True, _) =>
+            from(rest, xs, props)
 
-        case prop =>
-          from(rest, xs, props ++ List(prop))
-      }
+          case prop =>
+            from(rest, xs, props ++ List(prop))
+        }
 
-    case phi :: rest =>
-      from(rest, xs, props ++ List(Atom(phi)))
+      case phi :: rest =>
+        from(rest, xs, props ++ List(Atom(phi)))
+    }
   }
 
   // TODO: only move non-atomic negations to the right?
@@ -379,46 +381,50 @@ object Conj {
       pos: List[Expr],
       xs: List[Var],
       props: List[Prop]
-  ): Conj = neg match {
-    case Nil =>
-      from(pos, xs, props)
+  ): Conj = {
+    neg match {
+      case Nil =>
+        from(pos, xs, props)
 
-    case True :: rest =>
-      Conj.f
+      case True :: rest =>
+        Conj.f
 
-    case False :: rest =>
-      from(rest, pos, xs, props)
+      case False :: rest =>
+        from(rest, pos, xs, props)
 
-    case Note(phi, _) :: rest =>
-      from(phi :: rest, pos, xs, props)
+      case Note(phi, _) :: rest =>
+        from(phi :: rest, pos, xs, props)
 
-    case Not(phi) :: rest =>
-      from(rest, phi :: pos, xs, props)
+      case Not(phi) :: rest =>
+        from(rest, phi :: pos, xs, props)
 
-    case Or(phis) :: rest =>
-      from(phis ++ rest, pos, xs, props)
+      case Or(phis) :: rest =>
+        from(phis ++ rest, pos, xs, props)
 
-    case Imp(phi, psi) :: rest =>
-      from(psi :: rest, phi :: pos, xs, props)
+      case Imp(phi, psi) :: rest =>
+        from(psi :: rest, phi :: pos, xs, props)
 
-    case (expr @ Forall(_, _)) :: rest =>
-      val Forall(ys, body) = expr refresh xs
-      from(body :: rest, xs ++ ys, props)
+      case (expr @ Forall(_, _)) :: rest =>
+        val Forall(ys, body) = expr refresh xs
+        from(body :: rest, xs ++ ys, props)
 
-    case (phi @ (And(_) | Exists(_, _))) :: rest =>
-      Prop.from(!phi) match {
-        case Atom(False, _) =>
-          Conj.f
+      // case (phi @ (And(_) | Exists(_, _))) :: rest =>
 
-        case Atom(True, _) =>
-          from(rest, xs, props)
+      case phi :: rest =>
+        Prop.from(!phi) match {
+          case Atom(False, _) =>
+            Conj.f
 
-        case prop =>
-          from(rest, xs, props ++ List(prop))
-      }
+          case Atom(True, _) =>
+            from(rest, xs, props)
 
-    case phi :: rest =>
-      from(rest, xs, props ++ List(Atom(phi)))
+          case prop =>
+            from(rest, xs, props ++ List(prop))
+        }
+
+      // case phi :: rest =>
+      //   from(rest, xs, props ++ List(Atom(!phi)))
+    }
   }
 
   def reduce(xs: List[Var], props: List[Prop]): Conj =
