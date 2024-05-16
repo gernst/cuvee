@@ -215,8 +215,6 @@ class Parser(init: State) {
 
       case App(Id("declare-contract"), Id(name), App(formals @ _*), App(contracts @ _*)) =>
         // once we know we parse contracts, add some stuff to the state
-        init_contractlib()
-
         val params_ : List[Param] = Nil
 
         val formals_ = formals_with_mode(formals.toList)
@@ -229,12 +227,6 @@ class Parser(init: State) {
       case _ =>
         error("invalid command: " + from)
     }
-  }
-
-  def init_contractlib() = {
-    val a = Param("a")
-    if (!(st.funs contains (Name("old"), 1)))
-      st.fun("old", List(a), List(a), a)
   }
 
   def datatypes(
@@ -419,8 +411,8 @@ class Parser(init: State) {
       inner.check(post, t2)
       (pre.resolve, post.resolve)
 
-    case _ =>
-      cuvee.error("expected pair of expressions: " + from)
+    case arg =>
+      cuvee.error("expected pair of expressions: " + arg)
   }
 
   def expr_typed(

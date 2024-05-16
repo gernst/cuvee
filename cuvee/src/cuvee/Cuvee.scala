@@ -43,6 +43,8 @@ class Config {
   var quickcheck = true
   var split = false
 
+  var useContractlib = false
+
   var proveNegatedAsserts = true
   var crosscheckProver = false
 
@@ -91,6 +93,9 @@ class Config {
     },
     option("-print:thesy", "force output to TheSy format") {
       printer = cuvee.thesy.printer
+    },
+    option("-parse:contractlib", "make Contract-LIB theories available") {
+      useContractlib = true
     },
     // option("-print:none", "suppress output") {
     //   printer = Printer.dummy
@@ -203,6 +208,8 @@ class Config {
       } else if (path endsWith ".smt2") {
         printer = smtlib.printer
         source = smtlib.source(path)
+        if (useContractlib)
+          source.state.withContractLib
       } else if (path endsWith ".py") {
         source = python.source(path)
       } else if (path endsWith ".th") {

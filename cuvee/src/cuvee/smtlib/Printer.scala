@@ -97,6 +97,7 @@ object Printer extends cuvee.util.Printer {
     case DeclareProc(name, params, in, out, Some(Spec(mod, pre, post))) =>
       parens(
         "declare-proc",
+        name,
         in.asFormals,
         out.asFormals,
         ":modifies",
@@ -110,6 +111,7 @@ object Printer extends cuvee.util.Printer {
     case DeclareContracts(name, params, formals, contracts) =>
       parens(
         "declare-contract",
+        name,
         formals,
         contracts
       )
@@ -120,6 +122,7 @@ object Printer extends cuvee.util.Printer {
     case DefineProc(name, Nil, in, out, Some(Spec(mod, pre, post)), body) =>
       parens(
         "define-proc",
+        name,
         in.asFormals,
         out.asFormals,
         ":modifies",
@@ -231,16 +234,17 @@ object Printer extends cuvee.util.Printer {
         args.length >= 2 && (max.length > 20 || sum >= 80)
 
       if (break) {
+        val prefix = "  "
         val first :: rest = args
-        ("(" + first) :: indent(rest)
+        ("(" + first) :: indent(prefix, rest)
       } else {
         List(args.mkString("(", " ", ")"))
       }
     }
   }
 
-  def indent(lines: List[String]): List[String] = lines match {
-    case List(last)    => List("  " + last + ")")
-    case first :: rest => ("  " + first) :: indent(rest)
+  def indent(prefix: String, lines: List[String]): List[String] = lines match {
+    case List(last)    => List(prefix + last + ")")
+    case first :: rest => (prefix + first) :: indent(prefix, rest)
   }
 }

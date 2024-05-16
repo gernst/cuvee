@@ -19,62 +19,8 @@ object State {
       Map.empty
     )
 
-  def default = {
-    val st = empty
-
-    st.con("Bool")
-    st.con("Int")
-    st.con("Real")
-
-    st.con("RoundingMode")
-
-    // st.con("List", 1)
-    st.con("Array", 2)
-
-    val Bool = st.sort("Bool")
-    val Int = st.sort("Int")
-    val Real = st.sort("Real")
-
-    val a = st.param("a")
-    val b = st.param("b")
-
-    // def list(elem: Type) = st.sort("List", List(elem))
-    def array(dom: Type, ran: Type) = st.sort("Array", List(dom, ran))
-
-    st.fun("undefined", List(a), Nil, a)
-    st.fun("to_int", Nil, List(Real), Int)
-    st.fun("to_real", Nil, List(Int), Real)
-
-    st.fun("=", List(a), List(a, a), Bool)
-    st.fun("ite", List(a), List(Bool, a, a), a)
-
-    val ar = array(a, b)
-    st.fun("const", List(a, b), List(b), ar)
-    st.fun("select", List(a, b), List(ar, a), b)
-    st.fun("store", List(a, b), List(ar, a, b), ar)
-
-    st.fun("true", Nil, Nil, Bool)
-    st.fun("false", Nil, Nil, Bool)
-    st.fun("not", Nil, List(Bool), Bool)
-    st.fun("and", Nil, List(Bool, Bool), Bool)
-    st.fun("or", Nil, List(Bool, Bool), Bool)
-    st.fun("=>", Nil, List(Bool, Bool), Bool)
-
-    st.fun("-", Nil, List(Int), Int)
-
-    st.fun("+", Nil, List(Int, Int), Int)
-    st.fun("-", Nil, List(Int, Int), Int)
-    st.fun("*", Nil, List(Int, Int), Int)
-    st.fun("div", Nil, List(Int, Int), Int)
-    st.fun("mod", Nil, List(Int, Int), Int)
-
-    st.fun("<=", Nil, List(Int, Int), Bool)
-    st.fun(">=", Nil, List(Int, Int), Bool)
-    st.fun("<", Nil, List(Int, Int), Bool)
-    st.fun(">", Nil, List(Int, Int), Bool)
-
-    st
-  }
+  def default =
+    empty.withDefault
 
   // contruct state from scatch, given a list of commands
   def apply(cmds: List[Cmd]): State = {
@@ -410,5 +356,89 @@ class State(
       procdef(name, in, out, body)
 
     case _ =>
+  }
+
+  def withDefault = {
+    con("Bool")
+    con("Int")
+    con("Real")
+
+    con("RoundingMode")
+
+    // con("List", 1)
+    con("Array", 2)
+
+    val Bool = sort("Bool")
+    val Int = sort("Int")
+    val Real = sort("Real")
+
+    val a = param("a")
+    val b = param("b")
+
+    // def list(elem: Type) = sort("List", List(elem))
+    def array(dom: Type, ran: Type) = sort("Array", List(dom, ran))
+
+    // fun("undefined", List(a), Nil, a)
+    fun("to_int", Nil, List(Real), Int)
+    fun("to_real", Nil, List(Int), Real)
+
+    fun("=", List(a), List(a, a), Bool)
+    fun("ite", List(a), List(Bool, a, a), a)
+
+    val ar = array(a, b)
+    fun("const", List(a, b), List(b), ar)
+    fun("select", List(a, b), List(ar, a), b)
+    fun("store", List(a, b), List(ar, a, b), ar)
+
+    fun("true", Nil, Nil, Bool)
+    fun("false", Nil, Nil, Bool)
+    fun("not", Nil, List(Bool), Bool)
+    fun("and", Nil, List(Bool, Bool), Bool)
+    fun("or", Nil, List(Bool, Bool), Bool)
+    fun("=>", Nil, List(Bool, Bool), Bool)
+
+    fun("-", Nil, List(Int), Int)
+
+    fun("+", Nil, List(Int, Int), Int)
+    fun("-", Nil, List(Int, Int), Int)
+    fun("*", Nil, List(Int, Int), Int)
+    fun("div", Nil, List(Int, Int), Int)
+    fun("mod", Nil, List(Int, Int), Int)
+
+    fun("<=", Nil, List(Int, Int), Bool)
+    fun(">=", Nil, List(Int, Int), Bool)
+    fun("<", Nil, List(Int, Int), Bool)
+    fun(">", Nil, List(Int, Int), Bool)
+
+    this
+  }
+
+  def withContractLib = {
+    val a = Param("a")
+    val b = Param("b")
+
+    fun("old", List(a), List(a), a)
+
+    con("Set", 1)
+    con("Seq", 1)
+    con("Map", 2)
+
+    val Bool = sort("Bool", Nil)
+    val Int = sort("Int", Nil)
+    val Set = sort("Set", List(a))
+    val Seq = sort("Seq", List(a))
+    val Map = sort("Map", List(a, b))
+
+    fun("seq.empty", List(a), List(), Seq)
+    fun("seq.len", List(a), List(Seq), Int)
+    fun("seq.contains", List(a), List(Seq, Seq), Bool)
+    fun("seq.unit", List(a), List(a), Seq)
+    fun("seq.++", List(a), List(Seq, Seq), Seq)
+    fun("seq.nth", List(a), List(Seq, Int), a)
+    fun("seq.at", List(a), List(Seq, Int), Seq)
+    fun("seq.update", List(a), List(Seq, Int, Seq), Seq)
+    fun("seq.extract", List(a), List(Seq, Int, Int), Seq)
+
+    this
   }
 }
