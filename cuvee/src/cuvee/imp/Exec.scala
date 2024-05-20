@@ -67,12 +67,11 @@ trait Exec[S] {
   def assign(states: States[S], xs: List[Var], rhs: List[Expr]): States[S] =
     states run { assign(_, xs, rhs) }
 
+  def scoped(states: States[S])(f: States[S] => States[S]): States[S] =
+    ??? // states run { states => scoped(states)(f); ??? }
+
   def spec(states: States[S], xs: List[Var], pre: Expr, post: Expr): States[S] = {
     assert(states, pre) run { step(_, xs, post) }
-  }
-
-  def scoped(states: States[S])(f: States[S] => States[S]): States[S] = {
-    ???
   }
 
   def join(states1: States[S], states2: States[S]) = {

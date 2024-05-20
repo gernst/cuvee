@@ -24,10 +24,10 @@ trait Domain[S] {
   def assign(s: S, xs: List[Var], rhs: List[Expr]): List[S]
 
   // lattice operations on entire states
-  def join(s1: S, sn2: List[S]): List[S]
-  def meet(s1: S, sn2: List[S]): List[S]
-  def widen(s1: S, sn2: List[S]): List[S]
-  def narrow(s1: S, sn2: List[S]): List[S]
+  def join(first: S, rest: List[S]): List[S]
+  def meet(first: S, rest: List[S]): List[S]
+  def widen(prev: S, next: List[S]): List[S]
+  def narrow(prev: S, next: List[S]): List[S]
 
   def join(sn: List[S]): List[S] =
     sn match {

@@ -110,7 +110,9 @@ object AInts extends Domain[AState] with Domain.Numeric[AInt, AState] {
     ???
   }
 
-  def local(s: AState, xs: List[Var], rhs: List[Expr]): List[AState] = ???
+  def local(s: AState, xs: List[Var], rhs: List[Expr]): List[AState] = {
+    ???
+  }
 
   def assign(s: AState, xs: List[Var], rhs: List[Expr]) = {
     val AState(vars) = s
@@ -119,11 +121,8 @@ object AInts extends Domain[AState] with Domain.Numeric[AInt, AState] {
     List(s_)
   }
 
-  def join(s1: AState, sn2: List[AState]): List[AState] = ???
-
-  def meet(s1: AState, sn2: List[AState]): List[AState] = ???
-
-  def widen(s1: AState, sn2: List[AState]): List[AState] = ???
-
-  def narrow(s1: AState, sn2: List[AState]): List[AState] = ???
+  def join(first: AState, rest: List[AState]): List[AState] = ???
+  def meet(first: AState, rest: List[AState]): List[AState] = ???
+  def widen(prev: AState, next: List[AState]): List[AState] = ???
+  def narrow(prev: AState, next: List[AState]): List[AState] = ???
 }
