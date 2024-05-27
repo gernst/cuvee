@@ -28,7 +28,47 @@ object Accelerate {
     result getOrElse True
   }
 
-  def isEarlierValueOf(counters: Map[Var, Counter], expr: Expr, now: Expr): Option[Expr] =
+  def tryEarlierValuesOf(
+      counters: Map[Var, Counter],
+      args: List[Expr],
+      nows: List[Expr]
+  ): List[Expr] = {
+    for (
+      (arg, now) <- args zip nows;
+      phi <- isEarlierValueOf(counters, arg, now)
+    )
+      yield phi
+  }
+
+  def checkEarlierValuesOf(
+      counters: Map[Var, Counter],
+      args: List[Expr],
+      nows: List[Expr]
+  ): Expr = {
+    val result = isEarlierValuesOf(counters, args, nows)
+    result getOrElse True
+  }
+
+  def isEarlierValuesOf(
+      counters: Map[Var, Counter],
+      args: List[Expr],
+      nows: List[Expr]
+  ): Option[Expr] = {
+    val phis =
+      for (
+        (arg, now) <- args zip nows;
+        phi <- isEarlierValueOf(counters, arg, now)
+      )
+        yield phi
+
+    if (args.length == phis.length) {
+      Some(And(phis))
+    } else {
+      None
+    }
+  }
+
+  def isEarlierValueOf(counters: Map[Var, Counter], expr: Expr, now: Expr): Option[Expr] = {
     (expr, now) match {
       case (_: Lit, _: Lit) =>
         require(expr == now)
@@ -38,22 +78,12 @@ object Accelerate {
         isEarlierValueOf(counters(i), i, now)
 
       case (App(inst, args), App(_, nows)) =>
-        val phis =
-          for (
-            (arg, now) <- args zip nows;
-            phi <- isEarlierValueOf(counters, arg, now)
-          )
-            yield phi
-
-        if (args.length == phis.length) {
-          Some(And(phis))
-        } else {
-          None
-        }
+        isEarlierValuesOf(counters, args, nows)
 
       case _ =>
         None
     }
+  }
 
   def counters(states: List[Path], states_ : List[Path], mod: List[Var]): Map[Var, Counter] = {
     val pairs =

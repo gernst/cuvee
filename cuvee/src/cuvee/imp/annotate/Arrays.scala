@@ -2,6 +2,7 @@ package cuvee.imp.annotate
 
 import cuvee.pure._
 import cuvee.imp._
+import cuvee.imp.annotate.Accelerate.counter
 
 object Arrays extends Annotate[Path] {
   def while_(
@@ -36,8 +37,10 @@ object Arrays extends Annotate[Path] {
     // println(states_)
     // println(counters)
 
-    val phi = accelerateWrites(mod, as, ys, counters, states_.running)
-    val add = And(phi)
+    val re = Expr.fresh(ys)
+    val phi = accelerateWrites(mod, as, ys, re, counters, states_.running)
+    val psi = accelerateGuard(mod, as, ys, re, counters, test, inv)
+    val add = And(phi ++ psi)
     val inv_ = Simplify.simplify(inv && add, Map(), Set())
     // val inv_ = inv && add
 
@@ -48,26 +51,47 @@ object Arrays extends Annotate[Path] {
     (states__, prog_)
   }
 
+  def accelerateGuard(
+      mod: Set[Var],
+      as: List[Var],
+      ys: List[Var],
+      re: Map[Var, Var],
+      counters: Map[Var, Counter],
+      test: Expr,
+      inv: Expr
+  ): List[Expr] = {
+    val ys_ = ys rename re
+    val test_ = test rename re
+    val inv_ = inv rename re
+    val prems = Accelerate.tryEarlierValuesOf(counters, ys, ys_)
+    val result = Forall(ys_, And(inv_ :: prems) ==> test_)
+    // println(ys, ys_, prems)
+    // println(result)
+    List(result)
+  }
+
   def accelerateWrites(
       mod: Set[Var],
       as: List[Var],
       ys: List[Var],
+      re: Map[Var, Var],
       counters: Map[Var, Counter],
       states: List[Path]
   ): List[Expr] = {
-    for (a <- as; inv <- accelerateWrites(mod, ys, counters, states, a))
+    for (a <- as; inv <- accelerateWrites(mod, ys, re, counters, states, a))
       yield inv
   }
 
   def accelerateWrites(
       mod: Set[Var],
       ys: List[Var],
+      re: Map[Var, Var],
       counters: Map[Var, Counter],
       states: List[Path],
       a: Var
   ): List[Expr] = {
     val x = Expr.fresh("x", dom(a))
-    val pairs = equalities(mod, ys, counters, states, a, x)
+    val pairs = equalities(mod, ys, re, counters, states, a, x)
 
     val (prems, concls) = pairs.unzip
     val p = Or(prems)
@@ -88,13 +112,12 @@ object Arrays extends Annotate[Path] {
   def equalities(
       mod: Set[Var],
       ys: List[Var],
+      re: Map[Var, Var],
       counters: Map[Var, Counter],
       states: List[Path],
       a: Var,
       x: Var
   ) = for (path <- states if (path lookup a) != a) yield {
-    val re = Expr.fresh(ys)
-
     val vars = path.fresh ++ (ys rename re)
     val branch = path.constraint rename re
 
