@@ -4,9 +4,9 @@ import cuvee.pure._
 import cuvee.imp._
 import cuvee.imp.annotate.Accelerate.counter
 
-object Arrays extends Annotate[Path] {
+object Arrays extends Annotate {
   def while_(
-      states: States[Path],
+      paths: Paths,
       test: Expr,
       body: Prog,
       term: Expr,
@@ -28,17 +28,17 @@ object Arrays extends Annotate[Path] {
     val vars = List(su)
 
     val init = Path(fresh, constraints, vars, List(vars))
-    val arbitrary = States(List(init))
+    val arbitrary = Paths(List(init))
 
-    val (states_, body_) = annotate(arbitrary, body)
-    val counters = Accelerate.counters(states.running, states_.running, ys)
+    val (paths_, body_) = annotate(arbitrary, body)
+    val counters = Accelerate.counters(paths.running, paths_.running, ys)
 
-    // println(states)
-    // println(states_)
+    // println(paths)
+    // println(paths_)
     // println(counters)
 
     val re = Expr.fresh(ys)
-    val phi = accelerateWrites(mod, as, ys, re, counters, states_.running)
+    val phi = accelerateWrites(mod, as, ys, re, counters, paths_.running)
     val psi = accelerateGuard(mod, as, ys, re, counters, test, inv)
     val add = And(phi ++ psi)
     val inv_ = Simplify.simplify(inv && add, Map(), Set())
@@ -46,9 +46,9 @@ object Arrays extends Annotate[Path] {
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
 
-    val states__ = exec.spec(states, mod.toList, inv_, inv_ && !test)
+    val paths__ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
 
-    (states__, prog_)
+    (paths__, prog_)
   }
 
   def accelerateGuard(
@@ -76,9 +76,9 @@ object Arrays extends Annotate[Path] {
       ys: List[Var],
       re: Map[Var, Var],
       counters: Map[Var, Counter],
-      states: List[Path]
+      paths: List[Path]
   ): List[Expr] = {
-    for (a <- as; inv <- accelerateWrites(mod, ys, re, counters, states, a))
+    for (a <- as; inv <- accelerateWrites(mod, ys, re, counters, paths, a))
       yield inv
   }
 
@@ -87,11 +87,11 @@ object Arrays extends Annotate[Path] {
       ys: List[Var],
       re: Map[Var, Var],
       counters: Map[Var, Counter],
-      states: List[Path],
+      paths: List[Path],
       a: Var
   ): List[Expr] = {
     val x = Expr.fresh("x", dom(a))
-    val pairs = equalities(mod, ys, re, counters, states, a, x)
+    val pairs = equalities(mod, ys, re, counters, paths, a, x)
 
     val (prems, concls) = pairs.unzip
     val p = Or(prems)
@@ -114,10 +114,10 @@ object Arrays extends Annotate[Path] {
       ys: List[Var],
       re: Map[Var, Var],
       counters: Map[Var, Counter],
-      states: List[Path],
+      paths: List[Path],
       a: Var,
       x: Var
-  ) = for (path <- states if (path lookup a) != a) yield {
+  ) = for (path <- paths if (path lookup a) != a) yield {
     val vars = path.fresh ++ (ys rename re)
     val branch = path.constraint rename re
 
@@ -178,15 +178,15 @@ object Arrays extends Annotate[Path] {
       expr
   }
 
-  object exec extends Exec[Path] with Exec.WithPath {
+  object exec extends Exec {
     override def while_(
-        states0: States[Path],
+        paths0: Paths,
         test: Expr,
         body: Prog,
         term: Expr,
         inv: Expr,
         sum: Expr,
         frames: List[Frame]
-    ): States[Path] = ???
+    ): Paths = ???
   }
 }

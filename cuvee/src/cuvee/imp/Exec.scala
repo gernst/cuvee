@@ -1,252 +1,170 @@
 package cuvee.imp
-
 import cuvee.pure._
 
-case class States[S](
-    running: List[S],
-    breaked: List[S] = Nil,
-    returned: List[S] = Nil,
-    asserted: List[(S, Expr)] = Nil
-) {
-  def break = {
-    States(Nil, breaked ++ running, returned, asserted)
+case class Paths(
+    running: List[Path],
+    breaked: List[Path] = Nil,
+    returned: List[Path] = Nil,
+    asserted: List[(Path, Expr)] = Nil
+)
+
+trait Exec {
+  def entry(in: List[Var], out: List[Var], spec: Option[Spec]) = spec match {
+    case None =>
+      val su = Expr.id(in ++ out)
+      val fresh = Nil
+      val constraints = Nil
+      val vars = List(su)
+      val init = Path(fresh, constraints, vars, List(vars))
+      List(init)
+
+    case Some(Spec(globals, pre, post)) =>
+      val su = Expr.id(in ++ out ++ globals)
+      val fresh = Nil
+      val constraints = List(pre)
+      val vars = List(su)
+      val init = Path(fresh, constraints, vars, List(vars))
+      List(init)
   }
 
-  def unbreak = {
-    States(running ++ breaked, Nil, returned, asserted)
+  def break(paths: Paths) = {
+    import paths._
+    Paths(Nil, breaked ++ running, returned, asserted)
   }
 
-  def return_ = {
-    States(Nil, breaked, returned ++ running, asserted)
+  def resume(paths: Paths) = {
+    import paths._
+    Paths(running ++ breaked, Nil, returned, asserted)
   }
 
-  def run(f: List[S] => List[S]) = {
-    States(f(running), breaked, returned, asserted)
+  def return_(paths: Paths) = {
+    import paths._
+    Paths(Nil, breaked, returned ++ running, asserted)
   }
 
-  def assert(phi: Expr) = {
-    val asserted_ = running map (_ -> phi)
-    States(running, breaked, returned, asserted ++ asserted_)
+  def assume(paths: Paths, phi: Expr): Paths = {
+    import paths._
+    val running_ = running map { _ assume phi }
+    Paths(running_, breaked, returned, asserted)
   }
 
-  def merge(that: States[S])(f: (List[S], List[S]) => List[S]) = {
-    States(
-      f(this.running, that.running),
-      this.breaked ++ that.breaked,
-      this.returned ++ that.returned,
-      this.asserted ++ that.asserted
+  def assert(paths: Paths, phi: Expr): Paths = {
+    import paths._
+    val asserted_ = running map { (_, phi) }
+    Paths(running, breaked, returned, asserted ++ asserted_)
+  }
+
+  def local(paths: Paths, xs: List[Var], rhs: List[Expr]): Paths = {
+    import paths._
+    val running_ = running map { _ local (xs, rhs) }
+    Paths(running_, breaked, returned, asserted)
+  }
+
+  def assign(paths: Paths, xs: List[Var], rhs: List[Expr]): Paths = {
+    import paths._
+    val running_ = running map { _ assign (xs, rhs) }
+    Paths(running_, breaked, returned, asserted)
+  }
+
+  def spec(paths: Paths, xs: List[Var], pre: Expr, post: Expr): Paths = {
+    import paths._
+    val asserted_ = running map { (_, pre) }
+    val running_ = running map { _ step (xs, post) }
+    Paths(running_, breaked, returned, asserted ++ asserted_)
+  }
+
+  def withScope(paths0: Paths)(f: Paths => Paths): Paths = {
+    val paths1 = all(paths0) { _.pushScope }
+    val paths2 = f(paths1)
+    val paths3 = all(paths2) { _.popScope }
+    paths3
+  }
+
+  def withOld(paths0: Paths)(f: Paths => Paths): Paths = {
+    val paths1 = all(paths0) { _.pushOld }
+    val paths2 = f(paths1)
+    val paths3 = all(paths2) { _.popOld }
+    paths3
+  }
+
+  def all(paths: Paths)(f: Path => Path) = {
+    import paths._
+    val running_ = running map f
+    val breaked_ = breaked map f
+    val returned_ = returned map f
+    val asserted_ = asserted map { case (path, phi) => (f(path), phi) }
+    Paths(running_, breaked_, returned_, asserted_)
+  }
+
+  def join(paths1: Paths, paths2: Paths) = {
+    val Paths(running1, breaked1, returned1, asserted1) = paths1
+    val Paths(running2, breaked2, returned2, asserted2) = paths2
+
+    Paths(
+      running1 ++ running2,
+      breaked1 ++ breaked2,
+      returned1 ++ returned2,
+      asserted1 ++ asserted2
     )
   }
-}
 
-trait Exec[S] {
-  def entry(in: List[Var], out: List[Var], spec: Option[Spec]): List[S]
-  def assume(states: List[S], phi: Expr): List[S]
-  def step(states: List[S], xs: List[Var], rel: Expr): List[S]
-  def local(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
-  def assign(states: List[S], xs: List[Var], rhs: List[Expr]): List[S]
-  def scoped(states: List[S])(f: List[S] => List[S]): List[S]
-
-  // Note: default implementations
-
-  def break(states: States[S]) =
-    states.break
-
-  def return_(states: States[S]) =
-    states.return_
-
-  def assume(states: States[S], phi: Expr): States[S] =
-    states run { assume(_, phi) }
-
-  def assert(states: States[S], phi: Expr): States[S] =
-    states assert phi
-
-  def local(states: States[S], xs: List[Var], rhs: List[Expr]): States[S] =
-    states run { local(_, xs, rhs) }
-
-  def assign(states: States[S], xs: List[Var], rhs: List[Expr]): States[S] =
-    states run { assign(_, xs, rhs) }
-
-  def scoped(states: States[S])(f: States[S] => States[S]): States[S] =
-    ??? // states run { states => scoped(states)(f); ??? }
-
-  def spec(states: States[S], xs: List[Var], pre: Expr, post: Expr): States[S] = {
-    assert(states, pre) run { step(_, xs, post) }
-  }
-
-  def join(states1: States[S], states2: States[S]) = {
-    (states1 merge states2)(_ ++ _)
-  }
-
-  def block(states0: States[S], progs: List[Prog]): States[S] = {
+  def block(paths0: Paths, progs: List[Prog]): Paths = {
     progs match {
       case Nil =>
-        states0
+        paths0
 
       case prog :: rest =>
-        val states1 = exec(states0, prog)
-        val states2 = block(states1, rest)
-        states2
+        val paths1 = exec(paths0, prog)
+        val paths2 = block(paths1, rest)
+        paths2
     }
   }
 
-  def if_(states0: States[S], test: Expr, left: Prog, right: Prog): States[S] = {
-    val states1 = exec(assume(states0, test), left)
-    val states2 = exec(assume(states0, !test), right)
-    join(states1, states2)
+  def if_(paths0: Paths, test: Expr, left: Prog, right: Prog): Paths = {
+    val paths1 = exec(assume(paths0, test), left)
+    val paths2 = exec(assume(paths0, !test), right)
+    join(paths1, paths2)
   }
 
   def while_(
-      states0: States[S],
+      paths0: Paths,
       test: Expr,
       body: Prog,
       term: Expr,
       inv: Expr,
       sum: Expr,
       frames: List[Frame]
-  ): States[S]
+  ): Paths
 
-  def exec(states: States[S], prog: Prog): States[S] = prog match {
+  def exec(paths: Paths, prog: Prog): Paths = prog match {
     case Break =>
-      break(states)
+      break(paths)
 
     case Return =>
-      return_(states)
-
-    case Block(progs) =>
-      scoped(states) { block(_, progs) }
+      return_(paths)
 
     case Local(xs, rhs) =>
-      local(states, xs, rhs)
+      local(paths, xs, rhs)
 
     case Assign(xs, rhs) =>
-      assign(states, xs, rhs)
+      assign(paths, xs, rhs)
 
     case Spec(xs, pre, post) =>
-      spec(states, xs, pre, post)
+      spec(paths, xs, pre, post)
+
+    case Block(progs) =>
+      withScope(paths) {
+        block(_, progs)
+      }
 
     case If(test, left, right) =>
-      if_(states, test, left, right)
+      if_(paths, test, left, right)
 
     case While(test, body, term, inv, sum, frames) =>
-      while_(states, test, body, term, inv, sum, frames)
-  }
-}
-
-object Exec {
-  // TODO: de-duplicate this with the domain-based interpreter
-  trait WithPath {
-    def entry(in: List[Var], out: List[Var], spec: Option[Spec]) =
-      spec match {
-        case None =>
-          val su = Expr.id(in ++ out)
-          val fresh = Nil
-          val constraints = Nil
-          val vars = List(su)
-          val init = Path(fresh, constraints, vars, List(vars))
-          List(init)
-
-        case Some(Spec(globals, pre, post)) =>
-          val su = Expr.id(in ++ out ++ globals)
-          val fresh = Nil
-          val constraints = List(pre)
-          val vars = List(su)
-          val init = Path(fresh, constraints, vars, List(vars))
-          List(init)
+      resume {
+        withOld(paths) {
+          while_(_, test, body, term, inv, sum, frames)
+        }
       }
-
-    def local(states: List[Path], xs: List[Var], rhs: List[Expr]) =
-      for (path <- states)
-        yield path.local(xs, rhs)
-
-    def assign(states: List[Path], xs: List[Var], rhs: List[Expr]) =
-      for (path <- states)
-        yield path.assign(xs, rhs)
-
-    def assume(states: List[Path], phi: Expr): List[Path] =
-      for (path <- states)
-        yield path.assume(phi)
-
-    def step(states: List[Path], xs: List[Var], rel: Expr): List[Path] =
-      for (path <- states)
-        yield path.step(xs, rel)
-
-    def withOld(states0: List[Path])(f: List[Path] => List[Path]) = {
-      val states1 = states0 map (_.pushOld)
-      val states2 = f(states1)
-      val states3 = states2 map (_.popOld)
-      states3
-    }
-
-    def scoped(states0: List[Path])(f: List[Path] => List[Path]) = {
-      val states1 = states0 map (_.pushScope)
-      val states2 = f(states1)
-      val states3 = states2 map (_.popScope)
-      states3
-    }
-  }
-
-  trait WithFixpoint[S] {
-    this: Exec[S] =>
-
-    def isSubsetOf(states1: List[S], states2: List[S]): Boolean
-    def widen(states1: List[S], states2: List[S]): List[S]
-    def narrow(states1: List[S], states2: List[S]): List[S]
-
-    // it is probably good enough to compare the running states,
-    // which are the ones from which we had executed the loop already
-    def isSubsetOf(states1: States[S], states2: States[S]): Boolean =
-      isSubsetOf(states1.running, states2.running)
-
-    def widen(states1: States[S], states2: States[S]): States[S] =
-      (states1 merge states2)(widen)
-
-    def narrow(states1: States[S], states2: States[S]): States[S] =
-      (states1 merge states2)(narrow)
-
-    def fixpoint(init: States[S], fuel: Int = 5)(next: States[S] => States[S]): States[S] = {
-      require(fuel >= 0, "too many iterations in fixpoint")
-
-      val states = next(init)
-
-      if (isSubsetOf(states, init))
-        states
-      else
-        fixpoint(states, fuel - 1)(next)
-    }
-
-    def iter(
-        states0: States[S],
-        test: Expr,
-        body: Prog
-    ): States[S] = {
-      val widened = fixpoint(states0) { states0 =>
-        val states1 = exec(assume(states0, test), body)
-        val result = widen(states0, states1)
-        result
-      }
-
-      val narrowed = fixpoint(widened) { states =>
-        val states1 = exec(assume(states0, test), body)
-        val result = narrow(states0, states1)
-        result
-      }
-
-      narrowed
-    }
-
-    def while_(
-        states0: States[S],
-        test: Expr,
-        body: Prog,
-        term: Expr,
-        inv: Expr,
-        sum: Expr,
-        frames: List[Frame]
-    ): States[S] = {
-      val states1 = iter(states0, test, body)
-      val states2 = assume(states1, !test)
-      states2.unbreak
-    }
   }
 }
