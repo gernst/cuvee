@@ -9,7 +9,7 @@ procedure init(z: int, n: int)
         decreases n - i;
         invariant 0 <= i && i <= n;
 
-        summary forall k: int ::debug
+        summary forall k: int ::
             (forall i_: int :: i <= i_ ==> i_ != k)
                  ==> final(a[k]) == a[k];
     {

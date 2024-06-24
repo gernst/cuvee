@@ -5,9 +5,7 @@ import cuvee.pipe.Stage
 import cuvee.smtlib.Cmd
 import cuvee.smtlib.DefineProc
 
-abstract class Annotate extends Stage {
-  def exec: Exec
-
+abstract class Annotate(val exec: Exec) extends Stage {
   def exec(
       prefix: List[Cmd],
       cmds: List[Cmd],
@@ -16,7 +14,7 @@ abstract class Annotate extends Stage {
   ) = {
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
-        val paths = Paths(exec.entry(in, out, spec))
+        val paths = exec.entry(in, out, spec)
         val (paths_, body_) = annotate(paths, body)
         List(DefineProc(name, params, in, out, spec, body_))
 
@@ -25,6 +23,10 @@ abstract class Annotate extends Stage {
     }
   }
 
+  // The only requirement is that the resulting final paths
+  // overapproximate the effect of executing the loop,
+  // and that the updated program overapproximates the loop too,
+  // e.g. by additional candidate invariants.
   def while_(
       paths: Paths,
       test: Expr,
@@ -35,13 +37,40 @@ abstract class Annotate extends Stage {
       frames: List[Frame]
   ): (Paths, Prog)
 
-  // Note: default implementations
+  def iter(
+      paths: Paths,
+      vars: List[Var],
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): (Paths, Paths, Prog) = {
+    val scope = List(vars)
+
+    val su = Expr.id(vars)
+    val fresh = Nil
+    val constraints = List(test, inv)
+    val stack = List(su)
+
+    val init = Path(fresh, constraints, stack, List(stack))
+    val before = Paths(List(init))
+    val (after, body_) = annotate(before, body)
+
+    (before, after, body_)
+  }
 
   def break_(paths: Paths) =
     (exec.break(paths), Break)
 
   def return_(paths: Paths) =
     (exec.return_(paths), Return)
+
+  def resume(stuff: (Paths, Prog)) = {
+    val (paths, prog) = stuff
+    (exec.resume(paths), prog)
+  }
 
   def spec(paths: Paths, xs: List[Var], pre: Expr, post: Expr) =
     (exec.spec(paths, xs, pre, post), Spec(xs, pre, post))
@@ -92,6 +121,8 @@ abstract class Annotate extends Stage {
       if_(paths, test, left, right)
 
     case While(test, body, term, inv, sum, frames) =>
-      while_(paths, test, body, term, inv, sum, frames)
+      resume {
+        while_(paths, test, body, term, inv, sum, frames)
+      }
   }
 }

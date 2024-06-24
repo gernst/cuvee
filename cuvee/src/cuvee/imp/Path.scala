@@ -5,7 +5,7 @@ import cuvee.pure._
 case class Path(
     fresh: List[Var],
     constraints: List[Expr],
-    vars: List[Map[Var, Expr]],
+    stack: List[Map[Var, Expr]],
     old: List[List[Map[Var, Expr]]]
 ) {
   def constraint = {
@@ -13,7 +13,7 @@ case class Path(
   }
 
   def pushOld = {
-    copy(old = vars :: old)
+    copy(old = stack :: old)
   }
 
   def popOld = {
@@ -21,112 +21,115 @@ case class Path(
   }
 
   def pushScope = {
-    copy(vars = Map[Var, Expr]() :: vars)
+    copy(stack = Map[Var, Expr]() :: stack)
   }
 
   def popScope = {
-    copy(vars = vars.tail)
+    copy(stack = stack.tail)
   }
 
   def lookup(x: Var) = {
-    Path.lookup(vars, x)
+    Path.lookup(stack, x)
   }
 
   def eval(expr: Expr) = {
-    Path.eval(vars, old, expr)
+    Path.eval(stack, old, expr)
   }
 
   def eval(exprs: List[Expr]) = {
-    Path.eval(vars, old, exprs)
+    Path.eval(stack, old, exprs)
   }
 
   def local(xs: List[Var], rhs: List[Expr]) = {
     require(rhs.isEmpty || xs.length == rhs.length)
 
+    val top :: rest = stack
+
     if (rhs.nonEmpty) {
-      val rhs_ = Path.eval(vars, old, rhs)
+      val rhs_ = Path.eval(stack, old, rhs)
       val su = Expr.subst(xs, rhs_)
-      copy(vars = su :: vars)
+      val stack_ = (top ++ su) :: rest
+      Path(fresh, constraints, stack_, old)
     } else {
       val su = Expr.fresh(xs)
       val xs_ = xs rename su
       val fresh_ = fresh ++ xs_
-      val vars_ = su :: vars
-      Path(fresh_, constraints, vars_, old)
+      val stack_ = (top ++ su) :: rest
+      Path(fresh_, constraints, stack_, old)
     }
   }
 
   def assign(xs: List[Var], rhs: List[Expr]) = {
     require(xs.length == rhs.length)
-    val rhs_ = Path.eval(vars, old, rhs)
-    val vars_ = (xs zip rhs_).foldLeft(vars)(Path.store)
-    Path(fresh, constraints, vars_, old)
+    val rhs_ = Path.eval(stack, old, rhs)
+    val stack_ = Path.store(stack, xs zip rhs_)
+    Path(fresh, constraints, stack_, old)
   }
 
   def assume(phi: Expr) = {
-    val phi_ = Path.eval(vars, old, phi)
+    val phi_ = Path.eval(stack, old, phi)
     val constraints_ = phi_ :: constraints
-    Path(fresh, constraints_, vars, old)
+    Path(fresh, constraints_, stack, old)
   }
 
   def step(xs: List[Var], rel: Expr) = {
     val su = Expr.fresh(xs)
     val xs_ = xs rename su
-    val rel_ = Path.eval(su :: vars, vars :: old, rel)
+    val rel_ = Path.eval(su :: stack, stack :: old, rel)
 
     val fresh_ = fresh ++ xs_
     val constraints_ = rel_ :: constraints
-    val vars_ = su :: vars
-    Path(fresh_, constraints_, vars_, old)
+    val stack_ = Path.store(stack, xs zip xs_)
+    Path(fresh_, constraints_, stack_, old)
   }
 }
 
 object Path {
   // delegate all operations on paths to ensure we don't
-  // accidentally re-use the top-level versions of vars and olds
-  def eval(vars: List[Map[Var, Expr]], old: List[List[Map[Var, Expr]]], expr: Expr): Expr = {
+  // accidentally re-use the top-level versions of stack and olds
+  def eval(stack: List[Map[Var, Expr]], old: List[List[Map[Var, Expr]]], expr: Expr): Expr = {
     expr match {
       case x: Var =>
-        lookup(vars, x)
+        lookup(stack, x)
 
       case _: Lit =>
         expr
 
       case Is(arg, fun) =>
-        Is(eval(vars, old, arg), fun)
+        Is(eval(stack, old, arg), fun)
 
       case Note(expr, attr) =>
-        Note(eval(vars, old, expr), attr)
+        Note(eval(stack, old, expr), attr)
 
       case App(inst, args) =>
-        App(inst, eval(vars, old, args))
+        App(inst, eval(stack, old, args))
 
       case Distinct(args) =>
-        Distinct(eval(vars, old, args))
+        Distinct(eval(stack, old, args))
 
       case Old(expr) =>
         require(old.nonEmpty, "cannot evaluate old expression, no previous state(s) given")
-        val vars_ :: old_ = old
-        eval(vars_, old_, expr)
+        val stack_ :: old_ = old
+        eval(stack_, old_, expr)
 
       case Bind(quant, formals, body, typ) =>
         val su = Expr.id(formals)
-        val body_ = eval(su :: vars, old, body)
+        val body_ = eval(su :: stack, old, body)
         Bind(quant, formals, body_, typ)
     }
   }
 
   def eval(
-      vars: List[Map[Var, Expr]],
+      stack: List[Map[Var, Expr]],
       old: List[List[Map[Var, Expr]]],
       exprs: List[Expr]
   ): List[Expr] = {
     for (expr <- exprs)
-      yield eval(vars, old, expr)
+      yield eval(stack, old, expr)
   }
 
-  def lookup(vars: List[Map[Var, Expr]], x: Var): Expr = {
-    vars match {
+  def lookup(stack: List[Map[Var, Expr]], x: Var): Expr = {
+    stack match {
       case Nil =>
         cuvee.error("unbound local variable: " + x)
 
@@ -138,10 +141,14 @@ object Path {
     }
   }
 
-  def store(vars: List[Map[Var, Expr]], xe: (Var, Expr)): List[Map[Var, Expr]] = {
+  def store(stack: List[Map[Var, Expr]], eqs: List[(Var, Expr)]): List[Map[Var, Expr]] = {
+    eqs.foldLeft(stack)(store)
+  }
+
+  def store(stack: List[Map[Var, Expr]], xe: (Var, Expr)): List[Map[Var, Expr]] = {
     val (x, e) = xe
 
-    vars match {
+    stack match {
       case Nil =>
         cuvee.error("unbound local variable: " + x)
 

@@ -4,7 +4,7 @@ import cuvee.pure._
 import cuvee.imp._
 import cuvee.imp.annotate.Accelerate.counter
 
-object Arrays extends Annotate {
+object Arrays extends Annotate(ExecNoLoops) {
   def while_(
       paths: Paths,
       test: Expr,
@@ -22,33 +22,30 @@ object Arrays extends Annotate {
       case _                              => false
     }
 
-    val su = Expr.id(test.free ++ mod ++ read)
-    val fresh = Nil
-    val constraints = List(test, inv)
-    val vars = List(su)
-
-    val init = Path(fresh, constraints, vars, List(vars))
-    val arbitrary = Paths(List(init))
-
-    val (paths_, body_) = annotate(arbitrary, body)
-    val counters = Accelerate.counters(paths.running, paths_.running, ys)
+    val vars = test.free ++ mod ++ read
+    val (before, after, body_) = iter(paths, vars.toList, test, body, term, inv, sum, frames)
+    val counters = Accelerate.counters(paths.running, after.running, ys)
 
     // println(paths)
     // println(paths_)
     // println(counters)
 
     val re = Expr.fresh(ys)
-    val phi = accelerateWrites(mod, as, ys, re, counters, paths_.running)
+    val phi = accelerateWrites(mod, as, ys, re, counters, after.running)
     val psi = accelerateGuard(mod, as, ys, re, counters, test, inv)
     val add = And(phi ++ psi)
     val inv_ = Simplify.simplify(inv && add, Map(), Set())
     // val inv_ = inv && add
 
+    require(after.breaked.isEmpty, "array acceleration ignores break in loops")
+    require(after.returned.isEmpty, "array acceleration ignores return in loops")
+    require(after.asserted.isEmpty, "array acceleration ignores asserts in loops")
+
     val prog_ = While(test, body_, term, inv_, sum, frames)
 
-    val paths__ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
+    val paths_ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
 
-    (paths__, prog_)
+    (paths_, prog_)
   }
 
   def accelerateGuard(
@@ -176,17 +173,5 @@ object Arrays extends Annotate {
       Select(Old(b), maybeOldOtherArrays(mod, key))
     case expr =>
       expr
-  }
-
-  object exec extends Exec {
-    override def while_(
-        paths0: Paths,
-        test: Expr,
-        body: Prog,
-        term: Expr,
-        inv: Expr,
-        sum: Expr,
-        frames: List[Frame]
-    ): Paths = ???
   }
 }

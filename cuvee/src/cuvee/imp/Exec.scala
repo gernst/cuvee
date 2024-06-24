@@ -1,5 +1,6 @@
 package cuvee.imp
 import cuvee.pure._
+import cuvee.ai.Domain
 
 case class Paths(
     running: List[Path],
@@ -8,23 +9,89 @@ case class Paths(
     asserted: List[(Path, Expr)] = Nil
 )
 
+object ExecNoLoops extends Exec {
+  def while_(
+      paths0: Paths,
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): Paths = {
+    cuvee.error("execution of loops not implemented in this context")
+  }
+}
+
+class ExecWithDomain[S](domain: Domain[S]) extends Exec {
+  def while_(
+      paths0: Paths,
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): Paths = {
+    cuvee.error("execution of loops not implemented in this context")
+  }
+}
+
 trait Exec {
-  def entry(in: List[Var], out: List[Var], spec: Option[Spec]) = spec match {
+  // The only requirement is that the resulting final paths
+  // overapproximate the effect of executing the loop.
+  def while_(
+      paths0: Paths,
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): Paths
+
+  // Utility function to run an arbitrary iteration of a loop body,
+  // when started from paths, with respect to the set of vars given,
+  // starting out with a *flat* stack of the identity substitution,
+  // i.e., not reflecting the block structure of the given current paths.
+  def iter(
+      paths: Paths,
+      vars: List[Var],
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): (Paths, Paths) = {
+    val scope = List(vars)
+
+    val su = Expr.id(vars)
+    val fresh = Nil
+    val constraints = List(test, inv)
+    val stack = List(su)
+
+    val init = Path(fresh, constraints, stack, List(stack))
+    val before = Paths(List(init))
+    val after = exec(before, body)
+
+    (before, after)
+  }
+
+  def entry(vars: List[Var], constraints: List[Expr]): Paths = {
+    val su = Expr.id(vars)
+    val fresh = Nil
+    val stack = List(su)
+    val init = Path(fresh, constraints, stack, List(stack))
+    Paths(List(init))
+  }
+
+  def entry(in: List[Var], out: List[Var], spec: Option[Spec]): Paths = spec match {
     case None =>
-      val su = Expr.id(in ++ out)
-      val fresh = Nil
-      val constraints = Nil
-      val vars = List(su)
-      val init = Path(fresh, constraints, vars, List(vars))
-      List(init)
+      entry(in ++ out, Nil)
 
     case Some(Spec(globals, pre, post)) =>
-      val su = Expr.id(in ++ out ++ globals)
-      val fresh = Nil
-      val constraints = List(pre)
-      val vars = List(su)
-      val init = Path(fresh, constraints, vars, List(vars))
-      List(init)
+      entry(in ++ out ++ globals, List(pre))
   }
 
   def break(paths: Paths) = {
@@ -73,19 +140,19 @@ trait Exec {
     Paths(running_, breaked, returned, asserted ++ asserted_)
   }
 
-  def withScope(paths0: Paths)(f: Paths => Paths): Paths = {
+  def scoped(paths0: Paths)(f: Paths => Paths): Paths = {
     val paths1 = all(paths0) { _.pushScope }
     val paths2 = f(paths1)
     val paths3 = all(paths2) { _.popScope }
     paths3
   }
 
-  def withOld(paths0: Paths)(f: Paths => Paths): Paths = {
-    val paths1 = all(paths0) { _.pushOld }
-    val paths2 = f(paths1)
-    val paths3 = all(paths2) { _.popOld }
-    paths3
-  }
+  // def withOld(paths0: Paths)(f: Paths => Paths): Paths = {
+  //   val paths1 = all(paths0) { _.pushOld }
+  //   val paths2 = f(paths1)
+  //   val paths3 = all(paths2) { _.popOld }
+  //   paths3
+  // }
 
   def all(paths: Paths)(f: Path => Path) = {
     import paths._
@@ -126,16 +193,6 @@ trait Exec {
     join(paths1, paths2)
   }
 
-  def while_(
-      paths0: Paths,
-      test: Expr,
-      body: Prog,
-      term: Expr,
-      inv: Expr,
-      sum: Expr,
-      frames: List[Frame]
-  ): Paths
-
   def exec(paths: Paths, prog: Prog): Paths = prog match {
     case Break =>
       break(paths)
@@ -153,7 +210,7 @@ trait Exec {
       spec(paths, xs, pre, post)
 
     case Block(progs) =>
-      withScope(paths) {
+      scoped(paths) {
         block(_, progs)
       }
 
@@ -162,9 +219,7 @@ trait Exec {
 
     case While(test, body, term, inv, sum, frames) =>
       resume {
-        withOld(paths) {
-          while_(_, test, body, term, inv, sum, frames)
-        }
+        while_(paths, test, body, term, inv, sum, frames)
       }
   }
 }
