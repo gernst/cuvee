@@ -161,11 +161,13 @@ object Arrays extends Annotate(ExecNoLoops) {
 
       case Store(rhs_, key, value) =>
         val now = key rename re
+        val earlierThis = Accelerate.checkEarlierValueOf(counters, key, now)
         val value_ = maybeOldOtherArrays(mod, value)
-        val earlier = Accelerate.checkEarlierValueOf(counters, key, now)
+        val earlierThat =
+          Accelerate.checkEarlierValueOf(counters, value_, value_ rename re)
         val here = Select(a, x) === (value_ rename re)
         val there = assignmentEqualities(mod, counters, re, a, x, rhs_)
-        Ite(x === now, earlier && here, there)
+        Ite(x === now, earlierThis && earlierThat && here, there)
     }
 
   def maybeOldOtherArrays(mod: Set[Var], rhs: Expr): Expr = rhs topdown {
