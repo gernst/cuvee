@@ -23,7 +23,11 @@ object Accelerate {
     }
   }
 
-  def checkEarlierValueOf(counters: Map[Var, Counter], expr: Expr, now: Expr): Expr = {
+  def checkEarlierValueOf(
+      counters: Map[Var, Counter],
+      expr: Expr,
+      now: Expr
+  ): Expr = {
     val result = isEarlierValueOf(counters, expr, now)
     result getOrElse True
   }
@@ -68,7 +72,11 @@ object Accelerate {
     }
   }
 
-  def isEarlierValueOf(counters: Map[Var, Counter], expr: Expr, now: Expr): Option[Expr] = {
+  def isEarlierValueOf(
+      counters: Map[Var, Counter],
+      expr: Expr,
+      now: Expr
+  ): Option[Expr] = {
     (expr, now) match {
       case (_: Lit, _: Lit) =>
         require(expr == now)
@@ -76,6 +84,9 @@ object Accelerate {
 
       case (i: Var, _: Var) if counters contains i =>
         isEarlierValueOf(counters(i), i, now)
+
+      case _ if expr == now =>
+        Some(True)
 
       case (App(inst, args), App(_, nows)) =>
         isEarlierValuesOf(counters, args, nows)
@@ -85,7 +96,11 @@ object Accelerate {
     }
   }
 
-  def counters(states: List[Path], states_ : List[Path], mod: List[Var]): Map[Var, Counter] = {
+  def counters(
+      states: List[Path],
+      states_ : List[Path],
+      mod: List[Var]
+  ): Map[Var, Counter] = {
     val pairs =
       for (
         i <- mod if i.typ == Sort.int;
@@ -95,7 +110,11 @@ object Accelerate {
     Map(pairs: _*)
   }
 
-  def counter(states: List[Path], states_ : List[Path], i: Var): Option[(Var, Counter)] = {
+  def counter(
+      states: List[Path],
+      states_ : List[Path],
+      i: Var
+  ): Option[(Var, Counter)] = {
     val is = states map (_ lookup i)
     val init = is.distinct match {
       case List(i0) =>
@@ -104,7 +123,11 @@ object Accelerate {
         None
     }
 
-    val is_ = states_ map (_ lookup i)
+    val is_ = states_ map (_ lookup i) filter {
+      i_ => i_ != i
+    }
+
+    // collect
     val step = is_.distinct match {
       case List(Plus(List(`i`, Lit(step: BigInt, _)))) =>
         Some(step)
