@@ -23,7 +23,8 @@ object Arrays extends Annotate(ExecNoLoops) {
     }
 
     val vars = test.free ++ mod ++ read
-    val (before, after, body_) = iter(paths, vars.toList, test, body, term, inv, sum, frames)
+    val (before, after, body_) =
+      iter(paths, vars.toList, test, body, term, inv, sum, frames)
     val counters = Accelerate.counters(paths.running, after.running, ys)
 
     // println(paths)
@@ -38,8 +39,14 @@ object Arrays extends Annotate(ExecNoLoops) {
     // val inv_ = inv && add
 
     require(after.breaked.isEmpty, "array acceleration ignores break in loops")
-    require(after.returned.isEmpty, "array acceleration ignores return in loops")
-    require(after.asserted.isEmpty, "array acceleration ignores asserts in loops")
+    require(
+      after.returned.isEmpty,
+      "array acceleration ignores return in loops"
+    )
+    require(
+      after.asserted.isEmpty,
+      "array acceleration ignores asserts in loops"
+    )
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
 
