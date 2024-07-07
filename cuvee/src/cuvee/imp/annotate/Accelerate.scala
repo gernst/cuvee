@@ -10,13 +10,17 @@ object Accelerate {
   val plus_one = BigInt(1)
   val minus_one = BigInt(-1)
 
-  def isEarlierValueOf(counter: Counter, i: Var, now: Expr): Option[Expr] = {
+  def isEarlierValueOf(
+      counter: Counter,
+      current: Var,
+      rho: Map[Expr, Expr]
+  ): Option[Expr] = {
     counter match {
       case Counter(init, `plus_one`) =>
-        Some(init <= now && now < i)
+        Some(init <= rho(current) && rho(current) < current)
 
       case Counter(init, `minus_one`) =>
-        Some(i < now && now <= init)
+        Some(current < rho(current) && rho(current) < current)
 
       case _ =>
         None
@@ -25,10 +29,11 @@ object Accelerate {
 
   def checkEarlierValueOf(
       counters: Map[Var, Counter],
-      expr: Expr,
-      now: Expr
+      current: Expr,
+      renamed: Expr
   ): Expr = {
-    val result = isEarlierValueOf(counters, expr, now)
+    val rho = Map(current -> renamed)
+    val result = isEarlierValueOf(counters, current, rho)
     result getOrElse True
   }
 
@@ -37,9 +42,10 @@ object Accelerate {
       args: List[Expr],
       nows: List[Expr]
   ): List[Expr] = {
+    val rho = (args zip nows).toMap
     for (
       (arg, now) <- args zip nows;
-      phi <- isEarlierValueOf(counters, arg, now)
+      phi <- isEarlierValueOf(counters, arg, rho)
     )
       yield phi
   }
@@ -58,10 +64,11 @@ object Accelerate {
       args: List[Expr],
       nows: List[Expr]
   ): Option[Expr] = {
+    val rho = (args zip nows).toMap
     val phis =
       for (
         (arg, now) <- args zip nows;
-        phi <- isEarlierValueOf(counters, arg, now)
+        phi <- isEarlierValueOf(counters, arg, rho)
       )
         yield phi
 
@@ -74,18 +81,18 @@ object Accelerate {
 
   def isEarlierValueOf(
       counters: Map[Var, Counter],
-      expr: Expr,
-      now: Expr
+      current: Expr,
+      rho: Map[Expr, Expr]
   ): Option[Expr] = {
-    (expr, now) match {
+    (current, rho(current)) match {
       case (_: Lit, _: Lit) =>
-        require(expr == now)
+        require(current == rho(current))
         Some(True)
 
       case (i: Var, _: Var) if counters contains i =>
-        isEarlierValueOf(counters(i), i, now)
+        isEarlierValueOf(counters(i), i, rho)
 
-      case _ if expr == now =>
+      case _ if current == rho(current) =>
         Some(True)
 
       case (App(inst, args), App(_, nows)) =>
@@ -123,8 +130,8 @@ object Accelerate {
         None
     }
 
-    val is_ = states_ map (_ lookup i) filter {
-      i_ => i_ != i
+    val is_ = states_ map (_ lookup i) filter { i_ =>
+      i_ != i
     }
 
     // collect
