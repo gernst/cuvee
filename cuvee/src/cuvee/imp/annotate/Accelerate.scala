@@ -13,14 +13,14 @@ object Accelerate {
   def isEarlierValueOf(
       counter: Counter,
       current: Var,
-      rho: Map[Expr, Expr]
+      rho: Map[Var, Var]
   ): Option[Expr] = {
     counter match {
       case Counter(init, `plus_one`) =>
         Some(init <= rho(current) && rho(current) < current)
 
       case Counter(init, `minus_one`) =>
-        Some(current < rho(current) && rho(current) < current)
+        Some(current < rho(current) && rho(current) <= init)
 
       case _ =>
         None
@@ -30,49 +30,46 @@ object Accelerate {
   def checkEarlierValueOf(
       counters: Map[Var, Counter],
       current: Expr,
-      renamed: Expr
+      rho: Map[Var, Var]
   ): Expr = {
-    val rho = Map(current -> renamed)
     val result = isEarlierValueOf(counters, current, rho)
     result getOrElse True
   }
 
   def tryEarlierValuesOf(
       counters: Map[Var, Counter],
-      args: List[Expr],
-      nows: List[Expr]
+      current: List[Expr],
+      rho: Map[Var, Var]
   ): List[Expr] = {
-    val rho = (args zip nows).toMap
     for (
-      (arg, now) <- args zip nows;
-      phi <- isEarlierValueOf(counters, arg, rho)
+      expr <- current;
+      phi <- isEarlierValueOf(counters, expr, rho)
     )
       yield phi
   }
 
   def checkEarlierValuesOf(
       counters: Map[Var, Counter],
-      args: List[Expr],
-      nows: List[Expr]
+      current: List[Expr],
+      rho: Map[Var, Var]
   ): Expr = {
-    val result = isEarlierValuesOf(counters, args, nows)
+    val result = isEarlierValuesOf(counters, current, rho)
     result getOrElse True
   }
 
   def isEarlierValuesOf(
       counters: Map[Var, Counter],
-      args: List[Expr],
-      nows: List[Expr]
+      current: List[Expr],
+      rho: Map[Var, Var]
   ): Option[Expr] = {
-    val rho = (args zip nows).toMap
     val phis =
       for (
-        (arg, now) <- args zip nows;
-        phi <- isEarlierValueOf(counters, arg, rho)
+        expr <- current;
+        phi <- isEarlierValueOf(counters, expr, rho)
       )
         yield phi
 
-    if (args.length == phis.length) {
+    if (current.length == phis.length) {
       Some(And(phis))
     } else {
       None
@@ -82,21 +79,17 @@ object Accelerate {
   def isEarlierValueOf(
       counters: Map[Var, Counter],
       current: Expr,
-      rho: Map[Expr, Expr]
+      rho: Map[Var, Var]
   ): Option[Expr] = {
-    (current, rho(current)) match {
-      case (_: Lit, _: Lit) =>
-        require(current == rho(current))
+    current match {
+      case _: Lit =>
         Some(True)
 
-      case (i: Var, _: Var) if counters contains i =>
+      case i: Var if counters contains i =>
         isEarlierValueOf(counters(i), i, rho)
 
-      case _ if current == rho(current) =>
-        Some(True)
-
-      case (App(inst, args), App(_, nows)) =>
-        isEarlierValuesOf(counters, args, nows)
+      case App(inst, args) =>
+        isEarlierValuesOf(counters, args, rho)
 
       case _ =>
         None

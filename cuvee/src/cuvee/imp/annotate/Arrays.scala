@@ -67,7 +67,7 @@ object Arrays extends Annotate(ExecNoLoops) {
     val ys_ = ys rename re
     val test_ = test rename re
     val inv_ = inv rename re
-    val prems = Accelerate.tryEarlierValuesOf(counters, ys, ys_)
+    val prems = Accelerate.tryEarlierValuesOf(counters, ys, re)
     val result = Forall(ys_, And(inv_ :: prems) ==> test_)
     // println(ys, ys_, prems)
     // println(result)
@@ -149,7 +149,7 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     case Store(rhs_, key, _) =>
       val now = key rename re
-      val earlier = Accelerate.checkEarlierValueOf(counters, key, now)
+      val earlier = Accelerate.checkEarlierValueOf(counters, key, re)
       val there = indexEqualities(counters, re, a, x, rhs_)
       Ite(x === now, earlier, there)
   }
@@ -168,10 +168,10 @@ object Arrays extends Annotate(ExecNoLoops) {
 
       case Store(rhs_, key, value) =>
         val now = key rename re
-        val earlierThis = Accelerate.checkEarlierValueOf(counters, key, now)
+        val earlierThis = Accelerate.checkEarlierValueOf(counters, key, re)
         val value_ = maybeOldOtherArrays(mod, value)
         val earlierThat =
-          Accelerate.checkEarlierValueOf(counters, value_, value_ rename re)
+          Accelerate.checkEarlierValueOf(counters, value_, re)
         val here = Select(a, x) === (value_ rename re)
         val there = assignmentEqualities(mod, counters, re, a, x, rhs_)
         Ite(x === now, earlierThis && earlierThat && here, there)
