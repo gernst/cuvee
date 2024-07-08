@@ -60,6 +60,8 @@ object maaap extends Run(Test, "evaluation/lemmas/list/map.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
 object filter extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/filter.bpl")
 
+object set extends Run(Test, "examples/boogie/set.bpl")
+
 object bool extends Run(Test, "evaluation/lemmas/bool.bpl")
 object nat extends Run(Test, "evaluation/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "evaluation/lemmas/list.bpl")
