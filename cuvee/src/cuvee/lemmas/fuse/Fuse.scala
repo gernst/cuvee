@@ -8,7 +8,7 @@ import cuvee.lemmas.Def
 import cuvee.lemmas.C
 
 object Fuse {
-  var debug = false
+  var debug = true
 
   def mayFuseAt(df: Def, dg: Def): List[Int] = {
     for (
@@ -152,16 +152,11 @@ object Fuse {
 
       for (
         C(fargs, fguard, fbody) <- fcases_;
-        (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody_, constrs, rules)
+        (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody_, constrs, rules);
+        args = fargs patch (pos, gargs_, 1);
+        guard = (fguard ++ gguard) subst su;
+        body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
       ) yield {
-        val args = fargs patch (pos, gargs_, 1)
-        val guard = (fguard ++ gguard) subst su
-        val body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
-        // println(re)
-        // println(su)
-        // println(fargs + ". " + fbody)
-        // println(gargs + ". " + gbody)
-        // println(gargs_)
         C(args, guard, body_)
       }
     }
@@ -373,6 +368,21 @@ object Fuse {
         )
           yield (args2, su2)
     }
+
+  def recurseAll(
+      f: Fun,
+      g: Fun,
+      fg: Fun,
+      pos: Int,
+      body: Expr,
+      su: Map[Var, Expr],
+      constrs: Set[Fun],
+      rules: Map[Fun, List[Rule]]
+  ): List[Expr] = {
+    if (debug)
+      println("in recurseAll: " + body)
+    List(recurse(f, g, fg, pos, body, su, constrs, rules))
+  }
 
   // Note: this can be done by subst su and the simplifier
   def recurse(
