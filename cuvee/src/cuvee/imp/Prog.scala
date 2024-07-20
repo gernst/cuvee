@@ -91,6 +91,14 @@ case object Break extends Prog {
   def replace(re: Map[Var, Var]) = this
 }
 
+case object Continue extends Prog {
+  def mod = Set()
+  def read = Set()
+  def local = Set()
+  def breaks = true
+  def replace(re: Map[Var, Var]) = this
+}
+
 case object Return extends Prog {
   def mod = Set()
   def read = Set()
@@ -210,6 +218,11 @@ case class If(test: Expr, left: Prog, right: Prog) extends Prog {
 }
 
 object If extends ((Expr, Prog, Option[Prog]) => If) {
+
+  def apply(test: Expr, left: Prog): If = {
+    If(test, left, Skip)
+  }
+
   def apply(test: Expr, left: Prog, right: Option[Prog]): If = {
     right match {
       case None        => If(test, left, Skip)
@@ -275,6 +288,11 @@ object While
             Prog
         ) => While
     ) {
+
+  def apply(test: Expr, body: Prog): While = {
+    While(test, body, Zero, True, True, Nil)
+  }
+
   def apply(
       test: Expr,
       term_ : Option[Expr],
@@ -290,7 +308,7 @@ object While
 
 case class Call(name: Name, in: List[Expr], out: List[Var]) extends Prog {
   def dup = out.groupBy(identity).filter(_._2.size > 1)
-  require(dup.nonEmpty, "procedure call " + name + " has duplicate outputs " + dup)
+  require(dup.isEmpty, "procedure call " + name + " has duplicate outputs " + dup)
 
   def mod = out.toSet
   def read = in.free
