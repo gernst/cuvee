@@ -206,6 +206,7 @@ class Config {
       } else if (path endsWith ".py") {
         source = python.source(path)
       } else if (path endsWith ".c") {
+        printer = boogie.printer
         source = c.source(path)
       } else if (path endsWith ".th") {
         printer = thesy.printer

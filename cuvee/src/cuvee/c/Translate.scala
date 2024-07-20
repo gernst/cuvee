@@ -34,16 +34,24 @@ class Translate(state: State) {
       ???
 
     case TypeDef(typ, name) =>
-      ???
+      val typ_ = resolve(typ)
+      state.con(name, 0)
+      state.condef(name, Nil, typ_)
+      List(smtlib.DefineSort(name, Nil, typ_))
 
-    case VarDef(formal, init) =>
-      ???
+    case VarDef(Formal(typ, name), None) =>
+      val typ_ = resolve(typ)
+      state.global(name, typ_)
+      List(smtlib.DeclareVar(name, typ_))
 
     case FunDecl(ret, name, types) =>
       ???
 
     case FunDef(ret, name, formals, body) =>
       ???
+
+    case Block(stmts) =>
+      globals(stmts)
   }
 
   def locals(stmts: List[Stmt], result: pure.Var): List[imp.Prog] =
@@ -60,6 +68,9 @@ class Translate(state: State) {
     case Atomic(Some(expr)) =>
       val (_, progs) = eval(expr)
       progs
+
+    case Block(stmts) =>
+      locals(stmts, result)
 
     case Continue =>
       List(imp.Continue)
@@ -164,7 +175,7 @@ class Translate(state: State) {
     case Unsigned(name, bytes) =>
       ???
     case Signed(name, bytes) =>
-      ???
+      pure.Sort.int
     case ArrayType(typ, dim) =>
       ???
     case BaseType(name) =>
