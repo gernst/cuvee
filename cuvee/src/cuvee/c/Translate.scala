@@ -1,11 +1,20 @@
 package cuvee.c
 
 import cuvee.State
-import cuvee.imp
 import cuvee.pure
+import cuvee.imp
+import cuvee.smtlib
 
 class Translate(state: State) {
-  def global(stmt: Stmt): List[imp.Prog] = stmt match {
+
+  def globals(stmts: List[Stmt]): List[smtlib.Cmd] =
+    for (
+      stmt <- stmts;
+      prog <- global(stmt)
+    )
+      yield prog
+
+  def global(stmt: Stmt): List[smtlib.Cmd] = stmt match {
     case StructDecl(name) =>
       ???
 

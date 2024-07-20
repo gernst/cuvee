@@ -29,16 +29,17 @@ package object c {
     stmts
   }
 
-
   def source(file: String) = new Source {
+    val state = State.default
 
-    override def state: State = ???
+    val from = {
+      val stmts = parse(file)
+      val translate = new Translate(state)
+      val progs = translate.globals(stmts)
+      progs.iterator
+    }
 
-    override def hasNext: Boolean = ???
-
-    override def next(): Cmd = ???
-
-    
+    def hasNext = from.hasNext
+    def next() = from.next()
   }
-    
 }

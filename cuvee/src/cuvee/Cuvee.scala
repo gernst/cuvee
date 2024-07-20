@@ -205,6 +205,8 @@ class Config {
         source = smtlib.source(path)
       } else if (path endsWith ".py") {
         source = python.source(path)
+      } else if (path endsWith ".c") {
+        source = c.source(path)
       } else if (path endsWith ".th") {
         printer = thesy.printer
         source = thesy.source(path)
