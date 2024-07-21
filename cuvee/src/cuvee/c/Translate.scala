@@ -277,12 +277,17 @@ class Translate(state: State) {
 
   def binop(op: String, arg1: pure.Expr, arg2: pure.Expr) =
     op match {
-      case "+" => arg1 + arg2
-      case "-" => arg1 - arg2
-      case "*" => arg1 - arg2
-      case "/" => arg1 - arg2
-      case "%" => arg1 - arg2
-      case "<" => bool(arg1 < arg2)
+      case "+"  => arg1 + arg2
+      case "-"  => arg1 - arg2
+      case "*"  => arg1 - arg2
+      case "/"  => arg1 - arg2
+      case "%"  => arg1 - arg2
+      case "<"  => bool(arg1 < arg2)
+      case "<=" => bool(arg1 <= arg2)
+      case ">=" => bool(arg2 <= arg1)
+      case ">"  => bool(arg2 < arg1)
+      case "==" => bool(arg1 === arg2)
+      case "!=" => bool(arg1 !== arg2)
     }
 
   def vars(formals: List[Formal]) =
