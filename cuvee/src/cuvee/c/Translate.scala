@@ -129,10 +129,6 @@ class Translate(state: State) {
       case Block(stmts) :: rest =>
         val progs = locals(stmts, scope, cont, result)
         val prefix = block(progs)
-        println(stmts)
-        println(progs)
-        println(prefix)
-        println()
         prefix ++ locals(rest, scope, cont, result)
 
       case Continue :: rest =>
