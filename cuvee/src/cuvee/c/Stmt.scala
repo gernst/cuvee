@@ -129,11 +129,11 @@ sealed trait Stmt
 
 case class Block(stmts: List[Stmt]) extends Stmt {
   def this(stmts: Array[Stmt]) = this(stmts.toList)
-  def this(first: Stmt, second: Stmt) = this(List(first, second))
 }
 
-object Block {
-  val empty = Block(Nil)
+case class Group(stmts: List[Stmt]) extends Stmt {
+  def this(stmts: Array[Stmt]) = this(stmts.toList)
+  def this(first: Stmt, second: Stmt) = this(List(first, second))
 }
 
 case class Atomic(expr: Option[Expr]) extends Stmt {
@@ -168,14 +168,15 @@ object Return {
 }
 
 case class If(test: Expr, left: Stmt, right: Stmt) extends Stmt {
-  def this(test: Expr, left: Stmt) = this(test, left, Block.empty)
+  def this(test: Expr, left: Stmt) = this(test, left, Block(Nil))
 }
 
 case class While(test: Expr, body: Stmt) extends Stmt
 
 case class DoWhile(body: Stmt, test: Expr) extends Stmt
 
-case class For(vars: List[VarDef], init: List[Expr], test: List[Expr], inc: List[Expr], body: Stmt) extends Stmt {
+case class For(vars: List[VarDef], init: List[Expr], test: List[Expr], inc: List[Expr], body: Stmt)
+    extends Stmt {
 
   def this(init: Array[Expr], test: Array[Expr], inc: Array[Expr], body: Stmt) = {
     this(Nil, init.toList, test.toList, inc.toList, body)

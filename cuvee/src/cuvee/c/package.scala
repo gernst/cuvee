@@ -25,7 +25,7 @@ package object c {
     scanner.types = types
     parser.types = types
 
-    val Block(stmts) = parser parse scanner
+    val Group(stmts) = parser parse scanner
     stmts
   }
 

@@ -181,11 +181,11 @@ object Assign extends ((List[Var], List[Expr]) => Assign) {
 case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
   require(
     pre.typ == Sort.bool,
-    "non-boolean precondition in specification statement"
+    "non-boolean precondition in specification statement: " + pre
   )
   require(
     post.typ == Sort.bool,
-    "non-boolean postcondition in specification statement"
+    "non-boolean postcondition in specification statement: " + post
   )
 
   def mod = xs.toSet

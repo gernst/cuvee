@@ -180,7 +180,7 @@ public class Parser extends beaver.Parser {
 					final Symbol _symbol_ss = _symbols[offset + 1];
 					final ArrayList _list_ss = (ArrayList) _symbol_ss.value;
 					final Stmt[] ss = _list_ss == null ? new Stmt[0] : (Stmt[]) _list_ss.toArray(new Stmt[_list_ss.size()]);
-					 return s(new Block(ss));
+					 return s(new Group(ss));
 				}
 			},
 			RETURN2,	// [1] bound = LBRACK expr.e RBRACK
@@ -482,7 +482,7 @@ public class Parser extends beaver.Parser {
 					final Symbol _symbol_n = _symbols[offset + 7];
 					final String n = (String) _symbol_n.value;
 					 types.add(n);
-                                                           return s(new Block(new StructDef(m, Parsing.members(fs)),
+                                                           return s(new Group(new StructDef(m, Parsing.members(fs)),
                                                                               new TypeDef(new StructName(m), n)));
 				}
 			},
@@ -496,7 +496,7 @@ public class Parser extends beaver.Parser {
 					final Symbol _symbol_n = _symbols[offset + 7];
 					final String n = (String) _symbol_n.value;
 					 types.add(n);
-                                                           return s(new Block(new UnionDef(m, Parsing.members(fs)),
+                                                           return s(new Group(new UnionDef(m, Parsing.members(fs)),
                                                                               new TypeDef(new UnionName(m), n)));
 				}
 			},
@@ -620,7 +620,7 @@ public class Parser extends beaver.Parser {
 					final Symbol _symbol_vs = _symbols[offset + 2];
 					final ArrayList _list_vs = (ArrayList) _symbol_vs.value;
 					final VarSpec[] vs = _list_vs == null ? new VarSpec[0] : (VarSpec[]) _list_vs.toArray(new VarSpec[_list_vs.size()]);
-					 return s(new Block(Parsing.vars(t, vs)));
+					 return s(new Group(Parsing.vars(t, vs)));
 				}
 			},
 			new Action() {	// [66] stmt = SEMICOLON

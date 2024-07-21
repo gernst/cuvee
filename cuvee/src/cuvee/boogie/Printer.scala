@@ -270,6 +270,8 @@ object Printer extends cuvee.util.Printer {
     case Block(progs) => "{" +: indent(progs flatMap lines) :+ "}"
     case Break        => List("break;")
     case Return       => List("return;")
+    case Local(xs, Nil) =>
+      List("var " + vartypes(xs) + ";")
     case Local(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
       List("var " + vartypes(xs) + " := " + exprs.mkString(", ") + ";")
