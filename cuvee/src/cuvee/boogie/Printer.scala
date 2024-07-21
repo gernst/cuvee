@@ -198,7 +198,7 @@ object Printer extends cuvee.util.Printer {
       if (spec.nonEmpty)
         result ++= bspecs(spec.orNull)
 
-      result ++= "{" +: lines(body) :+ "}"
+      result ++= "{" +: block(body) :+ "}"
       result
   }
 

@@ -1,5 +1,7 @@
 package cuvee.c
 
+
+import cuvee.SetOps
 import cuvee.State
 import cuvee.pure
 import cuvee.imp
@@ -86,13 +88,13 @@ class Translate(state: State) {
       globals(stmts)
   }
 
-  def unblock(progs: List[imp.Prog]): List[imp.Prog] =
+  def unblock(progs: List[imp.Prog], scope: Map[String, pure.Var]): List[imp.Prog] =
     progs match {
       case Nil =>
         Nil
       case List(block: imp.Block) =>
         progs
-      case _ if progs.local.isEmpty =>
+      case _ if progs.local disjoint scope.values.toSet =>
         progs
       case _ =>
         List(imp.Block(progs))
@@ -140,7 +142,7 @@ class Translate(state: State) {
 
       case Block(stmts) :: rest =>
         val progs = locals(stmts, scope, cont, result)
-        val prefix = unblock(progs)
+        val prefix = unblock(progs, scope)
         prefix ++ locals(rest, scope, cont, result)
 
       case Continue :: rest =>
