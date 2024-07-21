@@ -1,6 +1,5 @@
 package cuvee.c
 
-
 import cuvee.SetOps
 import cuvee.State
 import cuvee.pure
@@ -66,7 +65,7 @@ class Translate(state: State) {
       val in_ = vars(formals)
       val out_ = List(result(ret))
       val mod_ = vars.values filterNot in_.contains
-      val spec_ = imp.Spec(mod_.toList, pure.True, pure.True)
+      val spec_ = imp.Spec(heap :: mod_.toList, pure.True, pure.True)
 
       state.proc(name, Nil, in_, out_, None)
       List(smtlib.DeclareProc(name, Nil, in_, out_, Some(spec_)))
@@ -77,7 +76,7 @@ class Translate(state: State) {
       val out_ = List(ret_)
       val scope = vars ++ Map(in_.asSimpleScope: _*)
       val mod_ = vars.values filterNot in_.contains
-      val spec_ = imp.Spec(mod_.toList, pure.True, pure.True)
+      val spec_ = imp.Spec(heap :: mod_.toList, pure.True, pure.True)
       val body_ = block(locals(List(body), scope, Nil, ret_))
 
       state.proc(name, Nil, in_, out_, None)
@@ -244,18 +243,22 @@ class Translate(state: State) {
     }
   }
 
-  def assign(lhs: Expr, rhs_ : pure.Expr, scope: Map[String, pure.Var]): (pure.Expr, List[imp.Prog]) =
+  def assign(
+      lhs: Expr,
+      rhs_ : pure.Expr,
+      scope: Map[String, pure.Var]
+  ): (pure.Expr, List[imp.Prog]) =
     lhs match {
       case Id(name) =>
         val x = scope(name)
         val asg_ = imp.Assign(List(x), List(rhs_))
         (x, List(asg_))
 
-      case Index(Id(name), index) =>
-        val (index_, progs) = eval(index, scope)
+      case Index(Id(name), index1) =>
+        val (index1_, progs1) = eval(index1, scope)
         val x = scope(name)
-        val asg_ = imp.Assign(List(x), List(pure.Store(x, index_, rhs_)))
-        (x, progs ++ List(asg_))
+        val asg_ = imp.Assign(List(x), List(pure.Store(x, index1_, rhs_)))
+        (x, progs1 ++ List(asg_))
     }
 
   def evals(exprs: List[Expr], scope: Map[String, pure.Var]): (List[pure.Expr], List[imp.Prog]) =
@@ -389,33 +392,51 @@ class Translate(state: State) {
       yield resolve(typ)
 
   def resolve(typ: Type): pure.Type = typ match {
-    case AnonEnum(consts) =>
-      ???
-    case AnonStruct(fields) =>
-      ???
-    case AnonUnion(fields) =>
-      ???
     case PtrType(typ) =>
-      ???
+      ptr(typ)
+
     case FunPtrType(ret, args) =>
+      // not supported (arrays don't fit because C functions can have side-effects)
       ???
-    case EnumName(name) =>
-      ???
-    case StructName(name) =>
-      ???
-    case TypedefName(name) =>
-      ???
-    case UnionName(name) =>
-      ???
+
+    case Type._Bool =>
+      pure.Sort.bool
+
+    case Type._float =>
+      pure.Sort.real
+
+    case Type._double =>
+      pure.Sort.real
+
     case Unsigned(name, bytes) =>
-      ???
+      pure.Sort.int
+
     case Signed(name, bytes) =>
       pure.Sort.int
+
     case ArrayType(typ, dim) =>
       val typ_ = resolve(typ)
       pure.Sort.array(pure.Sort.int, typ_)
 
-    case BaseType(name) =>
+    case EnumName(name) =>
+      ???
+
+    case StructName(name) =>
+      ???
+
+    case TypedefName(name) =>
+      ???
+
+    case UnionName(name) =>
+      ???
+
+    case AnonEnum(consts) =>
+      ???
+
+    case AnonStruct(fields) =>
+      ???
+
+    case AnonUnion(fields) =>
       ???
   }
 }

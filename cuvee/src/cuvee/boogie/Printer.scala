@@ -277,7 +277,7 @@ object Printer extends cuvee.util.Printer {
       List("var " + vartypes(xs) + " := " + exprs.mkString(", ") + ";")
     case Assign(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
-      List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
+      List(xs.mkString(", ") + " := " + exprs.mkString(", ") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
         case (Nil, True, phi) => List("assume " + line(phi) + ";")
@@ -499,7 +499,7 @@ object Printer extends cuvee.util.Printer {
     var result: List[String] = Nil
 
     if (xs.nonEmpty)
-      result ++= List("modifies " + vartypes(xs) + ";")
+      result ++= List("modifies " + xs.mkString(", ") + ";")
     if (!pre.equals(Nil) && pre != True)
       result ++= format("requires", pre)
     if (!post.equals(Nil) && post != True)
