@@ -321,6 +321,36 @@ class Translate(state: State) {
         val (res, progs2) = assign(lhs, arg_, scope)
         (res, progs1 ++ progs2)
 
+      case BinOp("&&", arg1, arg2) =>
+        val (arg1_, progs1) = eval(arg1, scope)
+        val (arg2_, progs2) = eval(arg2, scope)
+        val x0 = pure.Expr.fresh("x", pure.Sort.bool)
+        val asg1_ = imp.Local(List(x0), List(truth(arg1_)))
+        val asg2_ = imp.Assign(List(x0), List(truth(arg2_)))
+        val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
+        (bool(x0), progs1 ++ List(asg1_, if_))
+
+      case BinOp("||", arg1, arg2) =>
+        val (arg1_, progs1) = eval(arg1, scope)
+        val (arg2_, progs2) = eval(arg2, scope)
+        val x0 = pure.Expr.fresh("x", pure.Sort.bool)
+        val asg1_ = imp.Local(List(x0), List(truth(arg1_)))
+        val asg2_ = imp.Assign(List(x0), List(truth(arg2_)))
+        val if_ = imp.If(!x0, block(progs2 ++ List(asg2_)))
+        (bool(x0), progs1 ++ List(asg1_, if_))
+
+      case Question(test, arg1, arg2) =>
+        val (test_, progs0) = eval(test, scope)
+        val (arg1_, progs1) = eval(arg1, scope)
+        val (arg2_, progs2) = eval(arg2, scope)
+        require(arg1_.typ == arg2_.typ, "ill-typed ternary: " + expr)
+        val x0 = pure.Expr.fresh("x", arg1_.typ)
+        val asg0_ = imp.Local(List(x0), Nil)
+        val asg1_ = imp.Assign(List(x0), List(arg1_))
+        val asg2_ = imp.Assign(List(x0), List(arg2_))
+        val if_ = imp.If(truth(test_), block(progs1 ++ List(asg1_)), block(progs2 ++ List(asg2_)))
+        (x0, progs0 ++ List(asg0_, if_))
+
       // generic ops below:
       case PreOp(op, arg) =>
         val (arg_, progs) = eval(arg, scope)
@@ -331,9 +361,12 @@ class Translate(state: State) {
         val (arg2_, progs2) = eval(arg2, scope)
         (binop(op, arg1_, arg2_), progs1 ++ progs2)
 
-      case Dot(expr, field) =>
-        ???
       case Index(base, index) =>
+        val (base_, progs1) = eval(base, scope)
+        val (index_, progs2) = eval(index, scope)
+        (pure.Select(base_, index_), progs1 ++ progs2)
+
+      case Dot(expr, field) =>
         ???
       case SizeOfExpr(expr) =>
         ???

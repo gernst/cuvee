@@ -142,7 +142,7 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
   )
 
   for ((x, e) <- (xs zip rhs)) {
-    require(x.typ == e.typ, "ill-typed declaration")
+    require(x.typ == e.typ, "ill-typed assignment: " + x + " := " + e)
   }
 
   def mod = Set(xs: _*)
