@@ -30,7 +30,7 @@ kw = "function" | "axiom" | "const" | "lemma" | "data" | "type" | "procedure" | 
    | "proof" | "sorry" | "show" | "then" | "case" | "free lemma" | "goal"
    | "induction" | "unfold" | "at" | "=>" | "end" | "auto" | "noauto"
 
-id = [a-zA-Z_][a-zA-Z0-9⁰-⁹₀-₉_]*
+id = [a-zA-Z_][a-zA-Z0-9⁰-⁹₀-₉_~#$.?]*
 op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"
    | "==" | "!=" | "<=" | "<" | ">" | ">="
 

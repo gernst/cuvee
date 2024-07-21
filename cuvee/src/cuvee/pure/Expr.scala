@@ -18,6 +18,7 @@ sealed trait Expr extends Expr.term with util.Syntax {
 
   def toStringTyped = toString + ": " + typ
 
+  def unary_+ = this
   def unary_- = UMinus(this)
   def unary_! = Not(this)
   def +(that: Expr) = Plus(this, that)
@@ -323,6 +324,7 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
   def asScope = vars map { case x @ Var(name, typ) => name -> x }
+  def asSimpleScope = vars map { case x @ Var(Name(name, None), typ) => name -> x }
 
   def toStringTyped = vars.map(_.toStringTyped).mkString(", ")
 }

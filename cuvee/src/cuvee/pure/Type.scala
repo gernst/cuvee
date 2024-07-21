@@ -187,6 +187,7 @@ object Con {
   val bool = Con("Bool", 0)
   val int = Con("Int", 0)
   val real = Con("Real", 0)
+  val string = Con("String", 0)
   val list = Con("List", 1)
   val array = Con("Array", 2)
 }
@@ -212,6 +213,7 @@ object Sort extends ((Con, List[Type]) => Sort) {
   val bool = Sort(Con.bool, Nil)
   val int = Sort(Con.int, Nil)
   val real = Sort(Con.real, Nil)
+  val string = Sort(Con.string, Nil)
 
   def list(a: Type) =
     Sort(Con.list, List(a))

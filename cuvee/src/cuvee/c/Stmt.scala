@@ -212,12 +212,12 @@ case class VarDef(formal: Formal, init: Option[Expr]) extends Stmt {
   def this(formal: Formal, init: Expr) = this(formal, Some(init))
 }
 
-case class FunDecl(ret: Type, name: String, types: List[Type]) extends Stmt {
+case class FunDecl(ret: Type, name: String, types: List[Formal]) extends Stmt {
   def this(ret: Type, name: String) = {
     this(ret, name, Nil)
   }
 
-  def this(ret: Type, name: String, params: Array[Type]) = {
+  def this(ret: Type, name: String, params: Array[Formal]) = {
     this(ret, name, params.toList)
   }
 }

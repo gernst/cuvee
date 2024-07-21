@@ -30,13 +30,13 @@ package object c {
   }
 
   def source(file: String) = new Source {
-    val state = State.default
+    val state = Translate.state.copy()
 
     val from = {
       val stmts = parse(file)
       val translate = new Translate(state)
       val progs = translate.globals(stmts)
-      progs.iterator
+      Translate.prelude.iterator ++ progs.iterator
     }
 
     def hasNext = from.hasNext

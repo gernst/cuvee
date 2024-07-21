@@ -594,7 +594,7 @@ public class Parser extends beaver.Parser {
 					final Symbol _symbol_ps = _symbols[offset + 5];
 					final ArrayList _list_ps = (ArrayList) _symbol_ps.value;
 					final ParamSpec[] ps = _list_ps == null ? new ParamSpec[0] : (ParamSpec[]) _list_ps.toArray(new ParamSpec[_list_ps.size()]);
-					 return s(_symbol_n, new FunDecl(Parsing.wrap(t, x), n, Parsing.params(ps)));
+					 return s(_symbol_n, new FunDecl(Parsing.wrap(t, x), n, Parsing.formals(ps)));
 				}
 			},
 			new Action() {	// [64] stmt = type.t ptrs.x fun.n LPAREN params.ps RPAREN block.b

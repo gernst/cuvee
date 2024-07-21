@@ -34,7 +34,7 @@ object Expr {
       case Arrow(expr, field)          => hasEffects(expr)
       case Dot(expr, field)            => hasEffects(expr)
       case FunCall(name, args)         => true // XXX: approximation
-      case Init(values)                => (values exists { case (_, expr) => hasEffects(expr) })
+      // case Init(values)                => (values exists { case (_, expr) => hasEffects(expr) })
     }
   }
 }
@@ -150,6 +150,6 @@ object FunCall {
   }
 }
 
-case class Init(values: Array[(Option[String], Expr)]) extends Expr { // { .field = value } or { value }
+case class Init(values: Array[(Option[String], Expr)]) { // { .field = value } or { value }
   def rename(re: Map[String, String]) = ???
 }
