@@ -86,6 +86,18 @@ class Translate(state: State) {
       globals(stmts)
   }
 
+  def block(progs: List[imp.Prog]): List[imp.Prog] =
+    progs match {
+      case Nil =>
+        Nil
+      case List(block: imp.Block) =>
+        progs
+      case _ if progs.local.isEmpty =>
+        progs
+      case _ =>
+        List(imp.Block(progs))
+    }
+
   def locals(
       stmts: List[Stmt],
       scope: Map[String, pure.Var],
@@ -108,9 +120,20 @@ class Translate(state: State) {
         val (_, progs) = eval(expr, scope)
         progs ++ locals(rest, scope, cont, result)
 
+      case Block(Nil) :: rest =>
+        locals(rest, scope, cont, result)
+
+      case Block(List(block: Block)) :: rest =>
+        locals(block :: rest, scope, cont, result)
+
       case Block(stmts) :: rest =>
         val progs = locals(stmts, scope, cont, result)
-        List(imp.Block(progs)) ++ locals(rest, scope, cont, result)
+        val prefix = block(progs)
+        println(stmts)
+        println(progs)
+        println(prefix)
+        println()
+        prefix ++ locals(rest, scope, cont, result)
 
       case Continue :: rest =>
         List(imp.Continue) // ignores rest!
@@ -152,9 +175,14 @@ class Translate(state: State) {
       case While(test, body) :: rest =>
         val (test_, progs) = eval(test, scope)
         val body_ = locals(List(body), scope, cont, result)
-        val exit_ = imp.If(!truth(test_), imp.Break)
-        val while_ = imp.While(pure.True, imp.Block(List(exit_) ++ body_))
-        progs ++ List(while_) ++ locals(rest, scope, cont, result)
+        if (progs.isEmpty) {
+          val while_ = imp.While(truth(test_), imp.Block(body_))
+          List(while_) ++ locals(rest, scope, cont, result)
+        } else {
+          val exit_ = imp.If(!truth(test_), imp.Break)
+          val while_ = imp.While(pure.True, imp.Block(List(exit_) ++ body_))
+          progs ++ List(while_) ++ locals(rest, scope, cont, result)
+        }
 
       case DoWhile(body, test) :: rest =>
         val (test_, progs) = eval(test, scope)
@@ -205,68 +233,90 @@ class Translate(state: State) {
     }
   }
 
-  def eval(expr: Expr, scope: Map[String, pure.Var]): (pure.Expr, List[imp.Prog]) = expr match {
-    case Lit(arg: java.lang.Long) =>
-      (pure.Lit(BigInt(arg), pure.Sort.int), Nil)
+  def assign(lhs: Expr, rhs: pure.Expr, scope: Map[String, pure.Var]): (pure.Expr, List[imp.Prog]) =
+    lhs match {
+      case Id(name) =>
+        val x = scope(name)
+        val asg_ = imp.Assign(List(x), List(rhs))
+        (x, List(asg_))
+    }
 
-    case Lit(arg: java.lang.Double) =>
-      (pure.Lit(arg, pure.Sort.real), Nil)
+  def eval(expr: Expr, scope: Map[String, pure.Var]): (pure.Expr, List[imp.Prog]) =
+    expr match {
+      case Lit(arg: java.lang.Long) =>
+        (pure.Lit(BigInt(arg), pure.Sort.int), Nil)
 
-    case Lit(arg: java.lang.String) =>
-      (pure.Lit(arg, pure.Sort.string), Nil)
+      case Lit(arg: java.lang.Double) =>
+        (pure.Lit(arg, pure.Sort.real), Nil)
 
-    case Id(name) =>
-      (scope(name), Nil)
+      case Lit(arg: java.lang.String) =>
+        (pure.Lit(arg, pure.Sort.string), Nil)
 
-    case PostOp("++", arg) =>
-      ???
-    case PostOp("--", arg) =>
-      ???
+      case Id(name) =>
+        (scope(name), Nil)
 
-    case PreOp("~", arg) =>
-      ???
-    case PreOp("*", arg) =>
-      ???
-    case PreOp("&", arg) =>
-      ???
-    case PreOp("++", arg) =>
-      ???
-    case PreOp("--", arg) =>
-      ???
+      case PreOp("~", arg) =>
+        ???
+      case PreOp("*", arg) =>
+        ???
+      case PreOp("&", arg) =>
+        ???
+      case PreOp("++", arg) =>
+        val (arg_, progs1) = eval(arg, scope)
+        val (res, progs2) = assign(arg, arg_ + pure.One, scope)
+        (res, progs1 ++ progs2)
 
-    case BinOp("=", Id(name), arg2) =>
-      val (arg2_, progs2) = eval(arg2, scope)
-      val x = scope(name)
-      val asg_ = imp.Assign(List(x), List(arg2_))
-      (x, progs2 ++ List(asg_))
+      case PreOp("--", arg) =>
+        val (arg_, progs1) = eval(arg, scope)
+        val (res, progs2) = assign(arg, arg_ - pure.One, scope)
+        (res, progs1 ++ progs2)
 
-    // generic ops below:
-    case PreOp(op, arg) =>
-      val (arg_, progs) = eval(arg, scope)
-      (preop(op, arg_), progs)
+      case PostOp("++", arg) =>
+        val (arg_, progs1) = eval(arg, scope)
+        val x0 = pure.Expr.fresh("x", arg_.typ)
+        val asg_ = imp.Assign(List(x0), List(arg_))
+        val (res, progs2) = assign(arg, arg_ + pure.One, scope)
+        (x0, progs1 ++ List(asg_) ++ progs2)
 
-    case BinOp(op, arg1, arg2) =>
-      val (arg1_, progs1) = eval(arg1, scope)
-      val (arg2_, progs2) = eval(arg2, scope)
-      (binop(op, arg1_, arg2_), progs1 ++ progs2)
+      case PostOp("--", arg) =>
+        val (arg_, progs1) = eval(arg, scope)
+        val x0 = pure.Expr.fresh("x", arg_.typ)
+        val asg_ = imp.Assign(List(x0), List(arg_))
+        val (res, progs2) = assign(arg, arg_ - pure.One, scope)
+        (x0, progs1 ++ List(asg_) ++ progs2)
 
-    case Dot(expr, field) =>
-      ???
-    case FunCall(fun, args) =>
-      ???
-    case Index(base, index) =>
-      ???
-    case SizeOfExpr(expr) =>
-      ???
-    case Arrow(expr, field) =>
-      ???
-    case Question(test, left, right) =>
-      ???
-    case SizeOfType(typ) =>
-      ???
-    case Cast(typ, expr) =>
-      ???
-  }
+      case BinOp("=", lhs, arg) =>
+        val (arg_, progs1) = eval(arg, scope)
+        val (res, progs2) = assign(lhs, arg_, scope)
+        (res, progs1 ++ progs2)
+
+      // generic ops below:
+      case PreOp(op, arg) =>
+        val (arg_, progs) = eval(arg, scope)
+        (preop(op, arg_), progs)
+
+      case BinOp(op, arg1, arg2) =>
+        val (arg1_, progs1) = eval(arg1, scope)
+        val (arg2_, progs2) = eval(arg2, scope)
+        (binop(op, arg1_, arg2_), progs1 ++ progs2)
+
+      case Dot(expr, field) =>
+        ???
+      case FunCall(fun, args) =>
+        ???
+      case Index(base, index) =>
+        ???
+      case SizeOfExpr(expr) =>
+        ???
+      case Arrow(expr, field) =>
+        ???
+      case Question(test, left, right) =>
+        ???
+      case SizeOfType(typ) =>
+        ???
+      case Cast(typ, expr) =>
+        ???
+    }
 
   def preop(op: String, arg: pure.Expr) =
     op match {
