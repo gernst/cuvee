@@ -221,6 +221,11 @@ class Parser(val state: State = State.default) {
       (fun, sels)
   }
 
+  def make_call: (((List[Var], Name), List[Expr])) => Call = {
+    case ((out, name), in) =>
+      Call(name, in, out)
+  }
+
   def make_datatype: (((Name, List[Param]), List[(Fun, List[Fun])]) => Cmd) = {
     case ((name, params), constrs) =>
       val arity = params.length

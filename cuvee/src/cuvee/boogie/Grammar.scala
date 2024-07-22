@@ -146,7 +146,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Prog, Token] =
-    P(spec | ctrl | if_ | while_ | assign)
+    P(spec | ctrl | if_ | while_ | call | assign)
 
   val ctrl =
     Break("break" ~ ";") | Return("return" ~ ";")
@@ -204,7 +204,10 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
 
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Assign.flats((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
+    P(Assign.froms((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
+
+  def call(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(make_call((var_ ~+ ",") ?~ ":=" ?~ "call" ~ name ~ "(" ~ (expr ~+ ",") ~ ")" ~ ";"))
 
   def local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";"))

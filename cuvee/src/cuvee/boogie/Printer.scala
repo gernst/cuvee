@@ -321,9 +321,9 @@ object Printer extends cuvee.util.Printer {
     case Call(name, in, out) =>
       val args = for (e <- in) yield line(e)
       List(
-        "call " + vartypes(out) + " := " + name + "(" + args.mkString(
+        out.mkString(", ") + " := call " + name + "(" + args.mkString(
           ", "
-        ) + "):"
+        ) + ");"
       )
   }
 

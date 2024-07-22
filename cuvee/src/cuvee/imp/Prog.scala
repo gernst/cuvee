@@ -159,8 +159,13 @@ object Assign extends ((List[Var], List[Expr]) => Assign) {
     case Select(a, i) =>
       flat(a, Store(a, i, r))
   }
+  
+  def from: ((Expr, Expr) => Assign) = { case (l, r) =>
+    val (l_, r_) = flat(l, r)
+    Assign(List(l_), List(r_))
+  }
 
-  def flats: ((List[Expr], List[Expr]) => Assign) = { case (lhs, rhs) =>
+  def froms: ((List[Expr], List[Expr]) => Assign) = { case (lhs, rhs) =>
     val asgs =
       for ((l, r) <- lhs zip rhs)
         yield flat(l, r)
