@@ -204,7 +204,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
 
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Assign.flats((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
+    P(Assign.froms((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
 
   def local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";"))
