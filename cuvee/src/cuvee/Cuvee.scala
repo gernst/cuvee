@@ -218,6 +218,9 @@ class Config {
         source = smtlib.source(path)
       } else if (path endsWith ".py") {
         source = python.source(path)
+      } else if (path endsWith ".c") {
+        printer = boogie.printer
+        source = c.source(path)
       } else if (path endsWith ".th") {
         if (!overridePrinter) printer = thesy.printer
         source = thesy.source(path)

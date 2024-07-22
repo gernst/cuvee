@@ -77,6 +77,7 @@ axiom forall p: prop, q: prop ::
 //     eval(v, neg(p)) == (not_eval(v, p))
 // proof induction p;
 
+<<<<<<< HEAD
 axiom forall v: [nat]bool, p: prop ::
     eval(v, neg(p)) == not_(eval(v, p));
 
@@ -98,3 +99,38 @@ axiom forall p: prop ::
     snot(Not(p)) = p;
 axiom forall p: prop, q: prop ::
     snot(And(p, q)) = Not(And(p, q));
+=======
+lemma forall v: [nat]bool, p: prop ::
+    eval(v, nnf(p)) == eval(v, p)
+proof induction p {
+    case Not(phi) =>
+        induction phi
+};
+
+function Not_(p: prop): prop;
+function And_(p: prop, q: prop): prop { And(p, q) }
+function Or_(p: prop, q: prop): prop { Or(p, q) }
+
+axiom Not_(T) == F;
+axiom Not_(F) == T;
+axiom forall index: nat ::
+    Not_(Atom(index)) == Not(Atom(index));
+axiom forall p: prop ::
+    Not_(Not(p)) == p;
+axiom forall p: prop, q: prop ::
+    Not_(And(p, q)) == Not(And(p, q));
+axiom forall p: prop, q: prop ::
+    Not_(Or(p, q)) == Not(Or(p, q));
+
+function simplify(p: prop): prop;
+axiom simplify(T) == T;
+axiom simplify(F) == F;
+axiom forall index: nat ::
+    simplify(Atom(index)) == Atom(index);
+axiom forall p: prop ::
+    simplify(Not(p)) == Not_(simplify(p));
+axiom forall p: prop, q: prop ::
+    simplify(And(p, q)) == And(simplify(p), simplify(q));
+axiom forall p: prop, q: prop ::
+    simplify(Or(p, q)) == Or(simplify(p), simplify(q));
+>>>>>>> main

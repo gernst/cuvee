@@ -174,7 +174,7 @@ object Printer extends cuvee.util.Printer {
       else header += "()"
 
       if (out.nonEmpty)
-        header += "returns (" + vartypes(out) + ");"
+        header += " returns (" + vartypes(out) + ");"
       else
         header += ";"
 
@@ -198,7 +198,7 @@ object Printer extends cuvee.util.Printer {
       if (spec.nonEmpty)
         result ++= bspecs(spec.orNull)
 
-      result ++= "{" +: lines(body) :+ "}"
+      result ++= "{" +: block(body) :+ "}"
       result
   }
 
@@ -267,15 +267,17 @@ object Printer extends cuvee.util.Printer {
   }
 
   private def lines(prog: Prog): List[String] = prog match {
-    case Block(progs) => indent(progs flatMap lines)
+    case Block(progs) => "{" +: indent(progs flatMap lines) :+ "}"
     case Break        => List("break;")
     case Return       => List("return;")
+    case Local(xs, Nil) =>
+      List("var " + vartypes(xs) + ";")
     case Local(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
       List("var " + vartypes(xs) + " := " + exprs.mkString(", ") + ";")
     case Assign(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
-      List(xs.mkString(",") + " := " + exprs.mkString(",") + ";")
+      List(xs.mkString(", ") + " := " + exprs.mkString(", ") + ";")
     case Spec(xs, pre, post) =>
       (xs, pre, post) match {
         case (Nil, True, phi) => List("assume " + line(phi) + ";")
@@ -293,7 +295,7 @@ object Printer extends cuvee.util.Printer {
       }
     case x @ If(test, left, right) => if_(x)
     case While(test, body, term, inv, sum, frames) =>
-      val con = "while(" + line(test) + ")"
+      val first = "while(" + line(test) + ")"
 
       var spec: List[String] = List()
       if (term != Zero)
@@ -303,13 +305,19 @@ object Printer extends cuvee.util.Printer {
       if (sum != True)
         spec ++= format("summary", sum)
       if (!frames.isEmpty) {
-        val frames_ = for (f <- frames) yield line(f)
-        spec = spec :+ frames_.mkString("frames\t", ",", ";")
+        ???
+        // val frames_ = for (f <- frames) yield line(f)
+        // spec ++= frames_.mkString("frames\t", ",", ";")
       }
 
-      val body_ = "{" +: lines(body) :+ "}"
+      if (spec.isEmpty) {
+        val body_ = block(body) :+ "}"
+        (first + " {") +: body_
+      } else {
+        val body_ = "{" +: block(body) :+ "}"
+        (first +: indent(spec)) ++ body_
+      }
 
-      (con +: indent(spec)) ++ body_
     case Call(name, in, out) =>
       val args = for (e <- in) yield line(e)
       List(
@@ -318,6 +326,14 @@ object Printer extends cuvee.util.Printer {
         ) + "):"
       )
   }
+
+  def block(prog: Prog) =
+    prog match {
+      case Block(progs) =>
+        indent(progs flatMap lines)
+      case _ =>
+        indent(lines(prog))
+    }
 
   /** Takes care of formatting the given argument to print formated boogie.
     *
@@ -483,7 +499,7 @@ object Printer extends cuvee.util.Printer {
     var result: List[String] = Nil
 
     if (xs.nonEmpty)
-      result ++= List("modifies " + vartypes(xs) + ";")
+      result ++= List("modifies " + xs.mkString(", ") + ";")
     if (!pre.equals(Nil) && pre != True)
       result ++= format("requires", pre)
     if (!post.equals(Nil) && post != True)
@@ -492,8 +508,7 @@ object Printer extends cuvee.util.Printer {
     indent(result)
   }
 
-  /** Provides a tuple containing precedence and associativity for the given
-    * expression.
+  /** Provides a tuple containing precedence and associativity for the given expression.
     *
     * @param expr
     *   to get prec and assoc for
@@ -516,16 +531,18 @@ object Printer extends cuvee.util.Printer {
 
   private def if_(prog: If): List[String] = {
     val If(test, left, right) = prog
-    val first = ("if(" + lines(test).mkString + ") {") +: lines(left)
+    val first = ("if(" + lines(test).mkString + ") {") +: block(left)
+
     right match {
-      case x @ If(test_, left_, right_) =>
-        (first :+ "} else " + if_(x).head) ++ if_(x).tail
+      case right @ If(test_, left_, right_) =>
+        val (second :: rest) = if_(right)
+        (first :+ "} else " + second) ++ rest
       case Block(Nil) =>
         first :+ "}"
-      case x @ Block(_) =>
-        (first :+ "} else {") ++ (lines(x) :+ "}")
       case _ =>
-        first :+ ("// Unknown operation in If: " ++ right.toString)
+        (first :+ "} else {") ++ (block(right) :+ "}")
+      // case _ =>
+      //   first :+ ("// Unknown operation in If: " ++ right.toString)
     }
   }
 
