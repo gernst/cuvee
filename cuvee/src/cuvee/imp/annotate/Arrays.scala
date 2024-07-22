@@ -2,7 +2,6 @@ package cuvee.imp.annotate
 
 import cuvee.pure._
 import cuvee.imp._
-import cuvee.imp.annotate.Accelerate.counter
 
 object Arrays extends Annotate(ExecNoLoops) {
   def while_(
