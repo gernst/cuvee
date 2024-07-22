@@ -174,7 +174,7 @@ object Printer extends cuvee.util.Printer {
       else header += "()"
 
       if (out.nonEmpty)
-        header += "returns (" + vartypes(out) + ");"
+        header += " returns (" + vartypes(out) + ");"
       else
         header += ";"
 

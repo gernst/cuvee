@@ -6,6 +6,7 @@ import cuvee.pure
 import cuvee.imp
 import cuvee.smtlib
 import scala.collection.immutable
+import cuvee.pure.Sort
 
 object Translate {
   val (prelude, state) = cuvee.boogie.parse("cuvee/src/cuvee/c/c.bpl")
@@ -251,6 +252,13 @@ class Translate(state: State) {
     lhs match {
       case Id(name) =>
         val x = scope(name)
+
+        x.typ match {
+          case pure.Sort(pure.Con.array, args) =>
+            cuvee.error("asliasing in array assignments not supported for: " + x + " = " + rhs_)
+          case _ =>
+        }
+
         val asg_ = imp.Assign(List(x), List(rhs_))
         (x, List(asg_))
 
@@ -288,10 +296,12 @@ class Translate(state: State) {
 
       case PreOp("~", arg) =>
         ???
+
       case PreOp("*", arg) =>
         ???
       case PreOp("&", arg) =>
         ???
+
       case PreOp("++", arg) =>
         val (arg_, progs1) = eval(arg, scope)
         val (res, progs2) = assign(arg, arg_ + pure.One, scope)
@@ -318,8 +328,8 @@ class Translate(state: State) {
 
       case BinOp("=", lhs, arg) =>
         val (arg_, progs1) = eval(arg, scope)
-        val (res, progs2) = assign(lhs, arg_, scope)
-        (res, progs1 ++ progs2)
+        val (res_, progs2) = assign(lhs, arg_, scope)
+        (res_, progs1 ++ progs2)
 
       case BinOp("&&", arg1, arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
@@ -371,8 +381,6 @@ class Translate(state: State) {
       case SizeOfExpr(expr) =>
         ???
       case Arrow(expr, field) =>
-        ???
-      case Question(test, left, right) =>
         ???
       case SizeOfType(typ) =>
         ???
