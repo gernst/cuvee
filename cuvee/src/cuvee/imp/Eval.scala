@@ -235,6 +235,14 @@ class Eval(val state: State) {
         val Proc(_, params, xs, zs, spec) = state procs name
 
         spec match {
+          case None | Some(Spec(_, True, True)) if state.procdefs contains name =>
+            // intentionally mirrors variables xs, ys, as procdef may refer to different vars than procdecl
+            val (xs, zs, body) = state procdefs name
+            val re = Expr.subst(zs, out)
+            val body_ = body replace re
+            val block = Block(List(Local(xs, in), Spec.havoc(out), body_))
+            wp(how, block :: rest, cont, scope, st, old, post, brk, ret)
+
           case None =>
             cuvee.error(
               "inlining procedures not implemented, consider adding a contract to: " + name
