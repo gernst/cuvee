@@ -11,7 +11,7 @@ int main()
 
   for(i=1;i<N;i++) {
     int j, k;
-    __VERIFIER_assume(j+k >= 3)
+    __VERIFIER_assume(j+k >= 3);
     a[i]=j;
     b[i]=k;
   }

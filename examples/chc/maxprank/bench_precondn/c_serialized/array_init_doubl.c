@@ -9,7 +9,7 @@ int main()
 
   for(i=1;i<N;i++) {
     int j;
-    __VERIFIER_assume(i <= j)
+    __VERIFIER_assume(i <= j);
     a[i]=j;
   }
 
