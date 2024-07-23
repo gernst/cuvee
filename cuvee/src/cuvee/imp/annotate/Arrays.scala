@@ -28,8 +28,14 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     // println(paths)
     // println(paths_)
-    // TODO
+
     // println(counters)
+
+    // TODO upper bound -> counter does not require for a var to occur in the
+    // test
+    // TODO add boundaries here
+    val lb = Accelerate.lbFromCounter(counters)
+    // println("gen bounds: " + And(inv :: lb))
 
     val re = Expr.fresh(ys)
     val phi = accelerateWrites(mod, as, ys, re, counters, after.running)
@@ -40,11 +46,11 @@ object Arrays extends Annotate(ExecNoLoops) {
       re,
       counters,
       test,
-      inv,
+      And(inv :: lb),
       after.breaked ++ after.returned
     )
     val add = And(phi ++ psi)
-    val inv_ = Simplify.simplify(inv && add, Map(), Set())
+    val inv_ = Simplify.simplify(And(inv :: lb) && add, Map(), Set())
     // val inv_ = inv && add
 
     // require(
@@ -79,7 +85,6 @@ object Arrays extends Annotate(ExecNoLoops) {
       inv: Expr,
       avoid: List[Path]
   ): List[Expr] = {
-    // TODO what is currently used? including signature
     val ys_ = ys rename re
     val test_ = test rename re
     val inv_ = inv rename re

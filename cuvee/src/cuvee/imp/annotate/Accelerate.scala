@@ -27,6 +27,22 @@ object Accelerate {
     }
   }
 
+  def lbFromCounter(counters: Map[Var, Counter]): List[Expr] = {
+    val lb = for ((var_, counter) <- counters) yield {
+      counter match {
+        case Counter(init, `plus_one`) =>
+          init <= var_
+
+        case Counter(init, `minus_one`) =>
+          var_ <= init
+
+        case _ =>
+          True
+      }
+    }
+    lb.toList
+  }
+
   def checkEarlierValueOf(
       counters: Map[Var, Counter],
       current: Expr,
