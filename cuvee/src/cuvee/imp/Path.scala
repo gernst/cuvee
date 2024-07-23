@@ -142,6 +142,9 @@ object Path {
   }
 
   def store(stack: List[Map[Var, Expr]], eqs: List[(Var, Expr)]): List[Map[Var, Expr]] = {
+    println("storing: " + eqs)
+    println("stack: " + stack)
+    // require(eqs.nonEmpty, "why store nothing?")
     eqs.foldLeft(stack)(store)
   }
 

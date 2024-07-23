@@ -72,8 +72,9 @@ abstract class Annotate(val exec: Exec) extends Stage {
     (exec.resume(paths), prog)
   }
 
-  def spec(paths: Paths, xs: List[Var], pre: Expr, post: Expr) =
+  def spec(paths: Paths, xs: List[Var], pre: Expr, post: Expr) = {
     (exec.spec(paths, xs, pre, post), Spec(xs, pre, post))
+  }
 
   def local(paths: Paths, xs: List[Var], rhs: List[Expr]) =
     (exec.local(paths, xs, rhs), Local(xs, rhs))

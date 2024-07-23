@@ -47,10 +47,10 @@ object Arrays extends Annotate(ExecNoLoops) {
     //   "array acceleration ignores return in loops"
     // )
 
-    require(
-      after.asserted.isEmpty,
-      "array acceleration ignores asserts in loops"
-    )
+    // require(
+    //   after.asserted.isEmpty,
+    //   "array acceleration ignores asserts in loops"
+    // )
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
 
