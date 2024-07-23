@@ -28,14 +28,10 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     // println(paths)
     // println(paths_)
-
     // println(counters)
 
-    // TODO upper bound -> counter does not require for a var to occur in the
-    // test
-    // TODO add boundaries here
-    val lb = Accelerate.lbFromCounter(counters)
-    // println("gen bounds: " + And(inv :: lb))
+    val lbs = Accelerate.lbsFromCounter(counters)
+    val (ub, decreases) = Accelerate.ubAndDecreaseFromTest(And.flatten(test))
 
     val re = Expr.fresh(ys)
     val phi = accelerateWrites(mod, as, ys, re, counters, after.running)
@@ -46,11 +42,12 @@ object Arrays extends Annotate(ExecNoLoops) {
       re,
       counters,
       test,
-      And(inv :: lb),
+      And(inv :: lbs),
       after.breaked ++ after.returned
     )
     val add = And(phi ++ psi)
-    val inv_ = Simplify.simplify(And(inv :: lb) && add, Map(), Set())
+    val inv_ = Simplify.simplify(And(inv :: lbs) && ub && add, Map(), Set())
+
     // val inv_ = inv && add
 
     // require(
@@ -68,7 +65,11 @@ object Arrays extends Annotate(ExecNoLoops) {
     //   "array acceleration ignores asserts in loops"
     // )
 
-    val prog_ = While(test, body_, term, inv_, sum, frames)
+    var term_ = term
+    if (term == Zero)
+      term_ = decreases
+
+    val prog_ = While(test, body_, term_, inv_, sum, frames)
 
     val paths_ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
 

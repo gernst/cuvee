@@ -27,7 +27,7 @@ object Accelerate {
     }
   }
 
-  def lbFromCounter(counters: Map[Var, Counter]): List[Expr] = {
+  def lbsFromCounter(counters: Map[Var, Counter]): List[Expr] = {
     val lb = for ((var_, counter) <- counters) yield {
       counter match {
         case Counter(init, `plus_one`) =>
@@ -41,6 +41,55 @@ object Accelerate {
       }
     }
     lb.toList
+  }
+
+  // TODO way without copy paste?
+  def ubAndDecreaseFromTest(test: List[Expr]): (Expr, Expr) = test match {
+    case App(inst, args) :: next if inst.fun == Fun.lt =>
+      val left = args.head
+      val right = args.last
+
+      val ub = left <= right
+      val decreases = right - left
+
+      // TODO not sure wether we want to use next
+      // val (ub_, decreases_) = ubAndDecreaseFromTest(next)
+      // (ub && ub_, Plus(decreases, decreases_))
+
+      (ub, decreases)
+
+    case App(inst, args) :: next if inst.fun == Fun.le =>
+      val left = args.head
+      val right = args.last
+
+      val ub = left <= right + One
+      val decreases = right + One - left
+
+      (ub, decreases)
+
+    case App(inst, args) :: next if inst.fun == Fun.gt =>
+      val left = args.head
+      val right = args.last
+
+      val ub = right <= left
+      val decreases = left - right
+
+      (ub, decreases)
+
+    case App(inst, args) :: next if inst.fun == Fun.ge =>
+      val left = args.head
+      val right = args.last
+
+      val ub = right <= left + One
+      val decreases = left + One - right
+
+      (ub, decreases)
+
+    case head :: next =>
+      ubAndDecreaseFromTest(next)
+
+    case Nil =>
+      (True, Zero)
   }
 
   def checkEarlierValueOf(
