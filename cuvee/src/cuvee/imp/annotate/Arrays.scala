@@ -28,11 +28,21 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     // println(paths)
     // println(paths_)
-    println(counters)
+    // TODO
+    // println(counters)
 
     val re = Expr.fresh(ys)
     val phi = accelerateWrites(mod, as, ys, re, counters, after.running)
-    val psi = accelerateGuard(mod, as, ys, re, counters, test, inv, after.breaked ++ after.returned)
+    val psi = accelerateGuard(
+      mod,
+      as,
+      ys,
+      re,
+      counters,
+      test,
+      inv,
+      after.breaked ++ after.returned
+    )
     val add = And(phi ++ psi)
     val inv_ = Simplify.simplify(inv && add, Map(), Set())
     // val inv_ = inv && add
@@ -69,13 +79,16 @@ object Arrays extends Annotate(ExecNoLoops) {
       inv: Expr,
       avoid: List[Path]
   ): List[Expr] = {
-    println("avoid: ")
-    avoid foreach println
+    // TODO what is currently used? including signature
     val ys_ = ys rename re
     val test_ = test rename re
     val inv_ = inv rename re
     val prems = Accelerate.tryEarlierValuesOf(counters, ys, re)
-    val result = Forall(ys_, And(inv_ :: prems) ==> test_) // TODO: and none of the avoid paths has happened!
+
+    val avoids = for (path <- avoid) yield Not(path.constraint) rename re
+    // println("avoids: ")
+    // avoids foreach println
+    val result = Forall(ys_, And(inv_ :: prems) ==> And(test_ :: avoids))
     // println(ys, ys_, prems)
     // println(result)
     List(result)
