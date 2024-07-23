@@ -13,6 +13,7 @@ object Translate {
 }
 
 class Translate(state: State) {
+  val Void = state.sort("c#void", Nil)
   val void = state.funs("c#void", 0)()
   val heap = state.vars("c#heap")
 
@@ -61,6 +62,10 @@ class Translate(state: State) {
       val x = state.global(name, typ_)
       vars = vars + (name -> x)
       List(smtlib.DeclareVar(name, typ_))
+
+    case FunDecl(ret, "__VERIFIER_error", formals)  => Nil
+    case FunDecl(ret, "__VERIFIER_assume", formals) => Nil
+    case FunDef(ret, "__VERIFIER_assert", formals, body) => Nil
 
     case FunDecl(ret, name, formals) =>
       val in_ = vars(formals)
@@ -212,7 +217,7 @@ class Translate(state: State) {
         locals(stmt_ :: rest, scope, cont, result)
 
       case Label(label, stmt) :: rest =>
-        ???
+        locals(stmt :: rest, scope, cont, result)
 
       case Case(const, stmt) :: rest =>
         ???
@@ -392,14 +397,25 @@ class Translate(state: State) {
         val assm_ = imp.Spec.assume(truth(arg_))
         (void, progs ++ List(assm_))
 
+      case FunCall("__VERIFIER_assume", List(arg)) =>
+        val (arg_, progs) = eval(arg, scope)
+        val assm_ = imp.Spec.assume(truth(arg_))
+        (void, progs ++ List(assm_))
+
+      case FunCall("__VERIFIER_assert", List(arg)) =>
+        val (arg_, progs) = eval(arg, scope)
+        val assm_ = imp.Spec.assert(truth(arg_))
+        (void, progs ++ List(assm_))
+
       case FunCall(fun, args) =>
         val name = cuvee.util.Name(fun)
         val (args_, progs) = evals(args, scope)
         val proc = state.procs(name)
         val List(out_) = proc.out
         val res_ = pure.Expr.fresh(name, out_.typ)
+        val asg_ = imp.Local(List(res_), Nil)
         val call_ = imp.Call(name, args_, List(res_))
-        (res_, progs ++ List(call_))
+        (res_, progs ++ List(asg_, call_))
     }
 
   def preop(op: String, arg: pure.Expr) =
@@ -448,6 +464,9 @@ class Translate(state: State) {
 
     case Type._double =>
       pure.Sort.real
+
+    case Type._void =>
+      Void
 
     case Unsigned(name, bytes) =>
       pure.Sort.int

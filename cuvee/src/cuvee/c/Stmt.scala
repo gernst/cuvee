@@ -79,10 +79,12 @@ object Parsing {
       case Array(ParamSpec(Type._void, None, Dims.empty)) =>
         Array[Formal]()
       case _ =>
-        for (spec <- specs)
-          yield {
-            val ParamSpec(typ, Some(name), dims) = spec
-            Formal(typ withDims dims, name)
+        for ((spec, i) <- specs.zipWithIndex)
+          yield spec match {
+            case ParamSpec(typ, Some(name), dims) =>
+              Formal(typ withDims dims, name)
+            case ParamSpec(typ, None, dims) =>
+              Formal(typ withDims dims, "param" + i)
           }
     }
 
