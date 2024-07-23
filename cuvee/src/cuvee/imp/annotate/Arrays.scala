@@ -28,7 +28,7 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     // println(paths)
     // println(paths_)
-    // println(counters)
+    println(counters)
 
     val re = Expr.fresh(ys)
     val phi = accelerateWrites(mod, as, ys, re, counters, after.running)
