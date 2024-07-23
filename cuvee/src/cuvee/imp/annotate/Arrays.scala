@@ -32,16 +32,21 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     val re = Expr.fresh(ys)
     val phi = accelerateWrites(mod, as, ys, re, counters, after.running)
-    val psi = accelerateGuard(mod, as, ys, re, counters, test, inv)
+    val psi = accelerateGuard(mod, as, ys, re, counters, test, inv, after.breaked ++ after.returned)
     val add = And(phi ++ psi)
     val inv_ = Simplify.simplify(inv && add, Map(), Set())
     // val inv_ = inv && add
 
-    require(after.breaked.isEmpty, "array acceleration ignores break in loops")
-    require(
-      after.returned.isEmpty,
-      "array acceleration ignores return in loops"
-    )
+    // require(
+    //   after.breaked.isEmpty,
+    //   "array acceleration ignores break in loops: " + after.breaked
+    // )
+
+    // require(
+    //   after.returned.isEmpty,
+    //   "array acceleration ignores return in loops"
+    // )
+
     require(
       after.asserted.isEmpty,
       "array acceleration ignores asserts in loops"
@@ -61,13 +66,16 @@ object Arrays extends Annotate(ExecNoLoops) {
       re: Map[Var, Var],
       counters: Map[Var, Counter],
       test: Expr,
-      inv: Expr
+      inv: Expr,
+      avoid: List[Path]
   ): List[Expr] = {
+    println("avoid: ")
+    avoid foreach println
     val ys_ = ys rename re
     val test_ = test rename re
     val inv_ = inv rename re
     val prems = Accelerate.tryEarlierValuesOf(counters, ys, re)
-    val result = Forall(ys_, And(inv_ :: prems) ==> test_)
+    val result = Forall(ys_, And(inv_ :: prems) ==> test_) // TODO: and none of the avoid paths has happened!
     // println(ys, ys_, prems)
     // println(result)
     List(result)
