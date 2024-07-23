@@ -336,7 +336,7 @@ class Translate(state: State) {
         val (res_, progs2) = assign(lhs, arg_, scope)
         (res_, progs1 ++ progs2)
 
-      case BinOp("&&", arg1, arg2) =>
+      case BinOp("&&", arg1, arg2) if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -345,7 +345,7 @@ class Translate(state: State) {
         val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
         (bool(x0), progs1 ++ List(asg1_, if_))
 
-      case BinOp("||", arg1, arg2) =>
+      case BinOp("||", arg1, arg2) if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -438,6 +438,8 @@ class Translate(state: State) {
       case ">"  => bool(arg2 < arg1)
       case "==" => bool(arg1 === arg2)
       case "!=" => bool(arg1 !== arg2)
+      case "&&"  => bool(truth(arg1) && truth(arg2))
+      case "||"  => bool(truth(arg1) || truth(arg2))
     }
 
   def vars(formals: List[Formal]) =
