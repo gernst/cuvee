@@ -7,7 +7,7 @@ import cuvee.prove.Prove
 import cuvee.prove.SimpleProver
 import cuvee.prove.Prover
 import cuvee.lemmas.Lemmas
-import cuvee.imp.VCGen
+import cuvee.imp.VCGenStage
 import cuvee.imp.Annotate
 import cuvee.prove.PositiveProver
 import cuvee.lemmas.Enumerate
@@ -29,6 +29,8 @@ class Config {
   var report: (Printer => Report) = Report.stderr(_)
 
   var vcgen = false
+  var vcgen_partial = false
+
   var lemmas = "none"
   var lemmasRounds = 3
   var conditionalLemmas = false
@@ -157,6 +159,10 @@ class Config {
     },
     option("-vcgen", "generate verification conditions for procedures and wp operators") {
       vcgen = true
+    },
+    option("-vcgen:partial", "generate verification conditions without termination") {
+      vcgen = true
+      vcgen_partial = true
     },
     option("-eval", "obsolete flag, may change meaning in the future") {
       cuvee.error("the -eval flag has been superseded by the -vcgen flag")
@@ -361,7 +367,7 @@ object Config {
     }
 
     if (config.vcgen) {
-      sink = new Incremental(VCGen, sink)
+      sink = new Incremental(new VCGenStage(config.vcgen_partial), sink)
     }
 
     if (config.annotate contains "polyhedra") {

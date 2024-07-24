@@ -6,7 +6,7 @@ import cuvee.State
 import cuvee.pipe.Stage
 import cuvee.smtlib._
 
-object VCGen extends Stage {
+class VCGenStage(partial: Boolean) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
     val eval = new VCGen(state)
 
@@ -36,7 +36,9 @@ object VCGen extends Stage {
         val st = Expr.id(xs)
         val old = List(st)
 
-        val phi = Forall(xs, pre ==> eval.wp_proc(WP, body, st, post_))
+        val how = if(partial) Box else WP
+
+        val phi = Forall(xs, pre ==> eval.wp_proc(how, body, st, post_))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
         List(Lemma(phi, None, Some(Goal)))
 
@@ -279,7 +281,8 @@ class VCGen(val state: State) {
         var sum = sum_
 
         // Add requirement that decreases clause is non-negative to invariant
-        inv = inv && (Zero <= term)
+        if(how == WP)
+          inv = inv && (Zero <= term)
 
         // Prepare some states:
         // 0. current state at loop entry
