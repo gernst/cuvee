@@ -74,22 +74,6 @@ object Printer extends cuvee.util.Printer {
       }
     // Work in progress - print lemmas in cuvee format
     case Lemma(expr, tactic, mode) =>
-      // TODO: hier sowas wie List("lemma " + formula(expr))
-      // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
-      //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
-      // TODO: spaeter dann auch bei invariant, requires, ensures, Spec extends Prog, und Assert extends Cmd ("axiom")
-
-      /* moegliches Format
-        lemma forall x: int :: // hier Zeilenumbruch
-             P1
-          && (forall y: int ::
-                A1
-                  ==> A2)
-          && P3
-              ==>    Q1
-                  || Q2;
-       */
-
       var result: List[String] = Nil
       mode match {
         case Some(Goal) =>
@@ -329,7 +313,6 @@ object Printer extends cuvee.util.Printer {
         val body_ = "{" +: block(body) :+ "}"
         (first +: indent(spec)) ++ body_
       }
-
     case Call(name, in, out) =>
       val args = for (e <- in) yield line(e)
       List(
