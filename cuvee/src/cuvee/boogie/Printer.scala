@@ -249,6 +249,18 @@ object Printer extends cuvee.util.Printer {
       // Where do you want it? Either " ==> " or "==>  "
       val impl = indent(List(" ==> " + ant_.head.trim))
       pre_ ++ impl ++ indent(ant_.tail)
+    case Not(Eq(left, right)) =>
+      val (name, prec, assoc) = ("!=", 5, easyparse.Left)
+      var a = line(left)
+      var b = line(right)
+
+      // decide if we need parens around a and b
+      val (precA, assocA) = precedence(left)
+      val (precB, assocB) = precedence(right)
+      if (precA < prec || (precA == prec && assocA != assoc)) a = "(" + a + ")"
+      if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
+
+      List(a + " " + name + " " + b)
     case Not(phi) =>
       val phi_ = formula(phi)
       ("!(" + phi_.head + ")") +: phi_.tail
@@ -445,6 +457,18 @@ object Printer extends cuvee.util.Printer {
       lines(arr).mkString + "[" + assign.mkString(" ") + "]"
     case Ite(test, left, right) =>
       "if(" + line(test) + ") then " + line(left) + " else " + line(right)
+    case Not(Eq(left, right)) =>
+      val (name, prec, assoc) = ("!=", 5, easyparse.Left)
+      var a = line(left)
+      var b = line(right)
+
+      // decide if we need parens around a and b
+      val (precA, assocA) = precedence(left)
+      val (precB, assocB) = precedence(right)
+      if (precA < prec || (precA == prec && assocA != assoc)) a = "(" + a + ")"
+      if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
+
+      a + " " + name + " " + b
     case App(inst, List(left, right)) if infix contains inst.toString =>
       val (name, prec, assoc) = infix(inst.toString)
       var a = line(left)
