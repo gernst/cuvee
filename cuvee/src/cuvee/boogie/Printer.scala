@@ -74,22 +74,6 @@ object Printer extends cuvee.util.Printer {
       }
     // Work in progress - print lemmas in cuvee format
     case Lemma(expr, tactic, mode) =>
-      // TODO: hier sowas wie List("lemma " + formula(expr))
-      // TODO: neu: def formula(expr: Expr): List[String] Formeln mit Zeilenumbruch
-      //     = expr match { case And(phis), case Or(...) , Forall, Exists, Not, alles andere dann mit dem expr printer }
-      // TODO: spaeter dann auch bei invariant, requires, ensures, Spec extends Prog, und Assert extends Cmd ("axiom")
-
-      /* moegliches Format
-        lemma forall x: int :: // hier Zeilenumbruch
-             P1
-          && (forall y: int ::
-                A1
-                  ==> A2)
-          && P3
-              ==>    Q1
-                  || Q2;
-       */
-
       var result: List[String] = Nil
       mode match {
         case Some(Goal) =>
@@ -249,9 +233,21 @@ object Printer extends cuvee.util.Printer {
       // Where do you want it? Either " ==> " or "==>  "
       val impl = indent(List(" ==> " + ant_.head.trim))
       pre_ ++ impl ++ indent(ant_.tail)
+    case Not(Eq(left, right)) =>
+      val (name, prec, assoc) = ("!=", 5, easyparse.Left)
+      var a = line(left)
+      var b = line(right)
+
+      // decide if we need parens around a and b
+      val (precA, assocA) = precedence(left)
+      val (precB, assocB) = precedence(right)
+      if (precA < prec || (precA == prec && assocA != assoc)) a = "(" + a + ")"
+      if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
+
+      List(a + " " + name + " " + b)
     case Not(phi) =>
       val phi_ = formula(phi)
-      ("!" + phi_.head) +: phi_.tail
+      ("!(" + phi_.head + ")") +: phi_.tail
     case Forall(x, phi) =>
       val quant = "(forall " ++ vartypes(x) ++ " ::"
       val phi_ = indent(formula(phi), 3)
@@ -317,7 +313,6 @@ object Printer extends cuvee.util.Printer {
         val body_ = "{" +: block(body) :+ "}"
         (first +: indent(spec)) ++ body_
       }
-
     case Call(name, in, out) =>
       val args = for (e <- in) yield line(e)
       List(
@@ -445,6 +440,18 @@ object Printer extends cuvee.util.Printer {
       lines(arr).mkString + "[" + assign.mkString(" ") + "]"
     case Ite(test, left, right) =>
       "if(" + line(test) + ") then " + line(left) + " else " + line(right)
+    case Not(Eq(left, right)) =>
+      val (name, prec, assoc) = ("!=", 5, easyparse.Left)
+      var a = line(left)
+      var b = line(right)
+
+      // decide if we need parens around a and b
+      val (precA, assocA) = precedence(left)
+      val (precB, assocB) = precedence(right)
+      if (precA < prec || (precA == prec && assocA != assoc)) a = "(" + a + ")"
+      if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
+
+      a + " " + name + " " + b
     case App(inst, List(left, right)) if infix contains inst.toString =>
       val (name, prec, assoc) = infix(inst.toString)
       var a = line(left)
@@ -461,12 +468,15 @@ object Printer extends cuvee.util.Printer {
       if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
 
       a + " " + name + " " + b
+    case Not(phi) =>
+      val phi_ = line(phi)
+      "!(" + phi_ + ")"
     case App(inst, List(expr)) if prefix.contains(inst.toString) =>
       val (name, prec) = prefix(inst.toString)
       val (prec_, assoc) = precedence(expr)
 
       var arg = line(expr)
-      if (prec > prec) arg = "(" + arg + ")"
+      if (prec > prec_) arg = "(" + arg + ")"
 
       name + arg
     case App(inst, args) =>
@@ -508,7 +518,8 @@ object Printer extends cuvee.util.Printer {
     indent(result)
   }
 
-  /** Provides a tuple containing precedence and associativity for the given expression.
+  /** Provides a tuple containing precedence and associativity for the given
+    * expression.
     *
     * @param expr
     *   to get prec and assoc for
