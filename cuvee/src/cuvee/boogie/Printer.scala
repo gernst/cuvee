@@ -251,7 +251,7 @@ object Printer extends cuvee.util.Printer {
       pre_ ++ impl ++ indent(ant_.tail)
     case Not(phi) =>
       val phi_ = formula(phi)
-      ("!" + phi_.head) +: phi_.tail
+      ("!(" + phi_.head + ")") +: phi_.tail
     case Forall(x, phi) =>
       val quant = "(forall " ++ vartypes(x) ++ " ::"
       val phi_ = indent(formula(phi), 3)
@@ -461,8 +461,10 @@ object Printer extends cuvee.util.Printer {
       if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
 
       a + " " + name + " " + b
+    case Not(phi) =>
+      val phi_ = line(phi)
+      "!(" + phi_ + ")"
     case App(inst, List(expr)) if prefix.contains(inst.toString) =>
-      println(inst)
       val (name, prec) = prefix(inst.toString)
       val (prec_, assoc) = precedence(expr)
 
