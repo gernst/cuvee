@@ -462,11 +462,12 @@ object Printer extends cuvee.util.Printer {
 
       a + " " + name + " " + b
     case App(inst, List(expr)) if prefix.contains(inst.toString) =>
+      println(inst)
       val (name, prec) = prefix(inst.toString)
       val (prec_, assoc) = precedence(expr)
 
       var arg = line(expr)
-      if (prec > prec) arg = "(" + arg + ")"
+      if (prec > prec_) arg = "(" + arg + ")"
 
       name + arg
     case App(inst, args) =>
@@ -508,7 +509,8 @@ object Printer extends cuvee.util.Printer {
     indent(result)
   }
 
-  /** Provides a tuple containing precedence and associativity for the given expression.
+  /** Provides a tuple containing precedence and associativity for the given
+    * expression.
     *
     * @param expr
     *   to get prec and assoc for
