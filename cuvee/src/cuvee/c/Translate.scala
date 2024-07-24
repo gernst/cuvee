@@ -63,8 +63,8 @@ class Translate(state: State) {
       vars = vars + (name -> x)
       List(smtlib.DeclareVar(name, typ_))
 
-    case FunDecl(ret, "__VERIFIER_error", formals)  => Nil
-    case FunDecl(ret, "__VERIFIER_assume", formals) => Nil
+    case FunDecl(ret, "__VERIFIER_error", formals)       => Nil
+    case FunDecl(ret, "__VERIFIER_assume", formals)      => Nil
     case FunDef(ret, "__VERIFIER_assert", formals, body) => Nil
 
     case FunDecl(ret, name, formals) =>
@@ -93,7 +93,10 @@ class Translate(state: State) {
       globals(stmts)
   }
 
-  def unblock(progs: List[imp.Prog], scope: Map[String, pure.Var]): List[imp.Prog] =
+  def unblock(
+      progs: List[imp.Prog],
+      scope: Map[String, pure.Var]
+  ): List[imp.Prog] =
     progs match {
       case Nil =>
         Nil
@@ -179,7 +182,12 @@ class Translate(state: State) {
         // Note, in C variable initialization refers to itself, but locals in Boogie don't
         val local_ = imp.Local(List(x), Nil)
         val asg_ = imp.Assign(List(x), List(init_))
-        progs ++ List(local_, asg_) ++ locals(rest, scope + (name -> x), cont, result)
+        progs ++ List(local_, asg_) ++ locals(
+          rest,
+          scope + (name -> x),
+          cont,
+          result
+        )
 
       case If(test, left, right) :: rest =>
         val (test_, progs) = eval(test, scope)
@@ -260,7 +268,9 @@ class Translate(state: State) {
 
         x.typ match {
           case pure.Sort(pure.Con.array, args) =>
-            cuvee.error("asliasing in array assignments not supported for: " + x + " = " + rhs_)
+            cuvee.error(
+              "asliasing in array assignments not supported for: " + x + " = " + rhs_
+            )
           case _ =>
         }
 
@@ -274,7 +284,10 @@ class Translate(state: State) {
         (x, progs1 ++ List(asg_))
     }
 
-  def evals(exprs: List[Expr], scope: Map[String, pure.Var]): (List[pure.Expr], List[imp.Prog]) =
+  def evals(
+      exprs: List[Expr],
+      scope: Map[String, pure.Var]
+  ): (List[pure.Expr], List[imp.Prog]) =
     exprs match {
       case Nil =>
         (Nil, Nil)
@@ -284,7 +297,10 @@ class Translate(state: State) {
         (expr_ :: rest_, progs1 ++ progs2)
     }
 
-  def eval(expr: Expr, scope: Map[String, pure.Var]): (pure.Expr, List[imp.Prog]) =
+  def eval(
+      expr: Expr,
+      scope: Map[String, pure.Var]
+  ): (pure.Expr, List[imp.Prog]) =
     expr match {
       case Lit(arg: java.lang.Long) =>
         (pure.Lit(BigInt(arg), pure.Sort.int), Nil)
@@ -296,7 +312,10 @@ class Translate(state: State) {
         (pure.Lit(arg, pure.Sort.string), Nil)
 
       case Id(name) =>
-        require(scope contains name, "name unbound: " + name + " in " + scope.values.mkString(", "))
+        require(
+          scope contains name,
+          "name unbound: " + name + " in " + scope.values.mkString(", ")
+        )
         (scope(name), Nil)
 
       case PreOp("~", arg) =>
@@ -336,7 +355,8 @@ class Translate(state: State) {
         val (res_, progs2) = assign(lhs, arg_, scope)
         (res_, progs1 ++ progs2)
 
-      case BinOp("&&", arg1, arg2) if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("&&", arg1, arg2)
+          if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -345,7 +365,8 @@ class Translate(state: State) {
         val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
         (bool(x0), progs1 ++ List(asg1_, if_))
 
-      case BinOp("||", arg1, arg2) if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("||", arg1, arg2)
+          if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -363,7 +384,11 @@ class Translate(state: State) {
         val asg0_ = imp.Local(List(x0), Nil)
         val asg1_ = imp.Assign(List(x0), List(arg1_))
         val asg2_ = imp.Assign(List(x0), List(arg2_))
-        val if_ = imp.If(truth(test_), block(progs1 ++ List(asg1_)), block(progs2 ++ List(asg2_)))
+        val if_ = imp.If(
+          truth(test_),
+          block(progs1 ++ List(asg1_)),
+          block(progs2 ++ List(asg2_))
+        )
         (x0, progs0 ++ List(asg0_, if_))
 
       // generic ops below:
@@ -429,17 +454,17 @@ class Translate(state: State) {
     op match {
       case "+"  => arg1 + arg2
       case "-"  => arg1 - arg2
-      case "*"  => arg1 - arg2
-      case "/"  => arg1 - arg2
-      case "%"  => arg1 - arg2
+      case "*"  => arg1 * arg2
+      case "/"  => pure.DivBy(arg1, arg2)
+      case "%"  => pure.Mod(arg1, arg2)
       case "<"  => bool(arg1 < arg2)
       case "<=" => bool(arg1 <= arg2)
       case ">=" => bool(arg2 <= arg1)
       case ">"  => bool(arg2 < arg1)
       case "==" => bool(arg1 === arg2)
       case "!=" => bool(arg1 !== arg2)
-      case "&&"  => bool(truth(arg1) && truth(arg2))
-      case "||"  => bool(truth(arg1) || truth(arg2))
+      case "&&" => bool(truth(arg1) && truth(arg2))
+      case "||" => bool(truth(arg1) || truth(arg2))
     }
 
   def vars(formals: List[Formal]) =
