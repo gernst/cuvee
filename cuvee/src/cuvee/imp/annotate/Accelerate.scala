@@ -43,12 +43,8 @@ object Accelerate {
     lb.toList
   }
 
-  // TODO way without copy paste?
   def ubAndDecreaseFromTest(test: List[Expr]): (Expr, Expr) = test match {
-    case App(inst, args) :: next if inst.fun == Fun.lt =>
-      val left = args.head
-      val right = args.last
-
+    case Lt(left, right) :: next =>
       val ub = left <= right
       val decreases = right - left
 
@@ -58,31 +54,19 @@ object Accelerate {
 
       (ub, decreases)
 
-    case App(inst, args) :: next if inst.fun == Fun.le =>
-      val left = args.head
-      val right = args.last
-
+    case Le(left, right) :: next =>
       val ub = left <= right + One
       val decreases = right + One - left
-
       (ub, decreases)
 
-    case App(inst, args) :: next if inst.fun == Fun.gt =>
-      val left = args.head
-      val right = args.last
-
+    case Gt(left, right) :: next =>
       val ub = right <= left
       val decreases = left - right
-
       (ub, decreases)
 
-    case App(inst, args) :: next if inst.fun == Fun.ge =>
-      val left = args.head
-      val right = args.last
-
+    case Ge(left, right) :: next =>
       val ub = right <= left + One
       val decreases = left + One - right
-
       (ub, decreases)
 
     case head :: next =>
