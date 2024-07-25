@@ -227,6 +227,9 @@ class Config {
       } else if (path endsWith ".c") {
         printer = boogie.printer
         source = c.source(path)
+      } else if (path endsWith ".yml") {
+        printer = boogie.printer
+        source = c.yml.source(path)
       } else if (path endsWith ".th") {
         if (!overridePrinter) printer = thesy.printer
         source = thesy.source(path)
