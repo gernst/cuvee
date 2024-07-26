@@ -19,7 +19,7 @@ class Translate(state: State) {
   val bitand = state.funs("c#bitand", 2)
   val bitor = state.funs("c#bitor", 2)
 
-  var split = true
+  var split = false
 
   def ptr(typ: Type) =
     state.sort("c#ptr", List(resolve(typ)))

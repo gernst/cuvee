@@ -1,0 +1,72 @@
+data c#void = c#void;
+
+type c#ptr<a₀>;
+
+type c#heap;
+
+var c#heap: c#heap;
+
+function c#bitand(x₀: int, x₁: int): int;
+
+function c#bitor(x₀: int, x₁: int): int;
+
+procedure max(x: [int]int)
+  returns (c#result: int)
+  modifies c#heap;
+{
+  var i: int;
+  var ret: int;
+  ret := 0;
+  i := 0;
+  while(i < 60) {
+    var x₆₇₄: int;
+    if(ret < x[i]) {
+      x₆₇₄ := x[i];
+    } else {
+      x₆₇₄ := ret;
+    }
+    ret := x₆₇₄;
+    var x₆₇₅: int := i;
+    i := i + 1;
+  }
+  c#result := ret;
+  return;
+}
+
+procedure main()
+  returns (c#result: int)
+  modifies c#heap;
+{
+  var x: [int]int;
+  var temp: int;
+  var ret: int;
+  var ret2: int;
+  var ret5: int;
+  var max₆₇₆: int;
+  max₆₇₆ := call max(x);
+  ret := max₆₇₆;
+  temp := x[0];
+  x := x[0 := x[1]];
+  x := x[1 := temp];
+  var max₆₇₇: int;
+  max₆₇₇ := call max(x);
+  ret2 := max₆₇₇;
+  temp := x[0];
+  var i: int;
+  i := 0;
+  while(i < 60 - 1) {
+    x := x[i := x[i + 1]];
+    var x₆₇₈: int := i;
+    i := i + 1;
+  }
+  x := x[60 - 1 := temp];
+  var max₆₇₉: int;
+  max₆₇₉ := call max(x);
+  ret5 := max₆₇₉;
+  if(ret != ret2 || ret != ret5) {
+    assert false;
+  }
+  c#result := 1;
+  return;
+}
+
