@@ -18,6 +18,7 @@ import cuvee.pure.Rewrite
 import cuvee.ai.Abstract
 import cuvee.pure.Horn
 import cuvee.imp.annotate
+import cuvee.util.Main
 
 class Config {
   var file: Option[String] = None
@@ -388,7 +389,7 @@ object Config {
   }
 }
 
-object Cuvee {
+object Cuvee extends Main {
   def main(args: Array[String]) {
     val (file, source, sink, report) = Config(args)
     Pipe.run(source, sink, report)
