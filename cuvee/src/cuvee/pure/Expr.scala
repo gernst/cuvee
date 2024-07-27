@@ -24,6 +24,8 @@ sealed trait Expr extends Expr.term with util.Syntax {
   def +(that: Expr) = Plus(this, that)
   def -(that: Expr) = Minus(this, that)
   def *(that: Expr) = Times(this, that)
+  def /(that: Expr) = DivBy(this, that)
+  def %(that: Expr) = Mod(this, that)
 
   def <=(that: Expr) = Le(this, that)
   def <(that: Expr) = Lt(this, that)

@@ -429,9 +429,9 @@ class Translate(state: State) {
     op match {
       case "+"  => arg1 + arg2
       case "-"  => arg1 - arg2
-      case "*"  => arg1 - arg2
-      case "/"  => arg1 - arg2
-      case "%"  => arg1 - arg2
+      case "*"  => arg1 * arg2
+      case "/"  => arg1 / arg2
+      case "%"  => arg1 % arg2
       case "<"  => bool(arg1 < arg2)
       case "<=" => bool(arg1 <= arg2)
       case ">=" => bool(arg2 <= arg1)
