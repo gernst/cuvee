@@ -42,4 +42,19 @@ package object c {
     def hasNext = from.hasNext
     def next() = from.next()
   }
+
+  object yml {
+    def source(path: String) = {
+      import java.io.FileInputStream
+      import org.yaml.snakeyaml.Yaml
+
+      val yaml = new Yaml()
+      val file = new File(path)
+      val base = file.getParent()
+      val stream = new FileInputStream(file)
+      val data = yaml.load[Any](stream).asInstanceOf[java.util.Map[String, Any]]
+      val input = base + "/" + data.get("input_files").toString
+      c.source(input)
+    }
+  }
 }

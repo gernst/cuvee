@@ -10,6 +10,7 @@ import cuvee.sub
 import cuvee.smtlib.Assert
 import cuvee.smtlib.Solver
 import cuvee.smtlib.Free
+import cuvee.smtlib.DeclareVar
 
 class Prove(
     prover: Prover,
@@ -86,6 +87,9 @@ class Prove(
 
             Assert(Simplify.not(expr_))
           }
+
+      case cmd: DeclareVar =>
+        List(cmd)
 
       case cmd =>
         prover.exec(cmd, state)

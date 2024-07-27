@@ -1,6 +1,6 @@
 package cuvee.prove
 
-import cuvee.imp.Eval
+import cuvee.imp.VCGen
 import cuvee.imp.WP
 import cuvee.pure._
 import cuvee.State

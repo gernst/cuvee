@@ -336,7 +336,7 @@ object Fuse {
             println("simplified " + gbody + " to " + gbody_)
           expose(f, g, fg, fpat, gargs, gbody_, constrs, rules, su)
         } else {
-          if (debug)
+          // if (debug)
             println("cannot expose " + fpat + " over " + gbody + " for " + fg)
           throw CannotFuse
         }
@@ -423,7 +423,7 @@ object Fuse {
             } else if (isFused(f, g, expr_)) {
               expr_
             } else {
-              if (debug)
+              // if (debug)
                 println("not in fused form for " + fg + ": " + expr_)
               throw CannotFuse
             }

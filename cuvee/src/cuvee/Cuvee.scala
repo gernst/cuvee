@@ -7,7 +7,7 @@ import cuvee.prove.Prove
 import cuvee.prove.SimpleProver
 import cuvee.prove.Prover
 import cuvee.lemmas.Lemmas
-import cuvee.imp.Eval
+import cuvee.imp.VCGenStage
 import cuvee.imp.Annotate
 import cuvee.prove.PositiveProver
 import cuvee.lemmas.Enumerate
@@ -17,23 +17,27 @@ import cuvee.smtlib.Lemma
 import cuvee.pure.Rewrite
 import cuvee.ai.Abstract
 import cuvee.pure.Horn
+import cuvee.imp.annotate
+import cuvee.util.Main
 
 class Config {
   var file: Option[String] = None
   var printer: Printer = smtlib.printer
+  var overridePrinter = false
 
   var source: Source = smtlib.source()
   var sink: (Printer => Sink) = Sink.stdout(_)
   var report: (Printer => Report) = Report.stderr(_)
 
-  var eval = false
-  var annotate = false
+  var vcgen = false
+  var vcgen_partial = false
+
   var lemmas = "none"
   var lemmasRounds = 3
   var conditionalLemmas = false
   var lemmasWithSyntheticFunctions = false
 
-  var annotationsAbstractInterpreter = false
+  var annotate: Set[String] = Set()
 
   var simplify = false
   var rewrite = false
@@ -85,12 +89,15 @@ class Config {
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
+      overridePrinter = true
     },
     option("-print:boogie", "force output to Boogie format") {
       printer = cuvee.boogie.printer
+      overridePrinter = true
     },
     option("-print:thesy", "force output to TheSy format") {
       printer = cuvee.thesy.printer
+      overridePrinter = true
     },
     // option("-print:none", "suppress output") {
     //   printer = Printer.dummy
@@ -112,6 +119,9 @@ class Config {
       "cross-check simplifications of prover by Z3 (may fail due to incompleteness)"
     ) {
       crosscheckProver = true
+    },
+    option("-prove:simple", "simple recursive prover") {
+      prove = "simple"
     },
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
@@ -148,14 +158,21 @@ class Config {
       simplify = true
       rewrite = true
     },
-    option("-eval", "evaluate correctness of programs to expressions") {
-      eval = true
+    option("-vcgen", "generate verification conditions for procedures and wp operators") {
+      vcgen = true
     },
-    option("-abstract", "infer loop annotations with abstract interpretation") {
-      annotationsAbstractInterpreter = true
+    option("-vcgen:partial", "generate verification conditions without termination") {
+      vcgen = true
+      vcgen_partial = true
     },
-    option("-annotate", "infer loop annotations") {
-      annotate = true
+    option("-eval", "obsolete flag, may change meaning in the future") {
+      cuvee.error("the -eval flag has been superseded by the -vcgen flag")
+    },
+    option("-annotate:polyhedra", "infer loop annotations (polyhedra abstract domain)") {
+      annotate += "polyhedra"
+    },
+    option("-annotate:arrays", "infer loop annotations (array acceleration)") {
+      annotate += "arrays"
     },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
@@ -194,22 +211,28 @@ class Config {
       error("not an option: " + first)
 
     case path :: rest =>
-      require(file.isEmpty, "only a single file is allowed, already given: " + file.get)
+      require(
+        file.isEmpty,
+        "only a single file is allowed, already given: " + file.get
+      )
       file = Some(path)
 
       if (path endsWith ".bpl") {
-        printer = boogie.printer
+        if (!overridePrinter) printer = boogie.printer
         source = boogie.source(path)
       } else if (path endsWith ".smt2") {
-        printer = smtlib.printer
+        if (!overridePrinter) printer = smtlib.printer
         source = smtlib.source(path)
       } else if (path endsWith ".py") {
         source = python.source(path)
       } else if (path endsWith ".c") {
         printer = boogie.printer
         source = c.source(path)
+      } else if (path endsWith ".yml") {
+        printer = boogie.printer
+        source = c.yml.source(path)
       } else if (path endsWith ".th") {
-        printer = thesy.printer
+        if (!overridePrinter) printer = thesy.printer
         source = thesy.source(path)
       } else {
         error("unknown file format: " + path)
@@ -233,6 +256,22 @@ object Config {
       case "auto" =>
         val solver = Solver.z3()
         val prover = new PositiveProver(solver)
+        if (config.induct)
+          error("induction not supported by auto prover")
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
+
+      case "simple" =>
+        val solver = Solver.z3()
+        val prover = new SimpleProver(solver)
         if (config.induct)
           error("induction not supported by auto prover")
         sink = new Incremental(
@@ -331,16 +370,16 @@ object Config {
       sink = new Incremental(Horn, sink)
     }
 
-    if (config.eval) {
-      sink = new Incremental(Eval, sink)
+    if (config.vcgen) {
+      sink = new Incremental(new VCGenStage(config.vcgen_partial), sink)
     }
 
-    if (config.annotationsAbstractInterpreter) {
+    if (config.annotate contains "polyhedra") {
       sink = new Incremental(Abstract, sink)
     }
 
-    if (config.annotate) {
-      sink = new Incremental(Annotate, sink)
+    if (config.annotate contains "arrays") {
+      sink = new Incremental(annotate.Arrays, sink)
     }
 
     // println("pipeline: " + sink)
@@ -350,7 +389,7 @@ object Config {
   }
 }
 
-object Cuvee {
+object Cuvee extends Main {
   def main(args: Array[String]) {
     val (file, source, sink, report) = Config(args)
     Pipe.run(source, sink, report)

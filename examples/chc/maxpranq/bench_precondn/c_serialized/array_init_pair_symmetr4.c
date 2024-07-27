@@ -13,6 +13,7 @@ int main()
   
   for(i=1;i<N;i++) {
     int x;
+    int y;
     /* __VERIFIER_assume(x>0 && x < 1000); */
     __VERIFIER_assume(x <= y);
     a[i]=x;

@@ -6,18 +6,21 @@ int main()
   int i;
   int N;
   int a[N];
+  int b[N];
+  int c[N];
 
   for(i=1;i<N;i++) {
-    int j;
-    __VERIFIER_assume(i <= j)
+    int j, k;
+    __VERIFIER_assume(j+k >= 3);
     a[i]=j;
+    b[i]=k;
   }
 
-  for(i=0;i<N;i++)
-    a[i]=2*a[i];
+  for(i=0;i<N;i++){
+    c[i]=a[i]+b[i];
+  }
 
   for(i=1;i<N;i++)
-    __VERIFIER_assert(a[i] >= 2*i);
+    __VERIFIER_assert(c[i] >= 3);
 }
 
-    

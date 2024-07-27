@@ -23,7 +23,8 @@ object cuvee extends ScalaModule {
   def ivyDeps = Agg(
     ivy"com.lihaoyi::sourcecode:0.3.1",
     ivy"com.lihaoyi::fastparse:3.0.2",
-    ivy"com.lihaoyi::pythonparse:3.0.2"
+    ivy"com.lihaoyi::pythonparse:3.0.2",
+    ivy"org.yaml:snakeyaml:2.2"
   )
 }
 

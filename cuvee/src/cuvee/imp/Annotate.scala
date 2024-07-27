@@ -1,17 +1,21 @@
 package cuvee.imp
 
 import cuvee.pure._
-import cuvee.smtlib._
 import cuvee.pipe.Stage
+import cuvee.smtlib.Cmd
+import cuvee.smtlib.DefineProc
 
-object Annotate extends Stage {
-  case class State(path: List[Expr], vars: Map[Var, Expr])
-
-  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: cuvee.State) = {
+abstract class Annotate(val exec: Exec) extends Stage {
+  def exec(
+      prefix: List[Cmd],
+      cmds: List[Cmd],
+      last: Cmd,
+      state: cuvee.State
+  ) = {
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
-        val proc = Proc(name, params, in, out, spec)
-        val body_ = annotate(proc, body)
+        val paths = exec.entry(in, out, spec)
+        val (paths_, body_) = annotate(paths, body)
         List(DefineProc(name, params, in, out, spec, body_))
 
       case cmd =>
@@ -19,149 +23,107 @@ object Annotate extends Stage {
     }
   }
 
-  def assume(from: List[State], phi: Expr) = {
-    for (State(path, vars) <- from)
-      yield State((phi subst vars) :: path, vars)
+  // The only requirement is that the resulting final paths
+  // overapproximate the effect of executing the loop,
+  // and that the updated program overapproximates the loop too,
+  // e.g. by additional candidate invariants.
+  def while_(
+      paths: Paths,
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): (Paths, Prog)
+
+  def iter(
+      paths: Paths,
+      vars: List[Var],
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): (Paths, Paths, Prog) = {
+    val scope = List(vars)
+
+    val su = Expr.id(vars)
+    val fresh = Nil
+    val constraints = List(test, inv)
+    val stack = List(su)
+
+    val init = Path(fresh, constraints, stack, List(stack))
+    val before = Paths(List(init))
+    val (after, body_) = annotate(before, body)
+
+    (before, after, body_)
   }
 
-  // def spec(from: List[State], xs: List[Var], phi: Expr, psi: Expr) = {
-  //   for (State(path, vars) <- from)
-  //     yield {
-  //       val re = Expr.fresh(xs)
+  def break_(paths: Paths) =
+    (exec.break(paths), Break)
 
-  //       State((phi subst vars) :: path, vars)
-  //     }
-  // }
+  def return_(paths: Paths) =
+    (exec.return_(paths), Return)
 
-  def assign(from: List[State], xs: List[Var], rhs: List[Expr]) = {
-    for (State(path, vars) <- from)
-      yield State(path, vars ++ (xs zip (rhs map (_ subst vars))))
+  def resume(stuff: (Paths, Prog)) = {
+    val (paths, prog) = stuff
+    (exec.resume(paths), prog)
   }
 
-  def havoc(from: List[State], xs: Set[Var]) = {
-    // renaming of existing occurrences to new variables
-    val re = Expr.fresh(xs)
-    val xs_ = xs.toList rename re
-
-    // reset variables to some current values
-    val id = Expr.id(xs)
-
-    for (State(path, vars) <- from)
-      yield {
-        val vars_ = Expr.compose(vars, re)
-        val (keep, zap) = path partition (_.free disjoint xs)
-
-        val phi = Exists(xs_, And(zap subst vars_))
-        State(phi :: keep, vars ++ id)
-      }
+  def spec(paths: Paths, xs: List[Var], pre: Expr, post: Expr) = {
+    (exec.spec(paths, xs, pre, post), Spec(xs, pre, post))
   }
 
-  def annotate(
-      proc: Proc,
-      body: Prog
-  ): Prog = proc match {
-    case Proc(name, params, in, out, None) =>
-      val vars = Expr.id(in ++ out)
-      val from = State(Nil, vars)
-      val (prog, _) = annotate(List(from), body)
-      prog
+  def local(paths: Paths, xs: List[Var], rhs: List[Expr]) =
+    (exec.local(paths, xs, rhs), Local(xs, rhs))
 
-    case Proc(name, params, in, out, Some(Spec(gobals, pre, post))) =>
-      val vars = Expr.id(in ++ out)
-      val from = State(And.flatten(pre), vars)
-      val (prog, _) = annotate(List(from), body)
-      prog
-  }
+  def assign(paths: Paths, xs: List[Var], rhs: List[Expr]) =
+    (exec.assign(paths, xs, rhs), Assign(xs, rhs))
 
-  def annotate(
-      from: List[State],
-      progs: List[Prog]
-  ): (List[Prog], List[State]) = progs match {
+  def block(paths0: Paths, progs: List[Prog]): (Paths, List[Prog]) = progs match {
     case Nil =>
-      (Nil, from)
+      (paths0, Nil)
 
-    case prog :: rest =>
-      val (prog_, via) = annotate(from, prog)
-      val (rest_, to) = annotate(via, rest)
-      (prog_ :: rest_, to)
+    case (prog: Prog) :: (rest: List[Prog]) =>
+      val (paths1, prog_) = annotate(paths0, prog)
+      val (paths2, rest_) = block(paths1, rest)
+      (paths2, prog_ :: rest_)
   }
 
-  def annotate(
-      from: List[State],
-      prog: Prog
-  ): (Prog, List[State]) = {
-    prog match {
-      case Block(progs) =>
-        val (progs_, to) = annotate(from, progs)
-        (Block(progs_), to)
+  def if_(paths0: Paths, test: Expr, left: Prog, right: Prog): (Paths, Prog) = {
+    val (paths1, left_) = annotate(exec.assume(paths0, test), left)
+    val (paths2, right_) = annotate(exec.assume(paths0, !test), right)
+    (exec.join(paths1, paths2), If(test, left_, right_))
+  }
 
-      case Return =>
-        (Return, Nil)
+  def annotate(paths: Paths, prog: Prog): (Paths, Prog) = prog match {
+    case Break =>
+      break_(paths)
 
-      case Break =>
-        (Break, Nil)
+    case Return =>
+      return_(paths)
 
-      case first @ Local(xs, init) =>
-        val all = from flatMap (_.vars.keys)
-        val bad = xs.toSet & all.toSet
-        require(init.nonEmpty, "local variables must be initialized: " + xs)
-        require(bad.isEmpty, "local variables " + bad + " already exist")
-        (first, assign(from, xs, init))
+    case Block(progs) =>
+      val (paths_, progs_) = block(paths, progs)
+      (paths_, Block(progs_))
 
-      case first @ Assign(xs, rhs) =>
-        (first, assign(from, xs, rhs))
+    case Local(xs, rhs) =>
+      local(paths, xs, rhs)
 
-      case (first @ Spec(xs, phi, psi)) =>
-        cuvee.error("assume/assert currently not supported during annotation generation")
+    case Assign(xs, rhs) =>
+      assign(paths, xs, rhs)
 
-      //   val (xs_, re) = havoc(xs)
-      //   val st_ = assign(st, xs, xs_)
-      //   // val phi_ = eval(phi, scope, st, old)
-      //   val psi_ = eval(psi, scope, st_, st :: old)
+    case Spec(xs, pre, post) =>
+      spec(paths, xs, pre, post)
 
-      //   (first, List(Stopped(fresh, path ++ List(psi_), st_)))
+    case If(test, left, right) =>
+      if_(paths, test, left, right)
 
-      case Call(name, in, out) =>
-        cuvee.error("calls currently not supported during annotation generation")
-      //   require(state.procs contains name, "unknown procedure: " + name)
-      //   val Proc(_, params, xs, zs, spec) = state procs name
-
-      //   spec match {
-      //     case None =>
-      //       cuvee.error(
-      //         "inlining procedures not implemented, consider adding a contract to: " + name
-      //       )
-
-      //     case Some(Spec(mod, phi, psi)) =>
-      //       val su = Expr.subst(xs, in)
-      //       val re = Expr.subst(zs, out)
-      //       val spec_ = Spec(mod, phi subst su, psi subst (su ++ re))
-      //       annotate(spec_, fresh, path, scope, st, old)
-      //   }
-
-      case If(test, left, right) =>
-        val (left_, to1) = annotate(assume(from, test), left)
-        val (right_, to2) = annotate(assume(from, !test), right)
-        (If(test, left_, right_), to1 ++ to2)
-
-      case While(test, body, term, inv, sum, frames) =>
-        val mod = body.mod
-        val via = havoc(from, mod)
-
-        val before = assume(from, inv && test)
-        val (body_, after) = annotate(before, body)
-
-        // HERE: after are all states reachable from before,
-        //       such that before -- body -> after is exactly one arbitrary loop iteration
-
-        // TODO: compute some new invariants here
-        val inv_ = inv
-
-        val prog_ = While(test, body_, term, inv_, sum, frames)
-
-        // prepare states after the loop
-        val to = assume(from, inv_ && !test)
-        (prog_, to)
-    }
+    case While(test, body, term, inv, sum, frames) =>
+      resume {
+        while_(paths, test, body, term, inv, sum, frames)
+      }
   }
 }

@@ -16,6 +16,10 @@ class Translate(state: State) {
   val Void = state.sort("c#void", Nil)
   val void = state.funs("c#void", 0)()
   val heap = state.vars("c#heap")
+  val bitand = state.funs("c#bitand", 2)
+  val bitor = state.funs("c#bitor", 2)
+
+  var split = false
 
   def ptr(typ: Type) =
     state.sort("c#ptr", List(resolve(typ)))
@@ -33,24 +37,6 @@ class Translate(state: State) {
       yield prog
 
   def global(stmt: Stmt): List[smtlib.Cmd] = stmt match {
-    case StructDecl(name) =>
-      ???
-
-    case UnionDecl(name) =>
-      ???
-
-    case EnumDecl(name) =>
-      ???
-
-    case StructDef(name, fields) =>
-      ???
-
-    case UnionDef(name, fields) =>
-      ???
-
-    case EnumDef(name, consts) =>
-      ???
-
     case TypeDef(typ, name) =>
       val typ_ = resolve(typ)
       state.con(name, 0)
@@ -63,9 +49,18 @@ class Translate(state: State) {
       vars = vars + (name -> x)
       List(smtlib.DeclareVar(name, typ_))
 
-    case FunDecl(ret, "__VERIFIER_error", formals)  => Nil
-    case FunDecl(ret, "__VERIFIER_assume", formals) => Nil
-    case FunDef(ret, "__VERIFIER_assert", formals, body) => Nil
+    case FunDecl(ret, "abort", formals)                => Nil
+    case FunDecl(ret, "__assert_fail", formals)        => Nil
+    case FunDecl(ret, "__assert_perror_fail", formals) => Nil
+    case FunDecl(ret, "__assert", formals)             => Nil
+    case FunDecl(ret, "__VERIFIER_error", formals)     => Nil
+    case FunDecl(ret, "__VERIFIER_assume", formals)    => Nil
+
+    case FunDecl(ret, name, formals) if name startsWith "__VERIFIER_nondet" => Nil
+
+    case FunDef(ret, "reach_error", formals, body)         => Nil
+    case FunDef(ret, "__VERIFIER_assert", formals, body)   => Nil
+    case FunDef(ret, "assume_abort_if_not", formals, body) => Nil
 
     case FunDecl(ret, name, formals) =>
       val in_ = vars(formals)
@@ -73,8 +68,12 @@ class Translate(state: State) {
       val mod_ = vars.values filterNot in_.contains
       val spec_ = imp.Spec(heap :: mod_.toList, pure.True, pure.True)
 
-      state.proc(name, Nil, in_, out_, None)
-      List(smtlib.DeclareProc(name, Nil, in_, out_, Some(spec_)))
+      if (state.procs contains name) {
+        Nil
+      } else {
+        state.proc(name, Nil, in_, out_, None)
+        List(smtlib.DeclareProc(name, Nil, in_, out_, Some(spec_)))
+      }
 
     case FunDef(ret, name, formals, body) =>
       val in_ = vars(formals)
@@ -91,9 +90,33 @@ class Translate(state: State) {
 
     case Group(stmts) =>
       globals(stmts)
+
+    case stmt =>
+      cuvee.error("unsupported global declaration: " + stmt)
+
+    // case StructDecl(name) =>
+    //   ???
+
+    // case UnionDecl(name) =>
+    //   ???
+
+    // case EnumDecl(name) =>
+    //   ???
+
+    // case StructDef(name, fields) =>
+    //   ???
+
+    // case UnionDef(name, fields) =>
+    //   ???
+
+    // case EnumDef(name, consts) =>
+    //   ???
   }
 
-  def unblock(progs: List[imp.Prog], scope: Map[String, pure.Var]): List[imp.Prog] =
+  def unblock(
+      progs: List[imp.Prog],
+      scope: Map[String, pure.Var]
+  ): List[imp.Prog] =
     progs match {
       case Nil =>
         Nil
@@ -179,7 +202,12 @@ class Translate(state: State) {
         // Note, in C variable initialization refers to itself, but locals in Boogie don't
         val local_ = imp.Local(List(x), Nil)
         val asg_ = imp.Assign(List(x), List(init_))
-        progs ++ List(local_, asg_) ++ locals(rest, scope + (name -> x), cont, result)
+        progs ++ List(local_, asg_) ++ locals(
+          rest,
+          scope + (name -> x),
+          cont,
+          result
+        )
 
       case If(test, left, right) :: rest =>
         val (test_, progs) = eval(test, scope)
@@ -219,14 +247,17 @@ class Translate(state: State) {
       case Label(label, stmt) :: rest =>
         locals(stmt :: rest, scope, cont, result)
 
-      case Case(const, stmt) :: rest =>
-        ???
+      case stmt :: _ =>
+        cuvee.error("unsupported statement: " + stmt)
 
-      case Switch(expr, body) :: rest =>
-        ???
+      // case Case(const, stmt) :: rest =>
+      //   ???
 
-      case Goto(label) :: rest =>
-        ???
+      // case Switch(expr, body) :: rest =>
+      //   ???
+
+      // case Goto(label) :: rest =>
+      //   ???
     }
 
   def truth(arg: pure.Expr): pure.Expr = {
@@ -260,7 +291,9 @@ class Translate(state: State) {
 
         x.typ match {
           case pure.Sort(pure.Con.array, args) =>
-            cuvee.error("asliasing in array assignments not supported for: " + x + " = " + rhs_)
+            cuvee.error(
+              "asliasing in array assignments not supported for: " + x + " = " + rhs_
+            )
           case _ =>
         }
 
@@ -274,7 +307,10 @@ class Translate(state: State) {
         (x, progs1 ++ List(asg_))
     }
 
-  def evals(exprs: List[Expr], scope: Map[String, pure.Var]): (List[pure.Expr], List[imp.Prog]) =
+  def evals(
+      exprs: List[Expr],
+      scope: Map[String, pure.Var]
+  ): (List[pure.Expr], List[imp.Prog]) =
     exprs match {
       case Nil =>
         (Nil, Nil)
@@ -284,7 +320,10 @@ class Translate(state: State) {
         (expr_ :: rest_, progs1 ++ progs2)
     }
 
-  def eval(expr: Expr, scope: Map[String, pure.Var]): (pure.Expr, List[imp.Prog]) =
+  def eval(
+      expr: Expr,
+      scope: Map[String, pure.Var]
+  ): (pure.Expr, List[imp.Prog]) =
     expr match {
       case Lit(arg: java.lang.Long) =>
         (pure.Lit(BigInt(arg), pure.Sort.int), Nil)
@@ -296,7 +335,10 @@ class Translate(state: State) {
         (pure.Lit(arg, pure.Sort.string), Nil)
 
       case Id(name) =>
-        require(scope contains name, "name unbound: " + name + " in " + scope.values.mkString(", "))
+        require(
+          scope contains name,
+          "name unbound: " + name + " in " + scope.values.mkString(", ")
+        )
         (scope(name), Nil)
 
       case PreOp("~", arg) =>
@@ -336,7 +378,7 @@ class Translate(state: State) {
         val (res_, progs2) = assign(lhs, arg_, scope)
         (res_, progs1 ++ progs2)
 
-      case BinOp("&&", arg1, arg2) if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("&&", arg1, arg2) if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -345,7 +387,7 @@ class Translate(state: State) {
         val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
         (bool(x0), progs1 ++ List(asg1_, if_))
 
-      case BinOp("||", arg1, arg2) if Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("||", arg1, arg2) if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -363,7 +405,11 @@ class Translate(state: State) {
         val asg0_ = imp.Local(List(x0), Nil)
         val asg1_ = imp.Assign(List(x0), List(arg1_))
         val asg2_ = imp.Assign(List(x0), List(arg2_))
-        val if_ = imp.If(truth(test_), block(progs1 ++ List(asg1_)), block(progs2 ++ List(asg2_)))
+        val if_ = imp.If(
+          truth(test_),
+          block(progs1 ++ List(asg1_)),
+          block(progs2 ++ List(asg2_))
+        )
         (x0, progs0 ++ List(asg0_, if_))
 
       // generic ops below:
@@ -381,21 +427,23 @@ class Translate(state: State) {
         val (index_, progs2) = eval(index, scope)
         (pure.Select(base_, index_), progs1 ++ progs2)
 
-      case Dot(expr, field) =>
-        ???
-      case SizeOfExpr(expr) =>
-        ???
-      case Arrow(expr, field) =>
-        ???
-      case SizeOfType(typ) =>
-        ???
-      case Cast(typ, expr) =>
-        ???
-
       case FunCall("assume", List(arg)) =>
         val (arg_, progs) = eval(arg, scope)
         val assm_ = imp.Spec.assume(truth(arg_))
         (void, progs ++ List(assm_))
+
+      case FunCall("assume_abort_if_not", List(arg)) =>
+        val (arg_, progs) = eval(arg, scope)
+        val assm_ = imp.Spec.assume(truth(arg_))
+        (void, progs ++ List(assm_))
+
+      case FunCall("reach_error", List()) =>
+        (void, List(imp.Spec.assert(pure.False)))
+
+      case FunCall("assert", List(arg)) =>
+        val (arg_, progs) = eval(arg, scope)
+        val assrt_ = imp.Spec.assert(truth(arg_))
+        (void, progs ++ List(assrt_))
 
       case FunCall("__VERIFIER_assume", List(arg)) =>
         val (arg_, progs) = eval(arg, scope)
@@ -404,8 +452,17 @@ class Translate(state: State) {
 
       case FunCall("__VERIFIER_assert", List(arg)) =>
         val (arg_, progs) = eval(arg, scope)
-        val assm_ = imp.Spec.assert(truth(arg_))
-        (void, progs ++ List(assm_))
+        val assrt_ = imp.Spec.assert(truth(arg_))
+        (void, progs ++ List(assrt_))
+
+      case FunCall("__VERIFIER_error", List()) =>
+        (void, List(imp.Spec.assert(pure.False)))
+
+      case FunCall(name, List) if name startsWith "__VERIFIER_nondet" =>
+        val typ_ = pure.Sort.int
+        val res_ = pure.Expr.fresh(name, typ_)
+        val asg_ = imp.Local(List(res_), Nil)
+        (res_, List(asg_))
 
       case FunCall(fun, args) =>
         val name = cuvee.util.Name(fun)
@@ -416,6 +473,21 @@ class Translate(state: State) {
         val asg_ = imp.Local(List(res_), Nil)
         val call_ = imp.Call(name, args_, List(res_))
         (res_, progs ++ List(asg_, call_))
+
+      case _ =>
+        cuvee.error("unsupported expression: " + expr)
+
+      // case Dot(expr, field) =>
+      //   ???
+      // case SizeOfExpr(expr) =>
+      //   ???
+      // case Arrow(expr, field) =>
+      //   ???
+      // case SizeOfType(typ) =>
+      //   ???
+      // case Cast(typ, inner) =>
+      //   println(expr)
+      //   ???
     }
 
   def preop(op: String, arg: pure.Expr) =
@@ -432,14 +504,16 @@ class Translate(state: State) {
       case "*"  => arg1 * arg2
       case "/"  => arg1 / arg2
       case "%"  => arg1 % arg2
+      case "&"  => bitand(arg1, arg2)
+      case "|"  => bitor(arg1, arg2)
       case "<"  => bool(arg1 < arg2)
       case "<=" => bool(arg1 <= arg2)
       case ">=" => bool(arg2 <= arg1)
       case ">"  => bool(arg2 < arg1)
       case "==" => bool(arg1 === arg2)
       case "!=" => bool(arg1 !== arg2)
-      case "&&"  => bool(truth(arg1) && truth(arg2))
-      case "||"  => bool(truth(arg1) || truth(arg2))
+      case "&&" => bool(truth(arg1) && truth(arg2))
+      case "||" => bool(truth(arg1) || truth(arg2))
     }
 
   def vars(formals: List[Formal]) =
@@ -480,25 +554,28 @@ class Translate(state: State) {
       val typ_ = resolve(typ)
       pure.Sort.array(pure.Sort.int, typ_)
 
-    case EnumName(name) =>
-      ???
-
-    case StructName(name) =>
-      ???
-
     case TypedefName(name) =>
-      ???
+      state.sort(name)
 
-    case UnionName(name) =>
-      ???
+    case _ =>
+      cuvee.error("unsupported type: " + typ)
 
-    case AnonEnum(consts) =>
-      ???
+    // case EnumName(name) =>
+    //   ???
 
-    case AnonStruct(fields) =>
-      ???
+    // case StructName(name) =>
+    //   ???
 
-    case AnonUnion(fields) =>
-      ???
+    // case UnionName(name) =>
+    //   ???
+
+    // case AnonEnum(consts) =>
+    //   ???
+
+    // case AnonStruct(fields) =>
+    //   ???
+
+    // case AnonUnion(fields) =>
+    //   ???
   }
 }

@@ -1,166 +1,225 @@
 package cuvee.imp
-
 import cuvee.pure._
-import cuvee.smtlib.Assert
+import cuvee.ai.Domain
 
-sealed trait Final
+case class Paths(
+    running: List[Path],
+    breaked: List[Path] = Nil,
+    returned: List[Path] = Nil,
+    asserted: List[(Path, Expr)] = Nil
+)
 
-/* Note: all path formulas and phi are already evaluated */
-case class Asserted(fresh: List[Var], path: List[Expr], phi: Expr) extends Final
-case class Returned(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
-case class Breaked(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
-case class Stopped(fresh: List[Var], path: List[Expr], subst: Map[Var, Expr]) extends Final
+object ExecNoLoops extends Exec {
+  def while_(
+      paths0: Paths,
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): Paths = {
+    cuvee.error("execution of loops not implemented in this context")
+  }
+}
 
-class Exec(val evals: Eval) {
-  import evals.state
-  import evals.havoc
-  import evals.assign
-  import evals.eval
+class ExecWithDomain[S](domain: Domain[S]) extends Exec {
+  def while_(
+      paths0: Paths,
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): Paths = {
+    cuvee.error("execution of loops not implemented in this context")
+  }
+}
 
-  def exec(
-      progs: List[Prog], // current block, affected by local variables
-      cont: List[List[Prog]], // anything after the current block
-      fresh: List[Var], // any new variables introduced
-      path: List[Expr], // current path condition
-      scope: Map[Var, Expr], // assignment of logical variables, perhaps renaming to avoid clashes
-      st: Map[Var, Expr], // all program variables
-      old: List[Map[Var, Expr]]
-  ): List[Final] = {
+trait Exec {
+  // The only requirement is that the resulting final paths
+  // overapproximate the effect of executing the loop.
+  def while_(
+      paths0: Paths,
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): Paths
+
+  // Utility function to run an arbitrary iteration of a loop body,
+  // when started from paths, with respect to the set of vars given,
+  // starting out with a *flat* stack of the identity substitution,
+  // i.e., not reflecting the block structure of the given current paths.
+  def iter(
+      paths: Paths,
+      vars: List[Var],
+      test: Expr,
+      body: Prog,
+      term: Expr,
+      inv: Expr,
+      sum: Expr,
+      frames: List[Frame]
+  ): (Paths, Paths) = {
+    val scope = List(vars)
+
+    val su = Expr.id(vars)
+    val fresh = Nil
+    val constraints = List(test, inv)
+    val stack = List(su)
+
+    val init = Path(fresh, constraints, stack, List(stack))
+    val before = Paths(List(init))
+    val after = exec(before, body)
+
+    (before, after)
+  }
+
+  def entry(vars: List[Var], constraints: List[Expr]): Paths = {
+    val su = Expr.id(vars)
+    val fresh = Nil
+    val stack = List(su)
+    val init = Path(fresh, constraints, stack, List(stack))
+    Paths(List(init))
+  }
+
+  def entry(in: List[Var], out: List[Var], spec: Option[Spec]): Paths = spec match {
+    case None =>
+      entry(in ++ out, Nil)
+
+    case Some(Spec(globals, pre, post)) =>
+      entry(in ++ out ++ globals, List(pre))
+  }
+
+  def break(paths: Paths) = {
+    import paths._
+    Paths(Nil, breaked ++ running, returned, asserted)
+  }
+
+  def resume(paths: Paths) = {
+    import paths._
+    Paths(running ++ breaked, Nil, returned, asserted)
+  }
+
+  def return_(paths: Paths) = {
+    import paths._
+    Paths(Nil, breaked, returned ++ running, asserted)
+  }
+
+  def assume(paths: Paths, phi: Expr): Paths = {
+    import paths._
+    val running_ = running map { _ assume phi }
+    Paths(running_, breaked, returned, asserted)
+  }
+
+  def assert(paths: Paths, phi: Expr): Paths = {
+    import paths._
+    val asserted_ = running map { (_, phi) }
+    Paths(running, breaked, returned, asserted ++ asserted_)
+  }
+
+  def local(paths: Paths, xs: List[Var], rhs: List[Expr]): Paths = {
+    import paths._
+    val running_ = running map { _ local (xs, rhs) }
+    Paths(running_, breaked, returned, asserted)
+  }
+
+  def assign(paths: Paths, xs: List[Var], rhs: List[Expr]): Paths = {
+    import paths._
+    val running_ = running map { _ assign (xs, rhs) }
+    Paths(running_, breaked, returned, asserted)
+  }
+
+  def spec(paths: Paths, xs: List[Var], pre: Expr, post: Expr): Paths = {
+    import paths._
+    val asserted_ = running map { (_, pre) }
+    val running_ = running map { _ step (xs, post) }
+    Paths(running_, breaked, returned, asserted ++ asserted_)
+  }
+
+  def scoped(paths0: Paths)(f: Paths => Paths): Paths = {
+    val paths1 = all(paths0) { _.pushScope }
+    val paths2 = f(paths1)
+    val paths3 = all(paths2) { _.popScope }
+    paths3
+  }
+
+  // def withOld(paths0: Paths)(f: Paths => Paths): Paths = {
+  //   val paths1 = all(paths0) { _.pushOld }
+  //   val paths2 = f(paths1)
+  //   val paths3 = all(paths2) { _.popOld }
+  //   paths3
+  // }
+
+  def all(paths: Paths)(f: Path => Path) = {
+    import paths._
+    val running_ = running map f
+    val breaked_ = breaked map f
+    val returned_ = returned map f
+    val asserted_ = asserted map { case (path, phi) => (f(path), phi) }
+    Paths(running_, breaked_, returned_, asserted_)
+  }
+
+  def join(paths1: Paths, paths2: Paths) = {
+    val Paths(running1, breaked1, returned1, asserted1) = paths1
+    val Paths(running2, breaked2, returned2, asserted2) = paths2
+
+    Paths(
+      running1 ++ running2,
+      breaked1 ++ breaked2,
+      returned1 ++ returned2,
+      asserted1 ++ asserted2
+    )
+  }
+
+  def block(paths0: Paths, progs: List[Prog]): Paths = {
     progs match {
       case Nil =>
-        cont match {
-          case Nil =>
-            List(Stopped(fresh, path, st))
+        paths0
 
-          case progs :: cont =>
-            exec(progs, cont, fresh, path, scope, st, old)
-        }
-
-      case Block(progs) :: rest =>
-        exec(progs, rest :: cont, fresh, path, scope, st, old)
-
-      case Return :: rest =>
-        List(Returned(fresh, path, st))
-
-      case Break :: rest =>
-        List(Breaked(fresh, path, st))
-
-      case Local(xs, init) :: rest =>
-        // Note: ensure we introduce fresh names for the locals
-        //       and compute on these within the current block (but not in cont)
-        val (ys, zs) = xs partition st.contains
-        val (ys_, re) = havoc(ys)
-        val xs_ = ys_ ++ zs
-        val rest_ = rest replace re
-        val init_ = if (init.isEmpty) xs_ else init subst st
-        val st_ = assign(st, xs_, init_)
-
-        exec(rest_, cont, fresh, path, scope, st_, old)
-
-      case Assign(xs, rhs) :: rest =>
-        val rhs_ = rhs subst st // don't use eval, old is specification-only
-        val st_ = assign(st, xs, rhs_)
-        exec(rest, cont, fresh, path, scope, st_, old)
-
-      case Spec(xs, phi, psi) :: rest =>
-        val (xs_, re) = havoc(xs)
-        val fresh_ = fresh ++ xs_
-        val st_ = assign(st, xs, xs_)
-        val phi_ = eval(phi, scope, st, old)
-        val psi_ = eval(psi, scope, st_, st :: old)
-
-        val first_ = Asserted(fresh_, path, phi_)
-        val rest_ = exec(rest, cont, fresh_, path ++ List(psi_), scope, st_, old)
-        first_ :: rest_
-
-      case Call(name, in, out) :: rest =>
-        require(state.procs contains name, "unknown procedure: " + name)
-        val Proc(_, params, xs, zs, spec) = state procs name
-
-        spec match {
-          case None =>
-            cuvee.error(
-              "inlining procedures not implemented, consider adding a contract to: " + name
-            )
-
-          case Some(Spec(mod, phi, psi)) =>
-            val su = Expr.subst(xs, in)
-            val re = Expr.subst(zs, out)
-            val spec_ = Spec(mod, phi subst su, psi subst (su ++ re))
-            exec(spec_ :: rest, cont, fresh, path, scope, st, old)
-        }
-
-      case If(test, left, right) :: rest =>
-        val test_ = test subst st
-        val left_ = exec(List(left), cont, fresh, path ++ List(test_), scope, st, old)
-        val right_ = exec(List(right), cont, fresh, path ++ List(!test_), scope, st, old)
-        left_ ++ right_
-
-      case While(test, body, term, inv, True, frames) :: rest =>
-        // variables modified by the loop
-        val xm = body.mod
-        val xs0 = xm.toList
-        val (xs1, re) = havoc(xs0)
-
-        // Prepare some states:
-        // 0. current state at loop entry
-        // 1. arbitrary state at loop head before some iteration
-        val st0 = st
-        val st1 = assign(st, xs0, xs1)
-        val old_ = st0 :: old
-
-        // invariant to show at loop head upon entry
-        val inv0 = eval(inv, scope, st0, old_)
-
-        // test and invariant at loop head before some iteration
-        val test1 = test subst st1
-        val inv1 = eval(inv, scope, st1, old_)
-
-        // path condition with the invariant at an arbitrary state
-        val path_ = path ++ List(inv1)
-
-        // assertion for invariant on loop entry
-        val init = Asserted(fresh, path, inv0)
-
-        // final states of executing an arbitrary loop iteration
-        val body_ = exec(List(body), Nil, fresh, path_ ++ List(test1), scope, st1, old_)
-
-        // TODO: here can be a loop that goes through body_, for example like this
-        //       which collects some additional information from
-        //       the relation between st1 and st2
-        for(Stopped(fresh, path, st2) <- body_) {
-
-        }
-
-        // now collect all successor states which don't break out of the loop
-        val step = body_ flatMap {
-          // keep assertions inside the body for later
-          case conf: Asserted =>
-            List(conf)
-
-          // similarly, propagate returns
-          case conf: Returned =>
-            List(conf)
-
-          // breaking out of the loop just continues after the loop,
-          // similarly to rest_ above but from that intermediate state
-          case Breaked(fresh, path, st2) =>
-            exec(rest, cont, fresh, path, scope, st2, old_)
-
-          // regular executions of the body just need to theck the invariant
-          case Stopped(fresh, path, st2) =>
-            val inv2 = eval(inv, scope, st2, old_)
-            List(Asserted(fresh, path, inv2))
-        }
-
-        // final states of executing the rest of the program after the loop
-        val exit = exec(rest, cont, fresh, path_ ++ List(!test1), scope, st1, old_)
-
-        // collect the assertion and all potential outcomes
-        List(init) ++ step ++ exit
-
-      case While(test, body, term, inv, sum, frames) :: rest =>
-        ???
+      case prog :: rest =>
+        val paths1 = exec(paths0, prog)
+        val paths2 = block(paths1, rest)
+        paths2
     }
+  }
+
+  def if_(paths0: Paths, test: Expr, left: Prog, right: Prog): Paths = {
+    val paths1 = exec(assume(paths0, test), left)
+    val paths2 = exec(assume(paths0, !test), right)
+    join(paths1, paths2)
+  }
+
+  def exec(paths: Paths, prog: Prog): Paths = prog match {
+    case Break =>
+      break(paths)
+
+    case Return =>
+      return_(paths)
+
+    case Local(xs, rhs) =>
+      local(paths, xs, rhs)
+
+    case Assign(xs, rhs) =>
+      assign(paths, xs, rhs)
+
+    case Spec(xs, pre, post) =>
+      spec(paths, xs, pre, post)
+
+    case Block(progs) =>
+      scoped(paths) {
+        block(_, progs)
+      }
+
+    case If(test, left, right) =>
+      if_(paths, test, left, right)
+
+    case While(test, body, term, inv, sum, frames) =>
+      resume {
+        while_(paths, test, body, term, inv, sum, frames)
+      }
   }
 }
