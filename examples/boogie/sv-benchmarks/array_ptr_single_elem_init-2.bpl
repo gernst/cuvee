@@ -1,0 +1,57 @@
+data c#void = c#void;
+
+type c#ptr<a₀>;
+
+type c#heap;
+
+var c#heap: c#heap;
+
+function c#bitand(x₀: int, x₁: int): int;
+
+function c#bitor(x₀: int, x₁: int): int;
+
+procedure __VERIFIER_nondet_int() returns (c#result: int);
+  modifies c#heap;
+
+procedure main()
+  returns (c#result: int)
+  modifies c#heap;
+{
+  var i: int;
+  var a: [int]int;
+  var b: [int]int;
+  var c: [int]int;
+  i := 0;
+  while(i < 100000) {
+    var __VERIFIER_nondet_int₃₆₆: int;
+    __VERIFIER_nondet_int₃₆₆ := call __VERIFIER_nondet_int();
+    var q: int;
+    q := __VERIFIER_nondet_int₃₆₆;
+    a := a[i := 0];
+    if(q == 0) {
+      a := a[i := 1];
+      b := b[i := i % 2];
+    }
+    if(a[i] != 0) {
+      if(b[i] == 0) {
+        c := c[i := 0];
+      } else {
+        c := c[i := 1];
+      }
+    }
+    var x₃₆₇: int := i;
+    i := i + 1;
+  }
+  a := a[15000 := 1];
+  i := 0;
+  while(i < 100000) {
+    if(i == 15000) {
+      assert a[i] != 1;
+    }
+    var x₃₆₈: int := i;
+    i := i + 1;
+  }
+  c#result := 0;
+  return;
+}
+
