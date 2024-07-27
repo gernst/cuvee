@@ -19,7 +19,7 @@ class Translate(state: State) {
   val bitand = state.funs("c#bitand", 2)
   val bitor = state.funs("c#bitor", 2)
 
-  var split = true
+  var split = false
 
   def ptr(typ: Type) =
     state.sort("c#ptr", List(resolve(typ)))
@@ -50,11 +50,13 @@ class Translate(state: State) {
       List(smtlib.DeclareVar(name, typ_))
 
     case FunDecl(ret, "abort", formals)                => Nil
-    case FunDecl(ret, "__assert_fail", formals)          => Nil
+    case FunDecl(ret, "__assert_fail", formals)        => Nil
     case FunDecl(ret, "__assert_perror_fail", formals) => Nil
     case FunDecl(ret, "__assert", formals)             => Nil
     case FunDecl(ret, "__VERIFIER_error", formals)     => Nil
     case FunDecl(ret, "__VERIFIER_assume", formals)    => Nil
+
+    case FunDecl(ret, name, formals) if name startsWith "__VERIFIER_nondet" => Nil
 
     case FunDef(ret, "reach_error", formals, body)         => Nil
     case FunDef(ret, "__VERIFIER_assert", formals, body)   => Nil
@@ -376,8 +378,7 @@ class Translate(state: State) {
         val (res_, progs2) = assign(lhs, arg_, scope)
         (res_, progs1 ++ progs2)
 
-      case BinOp("&&", arg1, arg2)
-          if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("&&", arg1, arg2) if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -386,8 +387,7 @@ class Translate(state: State) {
         val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
         (bool(x0), progs1 ++ List(asg1_, if_))
 
-      case BinOp("||", arg1, arg2)
-          if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("||", arg1, arg2) if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -457,6 +457,12 @@ class Translate(state: State) {
 
       case FunCall("__VERIFIER_error", List()) =>
         (void, List(imp.Spec.assert(pure.False)))
+
+      case FunCall(name, List) if name startsWith "__VERIFIER_nondet" =>
+        val typ_ = pure.Sort.int
+        val res_ = pure.Expr.fresh(name, typ_)
+        val asg_ = imp.Local(List(res_), Nil)
+        (res_, List(asg_))
 
       case FunCall(fun, args) =>
         val name = cuvee.util.Name(fun)
