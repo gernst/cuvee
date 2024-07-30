@@ -24,7 +24,7 @@ class VCGenStage(partial: Boolean) extends Stage {
       case DeclareProc(name, params, in, out, spec) =>
         Nil
 
-      case DefineProc(name, params, in, out, Nil, body) =>
+      case DefineProc(name, params, in, out, None, body) =>
         val su = Expr.subst(in, Old(in))
         val xs = in ++ out
 
@@ -32,7 +32,7 @@ class VCGenStage(partial: Boolean) extends Stage {
         val st = Expr.id(xs)
         val old = List(st)
 
-        val how = if(partial) Box else WP
+        val how = if (partial) Box else WP
 
         val phi = Forall(xs, eval.wp_proc(how, body, st, True))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
@@ -47,7 +47,7 @@ class VCGenStage(partial: Boolean) extends Stage {
         val st = Expr.id(xs)
         val old = List(st)
 
-        val how = if(partial) Box else WP
+        val how = if (partial) Box else WP
 
         val phi = Forall(xs, pre ==> eval.wp_proc(how, body, st, post_))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
@@ -292,7 +292,7 @@ class VCGen(val state: State) {
         var sum = sum_
 
         // Add requirement that decreases clause is non-negative to invariant
-        if(how == WP)
+        if (how == WP)
           inv = inv && (Zero <= term)
 
         // Prepare some states:
