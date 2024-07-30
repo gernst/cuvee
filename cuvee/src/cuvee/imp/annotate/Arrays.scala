@@ -124,7 +124,7 @@ object Arrays extends Annotate(ExecNoLoops) {
     val pairs = equalities(mod, ys, re, counters, paths, a, x)
 
     val (prems, concls) = pairs.unzip
-    val p = Or(prems)
+    val p = And(prems)
     val yes = Or(concls)
     val no = Select(a, x) === Old(Select(a, x))
 
@@ -157,7 +157,7 @@ object Arrays extends Annotate(ExecNoLoops) {
     val prem = indexEqualities(counters, re, a, x, rhs)
     val concl = assignmentEqualities(mod, counters, re, a, x, rhs)
 
-    val index = Exists(vars, branch && prem)
+    val index = Exists(vars, prem)
     val value = Exists(vars, branch && concl)
 
     (index, value)
