@@ -25,7 +25,18 @@ class VCGenStage(partial: Boolean) extends Stage {
         Nil
 
       case DefineProc(name, params, in, out, Nil, body) =>
-        Nil
+        val su = Expr.subst(in, Old(in))
+        val xs = in ++ out
+
+        val scope = Map()
+        val st = Expr.id(xs)
+        val old = List(st)
+
+        val how = if(partial) Box else WP
+
+        val phi = Forall(xs, eval.wp_proc(how, body, st, True))
+        // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
+        List(Lemma(phi, None, Some(Goal)))
 
       case DefineProc(name, params, in, out, Some(Spec(globals, pre, post)), body) =>
         val su = Expr.subst(in, Old(in))
