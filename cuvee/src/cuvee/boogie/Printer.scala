@@ -247,7 +247,7 @@ object Printer extends cuvee.util.Printer {
       List(a + " " + name + " " + b)
     case Not(phi) =>
       val phi_ = formula(phi)
-      ("!(" + phi_.head + ")") +: phi_.tail
+      ("!(" + phi_.head) +: phi_.tail :+ ")"
     case Forall(x, phi) =>
       val quant = "(forall " ++ vartypes(x) ++ " ::"
       val phi_ = indent(formula(phi), 3)
