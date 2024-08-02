@@ -4,6 +4,18 @@ import cuvee.pure._
 import cuvee.util.Name
 import cuvee.imp.Spec
 
+trait DomainFunctions {
+  def widen(
+      args1: List[Expr],
+      phis1: List[Expr],
+      args2: List[Expr],
+      phis2: List[Expr]
+  ): (List[Expr], List[Expr]) = {
+    ???
+  }
+}
+
+
 trait Domain[S] {
   def top: S
   def subsetOf(s1: S, s2: S): Boolean

@@ -15,7 +15,7 @@ object Translate {
 class Translate(state: State) {
   val Void = state.sort("c#void", Nil)
   val void = state.funs("c#void", 0)()
-  val heap = state.vars("c#heap")
+  // val heap = state.vars("c#heap")
   val bitand = state.funs("c#bitand", 2)
   val bitor = state.funs("c#bitor", 2)
 
@@ -66,7 +66,7 @@ class Translate(state: State) {
       val in_ = vars(formals)
       val out_ = List(result(ret))
       val mod_ = vars.values filterNot in_.contains
-      val spec_ = imp.Spec(heap :: mod_.toList, pure.True, pure.True)
+      val spec_ = imp.Spec( /*heap :: */ mod_.toList, pure.True, pure.True)
 
       if (state.procs contains name) {
         Nil
@@ -81,7 +81,7 @@ class Translate(state: State) {
       val out_ = List(ret_)
       val scope = vars ++ Map(in_.asSimpleScope: _*)
       val mod_ = vars.values filterNot in_.contains
-      val spec_ = imp.Spec(heap :: mod_.toList, pure.True, pure.True)
+      val spec_ = imp.Spec( /* heap :: */ mod_.toList, pure.True, pure.True)
       val body_ = block(locals(List(body), scope, Nil, ret_))
 
       state.proc(name, Nil, in_, out_, None)
@@ -128,12 +128,26 @@ class Translate(state: State) {
         List(imp.Block(progs))
     }
 
+  def cleanup(progs: List[imp.Prog]): List[imp.Prog] =
+    progs match {
+      case Nil =>
+        Nil
+
+      case (prog @ imp.Local(List(x), List(a))) :: rest =>
+        if (rest.read contains x)
+          prog :: cleanup(rest)
+        else
+          cleanup(rest)
+
+      case prog :: rest =>
+        prog :: cleanup(rest)
+    }
   def block(progs: List[imp.Prog]): imp.Prog =
     progs match {
       case List(imp.Block(inner)) =>
         block(inner)
       case _ =>
-        imp.Block(progs)
+        imp.Block(cleanup(progs))
     }
 
   def locals(
