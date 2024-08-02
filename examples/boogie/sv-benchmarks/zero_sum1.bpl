@@ -10,17 +10,13 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_short() returns (c#result: int);
-  modifies c#heap;
-
 var SIZE: int;
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, SIZE;
+  modifies SIZE;
 {
   var __VERIFIER_nondet_short₈₀₅: int;
-  __VERIFIER_nondet_short₈₀₅ := call __VERIFIER_nondet_short();
   SIZE := __VERIFIER_nondet_short₈₀₅;
   if(1 < SIZE) {
     var i: int;
@@ -32,22 +28,18 @@ procedure main()
       i := 0;
       while(i < SIZE) {
         var __VERIFIER_nondet_short₈₀₆: int;
-        __VERIFIER_nondet_short₈₀₆ := call __VERIFIER_nondet_short();
         a := a[i := __VERIFIER_nondet_short₈₀₆];
-        var x₈₀₇: int := i;
         i := i + 1;
       }
     }
     i := 0;
     while(i < SIZE) {
       sum := sum + a[i];
-      var x₈₀₈: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum - a[i];
-      var x₈₀₉: int := i;
       i := i + 1;
     }
     assert sum == 0;

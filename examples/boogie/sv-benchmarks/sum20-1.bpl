@@ -33,15 +33,15 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var sum₁₄₉: int;
-  sum₁₄₉ := call sum(x);
-  ret := sum₁₄₉;
+  var sum₆₀₃: int;
+  sum₆₀₃ := call sum(x);
+  ret := sum₆₀₃;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var sum₁₅₀: int;
-  sum₁₅₀ := call sum(x);
-  ret2 := sum₁₅₀;
+  var sum₆₀₄: int;
+  sum₆₀₄ := call sum(x);
+  ret2 := sum₆₀₄;
   temp := x[0];
   var i: int;
   i := 0;
@@ -50,9 +50,9 @@ procedure main()
     i := i + 1;
   }
   x := x[20 - 1 := temp];
-  var sum₁₅₂: int;
-  sum₁₅₂ := call sum(x);
-  ret5 := sum₁₅₂;
+  var sum₆₀₆: int;
+  sum₆₀₆ := call sum(x);
+  ret5 := sum₆₀₆;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

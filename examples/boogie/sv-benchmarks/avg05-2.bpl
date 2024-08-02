@@ -33,15 +33,15 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var avg₁₁₉: int;
-  avg₁₁₉ := call avg(x);
-  ret := avg₁₁₉;
+  var avg₅₄₁: int;
+  avg₅₄₁ := call avg(x);
+  ret := avg₅₄₁;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var avg₁₂₀: int;
-  avg₁₂₀ := call avg(x);
-  ret2 := avg₁₂₀;
+  var avg₅₄₂: int;
+  avg₅₄₂ := call avg(x);
+  ret2 := avg₅₄₂;
   temp := x[0];
   var i: int;
   i := 0;
@@ -50,9 +50,9 @@ procedure main()
     i := i + 1;
   }
   x := x[5 - 1 := temp];
-  var avg₁₂₂: int;
-  avg₁₂₂ := call avg(x);
-  ret5 := avg₁₂₂;
+  var avg₅₄₄: int;
+  avg₅₄₄ := call avg(x);
+  ret5 := avg₅₄₄;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

@@ -37,15 +37,15 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var sep₁₇₀: int;
-  sep₁₇₀ := call sep(x);
-  ret := sep₁₇₀;
+  var sep₆₆₄: int;
+  sep₆₆₄ := call sep(x);
+  ret := sep₆₆₄;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var sep₁₇₁: int;
-  sep₁₇₁ := call sep(x);
-  ret2 := sep₁₇₁;
+  var sep₆₆₅: int;
+  sep₆₆₅ := call sep(x);
+  ret2 := sep₆₆₅;
   temp := x[0];
   var i: int;
   i := 0;
@@ -54,9 +54,9 @@ procedure main()
     i := i + 1;
   }
   x := x[40 - 1 := temp];
-  var sep₁₇₃: int;
-  sep₁₇₃ := call sep(x);
-  ret5 := sep₁₇₃;
+  var sep₆₆₇: int;
+  sep₆₆₇ := call sep(x);
+  ret5 := sep₆₆₇;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

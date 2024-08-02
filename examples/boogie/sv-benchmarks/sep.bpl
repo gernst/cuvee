@@ -10,14 +10,11 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 var N: int;
 
 procedure sep(x: [int]int)
   returns (c#result: int)
-  modifies c#heap, N;
+  modifies N;
 {
   var ret: int;
   ret := 0;
@@ -25,13 +22,10 @@ procedure sep(x: [int]int)
   i := 0;
   while(i < N) {
     if(x[i] % 2 == 0) {
-      var x₅₈₈: int := ret;
       ret := ret + 1;
     } else {
-      var x₅₈₉: int := ret;
       ret := ret - 1;
     }
-    var x₅₉₀: int := i;
     i := i + 1;
   }
   c#result := ret;
@@ -40,10 +34,9 @@ procedure sep(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, N;
+  modifies N;
 {
   var __VERIFIER_nondet_int₅₉₁: int;
-  __VERIFIER_nondet_int₅₉₁ := call __VERIFIER_nondet_int();
   N := __VERIFIER_nondet_int₅₉₁;
   if(1 < N) {
     var x: [int]int;
@@ -65,7 +58,6 @@ procedure main()
     i := 0;
     while(i < N - 1) {
       x := x[i := x[i + 1]];
-      var x₅₉₄: int := i;
       i := i + 1;
     }
     x := x[N - 1 := temp];

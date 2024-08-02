@@ -10,17 +10,13 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 var CELLCOUNT: int;
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, CELLCOUNT;
+  modifies CELLCOUNT;
 {
   var __VERIFIER_nondet_int₇₄₁: int;
-  __VERIFIER_nondet_int₇₄₁ := call __VERIFIER_nondet_int();
   CELLCOUNT := __VERIFIER_nondet_int₇₄₁;
   if(1 < CELLCOUNT) {
     var MINVAL: int;
@@ -53,7 +49,6 @@ procedure main()
       volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
       volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
       volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
-      var x₇₄₂: int := i;
       i := i + 1;
     }
     i := 1;
@@ -67,7 +62,6 @@ procedure main()
       volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
       volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
       volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
-      var x₇₄₃: int := i;
       i := i + 1;
     }
     i := 1;
@@ -81,7 +75,6 @@ procedure main()
       volArray := volArray[i * 5 - 4 := volArray[i * 5 - 4]];
       volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
       volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
-      var x₇₄₄: int := i;
       i := i + 1;
     }
     i := 1;
@@ -95,7 +88,6 @@ procedure main()
       volArray := volArray[i * 5 - 4 := volArray[i * 5 - 4]];
       volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
       volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
-      var x₇₄₅: int := i;
       i := i + 1;
     }
     i := 1;
@@ -109,13 +101,11 @@ procedure main()
       volArray := volArray[i * 5 - 4 := volArray[i * 5 - 4]];
       volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
       volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
-      var x₇₄₆: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < CELLCOUNT) {
       assert MINVAL <= volArray[i] || volArray[i] == 0;
-      var x₇₄₇: int := i;
       i := i + 1;
     }
   }

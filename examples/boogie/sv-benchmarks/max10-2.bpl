@@ -18,13 +18,13 @@ procedure max(x: [int]int)
   ret := 0;
   i := 0;
   while(i < 10) {
-    var x₁₄₂: int;
+    var x₅₉₆: int;
     if(ret < x[i]) {
-      x₁₄₂ := x[i];
+      x₅₉₆ := x[i];
     } else {
-      x₁₄₂ := ret;
+      x₅₉₆ := ret;
     }
-    ret := x₁₄₂;
+    ret := x₅₉₆;
     i := i + 1;
   }
   c#result := ret;
@@ -39,15 +39,15 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var max₁₄₄: int;
-  max₁₄₄ := call max(x);
-  ret := max₁₄₄;
+  var max₅₉₈: int;
+  max₅₉₈ := call max(x);
+  ret := max₅₉₈;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var max₁₄₅: int;
-  max₁₄₅ := call max(x);
-  ret2 := max₁₄₅;
+  var max₅₉₉: int;
+  max₅₉₉ := call max(x);
+  ret2 := max₅₉₉;
   temp := x[0];
   var i: int;
   i := 0;
@@ -56,9 +56,9 @@ procedure main()
     i := i + 1;
   }
   x := x[10 - 1 := temp];
-  var max₁₄₇: int;
-  max₁₄₇ := call max(x);
-  ret5 := max₁₄₇;
+  var max₆₀₁: int;
+  max₆₀₁ := call max(x);
+  ret5 := max₆₀₁;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

@@ -10,12 +10,8 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 procedure mapsum(x: [int]int)
   returns (c#result: int)
-  modifies c#heap;
 {
   var i: int;
   var ret: int;
@@ -23,7 +19,6 @@ procedure mapsum(x: [int]int)
   i := 0;
   while(i < 10000) {
     ret := ret + i + x[i];
-    var x₈₅₅: int := i;
     i := i + 1;
   }
   c#result := ret;
@@ -32,7 +27,6 @@ procedure mapsum(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var x: [int]int;
   var temp: int;
@@ -43,9 +37,7 @@ procedure main()
   i := 0;
   while(i < 10000) {
     var __VERIFIER_nondet_int₈₅₆: int;
-    __VERIFIER_nondet_int₈₅₆ := call __VERIFIER_nondet_int();
     x := x[i := __VERIFIER_nondet_int₈₅₆];
-    var x₈₅₇: int := i;
     i := i + 1;
   }
   var mapsum₈₅₈: int;
@@ -62,7 +54,6 @@ procedure main()
   i := 0;
   while(i < 10000 - 1) {
     x := x[i := x[i + 1]];
-    var x₈₆₀: int := i;
     i := i + 1;
   }
   x := x[10000 - 1 := temp];

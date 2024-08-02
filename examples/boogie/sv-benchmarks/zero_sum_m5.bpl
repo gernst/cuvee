@@ -10,17 +10,13 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_short() returns (c#result: int);
-  modifies c#heap;
-
 var SIZE: int;
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, SIZE;
+  modifies SIZE;
 {
   var __VERIFIER_nondet_short₉₆₄: int;
-  __VERIFIER_nondet_short₉₆₄ := call __VERIFIER_nondet_short();
   SIZE := __VERIFIER_nondet_short₉₆₄;
   if(1 < SIZE) {
     var i: int;
@@ -32,70 +28,58 @@ procedure main()
       i := 0;
       while(i < SIZE) {
         var __VERIFIER_nondet_short₉₆₅: int;
-        __VERIFIER_nondet_short₉₆₅ := call __VERIFIER_nondet_short();
         a := a[i := __VERIFIER_nondet_short₉₆₅];
-        var x₉₆₆: int := i;
         i := i + 1;
       }
     }
     i := 0;
     while(i < SIZE) {
       sum := sum + a[i];
-      var x₉₆₇: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum + a[i];
-      var x₉₆₈: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum + a[i];
-      var x₉₆₉: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum + a[i];
-      var x₉₇₀: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum + a[i];
-      var x₉₇₁: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum - a[i];
-      var x₉₇₂: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum - a[i];
-      var x₉₇₃: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum - a[i];
-      var x₉₇₄: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum - a[i];
-      var x₉₇₅: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       sum := sum - a[i];
-      var x₉₇₆: int := i;
       i := i + 1;
     }
     assert sum == 0;

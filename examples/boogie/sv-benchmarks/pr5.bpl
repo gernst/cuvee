@@ -10,17 +10,13 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 var CELLCOUNT: int;
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, CELLCOUNT;
+  modifies CELLCOUNT;
 {
   var __VERIFIER_nondet_int₇₅₈: int;
-  __VERIFIER_nondet_int₇₅₈ := call __VERIFIER_nondet_int();
   CELLCOUNT := __VERIFIER_nondet_int₇₅₈;
   if(1 < CELLCOUNT) {
     var MINVAL: int;
@@ -68,13 +64,11 @@ procedure main()
       } else {
         volArray := volArray[i * 5 - 1 := 0];
       }
-      var x₇₅₉: int := i;
       i := i + 1;
     }
     i := 0;
     while(i < CELLCOUNT) {
       assert MINVAL <= volArray[i] || volArray[i] == 0;
-      var x₇₆₀: int := i;
       i := i + 1;
     }
   }

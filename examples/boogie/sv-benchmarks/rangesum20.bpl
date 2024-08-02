@@ -10,27 +10,20 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 procedure init_nondet(x: [int]int)
   returns (c#result: c#void)
-  modifies c#heap;
 {
   var i: int;
   i := 0;
   while(i < 20) {
     var __VERIFIER_nondet_int₃₈₀: int;
-    __VERIFIER_nondet_int₃₈₀ := call __VERIFIER_nondet_int();
     x := x[i := __VERIFIER_nondet_int₃₈₀];
-    var x₃₈₁: int := i;
     i := i + 1;
   }
 }
 
 procedure rangesum(x: [int]int)
   returns (c#result: int)
-  modifies c#heap;
 {
   var i: int;
   var ret: int;
@@ -43,7 +36,6 @@ procedure rangesum(x: [int]int)
       ret := ret + x[i];
       cnt := cnt + 1;
     }
-    var x₃₈₂: int := i;
     i := i + 1;
   }
   if(cnt != 0) {
@@ -57,7 +49,6 @@ procedure rangesum(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var x: [int]int;
   var init_nondet₃₈₃: c#void;
@@ -80,7 +71,6 @@ procedure main()
   i := 0;
   while(i < 20 - 1) {
     x := x[i := x[i + 1]];
-    var x₃₈₆: int := i;
     i := i + 1;
   }
   x := x[20 - 1 := temp];

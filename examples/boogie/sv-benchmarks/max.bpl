@@ -10,14 +10,11 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 var N: int;
 
 procedure max(x: [int]int)
   returns (c#result: int)
-  modifies c#heap, N;
+  modifies N;
 {
   var i: int;
   var ret: int;
@@ -31,7 +28,6 @@ procedure max(x: [int]int)
       x₄₈₅ := ret;
     }
     ret := x₄₈₅;
-    var x₄₈₆: int := i;
     i := i + 1;
   }
   c#result := ret;
@@ -40,10 +36,9 @@ procedure max(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, N;
+  modifies N;
 {
   var __VERIFIER_nondet_int₄₈₇: int;
-  __VERIFIER_nondet_int₄₈₇ := call __VERIFIER_nondet_int();
   N := __VERIFIER_nondet_int₄₈₇;
   if(1 < N) {
     var x: [int]int;
@@ -65,7 +60,6 @@ procedure main()
     i := 0;
     while(i < N - 1) {
       x := x[i := x[i + 1]];
-      var x₄₉₀: int := i;
       i := i + 1;
     }
     x := x[N - 1 := temp];

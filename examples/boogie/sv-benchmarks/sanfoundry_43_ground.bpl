@@ -10,25 +10,19 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 procedure incrementArray(src: [int]int, dst: [int]int)
   returns (c#result: c#void)
-  modifies c#heap;
 {
   var i: int;
   i := 0;
   while(i < 100000) {
     dst := dst[i := src[i] + 1];
-    var x₁₅₅: int := i;
     i := i + 1;
   }
 }
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var src: [int]int;
   var dst: [int]int;
@@ -36,9 +30,7 @@ procedure main()
   i := 0;
   while(i < 100000) {
     var __VERIFIER_nondet_int₁₅₆: int;
-    __VERIFIER_nondet_int₁₅₆ := call __VERIFIER_nondet_int();
     src := src[i := __VERIFIER_nondet_int₁₅₆];
-    var x₁₅₇: int := i;
     i := i + 1;
   }
   var incrementArray₁₅₈: c#void;
@@ -47,7 +39,6 @@ procedure main()
   x := 0;
   while(x < 100000) {
     src := src[x := dst[x] - 1];
-    var x₁₅₉: int := x;
     x := x + 1;
   }
   c#result := 0;

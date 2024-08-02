@@ -10,12 +10,8 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-procedure __VERIFIER_nondet_int() returns (c#result: int);
-  modifies c#heap;
-
 procedure avg(x: [int]int)
   returns (c#result: int)
-  modifies c#heap;
 {
   var i: int;
   var ret: int;
@@ -23,7 +19,6 @@ procedure avg(x: [int]int)
   i := 0;
   while(i < 20) {
     ret := ret + x[i];
-    var x₄₄₀: int := i;
     i := i + 1;
   }
   c#result := ret / 20;
@@ -32,7 +27,6 @@ procedure avg(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var x: [int]int;
   var temp: int;
@@ -43,9 +37,7 @@ procedure main()
   i := 0;
   while(i < 20) {
     var __VERIFIER_nondet_int₄₄₁: int;
-    __VERIFIER_nondet_int₄₄₁ := call __VERIFIER_nondet_int();
     x := x[i := __VERIFIER_nondet_int₄₄₁];
-    var x₄₄₂: int := i;
     i := i + 1;
   }
   var avg₄₄₃: int;
@@ -62,7 +54,6 @@ procedure main()
   i := 0;
   while(i < 20 - 1) {
     x := x[i := x[i + 1]];
-    var x₄₄₅: int := i;
     i := i + 1;
   }
   x := x[20 - 1 := temp];
