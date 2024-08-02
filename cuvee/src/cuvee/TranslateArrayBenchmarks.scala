@@ -37,12 +37,12 @@ object TranslateArrayBenchmarks extends Main {
       val dst = "examples/boogie/sv-benchmarks/" + file.dropRight(4) + ".bpl"
       val args = Array(path + "/" + file, "-o", dst)
       println(args.mkString("./Cuvee.sh ", " ", ""))
-      
+
       try {
         Cuvee.main(args)
       } catch {
-        case _: Exception =>
-          println("failed")
+        case e: Exception =>
+          println("failed: " + e.getMessage())
       }
     }
   }

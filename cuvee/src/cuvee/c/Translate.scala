@@ -472,7 +472,7 @@ class Translate(state: State) {
       case FunCall("__VERIFIER_error", List()) =>
         (void, List(imp.Spec.assert(pure.False)))
 
-      case FunCall(name, List) if name startsWith "__VERIFIER_nondet" =>
+      case FunCall(name, args) if name startsWith "__VERIFIER_nondet" =>
         val typ_ = pure.Sort.int
         val res_ = pure.Expr.fresh(name, typ_)
         val asg_ = imp.Local(List(res_), Nil)
