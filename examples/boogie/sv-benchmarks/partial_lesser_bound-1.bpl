@@ -16,24 +16,21 @@ var i: int;
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, a, i;
+  modifies a, i;
 {
   i := 0;
   while(i < 10000000) {
     a := a[i := 0];
-    var x₁₀₉₂: int := i;
     i := i + 1;
   }
   i := 0;
   while(i < 10000000 / 2) {
     a := a[i := 10];
-    var x₁₀₉₃: int := i;
     i := i + 1;
   }
   i := 0;
   while(i < 10000000 / 2) {
     assert a[i] == 10;
-    var x₁₀₉₄: int := i;
     i := i + 1;
   }
   c#result := 0;

@@ -14,7 +14,7 @@ var a: [int]int;
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap, a;
+  modifies a;
 {
   var i: int;
   i := 0;
@@ -24,13 +24,11 @@ procedure main()
     } else {
       a := a[i := 0];
     }
-    var x₃₇₀: int := i;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
     assert a[i] == 10;
-    var x₃₇₁: int := i;
     i := i + 1;
   }
   c#result := 0;

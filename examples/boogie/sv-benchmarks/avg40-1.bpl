@@ -12,7 +12,6 @@ function c#bitor(x₀: int, x₁: int): int;
 
 procedure avg(x: [int]int)
   returns (c#result: int)
-  modifies c#heap;
 {
   var i: int;
   var ret: int;
@@ -20,7 +19,6 @@ procedure avg(x: [int]int)
   i := 0;
   while(i < 40) {
     ret := ret + x[i];
-    var x₄₀₇: int := i;
     i := i + 1;
   }
   c#result := ret / 40;
@@ -29,34 +27,32 @@ procedure avg(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var x: [int]int;
   var temp: int;
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var avg₄₀₈: int;
-  avg₄₀₈ := call avg(x);
-  ret := avg₄₀₈;
+  var avg₅₂: int;
+  avg₅₂ := call avg(x);
+  ret := avg₅₂;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var avg₄₀₉: int;
-  avg₄₀₉ := call avg(x);
-  ret2 := avg₄₀₉;
+  var avg₅₃: int;
+  avg₅₃ := call avg(x);
+  ret2 := avg₅₃;
   temp := x[0];
   var i: int;
   i := 0;
   while(i < 40 - 1) {
     x := x[i := x[i + 1]];
-    var x₄₁₀: int := i;
     i := i + 1;
   }
   x := x[40 - 1 := temp];
-  var avg₄₁₁: int;
-  avg₄₁₁ := call avg(x);
-  ret5 := avg₄₁₁;
+  var avg₅₅: int;
+  avg₅₅ := call avg(x);
+  ret5 := avg₅₅;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

@@ -12,7 +12,6 @@ function c#bitor(x₀: int, x₁: int): int;
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var a: [int]int;
   var i: int;
@@ -30,7 +29,6 @@ procedure main()
   x := 0;
   while(x < 100000) {
     assert a[x] == 43;
-    var x₂₇₂: int := x;
     x := x + 1;
   }
   c#result := 0;

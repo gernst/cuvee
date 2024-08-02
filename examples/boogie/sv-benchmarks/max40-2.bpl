@@ -12,21 +12,19 @@ function c#bitor(x₀: int, x₁: int): int;
 
 procedure max(x: [int]int)
   returns (c#result: int)
-  modifies c#heap;
 {
   var i: int;
   var ret: int;
   ret := 0;
   i := 0;
   while(i < 40) {
-    var x₆₉₇: int;
+    var x₁₈₄: int;
     if(ret < x[i]) {
-      x₆₉₇ := x[i];
+      x₁₈₄ := x[i];
     } else {
-      x₆₉₇ := ret;
+      x₁₈₄ := ret;
     }
-    ret := x₆₉₇;
-    var x₆₉₈: int := i;
+    ret := x₁₈₄;
     i := i + 1;
   }
   c#result := ret;
@@ -35,34 +33,32 @@ procedure max(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var x: [int]int;
   var temp: int;
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var max₆₉₉: int;
-  max₆₉₉ := call max(x);
-  ret := max₆₉₉;
+  var max₁₈₆: int;
+  max₁₈₆ := call max(x);
+  ret := max₁₈₆;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var max₇₀₀: int;
-  max₇₀₀ := call max(x);
-  ret2 := max₇₀₀;
+  var max₁₈₇: int;
+  max₁₈₇ := call max(x);
+  ret2 := max₁₈₇;
   temp := x[0];
   var i: int;
   i := 0;
   while(i < 40 - 1) {
     x := x[i := x[i + 1]];
-    var x₇₀₁: int := i;
     i := i + 1;
   }
   x := x[40 - 1 := temp];
-  var max₇₀₂: int;
-  max₇₀₂ := call max(x);
-  ret5 := max₇₀₂;
+  var max₁₈₉: int;
+  max₁₈₉ := call max(x);
+  ret5 := max₁₈₉;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

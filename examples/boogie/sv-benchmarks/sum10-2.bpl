@@ -12,7 +12,6 @@ function c#bitor(x₀: int, x₁: int): int;
 
 procedure sum(x: [int]int)
   returns (c#result: int)
-  modifies c#heap;
 {
   var i: int;
   var ret: int;
@@ -20,7 +19,6 @@ procedure sum(x: [int]int)
   i := 0;
   while(i < 10) {
     ret := ret + x[i];
-    var x₄₅₂: int := i;
     i := i + 1;
   }
   c#result := ret;
@@ -29,34 +27,32 @@ procedure sum(x: [int]int)
 
 procedure main()
   returns (c#result: int)
-  modifies c#heap;
 {
   var x: [int]int;
   var temp: int;
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var sum₄₅₃: int;
-  sum₄₅₃ := call sum(x);
-  ret := sum₄₅₃;
+  var sum₇₇: int;
+  sum₇₇ := call sum(x);
+  ret := sum₇₇;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var sum₄₅₄: int;
-  sum₄₅₄ := call sum(x);
-  ret2 := sum₄₅₄;
+  var sum₇₈: int;
+  sum₇₈ := call sum(x);
+  ret2 := sum₇₈;
   temp := x[0];
   var i: int;
   i := 0;
   while(i < 10 - 1) {
     x := x[i := x[i + 1]];
-    var x₄₅₅: int := i;
     i := i + 1;
   }
   x := x[10 - 1 := temp];
-  var sum₄₅₆: int;
-  sum₄₅₆ := call sum(x);
-  ret5 := sum₄₅₆;
+  var sum₈₀: int;
+  sum₈₀ := call sum(x);
+  ret5 := sum₈₀;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }
