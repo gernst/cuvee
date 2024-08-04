@@ -134,7 +134,7 @@ class Translate(state: State) {
         Nil
 
       case (prog @ imp.Local(List(x), List(a))) :: rest =>
-        if (rest.read contains x)
+        if (rest.vars contains x)
           prog :: cleanup(rest)
         else
           cleanup(rest)
@@ -167,6 +167,12 @@ class Translate(state: State) {
 
       case Atomic(None) :: rest =>
         locals(rest, scope, cont, result)
+
+      case Atomic(Some(BinOp("=", Id(lhs), FunCall(name, args)))) :: rest
+          if name startsWith "__VERIFIER_nondet" =>
+        val x = scope(lhs)
+        val havoc_ = List(imp.Spec.havoc(List(x)))
+        havoc_ ++ locals(rest, scope, cont, result)
 
       case Atomic(Some(expr)) :: rest =>
         val (_, progs) = eval(expr, scope)
@@ -202,26 +208,41 @@ class Translate(state: State) {
         val ret_ = imp.Return
         progs ++ List(asg_, ret_) // ignores rest!
 
-      case VarDef(Formal(typ, name), None) :: rest =>
+      case (stmt @ VarDef(Formal(typ, name), None)) :: rest =>
         val typ_ = resolve(typ)
         val x = pure.Var(name, typ_)
         val local_ = imp.Local(List(x), Nil)
         val scope_ = scope + (name -> x)
         List(local_) ++ locals(rest, scope_, cont, result)
 
-      case VarDef(Formal(typ, name), Some(init)) :: rest =>
+      // XXX: pattern used in sv-benchmarks to initialize arrays
+      case (stmt @ VarDef(
+            Formal(PtrType(typ), name),
+            Some(FunCall("malloc", List(BinOp("*", SizeOfType(typ_), n))))
+          )) :: rest =>
+        val typ_ = pure.Sort.array(pure.Sort.int, resolve(typ))
+        val x = pure.Var(name, typ_)
+        val local_ = imp.Local(List(x), Nil)
+        val scope_ = scope + (name -> x)
+        List(local_) ++ locals(rest, scope_, cont, result)
+
+      case (stmt @ VarDef(Formal(typ, name), Some(init))) :: rest =>
         val typ_ = resolve(typ)
         val x = pure.Var(name, typ_)
         val (init_, progs) = eval(init, scope)
+
         // Note, in C variable initialization refers to itself, but locals in Boogie don't
-        val local_ = imp.Local(List(x), Nil)
-        val asg_ = imp.Assign(List(x), List(init_))
-        progs ++ List(local_, asg_) ++ locals(
-          rest,
-          scope + (name -> x),
-          cont,
-          result
-        )
+        val isSimple = progs.isEmpty && !(x in init_)
+        val rest_ = locals(rest, scope + (name -> x), cont, result)
+
+        if (isSimple) {
+          val local_ = imp.Local(List(x), List(init_))
+          List(local_) ++ rest_
+        } else {
+          val local_ = imp.Local(List(x), Nil)
+          val asg_ = imp.Assign(List(x), List(init_))
+          progs ++ List(local_, asg_) ++ rest_
+        }
 
       case If(test, left, right) :: rest =>
         val (test_, progs) = eval(test, scope)
@@ -488,6 +509,9 @@ class Translate(state: State) {
         val call_ = imp.Call(name, args_, List(res_))
         (res_, progs ++ List(asg_, call_))
 
+      case SizeOfType(typ) =>
+        (pure.Lit(BigInt(Type.sizeof(typ)), pure.Sort.int), Nil)
+
       case _ =>
         cuvee.error("unsupported expression: " + expr)
 
@@ -497,8 +521,7 @@ class Translate(state: State) {
       //   ???
       // case Arrow(expr, field) =>
       //   ???
-      // case SizeOfType(typ) =>
-      //   ???
+
       // case Cast(typ, inner) =>
       //   println(expr)
       //   ???

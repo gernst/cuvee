@@ -69,6 +69,10 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
 
   var _index = 0
 
+  def resetIndex() = {
+    _index = 0
+  }
+
   def nextIndex = {
     _index += 1
     _index

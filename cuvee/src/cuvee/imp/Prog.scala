@@ -60,6 +60,7 @@ case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
 } */
 
 sealed trait Prog extends util.Syntax {
+  def vars: Set[Var]
   def mod: Set[Var]
   def read: Set[Var]
   def local: Set[Var]
@@ -82,6 +83,10 @@ class ProgList(progs: List[Prog]) {
       prog.read ++ (rest.read -- (prog.local ++ prog.mod))
   }
 
+  def vars: Set[Var] = {
+    Set(progs flatMap (_.vars): _*)
+  }
+
   def local: Set[Var] = {
     Set(progs flatMap (_.local): _*)
   }
@@ -91,6 +96,7 @@ class ProgList(progs: List[Prog]) {
 }
 
 case class Block(progs: List[Prog]) extends Prog {
+  def vars = progs.vars
   def mod = progs.mod
   def read = progs.read
   def local = Set() // no *exposed* locals
@@ -99,6 +105,7 @@ case class Block(progs: List[Prog]) extends Prog {
 }
 
 case object Break extends Prog {
+  def vars = Set()
   def mod = Set()
   def read = Set()
   def local = Set()
@@ -107,6 +114,7 @@ case object Break extends Prog {
 }
 
 case object Continue extends Prog {
+  def vars = Set()
   def mod = Set()
   def read = Set()
   def local = Set()
@@ -115,6 +123,7 @@ case object Continue extends Prog {
 }
 
 case object Return extends Prog {
+  def vars = Set()
   def mod = Set()
   def read = Set()
   def local = Set()
@@ -135,7 +144,7 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
       require(x.typ == e.typ, "ill-typed declaration")
     }
   }
-
+  def vars = rhs.free
   def mod = Set() // Note: all new!
   def read = rhs.free
   def local = xs.toSet
@@ -160,6 +169,7 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
     require(x.typ == e.typ, "ill-typed assignment: " + x + " := " + e)
   }
 
+  def vars = rhs.free ++ xs
   def mod = Set(xs: _*)
   def read = rhs.free
   def local = Set()
@@ -207,9 +217,9 @@ case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
     post.typ == Sort.bool,
     "non-boolean postcondition in specification statement: " + post
   )
-
+  def vars = pre.free ++ post.free ++ xs
   def mod = xs.toSet
-  def read = pre.free ++ (post.free -- mod)
+  def read = pre.free ++ (post.free -- xs)
   def local = Set()
   def breaks = false
 
@@ -229,6 +239,7 @@ case class If(test: Expr, left: Prog, right: Prog) extends Prog {
     "non-boolean test in if statement"
   )
 
+  def vars = test.free ++ left.vars ++ right.vars
   def mod = left.mod ++ right.mod
   def read = test.free ++ left.read ++ right.read
   def local = left.local ++ right.local
@@ -284,6 +295,7 @@ case class While(
     "non-boolean summary in while statement"
   )
 
+  def vars = test.free ++ body.vars
   def mod = body.mod
   def read = test.free ++ term.free ++ inv.free ++ sum.free ++ body.read
   def local = body.local
@@ -330,6 +342,7 @@ case class Call(name: Name, in: List[Expr], out: List[Var]) extends Prog {
   def dup = out.groupBy(identity).filter(_._2.size > 1)
   require(dup.isEmpty, "procedure call " + name + " has duplicate outputs " + dup)
 
+  def vars = in.free ++ out.free
   def mod = out.toSet
   def read = in.free
   def local = Set()

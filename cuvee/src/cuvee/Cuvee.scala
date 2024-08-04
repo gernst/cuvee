@@ -19,6 +19,7 @@ import cuvee.ai.Abstract
 import cuvee.pure.Horn
 import cuvee.imp.annotate
 import cuvee.util.Main
+import cuvee.pure.Expr
 
 class Config {
   var file: Option[String] = None
@@ -391,6 +392,7 @@ object Config {
 
 object Cuvee extends Main {
   def main(args: Array[String]) {
+    Expr.resetIndex()
     val (file, source, sink, report) = Config(args)
     Pipe.run(source, sink, report)
   }

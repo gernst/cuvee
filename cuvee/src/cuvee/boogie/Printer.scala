@@ -278,7 +278,7 @@ object Printer extends cuvee.util.Printer {
       (xs, pre, post) match {
         case (Nil, True, phi) => List("assume " + line(phi) + ";")
         case (Nil, phi, True) => List("assert " + line(phi) + ";")
-        case (xs, True, True) => List("havoc " + xs.mkString(", "))
+        case (xs, True, True) => List("havoc " + xs.mkString(", ") + ";")
         case _ =>
           List(
             "/* ",

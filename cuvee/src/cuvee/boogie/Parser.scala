@@ -258,7 +258,7 @@ class Parser(val state: State = State.default) {
   }
 
   def maybe_merge(mod: List[Var]) = (specs: List[Spec]) => {
-    if (specs.isEmpty) {
+    if (mod.isEmpty && specs.isEmpty) {
       None
     } else {
       val xs = specs flatMap (_.xs)
