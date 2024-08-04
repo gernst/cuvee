@@ -33,33 +33,31 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 1000) {
-    var __VERIFIER_nondet_int₈₉₈: int;
-    x := x[i := __VERIFIER_nondet_int₈₉₈];
+    var __VERIFIER_nondet_int₂: int;
+    x := x[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
-  var mapsum₉₀₀: int;
-  mapsum₉₀₀ := call mapsum(x);
-  ret := mapsum₉₀₀;
+  var mapsum₄: int;
+  mapsum₄ := call mapsum(x);
+  ret := mapsum₄;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var mapsum₉₀₁: int;
-  mapsum₉₀₁ := call mapsum(x);
-  ret2 := mapsum₉₀₁;
+  var mapsum₅: int;
+  mapsum₅ := call mapsum(x);
+  ret2 := mapsum₅;
   temp := x[0];
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 1000 - 1) {
     x := x[i := x[i + 1]];
     i := i + 1;
   }
   x := x[1000 - 1 := temp];
-  var mapsum₉₀₃: int;
-  mapsum₉₀₃ := call mapsum(x);
-  ret5 := mapsum₉₀₃;
+  var mapsum₇: int;
+  mapsum₇ := call mapsum(x);
+  ret5 := mapsum₇;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

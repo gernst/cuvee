@@ -32,41 +32,38 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
-  var __VERIFIER_nondet_int₉₂₉: int;
-  N := __VERIFIER_nondet_int₉₂₉;
+  havoc N;
   if(1 < N) {
     var x: [int]int;
     var temp: int;
     var ret: int;
     var ret2: int;
     var ret5: int;
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N) {
-      var __VERIFIER_nondet_int₉₃₀: int;
-      x := x[i := __VERIFIER_nondet_int₉₃₀];
+      var __VERIFIER_nondet_int₂: int;
+      x := x[i := __VERIFIER_nondet_int₂];
       i := i + 1;
     }
-    var mapsum₉₃₂: int;
-    mapsum₉₃₂ := call mapsum(x);
-    ret := mapsum₉₃₂;
+    var mapsum₄: int;
+    mapsum₄ := call mapsum(x);
+    ret := mapsum₄;
     temp := x[0];
     x := x[0 := x[1]];
     x := x[1 := temp];
-    var mapsum₉₃₃: int;
-    mapsum₉₃₃ := call mapsum(x);
-    ret2 := mapsum₉₃₃;
+    var mapsum₅: int;
+    mapsum₅ := call mapsum(x);
+    ret2 := mapsum₅;
     temp := x[0];
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N - 1) {
       x := x[i := x[i + 1]];
       i := i + 1;
     }
     x := x[N - 1 := temp];
-    var mapsum₉₃₅: int;
-    mapsum₉₃₅ := call mapsum(x);
-    ret5 := mapsum₉₃₅;
+    var mapsum₇: int;
+    mapsum₇ := call mapsum(x);
+    ret5 := mapsum₇;
     if(ret != ret2 || ret != ret5) {
       assert false;
     }

@@ -14,14 +14,12 @@ procedure main()
   returns (c#result: int)
 {
   var a: [int]int;
-  var min: int;
-  min := 0;
-  var i: int;
-  i := 0;
+  var min: int := 0;
+  var i: int := 0;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₂: int;
-    a := a[i := __VERIFIER_nondet_int₂];
+    var __VERIFIER_nondet_int₁: int;
+    a := a[i := __VERIFIER_nondet_int₁];
     i := i + 1;
   }
   i := 0;

@@ -16,13 +16,9 @@ procedure main()
   returns (c#result: int)
   modifies CELLCOUNT;
 {
-  var __VERIFIER_nondet_int₇₇₃: int;
-  CELLCOUNT := __VERIFIER_nondet_int₇₇₃;
+  havoc CELLCOUNT;
   if(1 < CELLCOUNT) {
-    var DEFAULTVALUE: int;
-    DEFAULTVALUE := 1;
-    var MINVAL: int;
-    MINVAL := 2;
+    var MINVAL: int := 2;
     var i: int;
     var j: int;
     var volArray: [int]int;

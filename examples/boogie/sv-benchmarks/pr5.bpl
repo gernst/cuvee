@@ -16,22 +16,16 @@ procedure main()
   returns (c#result: int)
   modifies CELLCOUNT;
 {
-  var __VERIFIER_nondet_int₇₅₈: int;
-  CELLCOUNT := __VERIFIER_nondet_int₇₅₈;
+  havoc CELLCOUNT;
   if(1 < CELLCOUNT) {
     var MINVAL: int;
     var i: int;
     var volArray: [int]int;
-    var CCCELVOL5: int;
-    CCCELVOL5 := 2;
-    var CCCELVOL4: int;
-    CCCELVOL4 := 5;
-    var CCCELVOL3: int;
-    CCCELVOL3 := 7;
-    var CCCELVOL2: int;
-    CCCELVOL2 := 3;
-    var CCCELVOL1: int;
-    CCCELVOL1 := 1;
+    var CCCELVOL5: int := 2;
+    var CCCELVOL4: int := 5;
+    var CCCELVOL3: int := 7;
+    var CCCELVOL2: int := 3;
+    var CCCELVOL1: int := 1;
     if(CELLCOUNT % 5 != 0) {
       c#result := 1;
       return;

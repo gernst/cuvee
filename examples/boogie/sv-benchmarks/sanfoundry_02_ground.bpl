@@ -20,8 +20,8 @@ procedure main()
   var temp: int;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₁₅₀: int;
-    array := array[i := __VERIFIER_nondet_int₁₅₀];
+    var __VERIFIER_nondet_int₁: int;
+    array := array[i := __VERIFIER_nondet_int₁];
     i := i + 1;
   }
   largest1 := array[0];

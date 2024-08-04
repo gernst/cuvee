@@ -14,19 +14,17 @@ procedure main()
   returns (c#result: int)
 {
   var i: int;
-  var n: int;
-  n := 100000;
+  var n: int := 100000;
   var pos: int;
-  var __VERIFIER_nondet_int₉₃: int;
+  var __VERIFIER_nondet_int₁: int;
   var element: int;
-  element := __VERIFIER_nondet_int₉₃;
-  var found: int;
-  found := 0;
+  element := __VERIFIER_nondet_int₁;
+  var found: int := 0;
   var vectorx: [int]int;
   i := 0;
   while(i < n) {
-    var __VERIFIER_nondet_int₉₄: int;
-    vectorx := vectorx[i := __VERIFIER_nondet_int₉₄];
+    var __VERIFIER_nondet_int₂: int;
+    vectorx := vectorx[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
   i := 0;

@@ -17,14 +17,13 @@ procedure main()
   var B: [int]int;
   var C: [int]int;
   var i: int;
-  var j: int;
-  j := 0;
+  var j: int := 0;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₂₇₃: int;
-    A := A[i := __VERIFIER_nondet_int₂₇₃];
-    var __VERIFIER_nondet_int₂₇₄: int;
-    B := B[i := __VERIFIER_nondet_int₂₇₄];
+    var __VERIFIER_nondet_int₁: int;
+    A := A[i := __VERIFIER_nondet_int₁];
+    var __VERIFIER_nondet_int₂: int;
+    B := B[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
   i := 0;

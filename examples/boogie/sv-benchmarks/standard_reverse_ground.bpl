@@ -18,8 +18,8 @@ procedure main()
   var i: int;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₇₀: int;
-    a := a[i := __VERIFIER_nondet_int₇₀];
+    var __VERIFIER_nondet_int₁: int;
+    a := a[i := __VERIFIER_nondet_int₁];
     i := i + 1;
   }
   i := 0;

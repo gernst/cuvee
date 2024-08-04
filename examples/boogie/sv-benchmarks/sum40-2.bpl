@@ -33,33 +33,31 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 40) {
-    var __VERIFIER_nondet_int₅₆₀: int;
-    x := x[i := __VERIFIER_nondet_int₅₆₀];
+    var __VERIFIER_nondet_int₂: int;
+    x := x[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
-  var sum₅₆₂: int;
-  sum₅₆₂ := call sum(x);
-  ret := sum₅₆₂;
+  var sum₄: int;
+  sum₄ := call sum(x);
+  ret := sum₄;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var sum₅₆₃: int;
-  sum₅₆₃ := call sum(x);
-  ret2 := sum₅₆₃;
+  var sum₅: int;
+  sum₅ := call sum(x);
+  ret2 := sum₅;
   temp := x[0];
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 40 - 1) {
     x := x[i := x[i + 1]];
     i := i + 1;
   }
   x := x[40 - 1 := temp];
-  var sum₅₆₅: int;
-  sum₅₆₅ := call sum(x);
-  ret5 := sum₅₆₅;
+  var sum₇: int;
+  sum₇ := call sum(x);
+  ret5 := sum₇;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

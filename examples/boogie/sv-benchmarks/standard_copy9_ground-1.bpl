@@ -26,10 +26,10 @@ procedure main()
   var a: int;
   a := 0;
   while(a < 100000) {
-    var __VERIFIER_nondet_int₂₇₉: int;
-    a1 := a1[a := __VERIFIER_nondet_int₂₇₉];
-    var __VERIFIER_nondet_int₂₈₀: int;
-    a9 := a9[a := __VERIFIER_nondet_int₂₈₀];
+    var __VERIFIER_nondet_int₁: int;
+    a1 := a1[a := __VERIFIER_nondet_int₁];
+    var __VERIFIER_nondet_int₂: int;
+    a9 := a9[a := __VERIFIER_nondet_int₂];
     a := a + 1;
   }
   var i: int;

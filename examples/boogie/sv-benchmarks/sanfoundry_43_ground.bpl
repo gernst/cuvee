@@ -26,15 +26,14 @@ procedure main()
 {
   var src: [int]int;
   var dst: [int]int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₁₅₆: int;
-    src := src[i := __VERIFIER_nondet_int₁₅₆];
+    var __VERIFIER_nondet_int₂: int;
+    src := src[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
-  var incrementArray₁₅₈: c#void;
-  incrementArray₁₅₈ := call incrementArray(src, dst);
+  var incrementArray₄: c#void;
+  incrementArray₄ := call incrementArray(src, dst);
   var x: int;
   x := 0;
   while(x < 100000) {

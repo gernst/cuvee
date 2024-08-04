@@ -15,12 +15,11 @@ procedure main()
 {
   var src: [int]int;
   var dst: [int]int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₃₀₉: int;
-    src := src[i := __VERIFIER_nondet_int₃₀₉];
+    var __VERIFIER_nondet_int₁: int;
+    src := src[i := __VERIFIER_nondet_int₁];
     i := i + 1;
   }
   i := 0;

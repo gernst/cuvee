@@ -19,9 +19,9 @@ procedure main()
   var c: [int]int;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₃₆₆: int;
+    var __VERIFIER_nondet_int₁: int;
     var q: int;
-    q := __VERIFIER_nondet_int₃₆₆;
+    q := __VERIFIER_nondet_int₁;
     a := a[i := 0];
     if(q == 0) {
       a := a[i := 1];

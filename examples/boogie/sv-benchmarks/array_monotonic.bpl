@@ -18,8 +18,8 @@ procedure main()
   var b: [int]int;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₃₇₉: int;
-    a := a[i := __VERIFIER_nondet_int₃₇₉];
+    var __VERIFIER_nondet_int₁: int;
+    a := a[i := __VERIFIER_nondet_int₁];
     if(a[i] == 10) {
       b := b[i := 20];
     }

@@ -17,12 +17,11 @@ procedure main()
   var i: int;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₂₃₄: int;
-    array := array[i := __VERIFIER_nondet_int₂₃₄];
+    var __VERIFIER_nondet_int₁: int;
+    array := array[i := __VERIFIER_nondet_int₁];
     i := i + 1;
   }
-  var largest: int;
-  largest := array[0];
+  var largest: int := array[0];
   i := 1;
   while(i < 100000) {
     if(largest < array[i]) {

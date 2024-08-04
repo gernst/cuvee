@@ -27,28 +27,28 @@ procedure main()
 {
   var array: [int]int;
   var i: int;
-  var __VERIFIER_nondet_int₈₆: int;
+  var __VERIFIER_nondet_int₁: int;
   var num: int;
-  num := __VERIFIER_nondet_int₈₆;
+  num := __VERIFIER_nondet_int₁;
   i := 0;
   while(i < num) {
-    var __VERIFIER_nondet_int₈₇: int;
-    array := array[i := __VERIFIER_nondet_int₈₇];
+    var __VERIFIER_nondet_int₂: int;
+    array := array[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
   i := 0;
   while(i < num) {
     if(array[i] % 2 == 0) {
-      var printEven₈₉: c#void;
-      printEven₈₉ := call printEven(array[i]);
+      var printEven₄: c#void;
+      printEven₄ := call printEven(array[i]);
     }
     i := i + 1;
   }
   i := 0;
   while(i < num) {
     if(array[i] % 2 != 0) {
-      var printOdd₉₁: c#void;
-      printOdd₉₁ := call printOdd(array[i]);
+      var printOdd₆: c#void;
+      printOdd₆ := call printOdd(array[i]);
     }
     i := i + 1;
   }

@@ -16,14 +16,13 @@ procedure main()
   var password: [int]int;
   var guess: [int]int;
   var i: int;
-  var result: int;
-  result := 1;
+  var result: int := 1;
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₂₀₆: int;
-    password := password[i := __VERIFIER_nondet_int₂₀₆];
-    var __VERIFIER_nondet_int₂₀₇: int;
-    guess := guess[i := __VERIFIER_nondet_int₂₀₇];
+    var __VERIFIER_nondet_int₁: int;
+    password := password[i := __VERIFIER_nondet_int₁];
+    var __VERIFIER_nondet_int₂: int;
+    guess := guess[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
   i := 0;

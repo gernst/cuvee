@@ -14,23 +14,21 @@ procedure main()
   returns (c#result: int)
 {
   var a: [int]int;
-  var __VERIFIER_nondet_int₁₀₅: int;
+  var __VERIFIER_nondet_int₁: int;
   var marker: int;
-  marker := __VERIFIER_nondet_int₁₀₅;
-  var __VERIFIER_nondet_int₁₀₆: int;
+  marker := __VERIFIER_nondet_int₁;
+  var __VERIFIER_nondet_int₂: int;
   var pos: int;
-  pos := __VERIFIER_nondet_int₁₀₆;
-  var i: int;
-  i := 0;
+  pos := __VERIFIER_nondet_int₂;
+  var i: int := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₁₀₇: int;
-    a := a[i := __VERIFIER_nondet_int₁₀₇];
+    var __VERIFIER_nondet_int₃: int;
+    a := a[i := __VERIFIER_nondet_int₃];
     i := i + 1;
   }
   if(0 <= pos && pos < 100000) {
     a := a[pos := marker];
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(a[i] != marker) {
       i := i + 1;
     }

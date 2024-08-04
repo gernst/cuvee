@@ -16,19 +16,16 @@ procedure main()
   returns (c#result: int)
   modifies SIZE;
 {
-  var __VERIFIER_nondet_short₁₀₀₃: int;
-  SIZE := __VERIFIER_nondet_short₁₀₀₃;
+  havoc SIZE;
   if(1 < SIZE) {
     var i: int;
     var a: [int]int;
-    var sum: int;
-    sum := 0;
+    var sum: int := 0;
     {
-      var i: int;
-      i := 0;
+      var i: int := 0;
       while(i < SIZE) {
-        var __VERIFIER_nondet_short₁₀₀₄: int;
-        a := a[i := __VERIFIER_nondet_short₁₀₀₄];
+        var __VERIFIER_nondet_short₁: int;
+        a := a[i := __VERIFIER_nondet_short₁];
         i := i + 1;
       }
     }

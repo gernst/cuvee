@@ -14,8 +14,7 @@ procedure main()
   returns (c#result: int)
 {
   var a: [int]int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100000) {
     a := a[i := 42];
     i := i + 1;

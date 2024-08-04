@@ -13,8 +13,7 @@ function c#bitor(x₀: int, x₁: int): int;
 procedure _strcmp(src: [int]int, dst: [int]int)
   returns (c#result: int)
 {
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100000) {
     if(dst[i] != src[i]) {
       c#result := 1;
@@ -31,19 +30,18 @@ procedure main()
 {
   var a: [int]int;
   var b: [int]int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₁₄₅: int;
-    a := a[i := __VERIFIER_nondet_int₁₄₅];
-    var __VERIFIER_nondet_int₁₄₆: int;
-    b := b[i := __VERIFIER_nondet_int₁₄₆];
+    var __VERIFIER_nondet_int₁: int;
+    a := a[i := __VERIFIER_nondet_int₁];
+    var __VERIFIER_nondet_int₂: int;
+    b := b[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
-  var _strcmp₁₄₈: int;
-  _strcmp₁₄₈ := call _strcmp(a, b);
+  var _strcmp₄: int;
+  _strcmp₄ := call _strcmp(a, b);
   var c: int;
-  c := _strcmp₁₄₈;
+  c := _strcmp₄;
   if(c == 0) {
     var x: int;
     x := 0;

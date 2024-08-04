@@ -33,33 +33,31 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_int₈₉₁: int;
-    x := x[i := __VERIFIER_nondet_int₈₉₁];
+    var __VERIFIER_nondet_int₂: int;
+    x := x[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
-  var mapavg₈₉₃: int;
-  mapavg₈₉₃ := call mapavg(x);
-  ret := mapavg₈₉₃;
+  var mapavg₄: int;
+  mapavg₄ := call mapavg(x);
+  ret := mapavg₄;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var mapavg₈₉₄: int;
-  mapavg₈₉₄ := call mapavg(x);
-  ret2 := mapavg₈₉₄;
+  var mapavg₅: int;
+  mapavg₅ := call mapavg(x);
+  ret2 := mapavg₅;
   temp := x[0];
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100000 - 1) {
     x := x[i := x[i + 1]];
     i := i + 1;
   }
   x := x[100000 - 1 := temp];
-  var mapavg₈₉₆: int;
-  mapavg₈₉₆ := call mapavg(x);
-  ret5 := mapavg₈₉₆;
+  var mapavg₇: int;
+  mapavg₇ := call mapavg(x);
+  ret5 := mapavg₇;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

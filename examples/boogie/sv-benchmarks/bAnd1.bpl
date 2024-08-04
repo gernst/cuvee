@@ -33,33 +33,31 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100) {
-    var __VERIFIER_nondet_int₈₁₈: int;
-    x := x[i := __VERIFIER_nondet_int₈₁₈];
+    var __VERIFIER_nondet_int₂: int;
+    x := x[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
-  var bAnd₈₂₀: int;
-  bAnd₈₂₀ := call bAnd(x);
-  ret := bAnd₈₂₀;
+  var bAnd₄: int;
+  bAnd₄ := call bAnd(x);
+  ret := bAnd₄;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var bAnd₈₂₁: int;
-  bAnd₈₂₁ := call bAnd(x);
-  ret2 := bAnd₈₂₁;
+  var bAnd₅: int;
+  bAnd₅ := call bAnd(x);
+  ret2 := bAnd₅;
   temp := x[0];
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100 - 1) {
     x := x[i := x[i + 1]];
     i := i + 1;
   }
   x := x[100 - 1 := temp];
-  var bAnd₈₂₃: int;
-  bAnd₈₂₃ := call bAnd(x);
-  ret5 := bAnd₈₂₃;
+  var bAnd₇: int;
+  bAnd₇ := call bAnd(x);
+  ret5 := bAnd₇;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

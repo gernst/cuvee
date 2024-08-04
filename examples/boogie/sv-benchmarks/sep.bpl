@@ -16,10 +16,8 @@ procedure sep(x: [int]int)
   returns (c#result: int)
   modifies N;
 {
-  var ret: int;
-  ret := 0;
-  var i: int;
-  i := 0;
+  var ret: int := 0;
+  var i: int := 0;
   while(i < N) {
     if(x[i] % 2 == 0) {
       ret := ret + 1;
@@ -36,34 +34,32 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
-  var __VERIFIER_nondet_int₅₉₁: int;
-  N := __VERIFIER_nondet_int₅₉₁;
+  havoc N;
   if(1 < N) {
     var x: [int]int;
     var temp: int;
     var ret: int;
     var ret2: int;
     var ret5: int;
-    var sep₅₉₂: int;
-    sep₅₉₂ := call sep(x);
-    ret := sep₅₉₂;
+    var sep₄: int;
+    sep₄ := call sep(x);
+    ret := sep₄;
     temp := x[0];
     x := x[0 := x[1]];
     x := x[1 := temp];
-    var sep₅₉₃: int;
-    sep₅₉₃ := call sep(x);
-    ret2 := sep₅₉₃;
+    var sep₅: int;
+    sep₅ := call sep(x);
+    ret2 := sep₅;
     temp := x[0];
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N - 1) {
       x := x[i := x[i + 1]];
       i := i + 1;
     }
     x := x[N - 1 := temp];
-    var sep₅₉₅: int;
-    sep₅₉₅ := call sep(x);
-    ret5 := sep₅₉₅;
+    var sep₇: int;
+    sep₇ := call sep(x);
+    ret5 := sep₇;
     if(ret != ret2 || ret != ret5) {
       assert false;
     }

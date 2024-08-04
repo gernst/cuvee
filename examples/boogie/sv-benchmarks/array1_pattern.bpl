@@ -16,19 +16,15 @@ procedure main()
   returns (c#result: int)
   modifies ARR_SIZE;
 {
-  var __VERIFIER_nondet_short₁₀₆₃: int;
-  ARR_SIZE := __VERIFIER_nondet_short₁₀₆₃;
+  havoc ARR_SIZE;
   assume 0 < ARR_SIZE;
   var array1: [int]int;
   var array2: [int]int;
-  var count: int;
-  count := 0;
-  var num: int;
-  num := -1;
+  var count: int := 0;
+  var num: int := -1;
   var temp: int;
   var index: int;
-  var sum: int;
-  sum := 0;
+  var sum: int := 0;
   count := 0;
   while(count < ARR_SIZE) {
     array1 := array1[count := 0];
@@ -36,13 +32,11 @@ procedure main()
     count := count + 1;
   }
   while(1 != 0) {
-    var __VERIFIER_nondet_short₁₀₆₅: int;
-    index := __VERIFIER_nondet_short₁₀₆₅;
+    havoc index;
     assume 0 <= index && index < ARR_SIZE;
     array1 := array1[index := num * num * index];
     array2 := array2[ARR_SIZE - 1 - index := num * index];
-    var __VERIFIER_nondet_int₁₀₆₆: int;
-    temp := __VERIFIER_nondet_int₁₀₆₆;
+    havoc temp;
     if(temp == 0) {
       break;
     }

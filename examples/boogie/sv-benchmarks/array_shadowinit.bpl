@@ -16,8 +16,7 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
-  var __VERIFIER_nondet_int₃₆₉: int;
-  N := __VERIFIER_nondet_int₃₆₉;
+  havoc N;
   if(0 < N) {
     var i: int;
     var k: int;

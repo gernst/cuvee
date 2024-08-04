@@ -15,11 +15,10 @@ procedure main()
 {
   var a: [int]int;
   var b: [int]int;
-  var __VERIFIER_nondet_int₁₀₁: int;
+  var __VERIFIER_nondet_int₁: int;
   var incr: int;
-  incr := __VERIFIER_nondet_int₁₀₁;
-  var i: int;
-  i := 0;
+  incr := __VERIFIER_nondet_int₁;
+  var i: int := 0;
   while(i < 100000) {
     a := a[i := 42];
     i := i + 1;

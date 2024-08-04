@@ -32,41 +32,38 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
-  var __VERIFIER_nondet_int₉₉₆: int;
-  N := __VERIFIER_nondet_int₉₉₆;
+  havoc N;
   if(1 < N) {
     var x: [int]int;
     var temp: int;
     var ret: int;
     var ret2: int;
     var ret5: int;
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N) {
-      var __VERIFIER_nondet_int₉₉₇: int;
-      x := x[i := __VERIFIER_nondet_int₉₉₇];
+      var __VERIFIER_nondet_int₂: int;
+      x := x[i := __VERIFIER_nondet_int₂];
       i := i + 1;
     }
-    var bor₉₉₉: int;
-    bor₉₉₉ := call bor(x);
-    ret := bor₉₉₉;
+    var bor₄: int;
+    bor₄ := call bor(x);
+    ret := bor₄;
     temp := x[0];
     x := x[0 := x[1]];
     x := x[1 := temp];
-    var bor₁₀₀₀: int;
-    bor₁₀₀₀ := call bor(x);
-    ret2 := bor₁₀₀₀;
+    var bor₅: int;
+    bor₅ := call bor(x);
+    ret2 := bor₅;
     temp := x[0];
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N - 1) {
       x := x[i := x[i + 1]];
       i := i + 1;
     }
     x := x[N - 1 := temp];
-    var bor₁₀₀₂: int;
-    bor₁₀₀₂ := call bor(x);
-    ret5 := bor₁₀₀₂;
+    var bor₇: int;
+    bor₇ := call bor(x);
+    ret5 := bor₇;
     if(ret != ret2 || ret != ret5) {
       assert false;
     }

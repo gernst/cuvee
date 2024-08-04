@@ -32,41 +32,38 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
-  var __VERIFIER_nondet_int₁₀₂₇: int;
-  N := __VERIFIER_nondet_int₁₀₂₇;
+  havoc N;
   if(1 < N) {
     var x: [int]int;
     var temp: int;
     var ret: int;
     var ret2: int;
     var ret5: int;
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N) {
-      var __VERIFIER_nondet_int₁₀₂₈: int;
-      x := x[i := __VERIFIER_nondet_int₁₀₂₈];
+      var __VERIFIER_nondet_int₂: int;
+      x := x[i := __VERIFIER_nondet_int₂];
       i := i + 1;
     }
-    var bAnd₁₀₃₀: int;
-    bAnd₁₀₃₀ := call bAnd(x);
-    ret := bAnd₁₀₃₀;
+    var bAnd₄: int;
+    bAnd₄ := call bAnd(x);
+    ret := bAnd₄;
     temp := x[0];
     x := x[0 := x[1]];
     x := x[1 := temp];
-    var bAnd₁₀₃₁: int;
-    bAnd₁₀₃₁ := call bAnd(x);
-    ret2 := bAnd₁₀₃₁;
+    var bAnd₅: int;
+    bAnd₅ := call bAnd(x);
+    ret2 := bAnd₅;
     temp := x[0];
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N - 1) {
       x := x[i := x[i + 1]];
       i := i + 1;
     }
     x := x[N - 1 := temp];
-    var bAnd₁₀₃₃: int;
-    bAnd₁₀₃₃ := call bAnd(x);
-    ret5 := bAnd₁₀₃₃;
+    var bAnd₇: int;
+    bAnd₇ := call bAnd(x);
+    ret5 := bAnd₇;
     if(ret != ret2 || ret != ret5) {
       assert false;
     }

@@ -16,8 +16,8 @@ procedure init_nondet(x: [int]int)
   var i: int;
   i := 0;
   while(i < 40) {
-    var __VERIFIER_nondet_int₆₅₃: int;
-    x := x[i := __VERIFIER_nondet_int₆₅₃];
+    var __VERIFIER_nondet_int₁: int;
+    x := x[i := __VERIFIER_nondet_int₁];
     i := i + 1;
   }
 }
@@ -28,8 +28,7 @@ procedure rangesum(x: [int]int)
   var i: int;
   var ret: int;
   ret := 0;
-  var cnt: int;
-  cnt := 0;
+  var cnt: int := 0;
   i := 0;
   while(i < 40) {
     if(40 / 2 < i) {
@@ -51,32 +50,31 @@ procedure main()
   returns (c#result: int)
 {
   var x: [int]int;
-  var init_nondet₆₅₆: c#void;
-  init_nondet₆₅₆ := call init_nondet(x);
+  var init_nondet₄: c#void;
+  init_nondet₄ := call init_nondet(x);
   var temp: int;
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var rangesum₆₅₇: int;
-  rangesum₆₅₇ := call rangesum(x);
-  ret := rangesum₆₅₇;
+  var rangesum₅: int;
+  rangesum₅ := call rangesum(x);
+  ret := rangesum₅;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var rangesum₆₅₈: int;
-  rangesum₆₅₈ := call rangesum(x);
-  ret2 := rangesum₆₅₈;
+  var rangesum₆: int;
+  rangesum₆ := call rangesum(x);
+  ret2 := rangesum₆;
   temp := x[0];
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 40 - 1) {
     x := x[i := x[i + 1]];
     i := i + 1;
   }
   x := x[40 - 1 := temp];
-  var rangesum₆₆₀: int;
-  rangesum₆₆₀ := call rangesum(x);
-  ret5 := rangesum₆₆₀;
+  var rangesum₈: int;
+  rangesum₈ := call rangesum(x);
+  ret5 := rangesum₈;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

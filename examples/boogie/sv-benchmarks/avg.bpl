@@ -32,34 +32,32 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
-  var __VERIFIER_nondet_int₄₅₈: int;
-  N := __VERIFIER_nondet_int₄₅₈;
+  havoc N;
   if(1 < N) {
     var x: [int]int;
     var temp: int;
     var ret: int;
     var ret2: int;
     var ret5: int;
-    var avg₄₅₉: int;
-    avg₄₅₉ := call avg(x);
-    ret := avg₄₅₉;
+    var avg₂: int;
+    avg₂ := call avg(x);
+    ret := avg₂;
     temp := x[0];
     x := x[0 := x[1]];
     x := x[1 := temp];
-    var avg₄₆₀: int;
-    avg₄₆₀ := call avg(x);
-    ret2 := avg₄₆₀;
+    var avg₃: int;
+    avg₃ := call avg(x);
+    ret2 := avg₃;
     temp := x[0];
-    var i: int;
-    i := 0;
+    var i: int := 0;
     while(i < N - 1) {
       x := x[i := x[i + 1]];
       i := i + 1;
     }
     x := x[N - 1 := temp];
-    var avg₄₆₂: int;
-    avg₄₆₂ := call avg(x);
-    ret5 := avg₄₆₂;
+    var avg₅: int;
+    avg₅ := call avg(x);
+    ret5 := avg₅;
     if(ret != ret2 || ret != ret5) {
       assert false;
     }

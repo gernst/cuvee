@@ -25,10 +25,9 @@ procedure main()
   }
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_short₃₇₃: int;
-    if(__VERIFIER_nondet_short₃₇₃ != 0) {
-      var __VERIFIER_nondet_short₃₇₄: int;
-      k := __VERIFIER_nondet_short₃₇₄;
+    var __VERIFIER_nondet_short₂: int;
+    if(__VERIFIER_nondet_short₂ != 0) {
+      havoc k;
       a := a[i := k];
       b := b[i := k * k];
     }

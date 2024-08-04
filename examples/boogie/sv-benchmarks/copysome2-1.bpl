@@ -21,12 +21,12 @@ procedure main()
   z := 150000;
   i := 0;
   while(i < 200000) {
-    var __VERIFIER_nondet_int₇₈₈: int;
-    a1 := a1[i := __VERIFIER_nondet_int₇₈₈];
-    var __VERIFIER_nondet_int₇₈₉: int;
-    a2 := a2[i := __VERIFIER_nondet_int₇₈₉];
-    var __VERIFIER_nondet_int₇₉₀: int;
-    a3 := a3[i := __VERIFIER_nondet_int₇₉₀];
+    var __VERIFIER_nondet_int₁: int;
+    a1 := a1[i := __VERIFIER_nondet_int₁];
+    var __VERIFIER_nondet_int₂: int;
+    a2 := a2[i := __VERIFIER_nondet_int₂];
+    var __VERIFIER_nondet_int₃: int;
+    a3 := a3[i := __VERIFIER_nondet_int₃];
     i := i + 1;
   }
   i := 0;

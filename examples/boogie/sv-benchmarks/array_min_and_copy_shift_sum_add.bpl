@@ -14,15 +14,14 @@ procedure main()
   returns (c#result: int)
 {
   var i: int;
-  var __VERIFIER_nondet_int₁₀₇₉: int;
+  var __VERIFIER_nondet_int₁: int;
   var j: int;
-  j := __VERIFIER_nondet_int₁₀₇₉;
+  j := __VERIFIER_nondet_int₁;
   assume j < 10000 && -10000 < j;
-  var k: int;
-  k := 0;
-  var __VERIFIER_nondet_int₁₀₈₀: int;
+  var k: int := 0;
+  var __VERIFIER_nondet_int₂: int;
   var N: int;
-  N := __VERIFIER_nondet_int₁₀₈₀;
+  N := __VERIFIER_nondet_int₂;
   assume N < 10000 && -10000 < N;
   var a: [int]int;
   var b: [int]int;

@@ -14,23 +14,19 @@ procedure main()
   returns (c#result: int)
 {
   var a: [int]int;
-  var j: int;
-  j := 0;
+  var j: int := 0;
   while(j < 100000) {
-    var __VERIFIER_nondet_int₂₅₉: int;
-    a := a[j := __VERIFIER_nondet_int₂₅₉];
+    var __VERIFIER_nondet_int₁: int;
+    a := a[j := __VERIFIER_nondet_int₁];
     j := j + 1;
   }
-  var swapped: int;
-  swapped := 1;
+  var swapped: int := 1;
   while(swapped != 0) {
     swapped := 0;
-    var i: int;
-    i := 1;
+    var i: int := 1;
     while(i < 100000) {
       if(a[i - 1] < a[i]) {
-        var t: int;
-        t := a[i];
+        var t: int := a[i];
         a := a[i := a[i - 1]];
         a := a[i - 1 := t];
         swapped := 1;

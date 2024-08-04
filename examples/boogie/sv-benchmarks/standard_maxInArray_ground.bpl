@@ -14,17 +14,14 @@ procedure main()
   returns (c#result: int)
 {
   var a: [int]int;
-  var max: int;
-  max := 0;
-  var j: int;
-  j := 0;
+  var max: int := 0;
+  var j: int := 0;
   while(j < 100000) {
-    var __VERIFIER_nondet_int₃₆₀: int;
-    a := a[j := __VERIFIER_nondet_int₃₆₀];
+    var __VERIFIER_nondet_int₁: int;
+    a := a[j := __VERIFIER_nondet_int₁];
     j := j + 1;
   }
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 100000) {
     if(max < a[i]) {
       max := a[i];

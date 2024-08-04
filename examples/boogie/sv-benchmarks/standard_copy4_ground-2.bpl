@@ -21,10 +21,10 @@ procedure main()
   var a: int;
   a := 0;
   while(a < 100000) {
-    var __VERIFIER_nondet_int₂₃₈: int;
-    a1 := a1[a := __VERIFIER_nondet_int₂₃₈];
-    var __VERIFIER_nondet_int₂₃₉: int;
-    a4 := a4[a := __VERIFIER_nondet_int₂₃₉];
+    var __VERIFIER_nondet_int₁: int;
+    a1 := a1[a := __VERIFIER_nondet_int₁];
+    var __VERIFIER_nondet_int₂: int;
+    a4 := a4[a := __VERIFIER_nondet_int₂];
     a := a + 1;
   }
   var i: int;

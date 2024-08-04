@@ -14,8 +14,7 @@ procedure main()
   returns (c#result: int)
 {
   var i: int;
-  var N: int;
-  N := 100000;
+  var N: int := 100000;
   var a: [int]int;
   i := 0;
   while(i <= N) {

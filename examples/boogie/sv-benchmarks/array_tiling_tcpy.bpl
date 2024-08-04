@@ -13,9 +13,9 @@ function c#bitor(x₀: int, x₁: int): int;
 procedure main()
   returns (c#result: int)
 {
-  var __VERIFIER_nondet_int₁₀₈₉: int;
+  var __VERIFIER_nondet_int₁: int;
   var S: int;
-  S := __VERIFIER_nondet_int₁₀₈₉;
+  S := __VERIFIER_nondet_int₁;
   assume 1 < S;
   assume S < 1073741823;
   var i: int;

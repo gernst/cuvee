@@ -33,33 +33,31 @@ procedure main()
   var ret: int;
   var ret2: int;
   var ret5: int;
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 20) {
-    var __VERIFIER_nondet_int₄₄₁: int;
-    x := x[i := __VERIFIER_nondet_int₄₄₁];
+    var __VERIFIER_nondet_int₂: int;
+    x := x[i := __VERIFIER_nondet_int₂];
     i := i + 1;
   }
-  var avg₄₄₃: int;
-  avg₄₄₃ := call avg(x);
-  ret := avg₄₄₃;
+  var avg₄: int;
+  avg₄ := call avg(x);
+  ret := avg₄;
   temp := x[0];
   x := x[0 := x[1]];
   x := x[1 := temp];
-  var avg₄₄₄: int;
-  avg₄₄₄ := call avg(x);
-  ret2 := avg₄₄₄;
+  var avg₅: int;
+  avg₅ := call avg(x);
+  ret2 := avg₅;
   temp := x[0];
-  var i: int;
-  i := 0;
+  var i: int := 0;
   while(i < 20 - 1) {
     x := x[i := x[i + 1]];
     i := i + 1;
   }
   x := x[20 - 1 := temp];
-  var avg₄₄₆: int;
-  avg₄₄₆ := call avg(x);
-  ret5 := avg₄₄₆;
+  var avg₇: int;
+  avg₇ := call avg(x);
+  ret5 := avg₇;
   if(ret != ret2 || ret != ret5) {
     assert false;
   }
