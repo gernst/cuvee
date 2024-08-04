@@ -85,12 +85,19 @@ case class Path(
 }
 
 object Path {
+  case object Unbound extends Exception
+
   // delegate all operations on paths to ensure we don't
   // accidentally re-use the top-level versions of stack and olds
   def eval(stack: List[Map[Var, Expr]], old: List[List[Map[Var, Expr]]], expr: Expr): Expr = {
     expr match {
       case x: Var =>
-        lookup(stack, x)
+        try {
+          lookup(stack, x)
+        } catch {
+          case Unbound =>
+            cuvee.error("unbound variable: " + x + " in " + stack.flatMap(_.keySet).mkString(", "))
+        }
 
       case _: Lit =>
         expr
@@ -131,7 +138,8 @@ object Path {
   def lookup(stack: List[Map[Var, Expr]], x: Var): Expr = {
     stack match {
       case Nil =>
-        cuvee.error("unbound local variable: " + x)
+        throw Unbound
+      // cuvee.error("unbound local variable: " + x)
 
       case st :: outer if st contains x =>
         st(x)

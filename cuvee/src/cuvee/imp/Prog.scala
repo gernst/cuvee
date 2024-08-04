@@ -68,10 +68,25 @@ sealed trait Prog extends util.Syntax {
 }
 
 class ProgList(progs: List[Prog]) {
-  def mod = Set(progs flatMap (_.mod): _*)
-  def read = Set(progs flatMap (_.read): _*)
+  def mod: Set[Var] = progs match {
+    case Nil =>
+      Set()
+    case prog :: rest =>
+      prog.mod ++ (rest.mod -- prog.local)
+  }
+
+  def read: Set[Var] = progs match {
+    case Nil =>
+      Set()
+    case prog :: rest =>
+      prog.read ++ (rest.read -- (prog.local ++ prog.mod))
+  }
+
+  def local: Set[Var] = {
+    Set(progs flatMap (_.local): _*)
+  }
+
   def breaks = progs exists (_.breaks)
-  def local = Set(progs flatMap (_.local): _*)
   def replace(re: Map[Var, Var]) = progs map (_ replace re)
 }
 
@@ -159,7 +174,7 @@ object Assign extends ((List[Var], List[Expr]) => Assign) {
     case Select(a, i) =>
       flat(a, Store(a, i, r))
   }
-  
+
   def from: ((Expr, Expr) => Assign) = { case (l, r) =>
     val (l_, r_) = flat(l, r)
     Assign(List(l_), List(r_))

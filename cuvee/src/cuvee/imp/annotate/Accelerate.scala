@@ -164,7 +164,7 @@ object Accelerate {
       states_ : List[Path],
       i: Var
   ): Option[(Var, Counter)] = {
-    val is = states map (_ lookup i)
+    val is = states map (_ eval i)
     val init = is.distinct match {
       case List(i0) =>
         Some(i0)
@@ -172,7 +172,7 @@ object Accelerate {
         None
     }
 
-    val is_ = states_ map (_ lookup i) filter { i_ =>
+    val is_ = states_ map (_ eval i) filter { i_ =>
       i_ != i
     }
 
