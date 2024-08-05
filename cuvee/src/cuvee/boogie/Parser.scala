@@ -85,6 +85,10 @@ class Parser(val state: State = State.default) {
       ctx(name)
     case (name, args) if state.cons contains name =>
       Sort(state.cons(name), args)
+    case (name, Nil) =>
+      cuvee.error("unknown sort: " + name)
+    case (name, args) =>
+      cuvee.error("unknown sort: " + args.mkString("<", ",", ">"))
   }
 
   def make_op: ((String, List[Expr]) => Expr) = {
@@ -176,10 +180,9 @@ class Parser(val state: State = State.default) {
       DefineSort(name, params, typ)
   }
 
-  val declare_var: ((Name ~ Type) => Cmd) = {
-    case (name ~ typ) =>
-      state global (name, typ)
-      DeclareVar(name, typ)
+  val declare_var: ((Name ~ Type) => Cmd) = { case (name ~ typ) =>
+    state global (name, typ)
+    DeclareVar(name, typ)
   }
 
   val define_fun: ((Name ~ List[Param] ~ (List[Var] ~ Type ~ Option[Expr])) => Cmd) = {
@@ -193,8 +196,12 @@ class Parser(val state: State = State.default) {
       DefineFun(name, params, args, typ, body, body.funs exists (_.name == name))
   }
 
-  val define_proc
-      : ((Name ~ List[Param], ((List[Var] ~ List[Var] ~ List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
+  val define_proc: (
+      (
+          Name ~ List[Param],
+          ((List[Var] ~ List[Var] ~ List[Var]), (Option[Spec], Option[Prog]))
+      ) => Cmd
+  ) = {
     case (name ~ params, (in ~ out ~ mod, (spec, None))) =>
       state.proc(name, Nil, in, out, spec)
       DeclareProc(name, Nil, in, out, spec)
@@ -221,9 +228,8 @@ class Parser(val state: State = State.default) {
       (fun, sels)
   }
 
-  def make_call: (((List[Var], Name), List[Expr])) => Call = {
-    case ((out, name), in) =>
-      Call(name, in, out)
+  def make_call: (((List[Var], Name), List[Expr])) => Call = { case ((out, name), in) =>
+    Call(name, in, out)
   }
 
   def make_datatype: (((Name, List[Param]), List[(Fun, List[Fun])]) => Cmd) = {
