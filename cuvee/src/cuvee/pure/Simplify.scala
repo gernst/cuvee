@@ -16,7 +16,8 @@ object Simplify {
   }
 
   def simplify(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr =
-    Expr.liftIte(expr) match {
+    // Expr.liftIte(expr) // don't recursive with liftIte -> may lead to endless loops with nested ites
+    expr match {
       case x: Var =>
         x
 
@@ -35,7 +36,7 @@ object Simplify {
       case Imp(phi, psi) =>
         imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
 
-      case Ite(test, left, right) =>
+      case expr@ Ite(test, left, right) =>
         ite(
           simplify(test, rules, constrs),
           simplify(left, rules, constrs),
