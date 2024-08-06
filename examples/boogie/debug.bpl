@@ -1,8 +1,14 @@
-var i: int;
-
+var SIZE: int;
 procedure main()
-  modifies i;
+  modifies SIZE;
 {
-  var j: int;
-  havoc i;
+  havoc SIZE;
+  var i: int;
+  {
+    var i: int := 0;
+    while(i < SIZE)
+    {
+      i := i + 1;
+    }
+  }
 }

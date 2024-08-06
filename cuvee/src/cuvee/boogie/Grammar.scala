@@ -146,7 +146,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Prog, Token] =
-    P(spec | ctrl | if_ | while_ | call | assign)
+    P(spec | ctrl | if_ | while_ | call | assign | block)
 
   val ctrl =
     Break("break" ~ ";") | Return("return" ~ ";")
