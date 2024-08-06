@@ -5,6 +5,7 @@ import cuvee.imp._
 
 object Arrays extends Annotate(ExecNoLoops) {
   def while_(
+      state: cuvee.State,
       paths: Paths,
       test: Expr,
       body: Prog,
@@ -23,7 +24,7 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     val vars = test.free ++ mod ++ read
     val (before, after, body_) =
-      iter(paths, vars.toList, test, body, term, inv, sum, frames)
+      iter(state, paths, vars.toList, test, body, term, inv, sum, frames)
     val counters = Accelerate.counters(paths.running, after.running, ys)
 
     // println(paths)

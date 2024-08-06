@@ -1,6 +1,8 @@
 package cuvee.imp
+
 import cuvee.pure._
 import cuvee.ai.Domain
+import cuvee.State
 
 case class Paths(
     running: List[Path],
@@ -55,6 +57,7 @@ trait Exec {
   // starting out with a *flat* stack of the identity substitution,
   // i.e., not reflecting the block structure of the given current paths.
   def iter(
+      state: State,
       paths: Paths,
       vars: List[Var],
       test: Expr,
@@ -73,7 +76,7 @@ trait Exec {
 
     val init = Path(fresh, constraints, stack, List(stack))
     val before = Paths(List(init))
-    val after = exec(before, body)
+    val after = exec(state, before, body)
 
     (before, after)
   }
@@ -86,13 +89,14 @@ trait Exec {
     Paths(List(init))
   }
 
-  def entry(in: List[Var], out: List[Var], spec: Option[Spec]): Paths = spec match {
-    case None =>
-      entry(in ++ out, Nil)
+  def entry(in: List[Var], out: List[Var], spec: Option[Spec]): Paths =
+    spec match {
+      case None =>
+        entry(in ++ out, Nil)
 
-    case Some(Spec(globals, pre, post)) =>
-      entry(in ++ out ++ globals, List(pre))
-  }
+      case Some(Spec(globals, pre, post)) =>
+        entry(in ++ out ++ globals, List(pre))
+    }
 
   def break(paths: Paths) = {
     import paths._
@@ -175,25 +179,31 @@ trait Exec {
     )
   }
 
-  def block(paths0: Paths, progs: List[Prog]): Paths = {
+  def block(state: State, paths0: Paths, progs: List[Prog]): Paths = {
     progs match {
       case Nil =>
         paths0
 
       case prog :: rest =>
-        val paths1 = exec(paths0, prog)
-        val paths2 = block(paths1, rest)
+        val paths1 = exec(state, paths0, prog)
+        val paths2 = block(state, paths1, rest)
         paths2
     }
   }
 
-  def if_(paths0: Paths, test: Expr, left: Prog, right: Prog): Paths = {
-    val paths1 = exec(assume(paths0, test), left)
-    val paths2 = exec(assume(paths0, !test), right)
+  def if_(
+      state: State,
+      paths0: Paths,
+      test: Expr,
+      left: Prog,
+      right: Prog
+  ): Paths = {
+    val paths1 = exec(state, assume(paths0, test), left)
+    val paths2 = exec(state, assume(paths0, !test), right)
     join(paths1, paths2)
   }
 
-  def exec(paths: Paths, prog: Prog): Paths = prog match {
+  def exec(state: State, paths: Paths, prog: Prog): Paths = prog match {
     case Break =>
       break(paths)
 
@@ -211,11 +221,11 @@ trait Exec {
 
     case Block(progs) =>
       scoped(paths) {
-        block(_, progs)
+        block(state, _, progs)
       }
 
     case If(test, left, right) =>
-      if_(paths, test, left, right)
+      if_(state, paths, test, left, right)
 
     case While(test, body, term, inv, sum, frames) =>
       resume {
