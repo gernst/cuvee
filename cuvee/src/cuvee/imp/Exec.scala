@@ -88,7 +88,6 @@ trait Exec {
 
   def entry(in: List[Var], out: List[Var], spec: Option[Spec]): Paths = spec match {
     case None =>
-      ???
       entry(in ++ out, Nil)
 
     case Some(Spec(globals, pre, post)) =>
