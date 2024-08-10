@@ -5,12 +5,16 @@ import cuvee.util.Name
 import cuvee.imp.Spec
 
 trait DomainFunctions {
+  // let s1 with xs == args1 and phis1
+  // let s2 with xs == args2 and phis2
+  // compute widen(s1, s2) and eliminate xs
+  // satisfying s1 \/ s2 ==> result and guarantee finite convergence
   def widen(
       args1: List[Expr],
       phis1: List[Expr],
       args2: List[Expr],
       phis2: List[Expr]
-  ): (List[Expr], List[Expr]) = {
+  ): List[Expr] = {
     ???
   }
 }

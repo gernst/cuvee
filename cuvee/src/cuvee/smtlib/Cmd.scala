@@ -73,6 +73,8 @@ case class Pop(depth: Int) extends Ctrl
 
 case object GetModel extends Cmd
 
+case class Apply(tactic: cuvee.sexpr.Expr) extends Cmd
+
 case object Exit extends Ctrl
 
 case object Reset extends Ctrl

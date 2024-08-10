@@ -190,6 +190,14 @@ object Solver {
       val parser = new Parser(state)
       Model(parser.model(read()))
     }
+
+    def apply(state: State, tactic: String): List[Expr] = {
+      val cmd = Apply(cuvee.sexpr.Id(tactic))
+      write(cmd)
+      val parser = new Parser(state)
+      parser.goals(read())
+    }
   }
+
   implicit class ProcessWithPid(process: java.lang.Process) { def pid = 0 }
 }

@@ -64,6 +64,7 @@ object Printer extends cuvee.util.Printer {
     case Push(depth)                => parens("push", depth)
     case Pop(depth)                 => parens("pop", depth)
     case GetModel                   => parens("get-model")
+    case Apply(tactic)              => parens("apply", tactic)
     case Exit                       => parens("exit")
     case Reset                      => parens("reset")
     case Assert(expr)               => parens("assert", expr)

@@ -153,6 +153,7 @@ object Expr extends Alpha[Expr, Var] {
     expr match {
       case App(inst, args) =>
         liftIte(App(inst, _), Nil, args)
+
       // TODO: add more cases!
       case _ =>
         expr

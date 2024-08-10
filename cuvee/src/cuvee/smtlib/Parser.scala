@@ -296,6 +296,27 @@ class Parser(init: State) {
   def cmds(from: List[Expr]): List[Cmd] =
     from map cmd
 
+  def goals(from: Expr, ctx: Iterable[Name] = Set(), scope: Iterable[(Name, Type)] = Map()) =
+    from match {
+      case App(Id("goals"), args @ _*) =>
+        val inner = exprs(st)
+
+        args.toList flatMap {
+          case App(Id("goal"), Kw(_), rest @ _*) =>
+            Nil
+
+          case App(Id("goal"), from, rest @ _*) =>
+            val pre = inner.expr(from, ctx.toSet, scope.toMap)
+            List(pre.resolve)
+
+          case _ =>
+            error("unexpected format in goal response: " + from)
+        }
+
+      case _ =>
+        error("unexpected format in goals response: " + from)
+    }
+
   def model(from: Expr): List[DefineFun] =
     from match {
       case App(defs @ _*) =>
@@ -307,7 +328,7 @@ class Parser(init: State) {
         }
 
       case _ =>
-        error("unexpected format in model response")
+        error("unexpected format in model response: " + from)
     }
 
   def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
