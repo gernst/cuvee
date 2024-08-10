@@ -266,6 +266,7 @@ object Printer extends cuvee.util.Printer {
     case Block(progs) => "{" +: indent(progs flatMap lines) :+ "}"
     case Break        => List("break;")
     case Return       => List("return;")
+    case Continue     => List("continue;")
     case Local(xs, Nil) =>
       List("var " + vartypes(xs) + ";")
     case Local(xs, rhs) =>
