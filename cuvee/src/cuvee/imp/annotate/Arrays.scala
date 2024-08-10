@@ -2,6 +2,8 @@ package cuvee.imp.annotate
 
 import cuvee.pure._
 import cuvee.imp._
+import cuvee.smtlib.Solver
+import cuvee.State
 
 object Arrays extends Annotate(ExecNoLoops) {
   def while_(
@@ -23,8 +25,10 @@ object Arrays extends Annotate(ExecNoLoops) {
     }
 
     val vars = test.free ++ mod ++ read
-    val (before, after, body_) =
-      iter(state, paths, vars.toList, test, body, term, inv, sum, frames)
+    val xs = vars.toList
+
+    val (before, after, body_) = iter(state, paths, xs, test, body, term, inv, sum, frames)
+
     val counters = Accelerate.counters(paths.running, after.running, ys)
 
     // println(paths)
@@ -46,8 +50,11 @@ object Arrays extends Annotate(ExecNoLoops) {
       And(inv :: lbs),
       after.breaked ++ after.returned
     )
-    val add = And(phi ++ psi)
-    val inv_ = Simplify.simplify(And(inv :: lbs) && ub && add, Map(), Set())
+
+    val add = And(lbs ++ List(ub) ++ phi ++ psi)
+    val add_ = Simplify.simplify(add, Map(), Set())
+
+    val inv_ = inv && add_ // Simplify.simplify(And(inv :: lbs) && ub && add, Map(), Set())
 
     // val inv_ = inv && add
 
