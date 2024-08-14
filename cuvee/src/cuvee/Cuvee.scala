@@ -69,10 +69,16 @@ class Config {
 
   val options = Map(
     option("-help", "show this help text") { help() },
-    option("-log:info", "print some informative output to stderr, such as progress") {
+    option(
+      "-log:info",
+      "print some informative output to stderr, such as progress"
+    ) {
       printer = cuvee.smtlib.printer
     },
-    option("-log:debug", "print lots of internals to stderr, includes -log:info") {
+    option(
+      "-log:debug",
+      "print lots of internals to stderr, includes -log:info"
+    ) {
       printer = cuvee.smtlib.printer
     },
     option("-debug:solver", "show interaction SMT-LIB backends") {
@@ -82,10 +88,16 @@ class Config {
       sink = _ => Solver.z3()
       report = Report.stdout(_)
     },
-    option("-prove:quickcheck", "quick check lemmas for counterexamples (default)") {
+    option(
+      "-prove:quickcheck",
+      "quick check lemmas for counterexamples (default)"
+    ) {
       quickcheck = true
     },
-    option("-prove:no-quickcheck", "do not make a quick check for counterexamples for lemmas") {
+    option(
+      "-prove:no-quickcheck",
+      "do not make a quick check for counterexamples for lemmas"
+    ) {
       quickcheck = false
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
@@ -103,7 +115,10 @@ class Config {
     // option("-print:none", "suppress output") {
     //   printer = Printer.dummy
     // },
-    option("-prove:auto", "prove lemmas with tactics and structural simplification using Z3") {
+    option(
+      "-prove:auto",
+      "prove lemmas with tactics and structural simplification using Z3"
+    ) {
       prove = "auto"
     },
     option("-prove:z3", "prove lemmas with tactics and Z3 as endgame solver") {
@@ -159,17 +174,26 @@ class Config {
       simplify = true
       rewrite = true
     },
-    option("-vcgen", "generate verification conditions for procedures and wp operators") {
+    option(
+      "-vcgen",
+      "generate verification conditions for procedures and wp operators"
+    ) {
       vcgen = true
     },
-    option("-vcgen:partial", "generate verification conditions without termination") {
+    option(
+      "-vcgen:partial",
+      "generate verification conditions without termination"
+    ) {
       vcgen = true
       vcgen_partial = true
     },
     option("-eval", "obsolete flag, may change meaning in the future") {
       cuvee.error("the -eval flag has been superseded by the -vcgen flag")
     },
-    option("-annotate:polyhedra", "infer loop annotations (polyhedra abstract domain)") {
+    option(
+      "-annotate:polyhedra",
+      "infer loop annotations (polyhedra abstract domain)"
+    ) {
       annotate += "polyhedra"
     },
     option("-annotate:arrays", "infer loop annotations (array acceleration)") {
