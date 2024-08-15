@@ -101,6 +101,7 @@ trait Solver extends Sink {
 
 object Solver {
   var debug = false
+  var fail = false
 
   object dummy extends Solver {
     def done(state: State) {}
@@ -158,6 +159,8 @@ object Solver {
       out.flush()
     }
 
+    def tmp() {}
+
     def read() = {
       val line = res.next()
       if (debug)
@@ -177,7 +180,10 @@ object Solver {
 
     def check(): IsSat = {
       write(CheckSat)
-      Parser.issat(read())
+      val isSat = Parser.issat(read())
+      if (fail && isSat != Unsat)
+        cuvee.error("Could not prove all goals.")
+      isSat
     }
 
     def labels(): Labels = {

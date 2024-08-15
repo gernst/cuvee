@@ -3,6 +3,8 @@ package cuvee
 import cuvee.util.Main
 import cuvee.util.Run
 import java.io.File
+import cuvee.smtlib.Res
+import java.io.PrintWriter
 
 object tasks
     extends Run(
@@ -24,6 +26,7 @@ object Earlier extends Main {
         "-annotate:arrays",
         "-vcgen:partial",
         "-prove:z3",
+        "-fail",
         "-o",
         dst
       )

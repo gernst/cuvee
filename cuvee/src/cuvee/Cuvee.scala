@@ -84,6 +84,9 @@ class Config {
     option("-debug:solver", "show interaction SMT-LIB backends") {
       Solver.debug = true
     },
+    option("-fail", "fail if goals are left") {
+      Solver.fail = true
+    },
     option("-z3", "process final output via Z3") {
       sink = _ => Solver.z3()
       report = Report.stdout(_)
