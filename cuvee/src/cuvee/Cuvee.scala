@@ -84,7 +84,7 @@ class Config {
     option("-debug:solver", "show interaction SMT-LIB backends") {
       Solver.debug = true
     },
-    option("-fail", "fail if goals are left") {
+    option("-prove:strict", "throw an exception if goals are left") {
       Solver.fail = true
     },
     option("-z3", "process final output via Z3") {
