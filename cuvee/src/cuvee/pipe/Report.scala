@@ -18,7 +18,7 @@ trait Report {
     case e: cuvee.smtlib.Error =>
       report(e)
 
-    case e: Exception =>
+    case e: Exception if !Solver.fail =>
       // report(new Error(List("internal error", e.getMessage())))
       e.printStackTrace()
   }
