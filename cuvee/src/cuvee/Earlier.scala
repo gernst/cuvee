@@ -4,40 +4,77 @@ import cuvee.util.Main
 import cuvee.util.Run
 import java.io.File
 import cuvee.smtlib.Res
-import java.io.PrintWriter
+import java.io.PrintStream
+import java.io.FileOutputStream
+import cuvee.smtlib.Success
+import cuvee.smtlib.Unknown
+import cuvee.smtlib.Unsupported
 
 object tasks
     extends Run(
       Earlier,
+      // "examples/chc/maxpranq/bench_precondn/c_serialized"
       "examples/boogie/sv-benchmarks"
     )
 
 object Earlier extends Main {
+  val dst = "evaluation/earlier/sv-benchmarks/"
+
   def main(args: Array[String]) {
-    for (path <- args) eval(path)
+    for (path <- args) {
+      val results = eval(path)
+      record(results)
+    }
   }
 
-  def eval(path: String) {
+  def eval(path: String): Map[String, Res] = {
     val dir = new File(path)
-    for (file <- dir.list() if file endsWith ".bpl") {
-      val dst = "evaluation/earlier/sv-benchmarks/" + file.dropRight(4) + ".bpl"
-      val args = Array(
-        path + "/" + file,
-        "-annotate:arrays",
-        "-vcgen:partial",
-        "-prove:z3",
-        "-fail",
-        "-o",
-        dst
-      )
-      println(args.mkString("./Cuvee.sh ", " ", ""))
-
-      try {
-        Cuvee.main(args)
-      } catch {
-        case e: Exception =>
-          println("failed: " + e.getMessage())
+    val results =
+      for (file <- dir.list() if file endsWith ".bpl") yield {
+        // Use either -o or -prove:strict it does not make sense to print only
+        // empty files (Unknown, Unsupported) and the c#heap stuff (Success)
+        val args = Array(
+          path + "/" + file,
+          "-annotate:arrays",
+          "-vcgen:partial",
+          "-prove:z3",
+          // "-o",
+          // dst + name + ".bpl"
+          "-prove:strict"
+        )
+        file -> eval(args)
       }
+    results.toMap
+  }
+
+  def eval(task: Array[String]): Res = {
+    println(task.mkString("./Cuvee.sh ", " ", ""))
+    try {
+      Cuvee.main(task)
+      Success
+    } catch {
+      case e: IllegalArgumentException =>
+        println(e.getMessage())
+        Unknown
+      case e: Exception =>
+        println("failed: " + e.getMessage())
+        Unsupported
     }
+  }
+
+  def record(results: Map[String, Res]) {
+    val csv = new PrintStream(new FileOutputStream(dst + "results.csv"))
+    csv.println("Name, Result")
+    for ((name, result) <- results) csv.println(s"${name}, ${result}")
+    csv.close()
+
+    val tex = new PrintStream(new FileOutputStream(dst + "results.tex"))
+    val success = results.values.count(x => x == Success)
+    tex.println("\\newcommand{\\Success}{" + success + "}")
+    val unknown = results.values.count(x => x == Unknown)
+    tex.println("\\newcommand{\\Unknown}{" + unknown + "}")
+    val unsupported = results.values.count(x => x == Unsupported)
+    tex.println("\\newcommand{\\Unsupported}{" + unsupported + "}")
+    tex.close()
   }
 }
