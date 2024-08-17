@@ -58,7 +58,7 @@ nsqm-iff.bpl, Unknown
 avg60-1.bpl, Success
 standard_find_ground-1.bpl, Success
 max10-2.bpl, Success
-array1_pattern.bpl, Unknown
+array1_pattern.bpl, Unsupported
 indp4f.bpl, Unknown
 s4liff.bpl, Unknown
 sanfoundry_24-1.bpl, Unknown
@@ -82,7 +82,7 @@ sep40-1.bpl, Success
 ms4f.bpl, Unknown
 standard_sentinel-1.bpl, Success
 nsqm-if.bpl, Unknown
-sorting_selectionsort_ground-2.bpl, Unknown
+sorting_selectionsort_ground-2.bpl, Unsupported
 rangesum.bpl, Unknown
 mbpr5.bpl, Unknown
 max20-2.bpl, Success
@@ -152,7 +152,7 @@ standard_init8_ground-1.bpl, Unknown
 array_range_init.bpl, Unknown
 brs2.bpl, Unknown
 standard_copy7_ground-1.bpl, Unknown
-sorting_selectionsort_2_ground.bpl, Unknown
+sorting_selectionsort_2_ground.bpl, Unsupported
 copysome2-2.bpl, Unknown
 mapsum3.bpl, Success
 ifeqn1f.bpl, Unknown
@@ -188,7 +188,7 @@ ms1.bpl, Unknown
 mapavg2.bpl, Success
 standard_minInArray_ground-1.bpl, Unknown
 brs5.bpl, Unknown
-sorting_selectionsort_ground-1.bpl, Unknown
+sorting_selectionsort_ground-1.bpl, Unsupported
 standard_two_index_02.bpl, Unknown
 bAnd1.bpl, Success
 max60-1.bpl, Success
@@ -225,13 +225,13 @@ sum20-2.bpl, Success
 modp.bpl, Unknown
 standard_init1_ground-2.bpl, Success
 rangesum05.bpl, Success
-array4_pattern.bpl, Unknown
+array4_pattern.bpl, Unsupported
 array_tiling_tcpy.bpl, Unknown
 s1iff.bpl, Unknown
 standard_two_index_06.bpl, Unknown
 bAnd4.bpl, Success
 indp2f.bpl, Unknown
-standard_allDiff2_ground.bpl, Unknown
+standard_allDiff2_ground.bpl, Unsupported
 standard_copy5_ground-2.bpl, Unknown
 ms2.bpl, Unknown
 s3iff.bpl, Unknown
@@ -290,7 +290,7 @@ modnf.bpl, Unknown
 standard_copy2_ground-1.bpl, Unknown
 partial_lesser_bound-1.bpl, Success
 eqn4f.bpl, Unknown
-sanfoundry_10_ground.bpl, Unknown
+sanfoundry_10_ground.bpl, Unsupported
 standard_running-2.bpl, Unknown
 zero_sum_m2.bpl, Unknown
 standard_two_index_07.bpl, Unknown

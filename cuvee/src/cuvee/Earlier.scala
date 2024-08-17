@@ -2,13 +2,13 @@ package cuvee
 
 import cuvee.util.Main
 import cuvee.util.Run
-import java.io.File
 import cuvee.smtlib.Res
-import java.io.PrintStream
-import java.io.FileOutputStream
 import cuvee.smtlib.Success
 import cuvee.smtlib.Unknown
 import cuvee.smtlib.Unsupported
+import java.io.File
+import java.io.PrintStream
+import java.io.FileOutputStream
 
 object tasks
     extends Run(
@@ -29,21 +29,20 @@ object Earlier extends Main {
 
   def eval(path: String): Map[String, Res] = {
     val dir = new File(path)
-    val results =
-      for (file <- dir.list() if file endsWith ".bpl") yield {
-        // Use either -o or -prove:strict it does not make sense to print only
-        // empty files (Unknown, Unsupported) and the c#heap stuff (Success)
-        val args = Array(
-          path + "/" + file,
-          "-annotate:arrays",
-          "-vcgen:partial",
-          "-prove:z3",
-          // "-o",
-          // dst + name + ".bpl"
-          "-prove:strict"
-        )
-        file -> eval(args)
-      }
+    val results = for (file <- dir.list() if file endsWith ".bpl") yield {
+      // Use either -o or -prove:strict it does not make sense to print only
+      // empty files (Unknown, Unsupported) and the c#heap stuff (Success)
+      val args = Array(
+        path + "/" + file,
+        "-annotate:arrays",
+        "-vcgen:partial",
+        "-prove:z3",
+        // "-o",
+        // dst + name + ".bpl"
+        "-prove:strict"
+      )
+      file -> eval(args)
+    }
     results.toMap
   }
 
@@ -55,7 +54,12 @@ object Earlier extends Main {
     } catch {
       case e: IllegalArgumentException =>
         println(e.getMessage())
-        Unknown
+        e.getMessage() match {
+          case "requirement failed: Could not prove all goals." =>
+            Unknown
+          case _ =>
+            Unsupported
+        }
       case e: Exception =>
         println("failed: " + e.getMessage())
         Unsupported
