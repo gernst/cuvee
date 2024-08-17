@@ -174,8 +174,13 @@ abstract class Annotate(val exec: Exec) extends Stage {
         if_(state, paths, test, left, right)
 
       case While(test, body, term, inv, sum, frames) =>
-        resume {
-          while_(state, paths, test, body, term, inv, sum, frames)
+        body match {
+          case Block(List(While(_, _, _, _, _, _))) =>
+            cuvee.error("Nested loops are not supported.")
+          case _ =>
+            resume {
+              while_(state, paths, test, body, term, inv, sum, frames)
+            }
         }
     }
 }
