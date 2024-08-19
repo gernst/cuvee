@@ -13,40 +13,58 @@ import java.io.FileOutputStream
 object tasks
     extends Run(
       Earlier,
-      "examples/chc/maxpranq/bench_precondn/c_serialized"
-      // "examples/boogie/sv-benchmarks"
+      "examples/chc/maxpranq/bench_precondn/c_serialized",
+      "examples/boogie/sv-benchmarks"
+      // "detailed"
     )
 
 object Earlier extends Main {
   val dst = "evaluation/earlier/"
 
   def main(args: Array[String]) {
-    for (path <- args) {
-      val results = eval(path)
+    var detailed = false
+    var paths = args
+    if (args.last == "detailed") {
+      paths = paths.dropRight(1)
+      detailed = true
+    }
+
+    for (path <- paths) {
+      val results = eval(detailed, path)
       record(path, results)
     }
   }
 
-  def eval(path: String): Map[String, Res] = {
+  def eval(detailed: Boolean, path: String): Map[String, Res] = {
     val dir = new File(path)
-    val sv = "evaluation/earlier/sv-benchmarks/"
-    val results =
-      for (file <- dir.list() if (file endsWith ".bpl") || (file endsWith ".c"))
-        yield {
-          // TODO
-          // Use either -o or -prove:strict it does not make sense to print only
-          // empty files (Unknown, Unsupported) and the c#heap stuff (Success)
-          val args = Array(
-            path + "/" + file,
-            "-annotate:arrays",
-            "-vcgen:partial",
-            "-prove:z3",
-            // "-o",
-            // sv + name + ".bpl"
-            "-prove:strict"
-          )
-          file -> eval(args)
-        }
+    var (dst_, typ) = (dst, "")
+    val path_ = path.split("/")
+    if (path_.contains("sv-benchmarks")) {
+      dst_ += "sv-benchmarks/"
+      typ = ".bpl"
+    } else if (path_.contains("maxpranq")) {
+      dst_ += "maxpranq/"
+      typ = ".c"
+    } else {
+      return Map()
+    }
+
+    val results = for (file <- dir.list() if file endsWith typ) yield {
+      var args = List(
+        path + "/" + file,
+        "-annotate:arrays",
+        "-vcgen:partial",
+        "-prove:z3"
+      )
+
+      if (detailed) {
+        args = args ++ List("-o", dst_ + file + ".bpl")
+      } else {
+        args = args :+ "-prove:strict"
+      }
+
+      file -> eval(args.toArray)
+    }
     results.toMap
   }
 
@@ -86,4 +104,5 @@ object Earlier extends Main {
     tex.println("\\newcommand{\\Unsupported}{" + unsupported + "}")
     tex.close()
   }
+
 }
