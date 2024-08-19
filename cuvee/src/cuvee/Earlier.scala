@@ -13,36 +13,40 @@ import java.io.FileOutputStream
 object tasks
     extends Run(
       Earlier,
-      // "examples/chc/maxpranq/bench_precondn/c_serialized"
-      "examples/boogie/sv-benchmarks"
+      "examples/chc/maxpranq/bench_precondn/c_serialized"
+      // "examples/boogie/sv-benchmarks"
     )
 
 object Earlier extends Main {
-  val dst = "evaluation/earlier/sv-benchmarks/"
+  val dst = "evaluation/earlier/"
 
   def main(args: Array[String]) {
     for (path <- args) {
       val results = eval(path)
-      record(results)
+      record(path, results)
     }
   }
 
   def eval(path: String): Map[String, Res] = {
     val dir = new File(path)
-    val results = for (file <- dir.list() if file endsWith ".bpl") yield {
-      // Use either -o or -prove:strict it does not make sense to print only
-      // empty files (Unknown, Unsupported) and the c#heap stuff (Success)
-      val args = Array(
-        path + "/" + file,
-        "-annotate:arrays",
-        "-vcgen:partial",
-        "-prove:z3",
-        // "-o",
-        // dst + name + ".bpl"
-        "-prove:strict"
-      )
-      file -> eval(args)
-    }
+    val sv = "evaluation/earlier/sv-benchmarks/"
+    val results =
+      for (file <- dir.list() if (file endsWith ".bpl") || (file endsWith ".c"))
+        yield {
+          // TODO
+          // Use either -o or -prove:strict it does not make sense to print only
+          // empty files (Unknown, Unsupported) and the c#heap stuff (Success)
+          val args = Array(
+            path + "/" + file,
+            "-annotate:arrays",
+            "-vcgen:partial",
+            "-prove:z3",
+            // "-o",
+            // sv + name + ".bpl"
+            "-prove:strict"
+          )
+          file -> eval(args)
+        }
     results.toMap
   }
 
@@ -66,13 +70,14 @@ object Earlier extends Main {
     }
   }
 
-  def record(results: Map[String, Res]) {
-    val csv = new PrintStream(new FileOutputStream(dst + "results.csv"))
+  def record(path: String, results: Map[String, Res]) {
+    val file = path.replace("/", "_")
+    val csv = new PrintStream(new FileOutputStream(dst + file + ".csv"))
     csv.println("Name, Result")
     for ((name, result) <- results) csv.println(s"${name}, ${result}")
     csv.close()
 
-    val tex = new PrintStream(new FileOutputStream(dst + "results.tex"))
+    val tex = new PrintStream(new FileOutputStream(dst + file + ".tex"))
     val success = results.values.count(x => x == Success)
     tex.println("\\newcommand{\\Success}{" + success + "}")
     val unknown = results.values.count(x => x == Unknown)
