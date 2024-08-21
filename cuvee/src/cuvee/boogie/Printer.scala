@@ -258,6 +258,11 @@ object Printer extends cuvee.util.Printer {
       val phi_ = indent(formula(phi), 3)
       val last = phi_.last + ")"
       quant :: phi_.updated(phi_.length - 1, last)
+    case Post(how, prog, post) =>
+      val as = lines(prog)
+      val bs = lines(post)
+      val (lp, rp) = modality(how)
+      List(lp) ++ indent(as) ++ List(rp + "(") ++ indent(bs) ++ List(")")
     case _ =>
       List(line(expr))
   }
@@ -490,14 +495,20 @@ object Printer extends cuvee.util.Printer {
     case Is(arg, fun) =>
       "is#" + fun.name + "(" + line(arg) + ")"
     case Distinct(exprs) =>
-      "distinct " + lines(exprs) + ";"
+      "distinct " + lines(exprs) + ";" // TODO: fix and test
     case Let(eqs, body) =>
-      "let " + lines(eqs) + lines(body) + ";"
+      "let " + lines(eqs) + lines(body) + ";" // TODO: fix and test
     case Match(expr, cases, typ) =>
       // TODO solution for cases in method
-      "match " + line(expr) + cases.toString + btype(typ) + ";"
+      "match " + line(expr) + cases.toString + btype(typ) + ";" // TODO: fix and test
     case Note(expr, attr) =>
       "/* note" + line(expr) + attr.toString + "*/"
+  }
+
+  private def modality(how: Modality) = how match {
+    case WP  => ("{", "}")
+    case Box => ("[", "]")
+    case Dia => ("<", ">")
   }
 
   private def line(frame: Frame): String = {
@@ -519,8 +530,7 @@ object Printer extends cuvee.util.Printer {
     indent(result)
   }
 
-  /** Provides a tuple containing precedence and associativity for the given
-    * expression.
+  /** Provides a tuple containing precedence and associativity for the given expression.
     *
     * @param expr
     *   to get prec and assoc for

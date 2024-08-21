@@ -6,25 +6,23 @@ import cuvee.util.Name
 
 object Skip extends Block(Nil)
 
-sealed trait Modality /* extends ((Prog, Expr) => Expr) */ {
+sealed trait Modality extends ((List[Prog], Expr) => Expr) {
   def spec(xs: List[Var], pre: Expr, post: Expr): Expr
   def split(cond: Expr, left: Expr, right: Expr): Expr
 
-  // def apply(prog: Prog, post: Expr) = {
-  //   Post(this, prog, post)
-  // }
+  def apply(progs: List[Prog], post: Expr) = {
+    Post(this, Block(progs), post)
+  }
 
-  // def apply(body: Body, post: Expr) = {
-  //   quant(body.locals, Post(this, body.prog, post))
-  // }
-
-  // def unapply(expr: Post) =
-  //   expr match {
-  //     case Post(how, prog, post) if how == this =>
-  //       Some((prog, post))
-  //     case _ =>
-  //       None
-  //   }
+  def unapply(expr: Post) =
+    expr match {
+      case Post(how, prog, post) if how == this =>
+        Some((prog, post))
+      case Post(how, prog, post) if how == this =>
+        Some((prog, post))
+      case _ =>
+        None
+    }
 }
 
 case object Box extends Modality {
@@ -64,6 +62,7 @@ sealed trait Prog extends util.Syntax {
   def mod: Set[Var]
   def read: Set[Var]
   def local: Set[Var]
+  def funs: Set[Fun]
   def breaks: Boolean
   def replace(re: Map[Var, Var]): Prog
 }
@@ -91,6 +90,10 @@ class ProgList(progs: List[Prog]) {
     Set(progs flatMap (_.local): _*)
   }
 
+  def funs: Set[Fun] = {
+    Set(progs flatMap (_.funs): _*)
+  }
+
   def breaks = progs exists (_.breaks)
   def replace(re: Map[Var, Var]) = progs map (_ replace re)
 }
@@ -100,6 +103,7 @@ case class Block(progs: List[Prog]) extends Prog {
   def mod = progs.mod
   def read = progs.read
   def local = Set() // no *exposed* locals
+  def funs = progs.funs
   def breaks = progs.breaks
   def replace(re: Map[Var, Var]) = Block(progs replace re)
 }
@@ -109,6 +113,7 @@ case object Break extends Prog {
   def mod = Set()
   def read = Set()
   def local = Set()
+  def funs = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
 }
@@ -118,6 +123,7 @@ case object Continue extends Prog {
   def mod = Set()
   def read = Set()
   def local = Set()
+  def funs = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
 }
@@ -127,6 +133,7 @@ case object Return extends Prog {
   def mod = Set()
   def read = Set()
   def local = Set()
+  def funs = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
 }
@@ -148,6 +155,7 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
   def mod = Set() // Note: all new!
   def read = rhs.free
   def local = xs.toSet
+  def funs = rhs.funs
   def breaks = false
   def replace(re: Map[Var, Var]) = Local(xs rename re, rhs rename re)
 }
@@ -173,6 +181,7 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
   def mod = Set(xs: _*)
   def read = rhs.free
   def local = Set()
+  def funs = rhs.funs
   def breaks = false
   def replace(re: Map[Var, Var]) = Assign(xs rename re, rhs rename re)
 }
@@ -220,6 +229,7 @@ case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
   def vars = pre.free ++ post.free ++ xs
   def mod = xs.toSet
   def read = pre.free ++ (post.free -- xs)
+  def funs = pre.funs ++ post.funs
   def local = Set()
   def breaks = false
 
@@ -242,6 +252,7 @@ case class If(test: Expr, left: Prog, right: Prog) extends Prog {
   def vars = test.free ++ left.vars ++ right.vars
   def mod = left.mod ++ right.mod
   def read = test.free ++ left.read ++ right.read
+  def funs = test.funs ++ left.funs ++ right.funs
   def local = left.local ++ right.local
   def breaks = left.breaks || right.breaks
   def replace(re: Map[Var, Var]) =
@@ -298,6 +309,7 @@ case class While(
   def vars = test.free ++ body.vars
   def mod = body.mod
   def read = test.free ++ term.free ++ inv.free ++ sum.free ++ body.read
+  def funs = test.funs ++ term.funs ++ inv.funs ++ sum.funs ++ body.funs
   def local = body.local
   def breaks = false
   def replace(re: Map[Var, Var]) =
@@ -345,6 +357,7 @@ case class Call(name: Name, in: List[Expr], out: List[Var]) extends Prog {
   def vars = in.free ++ out.free
   def mod = out.toSet
   def read = in.free
+  def funs = in.funs
   def local = Set()
   def breaks = false
   def replace(re: Map[Var, Var]) =

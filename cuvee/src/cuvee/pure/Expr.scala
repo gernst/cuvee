@@ -712,3 +712,19 @@ case class Distinct(exprs: List[Expr]) extends Expr {
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Distinct(exprs inst (ty, su))
 }
+
+case class Post(how: cuvee.imp.Modality, prog: cuvee.imp.Prog, post: Expr) extends Expr {
+  def typ = Sort.bool
+  def funs = prog.funs ++ post.funs
+  def free = prog.read ++ post.free // XXX: overapproximation
+  def hasModalities = true
+  def rename(re: Map[Var, Var]) = Post(how, prog replace re, post rename re)
+  def subst(su: Map[Var, Expr]) =
+    cuvee.undefined
+
+  def inst(su: Map[Param, Type]) =
+    this
+
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    cuvee.undefined
+}

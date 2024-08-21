@@ -122,6 +122,9 @@ class VCGen(val state: State) {
 
       val body_ = eval(body, scope ++ su, st, old)
       Let(eqs_, body_)
+
+    case Post(how, prog, post) => 
+      wp(how, prog, scope, st, post, old)
   }
 
   def havoc(xs: List[Var]) = {
@@ -145,6 +148,7 @@ class VCGen(val state: State) {
   def wp(
       how: Modality,
       prog: Prog,
+      scope: Map[Var, Expr],
       st: Map[Var, Expr],
       post: Expr,
       old: List[Map[Var, Expr]] = Nil
@@ -153,10 +157,10 @@ class VCGen(val state: State) {
       how,
       List(prog),
       Nil,
-      Map(),
+      scope,
       st,
       old,
-      eval(post, Map(), _, old),
+      eval(post, scope, _, old),
       no_brk,
       no_ret
     )

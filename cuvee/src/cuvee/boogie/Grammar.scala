@@ -85,7 +85,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | ite | bind | map)
+      P(parens(expr) | num | wp | ite | bind | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~+ ",") | ret(Nil))
@@ -109,8 +109,12 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
     def map(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(zip(app ~ access.*))
+
     def ite(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
+
+    def wp(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(WP(braces(block_) ~ formula) | Box(brackets(block_) ~ formula) | Dia(angle(block_) ~ formula))
 
     def scoped_expr(
         bound: List[Var]
@@ -213,9 +217,6 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
 
-  val block_end =
-    "}" ~ ret(Nil)
-
   def block_local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     (local ::@ (prog => block_(scope ++ prog.xs.asScope, ctx)))
 
@@ -223,10 +224,10 @@ class Grammar(parser: cuvee.boogie.Parser) {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[List[Prog], Token] =
-    P(block_end | block_local | (prog :: block_))
+    P(block_local | (prog :: block_) | ret(Nil))
 
   def block(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Block("{" ~ block_))
+    P(Block(braces(block_)))
 
   def scoped_body(implicit ctx: Map[Name, Param]) =
     (sig: (List[Var] ~ List[Var] ~ List[Var])) => {

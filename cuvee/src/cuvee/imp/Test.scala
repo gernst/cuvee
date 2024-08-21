@@ -22,7 +22,7 @@ object Test {
     val st = Expr.id(xs)
 
     val eval = new VCGen(State.default)
-    val phi = Forall(xs, pre ==> eval.wp(WP, prog, st, post, List(st)))
+    val phi = Forall(xs, pre ==> eval.wp(WP, prog, Map(), st, post, List(st)))
 
     val solver = Solver.z3()
 
