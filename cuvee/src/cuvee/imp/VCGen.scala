@@ -160,7 +160,7 @@ class VCGen(val state: State) {
       scope,
       st,
       old,
-      eval(post, Map(), _, old),
+      eval(post, scope, _, old),
       no_brk,
       no_ret
     )

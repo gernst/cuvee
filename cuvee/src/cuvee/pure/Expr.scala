@@ -718,10 +718,11 @@ case class Post(how: cuvee.imp.Modality, prog: cuvee.imp.Prog, post: Expr) exten
   def free = prog.read ++ post.free // XXX: overapproximation
   def hasModalities = true
   def rename(re: Map[Var, Var]) = Post(how, prog replace re, post rename re)
-  def subst(su: Map[Var, Expr]) = cuvee.undefined
+  def subst(su: Map[Var, Expr]) =
+    cuvee.undefined
 
   def inst(su: Map[Param, Type]) =
-    cuvee.undefined
+    this
 
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     cuvee.undefined

@@ -6,16 +6,18 @@ import cuvee.util.Name
 
 object Skip extends Block(Nil)
 
-sealed trait Modality extends ((Prog, Expr) => Expr) {
+sealed trait Modality extends ((List[Prog], Expr) => Expr) {
   def spec(xs: List[Var], pre: Expr, post: Expr): Expr
   def split(cond: Expr, left: Expr, right: Expr): Expr
 
-  def apply(prog: Prog, post: Expr) = {
-    Post(this, prog, post)
+  def apply(progs: List[Prog], post: Expr) = {
+    Post(this, Block(progs), post)
   }
 
   def unapply(expr: Post) =
     expr match {
+      case Post(how, prog, post) if how == this =>
+        Some((prog, post))
       case Post(how, prog, post) if how == this =>
         Some((prog, post))
       case _ =>
