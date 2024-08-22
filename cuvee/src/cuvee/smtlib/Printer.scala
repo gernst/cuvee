@@ -77,21 +77,30 @@ object Printer extends cuvee.util.Printer {
 
     case DeclareSort(name, arity) =>
       parens("declare-sort", name, arity)
+
     case DefineSort(name, params, body) =>
       parens("define-sort", name, params, body)
-    case DeclareFun(name, params, args, res) =>
+
+    case DeclareVar(name, typ) => // not in SMT-LIB
+      parens("declare-var", name, typ)
+
+    // XXX: no params supported below yet
+    case DeclareFun(name, Nil, args, res) =>
       parens("declare-fun", name, args, res)
-    case DefineFun(name, params, formals, res, body, rec) if rec =>
+
+    case DefineFun(name, Nil, formals, res, body, true) =>
       parens("define-fun-rec", name, formals.asFormals, res, body)
-    case DefineFun(name, params, formals, res, body, _) =>
+
+    case DefineFun(name, Nil, formals, res, body, false) =>
       parens("define-fun", name, formals.asFormals, res, body)
+
     case DeclareDatatypes(arities, datatypes) =>
       parens("declare-datatypes", arities, datatypes)
 
-    case DeclareProc(name, params, in, out, None) =>
+    case DeclareProc(name, Nil, in, out, None) =>
       parens("declare-proc", in.asFormals, out.asFormals)
 
-    case DeclareProc(name, params, in, out, Some(Spec(mod, pre, post))) =>
+    case DeclareProc(name, Nil, in, out, Some(Spec(mod, pre, post))) =>
       parens(
         "declare-proc",
         in.asFormals,
