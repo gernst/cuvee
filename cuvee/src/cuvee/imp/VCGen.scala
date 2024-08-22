@@ -53,6 +53,8 @@ class VCGenStage(partial: Boolean) extends Stage {
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
         List(Lemma(phi, None, Some(Goal)))
 
+      case DeclareVar(_, _) => List()
+
       case cmd =>
         List(cmd)
     }
@@ -123,7 +125,7 @@ class VCGen(val state: State) {
       val body_ = eval(body, scope ++ su, st, old)
       Let(eqs_, body_)
 
-    case Post(how, prog, post) => 
+    case Post(how, prog, post) =>
       wp(how, prog, scope, st, post, old)
   }
 
