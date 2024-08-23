@@ -21,6 +21,9 @@ class VCGenStage(partial: Boolean) extends Stage {
         val scope = Expr.id(formals)
         List(DefineFun(name, params, formals, res, eval.eval(body, scope), rec))
 
+      case DeclareVar(_, _) =>
+        Nil
+
       case DeclareProc(name, params, in, out, spec) =>
         Nil
 
@@ -52,8 +55,6 @@ class VCGenStage(partial: Boolean) extends Stage {
         val phi = Forall(xs, pre ==> eval.wp_proc(how, body, st, post_))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
         List(Lemma(phi, None, Some(Goal)))
-
-      case DeclareVar(_, _) => List()
 
       case cmd =>
         List(cmd)

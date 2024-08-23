@@ -148,7 +148,7 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
     )
 
     for ((x, e) <- (xs zip rhs)) {
-      require(x.typ == e.typ, "ill-typed declaration")
+      require(x.typ == e.typ, "ill-typed declaration: " + x + " := " + e)
     }
   }
   def vars = rhs.free
