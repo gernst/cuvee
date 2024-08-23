@@ -79,6 +79,8 @@ object Arrays extends Annotate(ExecNoLoops) {
 
     val prog_ = While(test, body_, term_, inv_, sum, frames)
 
+    // println(paths)
+    // println(inv_)
     val paths_ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
 
     (paths_, prog_)
@@ -99,7 +101,10 @@ object Arrays extends Annotate(ExecNoLoops) {
     val inv_ = inv rename re
     val prems = Accelerate.tryEarlierValuesOf(counters, ys, re)
 
-    val avoids = for (path <- avoid) yield Not(path.constraint) rename re
+    val avoids =
+      for (Path(fresh, constraints, _, _) <- avoid)
+        yield Not(Exists(fresh, And(constraints))) rename re
+
     // println("avoids: ")
     // avoids foreach println
     val result = Forall(ys_, And(inv_ :: prems) ==> And(test_ :: avoids))
