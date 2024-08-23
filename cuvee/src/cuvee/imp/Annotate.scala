@@ -176,7 +176,8 @@ abstract class Annotate(val exec: Exec) extends Stage {
       case While(test, body, term, inv, sum, frames) =>
         body match {
           case Block(progs_) if progs_.exists(e => e.isInstanceOf[While]) =>
-            cuvee.error("Nested loops are not supported.")
+            cuvee.error("annotating nested loops is not supported.")
+
           case _ =>
             resume {
               while_(state, paths, test, body, term, inv, sum, frames)
