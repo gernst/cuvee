@@ -150,7 +150,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Prog, Token] =
-    P(spec | ctrl | if_ | while_ | call | assign | block)
+    P(spec | ctrl | if_ | while_ | call | block | assign)
 
   val ctrl =
     Break("break" ~ ";") | Return("return" ~ ";")
@@ -218,7 +218,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
   // TODO: we can narrow the type of expr to that of the corresponding var
 
   def block_local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    (local ::@ (prog => block_(scope ++ prog.xs.asScope, ctx)))
+    (local ::@ { case Local(xs, init) => block_(scope ++ xs.asScope, ctx) })
 
   def block_(implicit
       scope: Map[Name, Var],
