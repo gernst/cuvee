@@ -107,7 +107,7 @@ class Parser(val state: State = State.default) {
     arg => typing.resolved(arg)
 
   def make_typed_expr(typ: Type): (Expr => Expr) =
-    (arg) => typing.checked(arg, typ)
+    arg => typing.checked(arg, typ)
 
   val make_formula: (Expr => Expr) =
     arg => typing.checked(arg, Sort.bool)

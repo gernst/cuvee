@@ -58,7 +58,7 @@ nsqm-iff.bpl, Unknown
 avg60-1.bpl, Success
 standard_find_ground-1.bpl, Success
 max10-2.bpl, Success
-array1_pattern.bpl, Unsupported
+array1_pattern.bpl, Unknown
 indp4f.bpl, Unknown
 s4liff.bpl, Unknown
 sanfoundry_24-1.bpl, Unknown
@@ -225,7 +225,7 @@ sum20-2.bpl, Success
 modp.bpl, Unknown
 standard_init1_ground-2.bpl, Success
 rangesum05.bpl, Success
-array4_pattern.bpl, Unsupported
+array4_pattern.bpl, Unknown
 array_tiling_tcpy.bpl, Unknown
 s1iff.bpl, Unknown
 standard_two_index_06.bpl, Unknown

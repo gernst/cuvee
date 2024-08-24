@@ -14,7 +14,7 @@ object tasks
     extends Run(
       Earlier,
       "examples/chc/maxpranq/bench_precondn/c_serialized",
-      "examples/boogie/sv-benchmarks"
+      "examples/boogie/sv-benchmarks",
       // "detailed"
     )
 
@@ -31,7 +31,7 @@ object Earlier extends Main {
 
     for (path <- paths) {
       val results = eval(detailed, path)
-      record(path, results)
+      if (!detailed) record(path, results)
     }
   }
 
@@ -57,8 +57,10 @@ object Earlier extends Main {
         "-prove:z3"
       )
 
+      val file_ = file.substring(0, file.lastIndexOf('.'))
+
       if (detailed) {
-        args = args ++ List("-o", dst_ + file + ".bpl")
+        args = args ++ List("-o", dst_ + file_ + ".bpl")
       } else {
         args = args :+ "-prove:strict"
       }
@@ -104,5 +106,4 @@ object Earlier extends Main {
     tex.println("\\newcommand{\\Unsupported}{" + unsupported + "}")
     tex.close()
   }
-
 }
