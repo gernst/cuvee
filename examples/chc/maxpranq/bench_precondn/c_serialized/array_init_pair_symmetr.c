@@ -13,7 +13,7 @@ int main()
     int j,k;
     __VERIFIER_assume(-10000 < j && j < 10000);
     __VERIFIER_assume(-10000 < k && k < 10000);
-    __VERIFIER_assume((j - k) == 0);
+    __VERIFIER_assume((j + k) == 0);
     a[i]=j;
     b[i]=-k;
   }
