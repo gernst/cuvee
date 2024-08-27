@@ -15,6 +15,7 @@ object tasks
       Earlier,
       "examples/chc/maxpranq/bench_precondn/c_serialized",
       "examples/boogie/sv-benchmarks",
+      "examples/boogie/rapid",
       // "detailed"
     )
 
@@ -41,6 +42,9 @@ object Earlier extends Main {
     val path_ = path.split("/")
     if (path_.contains("sv-benchmarks")) {
       dst_ += "sv-benchmarks/"
+      typ = ".bpl"
+    } else if (path_.contains("rapid")) {
+      dst_ += "rapid/"
       typ = ".bpl"
     } else if (path_.contains("maxpranq")) {
       dst_ += "maxpranq/"
