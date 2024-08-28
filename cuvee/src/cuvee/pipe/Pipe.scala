@@ -75,6 +75,8 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
       // println(distinct)
       // println(top.prefix)
       // println(last)
+      for (cmd <- top.prefix.duplicates)
+        println(cmd)
       assert(false, "duplicate entries")
     }
 

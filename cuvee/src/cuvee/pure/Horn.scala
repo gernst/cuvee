@@ -10,7 +10,8 @@ object Horn extends Stage {
   override def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, in: State): List[Cmd] = {
     cmds flatMap {
       case Lemma(todo, None, flag) =>
-        for(expr <- assert(List(todo), Nil, Nil, Nil))
+        val goals = assert(List(todo), Nil, Nil, Nil)
+        for(expr <- goals.distinct)
         yield Lemma(expr, None, flag)
 
       case cmd =>

@@ -5,7 +5,7 @@ import cuvee.imp._
 import cuvee.smtlib.Solver
 import cuvee.State
 
-object Arrays extends Annotate(ExecNoLoops) {
+case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
   def while_(
       state: cuvee.State,
       paths: Paths,
@@ -141,10 +141,14 @@ object Arrays extends Annotate(ExecNoLoops) {
     val yes = Or(concls)
     val no = Select(a, x) === Old(Select(a, x))
 
-    val phi = Forall(List(x), p ==> yes)
-    val psi = Forall(List(x), (Not(p) ==> no))
-
-    List(phi, psi)
+    if (frame) {
+      val phi = Forall(List(x), p ==> yes)
+      val psi = Forall(List(x), (Not(p) ==> no))
+      List(phi, psi)
+    } else {
+      val phi = Forall(List(x), p ==> yes)
+      List(phi)
+    }
   }
 
   def dom(a: Var) = a match {
