@@ -21,10 +21,10 @@ procedure loop(s: state)
         invariant I(old(s), s);
         summary   R(s, final(s));
     {
-        var t: state;
-        assume B(s, t);
-        s := t;
-        if(!b(t)) { break; }
+        var s_: state;
+        assume B(s, s_);
+        s := s_;
+        if(!b(s_)) { break; }
     }
 
     s_ := s;

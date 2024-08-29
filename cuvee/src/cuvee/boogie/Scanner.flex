@@ -35,6 +35,7 @@ op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"
    | "==" | "!=" | "<=" | "<" | ">" | ">="
 
 quant = "forall" | "exists"
+loc = "old" | "final" | "earlier"
 
 %%
 
@@ -46,6 +47,7 @@ quant = "forall" | "exists"
 {kw}        { return Parser.kw(yytext()); }
 \" ~ \"     { return Parser.string().apply(yytext(+1,-1)); }
 {quant}     { return Parser.quant().apply(yytext()); }
+{loc}       { return Parser.loc().apply(yytext()); }
 {number}    { return Parser.number().apply(yytext()); }
 {id}        { return Parser.id().apply(yytext()); }
 {op}        { return Parser.op().apply(yytext()); }

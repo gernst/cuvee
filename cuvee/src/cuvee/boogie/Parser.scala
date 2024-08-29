@@ -27,10 +27,6 @@ class Parser(val state: State = State.default) {
     implicit val ctx: Map[Name, Param] = Map()
   }
 
-  val a = Param("a")
-  val old = state.fun("old", List(a), List(a), a)
-  val fin = state.fun("final", List(a), List(a), a)
-
   object typing extends Scope[Param, Type] {
     def unify(typ1: Type, typ2: Type) = {
       value = Type.unify(typ1, typ2, value)
@@ -56,13 +52,18 @@ class Parser(val state: State = State.default) {
       new App(inst, args)
     }
 
+    def at(name: String, arg: Expr) = {
+      val loc = Loc(name)
+      new At(loc, arg)
+    }
+
     def bind(
-        name: Name,
+        name: String,
         bound: List[Var],
         body: Expr,
         typ: Type
     ) = {
-      val quant = Quant(name.name)
+      val quant = Quant(name)
       unify(body.typ, typ)
       Bind(quant, bound, body, typ)
     }
@@ -154,6 +155,10 @@ class Parser(val state: State = State.default) {
 
   def make_bind: ((String, (List[Var], Expr)) => Expr) = { case (name, (bound, body)) =>
     typing.bind(name, bound, body, Sort.bool)
+  }
+
+  def make_at: (((String, Expr)) => Expr) = { case (loc, arg) =>
+    typing.at(loc, arg)
   }
 
   def make_not =
@@ -274,6 +279,29 @@ class Parser(val state: State = State.default) {
       Some(spec)
     }
   }
+}
+
+object Parser {
+  def kw(name: String) = KW(name)
+  val eof = new Token {}
+  val id = V[String]
+  val op = V[String]
+  val number = V[String]
+  val string = V[String]
+  val quant = V[String]
+  val loc = V[String]
+
+  val translate = Map(
+    "<==>" -> "=",
+    "==>" -> "=>",
+    "&&" -> "and",
+    "||" -> "or",
+    "==" -> "=",
+    // "!=" -> "distinct",
+    "/" -> "div",
+    "%" -> "mod",
+    "!" -> "not"
+  )
 
   val final_to_old: (Expr => Expr) =
     (expr: Expr) => final_to_old_(expr, Set())
@@ -292,26 +320,22 @@ class Parser(val state: State = State.default) {
     case Bind(quant, formals, body, typ) =>
       Bind(quant, formals, final_to_old_(body, bound ++ formals), typ)
   }
-}
 
-object Parser {
-  def kw(name: String) = KW(name)
-  val eof = new Token {}
-  val id = V[String]
-  val op = V[String]
-  val number = V[String]
-  val string = V[String]
-  val quant = V[String]
+  val old_to_final: (Expr => Expr) =
+    (expr: Expr) => old_to_final_(expr, Set())
 
-  val translate = Map(
-    "<==>" -> "=",
-    "==>" -> "=>",
-    "&&" -> "and",
-    "||" -> "or",
-    "==" -> "=",
-    // "!=" -> "distinct",
-    "/" -> "div",
-    "%" -> "mod",
-    "!" -> "not"
-  )
+  def old_to_final_(expr: Expr, bound: Set[Var]): Expr = expr match {
+    case l: Lit =>
+      l
+    case x: Var if !(bound contains x) =>
+      Final(x)
+    case x: Var =>
+      x
+    case Old(expr) =>
+      expr
+    case App(inst, args) =>
+      App(inst, args map (old_to_final_(_, bound)))
+    case Bind(quant, formals, body, typ) =>
+      Bind(quant, formals, old_to_final_(body, bound ++ formals), typ)
+  }
 }
