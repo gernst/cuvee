@@ -9,6 +9,7 @@ import scala.collection.immutable
 import cuvee.pure.Sort
 
 object Translate {
+  var split = false
   val (prelude, state) = cuvee.boogie.parse("cuvee/src/cuvee/c/c.bpl")
 }
 
@@ -18,8 +19,6 @@ class Translate(state: State) {
   // val heap = state.vars("c#heap")
   val bitand = state.funs("c#bitand", 2)
   val bitor = state.funs("c#bitor", 2)
-
-  var split = false
 
   def ptr(typ: Type) =
     state.sort("c#ptr", List(resolve(typ)))
@@ -413,7 +412,7 @@ class Translate(state: State) {
         val (res_, progs2) = assign(lhs, arg_, scope)
         (res_, progs1 ++ progs2)
 
-      case BinOp("&&", arg1, arg2) if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("&&", arg1, arg2) if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -422,7 +421,7 @@ class Translate(state: State) {
         val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
         (bool(x0), progs1 ++ List(asg1_, if_))
 
-      case BinOp("||", arg1, arg2) if split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("||", arg1, arg2) if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)

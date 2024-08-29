@@ -109,6 +109,12 @@ package object cuvee {
     def subsetOf(that: List[A]) =
       self forall that.contains
 
+    def zipWithFirstLast = {
+      var len = self.length
+      for ((a, i) <- self.zipWithIndex)
+        yield (a, i == 0, i == len - 1)
+    }
+
     def duplicates = {
       val result = scala.collection.mutable.ListBuffer[A]()
       val seen = scala.collection.mutable.Set[A]()
@@ -118,7 +124,7 @@ package object cuvee {
           result += a
         seen += a
       }
-      
+
       result.toList
     }
   }

@@ -402,6 +402,12 @@ class Parser(init: State) {
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))
 
+        case App(Id("+"), rest @ _*) =>
+          commutative("+", lit(BigInt(0), Sort.int), exprs(rest.toList, ctx, scope))
+
+        case App(Id("*"), rest @ _*) =>
+          commutative("*", lit(BigInt(1), Sort.int), exprs(rest.toList, ctx, scope))
+
         case App(Id("and"), rest @ _*) =>
           commutative("and", const("true"), exprs(rest.toList, ctx, scope))
 

@@ -202,8 +202,8 @@ case class Sort(con: Con, args: List[Type]) extends Type {
   override def toString = this match {
     case Sort(con, Nil) =>
       con.name.toString
-    case Sort(Con.array, List(a, b)) =>
-      "[" + a + "]" + b
+    // case Sort(Con.array, List(a, b)) =>
+    //   "[" + a + "]" + b
     case _ =>
       con.name.toString + args.mkString("<", ", ", ">")
   }
