@@ -17,10 +17,10 @@ object Accelerate {
   ): Option[Expr] = {
     counter match {
       case Counter(init, `plus_one`) =>
-        Some(init <= rho(current) && rho(current) < current)
+        Some(Old(current) <= rho(current) && rho(current) < current)
 
       case Counter(init, `minus_one`) =>
-        Some(current < rho(current) && rho(current) <= init)
+        Some(current < rho(current) && rho(current) <= Old(current))
 
       case _ =>
         None
@@ -31,10 +31,10 @@ object Accelerate {
     val lb = for ((var_, counter) <- counters) yield {
       counter match {
         case Counter(init, `plus_one`) =>
-          init <= var_
+          Old(var_) <= var_
 
         case Counter(init, `minus_one`) =>
-          var_ <= init
+          var_ <= Old(var_)
 
         case _ =>
           True

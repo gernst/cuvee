@@ -47,7 +47,7 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
       re,
       counters,
       test,
-      And(inv :: lbs),
+      inv,
       after.breaked ++ after.returned
     )
 
@@ -79,8 +79,8 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
 
     val prog_ = While(test, body_, term_, inv_, sum, frames)
 
-    // println(paths)
-    // println(inv_)
+    println(paths)
+    println(inv_)
     val paths_ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
 
     (paths_, prog_)

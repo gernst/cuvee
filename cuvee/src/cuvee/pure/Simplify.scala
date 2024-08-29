@@ -36,7 +36,7 @@ object Simplify {
       case Imp(phi, psi) =>
         imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
 
-      case expr@ Ite(test, left, right) =>
+      case expr @ Ite(test, left, right) =>
         ite(
           simplify(test, rules, constrs),
           simplify(left, rules, constrs),
@@ -44,7 +44,10 @@ object Simplify {
         )
 
       case Is(arg, fun) =>
-        is(arg, fun)
+        is(simplify(arg, rules, constrs), fun)
+
+      case At(where, arg) =>
+        at(where, simplify(arg, rules, constrs))
 
       case Eq(left, right) if left.typ == Sort.bool =>
         eqv(simplify(left, rules, constrs), simplify(right, rules, constrs))
@@ -202,7 +205,6 @@ object Simplify {
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
     case Conj(xs, props) =>
-      
       var eqs = props collect {
         case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
         case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
@@ -216,6 +218,13 @@ object Simplify {
   def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Expr] = {
     for (expr <- exprs)
       yield simplify(expr, rules, constrs)
+  }
+
+  def at(where: Loc, arg: Expr) = {
+    if (arg.free.isEmpty)
+      arg
+    else
+      At(where, arg)
   }
 
   def is(arg: Expr, fun: Fun): Expr = if (false) {

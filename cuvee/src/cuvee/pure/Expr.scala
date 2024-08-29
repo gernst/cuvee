@@ -63,6 +63,8 @@ sealed trait Expr extends Expr.term with util.Syntax {
         g(Note(expr.map(f, g), attr))
       case Is(arg, fun) =>
         g(Is(arg map (f, g), fun))
+      case At(where, arg) =>
+        g(At(where, arg map (f, g)))
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
       case Distinct(exprs) =>
