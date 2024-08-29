@@ -26,14 +26,30 @@ object Sugar {
   class binder(val quant: Quant, val typ: Type) extends ((List[Var], Expr) => Expr) {
     def unapply(expr: Bind) =
       expr match {
-        case Bind(`quant`, formals, body, `typ`) => Some((formals, body))
-        case _                                   => None
+        case Bind(`quant`, formals, body, `typ`) =>
+          Some((formals, body))
+        case _ =>
+          None
       }
 
     def apply(formals: List[Var], body: Expr) = {
       val formals_ = formals filter body.free
       if (formals_.isEmpty) body
       else Bind(quant, formals_, body, typ)
+    }
+  }
+
+  class at(val loc: Loc) extends (Expr => Expr) {
+    def apply(arg: Expr) =
+      At(loc, arg)
+    def apply(args: List[Expr]) =
+      args map this
+
+    def unapply(expr: Expr) = expr match {
+      case At(`loc`, arg) =>
+        Some(arg)
+      case _ =>
+        None
     }
   }
 
@@ -48,12 +64,6 @@ object Sugar {
 
     def apply(arg: Expr) = {
       App(fun, List(arg))
-    }
-  }
-
-  class pointwise(fun: Fun) extends unary(fun) {
-    def apply(exprs: List[Expr]) = {
-      exprs map this
     }
   }
 

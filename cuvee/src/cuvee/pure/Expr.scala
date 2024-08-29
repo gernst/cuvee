@@ -372,9 +372,6 @@ object Eq extends Sugar.binary(Fun.eq_) {
 
 object Ite extends Sugar.ternary(Fun.ite)
 
-object Old extends Sugar.pointwise(Fun.old)
-object Final extends Sugar.pointwise(Fun.fin)
-
 object Const extends Sugar.unary(Fun.const)
 object Select extends Sugar.binary(Fun.select)
 object Store extends Sugar.ternary(Fun.store)
@@ -432,6 +429,42 @@ case class Is(arg: Expr, fun: Fun) extends Expr {
   override def toString = {
     arg + " is " + fun.name
   }
+}
+
+// cannot model as plain functions because substitution should not propagate
+// object Old extends Sugar.pointwise(Fun.old)
+// object Final extends Sugar.pointwise(Fun.fin)
+
+case class Loc(name: String) {
+  override def toString = name
+}
+
+object Loc {
+  val old = Loc("old")
+  val earlier = Loc("earlier")
+  val final_ = Loc("final")
+}
+
+object Old extends Sugar.at(Loc.old)
+object Earlier extends Sugar.at(Loc.earlier)
+object Final extends Sugar.at(Loc.final_)
+
+case class At(where: Loc, arg: Expr) extends Expr {
+  def typ = arg.typ
+  def funs = arg.funs
+  def free = arg.free
+
+  def rename(re: Map[Var, Var]) =
+    At(where, arg)
+  def subst(su: Map[Var, Expr]) =
+    At(where, arg)
+  def inst(su: Map[Param, Type]) =
+    At(where, arg inst su)
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    cuvee.undefined // not sure whether this makes sense at all
+
+  override def toString =
+    where + "(" + arg + ")"
 }
 
 object App extends ((Inst, List[Expr]) => App) {

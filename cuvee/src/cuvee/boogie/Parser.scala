@@ -27,10 +27,6 @@ class Parser(val state: State = State.default) {
     implicit val ctx: Map[Name, Param] = Map()
   }
 
-  val a = Param("a")
-  val old = state.fun("old", List(a), List(a), a)
-  val fin = state.fun("final", List(a), List(a), a)
-
   object typing extends Scope[Param, Type] {
     def unify(typ1: Type, typ2: Type) = {
       value = Type.unify(typ1, typ2, value)
