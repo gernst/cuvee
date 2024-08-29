@@ -305,7 +305,7 @@ object Printer extends cuvee.util.Printer {
       if (inv != True)
         spec ++= format("invariant", inv)
       if (sum != True)
-        spec ++= format("summary", sum)
+        spec ++= format("summary", cuvee.boogie.Parser.old_to_final(sum))
       if (!frames.isEmpty) {
         ???
         // val frames_ = for (f <- frames) yield line(f)
@@ -488,6 +488,8 @@ object Printer extends cuvee.util.Printer {
     case App(inst, args) =>
       val exprs = args map line
       inst.toString + "(" + exprs.mkString(", ") + ")"
+    case At(where, arg) =>
+      where + "(" + arg + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
       val quantifier = quant.toString + vars.mkString(" ", ", ", " :: ")

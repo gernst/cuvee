@@ -85,7 +85,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | wp | ite | bind | map)
+      P(parens(expr) | num | wp | ite | bind | at | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~+ ",") | ret(Nil))
@@ -114,7 +114,11 @@ class Grammar(parser: cuvee.boogie.Parser) {
       P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
 
     def wp(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(WP(braces(block_) ~ formula) | Box(brackets(block_) ~ formula) | Dia(angle(block_) ~ formula))
+      P(
+        WP(braces(block_) ~ formula) | Box(brackets(block_) ~ formula) | Dia(
+          angle(block_) ~ formula
+        )
+      )
 
     def scoped_expr(
         bound: List[Var]
@@ -123,6 +127,9 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
     def bind(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_bind(quant ~ (formals ~ "::" ~@ scoped_expr)))
+
+    def at(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(make_at(loc ~ "(" ~ expr ~ ")"))
   }
 
   def expr(typ: Type)(implicit
@@ -205,7 +212,6 @@ class Grammar(parser: cuvee.boogie.Parser) {
   // def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
   //   P(Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
-
 
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Assign.froms((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
@@ -456,7 +462,10 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(make_datatypes("data" ~ ((name ~ gens) ~+ ",") ~>@ datadefs_ ~ ";"))
 
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(sortdef | datadef | datadefs | constdef | vardecl | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser.Fail())
+    P(
+      sortdef | datadef | datadefs | constdef | vardecl | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser
+        .Fail()
+    )
 
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(cmd.*)
