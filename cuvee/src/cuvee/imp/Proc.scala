@@ -2,6 +2,7 @@ package cuvee.imp
 
 import cuvee.util.Name
 import cuvee.pure._
+import cuvee.State
 
 case class Proc(
     name: Name,
@@ -10,3 +11,9 @@ case class Proc(
     out: List[Var],
     spec: Option[Spec]
 ) {}
+
+object Proc {
+    def callgraph(state: State) = {
+        
+    }
+}

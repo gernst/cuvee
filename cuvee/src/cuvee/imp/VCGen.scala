@@ -5,6 +5,7 @@ import cuvee.pure._
 import cuvee.State
 import cuvee.pipe.Stage
 import cuvee.smtlib._
+import cuvee.imp.transform.Inline
 
 class VCGenStage(partial: Boolean) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
@@ -257,10 +258,7 @@ class VCGen(val state: State) {
         spec match {
           case None | Some(Spec(_, True, True)) if state.procdefs contains name =>
             // intentionally mirrors variables xs, ys, as procdef may refer to different vars than procdecl
-            val (xs, zs, body) = state procdefs name
-            val re = Expr.subst(zs, out)
-            val body_ = body replace re
-            val block = Block(List(Local(xs, in), Spec.havoc(out), body_))
+            val block = Inline.inline(state, name, in, out)
             wp(how, block :: rest, cont, scope, st, old, post, brk, ret)
 
           case None =>
