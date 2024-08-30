@@ -6,6 +6,7 @@ int main()
   int i;
   int N;
   int a[N];
+  __VERIFIER_assume(0 < N);
 
   for(i=1;i<N;i++) {
     int	j;

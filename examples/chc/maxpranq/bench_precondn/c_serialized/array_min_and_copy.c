@@ -8,6 +8,7 @@ int main()
   int N;
   int a[N];
   int b[N];
+  __VERIFIER_assume(0 < N);
 
   for(i=1;i<N;i++) {
     int k;

@@ -8,6 +8,7 @@ int main()
   int N;
   int a[N+1];
   int b[N];
+  __VERIFIER_assume(0 < N);
 
   __VERIFIER_assume(j < 10000 && j > -10000);
   
