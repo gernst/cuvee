@@ -1,0 +1,20 @@
+
+steps(compile(num(i)), st)
+  == steps(cons(push(i), nil), st)
+  == steps(nil, step(push(i), st))
+  == step(push(i), st)
+  == cons(i, st)
+
+steps(compile(add(a, b)), st)
+  == steps(append(compile(l), append(compile(r), cons(plus, nil))), st)
+  == steps(append(compile(r), cons(plus, nil)), steps(compile(l), st))
+  == steps(cons(plus, nil), steps(compile(l), steps(compile(r), st)))
+  == step(plus, steps(compile(l), steps(compile(r), st)))
+
+Note, we can compute first:step but it does not seem to help a lot, as it keeps the tricky pattern
+  first:0:step(push(i), st) == i
+  first:0:step(plus, cons(a, cons(b, st))) == (a + b)
+
+However, actually, steps:compile should fuse properly!
+
+Moreover, 
