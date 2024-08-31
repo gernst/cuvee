@@ -61,6 +61,9 @@ object Simplify {
       case Select(base, index) =>
         select(simplify(base, rules, constrs), simplify(index, rules, constrs))
 
+      case Store(base, index, value) =>
+        store(simplify(base, rules, constrs), simplify(index, rules, constrs), simplify(value, rules, constrs))
+
       case App(inst, args) =>
         app(expr, inst, simplify(args, rules, constrs), rules, constrs)
     }
@@ -240,7 +243,7 @@ object Simplify {
 
   def select(base: Expr, index: Expr) = {
     base match {
-      case Store(`base`, `index`, value) => value
+      case Store(_, `index`, value) => value
       case _                             => Select(base, index)
     }
   }
