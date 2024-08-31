@@ -291,6 +291,7 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
       case _: Lit           => false
       case Distinct(exprs)  => this in exprs
       case Is(arg, fun)     => this in arg
+      case At(where, arg)   => false
       case Note(expr, attr) => this in expr
       case self @ Let(eqs, body) =>
         val bound = self.bound
@@ -454,8 +455,7 @@ object Final extends Sugar.at(Loc.final_)
 case class At(where: Loc, arg: Expr) extends Expr {
   def typ = arg.typ
   def funs = arg.funs
-  def free = arg.free
-
+  def free = Set()
   def rename(re: Map[Var, Var]) =
     At(where, arg)
   def subst(su: Map[Var, Expr]) =

@@ -223,6 +223,11 @@ object Simplify {
       yield simplify(expr, rules, constrs)
   }
 
+  def simplify_(props: List[Prop], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Prop] = {
+    for (prop <- props)
+      yield simplify(prop, rules, constrs)
+  }
+
   def at(where: Loc, arg: Expr) = {
     if (arg.free.isEmpty)
       arg

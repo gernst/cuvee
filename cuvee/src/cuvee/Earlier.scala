@@ -56,7 +56,7 @@ object Earlier extends Main {
     val results = for (file <- dir.list() if file endsWith typ) yield {
       var args = List(
         path + "/" + file,
-        "-annotate:arrays",
+        "-annotate:arrays+frame",
         "-vcgen:partial",
         "-prove:z3"
       )

@@ -29,15 +29,15 @@ case class Path(
   }
 
   def lookup(x: Var) = {
-    Path.lookup(stack, x)
+    Path.lookup(fresh, stack, x)
   }
 
   def eval(expr: Expr) = {
-    Path.eval(stack, old, expr)
+    Path.eval(fresh, stack, old, expr)
   }
 
   def eval(exprs: List[Expr]) = {
-    Path.eval(stack, old, exprs)
+    Path.eval(fresh, stack, old, exprs)
   }
 
   def local(xs: List[Var], rhs: List[Expr]) = {
@@ -46,7 +46,7 @@ case class Path(
     val top :: rest = stack
 
     if (rhs.nonEmpty) {
-      val rhs_ = Path.eval(stack, old, rhs)
+      val rhs_ = Path.eval(fresh, stack, old, rhs)
       val su = Expr.subst(xs, rhs_)
       val stack_ = (top ++ su) :: rest
       Path(fresh, constraints, stack_, old)
@@ -61,13 +61,13 @@ case class Path(
 
   def assign(xs: List[Var], rhs: List[Expr]) = {
     require(xs.length == rhs.length)
-    val rhs_ = Path.eval(stack, old, rhs)
+    val rhs_ = Path.eval(fresh, stack, old, rhs)
     val stack_ = Path.store(stack, xs zip rhs_)
     Path(fresh, constraints, stack_, old)
   }
 
   def assume(phi: Expr) = {
-    val phi_ = Path.eval(stack, old, phi)
+    val phi_ = Path.eval(fresh, stack, old, phi)
     val constraints_ = phi_ :: constraints
     Path(fresh, constraints_, stack, old)
   }
@@ -75,8 +75,11 @@ case class Path(
   def step(xs: List[Var], rel: Expr) = {
     val su = Expr.fresh(xs)
     val xs_ = xs rename su
-    val rel_ = Path.eval(su :: stack, stack :: old, rel)
-
+    // println("evaluating:")
+    // println(rel)
+    // println(su)
+    // println(stack)
+    val rel_ = Path.eval(fresh, su :: stack, stack :: old, rel)
     val fresh_ = fresh ++ xs_
     val constraints_ = rel_ :: constraints
     val stack_ = Path.store(stack, xs zip xs_)
@@ -89,11 +92,20 @@ object Path {
 
   // delegate all operations on paths to ensure we don't
   // accidentally re-use the top-level versions of stack and olds
-  def eval(stack: List[Map[Var, Expr]], old: List[List[Map[Var, Expr]]], expr: Expr): Expr = {
+  def eval(
+      bound: List[Var],
+      stack: List[Map[Var, Expr]],
+      old: List[List[Map[Var, Expr]]],
+      expr: Expr
+  ): Expr = {
+    // println("evaluating: " + expr)
+    // println("stack:      " + stack)
+    // println("old:        " + old)
+    // println()
     expr match {
       case x: Var =>
         try {
-          lookup(stack, x)
+          lookup(bound, stack, x)
         } catch {
           case Unbound =>
             cuvee.error("unbound variable: " + x + " in " + stack.flatMap(_.keySet).mkString(", "))
@@ -103,40 +115,44 @@ object Path {
         expr
 
       case Is(arg, fun) =>
-        Is(eval(stack, old, arg), fun)
+        Is(eval(bound, stack, old, arg), fun)
 
       case Note(expr, attr) =>
-        Note(eval(stack, old, expr), attr)
+        Note(eval(bound, stack, old, expr), attr)
 
       case App(inst, args) =>
-        App(inst, eval(stack, old, args))
+        App(inst, eval(bound, stack, old, args))
 
       case Distinct(args) =>
-        Distinct(eval(stack, old, args))
+        Distinct(eval(bound, stack, old, args))
 
       case Old(expr) =>
         require(old.nonEmpty, "cannot evaluate old expression, no previous state(s) given")
         val stack_ :: old_ = old
-        eval(stack_, old_, expr)
+        eval(bound, stack_, old_, expr)
 
-      case Bind(quant, formals, body, typ) =>
+      case expr @ Bind(quant, formals, body, typ) =>
         val su = Expr.id(formals)
-        val body_ = eval(su :: stack, old, body)
+        val body_ = eval(bound ++ formals, stack, old, body)
         Bind(quant, formals, body_, typ)
     }
   }
 
   def eval(
+      formals: List[Var],
       stack: List[Map[Var, Expr]],
       old: List[List[Map[Var, Expr]]],
       exprs: List[Expr]
   ): List[Expr] = {
     for (expr <- exprs)
-      yield eval(stack, old, expr)
+      yield eval(formals, stack, old, expr)
   }
 
-  def lookup(stack: List[Map[Var, Expr]], x: Var): Expr = {
+  def lookup(bound: List[Var], stack: List[Map[Var, Expr]], x: Var): Expr = {
     stack match {
+      case Nil if bound contains x =>
+        x
+
       case Nil =>
         throw Unbound
       // cuvee.error("unbound local variable: " + x)
@@ -145,7 +161,7 @@ object Path {
         st(x)
 
       case st :: outer =>
-        lookup(outer, x)
+        lookup(bound, outer, x)
     }
   }
 

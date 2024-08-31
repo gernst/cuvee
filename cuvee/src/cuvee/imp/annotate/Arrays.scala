@@ -47,11 +47,16 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
       re,
       counters,
       test,
-      inv,
+      And(inv :: lbs),
       after.breaked ++ after.returned
     )
 
-    val add = And(lbs ++ List(ub) ++ phi ++ psi)
+    val phis = lbs ++ List(ub) ++ phi ++ psi
+    val add = And(phis)
+
+    // val props = phis map Prop.from
+    // val props_ = Simplify.simplify_(props, Map(), Set())
+
     val add_ = Simplify.simplify(add, Map(), Set())
 
     val inv_ = inv && add_ // Simplify.simplify(And(inv :: lbs) && ub && add, Map(), Set())
@@ -78,9 +83,6 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
       term_ = decreases
 
     val prog_ = While(test, body_, term_, inv_, sum, frames)
-
-    println(paths)
-    println(inv_)
     val paths_ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
 
     (paths_, prog_)
