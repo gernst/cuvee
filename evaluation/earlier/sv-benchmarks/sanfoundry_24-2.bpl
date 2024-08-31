@@ -4,119 +4,103 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall i: int ::
-      i % 2 == 0);
+procedure printEven(i: int)
+  returns (c#result: c#void)
+{
+  assert i % 2 == 0;
+}
 
-goal (forall i: int ::
-      (i % 2 == 0
-         ==> false));
+procedure printOdd(i: int)
+  returns (c#result: c#void)
+{
+  assert i % 2 != 0;
+}
 
-goal (forall array: [int]int, __VERIFIER_nondet_int₁: int ::
-        0 <= 0
-        && 0 <= __VERIFIER_nondet_int₁
-        && (forall x₇: int, i₆: int ::
-              (  x₇ == i₆
-                && 0 <= i₆
-                && i₆ < 0
-                 ==> (exists __VERIFIER_nondet_int₂₅: int, i₆: int ::
-                        i₆ < __VERIFIER_nondet_int₁
-                        && x₇ == i₆
-                        && 0 <= i₆
-                        && i₆ < 0
-                        && array[x₇] == __VERIFIER_nondet_int₂₅)))
-        && (forall x₇: int ::
-                (exists i₆: int ::
-                        x₇ == i₆
-                        && 0 <= i₆
-                        && i₆ < 0)
-                || array[x₇] == array[x₇])
-        && (forall i₆: int ::
-              (  0 <= i₆
-                && i₆ < 0
-                 ==> i₆ < __VERIFIER_nondet_int₁))
-        && (forall array₁₈: [int]int, i₁₉: int ::
-              (  0 <= i₁₉
-                && i₁₉ <= __VERIFIER_nondet_int₁
-                && (forall x₇: int, i₆: int ::
-                      (  x₇ == i₆
-                        && 0 <= i₆
-                        && i₆ < i₁₉
-                         ==> (exists __VERIFIER_nondet_int₂₅: int, i₆: int ::
-                                i₆ < __VERIFIER_nondet_int₁
-                                && x₇ == i₆
-                                && 0 <= i₆
-                                && i₆ < i₁₉
-                                && array₁₈[x₇] == __VERIFIER_nondet_int₂₅)))
-                && (forall x₇: int ::
-                        (exists i₆: int ::
-                                x₇ == i₆
-                                && 0 <= i₆
-                                && i₆ < i₁₉)
-                        || array₁₈[x₇] == array[x₇])
-                && (forall i₆: int ::
-                      (  0 <= i₆
-                        && i₆ < i₁₉
-                         ==> i₆ < __VERIFIER_nondet_int₁))
-                 ==> (forall __VERIFIER_nondet_int₂: int ::
-                        (i₁₉ < __VERIFIER_nondet_int₁
-                           ==> 0 <= i₁₉ + 1
-                            && i₁₉ + 1 <= __VERIFIER_nondet_int₁
-                            && (forall x₇: int, i₆: int ::
-                                  (  x₇ == i₆
-                                    && 0 <= i₆
-                                    && i₆ < i₁₉ + 1
-                                     ==> (exists __VERIFIER_nondet_int₂₅: int, i₆: int ::
-                                            i₆ < __VERIFIER_nondet_int₁
-                                            && x₇ == i₆
-                                            && 0 <= i₆
-                                            && i₆ < i₁₉ + 1
-                                            && array₁₈[i₁₉ := __VERIFIER_nondet_int₂][x₇] == __VERIFIER_nondet_int₂₅)))
-                            && (forall x₇: int ::
-                                    (exists i₆: int ::
-                                            x₇ == i₆
-                                            && 0 <= i₆
-                                            && i₆ < i₁₉ + 1)
-                                    || array₁₈[i₁₉ := __VERIFIER_nondet_int₂][x₇] == array[x₇])
-                            && (forall i₆: int ::
-                                  (  0 <= i₆
-                                    && i₆ < i₁₉ + 1
-                                     ==> i₆ < __VERIFIER_nondet_int₁))))
-                  &&   i₁₉ < __VERIFIER_nondet_int₁
-                    ||   0 <= __VERIFIER_nondet_int₁
-                      && (forall i₁₂: int ::
-                            i₁₂ < __VERIFIER_nondet_int₁)
-                      && (forall i₂₀: int ::
-                            (  i₂₀ <= __VERIFIER_nondet_int₁
-                              && (forall i₁₂: int ::
-                                    i₁₂ < __VERIFIER_nondet_int₁)
-                               ==> (i₂₀ < __VERIFIER_nondet_int₁
-                                   ==> (array₁₈[i₂₀] % 2 == 0
-                                       ==> array₁₈[i₂₀] % 2 == 0
-                                        && i₂₀ + 1 <= __VERIFIER_nondet_int₁
-                                        && (forall i₁₂: int ::
-                                              i₁₂ < __VERIFIER_nondet_int₁))
-                                    &&   array₁₈[i₂₀] % 2 == 0
-                                      ||   i₂₀ + 1 <= __VERIFIER_nondet_int₁
-                                        && (forall i₁₂: int ::
-                                              i₁₂ < __VERIFIER_nondet_int₁))
-                                &&   i₂₀ < __VERIFIER_nondet_int₁
-                                  ||   0 <= __VERIFIER_nondet_int₁
-                                    && (forall i₁₆: int ::
-                                          i₁₆ < __VERIFIER_nondet_int₁)
-                                    && (forall i₂₁: int ::
-                                          (  i₂₁ <= __VERIFIER_nondet_int₁
-                                            && (forall i₁₆: int ::
-                                                  i₁₆ < __VERIFIER_nondet_int₁)
-                                             ==> (i₂₁ < __VERIFIER_nondet_int₁
-                                               ==> array₁₈[i₂₁] % 2 == 0
-                                                  || (array₁₈[i₂₁] % 2 == 0
-                                                     ==> false)
-                                                && (array₁₈[i₂₁] % 2 == 0
-                                                   ==> i₂₁ + 1 <= __VERIFIER_nondet_int₁
-                                                    && (forall i₁₆: int ::
-                                                          i₁₆ < __VERIFIER_nondet_int₁))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var array: [int]int;
+  var i: int;
+  var __VERIFIER_nondet_int₁: int;
+  var num: int;
+  num := __VERIFIER_nondet_int₁;
+  i := 0;
+  while(i < num)
+    decreases num - i;
+    invariant true
+      && old(i) <= i
+      && i <= num
+      && (forall x₇: int ::
+            ((exists i₆: int ::
+                    x₇ == i₆
+                    && old(i) <= i₆
+                    && i₆ < i)
+               ==> (exists __VERIFIER_nondet_int₂₅: int, i₆: int ::
+                      i₆ < num
+                      && x₇ == i₆
+                      && old(i) <= i₆
+                      && i₆ < i
+                      && array[x₇] == __VERIFIER_nondet_int₂₅)))
+      && (forall x₇: int ::
+            (!((exists i₆: int ::
+                    x₇ == i₆
+                    && old(i) <= i₆
+                    && i₆ < i)
+            )
+               ==> array[x₇] == old(array[x₇])))
+      && (forall i₆: int ::
+            (  old(i₆) <= i₆
+              && old(i) <= i₆
+              && i₆ < i
+               ==> i₆ < num));
+  {
+    var __VERIFIER_nondet_int₂: int;
+    array := array[i := __VERIFIER_nondet_int₂];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < num)
+    decreases num - i;
+    invariant true
+      && old(i) <= i
+      && i <= num
+      && (forall i₁₁: int ::
+            (  old(i₁₁) <= i₁₁
+              && old(i) <= i₁₁
+              && i₁₁ < i
+               ==> i₁₁ < num));
+  {
+    if(array[i] % 2 == 0) {
+      var printEven₄: c#void;
+      printEven₄ := call printEven(array[i]);
+    }
+    i := i + 1;
+  }
+  i := 0;
+  while(i < num)
+    decreases num - i;
+    invariant true
+      && old(i) <= i
+      && i <= num
+      && (forall i₁₄: int ::
+            (  old(i₁₄) <= i₁₄
+              && old(i) <= i₁₄
+              && i₁₄ < i
+               ==> i₁₄ < num));
+  {
+    if(array[i] % 2 != 0) {
+      var printOdd₆: c#void;
+      printOdd₆ := call printOdd(array[i]);
+    }
+    i := i + 1;
+  }
+  c#result := 0;
+  return;
+}
 

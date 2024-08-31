@@ -4,295 +4,154 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall aa: [int]int, bb: [int]int, cc: [int]int ::
-        0 <= 0
-        && 0 <= 100000
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < 0
-                 ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                        i₅ < 100000
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < 0
-                        && aa[x₆] == __VERIFIER_nondet_int₁₄)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < 0)
-                || aa[x₆] == aa[x₆])
-        && (forall i₅: int ::
-              (  0 <= i₅
-                && i₅ < 0
-                 ==> i₅ < 100000))
-        && (forall aa₂₄: [int]int, i₂₅: int ::
-              (  0 <= i₂₅
-                && i₂₅ <= 100000
-                && (forall x₆: int, i₅: int ::
-                      (  x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₂₅
-                         ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                                i₅ < 100000
-                                && x₆ == i₅
-                                && 0 <= i₅
-                                && i₅ < i₂₅
-                                && aa₂₄[x₆] == __VERIFIER_nondet_int₁₄)))
-                && (forall x₆: int ::
-                        (exists i₅: int ::
-                                x₆ == i₅
-                                && 0 <= i₅
-                                && i₅ < i₂₅)
-                        || aa₂₄[x₆] == aa[x₆])
-                && (forall i₅: int ::
-                      (  0 <= i₅
-                        && i₅ < i₂₅
-                         ==> i₅ < 100000))
-                 ==> (forall __VERIFIER_nondet_int₁: int ::
-                        (i₂₅ < 100000
-                           ==> 0 <= i₂₅ + 1
-                            && i₂₅ + 1 <= 100000
-                            && (forall x₆: int, i₅: int ::
-                                  (  x₆ == i₅
-                                    && 0 <= i₅
-                                    && i₅ < i₂₅ + 1
-                                     ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                                            i₅ < 100000
-                                            && x₆ == i₅
-                                            && 0 <= i₅
-                                            && i₅ < i₂₅ + 1
-                                            && aa₂₄[i₂₅ := __VERIFIER_nondet_int₁][x₆] == __VERIFIER_nondet_int₁₄)))
-                            && (forall x₆: int ::
-                                    (exists i₅: int ::
-                                            x₆ == i₅
-                                            && 0 <= i₅
-                                            && i₅ < i₂₅ + 1)
-                                    || aa₂₄[i₂₅ := __VERIFIER_nondet_int₁][x₆] == aa[x₆])
-                            && (forall i₅: int ::
-                                  (  0 <= i₅
-                                    && i₅ < i₂₅ + 1
-                                     ==> i₅ < 100000))))
-                  &&   i₂₅ < 100000
-                    ||   0 <= 0
-                      && 0 <= 0
-                      && 0 <= 0
-                      && 0 <= 100000
-                      && (forall x₁₂: int, c₉: int ::
-                            (  x₁₂ == c₉
-                              && 0 <= c₉
-                              && c₉ < 0
-                               ==> (exists a₁₀: int ::
-                                    (0 <= aa₂₄[a₁₀]
-                                       ==> false))))
-                      && (forall x₁₂: int ::
-                              (exists c₉: int ::
-                                      x₁₂ == c₉
-                                      && 0 <= c₉
-                                      && c₉ < 0)
-                              || cc[x₁₂] == cc[x₁₂])
-                      && (forall x₁₃: int, b₁₁: int ::
-                            (  x₁₃ == b₁₁
-                              && 0 <= b₁₁
-                              && b₁₁ < 0
-                               ==> (exists a₁₀: int, b₁₁: int ::
-                                      0 <= aa₂₄[a₁₀]
-                                      && a₁₀ < 100000
-                                      && x₁₃ == b₁₁
-                                      && 0 <= b₁₁
-                                      && b₁₁ < 0
-                                      && bb[x₁₃] == aa₂₄[a₁₀])))
-                      && (forall x₁₃: int ::
-                              (exists b₁₁: int ::
-                                      x₁₃ == b₁₁
-                                      && 0 <= b₁₁
-                                      && b₁₁ < 0)
-                              || bb[x₁₃] == bb[x₁₃])
-                      && (forall c₉: int, a₁₀: int, b₁₁: int ::
-                            (  0 <= c₉
-                              && 0 <= a₁₀
-                              && 0 <= b₁₁
-                              && c₉ < 0
-                              && a₁₀ < 0
-                              && b₁₁ < 0
-                               ==> a₁₀ < 100000))
-                      && (forall c₂₆: int, cc₂₇: [int]int, a₂₈: int, b₂₉: int, bb₃₀: [int]int ::
-                            (  0 <= c₂₆
-                              && 0 <= a₂₈
-                              && 0 <= b₂₉
-                              && a₂₈ <= 100000
-                              && (forall x₁₂: int, c₉: int ::
-                                    (  x₁₂ == c₉
-                                      && 0 <= c₉
-                                      && c₉ < c₂₆
-                                       ==> (exists a₁₀: int ::
-                                            (0 <= aa₂₄[a₁₀]
-                                               ==> false))))
-                              && (forall x₁₂: int ::
-                                      (exists c₉: int ::
-                                              x₁₂ == c₉
-                                              && 0 <= c₉
-                                              && c₉ < c₂₆)
-                                      || cc₂₇[x₁₂] == cc[x₁₂])
-                              && (forall x₁₃: int, b₁₁: int ::
-                                    (  x₁₃ == b₁₁
-                                      && 0 <= b₁₁
-                                      && b₁₁ < b₂₉
-                                       ==> (exists a₁₀: int, b₁₁: int ::
-                                              0 <= aa₂₄[a₁₀]
-                                              && a₁₀ < 100000
-                                              && x₁₃ == b₁₁
-                                              && 0 <= b₁₁
-                                              && b₁₁ < b₂₉
-                                              && bb₃₀[x₁₃] == aa₂₄[a₁₀])))
-                              && (forall x₁₃: int ::
-                                      (exists b₁₁: int ::
-                                              x₁₃ == b₁₁
-                                              && 0 <= b₁₁
-                                              && b₁₁ < b₂₉)
-                                      || bb₃₀[x₁₃] == bb[x₁₃])
-                              && (forall c₉: int, a₁₀: int, b₁₁: int ::
-                                    (  0 <= c₉
-                                      && 0 <= a₁₀
-                                      && 0 <= b₁₁
-                                      && c₉ < c₂₆
-                                      && a₁₀ < a₂₈
-                                      && b₁₁ < b₂₉
-                                       ==> a₁₀ < 100000))
-                               ==> (a₂₈ < 100000
-                                   ==> (0 <= aa₂₄[a₂₈]
-                                       ==> 0 <= c₂₆
-                                        && 0 <= a₂₈ + 1
-                                        && 0 <= b₂₉ + 1
-                                        && a₂₈ + 1 <= 100000
-                                        && (forall x₁₂: int, c₉: int ::
-                                              (  x₁₂ == c₉
-                                                && 0 <= c₉
-                                                && c₉ < c₂₆
-                                                 ==> (exists a₁₀: int ::
-                                                      (0 <= aa₂₄[a₁₀]
-                                                         ==> false))))
-                                        && (forall x₁₂: int ::
-                                                (exists c₉: int ::
-                                                        x₁₂ == c₉
-                                                        && 0 <= c₉
-                                                        && c₉ < c₂₆)
-                                                || cc₂₇[x₁₂] == cc[x₁₂])
-                                        && (forall x₁₃: int, b₁₁: int ::
-                                              (  x₁₃ == b₁₁
-                                                && 0 <= b₁₁
-                                                && b₁₁ < b₂₉ + 1
-                                                 ==> (exists a₁₀: int, b₁₁: int ::
-                                                        0 <= aa₂₄[a₁₀]
-                                                        && a₁₀ < 100000
-                                                        && x₁₃ == b₁₁
-                                                        && 0 <= b₁₁
-                                                        && b₁₁ < b₂₉ + 1
-                                                        && bb₃₀[b₂₉ := aa₂₄[a₂₈]][x₁₃] == aa₂₄[a₁₀])))
-                                        && (forall x₁₃: int ::
-                                                (exists b₁₁: int ::
-                                                        x₁₃ == b₁₁
-                                                        && 0 <= b₁₁
-                                                        && b₁₁ < b₂₉ + 1)
-                                                || bb₃₀[b₂₉ := aa₂₄[a₂₈]][x₁₃] == bb[x₁₃])
-                                        && (forall c₉: int, a₁₀: int, b₁₁: int ::
-                                              (  0 <= c₉
-                                                && 0 <= a₁₀
-                                                && 0 <= b₁₁
-                                                && c₉ < c₂₆
-                                                && a₁₀ < a₂₈ + 1
-                                                && b₁₁ < b₂₉ + 1
-                                                 ==> a₁₀ < 100000)))
-                                    &&   0 <= aa₂₄[a₂₈]
-                                      ||   0 <= c₂₆ + 1
-                                        && 0 <= a₂₈ + 1
-                                        && 0 <= b₂₉
-                                        && a₂₈ + 1 <= 100000
-                                        && (forall x₁₂: int, c₉: int ::
-                                              (  x₁₂ == c₉
-                                                && 0 <= c₉
-                                                && c₉ < c₂₆ + 1
-                                                 ==> (exists a₁₀: int ::
-                                                      (0 <= aa₂₄[a₁₀]
-                                                         ==> false))))
-                                        && (forall x₁₂: int ::
-                                                (exists c₉: int ::
-                                                        x₁₂ == c₉
-                                                        && 0 <= c₉
-                                                        && c₉ < c₂₆ + 1)
-                                                || cc₂₇[c₂₆ := aa₂₄[a₂₈]][x₁₂] == cc[x₁₂])
-                                        && (forall x₁₃: int, b₁₁: int ::
-                                              (  x₁₃ == b₁₁
-                                                && 0 <= b₁₁
-                                                && b₁₁ < b₂₉
-                                                 ==> (exists a₁₀: int, b₁₁: int ::
-                                                        0 <= aa₂₄[a₁₀]
-                                                        && a₁₀ < 100000
-                                                        && x₁₃ == b₁₁
-                                                        && 0 <= b₁₁
-                                                        && b₁₁ < b₂₉
-                                                        && bb₃₀[x₁₃] == aa₂₄[a₁₀])))
-                                        && (forall x₁₃: int ::
-                                                (exists b₁₁: int ::
-                                                        x₁₃ == b₁₁
-                                                        && 0 <= b₁₁
-                                                        && b₁₁ < b₂₉)
-                                                || bb₃₀[x₁₃] == bb[x₁₃])
-                                        && (forall c₉: int, a₁₀: int, b₁₁: int ::
-                                              (  0 <= c₉
-                                                && 0 <= a₁₀
-                                                && 0 <= b₁₁
-                                                && c₉ < c₂₆ + 1
-                                                && a₁₀ < a₂₈ + 1
-                                                && b₁₁ < b₂₉
-                                                 ==> a₁₀ < 100000)))
-                                &&   a₂₈ < 100000
-                                  ||   0 <= 0
-                                    && 0 <= b₂₉
-                                    && (forall x₂₀: int ::
-                                          (  0 <= x₂₀
-                                            && x₂₀ < 0
-                                             ==> x₂₀ < b₂₉))
-                                    && (forall x₃₁: int ::
-                                          (  0 <= x₃₁
-                                            && x₃₁ <= b₂₉
-                                            && (forall x₂₀: int ::
-                                                  (  0 <= x₂₀
-                                                    && x₂₀ < x₃₁
-                                                     ==> x₂₀ < b₂₉))
-                                             ==> (x₃₁ < b₂₉
-                                                 ==> 0 <= bb₃₀[x₃₁]
-                                                  && 0 <= x₃₁ + 1
-                                                  && x₃₁ + 1 <= b₂₉
-                                                  && (forall x₂₀: int ::
-                                                        (  0 <= x₂₀
-                                                          && x₂₀ < x₃₁ + 1
-                                                           ==> x₂₀ < b₂₉)))
-                                              &&   x₃₁ < b₂₉
-                                                ||   0 <= 0
-                                                  && 0 <= c₂₆
-                                                  && (forall x₂₂: int ::
-                                                        (  0 <= x₂₂
-                                                          && x₂₂ < 0
-                                                           ==> x₂₂ < c₂₆))
-                                                  && (forall x₃₂: int ::
-                                                        (  0 <= x₃₂
-                                                          && x₃₂ <= c₂₆
-                                                          && (forall x₂₂: int ::
-                                                                (  0 <= x₂₂
-                                                                  && x₂₂ < x₃₂
-                                                                   ==> x₂₂ < c₂₆))
-                                                           ==> (x₃₂ < c₂₆
-                                                             ==> cc₂₇[x₃₂] < 0
-                                                              && 0 <= x₃₂ + 1
-                                                              && x₃₂ + 1 <= c₂₆
-                                                              && (forall x₂₂: int ::
-                                                                    (  0 <= x₂₂
-                                                                      && x₂₂ < x₃₂ + 1
-                                                                       ==> x₂₂ < c₂₆))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var aa: [int]int;
+  var a: int := 0;
+  var b: int := 0;
+  var c: int := 0;
+  var bb: [int]int;
+  var cc: [int]int;
+  var i: int := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₆: int ::
+            ((exists i₅: int ::
+                    x₆ == i₅
+                    && old(i) <= i₅
+                    && i₅ < i)
+               ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
+                      i₅ < 100000
+                      && x₆ == i₅
+                      && old(i) <= i₅
+                      && i₅ < i
+                      && aa[x₆] == __VERIFIER_nondet_int₁₄)))
+      && (forall x₆: int ::
+            (!((exists i₅: int ::
+                    x₆ == i₅
+                    && old(i) <= i₅
+                    && i₅ < i)
+            )
+               ==> aa[x₆] == old(aa[x₆])))
+      && (forall i₅: int ::
+            (  old(i₅) <= i₅
+              && old(i) <= i₅
+              && i₅ < i
+               ==> i₅ < 100000));
+  {
+    var __VERIFIER_nondet_int₁: int;
+    aa := aa[i := __VERIFIER_nondet_int₁];
+    i := i + 1;
+  }
+  while(a < 100000)
+    decreases 100000 - a;
+    invariant true
+      && old(c) <= c
+      && old(a) <= a
+      && old(b) <= b
+      && a <= 100000
+      && (forall x₁₂: int ::
+            ((exists c₉: int ::
+                    x₁₂ == c₉
+                    && old(c) <= c₉
+                    && c₉ < c)
+               ==> (exists c₉: int, a₁₀: int ::
+                      !(0 <= aa[a₁₀]
+                      )
+                      && a₁₀ < 100000
+                      && x₁₂ == c₉
+                      && old(c) <= c₉
+                      && c₉ < c
+                      && cc[x₁₂] == aa[a₁₀])))
+      && (forall x₁₂: int ::
+            (!((exists c₉: int ::
+                    x₁₂ == c₉
+                    && old(c) <= c₉
+                    && c₉ < c)
+            )
+               ==> cc[x₁₂] == old(cc[x₁₂])))
+      && (forall x₁₃: int ::
+            ((exists b₁₁: int ::
+                    x₁₃ == b₁₁
+                    && old(b) <= b₁₁
+                    && b₁₁ < b)
+               ==> (exists a₁₀: int, b₁₁: int ::
+                      0 <= aa[a₁₀]
+                      && a₁₀ < 100000
+                      && x₁₃ == b₁₁
+                      && old(b) <= b₁₁
+                      && b₁₁ < b
+                      && bb[x₁₃] == aa[a₁₀])))
+      && (forall x₁₃: int ::
+            (!((exists b₁₁: int ::
+                    x₁₃ == b₁₁
+                    && old(b) <= b₁₁
+                    && b₁₁ < b)
+            )
+               ==> bb[x₁₃] == old(bb[x₁₃])))
+      && (forall c₉: int, a₁₀: int, b₁₁: int ::
+            (  old(c₉) <= c₉
+              && old(a₁₀) <= a₁₀
+              && old(b₁₁) <= b₁₁
+              && old(c) <= c₉
+              && c₉ < c
+              && old(a) <= a₁₀
+              && a₁₀ < a
+              && old(b) <= b₁₁
+              && b₁₁ < b
+               ==> a₁₀ < 100000));
+  {
+    if(0 <= aa[a]) {
+      bb := bb[b := aa[a]];
+      b := b + 1;
+    } else {
+      cc := cc[c := aa[a]];
+      c := c + 1;
+    }
+    a := a + 1;
+  }
+  var x: int;
+  x := 0;
+  while(x < b)
+    decreases b - x;
+    invariant true
+      && old(x) <= x
+      && x <= b
+      && (forall x₂₀: int ::
+            (  old(x₂₀) <= x₂₀
+              && old(x) <= x₂₀
+              && x₂₀ < x
+               ==> x₂₀ < b));
+  {
+    assert 0 <= bb[x];
+    x := x + 1;
+  }
+  x := 0;
+  while(x < c)
+    decreases c - x;
+    invariant true
+      && old(x) <= x
+      && x <= c
+      && (forall x₂₂: int ::
+            (  old(x₂₂) <= x₂₂
+              && old(x) <= x₂₂
+              && x₂₂ < x
+               ==> x₂₂ < c));
+  {
+    assert cc[x] < 0;
+    x := x + 1;
+  }
+  c#result := 0;
+  return;
+}
 

@@ -4,212 +4,124 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N₁₅: int ::
-        N₁₅ <= 0
-        || (forall a: [int]int ::
-              (N₁₅ <= 2147483647 / 4
-                 ==> 0 <= 0
-                  && 0 <= N₁₅
-                  && (forall x₆: int, i₅: int ::
-                        (  x₆ == i₅
-                          && 0 <= i₅
-                          && i₅ < 0
-                           ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                                  i₅ < N₁₅
-                                  && x₆ == i₅
-                                  && 0 <= i₅
-                                  && i₅ < 0
-                                  && a[x₆] == __VERIFIER_nondet_int₁₄)))
-                  && (forall x₆: int ::
-                          (exists i₅: int ::
-                                  x₆ == i₅
-                                  && 0 <= i₅
-                                  && i₅ < 0)
-                          || a[x₆] == a[x₆])
-                  && (forall i₅: int ::
-                        (  0 <= i₅
-                          && i₅ < 0
-                           ==> i₅ < N₁₅))
-                  && (forall a₁₆: [int]int, i₁₇: int ::
-                        (  0 <= i₁₇
-                          && i₁₇ <= N₁₅
-                          && (forall x₆: int, i₅: int ::
-                                (  x₆ == i₅
-                                  && 0 <= i₅
-                                  && i₅ < i₁₇
-                                   ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                                          i₅ < N₁₅
-                                          && x₆ == i₅
-                                          && 0 <= i₅
-                                          && i₅ < i₁₇
-                                          && a₁₆[x₆] == __VERIFIER_nondet_int₁₄)))
-                          && (forall x₆: int ::
-                                  (exists i₅: int ::
-                                          x₆ == i₅
-                                          && 0 <= i₅
-                                          && i₅ < i₁₇)
-                                  || a₁₆[x₆] == a[x₆])
-                          && (forall i₅: int ::
-                                (  0 <= i₅
-                                  && i₅ < i₁₇
-                                   ==> i₅ < N₁₅))
-                           ==> (forall __VERIFIER_nondet_int₁: int ::
-                                  (i₁₇ < N₁₅
-                                     ==> 0 <= i₁₇ + 1
-                                      && i₁₇ + 1 <= N₁₅
-                                      && (forall x₆: int, i₅: int ::
-                                            (  x₆ == i₅
-                                              && 0 <= i₅
-                                              && i₅ < i₁₇ + 1
-                                               ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                                                      i₅ < N₁₅
-                                                      && x₆ == i₅
-                                                      && 0 <= i₅
-                                                      && i₅ < i₁₇ + 1
-                                                      && a₁₆[i₁₇ := __VERIFIER_nondet_int₁][x₆] == __VERIFIER_nondet_int₁₄)))
-                                      && (forall x₆: int ::
-                                              (exists i₅: int ::
-                                                      x₆ == i₅
-                                                      && 0 <= i₅
-                                                      && i₅ < i₁₇ + 1)
-                                              || a₁₆[i₁₇ := __VERIFIER_nondet_int₁][x₆] == a[x₆])
-                                      && (forall i₅: int ::
-                                            (  0 <= i₅
-                                              && i₅ < i₁₇ + 1
-                                               ==> i₅ < N₁₅))))
-                            &&   i₁₇ < N₁₅
-                              ||   0 <= 0
-                                && 0 <= N₁₅
-                                && (forall x₁₀: int, i₉: int ::
-                                      (  x₁₀ == i₉
-                                        && 0 <= i₉
-                                        && i₉ < 0
-                                         ==> (exists i₉: int ::
-                                                  a₁₆[i₉] < N₁₅
-                                                  && i₉ < N₁₅
-                                                  && x₁₀ == i₉
-                                                  && 0 <= i₉
-                                                  && i₉ < 0
-                                                  && a₁₆[x₁₀] == a₁₆[i₉])
-                                          || (exists i₉: int ::
-                                                (a₁₆[i₉] < N₁₅
-                                                   ==> false))))
-                                && (forall x₁₀: int ::
-                                        (exists i₉: int ::
-                                                x₁₀ == i₉
-                                                && 0 <= i₉
-                                                && i₉ < 0)
-                                        || a₁₆[x₁₀] == a₁₆[x₁₀])
-                                && (forall i₉: int ::
-                                      (  0 <= i₉
-                                        && i₉ < 0
-                                         ==> i₉ < N₁₅))
-                                && (forall a₁₈: [int]int, i₁₉: int ::
-                                      (  0 <= i₁₉
-                                        && i₁₉ <= N₁₅
-                                        && (forall x₁₀: int, i₉: int ::
-                                              (  x₁₀ == i₉
-                                                && 0 <= i₉
-                                                && i₉ < i₁₉
-                                                 ==> (exists i₉: int ::
-                                                          a₁₈[i₉] < N₁₅
-                                                          && i₉ < N₁₅
-                                                          && x₁₀ == i₉
-                                                          && 0 <= i₉
-                                                          && i₉ < i₁₉
-                                                          && a₁₈[x₁₀] == a₁₆[i₉])
-                                                  || (exists i₉: int ::
-                                                        (a₁₈[i₉] < N₁₅
-                                                           ==> false))))
-                                        && (forall x₁₀: int ::
-                                                (exists i₉: int ::
-                                                        x₁₀ == i₉
-                                                        && 0 <= i₉
-                                                        && i₉ < i₁₉)
-                                                || a₁₈[x₁₀] == a₁₆[x₁₀])
-                                        && (forall i₉: int ::
-                                              (  0 <= i₉
-                                                && i₉ < i₁₉
-                                                 ==> i₉ < N₁₅))
-                                         ==> (i₁₉ < N₁₅
-                                             ==> (a₁₈[i₁₉] < N₁₅
-                                                 ==> 0 <= i₁₉ + 1
-                                                  && i₁₉ + 1 <= N₁₅
-                                                  && (forall x₁₀: int, i₉: int ::
-                                                        (  x₁₀ == i₉
-                                                          && 0 <= i₉
-                                                          && i₉ < i₁₉ + 1
-                                                           ==> (exists i₉: int ::
-                                                                    a₁₈[i₁₉ := a₁₈[i₁₉]][i₉] < N₁₅
-                                                                    && i₉ < N₁₅
-                                                                    && x₁₀ == i₉
-                                                                    && 0 <= i₉
-                                                                    && i₉ < i₁₉ + 1
-                                                                    && a₁₈[i₁₉ := a₁₈[i₁₉]][x₁₀] == a₁₆[i₉])
-                                                            || (exists i₉: int ::
-                                                                  (a₁₈[i₁₉ := a₁₈[i₁₉]][i₉] < N₁₅
-                                                                     ==> false))))
-                                                  && (forall x₁₀: int ::
-                                                          (exists i₉: int ::
-                                                                  x₁₀ == i₉
-                                                                  && 0 <= i₉
-                                                                  && i₉ < i₁₉ + 1)
-                                                          || a₁₈[i₁₉ := a₁₈[i₁₉]][x₁₀] == a₁₆[x₁₀])
-                                                  && (forall i₉: int ::
-                                                        (  0 <= i₉
-                                                          && i₉ < i₁₉ + 1
-                                                           ==> i₉ < N₁₅)))
-                                              &&   a₁₈[i₁₉] < N₁₅
-                                                ||   0 <= i₁₉ + 1
-                                                  && i₁₉ + 1 <= N₁₅
-                                                  && (forall x₁₀: int, i₉: int ::
-                                                        (  x₁₀ == i₉
-                                                          && 0 <= i₉
-                                                          && i₉ < i₁₉ + 1
-                                                           ==> (exists i₉: int ::
-                                                                    a₁₈[i₁₉ := N₁₅][i₉] < N₁₅
-                                                                    && i₉ < N₁₅
-                                                                    && x₁₀ == i₉
-                                                                    && 0 <= i₉
-                                                                    && i₉ < i₁₉ + 1
-                                                                    && a₁₈[i₁₉ := N₁₅][x₁₀] == a₁₆[i₉])
-                                                            || (exists i₉: int ::
-                                                                  (a₁₈[i₁₉ := N₁₅][i₉] < N₁₅
-                                                                     ==> false))))
-                                                  && (forall x₁₀: int ::
-                                                          (exists i₉: int ::
-                                                                  x₁₀ == i₉
-                                                                  && 0 <= i₉
-                                                                  && i₉ < i₁₉ + 1)
-                                                          || a₁₈[i₁₉ := N₁₅][x₁₀] == a₁₆[x₁₀])
-                                                  && (forall i₉: int ::
-                                                        (  0 <= i₉
-                                                          && i₉ < i₁₉ + 1
-                                                           ==> i₉ < N₁₅)))
-                                          &&   i₁₉ < N₁₅
-                                            ||   0 <= 0
-                                              && 0 <= N₁₅
-                                              && (forall i₁₃: int ::
-                                                    (  0 <= i₁₃
-                                                      && i₁₃ < 0
-                                                       ==> i₁₃ < N₁₅))
-                                              && (forall i₂₀: int ::
-                                                    (  0 <= i₂₀
-                                                      && i₂₀ <= N₁₅
-                                                      && (forall i₁₃: int ::
-                                                            (  0 <= i₁₃
-                                                              && i₁₃ < i₂₀
-                                                               ==> i₁₃ < N₁₅))
-                                                       ==> (i₂₀ < N₁₅
-                                                         ==> a₁₈[i₂₀] <= N₁₅
-                                                          && 0 <= i₂₀ + 1
-                                                          && i₂₀ + 1 <= N₁₅
-                                                          && (forall i₁₃: int ::
-                                                                (  0 <= i₁₃
-                                                                  && i₁₃ < i₂₀ + 1
-                                                                   ==> i₁₃ < N₁₅))))))))))));
+procedure malloc(size: int) returns (c#result: c#ptr<c#void>);
+
+var N: int;
+
+procedure main()
+  returns (c#result: int)
+  modifies N;
+{
+  havoc N;
+  if(N <= 0) {
+    c#result := 1;
+    return;
+  }
+  assume N <= 2147483647 / 4;
+  var i: int;
+  var a: [int]int;
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₆: int ::
+            ((exists i₅: int ::
+                    x₆ == i₅
+                    && old(i) <= i₅
+                    && i₅ < i)
+               ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
+                      i₅ < N
+                      && x₆ == i₅
+                      && old(i) <= i₅
+                      && i₅ < i
+                      && a[x₆] == __VERIFIER_nondet_int₁₄)))
+      && (forall x₆: int ::
+            (!((exists i₅: int ::
+                    x₆ == i₅
+                    && old(i) <= i₅
+                    && i₅ < i)
+            )
+               ==> a[x₆] == old(a[x₆])))
+      && (forall i₅: int ::
+            (  old(i₅) <= i₅
+              && old(i) <= i₅
+              && i₅ < i
+               ==> i₅ < N));
+  {
+    var __VERIFIER_nondet_int₁: int;
+    a := a[i := __VERIFIER_nondet_int₁];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₁₀: int ::
+            ((exists i₉: int ::
+                    x₁₀ == i₉
+                    && old(i) <= i₉
+                    && i₉ < i)
+               ==> (exists i₉: int ::
+                        a[i₉] < N
+                        && i₉ < N
+                        && x₁₀ == i₉
+                        && old(i) <= i₉
+                        && i₉ < i
+                        && a[x₁₀] == old(a)[i₉])
+                || (exists i₉: int ::
+                        !(a[i₉] < N
+                        )
+                        && i₉ < N
+                        && x₁₀ == i₉
+                        && old(i) <= i₉
+                        && i₉ < i
+                        && a[x₁₀] == N)))
+      && (forall x₁₀: int ::
+            (!((exists i₉: int ::
+                    x₁₀ == i₉
+                    && old(i) <= i₉
+                    && i₉ < i)
+            )
+               ==> a[x₁₀] == old(a[x₁₀])))
+      && (forall i₉: int ::
+            (  old(i₉) <= i₉
+              && old(i) <= i₉
+              && i₉ < i
+               ==> i₉ < N));
+  {
+    if(a[i] < N) {
+      a := a[i := a[i]];
+    } else {
+      a := a[i := N];
+    }
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall i₁₃: int ::
+            (  old(i₁₃) <= i₁₃
+              && old(i) <= i₁₃
+              && i₁₃ < i
+               ==> i₁₃ < N));
+  {
+    assert a[i] <= N;
+    i := i + 1;
+  }
+  c#result := 1;
+  return;
+}
 

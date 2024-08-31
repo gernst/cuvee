@@ -4,160 +4,100 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall src: [int]int, dst: [int]int ::
-        0 <= 0
-        && 0 <= 100000
-        && (forall x₅: int, i₄: int ::
-              (  x₅ == i₄
-                && 0 <= i₄
-                && i₄ < 0
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < 0
-                        && src[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-                (exists i₄: int ::
-                        x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < 0)
-                || src[x₅] == src[x₅])
-        && (forall i₄: int ::
-              (  0 <= i₄
-                && i₄ < 0
-                 ==> i₄ < 100000))
-        && (forall src₁₅: [int]int, i₁₆: int ::
-              (  0 <= i₁₆
-                && i₁₆ <= 100000
-                && (forall x₅: int, i₄: int ::
-                      (  x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₆
-                         ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                                i₄ < 100000
-                                && x₅ == i₄
-                                && 0 <= i₄
-                                && i₄ < i₁₆
-                                && src₁₅[x₅] == __VERIFIER_nondet_int₁₃)))
-                && (forall x₅: int ::
-                        (exists i₄: int ::
-                                x₅ == i₄
-                                && 0 <= i₄
-                                && i₄ < i₁₆)
-                        || src₁₅[x₅] == src[x₅])
-                && (forall i₄: int ::
-                      (  0 <= i₄
-                        && i₄ < i₁₆
-                         ==> i₄ < 100000))
-                 ==> (forall __VERIFIER_nondet_int₁: int ::
-                        (i₁₆ < 100000
-                           ==> 0 <= i₁₆ + 1
-                            && i₁₆ + 1 <= 100000
-                            && (forall x₅: int, i₄: int ::
-                                  (  x₅ == i₄
-                                    && 0 <= i₄
-                                    && i₄ < i₁₆ + 1
-                                     ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                                            i₄ < 100000
-                                            && x₅ == i₄
-                                            && 0 <= i₄
-                                            && i₄ < i₁₆ + 1
-                                            && src₁₅[i₁₆ := __VERIFIER_nondet_int₁][x₅] == __VERIFIER_nondet_int₁₃)))
-                            && (forall x₅: int ::
-                                    (exists i₄: int ::
-                                            x₅ == i₄
-                                            && 0 <= i₄
-                                            && i₄ < i₁₆ + 1)
-                                    || src₁₅[i₁₆ := __VERIFIER_nondet_int₁][x₅] == src[x₅])
-                            && (forall i₄: int ::
-                                  (  0 <= i₄
-                                    && i₄ < i₁₆ + 1
-                                     ==> i₄ < 100000))))
-                  &&   i₁₆ < 100000
-                    ||   0 <= 0
-                      && (forall x₉: int, i₈: int ::
-                            (  x₉ == i₈
-                              && 0 <= i₈
-                              && i₈ < 0
-                               ==> (exists i₈: int ::
-                                    (src₁₅[i₈] == 0
-                                       ==> false))))
-                      && (forall x₉: int ::
-                              (exists i₈: int ::
-                                      x₉ == i₈
-                                      && 0 <= i₈
-                                      && i₈ < 0)
-                              || dst[x₉] == dst[x₉])
-                      && (forall i₈: int ::
-                            (  0 <= i₈
-                              && i₈ < 0
-                              && src₁₅[i₈] == 0
-                               ==> false))
-                      && (forall dst₁₇: [int]int, i₁₈: int ::
-                            (  0 <= i₁₈
-                              && (forall x₉: int, i₈: int ::
-                                    (  x₉ == i₈
-                                      && 0 <= i₈
-                                      && i₈ < i₁₈
-                                       ==> (exists i₈: int ::
-                                            (src₁₅[i₈] == 0
-                                               ==> false))))
-                              && (forall x₉: int ::
-                                      (exists i₈: int ::
-                                              x₉ == i₈
-                                              && 0 <= i₈
-                                              && i₈ < i₁₈)
-                                      || dst₁₇[x₉] == dst[x₉])
-                              && (forall i₈: int ::
-                                    (  0 <= i₈
-                                      && i₈ < i₁₈
-                                      && src₁₅[i₈] == 0
-                                       ==> false))
-                               ==> src₁₅[i₁₈] == 0
-                                  ||   0 <= i₁₈ + 1
-                                    && (forall x₉: int, i₈: int ::
-                                          (  x₉ == i₈
-                                            && 0 <= i₈
-                                            && i₈ < i₁₈ + 1
-                                             ==> (exists i₈: int ::
-                                                  (src₁₅[i₈] == 0
-                                                     ==> false))))
-                                    && (forall x₉: int ::
-                                            (exists i₈: int ::
-                                                    x₉ == i₈
-                                                    && 0 <= i₈
-                                                    && i₈ < i₁₈ + 1)
-                                            || dst₁₇[i₁₈ := src₁₅[i₁₈]][x₉] == dst[x₉])
-                                    && (forall i₈: int ::
-                                          (  0 <= i₈
-                                            && i₈ < i₁₈ + 1
-                                            && src₁₅[i₈] == 0
-                                             ==> false))
-                                && (src₁₅[i₁₈] == 0
-                                   ==> 0 <= 0
-                                    && 0 <= i₁₈
-                                    && (forall x₁₃: int ::
-                                          (  0 <= x₁₃
-                                            && x₁₃ < 0
-                                             ==> x₁₃ < i₁₈))
-                                    && (forall x₁₉: int ::
-                                          (  0 <= x₁₉
-                                            && x₁₉ <= i₁₈
-                                            && (forall x₁₃: int ::
-                                                  (  0 <= x₁₃
-                                                    && x₁₃ < x₁₉
-                                                     ==> x₁₃ < i₁₈))
-                                             ==> (x₁₉ < i₁₈
-                                               ==> dst₁₇[x₁₉] == src₁₅[x₁₉]
-                                                && 0 <= x₁₉ + 1
-                                                && x₁₉ + 1 <= i₁₈
-                                                && (forall x₁₃: int ::
-                                                      (  0 <= x₁₃
-                                                        && x₁₃ < x₁₉ + 1
-                                                         ==> x₁₃ < i₁₈)))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var src: [int]int;
+  var dst: [int]int;
+  var i: int := 0;
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₅: int ::
+            ((exists i₄: int ::
+                    x₅ == i₄
+                    && old(i) <= i₄
+                    && i₄ < i)
+               ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
+                      i₄ < 100000
+                      && x₅ == i₄
+                      && old(i) <= i₄
+                      && i₄ < i
+                      && src[x₅] == __VERIFIER_nondet_int₁₃)))
+      && (forall x₅: int ::
+            (!((exists i₄: int ::
+                    x₅ == i₄
+                    && old(i) <= i₄
+                    && i₄ < i)
+            )
+               ==> src[x₅] == old(src[x₅])))
+      && (forall i₄: int ::
+            (  old(i₄) <= i₄
+              && old(i) <= i₄
+              && i₄ < i
+               ==> i₄ < 100000));
+  {
+    var __VERIFIER_nondet_int₁: int;
+    src := src[i := __VERIFIER_nondet_int₁];
+    i := i + 1;
+  }
+  i := 0;
+  while(src[i] != 0)
+    invariant true
+      && old(i) <= i
+      && (forall x₉: int ::
+            ((exists i₈: int ::
+                    x₉ == i₈
+                    && old(i) <= i₈
+                    && i₈ < i)
+               ==> (exists i₈: int ::
+                      src[i₈] != 0
+                      && x₉ == i₈
+                      && old(i) <= i₈
+                      && i₈ < i
+                      && dst[x₉] == src[i₈])))
+      && (forall x₉: int ::
+            (!((exists i₈: int ::
+                    x₉ == i₈
+                    && old(i) <= i₈
+                    && i₈ < i)
+            )
+               ==> dst[x₉] == old(dst[x₉])))
+      && (forall i₈: int ::
+            (  old(i₈) <= i₈
+              && old(i) <= i₈
+              && i₈ < i
+               ==> src[i₈] != 0));
+  {
+    dst := dst[i := src[i]];
+    i := i + 1;
+  }
+  var x: int;
+  x := 0;
+  while(x < i)
+    decreases i - x;
+    invariant true
+      && old(x) <= x
+      && x <= i
+      && (forall x₁₃: int ::
+            (  old(x₁₃) <= x₁₃
+              && old(x) <= x₁₃
+              && x₁₃ < x
+               ==> x₁₃ < i));
+  {
+    assert dst[x] == src[x];
+    x := x + 1;
+  }
+  c#result := 0;
+  return;
+}
 

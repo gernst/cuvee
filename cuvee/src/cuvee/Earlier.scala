@@ -12,31 +12,23 @@ import java.io.FileOutputStream
 
 object tasks
     extends Run(
-      Earlier,
+      Earlier(detailed = true),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
       "examples/boogie/sv-benchmarks",
       "examples/boogie/rapid",
-      // "detailed"
     )
 
-object Earlier extends Main {
+case class Earlier(detailed: Boolean) extends Main {
   val dst = "evaluation/earlier/"
 
   def main(args: Array[String]) {
-    var detailed = false
-    var paths = args
-    if (args.last == "detailed") {
-      paths = paths.dropRight(1)
-      detailed = true
-    }
-
-    for (path <- paths) {
-      val results = eval(detailed, path)
+    for (path <- args) {
+      val results = eval(path)
       if (!detailed) record(path, results)
     }
   }
 
-  def eval(detailed: Boolean, path: String): Map[String, Res] = {
+  def eval(path: String): Map[String, Res] = {
     val dir = new File(path)
     var (dst_, typ) = (dst, "")
     val path_ = path.split("/")
@@ -54,22 +46,26 @@ object Earlier extends Main {
     }
 
     val results = for (file <- dir.list() if file endsWith typ) yield {
-      var args = List(
-        path + "/" + file,
-        "-annotate:arrays+frame",
-        "-vcgen:partial",
-        "-prove:z3"
-      )
+      if(detailed) {
+        val file_ = file.substring(0, file.lastIndexOf('.'))
+        var args = List(
+          path + "/" + file,
+          "-annotate:arrays+frame",
+          "-o", dst_ + file_ + ".bpl"
+        )
 
-      val file_ = file.substring(0, file.lastIndexOf('.'))
-
-      if (detailed) {
-        args = args ++ List("-o", dst_ + file_ + ".bpl")
+        file -> eval(args.toArray)
       } else {
-        args = args :+ "-prove:strict"
-      }
+        var args = List(
+          path + "/" + file,
+          "-annotate:arrays+frame",
+          "-vcgen:partial",
+          "-prove:z3",
+          "-prove:strict"
+        )
 
-      file -> eval(args.toArray)
+        file -> eval(args.toArray)
+      }
     }
     results.toMap
   }

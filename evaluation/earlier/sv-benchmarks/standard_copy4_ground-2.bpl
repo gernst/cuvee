@@ -4,424 +4,225 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a1: [int]int, a2: [int]int, a3: [int]int, a4: [int]int, a5: [int]int ::
-        0 <= 0
-        && 0 <= 100000
-        && (forall x₁₀: int, a₉: int ::
-              (  x₁₀ == a₉
-                && 0 <= a₉
-                && a₉ < 0
-                 ==> (exists __VERIFIER_nondet_int₁₇: int, a₉: int ::
-                        a₉ < 100000
-                        && x₁₀ == a₉
-                        && 0 <= a₉
-                        && a₉ < 0
-                        && a1[x₁₀] == __VERIFIER_nondet_int₁₇)))
-        && (forall x₁₀: int ::
-                (exists a₉: int ::
-                        x₁₀ == a₉
-                        && 0 <= a₉
-                        && a₉ < 0)
-                || a1[x₁₀] == a1[x₁₀])
-        && (forall x₁₁: int, a₉: int ::
-              (  x₁₁ == a₉
-                && 0 <= a₉
-                && a₉ < 0
-                 ==> (exists __VERIFIER_nondet_int₂₈: int, a₉: int ::
-                        a₉ < 100000
-                        && x₁₁ == a₉
-                        && 0 <= a₉
-                        && a₉ < 0
-                        && a4[x₁₁] == __VERIFIER_nondet_int₂₈)))
-        && (forall x₁₁: int ::
-                (exists a₉: int ::
-                        x₁₁ == a₉
-                        && 0 <= a₉
-                        && a₉ < 0)
-                || a4[x₁₁] == a4[x₁₁])
-        && (forall a₉: int ::
-              (  0 <= a₉
-                && a₉ < 0
-                 ==> a₉ < 100000))
-        && (forall a1₃₅: [int]int, a4₃₆: [int]int, a₃₇: int ::
-              (  0 <= a₃₇
-                && a₃₇ <= 100000
-                && (forall x₁₀: int, a₉: int ::
-                      (  x₁₀ == a₉
-                        && 0 <= a₉
-                        && a₉ < a₃₇
-                         ==> (exists __VERIFIER_nondet_int₁₇: int, a₉: int ::
-                                a₉ < 100000
-                                && x₁₀ == a₉
-                                && 0 <= a₉
-                                && a₉ < a₃₇
-                                && a1₃₅[x₁₀] == __VERIFIER_nondet_int₁₇)))
-                && (forall x₁₀: int ::
-                        (exists a₉: int ::
-                                x₁₀ == a₉
-                                && 0 <= a₉
-                                && a₉ < a₃₇)
-                        || a1₃₅[x₁₀] == a1[x₁₀])
-                && (forall x₁₁: int, a₉: int ::
-                      (  x₁₁ == a₉
-                        && 0 <= a₉
-                        && a₉ < a₃₇
-                         ==> (exists __VERIFIER_nondet_int₂₈: int, a₉: int ::
-                                a₉ < 100000
-                                && x₁₁ == a₉
-                                && 0 <= a₉
-                                && a₉ < a₃₇
-                                && a4₃₆[x₁₁] == __VERIFIER_nondet_int₂₈)))
-                && (forall x₁₁: int ::
-                        (exists a₉: int ::
-                                x₁₁ == a₉
-                                && 0 <= a₉
-                                && a₉ < a₃₇)
-                        || a4₃₆[x₁₁] == a4[x₁₁])
-                && (forall a₉: int ::
-                      (  0 <= a₉
-                        && a₉ < a₃₇
-                         ==> a₉ < 100000))
-                 ==> (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int ::
-                        (a₃₇ < 100000
-                           ==> 0 <= a₃₇ + 1
-                            && a₃₇ + 1 <= 100000
-                            && (forall x₁₀: int, a₉: int ::
-                                  (  x₁₀ == a₉
-                                    && 0 <= a₉
-                                    && a₉ < a₃₇ + 1
-                                     ==> (exists __VERIFIER_nondet_int₁₇: int, a₉: int ::
-                                            a₉ < 100000
-                                            && x₁₀ == a₉
-                                            && 0 <= a₉
-                                            && a₉ < a₃₇ + 1
-                                            && a1₃₅[a₃₇ := __VERIFIER_nondet_int₁][x₁₀] == __VERIFIER_nondet_int₁₇)))
-                            && (forall x₁₀: int ::
-                                    (exists a₉: int ::
-                                            x₁₀ == a₉
-                                            && 0 <= a₉
-                                            && a₉ < a₃₇ + 1)
-                                    || a1₃₅[a₃₇ := __VERIFIER_nondet_int₁][x₁₀] == a1[x₁₀])
-                            && (forall x₁₁: int, a₉: int ::
-                                  (  x₁₁ == a₉
-                                    && 0 <= a₉
-                                    && a₉ < a₃₇ + 1
-                                     ==> (exists __VERIFIER_nondet_int₂₈: int, a₉: int ::
-                                            a₉ < 100000
-                                            && x₁₁ == a₉
-                                            && 0 <= a₉
-                                            && a₉ < a₃₇ + 1
-                                            && a4₃₆[a₃₇ := __VERIFIER_nondet_int₂][x₁₁] == __VERIFIER_nondet_int₂₈)))
-                            && (forall x₁₁: int ::
-                                    (exists a₉: int ::
-                                            x₁₁ == a₉
-                                            && 0 <= a₉
-                                            && a₉ < a₃₇ + 1)
-                                    || a4₃₆[a₃₇ := __VERIFIER_nondet_int₂][x₁₁] == a4[x₁₁])
-                            && (forall a₉: int ::
-                                  (  0 <= a₉
-                                    && a₉ < a₃₇ + 1
-                                     ==> a₉ < 100000))))
-                  &&   a₃₇ < 100000
-                    ||   0 <= 0
-                      && 0 <= 100000
-                      && (forall x₁₇: int, i₁₆: int ::
-                            (  x₁₇ == i₁₆
-                              && 0 <= i₁₆
-                              && i₁₆ < 0
-                               ==> (exists i₁₆: int ::
-                                      i₁₆ < 100000
-                                      && x₁₇ == i₁₆
-                                      && 0 <= i₁₆
-                                      && i₁₆ < 0
-                                      && a2[x₁₇] == a1₃₅[i₁₆])))
-                      && (forall x₁₇: int ::
-                              (exists i₁₆: int ::
-                                      x₁₇ == i₁₆
-                                      && 0 <= i₁₆
-                                      && i₁₆ < 0)
-                              || a2[x₁₇] == a2[x₁₇])
-                      && (forall i₁₆: int ::
-                            (  0 <= i₁₆
-                              && i₁₆ < 0
-                               ==> i₁₆ < 100000))
-                      && (forall a2₃₈: [int]int, i₃₉: int ::
-                            (  0 <= i₃₉
-                              && i₃₉ <= 100000
-                              && (forall x₁₇: int, i₁₆: int ::
-                                    (  x₁₇ == i₁₆
-                                      && 0 <= i₁₆
-                                      && i₁₆ < i₃₉
-                                       ==> (exists i₁₆: int ::
-                                              i₁₆ < 100000
-                                              && x₁₇ == i₁₆
-                                              && 0 <= i₁₆
-                                              && i₁₆ < i₃₉
-                                              && a2₃₈[x₁₇] == a1₃₅[i₁₆])))
-                              && (forall x₁₇: int ::
-                                      (exists i₁₆: int ::
-                                              x₁₇ == i₁₆
-                                              && 0 <= i₁₆
-                                              && i₁₆ < i₃₉)
-                                      || a2₃₈[x₁₇] == a2[x₁₇])
-                              && (forall i₁₆: int ::
-                                    (  0 <= i₁₆
-                                      && i₁₆ < i₃₉
-                                       ==> i₁₆ < 100000))
-                               ==> (i₃₉ < 100000
-                                   ==> 0 <= i₃₉ + 1
-                                    && i₃₉ + 1 <= 100000
-                                    && (forall x₁₇: int, i₁₆: int ::
-                                          (  x₁₇ == i₁₆
-                                            && 0 <= i₁₆
-                                            && i₁₆ < i₃₉ + 1
-                                             ==> (exists i₁₆: int ::
-                                                    i₁₆ < 100000
-                                                    && x₁₇ == i₁₆
-                                                    && 0 <= i₁₆
-                                                    && i₁₆ < i₃₉ + 1
-                                                    && a2₃₈[i₃₉ := a1₃₅[i₃₉]][x₁₇] == a1₃₅[i₁₆])))
-                                    && (forall x₁₇: int ::
-                                            (exists i₁₆: int ::
-                                                    x₁₇ == i₁₆
-                                                    && 0 <= i₁₆
-                                                    && i₁₆ < i₃₉ + 1)
-                                            || a2₃₈[i₃₉ := a1₃₅[i₃₉]][x₁₇] == a2[x₁₇])
-                                    && (forall i₁₆: int ::
-                                          (  0 <= i₁₆
-                                            && i₁₆ < i₃₉ + 1
-                                             ==> i₁₆ < 100000)))
-                                &&   i₃₉ < 100000
-                                  ||   0 <= 0
-                                    && 0 <= 100000
-                                    && (forall x₂₁: int, i₂₀: int ::
-                                          (  x₂₁ == i₂₀
-                                            && 0 <= i₂₀
-                                            && i₂₀ < 0
-                                             ==> (exists i₂₀: int ::
-                                                    i₂₀ < 100000
-                                                    && x₂₁ == i₂₀
-                                                    && 0 <= i₂₀
-                                                    && i₂₀ < 0
-                                                    && a3[x₂₁] == a2₃₈[i₂₀])))
-                                    && (forall x₂₁: int ::
-                                            (exists i₂₀: int ::
-                                                    x₂₁ == i₂₀
-                                                    && 0 <= i₂₀
-                                                    && i₂₀ < 0)
-                                            || a3[x₂₁] == a3[x₂₁])
-                                    && (forall i₂₀: int ::
-                                          (  0 <= i₂₀
-                                            && i₂₀ < 0
-                                             ==> i₂₀ < 100000))
-                                    && (forall a3₄₀: [int]int, i₄₁: int ::
-                                          (  0 <= i₄₁
-                                            && i₄₁ <= 100000
-                                            && (forall x₂₁: int, i₂₀: int ::
-                                                  (  x₂₁ == i₂₀
-                                                    && 0 <= i₂₀
-                                                    && i₂₀ < i₄₁
-                                                     ==> (exists i₂₀: int ::
-                                                            i₂₀ < 100000
-                                                            && x₂₁ == i₂₀
-                                                            && 0 <= i₂₀
-                                                            && i₂₀ < i₄₁
-                                                            && a3₄₀[x₂₁] == a2₃₈[i₂₀])))
-                                            && (forall x₂₁: int ::
-                                                    (exists i₂₀: int ::
-                                                            x₂₁ == i₂₀
-                                                            && 0 <= i₂₀
-                                                            && i₂₀ < i₄₁)
-                                                    || a3₄₀[x₂₁] == a3[x₂₁])
-                                            && (forall i₂₀: int ::
-                                                  (  0 <= i₂₀
-                                                    && i₂₀ < i₄₁
-                                                     ==> i₂₀ < 100000))
-                                             ==> (i₄₁ < 100000
-                                                 ==> 0 <= i₄₁ + 1
-                                                  && i₄₁ + 1 <= 100000
-                                                  && (forall x₂₁: int, i₂₀: int ::
-                                                        (  x₂₁ == i₂₀
-                                                          && 0 <= i₂₀
-                                                          && i₂₀ < i₄₁ + 1
-                                                           ==> (exists i₂₀: int ::
-                                                                  i₂₀ < 100000
-                                                                  && x₂₁ == i₂₀
-                                                                  && 0 <= i₂₀
-                                                                  && i₂₀ < i₄₁ + 1
-                                                                  && a3₄₀[i₄₁ := a2₃₈[i₄₁]][x₂₁] == a2₃₈[i₂₀])))
-                                                  && (forall x₂₁: int ::
-                                                          (exists i₂₀: int ::
-                                                                  x₂₁ == i₂₀
-                                                                  && 0 <= i₂₀
-                                                                  && i₂₀ < i₄₁ + 1)
-                                                          || a3₄₀[i₄₁ := a2₃₈[i₄₁]][x₂₁] == a3[x₂₁])
-                                                  && (forall i₂₀: int ::
-                                                        (  0 <= i₂₀
-                                                          && i₂₀ < i₄₁ + 1
-                                                           ==> i₂₀ < 100000)))
-                                              &&   i₄₁ < 100000
-                                                ||   0 <= 0
-                                                  && 0 <= 100000
-                                                  && (forall x₂₅: int, i₂₄: int ::
-                                                        (  x₂₅ == i₂₄
-                                                          && 0 <= i₂₄
-                                                          && i₂₄ < 0
-                                                           ==> (exists i₂₄: int ::
-                                                                  i₂₄ < 100000
-                                                                  && x₂₅ == i₂₄
-                                                                  && 0 <= i₂₄
-                                                                  && i₂₄ < 0
-                                                                  && a5[x₂₅] == a3₄₀[i₂₄])))
-                                                  && (forall x₂₅: int ::
-                                                          (exists i₂₄: int ::
-                                                                  x₂₅ == i₂₄
-                                                                  && 0 <= i₂₄
-                                                                  && i₂₄ < 0)
-                                                          || a5[x₂₅] == a5[x₂₅])
-                                                  && (forall i₂₄: int ::
-                                                        (  0 <= i₂₄
-                                                          && i₂₄ < 0
-                                                           ==> i₂₄ < 100000))
-                                                  && (forall a5₄₂: [int]int, i₄₃: int ::
-                                                        (  0 <= i₄₃
-                                                          && i₄₃ <= 100000
-                                                          && (forall x₂₅: int, i₂₄: int ::
-                                                                (  x₂₅ == i₂₄
-                                                                  && 0 <= i₂₄
-                                                                  && i₂₄ < i₄₃
-                                                                   ==> (exists i₂₄: int ::
-                                                                          i₂₄ < 100000
-                                                                          && x₂₅ == i₂₄
-                                                                          && 0 <= i₂₄
-                                                                          && i₂₄ < i₄₃
-                                                                          && a5₄₂[x₂₅] == a3₄₀[i₂₄])))
-                                                          && (forall x₂₅: int ::
-                                                                  (exists i₂₄: int ::
-                                                                          x₂₅ == i₂₄
-                                                                          && 0 <= i₂₄
-                                                                          && i₂₄ < i₄₃)
-                                                                  || a5₄₂[x₂₅] == a5[x₂₅])
-                                                          && (forall i₂₄: int ::
-                                                                (  0 <= i₂₄
-                                                                  && i₂₄ < i₄₃
-                                                                   ==> i₂₄ < 100000))
-                                                           ==> (i₄₃ < 100000
-                                                               ==> 0 <= i₄₃ + 1
-                                                                && i₄₃ + 1 <= 100000
-                                                                && (forall x₂₅: int, i₂₄: int ::
-                                                                      (  x₂₅ == i₂₄
-                                                                        && 0 <= i₂₄
-                                                                        && i₂₄ < i₄₃ + 1
-                                                                         ==> (exists i₂₄: int ::
-                                                                                i₂₄ < 100000
-                                                                                && x₂₅ == i₂₄
-                                                                                && 0 <= i₂₄
-                                                                                && i₂₄ < i₄₃ + 1
-                                                                                && a5₄₂[i₄₃ := a3₄₀[i₄₃]][x₂₅] == a3₄₀[i₂₄])))
-                                                                && (forall x₂₅: int ::
-                                                                        (exists i₂₄: int ::
-                                                                                x₂₅ == i₂₄
-                                                                                && 0 <= i₂₄
-                                                                                && i₂₄ < i₄₃ + 1)
-                                                                        || a5₄₂[i₄₃ := a3₄₀[i₄₃]][x₂₅] == a5[x₂₅])
-                                                                && (forall i₂₄: int ::
-                                                                      (  0 <= i₂₄
-                                                                        && i₂₄ < i₄₃ + 1
-                                                                         ==> i₂₄ < 100000)))
-                                                            &&   i₄₃ < 100000
-                                                              ||   0 <= 0
-                                                                && 0 <= 100000
-                                                                && (forall x₂₉: int, i₂₈: int ::
-                                                                      (  x₂₉ == i₂₈
-                                                                        && 0 <= i₂₈
-                                                                        && i₂₈ < 0
-                                                                         ==> (exists i₂₈: int ::
-                                                                                i₂₈ < 100000
-                                                                                && x₂₉ == i₂₈
-                                                                                && 0 <= i₂₈
-                                                                                && i₂₈ < 0
-                                                                                && a5₄₂[x₂₉] == a4₃₆[i₂₈])))
-                                                                && (forall x₂₉: int ::
-                                                                        (exists i₂₈: int ::
-                                                                                x₂₉ == i₂₈
-                                                                                && 0 <= i₂₈
-                                                                                && i₂₈ < 0)
-                                                                        || a5₄₂[x₂₉] == a5₄₂[x₂₉])
-                                                                && (forall i₂₈: int ::
-                                                                      (  0 <= i₂₈
-                                                                        && i₂₈ < 0
-                                                                         ==> i₂₈ < 100000))
-                                                                && (forall a5₄₄: [int]int, i₄₅: int ::
-                                                                      (  0 <= i₄₅
-                                                                        && i₄₅ <= 100000
-                                                                        && (forall x₂₉: int, i₂₈: int ::
-                                                                              (  x₂₉ == i₂₈
-                                                                                && 0 <= i₂₈
-                                                                                && i₂₈ < i₄₅
-                                                                                 ==> (exists i₂₈: int ::
-                                                                                        i₂₈ < 100000
-                                                                                        && x₂₉ == i₂₈
-                                                                                        && 0 <= i₂₈
-                                                                                        && i₂₈ < i₄₅
-                                                                                        && a5₄₄[x₂₉] == a4₃₆[i₂₈])))
-                                                                        && (forall x₂₉: int ::
-                                                                                (exists i₂₈: int ::
-                                                                                        x₂₉ == i₂₈
-                                                                                        && 0 <= i₂₈
-                                                                                        && i₂₈ < i₄₅)
-                                                                                || a5₄₄[x₂₉] == a5₄₂[x₂₉])
-                                                                        && (forall i₂₈: int ::
-                                                                              (  0 <= i₂₈
-                                                                                && i₂₈ < i₄₅
-                                                                                 ==> i₂₈ < 100000))
-                                                                         ==> (i₄₅ < 100000
-                                                                             ==> 0 <= i₄₅ + 1
-                                                                              && i₄₅ + 1 <= 100000
-                                                                              && (forall x₂₉: int, i₂₈: int ::
-                                                                                    (  x₂₉ == i₂₈
-                                                                                      && 0 <= i₂₈
-                                                                                      && i₂₈ < i₄₅ + 1
-                                                                                       ==> (exists i₂₈: int ::
-                                                                                              i₂₈ < 100000
-                                                                                              && x₂₉ == i₂₈
-                                                                                              && 0 <= i₂₈
-                                                                                              && i₂₈ < i₄₅ + 1
-                                                                                              && a5₄₄[i₄₅ := a4₃₆[i₄₅]][x₂₉] == a4₃₆[i₂₈])))
-                                                                              && (forall x₂₉: int ::
-                                                                                      (exists i₂₈: int ::
-                                                                                              x₂₉ == i₂₈
-                                                                                              && 0 <= i₂₈
-                                                                                              && i₂₈ < i₄₅ + 1)
-                                                                                      || a5₄₄[i₄₅ := a4₃₆[i₄₅]][x₂₉] == a5₄₂[x₂₉])
-                                                                              && (forall i₂₈: int ::
-                                                                                    (  0 <= i₂₈
-                                                                                      && i₂₈ < i₄₅ + 1
-                                                                                       ==> i₂₈ < 100000)))
-                                                                          &&   i₄₅ < 100000
-                                                                            ||   0 <= 0
-                                                                              && 0 <= 100000
-                                                                              && (forall x₃₃: int ::
-                                                                                    (  0 <= x₃₃
-                                                                                      && x₃₃ < 0
-                                                                                       ==> x₃₃ < 100000))
-                                                                              && (forall x₄₆: int ::
-                                                                                    (  0 <= x₄₆
-                                                                                      && x₄₆ <= 100000
-                                                                                      && (forall x₃₃: int ::
-                                                                                            (  0 <= x₃₃
-                                                                                              && x₃₃ < x₄₆
-                                                                                               ==> x₃₃ < 100000))
-                                                                                       ==> (x₄₆ < 100000
-                                                                                         ==> a1₃₅[x₄₆] == a5₄₄[x₄₆]
-                                                                                          && 0 <= x₄₆ + 1
-                                                                                          && x₄₆ + 1 <= 100000
-                                                                                          && (forall x₃₃: int ::
-                                                                                                (  0 <= x₃₃
-                                                                                                  && x₃₃ < x₄₆ + 1
-                                                                                                   ==> x₃₃ < 100000))))))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var a1: [int]int;
+  var a2: [int]int;
+  var a3: [int]int;
+  var a4: [int]int;
+  var a5: [int]int;
+  var a: int;
+  a := 0;
+  while(a < 100000)
+    decreases 100000 - a;
+    invariant true
+      && old(a) <= a
+      && a <= 100000
+      && (forall x₁₀: int ::
+            ((exists a₉: int ::
+                    x₁₀ == a₉
+                    && old(a) <= a₉
+                    && a₉ < a)
+               ==> (exists __VERIFIER_nondet_int₁₇: int, a₉: int ::
+                      a₉ < 100000
+                      && x₁₀ == a₉
+                      && old(a) <= a₉
+                      && a₉ < a
+                      && a1[x₁₀] == __VERIFIER_nondet_int₁₇)))
+      && (forall x₁₀: int ::
+            (!((exists a₉: int ::
+                    x₁₀ == a₉
+                    && old(a) <= a₉
+                    && a₉ < a)
+            )
+               ==> a1[x₁₀] == old(a1[x₁₀])))
+      && (forall x₁₁: int ::
+            ((exists a₉: int ::
+                    x₁₁ == a₉
+                    && old(a) <= a₉
+                    && a₉ < a)
+               ==> (exists __VERIFIER_nondet_int₂₈: int, a₉: int ::
+                      a₉ < 100000
+                      && x₁₁ == a₉
+                      && old(a) <= a₉
+                      && a₉ < a
+                      && a4[x₁₁] == __VERIFIER_nondet_int₂₈)))
+      && (forall x₁₁: int ::
+            (!((exists a₉: int ::
+                    x₁₁ == a₉
+                    && old(a) <= a₉
+                    && a₉ < a)
+            )
+               ==> a4[x₁₁] == old(a4[x₁₁])))
+      && (forall a₉: int ::
+            (  old(a₉) <= a₉
+              && old(a) <= a₉
+              && a₉ < a
+               ==> a₉ < 100000));
+  {
+    var __VERIFIER_nondet_int₁: int;
+    a1 := a1[a := __VERIFIER_nondet_int₁];
+    var __VERIFIER_nondet_int₂: int;
+    a4 := a4[a := __VERIFIER_nondet_int₂];
+    a := a + 1;
+  }
+  var i: int;
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₁₇: int ::
+            ((exists i₁₆: int ::
+                    x₁₇ == i₁₆
+                    && old(i) <= i₁₆
+                    && i₁₆ < i)
+               ==> (exists i₁₆: int ::
+                      i₁₆ < 100000
+                      && x₁₇ == i₁₆
+                      && old(i) <= i₁₆
+                      && i₁₆ < i
+                      && a2[x₁₇] == a1[i₁₆])))
+      && (forall x₁₇: int ::
+            (!((exists i₁₆: int ::
+                    x₁₇ == i₁₆
+                    && old(i) <= i₁₆
+                    && i₁₆ < i)
+            )
+               ==> a2[x₁₇] == old(a2[x₁₇])))
+      && (forall i₁₆: int ::
+            (  old(i₁₆) <= i₁₆
+              && old(i) <= i₁₆
+              && i₁₆ < i
+               ==> i₁₆ < 100000));
+  {
+    a2 := a2[i := a1[i]];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₂₁: int ::
+            ((exists i₂₀: int ::
+                    x₂₁ == i₂₀
+                    && old(i) <= i₂₀
+                    && i₂₀ < i)
+               ==> (exists i₂₀: int ::
+                      i₂₀ < 100000
+                      && x₂₁ == i₂₀
+                      && old(i) <= i₂₀
+                      && i₂₀ < i
+                      && a3[x₂₁] == a2[i₂₀])))
+      && (forall x₂₁: int ::
+            (!((exists i₂₀: int ::
+                    x₂₁ == i₂₀
+                    && old(i) <= i₂₀
+                    && i₂₀ < i)
+            )
+               ==> a3[x₂₁] == old(a3[x₂₁])))
+      && (forall i₂₀: int ::
+            (  old(i₂₀) <= i₂₀
+              && old(i) <= i₂₀
+              && i₂₀ < i
+               ==> i₂₀ < 100000));
+  {
+    a3 := a3[i := a2[i]];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₂₅: int ::
+            ((exists i₂₄: int ::
+                    x₂₅ == i₂₄
+                    && old(i) <= i₂₄
+                    && i₂₄ < i)
+               ==> (exists i₂₄: int ::
+                      i₂₄ < 100000
+                      && x₂₅ == i₂₄
+                      && old(i) <= i₂₄
+                      && i₂₄ < i
+                      && a5[x₂₅] == a3[i₂₄])))
+      && (forall x₂₅: int ::
+            (!((exists i₂₄: int ::
+                    x₂₅ == i₂₄
+                    && old(i) <= i₂₄
+                    && i₂₄ < i)
+            )
+               ==> a5[x₂₅] == old(a5[x₂₅])))
+      && (forall i₂₄: int ::
+            (  old(i₂₄) <= i₂₄
+              && old(i) <= i₂₄
+              && i₂₄ < i
+               ==> i₂₄ < 100000));
+  {
+    a5 := a5[i := a3[i]];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₂₉: int ::
+            ((exists i₂₈: int ::
+                    x₂₉ == i₂₈
+                    && old(i) <= i₂₈
+                    && i₂₈ < i)
+               ==> (exists i₂₈: int ::
+                      i₂₈ < 100000
+                      && x₂₉ == i₂₈
+                      && old(i) <= i₂₈
+                      && i₂₈ < i
+                      && a5[x₂₉] == a4[i₂₈])))
+      && (forall x₂₉: int ::
+            (!((exists i₂₈: int ::
+                    x₂₉ == i₂₈
+                    && old(i) <= i₂₈
+                    && i₂₈ < i)
+            )
+               ==> a5[x₂₉] == old(a5[x₂₉])))
+      && (forall i₂₈: int ::
+            (  old(i₂₈) <= i₂₈
+              && old(i) <= i₂₈
+              && i₂₈ < i
+               ==> i₂₈ < 100000));
+  {
+    a5 := a5[i := a4[i]];
+    i := i + 1;
+  }
+  var x: int;
+  x := 0;
+  while(x < 100000)
+    decreases 100000 - x;
+    invariant true
+      && old(x) <= x
+      && x <= 100000
+      && (forall x₃₃: int ::
+            (  old(x₃₃) <= x₃₃
+              && old(x) <= x₃₃
+              && x₃₃ < x
+               ==> x₃₃ < 100000));
+  {
+    assert a1[x] == a5[x];
+    x := x + 1;
+  }
+  c#result := 0;
+  return;
+}
 

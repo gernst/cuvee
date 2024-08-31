@@ -4,96 +4,61 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int ::
-        0 <= 0
-        && 0 <= 1 + 100000
-        && (forall x₄: int, i₃: int ::
-              (  (x₄ == 1 + 2 * i₃
-                   ==> 0 <= i₃
-                    && i₃ < 0)
-                &&   x₄ == 1 + 2 * i₃
-                  ||   x₄ == 2 * i₃
-                    && 0 <= i₃
-                    && i₃ < 0
-                 ==> (exists i₃: int ::
-                        i₃ <= 100000
-                        && if(x₄ == 1 + 2 * i₃) then 0 <= i₃ && i₃ < 0 && a[x₄] == 0 else x₄ == 2 * i₃ && 0 <= i₃ && i₃ < 0 && a[x₄] == 0)))
-        && (forall x₄: int ::
-                (exists i₃: int ::
-                      if(x₄ == 1 + 2 * i₃) then 0 <= i₃ && i₃ < 0 else x₄ == 2 * i₃ && 0 <= i₃ && i₃ < 0)
-                || a[x₄] == a[x₄])
-        && (forall i₃: int ::
-              (  0 <= i₃
-                && i₃ < 0
-                 ==> i₃ <= 100000))
-        && (forall a₉: [int]int, i₁₀: int ::
-              (  0 <= i₁₀
-                && i₁₀ <= 1 + 100000
-                && (forall x₄: int, i₃: int ::
-                      (  (x₄ == 1 + 2 * i₃
-                           ==> 0 <= i₃
-                            && i₃ < i₁₀)
-                        &&   x₄ == 1 + 2 * i₃
-                          ||   x₄ == 2 * i₃
-                            && 0 <= i₃
-                            && i₃ < i₁₀
-                         ==> (exists i₃: int ::
-                                i₃ <= 100000
-                                && if(x₄ == 1 + 2 * i₃) then 0 <= i₃ && i₃ < i₁₀ && a₉[x₄] == 0 else x₄ == 2 * i₃ && 0 <= i₃ && i₃ < i₁₀ && a₉[x₄] == 0)))
-                && (forall x₄: int ::
-                        (exists i₃: int ::
-                              if(x₄ == 1 + 2 * i₃) then 0 <= i₃ && i₃ < i₁₀ else x₄ == 2 * i₃ && 0 <= i₃ && i₃ < i₁₀)
-                        || a₉[x₄] == a[x₄])
-                && (forall i₃: int ::
-                      (  0 <= i₃
-                        && i₃ < i₁₀
-                         ==> i₃ <= 100000))
-                 ==> (i₁₀ <= 100000
-                     ==> 0 <= i₁₀ + 1
-                      && i₁₀ + 1 <= 1 + 100000
-                      && (forall x₄: int, i₃: int ::
-                            (  (x₄ == 1 + 2 * i₃
-                                 ==> 0 <= i₃
-                                  && i₃ < i₁₀ + 1)
-                              &&   x₄ == 1 + 2 * i₃
-                                ||   x₄ == 2 * i₃
-                                  && 0 <= i₃
-                                  && i₃ < i₁₀ + 1
-                               ==> (exists i₃: int ::
-                                      i₃ <= 100000
-                                      && if(x₄ == 1 + 2 * i₃) then 0 <= i₃ && i₃ < i₁₀ + 1 && a₉[2 * i₁₀ := 0][2 * i₁₀ + 1 := 0][x₄] == 0 else x₄ == 2 * i₃ && 0 <= i₃ && i₃ < i₁₀ + 1 && a₉[2 * i₁₀ := 0][2 * i₁₀ + 1 := 0][x₄] == 0)))
-                      && (forall x₄: int ::
-                              (exists i₃: int ::
-                                    if(x₄ == 1 + 2 * i₃) then 0 <= i₃ && i₃ < i₁₀ + 1 else x₄ == 2 * i₃ && 0 <= i₃ && i₃ < i₁₀ + 1)
-                              || a₉[2 * i₁₀ := 0][2 * i₁₀ + 1 := 0][x₄] == a[x₄])
-                      && (forall i₃: int ::
-                            (  0 <= i₃
-                              && i₃ < i₁₀ + 1
-                               ==> i₃ <= 100000)))
-                  &&   i₁₀ <= 100000
-                    ||   0 <= 0
-                      && 0 <= 1 + 2 * 100000
-                      && (forall i₇: int ::
-                            (  0 <= i₇
-                              && i₇ < 0
-                               ==> i₇ <= 2 * 100000))
-                      && (forall i₁₁: int ::
-                            (  0 <= i₁₁
-                              && i₁₁ <= 1 + 2 * 100000
-                              && (forall i₇: int ::
-                                    (  0 <= i₇
-                                      && i₇ < i₁₁
-                                       ==> i₇ <= 2 * 100000))
-                               ==> (i₁₁ <= 2 * 100000
-                                 ==> 0 <= a₉[i₁₁]
-                                  && 0 <= i₁₁ + 1
-                                  && i₁₁ + 1 <= 1 + 2 * 100000
-                                  && (forall i₇: int ::
-                                        (  0 <= i₇
-                                          && i₇ < i₁₁ + 1
-                                           ==> i₇ <= 2 * 100000))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var i: int;
+  var N: int := 100000;
+  var a: [int]int;
+  i := 0;
+  while(i <= N)
+    decreases N + 1 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 1 + N
+      && (forall x₄: int ::
+            ((exists i₃: int ::
+                  if(x₄ == 1 + 2 * i₃) then old(i) <= i₃ && i₃ < i else x₄ == 2 * i₃ && old(i) <= i₃ && i₃ < i)
+               ==> (exists i₃: int ::
+                      i₃ <= N
+                      && if(x₄ == 1 + 2 * i₃) then old(i) <= i₃ && i₃ < i && a[x₄] == 0 else x₄ == 2 * i₃ && old(i) <= i₃ && i₃ < i && a[x₄] == 0)))
+      && (forall x₄: int ::
+            (!((exists i₃: int ::
+                  if(x₄ == 1 + 2 * i₃) then old(i) <= i₃ && i₃ < i else x₄ == 2 * i₃ && old(i) <= i₃ && i₃ < i)
+            )
+               ==> a[x₄] == old(a[x₄])))
+      && (forall i₃: int ::
+            (  old(i₃) <= i₃
+              && old(i) <= i₃
+              && i₃ < i
+               ==> i₃ <= N));
+  {
+    a := a[2 * i := 0];
+    a := a[2 * i + 1 := 0];
+    i := i + 1;
+  }
+  i := 0;
+  while(i <= 2 * N)
+    decreases 2 * N + 1 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 1 + 2 * N
+      && (forall i₇: int ::
+            (  old(i₇) <= i₇
+              && old(i) <= i₇
+              && i₇ < i
+               ==> i₇ <= 2 * N));
+  {
+    assert 0 <= a[i];
+    i := i + 1;
+  }
+  c#result := 0;
+  return;
+}
 

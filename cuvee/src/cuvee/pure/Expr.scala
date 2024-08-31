@@ -457,7 +457,7 @@ case class At(where: Loc, arg: Expr) extends Expr {
   def funs = arg.funs
   def free = Set()
   def rename(re: Map[Var, Var]) =
-    At(where, arg)
+    At(where, arg rename re)
   def subst(su: Map[Var, Expr]) =
     At(where, arg)
   def inst(su: Map[Param, Type]) =

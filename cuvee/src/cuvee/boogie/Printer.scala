@@ -280,21 +280,14 @@ object Printer extends cuvee.util.Printer {
     case Assign(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
       List(xs.mkString(", ") + " := " + exprs.mkString(", ") + ";")
-    case Spec(xs, pre, post) =>
-      (xs, pre, post) match {
-        case (Nil, True, phi) => List("assume " + line(phi) + ";")
-        case (Nil, phi, True) => List("assert " + line(phi) + ";")
-        case (xs, True, True) => List("havoc " + xs.mkString(", ") + ";")
-        case _ =>
-          List(
-            "/* ",
-            "Unknown Spec in boogie:",
-            xs.mkString(", "),
-            pre.toString,
-            post.toString,
-            " */"
-          )
-      }
+    case Spec(Nil, True, phi) => 
+      List("assume " + line(phi) + ";")
+    case Spec(Nil, phi, True) => 
+      List("assert " + line(phi) + ";")
+    case Spec(xs, True, True) => 
+      List("havoc " + xs.mkString(", ") + ";")
+    case Spec(xs, pre, post) => 
+      List("transition " + xs.mkString(", ") + " :: " + line(pre) + " | "  + line(post) + ";")
     case x @ If(test, left, right) => if_(x)
     case While(test, body, term, inv, sum, frames) =>
       val first = "while(" + line(test) + ")"

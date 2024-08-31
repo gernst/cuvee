@@ -4,255 +4,148 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N₁₉: int ::
-        N₁₉ <= 0
-        || (forall sum: [int]int, a: [int]int ::
-              (N₁₉ <= 2147483647 / 4
-                 ==> 0 <= 0
-                  && 0 <= N₁₉
-                  && (forall x₆: int, i₅: int ::
-                        (  x₆ == i₅
-                          && 0 <= i₅
-                          && i₅ < 0
-                           ==> (exists i₅: int ::
-                                  i₅ < N₁₉
-                                  && x₆ == i₅
-                                  && 0 <= i₅
-                                  && i₅ < 0
-                                  && a[x₆] == 1)))
-                  && (forall x₆: int ::
-                          (exists i₅: int ::
-                                  x₆ == i₅
-                                  && 0 <= i₅
-                                  && i₅ < 0)
-                          || a[x₆] == a[x₆])
-                  && (forall i₅: int ::
-                        (  0 <= i₅
-                          && i₅ < 0
-                           ==> i₅ < N₁₉))
-                  && (forall a₂₀: [int]int, i₂₁: int ::
-                        (  0 <= i₂₁
-                          && i₂₁ <= N₁₉
-                          && (forall x₆: int, i₅: int ::
-                                (  x₆ == i₅
-                                  && 0 <= i₅
-                                  && i₅ < i₂₁
-                                   ==> (exists i₅: int ::
-                                          i₅ < N₁₉
-                                          && x₆ == i₅
-                                          && 0 <= i₅
-                                          && i₅ < i₂₁
-                                          && a₂₀[x₆] == 1)))
-                          && (forall x₆: int ::
-                                  (exists i₅: int ::
-                                          x₆ == i₅
-                                          && 0 <= i₅
-                                          && i₅ < i₂₁)
-                                  || a₂₀[x₆] == a[x₆])
-                          && (forall i₅: int ::
-                                (  0 <= i₅
-                                  && i₅ < i₂₁
-                                   ==> i₅ < N₁₉))
-                           ==> (i₂₁ < N₁₉
-                               ==> 0 <= i₂₁ + 1
-                                && i₂₁ + 1 <= N₁₉
-                                && (forall x₆: int, i₅: int ::
-                                      (  x₆ == i₅
-                                        && 0 <= i₅
-                                        && i₅ < i₂₁ + 1
-                                         ==> (exists i₅: int ::
-                                                i₅ < N₁₉
-                                                && x₆ == i₅
-                                                && 0 <= i₅
-                                                && i₅ < i₂₁ + 1
-                                                && a₂₀[i₂₁ := 1][x₆] == 1)))
-                                && (forall x₆: int ::
-                                        (exists i₅: int ::
-                                                x₆ == i₅
-                                                && 0 <= i₅
-                                                && i₅ < i₂₁ + 1)
-                                        || a₂₀[i₂₁ := 1][x₆] == a[x₆])
-                                && (forall i₅: int ::
-                                      (  0 <= i₅
-                                        && i₅ < i₂₁ + 1
-                                         ==> i₅ < N₁₉)))
-                            &&   i₂₁ < N₁₉
-                              ||   0 <= 0
-                                && 0 <= N₁₉
-                                && (forall x₁₀: int ::
-                                      (x₁₀ == 0
-                                         ==> (exists i₉: int ::
-                                                i₉ < N₁₉
-                                                && x₁₀ == 0
-                                                && sum[0 := 0][x₁₀] == sum[0 := 0][0] + a₂₀[i₉])))
-                                && (forall x₁₀: int ::
-                                        x₁₀ == 0
-                                        || sum[0 := 0][x₁₀] == sum[0 := 0][x₁₀])
-                                && (forall i₉: int ::
-                                      (  0 <= i₉
-                                        && i₉ < 0
-                                         ==> i₉ < N₁₉))
-                                && (forall sum₂₂: [int]int, i₂₃: int ::
-                                      (  0 <= i₂₃
-                                        && i₂₃ <= N₁₉
-                                        && (forall x₁₀: int ::
-                                              (x₁₀ == 0
-                                                 ==> (exists i₉: int ::
-                                                        i₉ < N₁₉
-                                                        && x₁₀ == 0
-                                                        && sum₂₂[x₁₀] == sum[0 := 0][0] + a₂₀[i₉])))
-                                        && (forall x₁₀: int ::
-                                                x₁₀ == 0
-                                                || sum₂₂[x₁₀] == sum[0 := 0][x₁₀])
-                                        && (forall i₉: int ::
-                                              (  0 <= i₉
-                                                && i₉ < i₂₃
-                                                 ==> i₉ < N₁₉))
-                                         ==> (i₂₃ < N₁₉
-                                             ==> 0 <= i₂₃ + 1
-                                              && i₂₃ + 1 <= N₁₉
-                                              && (forall x₁₀: int ::
-                                                    (x₁₀ == 0
-                                                       ==> (exists i₉: int ::
-                                                              i₉ < N₁₉
-                                                              && x₁₀ == 0
-                                                              && sum₂₂[0 := sum₂₂[0] + a₂₀[i₂₃]][x₁₀] == sum[0 := 0][0] + a₂₀[i₉])))
-                                              && (forall x₁₀: int ::
-                                                      x₁₀ == 0
-                                                      || sum₂₂[0 := sum₂₂[0] + a₂₀[i₂₃]][x₁₀] == sum[0 := 0][x₁₀])
-                                              && (forall i₉: int ::
-                                                    (  0 <= i₉
-                                                      && i₉ < i₂₃ + 1
-                                                       ==> i₉ < N₁₉)))
-                                          &&   i₂₃ < N₁₉
-                                            ||   0 <= 0
-                                              && 0 <= N₁₉
-                                              && (forall x₁₄: int, i₁₃: int ::
-                                                    (  x₁₄ == i₁₃
-                                                      && 0 <= i₁₃
-                                                      && i₁₃ < 0
-                                                       ==> (exists i₁₃: int ::
-                                                                sum₂₂[0] == N₁₉
-                                                                && i₁₃ < N₁₉
-                                                                && x₁₄ == i₁₃
-                                                                && 0 <= i₁₃
-                                                                && i₁₃ < 0
-                                                                && a₂₀[x₁₄] == -1 + a₂₀[i₁₃])
-                                                        || (sum₂₂[0] == N₁₉
-                                                           ==> false)))
-                                              && (forall x₁₄: int ::
-                                                      (exists i₁₃: int ::
-                                                              x₁₄ == i₁₃
-                                                              && 0 <= i₁₃
-                                                              && i₁₃ < 0)
-                                                      || a₂₀[x₁₄] == a₂₀[x₁₄])
-                                              && (forall i₁₃: int ::
-                                                    (  0 <= i₁₃
-                                                      && i₁₃ < 0
-                                                       ==> i₁₃ < N₁₉))
-                                              && (forall a₂₄: [int]int, i₂₅: int ::
-                                                    (  0 <= i₂₅
-                                                      && i₂₅ <= N₁₉
-                                                      && (forall x₁₄: int, i₁₃: int ::
-                                                            (  x₁₄ == i₁₃
-                                                              && 0 <= i₁₃
-                                                              && i₁₃ < i₂₅
-                                                               ==> (exists i₁₃: int ::
-                                                                        sum₂₂[0] == N₁₉
-                                                                        && i₁₃ < N₁₉
-                                                                        && x₁₄ == i₁₃
-                                                                        && 0 <= i₁₃
-                                                                        && i₁₃ < i₂₅
-                                                                        && a₂₄[x₁₄] == -1 + a₂₀[i₁₃])
-                                                                || (sum₂₂[0] == N₁₉
-                                                                   ==> false)))
-                                                      && (forall x₁₄: int ::
-                                                              (exists i₁₃: int ::
-                                                                      x₁₄ == i₁₃
-                                                                      && 0 <= i₁₃
-                                                                      && i₁₃ < i₂₅)
-                                                              || a₂₄[x₁₄] == a₂₀[x₁₄])
-                                                      && (forall i₁₃: int ::
-                                                            (  0 <= i₁₃
-                                                              && i₁₃ < i₂₅
-                                                               ==> i₁₃ < N₁₉))
-                                                       ==> (i₂₅ < N₁₉
-                                                           ==> (sum₂₂[0] == N₁₉
-                                                               ==> 0 <= i₂₅ + 1
-                                                                && i₂₅ + 1 <= N₁₉
-                                                                && (forall x₁₄: int, i₁₃: int ::
-                                                                      (  x₁₄ == i₁₃
-                                                                        && 0 <= i₁₃
-                                                                        && i₁₃ < i₂₅ + 1
-                                                                         ==> (exists i₁₃: int ::
-                                                                                  sum₂₂[0] == N₁₉
-                                                                                  && i₁₃ < N₁₉
-                                                                                  && x₁₄ == i₁₃
-                                                                                  && 0 <= i₁₃
-                                                                                  && i₁₃ < i₂₅ + 1
-                                                                                  && a₂₄[i₂₅ := a₂₄[i₂₅] - 1][x₁₄] == -1 + a₂₀[i₁₃])
-                                                                          || (sum₂₂[0] == N₁₉
-                                                                             ==> false)))
-                                                                && (forall x₁₄: int ::
-                                                                        (exists i₁₃: int ::
-                                                                                x₁₄ == i₁₃
-                                                                                && 0 <= i₁₃
-                                                                                && i₁₃ < i₂₅ + 1)
-                                                                        || a₂₄[i₂₅ := a₂₄[i₂₅] - 1][x₁₄] == a₂₀[x₁₄])
-                                                                && (forall i₁₃: int ::
-                                                                      (  0 <= i₁₃
-                                                                        && i₁₃ < i₂₅ + 1
-                                                                         ==> i₁₃ < N₁₉)))
-                                                            &&   sum₂₂[0] == N₁₉
-                                                              ||   0 <= i₂₅ + 1
-                                                                && i₂₅ + 1 <= N₁₉
-                                                                && (forall x₁₄: int, i₁₃: int ::
-                                                                      (  x₁₄ == i₁₃
-                                                                        && 0 <= i₁₃
-                                                                        && i₁₃ < i₂₅ + 1
-                                                                         ==> (exists i₁₃: int ::
-                                                                                  sum₂₂[0] == N₁₉
-                                                                                  && i₁₃ < N₁₉
-                                                                                  && x₁₄ == i₁₃
-                                                                                  && 0 <= i₁₃
-                                                                                  && i₁₃ < i₂₅ + 1
-                                                                                  && a₂₄[i₂₅ := a₂₄[i₂₅] + 1][x₁₄] == -1 + a₂₀[i₁₃])
-                                                                          || (sum₂₂[0] == N₁₉
-                                                                             ==> false)))
-                                                                && (forall x₁₄: int ::
-                                                                        (exists i₁₃: int ::
-                                                                                x₁₄ == i₁₃
-                                                                                && 0 <= i₁₃
-                                                                                && i₁₃ < i₂₅ + 1)
-                                                                        || a₂₄[i₂₅ := a₂₄[i₂₅] + 1][x₁₄] == a₂₀[x₁₄])
-                                                                && (forall i₁₃: int ::
-                                                                      (  0 <= i₁₃
-                                                                        && i₁₃ < i₂₅ + 1
-                                                                         ==> i₁₃ < N₁₉)))
-                                                        &&   i₂₅ < N₁₉
-                                                          ||   0 <= 0
-                                                            && 0 <= N₁₉
-                                                            && (forall i₁₇: int ::
-                                                                  (  0 <= i₁₇
-                                                                    && i₁₇ < 0
-                                                                     ==> i₁₇ < N₁₉))
-                                                            && (forall i₂₆: int ::
-                                                                  (  0 <= i₂₆
-                                                                    && i₂₆ <= N₁₉
-                                                                    && (forall i₁₇: int ::
-                                                                          (  0 <= i₁₇
-                                                                            && i₁₇ < i₂₆
-                                                                             ==> i₁₇ < N₁₉))
-                                                                     ==> (i₂₆ < N₁₉
-                                                                       ==> a₂₄[i₂₆] == 0
-                                                                        && 0 <= i₂₆ + 1
-                                                                        && i₂₆ + 1 <= N₁₉
-                                                                        && (forall i₁₇: int ::
-                                                                              (  0 <= i₁₇
-                                                                                && i₁₇ < i₂₆ + 1
-                                                                                 ==> i₁₇ < N₁₉))))))))))))));
+procedure malloc(size: int) returns (c#result: c#ptr<c#void>);
+
+var N: int;
+
+procedure main()
+  returns (c#result: int)
+  modifies N;
+{
+  havoc N;
+  if(N <= 0) {
+    c#result := 1;
+    return;
+  }
+  assume N <= 2147483647 / 4;
+  var i: int;
+  var sum: [int]int;
+  var a: [int]int;
+  sum := sum[0 := 0];
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₆: int ::
+            ((exists i₅: int ::
+                    x₆ == i₅
+                    && old(i) <= i₅
+                    && i₅ < i)
+               ==> (exists i₅: int ::
+                      i₅ < N
+                      && x₆ == i₅
+                      && old(i) <= i₅
+                      && i₅ < i
+                      && a[x₆] == 1)))
+      && (forall x₆: int ::
+            (!((exists i₅: int ::
+                    x₆ == i₅
+                    && old(i) <= i₅
+                    && i₅ < i)
+            )
+               ==> a[x₆] == old(a[x₆])))
+      && (forall i₅: int ::
+            (  old(i₅) <= i₅
+              && old(i) <= i₅
+              && i₅ < i
+               ==> i₅ < N));
+  {
+    a := a[i := 1];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₁₀: int ::
+            (x₁₀ == 0
+               ==> (exists i₉: int ::
+                      i₉ < N
+                      && x₁₀ == 0
+                      && sum[x₁₀] == a[i₉] + old(sum)[0])))
+      && (forall x₁₀: int ::
+            (x₁₀ != 0
+               ==> sum[x₁₀] == old(sum[x₁₀])))
+      && (forall i₉: int ::
+            (  old(i₉) <= i₉
+              && old(i) <= i₉
+              && i₉ < i
+               ==> i₉ < N));
+  {
+    sum := sum[0 := sum[0] + a[i]];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₁₄: int ::
+            ((exists i₁₃: int ::
+                    x₁₄ == i₁₃
+                    && old(i) <= i₁₃
+                    && i₁₃ < i)
+               ==> (exists i₁₃: int ::
+                        sum[0] == N
+                        && i₁₃ < N
+                        && x₁₄ == i₁₃
+                        && old(i) <= i₁₃
+                        && i₁₃ < i
+                        && a[x₁₄] == -1 + old(a)[i₁₃])
+                || (exists i₁₃: int ::
+                        sum[0] != N
+                        && i₁₃ < N
+                        && x₁₄ == i₁₃
+                        && old(i) <= i₁₃
+                        && i₁₃ < i
+                        && a[x₁₄] == 1 + old(a)[i₁₃])))
+      && (forall x₁₄: int ::
+            (!((exists i₁₃: int ::
+                    x₁₄ == i₁₃
+                    && old(i) <= i₁₃
+                    && i₁₃ < i)
+            )
+               ==> a[x₁₄] == old(a[x₁₄])))
+      && (forall i₁₃: int ::
+            (  old(i₁₃) <= i₁₃
+              && old(i) <= i₁₃
+              && i₁₃ < i
+               ==> i₁₃ < N));
+  {
+    if(sum[0] == N) {
+      a := a[i := a[i] - 1];
+    } else {
+      a := a[i := a[i] + 1];
+    }
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall i₁₇: int ::
+            (  old(i₁₇) <= i₁₇
+              && old(i) <= i₁₇
+              && i₁₇ < i
+               ==> i₁₇ < N));
+  {
+    assert a[i] == 0;
+    i := i + 1;
+  }
+  c#result := 1;
+  return;
+}
 

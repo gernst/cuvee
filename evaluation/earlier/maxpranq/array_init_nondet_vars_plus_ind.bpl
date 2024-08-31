@@ -4,253 +4,135 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N: int, a: [int]int, b: [int]int, c: [int]int ::
-      (0 < N
-         ==> 1 <= 1
-          && 1 <= N
-          && (forall x₁₂: int, i₁₁: int ::
-                (  x₁₂ == i₁₁
-                  && 1 <= i₁₁
-                  && i₁₁ < 1
-                   ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
-                          y₁₀ < x₉
-                          && y₁₀ < 100000
-                          && -100000 < y₁₀
-                          && x₉ < 100000
-                          && -100000 < x₉
-                          && i₁₁ < N
-                          && x₁₂ == i₁₁
-                          && 1 <= i₁₁
-                          && i₁₁ < 1
-                          && a[x₁₂] == y₁₀)))
-          && (forall x₁₂: int ::
-                  (exists i₁₁: int ::
-                          x₁₂ == i₁₁
-                          && 1 <= i₁₁
-                          && i₁₁ < 1)
-                  || a[x₁₂] == a[x₁₂])
-          && (forall x₁₃: int, i₁₁: int ::
-                (  x₁₃ == i₁₁
-                  && 1 <= i₁₁
-                  && i₁₁ < 1
-                   ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
-                          y₁₀ < x₉
-                          && y₁₀ < 100000
-                          && -100000 < y₁₀
-                          && x₉ < 100000
-                          && -100000 < x₉
-                          && i₁₁ < N
-                          && x₁₃ == i₁₁
-                          && 1 <= i₁₁
-                          && i₁₁ < 1
-                          && b[x₁₃] == x₉)))
-          && (forall x₁₃: int ::
-                  (exists i₁₁: int ::
-                          x₁₃ == i₁₁
-                          && 1 <= i₁₁
-                          && i₁₁ < 1)
-                  || b[x₁₃] == b[x₁₃])
-          && (forall i₁₁: int ::
-                (  1 <= i₁₁
-                  && i₁₁ < 1
-                   ==> i₁₁ < N))
-          && (forall a₂₃: [int]int, b₂₄: [int]int, i₂₅: int ::
-                (  1 <= i₂₅
-                  && i₂₅ <= N
-                  && (forall x₁₂: int, i₁₁: int ::
-                        (  x₁₂ == i₁₁
-                          && 1 <= i₁₁
-                          && i₁₁ < i₂₅
-                           ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
-                                  y₁₀ < x₉
-                                  && y₁₀ < 100000
-                                  && -100000 < y₁₀
-                                  && x₉ < 100000
-                                  && -100000 < x₉
-                                  && i₁₁ < N
-                                  && x₁₂ == i₁₁
-                                  && 1 <= i₁₁
-                                  && i₁₁ < i₂₅
-                                  && a₂₃[x₁₂] == y₁₀)))
-                  && (forall x₁₂: int ::
-                          (exists i₁₁: int ::
-                                  x₁₂ == i₁₁
-                                  && 1 <= i₁₁
-                                  && i₁₁ < i₂₅)
-                          || a₂₃[x₁₂] == a[x₁₂])
-                  && (forall x₁₃: int, i₁₁: int ::
-                        (  x₁₃ == i₁₁
-                          && 1 <= i₁₁
-                          && i₁₁ < i₂₅
-                           ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
-                                  y₁₀ < x₉
-                                  && y₁₀ < 100000
-                                  && -100000 < y₁₀
-                                  && x₉ < 100000
-                                  && -100000 < x₉
-                                  && i₁₁ < N
-                                  && x₁₃ == i₁₁
-                                  && 1 <= i₁₁
-                                  && i₁₁ < i₂₅
-                                  && b₂₄[x₁₃] == x₉)))
-                  && (forall x₁₃: int ::
-                          (exists i₁₁: int ::
-                                  x₁₃ == i₁₁
-                                  && 1 <= i₁₁
-                                  && i₁₁ < i₂₅)
-                          || b₂₄[x₁₃] == b[x₁₃])
-                  && (forall i₁₁: int ::
-                        (  1 <= i₁₁
-                          && i₁₁ < i₂₅
-                           ==> i₁₁ < N))
-                   ==> (forall x: int, y: int ::
-                          (i₂₅ < N
-                             ==> (  x < 100000
-                              && -100000 < x
-                               ==> (  y < 100000
-                                && -100000 < y
-                                 ==> (y < x
-                                   ==> 1 <= i₂₅ + 1
-                                    && i₂₅ + 1 <= N
-                                    && (forall x₁₂: int, i₁₁: int ::
-                                          (  x₁₂ == i₁₁
-                                            && 1 <= i₁₁
-                                            && i₁₁ < i₂₅ + 1
-                                             ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
-                                                    y₁₀ < x₉
-                                                    && y₁₀ < 100000
-                                                    && -100000 < y₁₀
-                                                    && x₉ < 100000
-                                                    && -100000 < x₉
-                                                    && i₁₁ < N
-                                                    && x₁₂ == i₁₁
-                                                    && 1 <= i₁₁
-                                                    && i₁₁ < i₂₅ + 1
-                                                    && a₂₃[i₂₅ := y][x₁₂] == y₁₀)))
-                                    && (forall x₁₂: int ::
-                                            (exists i₁₁: int ::
-                                                    x₁₂ == i₁₁
-                                                    && 1 <= i₁₁
-                                                    && i₁₁ < i₂₅ + 1)
-                                            || a₂₃[i₂₅ := y][x₁₂] == a[x₁₂])
-                                    && (forall x₁₃: int, i₁₁: int ::
-                                          (  x₁₃ == i₁₁
-                                            && 1 <= i₁₁
-                                            && i₁₁ < i₂₅ + 1
-                                             ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
-                                                    y₁₀ < x₉
-                                                    && y₁₀ < 100000
-                                                    && -100000 < y₁₀
-                                                    && x₉ < 100000
-                                                    && -100000 < x₉
-                                                    && i₁₁ < N
-                                                    && x₁₃ == i₁₁
-                                                    && 1 <= i₁₁
-                                                    && i₁₁ < i₂₅ + 1
-                                                    && b₂₄[i₂₅ := x][x₁₃] == x₉)))
-                                    && (forall x₁₃: int ::
-                                            (exists i₁₁: int ::
-                                                    x₁₃ == i₁₁
-                                                    && 1 <= i₁₁
-                                                    && i₁₁ < i₂₅ + 1)
-                                            || b₂₄[i₂₅ := x][x₁₃] == b[x₁₃])
-                                    && (forall i₁₁: int ::
-                                          (  1 <= i₁₁
-                                            && i₁₁ < i₂₅ + 1
-                                             ==> i₁₁ < N)))))))
-                    &&   i₂₅ < N
-                      ||   0 <= 0
-                        && 0 <= N
-                        && (forall x₁₈: int, i₁₇: int ::
-                              (  x₁₈ == i₁₇
-                                && 0 <= i₁₇
-                                && i₁₇ < 0
-                                 ==> (exists i₁₇: int ::
-                                        i₁₇ < N
-                                        && x₁₈ == i₁₇
-                                        && 0 <= i₁₇
-                                        && i₁₇ < 0
-                                        && c[x₁₈] == a₂₃[i₁₇] + -b₂₄[i₁₇])))
-                        && (forall x₁₈: int ::
-                                (exists i₁₇: int ::
-                                        x₁₈ == i₁₇
-                                        && 0 <= i₁₇
-                                        && i₁₇ < 0)
-                                || c[x₁₈] == c[x₁₈])
-                        && (forall i₁₇: int ::
-                              (  0 <= i₁₇
-                                && i₁₇ < 0
-                                 ==> i₁₇ < N))
-                        && (forall c₂₆: [int]int, i₂₇: int ::
-                              (  0 <= i₂₇
-                                && i₂₇ <= N
-                                && (forall x₁₈: int, i₁₇: int ::
-                                      (  x₁₈ == i₁₇
-                                        && 0 <= i₁₇
-                                        && i₁₇ < i₂₇
-                                         ==> (exists i₁₇: int ::
-                                                i₁₇ < N
-                                                && x₁₈ == i₁₇
-                                                && 0 <= i₁₇
-                                                && i₁₇ < i₂₇
-                                                && c₂₆[x₁₈] == a₂₃[i₁₇] + -b₂₄[i₁₇])))
-                                && (forall x₁₈: int ::
-                                        (exists i₁₇: int ::
-                                                x₁₈ == i₁₇
-                                                && 0 <= i₁₇
-                                                && i₁₇ < i₂₇)
-                                        || c₂₆[x₁₈] == c[x₁₈])
-                                && (forall i₁₇: int ::
-                                      (  0 <= i₁₇
-                                        && i₁₇ < i₂₇
-                                         ==> i₁₇ < N))
-                                 ==> (i₂₇ < N
-                                     ==> 0 <= i₂₇ + 1
-                                      && i₂₇ + 1 <= N
-                                      && (forall x₁₈: int, i₁₇: int ::
-                                            (  x₁₈ == i₁₇
-                                              && 0 <= i₁₇
-                                              && i₁₇ < i₂₇ + 1
-                                               ==> (exists i₁₇: int ::
-                                                      i₁₇ < N
-                                                      && x₁₈ == i₁₇
-                                                      && 0 <= i₁₇
-                                                      && i₁₇ < i₂₇ + 1
-                                                      && c₂₆[i₂₇ := a₂₃[i₂₇] - b₂₄[i₂₇]][x₁₈] == a₂₃[i₁₇] + -b₂₄[i₁₇])))
-                                      && (forall x₁₈: int ::
-                                              (exists i₁₇: int ::
-                                                      x₁₈ == i₁₇
-                                                      && 0 <= i₁₇
-                                                      && i₁₇ < i₂₇ + 1)
-                                              || c₂₆[i₂₇ := a₂₃[i₂₇] - b₂₄[i₂₇]][x₁₈] == c[x₁₈])
-                                      && (forall i₁₇: int ::
-                                            (  0 <= i₁₇
-                                              && i₁₇ < i₂₇ + 1
-                                               ==> i₁₇ < N)))
-                                  &&   i₂₇ < N
-                                    ||   1 <= 1
-                                      && 1 <= N
-                                      && (forall i₂₁: int ::
-                                            (  1 <= i₂₁
-                                              && i₂₁ < 1
-                                               ==> i₂₁ < N))
-                                      && (forall i₂₈: int ::
-                                            (  1 <= i₂₈
-                                              && i₂₈ <= N
-                                              && (forall i₂₁: int ::
-                                                    (  1 <= i₂₁
-                                                      && i₂₁ < i₂₈
-                                                       ==> i₂₁ < N))
-                                               ==> (i₂₈ < N
-                                                 ==> c₂₆[i₂₈] < 0
-                                                  && 1 <= i₂₈ + 1
-                                                  && i₂₈ + 1 <= N
-                                                  && (forall i₂₁: int ::
-                                                        (  1 <= i₂₁
-                                                          && i₂₁ < i₂₈ + 1
-                                                           ==> i₂₁ < N)))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var i: int;
+  var N: int;
+  var a: [int]int;
+  var b: [int]int;
+  var c: [int]int;
+  assume 0 < N;
+  i := 1;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₁₂: int ::
+            ((exists i₁₁: int ::
+                    x₁₂ == i₁₁
+                    && old(i) <= i₁₁
+                    && i₁₁ < i)
+               ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
+                      y₁₀ < x₉
+                      && y₁₀ < 100000
+                      && -100000 < y₁₀
+                      && x₉ < 100000
+                      && -100000 < x₉
+                      && i₁₁ < N
+                      && x₁₂ == i₁₁
+                      && old(i) <= i₁₁
+                      && i₁₁ < i
+                      && a[x₁₂] == y₁₀)))
+      && (forall x₁₂: int ::
+            (!((exists i₁₁: int ::
+                    x₁₂ == i₁₁
+                    && old(i) <= i₁₁
+                    && i₁₁ < i)
+            )
+               ==> a[x₁₂] == old(a[x₁₂])))
+      && (forall x₁₃: int ::
+            ((exists i₁₁: int ::
+                    x₁₃ == i₁₁
+                    && old(i) <= i₁₁
+                    && i₁₁ < i)
+               ==> (exists x₉: int, y₁₀: int, i₁₁: int ::
+                      y₁₀ < x₉
+                      && y₁₀ < 100000
+                      && -100000 < y₁₀
+                      && x₉ < 100000
+                      && -100000 < x₉
+                      && i₁₁ < N
+                      && x₁₃ == i₁₁
+                      && old(i) <= i₁₁
+                      && i₁₁ < i
+                      && b[x₁₃] == x₉)))
+      && (forall x₁₃: int ::
+            (!((exists i₁₁: int ::
+                    x₁₃ == i₁₁
+                    && old(i) <= i₁₁
+                    && i₁₁ < i)
+            )
+               ==> b[x₁₃] == old(b[x₁₃])))
+      && (forall i₁₁: int ::
+            (  old(i₁₁) <= i₁₁
+              && old(i) <= i₁₁
+              && i₁₁ < i
+               ==> i₁₁ < N));
+  {
+    var x: int;
+    var y: int;
+    assume x < 100000 && -100000 < x;
+    assume y < 100000 && -100000 < y;
+    assume y < x;
+    a := a[i := y];
+    b := b[i := x];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₁₈: int ::
+            ((exists i₁₇: int ::
+                    x₁₈ == i₁₇
+                    && old(i) <= i₁₇
+                    && i₁₇ < i)
+               ==> (exists i₁₇: int ::
+                      i₁₇ < N
+                      && x₁₈ == i₁₇
+                      && old(i) <= i₁₇
+                      && i₁₇ < i
+                      && c[x₁₈] == a[i₁₇] + -b[i₁₇])))
+      && (forall x₁₈: int ::
+            (!((exists i₁₇: int ::
+                    x₁₈ == i₁₇
+                    && old(i) <= i₁₇
+                    && i₁₇ < i)
+            )
+               ==> c[x₁₈] == old(c[x₁₈])))
+      && (forall i₁₇: int ::
+            (  old(i₁₇) <= i₁₇
+              && old(i) <= i₁₇
+              && i₁₇ < i
+               ==> i₁₇ < N));
+  {
+    c := c[i := a[i] - b[i]];
+    i := i + 1;
+  }
+  i := 1;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall i₂₁: int ::
+            (  old(i₂₁) <= i₂₁
+              && old(i) <= i₂₁
+              && i₂₁ < i
+               ==> i₂₁ < N));
+  {
+    assert c[i] < 0;
+    i := i + 1;
+  }
+}
 

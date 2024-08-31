@@ -85,6 +85,14 @@ abstract class Annotate(val exec: Exec) extends Stage {
   def assign(paths: Paths, xs: List[Var], rhs: List[Expr]) =
     (exec.assign(paths, xs, rhs), Assign(xs, rhs))
 
+  def call(
+      state: State,
+      paths: Paths,
+      name: cuvee.util.Name,
+      in: List[Expr],
+      out: List[Var]
+  ) = (exec.call(state, paths, name, in, out), Call(name, in, out))
+
   def block(
       state: State,
       paths0: Paths,
@@ -97,41 +105,6 @@ abstract class Annotate(val exec: Exec) extends Stage {
       val (paths1, prog_) = annotate(state, paths0, prog)
       val (paths2, rest_) = block(state, paths1, rest)
       (paths2, prog_ :: rest_)
-  }
-
-  def call(
-      state: State,
-      paths: Paths,
-      name: cuvee.util.Name,
-      in: List[Expr],
-      out: List[Var]
-  ): (Paths, Prog) = {
-    require(state.procs contains name, "unknown procedure: " + name)
-
-    val Proc(_, params, xs, zs, spec) = state procs name
-
-    spec match {
-      case None | Some(Spec(_, True, True)) if state.procdefs contains name =>
-        // intentionally mirrors variables xs, ys, as procdef may refer to
-        // different vars than procdecl
-        val (xs, zs, body) = state procdefs name
-        val re = Expr.subst(zs, out)
-        val body_ = body replace re
-        val block = Block(List(Local(xs, in), Spec.havoc(out), body_))
-        annotate(state, paths, block)
-
-      case None =>
-        cuvee.error(
-          "inlining procedures not implemented, consider adding a contract to: "
-            + name
-        )
-
-      case Some(Spec(mod, phi, psi)) =>
-        val su = Expr.subst(xs, in)
-        val re = Expr.subst(zs, out)
-        val spec_ = Spec(mod, phi subst su, psi subst (su ++ re))
-        annotate(state, paths, spec_)
-    }
   }
 
   def if_(

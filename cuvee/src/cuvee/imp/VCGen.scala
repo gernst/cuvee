@@ -259,7 +259,14 @@ class VCGen(val state: State) {
           case None | Some(Spec(_, True, True)) if state.procdefs contains name =>
             // intentionally mirrors variables xs, ys, as procdef may refer to different vars than procdecl
             val block = Inline.inline(state, name, in, out)
-            wp(how, block :: rest, cont, scope, st, old, post, brk, ret)
+
+            def cont_(st2: Map[Var, Expr]) = {
+              wp(how, rest, cont, scope, st2, old, post, brk, ret)
+            }
+
+            // inlined code should not have top-level breaks,
+            // and should continue with rest program upon returns
+            wp(how, List(block), Nil, scope, st, old, cont_, no_brk, cont_)
 
           case None =>
             cuvee.error(
@@ -269,7 +276,7 @@ class VCGen(val state: State) {
           case Some(Spec(mod, phi, psi)) =>
             val su = Expr.subst(xs, in)
             val re = Expr.subst(zs, out)
-            val spec_ = Spec(mod, phi subst su, psi subst (su ++ re))
+            val spec_ = Spec(mod ++ out, phi subst su, psi rename re subst su)
             wp(how, spec_ :: rest, cont, scope, st, old, post, brk, ret)
         }
 

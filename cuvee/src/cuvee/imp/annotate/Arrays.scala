@@ -58,7 +58,6 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
     // val props_ = Simplify.simplify_(props, Map(), Set())
 
     val add_ = Simplify.simplify(add, Map(), Set())
-
     val inv_ = inv && add_ // Simplify.simplify(And(inv :: lbs) && ub && add, Map(), Set())
 
     // val inv_ = inv && add

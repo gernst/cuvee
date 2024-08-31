@@ -203,6 +203,30 @@ trait Exec {
     join(paths1, paths2)
   }
 
+  def call(
+      state: State,
+      paths: Paths,
+      name: cuvee.util.Name,
+      in: List[Expr],
+      out: List[Var]
+  ): Paths = {
+    require(state.procs contains name, "unknown procedure: " + name)
+
+    val Proc(_, params, xs, zs, spec) = state procs name
+
+    spec match {
+      case None =>
+        val spec_ = Spec(Nil, True, True)
+        exec(state, paths, spec_)
+
+      case Some(Spec(mod, phi, psi)) =>
+        val su = Expr.subst(xs, in)
+        val re = Expr.subst(zs, out)
+        val spec_ = Spec(mod ++ out, phi subst su, psi rename re subst su)
+        exec(state, paths, spec_)
+    }
+  }
+
   def exec(state: State, paths: Paths, prog: Prog): Paths = prog match {
     case Break =>
       break(paths)
