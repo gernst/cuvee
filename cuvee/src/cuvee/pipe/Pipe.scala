@@ -77,7 +77,7 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
       // println(last)
       for (cmd <- top.prefix.duplicates)
         println(cmd)
-      assert(false, "duplicate entries")
+      cuvee.error("duplicate entries")
     }
 
     pending = Nil

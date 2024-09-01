@@ -47,7 +47,8 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
       re,
       counters,
       test,
-      And(inv :: lbs),
+      inv,
+      // And(inv :: lbs),
       after.breaked ++ after.returned
     )
 

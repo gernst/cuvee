@@ -26,6 +26,8 @@ object arrays
     )
 
 object TranslateArrayBenchmarks extends Main {
+  cuvee.c.yml.onlySafe = true
+  
   def main(args: Array[String]) {
     for (path <- args)
       translate(path)

@@ -5,6 +5,7 @@ import java.io.File
 import java.io.Reader
 import cuvee.pipe.Source
 import cuvee.smtlib.Cmd
+import cuvee.util.Yaml
 
 package object c {
   var bits = 32
@@ -44,17 +45,35 @@ package object c {
   }
 
   object yml {
-    def source(path: String) = {
-      import java.io.FileInputStream
-      import org.yaml.snakeyaml.Yaml
+    var onlySafe = false
 
-      val yaml = new Yaml()
+    def source(path: String) = {
+      val data = Yaml.load(path)
+
       val file = new File(path)
       val base = file.getParent()
-      val stream = new FileInputStream(file)
-      val data = yaml.load[Any](stream).asInstanceOf[java.util.Map[String, Any]]
-      val input = base + "/" + data.get("input_files").toString
+      val input = base + "/" + data("input_files").asString
+
+      if (onlySafe) {
+        val properties = data("properties")
+
+        val ok = properties.asList exists { entry =>
+          if (entry("property_file").asString == "../properties/unreach-call.prp")
+            entry.get("expected_verdict").exists(_.asBoolean)
+          else
+            false
+        }
+
+        require(ok, "discard unsafe benchmark: " + input)
+      }
+
       c.source(input)
     }
   }
 }
+
+/* properties:
+  - property_file: ../properties/unreach-call.prp
+    expected_verdict: true
+  - property_file: ../properties/coverage-branches.prp
+ */

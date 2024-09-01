@@ -10,21 +10,37 @@ import java.io.File
 import java.io.PrintStream
 import java.io.FileOutputStream
 
-object tasks
+object annotate
     extends Run(
-      Earlier(detailed = true),
+      Earlier(mode = "annotate"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
       "examples/boogie/sv-benchmarks",
-      "examples/boogie/rapid",
+      "examples/boogie/rapid"
     )
 
-case class Earlier(detailed: Boolean) extends Main {
+object reduce
+    extends Run(
+      Earlier(mode = "reduce"),
+      "examples/chc/maxpranq/bench_precondn/c_serialized",
+      "examples/boogie/sv-benchmarks",
+      "examples/boogie/rapid"
+    )
+
+object evaluate
+    extends Run(
+      Earlier(mode = "evaluate"),
+      "examples/chc/maxpranq/bench_precondn/c_serialized",
+      "examples/boogie/sv-benchmarks",
+      "examples/boogie/rapid"
+    )
+
+case class Earlier(mode: String) extends Main {
   val dst = "evaluation/earlier/"
 
   def main(args: Array[String]) {
     for (path <- args) {
       val results = eval(path)
-      if (!detailed) record(path, results)
+      if (mode == "evaluate") record(path, results)
     }
   }
 
@@ -46,25 +62,43 @@ case class Earlier(detailed: Boolean) extends Main {
     }
 
     val results = for (file <- dir.list() if file endsWith typ) yield {
-      if(detailed) {
-        val file_ = file.substring(0, file.lastIndexOf('.'))
-        var args = List(
-          path + "/" + file,
-          "-annotate:arrays+frame",
-          "-o", dst_ + file_ + ".bpl"
-        )
+      val file_ = file.substring(0, file.lastIndexOf('.'))
 
-        file -> eval(args.toArray)
-      } else {
-        var args = List(
-          path + "/" + file,
-          "-annotate:arrays+frame",
-          "-vcgen:partial",
-          "-prove:z3",
-          "-prove:strict"
-        )
+      mode match {
+        case "annotate" =>
+          var args = List(
+            path + "/" + file,
+            "-annotate:arrays+frame",
+            "-vcgen:partial",
+            "-o",
+            dst_ + file_ + ".annotated.bpl"
+          )
 
-        file -> eval(args.toArray)
+          file -> eval(args.toArray)
+          
+        case "reduce" =>
+          var args = List(
+            path + "/" + file,
+            "-annotate:arrays+frame",
+            "-vcgen:partial",
+            "-prove:simple",
+            "-split",
+            "-o",
+            dst_ + file_ + ".reduced.bpl"
+          )
+
+          file -> eval(args.toArray)
+
+        case "evaluate" =>
+          var args = List(
+            path + "/" + file,
+            "-annotate:arrays+frame",
+            "-vcgen:partial",
+            "-prove:z3",
+            "-prove:strict"
+          )
+
+          file -> eval(args.toArray)
       }
     }
     results.toMap
