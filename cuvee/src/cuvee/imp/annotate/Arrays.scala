@@ -5,7 +5,8 @@ import cuvee.imp._
 import cuvee.smtlib.Solver
 import cuvee.State
 
-case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
+case class Arrays(frame: Boolean, guard: Boolean)
+    extends Annotate(ExecNoLoops) {
   def while_(
       state: cuvee.State,
       paths: Paths,
@@ -27,7 +28,8 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
     val vars = test.free ++ mod ++ read
     val xs = vars.toList
 
-    val (before, after, body_) = iter(state, paths, xs, test, body, term, inv, sum, frames)
+    val (before, after, body_) =
+      iter(state, paths, xs, test, body, term, inv, sum, frames)
 
     val counters = Accelerate.counters(paths.running, after.running, ys)
 
@@ -40,26 +42,30 @@ case class Arrays(frame: Boolean) extends Annotate(ExecNoLoops) {
 
     val re = Expr.fresh(ys)
     val phi = accelerateWrites(mod, as, ys, re, counters, after.running)
-    val psi = accelerateGuard(
-      mod,
-      as,
-      ys,
-      re,
-      counters,
-      test,
-      inv,
-      // And(inv :: lbs),
-      after.breaked ++ after.returned
-    )
 
-    val phis = lbs ++ List(ub) ++ phi ++ psi
+    var phis = lbs ++ List(ub) ++ phi
+    if (guard) {
+      val psi = accelerateGuard(
+        mod,
+        as,
+        ys,
+        re,
+        counters,
+        test,
+        inv,
+        // And(inv :: lbs),
+        after.breaked ++ after.returned
+      )
+      phis = phis ++ psi
+    }
     val add = And(phis)
 
     // val props = phis map Prop.from
     // val props_ = Simplify.simplify_(props, Map(), Set())
 
     val add_ = Simplify.simplify(add, Map(), Set())
-    val inv_ = inv && add_ // Simplify.simplify(And(inv :: lbs) && ub && add, Map(), Set())
+    val inv_ = inv && add_
+    // Simplify.simplify(And(inv :: lbs) && ub && add, Map(), Set())
 
     // val inv_ = inv && add
 

@@ -75,7 +75,7 @@ case class Earlier(mode: String) extends Main {
           )
 
           file -> eval(args.toArray)
-          
+
         case "reduce" =>
           var args = List(
             path + "/" + file,
