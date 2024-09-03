@@ -74,7 +74,7 @@ object JavaBenchmarkWriter {
           Success
         case DeclareFun(Name("c#bitor", None), params, args, res) =>
           Success
-        case DeclareProc(Name("malloc", None), params, in, out, spec) => 
+        case DeclareProc(Name("malloc", None), params, in, out, spec) =>
           Success
 
         case DeclareVar(Name(name, None), Sort.int) =>
@@ -114,7 +114,7 @@ object JavaBenchmarkWriter {
           call("program.variable", atom(x.toString))
 
         case Lit(i: BigInt, _) =>
-          call("program.contant", atom(i))
+          call("program.constant", atom(i))
 
         case Plus(args) =>
           val args_ = args map process
@@ -151,28 +151,29 @@ object JavaBenchmarkWriter {
         case Eq(left, right) =>
           call("program.equalTo", process(left), process(right))
 
-        case Select(base, index) =>
-          call("program.arrayElement", process(base), process(index))
+        case Select(a: Var, index) =>
+          call("program.arrayElement", atom(a.toString), process(index))
       }
 
       def process(state: State, prog: Prog): List[Gen] = prog match {
         case Return =>
-          List(call("program.stop"))
+          cuvee.error("cannot translate return (unsound)")
+        // List(call("program.stop"))
 
         case Assign(List(a), List(Store(b, i, e))) if a == b =>
-          val ai_ = call("program.arrayElement", process(a), process(i))
+          val ai_ = call("program.arrayElement", atom(a.toString), process(i))
           List(call("program.assign", ai_, process(e)))
 
         case Assign(List(x), List(e)) =>
-          List(call("program.assign", process(x), process(e)))
+          List(call("program.assign", atom(x.toString), process(e)))
 
         case Local(xs, Nil) =>
           xs foreach {
-            case x@Var(name, Sort.int) =>
+            case x @ Var(name, Sort.int) =>
               integers += x.toString
-            case x@Var(name, Sort(Con.array, List(Sort.int, Sort.int))) =>
+            case x @ Var(name, Sort(Con.array, List(Sort.int, Sort.int))) =>
               arrays += x.toString
-            case x => 
+            case x =>
               cuvee.error("unsupported variable: " + x.toStringTyped)
           }
 
@@ -181,6 +182,7 @@ object JavaBenchmarkWriter {
         case Local(xs, es) =>
           process(state, Block(List(Local(xs, Nil), Assign(xs, es))))
 
+        // XXX: inlining of procedures with explicit returns is currently unsound
         case Call(name, in, out) =>
           val (xs, zs, body) = state procdefs name
           val re = Expr.subst(zs, out)
@@ -190,7 +192,7 @@ object JavaBenchmarkWriter {
 
         // assert
         case Spec(Nil, pre, True) =>
-          List(call("program.assert", process(pre)))
+          List(call("program.assert_", process(pre)))
 
         // assume
         case Spec(Nil, True, post) =>
@@ -228,10 +230,10 @@ object JavaBenchmarkWriter {
           file.print(indent + quote(str))
 
         case Make(fun, List(Num(int))) =>
-            file.print(indent + fun + "(" + int + ")")
+          file.print(indent + fun + "(" + int + ")")
 
         case Make(fun, List(Str(str))) =>
-            file.print(indent + fun + "(" + quote(str) + ")")
+          file.print(indent + fun + "(" + quote(str) + ")")
 
         case Make(fun, args) =>
           if (args.isEmpty) {
@@ -251,47 +253,48 @@ object JavaBenchmarkWriter {
 
       def done(state: State) {
         try {
-        val file = new PrintStream(new FileOutputStream(path))
-        var klass = path
-        klass = klass dropRight 5
-        klass = klass drop ((klass lastIndexOf "/") + 1)
+          val file = new PrintStream(new FileOutputStream(path))
+          var klass = path
+          klass = klass dropRight 5
+          klass = klass drop ((klass lastIndexOf "/") + 1)
 
+          klass = klass replace ("-", "_")
 
-        file.println("package " + Package + ";")
-        file.println()
+          file.println("package " + Package + ";")
+          file.println()
 
-        file.println("import java.util.List;")
-        file.println("import java.util.Set;")
-        file.println()
+          file.println("import java.util.List;")
+          file.println("import java.util.Set;")
+          file.println()
 
-        file.println("import analysis.common.builder.Benchmark;")
-        file.println("import analysis.common.builder.BenchmarkProgram;")
-        file.println()
+          file.println("import analysis.common.builder.Benchmark;")
+          file.println("import analysis.common.builder.BenchmarkProgram;")
+          file.println()
 
-        file.println("class " + klass + " implements Benchmark {")
+          file.println("class " + klass + " implements Benchmark {")
 
-        file.println(
-          Indent + "<ExpressionT, ConditionT, StatementT, AssignableT extends ExpressionT> StatementT statement(BenchmarkProgram<ExpressionT, ConditionT, StatementT, AssignableT> program) {"
-        )
+          file.println(
+            Indent + "public <ExpressionT, ConditionT, StatementT, AssignableT extends ExpressionT> StatementT statement(BenchmarkProgram<ExpressionT, ConditionT, StatementT, AssignableT> program) {"
+          )
 
-        file.println(Indent * 2 + "return")
-        format(file, Indent * 3, block(process(state, prog)))
-        file.println(";")
+          file.println(Indent * 2 + "return")
+          format(file, Indent * 3, block(process(state, prog)))
+          file.println(";")
 
-        file.println(Indent + "}")
-        file.println()
+          file.println(Indent + "}")
+          file.println()
 
-        file.println(Indent + "List<String> integerVariables() {")
-        file.println(quote(integers).mkString(Indent * 2 + "return List.of(", ", ", ");"))
-        file.println(Indent + "}")
-        file.println()
+          file.println(Indent + "public List<String> integerVariables() {")
+          file.println(quote(integers).mkString(Indent * 2 + "return List.of(", ", ", ");"))
+          file.println(Indent + "}")
+          file.println()
 
-        file.println(Indent + "List<String> arrayVariables() {")
-        file.println(quote(arrays).mkString(Indent * 2 + "return List.of(", ", ", ");"))
-        file.println(Indent + "}")
-        file.println()
+          file.println(Indent + "public List<String> arrayVariables() {")
+          file.println(quote(arrays).mkString(Indent * 2 + "return List.of(", ", ", ");"))
+          file.println(Indent + "}")
+          file.println()
 
-        file.println("}")
+          file.println("}")
         } catch {
           case e: Throwable =>
             val rm = new File(path)
