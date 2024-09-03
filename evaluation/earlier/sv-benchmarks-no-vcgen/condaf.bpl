@@ -1,0 +1,134 @@
+data c#void = c#void;
+
+type c#ptr<a₀>;
+
+type c#heap;
+
+var c#heap: c#heap;
+
+function c#bitand(x₀: int, x₁: int): int;
+
+function c#bitor(x₀: int, x₁: int): int;
+
+procedure malloc(size: int) returns (c#result: c#ptr<c#void>);
+
+var N: int;
+
+procedure main()
+  returns (c#result: int)
+  modifies N;
+{
+  havoc N;
+  if(N <= 0) {
+    c#result := 1;
+    return;
+  }
+  assume N <= 2147483647 / 4;
+  var i: int;
+  var sum: [int]int;
+  var a: [int]int;
+  sum := sum[0 := 0];
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && 0 <= i
+      && i <= N
+      && (forall x₆: int ::
+            ((exists i₅: int ::
+                    x₆ == i₅
+                    && 0 <= i₅
+                    && i₅ < i)
+               ==> (exists i₅: int ::
+                      i₅ < N
+                      && x₆ == i₅
+                      && 0 <= i₅
+                      && i₅ < i
+                      && a[x₆] == 1)))
+      && (forall x₆: int ::
+            (!((exists i₅: int ::
+                    x₆ == i₅
+                    && 0 <= i₅
+                    && i₅ < i)
+            )
+               ==> a[x₆] == old(a[x₆])))
+      && (forall i₅: int ::
+            (  0 <= i₅
+              && i₅ < i
+               ==> i₅ < N));
+  {
+    a := a[i := 1];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && 0 <= i
+      && i <= N
+      && (forall x₁₀: int ::
+            ((exists i₉: int ::
+                    x₁₀ == i₉
+                    && 0 <= i₉
+                    && i₉ < i)
+               ==> (exists i₉: int ::
+                        a[i₉] == 0
+                        && i₉ < N
+                        && x₁₀ == i₉
+                        && 0 <= i₉
+                        && i₉ < i
+                        && a[x₁₀] == 1 + old(a)[i₉])
+                || (exists i₉: int ::
+                        a[i₉] != 0
+                        && i₉ < N
+                        && x₁₀ == i₉
+                        && 0 <= i₉
+                        && i₉ < i
+                        && a[x₁₀] == -1 + old(a)[i₉])))
+      && (forall x₁₀: int ::
+            (!((exists i₉: int ::
+                    x₁₀ == i₉
+                    && 0 <= i₉
+                    && i₉ < i)
+            )
+               ==> a[x₁₀] == old(a[x₁₀])))
+      && (forall i₉: int ::
+            (  0 <= i₉
+              && i₉ < i
+               ==> i₉ < N));
+  {
+    if(a[i] == 0) {
+      a := a[i := a[i] + 1];
+    } else {
+      a := a[i := a[i] - 1];
+    }
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && 0 <= i
+      && i <= N
+      && (forall x₁₄: int ::
+            (x₁₄ == 0
+               ==> (exists i₁₃: int ::
+                      i₁₃ < N
+                      && x₁₄ == 0
+                      && sum[x₁₄] == old(sum)[0] + a[i₁₃])))
+      && (forall x₁₄: int ::
+            (x₁₄ != 0
+               ==> sum[x₁₄] == old(sum[x₁₄])))
+      && (forall i₁₃: int ::
+            (  0 <= i₁₃
+              && i₁₃ < i
+               ==> i₁₃ < N));
+  {
+    sum := sum[0 := sum[0] + a[i]];
+    i := i + 1;
+  }
+  assert sum[0] == 2 * N;
+  c#result := 1;
+  return;
+}
+
