@@ -29,22 +29,19 @@ goal (forall SIZE₁₇: int, a: [int]int, a₁₉: [int]int, i₂₀: int, i₂
                         && i₅ < i₂₀)
                 || a₁₉[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₀
                  ==> i₅ < SIZE₁₇))
         && 0 <= i₂₂
         && i₂₂ <= SIZE₁₇
         && (forall i₁₀: int ::
-              (  i₁₀ <= i₁₀
-                && 0 <= i₁₀
+              (  0 <= i₁₀
                 && i₁₀ < i₂₂
                  ==> i₁₀ < SIZE₁₇))
         && 0 <= i₂₄
         && i₂₄ <= SIZE₁₇
         && (forall i₁₄: int ::
-              (  i₁₄ <= i₁₄
-                && 0 <= i₁₄
+              (  0 <= i₁₄
                 && i₁₄ < i₂₄
                  ==> i₁₄ < SIZE₁₇))
          ==> i₂₄ < SIZE₁₇

@@ -28,8 +28,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₄: [int]int, j₁₅: int, ds
                         && j₄ < j₁₅)
                 || src₁₄[x₅] == src[x₅])
         && (forall j₄: int ::
-              (  j₄ <= j₄
-                && 0 <= j₄
+              (  0 <= j₄
                 && j₄ < j₁₅
                  ==> j₄ < 100000))
         && 0 <= i₁₇
@@ -49,8 +48,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₄: [int]int, j₁₅: int, ds
                         && i₈ < i₁₇)
                 || dst₁₆[x₉] == dst[x₉])
         && (forall i₈: int ::
-              (  i₈ <= i₈
-                && 0 <= i₈
+              (  0 <= i₈
                 && i₈ < i₁₇
                  ==> i₈ < 100000
                   && (src₁₄[i₈] == 0
@@ -58,8 +56,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₄: [int]int, j₁₅: int, ds
         && 0 <= i₁₈
         && i₁₈ <= 100000
         && (forall i₁₂: int ::
-              (  i₁₂ <= i₁₂
-                && 0 <= i₁₂
+              (  0 <= i₁₂
                 && i₁₂ < i₁₈
                  ==> i₁₂ < 100000
                   && (src₁₄[i₁₂] == 0
@@ -90,8 +87,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₄: [int]int, j₁₅: int, ds
                         && j₄ < j₁₅)
                 || src₁₄[x₅] == src[x₅])
         && (forall j₄: int ::
-              (  j₄ <= j₄
-                && 0 <= j₄
+              (  0 <= j₄
                 && j₄ < j₁₅
                  ==> j₄ < 100000))
         && 0 <= i₁₇
@@ -111,8 +107,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₄: [int]int, j₁₅: int, ds
                         && i₈ < i₁₇)
                 || dst₁₆[x₉] == dst[x₉])
         && (forall i₈: int ::
-              (  i₈ <= i₈
-                && 0 <= i₈
+              (  0 <= i₈
                 && i₈ < i₁₇
                  ==> i₈ < 100000
                   && (src₁₄[i₈] == 0
@@ -121,8 +116,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₄: [int]int, j₁₅: int, ds
         && 0 <= i₁₈
         && i₁₈ <= 100000
         && (forall i₁₂: int ::
-              (  i₁₂ <= i₁₂
-                && 0 <= i₁₂
+              (  0 <= i₁₂
                 && i₁₂ < i₁₈
                  ==> i₁₂ < 100000
                   && (src₁₄[i₁₂] == 0

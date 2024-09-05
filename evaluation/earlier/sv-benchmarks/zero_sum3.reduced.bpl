@@ -29,50 +29,43 @@ goal (forall SIZE₃₃: int, a: [int]int, a₃₅: [int]int, i₃₆: int, i₃
                         && i₅ < i₃₆)
                 || a₃₅[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₃₆
                  ==> i₅ < SIZE₃₃))
         && 0 <= i₃₈
         && i₃₈ <= SIZE₃₃
         && (forall i₁₀: int ::
-              (  i₁₀ <= i₁₀
-                && 0 <= i₁₀
+              (  0 <= i₁₀
                 && i₁₀ < i₃₈
                  ==> i₁₀ < SIZE₃₃))
         && 0 <= i₄₀
         && i₄₀ <= SIZE₃₃
         && (forall i₁₄: int ::
-              (  i₁₄ <= i₁₄
-                && 0 <= i₁₄
+              (  0 <= i₁₄
                 && i₁₄ < i₄₀
                  ==> i₁₄ < SIZE₃₃))
         && 0 <= i₄₂
         && i₄₂ <= SIZE₃₃
         && (forall i₁₈: int ::
-              (  i₁₈ <= i₁₈
-                && 0 <= i₁₈
+              (  0 <= i₁₈
                 && i₁₈ < i₄₂
                  ==> i₁₈ < SIZE₃₃))
         && 0 <= i₄₄
         && i₄₄ <= SIZE₃₃
         && (forall i₂₂: int ::
-              (  i₂₂ <= i₂₂
-                && 0 <= i₂₂
+              (  0 <= i₂₂
                 && i₂₂ < i₄₄
                  ==> i₂₂ < SIZE₃₃))
         && 0 <= i₄₆
         && i₄₆ <= SIZE₃₃
         && (forall i₂₆: int ::
-              (  i₂₆ <= i₂₆
-                && 0 <= i₂₆
+              (  0 <= i₂₆
                 && i₂₆ < i₄₆
                  ==> i₂₆ < SIZE₃₃))
         && 0 <= i₄₈
         && i₄₈ <= SIZE₃₃
         && (forall i₃₀: int ::
-              (  i₃₀ <= i₃₀
-                && 0 <= i₃₀
+              (  0 <= i₃₀
                 && i₃₀ < i₄₈
                  ==> i₃₀ < SIZE₃₃))
          ==> i₄₈ < SIZE₃₃

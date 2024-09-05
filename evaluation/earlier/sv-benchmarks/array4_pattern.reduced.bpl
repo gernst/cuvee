@@ -45,8 +45,7 @@ goal (forall ARR_SIZE₃₃: int, array1: [int]int, array2: [int]int, array1₃�
                         && count₇ < count₃₆)
                 || array2₃₅[x₉] == array2[x₉])
         && (forall count₇: int ::
-              (  count₇ <= count₇
-                && 0 <= count₇
+              (  0 <= count₇
                 && count₇ < count₃₆
                  ==> count₇ < ARR_SIZE₃₃))
         && temp₁₅ == 0
@@ -96,8 +95,7 @@ goal (forall ARR_SIZE₃₃: int, array1: [int]int, array2: [int]int, array1₃�
                         && count₇ < count₃₆)
                 || array2₃₅[x₉] == array2[x₉])
         && (forall count₇: int ::
-              (  count₇ <= count₇
-                && 0 <= count₇
+              (  0 <= count₇
                 && count₇ < count₃₆
                  ==> count₇ < ARR_SIZE₃₃))
         && temp₁₆ == 0

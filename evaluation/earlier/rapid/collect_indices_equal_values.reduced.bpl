@@ -26,8 +26,6 @@ goal (forall a1: [int]int, a2: [int]int, alength: int, b: [int]int, b₇: [int]i
                 || b₇[x₃] == b[x₃])
         && (forall blength₁: int, i₂: int ::
               (  0 <= i₂
-                && blength₁ <= blength₁
-                && i₂ <= i₂
                 && 0 <= blength₁
                 && blength₁ < blength₈
                 && 0 <= i₂
@@ -69,8 +67,6 @@ goal (forall a1: [int]int, a2: [int]int, alength: int, b: [int]int, b₇: [int]i
                 || b₇[x₃] == b[x₃])
         && (forall blength₁: int, i₂: int ::
               (  0 <= i₂
-                && blength₁ <= blength₁
-                && i₂ <= i₂
                 && 0 <= blength₁
                 && blength₁ < blength₈
                 && 0 <= i₂

@@ -28,22 +28,19 @@ goal (forall __VERIFIER_nondet_int₁: int, vectorx: [int]int, vectorx₂₆: [i
                         && i₇ < i₂₇)
                 || vectorx₂₆[x₈] == vectorx[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₇
                  ==> i₇ < 100000))
         && 0 <= i₃₀
         && i₃₀ <= 100000
         && (forall found₁₁₇: int, i₁₁₆: int ::
-              (  i₁₁₆ <= i₁₁₆
-                && 0 <= i₁₁₆
+              (  0 <= i₁₁₆
                 && i₁₁₆ < i₃₀
                  ==> i₁₁₆ < 100000
                   && found₁₁₇ == 0))
         && i₃₀ < 100000
         && found₂₈ == 0
         && vectorx₂₆[i₃₀] == __VERIFIER_nondet_int₁
-        && i₁₃ <= i₁₃
         && 0 <= i₁₃
         && i₁₃ < i₃₀ + 1
          ==> i₂₇ < 100000
@@ -69,21 +66,18 @@ goal (forall __VERIFIER_nondet_int₁: int, vectorx: [int]int, vectorx₂₆: [i
                         && i₇ < i₂₇)
                 || vectorx₂₆[x₈] == vectorx[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₇
                  ==> i₇ < 100000))
         && 0 <= i₃₀
         && i₃₀ <= 100000
         && (forall found₁₄₆: int, i₁₄₅: int ::
-              (  i₁₄₅ <= i₁₄₅
-                && 0 <= i₁₄₅
+              (  0 <= i₁₄₅
                 && i₁₄₅ < i₃₀
                  ==> i₁₄₅ < 100000
                   && found₁₄₆ == 0))
         && i₃₀ < 100000
         && found₂₈ == 0
-        && i₁₃ <= i₁₃
         && 0 <= i₁₃
         && i₁₃ < i₃₀ + 1
          ==> vectorx₂₆[i₃₀] == __VERIFIER_nondet_int₁
@@ -110,15 +104,13 @@ goal (forall vectorx: [int]int, vectorx₂₆: [int]int, i₂₇: int, found₂�
                         && i₇ < i₂₇)
                 || vectorx₂₆[x₈] == vectorx[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₇
                  ==> i₇ < 100000))
         && 0 <= i₃₀
         && i₃₀ <= 100000
         && (forall found₁₁: int, i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₃₀
                  ==> i₁₃ < 100000
                   && found₁₁ == 0))
@@ -147,15 +139,13 @@ goal (forall vectorx: [int]int, vectorx₂₆: [int]int, i₂₇: int, found₂�
                         && i₇ < i₂₇)
                 || vectorx₂₆[x₈] == vectorx[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₇
                  ==> i₇ < 100000))
         && 0 <= i₃₀
         && i₃₀ <= 100000
         && (forall found₁₁: int, i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₃₀
                  ==> i₁₃ < 100000
                   && found₁₁ == 0))
@@ -178,8 +168,7 @@ goal (forall vectorx: [int]int, vectorx₂₆: [int]int, i₂₇: int, found₂�
                         && i₁₇ < i₃₂)
                 || vectorx₃₁[x₁₈] == vectorx₂₆[x₁₈])
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && pos₂₉ <= i₁₇
+              (  pos₂₉ <= i₁₇
                 && i₁₇ < i₃₂
                  ==> i₁₇ < -1 + 100000))
          ==> found₂₈ == 0
@@ -209,15 +198,13 @@ goal (forall __VERIFIER_nondet_int₁: int, vectorx: [int]int, vectorx₂₆: [i
                         && i₇ < i₂₇)
                 || vectorx₂₆[x₈] == vectorx[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₇
                  ==> i₇ < 100000))
         && 0 <= i₃₀
         && i₃₀ <= 100000
         && (forall found₁₁: int, i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₃₀
                  ==> i₁₃ < 100000
                   && found₁₁ == 0))
@@ -240,15 +227,13 @@ goal (forall __VERIFIER_nondet_int₁: int, vectorx: [int]int, vectorx₂₆: [i
                         && i₁₇ < i₃₂)
                 || vectorx₃₁[x₁₈] == vectorx₂₆[x₁₈])
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && pos₂₉ <= i₁₇
+              (  pos₂₉ <= i₁₇
                 && i₁₇ < i₃₂
                  ==> i₁₇ < -1 + 100000))
         && 0 <= x₃₃
         && x₃₃ <= pos₂₉
         && (forall x₂₃: int ::
-              (  x₂₃ <= x₂₃
-                && 0 <= x₂₃
+              (  0 <= x₂₃
                 && x₂₃ < x₃₃
                  ==> x₂₃ < pos₂₉))
         && x₃₃ < pos₂₉

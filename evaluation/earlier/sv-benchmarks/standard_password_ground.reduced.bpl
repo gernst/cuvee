@@ -44,22 +44,19 @@ goal (forall password: [int]int, guess: [int]int, password₁₉: [int]int, gues
                         && i₆ < i₂₁)
                 || guess₂₀[x₈] == guess[x₈])
         && (forall i₆: int ::
-              (  i₆ <= i₆
-                && 0 <= i₆
+              (  0 <= i₆
                 && i₆ < i₂₁
                  ==> i₆ < 100000))
         && 0 <= i₂₃
         && i₂₃ <= 100000
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₂₃
                  ==> i₁₃ < 100000))
         && 0 <= x₂₄
         && x₂₄ <= 100000
         && (forall x₁₇: int ::
-              (  x₁₇ <= x₁₇
-                && 0 <= x₁₇
+              (  0 <= x₁₇
                 && x₁₇ < x₂₄
                  ==> x₁₇ < 100000))
         && x₂₄ < 100000

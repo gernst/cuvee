@@ -4,180 +4,83 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int ::
-        true
-        && 0 <= 0
-        && 0 <= 100000
-        && (forall x₄: int ::
-              ((exists i₃: int ::
-                      x₄ == i₃
-                      && 0 <= i₃
-                      && i₃ < 0)
-                 ==> (exists __VERIFIER_nondet_int₁₂: int, i₃: int ::
-                        i₃ < 100000
-                        && x₄ == i₃
-                        && 0 <= i₃
-                        && i₃ < 0
-                        && a[x₄] == __VERIFIER_nondet_int₁₂)))
-        && (forall x₄: int ::
-              (!((exists i₃: int ::
-                      x₄ == i₃
-                      && 0 <= i₃
-                      && i₃ < 0)
-              )
-                 ==> a[x₄] == a[x₄]))
-        && (forall i₃: int ::
-              (  i₃ <= i₃
-                && 0 <= i₃
-                && i₃ < 0
-                 ==> i₃ < 100000))
-        && (forall a₁₄: [int]int, i₁₅: int ::
-              (  true
-                && 0 <= i₁₅
-                && i₁₅ <= 100000
-                && (forall x₄: int ::
-                      ((exists i₃: int ::
-                              x₄ == i₃
-                              && 0 <= i₃
-                              && i₃ < i₁₅)
-                         ==> (exists __VERIFIER_nondet_int₁₂: int, i₃: int ::
-                                i₃ < 100000
-                                && x₄ == i₃
-                                && 0 <= i₃
-                                && i₃ < i₁₅
-                                && a₁₄[x₄] == __VERIFIER_nondet_int₁₂)))
-                && (forall x₄: int ::
-                      (!((exists i₃: int ::
-                              x₄ == i₃
-                              && 0 <= i₃
-                              && i₃ < i₁₅)
-                      )
-                         ==> a₁₄[x₄] == a[x₄]))
-                && (forall i₃: int ::
-                      (  i₃ <= i₃
-                        && 0 <= i₃
-                        && i₃ < i₁₅
-                         ==> i₃ < 100000))
-                 ==> (i₁₅ < 100000
-                     ==> (forall __VERIFIER_nondet_int₁: int ::
-                            true
-                            && 0 <= i₁₅ + 1
-                            && i₁₅ + 1 <= 100000
-                            && (forall x₄: int ::
-                                  ((exists i₃: int ::
-                                          x₄ == i₃
-                                          && 0 <= i₃
-                                          && i₃ < i₁₅ + 1)
-                                     ==> (exists __VERIFIER_nondet_int₁₂: int, i₃: int ::
-                                            i₃ < 100000
-                                            && x₄ == i₃
-                                            && 0 <= i₃
-                                            && i₃ < i₁₅ + 1
-                                            && a₁₄[i₁₅ := __VERIFIER_nondet_int₁][x₄] == __VERIFIER_nondet_int₁₂)))
-                            && (forall x₄: int ::
-                                  (!((exists i₃: int ::
-                                          x₄ == i₃
-                                          && 0 <= i₃
-                                          && i₃ < i₁₅ + 1)
-                                  )
-                                     ==> a₁₄[i₁₅ := __VERIFIER_nondet_int₁][x₄] == a[x₄]))
-                            && (forall i₃: int ::
-                                  (  i₃ <= i₃
-                                    && 0 <= i₃
-                                    && i₃ < i₁₅ + 1
-                                     ==> i₃ < 100000))
-                            && true
-                            && (true
-                               ==> true)))
-                  && (!(i₁₅ < 100000
-                  )
-                     ==> true
-                      && (true
-                         ==> true
-                          && 0 <= 0
-                          && 0 <= 100000
-                          && (forall i₈: int ::
-                                (  i₈ <= i₈
-                                  && 0 <= i₈
-                                  && i₈ < 0
-                                   ==> i₈ < 100000))
-                          && (forall min₁₆: int, i₁₇: int ::
-                                (  true
-                                  && 0 <= i₁₇
-                                  && i₁₇ <= 100000
-                                  && (forall i₈: int ::
-                                        (  i₈ <= i₈
-                                          && 0 <= i₈
-                                          && i₈ < i₁₇
-                                           ==> i₈ < 100000))
-                                   ==> (i₁₇ < 100000
-                                       ==> (a₁₄[i₁₇] < min₁₆
-                                           ==> true
-                                            && 0 <= i₁₇ + 1
-                                            && i₁₇ + 1 <= 100000
-                                            && (forall i₈: int ::
-                                                  (  i₈ <= i₈
-                                                    && 0 <= i₈
-                                                    && i₈ < i₁₇ + 1
-                                                     ==> i₈ < 100000))
-                                            && true
-                                            && (true
-                                               ==> true))
-                                        && (!(a₁₄[i₁₇] < min₁₆
-                                        )
-                                           ==> true
-                                            && 0 <= i₁₇ + 1
-                                            && i₁₇ + 1 <= 100000
-                                            && (forall i₈: int ::
-                                                  (  i₈ <= i₈
-                                                    && 0 <= i₈
-                                                    && i₈ < i₁₇ + 1
-                                                     ==> i₈ < 100000))
-                                            && true
-                                            && (true
-                                               ==> true)))
-                                    && (!(i₁₇ < 100000
-                                    )
-                                       ==> true
-                                        && (true
-                                           ==> true
-                                            && 0 <= 0
-                                            && 0 <= 100000
-                                            && (forall x₁₂: int ::
-                                                  (  x₁₂ <= x₁₂
-                                                    && 0 <= x₁₂
-                                                    && x₁₂ < 0
-                                                     ==> x₁₂ < 100000))
-                                            && (forall x₁₈: int ::
-                                                  (  true
-                                                    && 0 <= x₁₈
-                                                    && x₁₈ <= 100000
-                                                    && (forall x₁₂: int ::
-                                                          (  x₁₂ <= x₁₂
-                                                            && 0 <= x₁₂
-                                                            && x₁₂ < x₁₈
-                                                             ==> x₁₂ < 100000))
-                                                     ==> (x₁₈ < 100000
-                                                         ==> min₁₆ <= a₁₄[x₁₈]
-                                                          && (true
-                                                             ==> true
-                                                              && 0 <= x₁₈ + 1
-                                                              && x₁₈ + 1 <= 100000
-                                                              && (forall x₁₂: int ::
-                                                                    (  x₁₂ <= x₁₂
-                                                                      && 0 <= x₁₂
-                                                                      && x₁₂ < x₁₈ + 1
-                                                                       ==> x₁₂ < 100000))
-                                                              && true
-                                                              && (true
-                                                                 ==> true)))
-                                                      && (!(x₁₈ < 100000
-                                                      )
-                                                         ==> true
-                                                          && (true
-                                                             ==> true)))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var a: [int]int;
+  var min: int := 0;
+  var i: int := 0;
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₄: int ::
+            ((exists i₃: int ::
+                    x₄ == i₃
+                    && old(i) <= i₃
+                    && i₃ < i)
+               ==> (exists __VERIFIER_nondet_int₁₂: int, i₃: int ::
+                      i₃ < 100000
+                      && x₄ == i₃
+                      && old(i) <= i₃
+                      && i₃ < i
+                      && a[x₄] == __VERIFIER_nondet_int₁₂)))
+      && (forall x₄: int ::
+            (!((exists i₃: int ::
+                    x₄ == i₃
+                    && old(i) <= i₃
+                    && i₃ < i)
+            )
+               ==> a[x₄] == old(a[x₄])))
+      && (forall i₃: int ::
+            (  old(i) <= i₃
+              && i₃ < i
+               ==> i₃ < 100000));
+  {
+    var __VERIFIER_nondet_int₁: int;
+    a := a[i := __VERIFIER_nondet_int₁];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall i₈: int ::
+            (  old(i) <= i₈
+              && i₈ < i
+               ==> i₈ < 100000));
+  {
+    if(a[i] < min) {
+      min := a[i];
+    }
+    i := i + 1;
+  }
+  var x: int;
+  x := 0;
+  while(x < 100000)
+    decreases 100000 - x;
+    invariant true
+      && old(x) <= x
+      && x <= 100000
+      && (forall x₁₂: int ::
+            (  old(x) <= x₁₂
+              && x₁₂ < x
+               ==> x₁₂ < 100000));
+  {
+    assert min <= a[x];
+    x := x + 1;
+  }
+  c#result := 0;
+  return;
+}
 

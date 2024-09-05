@@ -33,8 +33,7 @@ goal (forall N₁₅: int, b: [int]int, b₁₆: [int]int, i₁₇: int, x₆: i
                         && i₅ < i₁₇)
                 || b₁₆[x₉₃] == b[x₉₃])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₁₇
                  ==> i₅ < N₁₅))
         && i₁₇ < N₁₅
@@ -68,8 +67,7 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇:
                         && i₅ < i₁₇)
                 || b₁₆[x₆] == b[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₁₇
                  ==> i₅ < N₁₅))
         && 0 <= i₁₉
@@ -95,8 +93,7 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇:
                         && i₉ < i₁₉)
                 || a₁₈[x₂₁₅] == a[x₂₁₅])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₁₉
                  ==> i₉ < N₁₅))
         && i₁₉ < N₁₅
@@ -131,8 +128,7 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇:
                         && i₅ < i₁₇)
                 || b₁₆[x₆] == b[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₁₇
                  ==> i₅ < N₁₅))
         && 0 <= i₁₉
@@ -158,15 +154,13 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇:
                         && i₉ < i₁₉)
                 || a₁₈[x₁₀] == a[x₁₀])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₁₉
                  ==> i₉ < N₁₅))
         && 0 <= i₂₀
         && i₂₀ <= N₁₅
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₂₀
                  ==> i₁₃ < N₁₅))
         && i₂₀ < N₁₅

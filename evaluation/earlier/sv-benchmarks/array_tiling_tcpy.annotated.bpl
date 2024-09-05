@@ -4,117 +4,64 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall __VERIFIER_nondet_int₁: int ::
-        true
-        && (1 < __VERIFIER_nondet_int₁
-           ==> true
-            && (__VERIFIER_nondet_int₁ < 1073741823
-               ==> (forall a: [int]int ::
-                    (forall acopy: [int]int ::
-                            true
-                            && 0 <= 0
-                            && 0 <= __VERIFIER_nondet_int₁
-                            && (forall x₇: int ::
-                                  ((exists i₆: int ::
-                                        if(x₇ == i₆) then 0 <= i₆ && i₆ < 0 else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆)
-                                     ==> (exists i₆: int ::
-                                            i₆ < __VERIFIER_nondet_int₁
-                                            && if(x₇ == i₆) then 0 <= i₆ && i₆ < 0 && acopy[x₇] == a[i₆] else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆ && acopy[x₇] == a[1 + 2 * __VERIFIER_nondet_int₁ + -i₆])))
-                            && (forall x₇: int ::
-                                  (!((exists i₆: int ::
-                                        if(x₇ == i₆) then 0 <= i₆ && i₆ < 0 else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆)
-                                  )
-                                     ==> acopy[x₇] == acopy[x₇]))
-                            && (forall i₆: int ::
-                                  (  i₆ <= i₆
-                                    && 0 <= i₆
-                                    && i₆ < 0
-                                     ==> i₆ < __VERIFIER_nondet_int₁))
-                            && (forall acopy₁₂: [int]int, i₁₃: int ::
-                                  (  true
-                                    && 0 <= i₁₃
-                                    && i₁₃ <= __VERIFIER_nondet_int₁
-                                    && (forall x₇: int ::
-                                          ((exists i₆: int ::
-                                                if(x₇ == i₆) then 0 <= i₆ && i₆ < i₁₃ else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆)
-                                             ==> (exists i₆: int ::
-                                                    i₆ < __VERIFIER_nondet_int₁
-                                                    && if(x₇ == i₆) then 0 <= i₆ && i₆ < i₁₃ && acopy₁₂[x₇] == a[i₆] else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆ && acopy₁₂[x₇] == a[1 + 2 * __VERIFIER_nondet_int₁ + -i₆])))
-                                    && (forall x₇: int ::
-                                          (!((exists i₆: int ::
-                                                if(x₇ == i₆) then 0 <= i₆ && i₆ < i₁₃ else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆)
-                                          )
-                                             ==> acopy₁₂[x₇] == acopy[x₇]))
-                                    && (forall i₆: int ::
-                                          (  i₆ <= i₆
-                                            && 0 <= i₆
-                                            && i₆ < i₁₃
-                                             ==> i₆ < __VERIFIER_nondet_int₁))
-                                     ==> (i₁₃ < __VERIFIER_nondet_int₁
-                                         ==> true
-                                          && 0 <= i₁₃ + 1
-                                          && i₁₃ + 1 <= __VERIFIER_nondet_int₁
-                                          && (forall x₇: int ::
-                                                ((exists i₆: int ::
-                                                      if(x₇ == i₆) then 0 <= i₆ && i₆ < i₁₃ + 1 else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆)
-                                                   ==> (exists i₆: int ::
-                                                          i₆ < __VERIFIER_nondet_int₁
-                                                          && if(x₇ == i₆) then 0 <= i₆ && i₆ < i₁₃ + 1 && acopy₁₂[2 * __VERIFIER_nondet_int₁ - i₁₃ + 1 := a[2 * __VERIFIER_nondet_int₁ - i₁₃ + 1]][i₁₃ := a[i₁₃]][x₇] == a[i₆] else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆ && acopy₁₂[2 * __VERIFIER_nondet_int₁ - i₁₃ + 1 := a[2 * __VERIFIER_nondet_int₁ - i₁₃ + 1]][i₁₃ := a[i₁₃]][x₇] == a[1 + 2 * __VERIFIER_nondet_int₁ + -i₆])))
-                                          && (forall x₇: int ::
-                                                (!((exists i₆: int ::
-                                                      if(x₇ == i₆) then 0 <= i₆ && i₆ < i₁₃ + 1 else x₇ == 1 + 2 * __VERIFIER_nondet_int₁ + -i₆)
-                                                )
-                                                   ==> acopy₁₂[2 * __VERIFIER_nondet_int₁ - i₁₃ + 1 := a[2 * __VERIFIER_nondet_int₁ - i₁₃ + 1]][i₁₃ := a[i₁₃]][x₇] == acopy[x₇]))
-                                          && (forall i₆: int ::
-                                                (  i₆ <= i₆
-                                                  && 0 <= i₆
-                                                  && i₆ < i₁₃ + 1
-                                                   ==> i₆ < __VERIFIER_nondet_int₁))
-                                          && true
-                                          && (true
-                                             ==> true))
-                                      && (!(i₁₃ < __VERIFIER_nondet_int₁
-                                      )
-                                         ==> true
-                                          && (true
-                                             ==> true
-                                              && 0 <= 0
-                                              && 0 <= 2 * __VERIFIER_nondet_int₁
-                                              && (forall i₁₀: int ::
-                                                    (  i₁₀ <= i₁₀
-                                                      && 0 <= i₁₀
-                                                      && i₁₀ < 0
-                                                       ==> i₁₀ < 2 * __VERIFIER_nondet_int₁))
-                                              && (forall i₁₄: int ::
-                                                    (  true
-                                                      && 0 <= i₁₄
-                                                      && i₁₄ <= 2 * __VERIFIER_nondet_int₁
-                                                      && (forall i₁₀: int ::
-                                                            (  i₁₀ <= i₁₀
-                                                              && 0 <= i₁₀
-                                                              && i₁₀ < i₁₄
-                                                               ==> i₁₀ < 2 * __VERIFIER_nondet_int₁))
-                                                       ==> (i₁₄ < 2 * __VERIFIER_nondet_int₁
-                                                           ==> acopy₁₂[i₁₄] == a[i₁₄]
-                                                            && (true
-                                                               ==> true
-                                                                && 0 <= i₁₄ + 1
-                                                                && i₁₄ + 1 <= 2 * __VERIFIER_nondet_int₁
-                                                                && (forall i₁₀: int ::
-                                                                      (  i₁₀ <= i₁₀
-                                                                        && 0 <= i₁₀
-                                                                        && i₁₀ < i₁₄ + 1
-                                                                         ==> i₁₀ < 2 * __VERIFIER_nondet_int₁))
-                                                                && true
-                                                                && (true
-                                                                   ==> true)))
-                                                        && (!(i₁₄ < 2 * __VERIFIER_nondet_int₁
-                                                        )
-                                                           ==> true
-                                                            && (true
-                                                               ==> true)))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var __VERIFIER_nondet_int₁: int;
+  var S: int;
+  S := __VERIFIER_nondet_int₁;
+  assume 1 < S;
+  assume S < 1073741823;
+  var i: int;
+  var a: [int]int;
+  var acopy: [int]int;
+  i := 0;
+  while(i < S)
+    decreases S - i;
+    invariant true
+      && old(i) <= i
+      && i <= S
+      && (forall x₇: int ::
+            ((exists i₆: int ::
+                  if(x₇ == i₆) then old(i) <= i₆ && i₆ < i else x₇ == 1 + 2 * S + -i₆)
+               ==> (exists i₆: int ::
+                      i₆ < S
+                      && if(x₇ == i₆) then old(i) <= i₆ && i₆ < i && acopy[x₇] == a[i₆] else x₇ == 1 + 2 * S + -i₆ && acopy[x₇] == a[1 + 2 * S + -i₆])))
+      && (forall x₇: int ::
+            (!((exists i₆: int ::
+                  if(x₇ == i₆) then old(i) <= i₆ && i₆ < i else x₇ == 1 + 2 * S + -i₆)
+            )
+               ==> acopy[x₇] == old(acopy[x₇])))
+      && (forall i₆: int ::
+            (  old(i) <= i₆
+              && i₆ < i
+               ==> i₆ < S));
+  {
+    acopy := acopy[2 * S - i + 1 := a[2 * S - i + 1]];
+    acopy := acopy[i := a[i]];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < 2 * S)
+    decreases 2 * S - i;
+    invariant true
+      && old(i) <= i
+      && i <= 2 * S
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < 2 * S));
+  {
+    assert acopy[i] == a[i];
+    i := i + 1;
+  }
+  c#result := 0;
+  return;
+}
 

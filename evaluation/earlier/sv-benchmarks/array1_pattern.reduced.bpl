@@ -45,8 +45,7 @@ goal (forall ARR_SIZE₂₆: int, array1: [int]int, array2: [int]int, array1₂�
                         && count₆ < count₂₉)
                 || array2₂₈[x₈] == array2[x₈])
         && (forall count₆: int ::
-              (  count₆ <= count₆
-                && 0 <= count₆
+              (  0 <= count₆
                 && count₆ < count₂₉
                  ==> count₆ < ARR_SIZE₂₆))
         && temp₁₃ == 0

@@ -28,8 +28,7 @@ goal (forall a: [int]int, a₁₀: [int]int, i₁₁: int, x₄: int, i₃: int 
                         && i₃₇ < i₁₁)
                 || a₁₀[x₃₆] == a[0 := 7][x₃₆])
         && (forall i₃₈: int ::
-              (  i₃₈ <= i₃₈
-                && 1 <= i₃₈
+              (  1 <= i₃₈
                 && i₃₈ < i₁₁
                  ==> i₃₈ < 100000))
         && i₁₁ < 100000
@@ -63,15 +62,13 @@ goal (forall a: [int]int, a₁₀: [int]int, i₁₁: int, x₁₂: int ::
                         && i₃ < i₁₁)
                 || a₁₀[x₄] == a[0 := 7][x₄])
         && (forall i₃: int ::
-              (  i₃ <= i₃
-                && 1 <= i₃
+              (  1 <= i₃
                 && i₃ < i₁₁
                  ==> i₃ < 100000))
         && 1 <= x₁₂
         && x₁₂ <= 100000
         && (forall x₈: int ::
-              (  x₈ <= x₈
-                && 1 <= x₈
+              (  1 <= x₈
                 && x₈ < x₁₂
                  ==> x₈ < 100000))
         && x₁₂ < 100000

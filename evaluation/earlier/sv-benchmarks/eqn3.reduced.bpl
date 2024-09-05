@@ -29,8 +29,7 @@ goal (forall N₁₅: int, a: [int]int, a₁₆: [int]int, i₁₇: int, x₆: i
                         && i₅₅ < i₁₇)
                 || a₁₆[x₅₄] == a[0 := 6][x₅₄])
         && (forall i₅₆: int ::
-              (  i₅₆ <= i₅₆
-                && 1 <= i₅₆
+              (  1 <= i₅₆
                 && i₅₆ < i₁₇
                  ==> i₅₆ < N₁₅))
         && i₁₇ < N₁₅
@@ -66,8 +65,7 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, a₁₆: [int]int, i₁₇:
                         && i₅ < i₁₇)
                 || a₁₆[x₆] == a[0 := 6][x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 1 <= i₅
+              (  1 <= i₅
                 && i₅ < i₁₇
                  ==> i₅ < N₁₅))
         && 1 <= i₁₉
@@ -89,8 +87,7 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, a₁₆: [int]int, i₁₇:
                         && i₁₂₁ < i₁₉)
                 || b₁₈[x₁₂₀] == b[0 := 1][x₁₂₀])
         && (forall i₁₂₂: int ::
-              (  i₁₂₂ <= i₁₂₂
-                && 1 <= i₁₂₂
+              (  1 <= i₁₂₂
                 && i₁₂₂ < i₁₉
                  ==> i₁₂₂ < N₁₅))
         && i₁₉ < N₁₅
@@ -127,8 +124,7 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, a₁₆: [int]int, i₁₇:
                         && i₅ < i₁₇)
                 || a₁₆[x₆] == a[0 := 6][x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 1 <= i₅
+              (  1 <= i₅
                 && i₅ < i₁₇
                  ==> i₅ < N₁₅))
         && 1 <= i₁₉
@@ -150,15 +146,13 @@ goal (forall N₁₅: int, a: [int]int, b: [int]int, a₁₆: [int]int, i₁₇:
                         && i₉ < i₁₉)
                 || b₁₈[x₁₀] == b[0 := 1][x₁₀])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 1 <= i₉
+              (  1 <= i₉
                 && i₉ < i₁₉
                  ==> i₉ < N₁₅))
         && 0 <= i₂₀
         && i₂₀ <= N₁₅
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₂₀
                  ==> i₁₃ < N₁₅))
         && i₂₀ < N₁₅

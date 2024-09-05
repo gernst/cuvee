@@ -26,8 +26,6 @@ goal (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₇: [int]int,
                 || c₇[x₃] == c[x₃])
         && (forall clength₁: int, i₂: int ::
               (  0 <= i₂
-                && clength₁ <= clength₁
-                && i₂ <= i₂
                 && 0 <= clength₁
                 && clength₁ < clength₈
                 && 0 <= i₂

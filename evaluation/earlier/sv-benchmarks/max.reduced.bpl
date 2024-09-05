@@ -16,15 +16,13 @@ goal (forall N₃₃: int, x: [int]int, ret₃₇: int, i₃₈: int, ret₄₃:
         && 0 <= i₃₈
         && i₃₈ <= N₃₃
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₃₈
                  ==> i₅ < N₃₃))
         && 0 <= i₄₄
         && i₄₄ <= N₃₃
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₄₄
                  ==> i₅ < N₃₃))
         && 0 <= i₄₇
@@ -46,15 +44,13 @@ goal (forall N₃₃: int, x: [int]int, ret₃₇: int, i₃₈: int, ret₄₃:
                         && i₂₀ < i₄₇)
                 || x₄₆[x₂₁] == x[0 := x[1]][1 := x[0]][x₂₁])
         && (forall i₂₀: int ::
-              (  i₂₀ <= i₂₀
-                && 0 <= i₂₀
+              (  0 <= i₂₀
                 && i₂₀ < i₄₇
                  ==> i₂₀ < -1 + N₃₃))
         && 0 <= i₅₃
         && i₅₃ <= N₃₃
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₅₃
                  ==> i₅ < N₃₃))
          ==> ret₃₇ == ret₄₃
@@ -68,15 +64,13 @@ goal (forall N₃₃: int, x: [int]int, ret₃₇: int, i₃₈: int, i₄₄: i
         && 0 <= i₃₈
         && i₃₈ <= N₃₃
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₃₈
                  ==> i₅ < N₃₃))
         && 0 <= i₄₄
         && i₄₄ <= N₃₃
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₄₄
                  ==> i₅ < N₃₃))
         && 0 <= i₄₇
@@ -98,15 +92,13 @@ goal (forall N₃₃: int, x: [int]int, ret₃₇: int, i₃₈: int, i₄₄: i
                         && i₂₀ < i₄₇)
                 || x₄₆[x₂₁] == x[0 := x[1]][1 := x[0]][x₂₁])
         && (forall i₂₀: int ::
-              (  i₂₀ <= i₂₀
-                && 0 <= i₂₀
+              (  0 <= i₂₀
                 && i₂₀ < i₄₇
                  ==> i₂₀ < -1 + N₃₃))
         && 0 <= i₅₃
         && i₅₃ <= N₃₃
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₅₃
                  ==> i₅ < N₃₃))
          ==> ret₃₇ == ret₅₂

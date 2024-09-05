@@ -1,302 +1,128 @@
-goal (forall a: [int]int, alength: int, b: [int]int, c: [int]int ::
-      (  0 <= alength
-        && true
-        && true
-        && true
-        && true
-        && true
-         ==> 0 <= 0
-          && 0 <= 0
-          && 0 <= 0
-          && 0 <= 0
-          && 0 <= alength
-          && (forall x₄: int ::
-                ((exists blength₃: int ::
-                        x₄ == blength₃
-                        && 0 <= blength₃
-                        && blength₃ < 0)
-                   ==> (exists i₂: int, blength₃: int ::
-                          a[i₂] >= 0
-                          && i₂ < alength
-                          && 0 <= i₂
-                          && x₄ == blength₃
-                          && 0 <= blength₃
-                          && blength₃ < 0
-                          && b[x₄] == a[i₂])))
-          && (forall x₄: int ::
-                (!((exists blength₃: int ::
-                        x₄ == blength₃
-                        && 0 <= blength₃
-                        && blength₃ < 0)
-                )
-                   ==> b[x₄] == b[x₄]))
-          && (forall x₅: int ::
-                ((exists clength₁: int ::
-                        x₅ == clength₁
-                        && 0 <= clength₁
-                        && clength₁ < 0)
-                   ==> (exists clength₁: int, i₂: int ::
-                          !(a[i₂] >= 0
-                          )
-                          && i₂ < alength
-                          && 0 <= i₂
-                          && x₅ == clength₁
-                          && 0 <= clength₁
-                          && clength₁ < 0
-                          && c[x₅] == a[i₂])))
-          && (forall x₅: int ::
-                (!((exists clength₁: int ::
-                        x₅ == clength₁
-                        && 0 <= clength₁
-                        && clength₁ < 0)
-                )
-                   ==> c[x₅] == c[x₅]))
-          && (forall clength₁: int, i₂: int, blength₃: int ::
-                (  0 <= i₂
-                  && clength₁ <= clength₁
-                  && i₂ <= i₂
-                  && blength₃ <= blength₃
-                  && 0 <= clength₁
-                  && clength₁ < 0
-                  && 0 <= i₂
-                  && i₂ < 0
-                  && 0 <= blength₃
-                  && blength₃ < 0
-                   ==> i₂ < alength))
-          && (forall clength₁₁: int, i₁₂: int, b₁₃: [int]int, blength₁₄: int, c₁₅: [int]int ::
-                (  0 <= i₁₂
-                  && 0 <= clength₁₁
-                  && 0 <= i₁₂
-                  && 0 <= blength₁₄
-                  && i₁₂ <= alength
-                  && (forall x₄: int ::
-                        ((exists blength₃: int ::
-                                x₄ == blength₃
-                                && 0 <= blength₃
-                                && blength₃ < blength₁₄)
-                           ==> (exists i₂: int, blength₃: int ::
-                                  a[i₂] >= 0
-                                  && i₂ < alength
-                                  && 0 <= i₂
-                                  && x₄ == blength₃
-                                  && 0 <= blength₃
-                                  && blength₃ < blength₁₄
-                                  && b₁₃[x₄] == a[i₂])))
-                  && (forall x₄: int ::
-                        (!((exists blength₃: int ::
-                                x₄ == blength₃
-                                && 0 <= blength₃
-                                && blength₃ < blength₁₄)
-                        )
-                           ==> b₁₃[x₄] == b[x₄]))
-                  && (forall x₅: int ::
-                        ((exists clength₁: int ::
-                                x₅ == clength₁
-                                && 0 <= clength₁
-                                && clength₁ < clength₁₁)
-                           ==> (exists clength₁: int, i₂: int ::
-                                  !(a[i₂] >= 0
-                                  )
-                                  && i₂ < alength
-                                  && 0 <= i₂
-                                  && x₅ == clength₁
-                                  && 0 <= clength₁
-                                  && clength₁ < clength₁₁
-                                  && c₁₅[x₅] == a[i₂])))
-                  && (forall x₅: int ::
-                        (!((exists clength₁: int ::
-                                x₅ == clength₁
-                                && 0 <= clength₁
-                                && clength₁ < clength₁₁)
-                        )
-                           ==> c₁₅[x₅] == c[x₅]))
-                  && (forall clength₁: int, i₂: int, blength₃: int ::
-                        (  0 <= i₂
-                          && clength₁ <= clength₁
-                          && i₂ <= i₂
-                          && blength₃ <= blength₃
-                          && 0 <= clength₁
-                          && clength₁ < clength₁₁
-                          && 0 <= i₂
-                          && i₂ < i₁₂
-                          && 0 <= blength₃
-                          && blength₃ < blength₁₄
-                           ==> i₂ < alength))
-                   ==> (i₁₂ < alength
-                       ==> (a[i₁₂] >= 0
-                           ==> 0 <= i₁₂ + 1
-                            && 0 <= clength₁₁
-                            && 0 <= i₁₂ + 1
-                            && 0 <= blength₁₄ + 1
-                            && i₁₂ + 1 <= alength
-                            && (forall x₄: int ::
-                                  ((exists blength₃: int ::
-                                          x₄ == blength₃
-                                          && 0 <= blength₃
-                                          && blength₃ < blength₁₄ + 1)
-                                     ==> (exists i₂: int, blength₃: int ::
-                                            a[i₂] >= 0
-                                            && i₂ < alength
-                                            && 0 <= i₂
-                                            && x₄ == blength₃
-                                            && 0 <= blength₃
-                                            && blength₃ < blength₁₄ + 1
-                                            && b₁₃[blength₁₄ := a[i₁₂]][x₄] == a[i₂])))
-                            && (forall x₄: int ::
-                                  (!((exists blength₃: int ::
-                                          x₄ == blength₃
-                                          && 0 <= blength₃
-                                          && blength₃ < blength₁₄ + 1)
-                                  )
-                                     ==> b₁₃[blength₁₄ := a[i₁₂]][x₄] == b[x₄]))
-                            && (forall x₅: int ::
-                                  ((exists clength₁: int ::
-                                          x₅ == clength₁
-                                          && 0 <= clength₁
-                                          && clength₁ < clength₁₁)
-                                     ==> (exists clength₁: int, i₂: int ::
-                                            !(a[i₂] >= 0
-                                            )
-                                            && i₂ < alength
-                                            && 0 <= i₂
-                                            && x₅ == clength₁
-                                            && 0 <= clength₁
-                                            && clength₁ < clength₁₁
-                                            && c₁₅[x₅] == a[i₂])))
-                            && (forall x₅: int ::
-                                  (!((exists clength₁: int ::
-                                          x₅ == clength₁
-                                          && 0 <= clength₁
-                                          && clength₁ < clength₁₁)
-                                  )
-                                     ==> c₁₅[x₅] == c[x₅]))
-                            && (forall clength₁: int, i₂: int, blength₃: int ::
-                                  (  0 <= i₂
-                                    && clength₁ <= clength₁
-                                    && i₂ <= i₂
-                                    && blength₃ <= blength₃
-                                    && 0 <= clength₁
-                                    && clength₁ < clength₁₁
-                                    && 0 <= i₂
-                                    && i₂ < i₁₂ + 1
-                                    && 0 <= blength₃
-                                    && blength₃ < blength₁₄ + 1
-                                     ==> i₂ < alength))
-                            && true
-                            && (true
-                               ==> true))
-                        && (!(a[i₁₂] >= 0
-                        )
-                           ==> 0 <= i₁₂ + 1
-                            && 0 <= clength₁₁ + 1
-                            && 0 <= i₁₂ + 1
-                            && 0 <= blength₁₄
-                            && i₁₂ + 1 <= alength
-                            && (forall x₄: int ::
-                                  ((exists blength₃: int ::
-                                          x₄ == blength₃
-                                          && 0 <= blength₃
-                                          && blength₃ < blength₁₄)
-                                     ==> (exists i₂: int, blength₃: int ::
-                                            a[i₂] >= 0
-                                            && i₂ < alength
-                                            && 0 <= i₂
-                                            && x₄ == blength₃
-                                            && 0 <= blength₃
-                                            && blength₃ < blength₁₄
-                                            && b₁₃[x₄] == a[i₂])))
-                            && (forall x₄: int ::
-                                  (!((exists blength₃: int ::
-                                          x₄ == blength₃
-                                          && 0 <= blength₃
-                                          && blength₃ < blength₁₄)
-                                  )
-                                     ==> b₁₃[x₄] == b[x₄]))
-                            && (forall x₅: int ::
-                                  ((exists clength₁: int ::
-                                          x₅ == clength₁
-                                          && 0 <= clength₁
-                                          && clength₁ < clength₁₁ + 1)
-                                     ==> (exists clength₁: int, i₂: int ::
-                                            !(a[i₂] >= 0
-                                            )
-                                            && i₂ < alength
-                                            && 0 <= i₂
-                                            && x₅ == clength₁
-                                            && 0 <= clength₁
-                                            && clength₁ < clength₁₁ + 1
-                                            && c₁₅[clength₁₁ := a[i₁₂]][x₅] == a[i₂])))
-                            && (forall x₅: int ::
-                                  (!((exists clength₁: int ::
-                                          x₅ == clength₁
-                                          && 0 <= clength₁
-                                          && clength₁ < clength₁₁ + 1)
-                                  )
-                                     ==> c₁₅[clength₁₁ := a[i₁₂]][x₅] == c[x₅]))
-                            && (forall clength₁: int, i₂: int, blength₃: int ::
-                                  (  0 <= i₂
-                                    && clength₁ <= clength₁
-                                    && i₂ <= i₂
-                                    && blength₃ <= blength₃
-                                    && 0 <= clength₁
-                                    && clength₁ < clength₁₁ + 1
-                                    && 0 <= i₂
-                                    && i₂ < i₁₂ + 1
-                                    && 0 <= blength₃
-                                    && blength₃ < blength₁₄
-                                     ==> i₂ < alength))
-                            && true
-                            && (true
-                               ==> true)))
-                    && (!(i₁₂ < alength
-                    )
-                       ==> true
-                        && (true
-                           ==> true
-                            && (forall pos: int ::
-                                  (  0 <= alength
-                                    && 0 <= pos
-                                    && pos < blength₁₄
-                                     ==> (exists pos2: int ::
-                                            0 <= pos2
-                                            && pos2 < alength
-                                            && b₁₃[pos] == a[pos2])))
-                            && (forall pos: int ::
-                                  (  0 <= alength
-                                    && 0 <= pos
-                                    && pos < clength₁₁
-                                     ==> (exists pos2: int ::
-                                            0 <= pos2
-                                            && pos2 < alength
-                                            && c₁₅[pos] == a[pos2])))
-                            && (forall pos: int ::
-                                  (  0 <= alength
-                                    && 0 <= pos
-                                    && pos < alength
-                                    && 0 <= a[pos]
-                                     ==> (exists pos2: int ::
-                                            0 <= pos2
-                                            && pos2 < blength₁₄
-                                            && b₁₃[pos2] == a[pos])))
-                            && (forall pos: int ::
-                                  (  0 <= alength
-                                    && 0 <= pos
-                                    && pos < alength
-                                    && 0 < a[pos]
-                                     ==> (exists pos2: int ::
-                                            0 <= pos2
-                                            && pos2 < clength₁₁
-                                            && c₁₅[pos2] == a[pos])))
-                            && (forall pos: int ::
-                                  (  0 <= alength
-                                    && 0 <= pos
-                                    && pos < alength
-                                     ==> (exists pos2: int ::
-                                              0 <= pos2
-                                              && pos2 < blength₁₄
-                                              && b₁₃[pos2] == a[pos])
-                                      || (exists pos2: int ::
-                                              0 <= pos2
-                                              && pos2 < clength₁₁
-                                              && c₁₅[pos2] == a[pos])))))))));
+procedure partition_harder(a: [int]int, alength: int)
+  returns (b: [int]int, c: [int]int, blength: int, clength: int)
+  requires 0 <= alength
+    && true
+    && true
+    && true
+    && true
+    && true;
+  ensures true
+    && (forall pos: int ::
+          (  0 <= alength
+            && 0 <= pos
+            && pos < blength
+             ==> (exists pos2: int ::
+                    0 <= pos2
+                    && pos2 < alength
+                    && b[pos] == a[pos2])))
+    && (forall pos: int ::
+          (  0 <= alength
+            && 0 <= pos
+            && pos < clength
+             ==> (exists pos2: int ::
+                    0 <= pos2
+                    && pos2 < alength
+                    && c[pos] == a[pos2])))
+    && (forall pos: int ::
+          (  0 <= alength
+            && 0 <= pos
+            && pos < alength
+            && 0 <= a[pos]
+             ==> (exists pos2: int ::
+                    0 <= pos2
+                    && pos2 < blength
+                    && b[pos2] == a[pos])))
+    && (forall pos: int ::
+          (  0 <= alength
+            && 0 <= pos
+            && pos < alength
+            && 0 < a[pos]
+             ==> (exists pos2: int ::
+                    0 <= pos2
+                    && pos2 < clength
+                    && c[pos2] == a[pos])))
+    && (forall pos: int ::
+          (  0 <= alength
+            && 0 <= pos
+            && pos < alength
+             ==> (exists pos2: int ::
+                      0 <= pos2
+                      && pos2 < blength
+                      && b[pos2] == a[pos])
+              || (exists pos2: int ::
+                      0 <= pos2
+                      && pos2 < clength
+                      && c[pos2] == a[pos])));
+{
+  blength := 0;
+  clength := 0;
+  var i: int := 0;
+  while(i < alength)
+    decreases alength - i;
+    invariant 0 <= i
+      && old(clength) <= clength
+      && old(i) <= i
+      && old(blength) <= blength
+      && i <= alength
+      && (forall x₄: int ::
+            ((exists blength₃: int ::
+                    x₄ == blength₃
+                    && old(blength) <= blength₃
+                    && blength₃ < blength)
+               ==> (exists i₂: int, blength₃: int ::
+                      a[i₂] >= 0
+                      && i₂ < alength
+                      && 0 <= i₂
+                      && x₄ == blength₃
+                      && old(blength) <= blength₃
+                      && blength₃ < blength
+                      && b[x₄] == a[i₂])))
+      && (forall x₄: int ::
+            (!((exists blength₃: int ::
+                    x₄ == blength₃
+                    && old(blength) <= blength₃
+                    && blength₃ < blength)
+            )
+               ==> b[x₄] == old(b[x₄])))
+      && (forall x₅: int ::
+            ((exists clength₁: int ::
+                    x₅ == clength₁
+                    && old(clength) <= clength₁
+                    && clength₁ < clength)
+               ==> (exists clength₁: int, i₂: int ::
+                      !(a[i₂] >= 0
+                      )
+                      && i₂ < alength
+                      && 0 <= i₂
+                      && x₅ == clength₁
+                      && old(clength) <= clength₁
+                      && clength₁ < clength
+                      && c[x₅] == a[i₂])))
+      && (forall x₅: int ::
+            (!((exists clength₁: int ::
+                    x₅ == clength₁
+                    && old(clength) <= clength₁
+                    && clength₁ < clength)
+            )
+               ==> c[x₅] == old(c[x₅])))
+      && (forall clength₁: int, i₂: int, blength₃: int ::
+            (  0 <= i₂
+              && old(clength) <= clength₁
+              && clength₁ < clength
+              && old(i) <= i₂
+              && i₂ < i
+              && old(blength) <= blength₃
+              && blength₃ < blength
+               ==> i₂ < alength));
+  {
+    if(a[i] >= 0) {
+      b := b[blength := a[i]];
+      blength := blength + 1;
+    } else {
+      c := c[clength := a[i]];
+      clength := clength + 1;
+    }
+    i := i + 1;
+  }
+}
 

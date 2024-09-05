@@ -44,8 +44,7 @@ goal (forall a1: [int]int, a2: [int]int, a1₂₀: [int]int, a2₂₁: [int]int,
                         && i₇ < i₂₂)
                 || a2₂₁[x₉] == a2[x₉])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₂
                  ==> i₇ < 200000))
         && 0 <= i₂₄
@@ -64,15 +63,13 @@ goal (forall a1: [int]int, a2: [int]int, a1₂₀: [int]int, a2₂₁: [int]int,
                         && i₁₃ < i₂₄)
                 || a2₂₃[x₁₄] == a2₂₁[x₁₄])
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₂₄
                  ==> i₁₃ < 200000))
         && 0 <= x₂₅
         && x₂₅ <= 200000
         && (forall x₁₈: int ::
-              (  x₁₈ <= x₁₈
-                && 0 <= x₁₈
+              (  0 <= x₁₈
                 && x₁₈ < x₂₅
                  ==> x₁₈ < 200000))
         && x₂₅ < 200000

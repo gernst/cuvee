@@ -68,18 +68,18 @@ case class Earlier(mode: String) extends Main {
         case "annotate" =>
           var args = List(
             path + "/" + file,
-            "-annotate:arrays+frame",
-            "-vcgen:partial",
+            "-annotate:arrays+frame+guard",
+            // "-vcgen:partial", DO NOT VCGEN THIS
             "-o",
             dst_ + file_ + ".annotated.bpl"
           )
 
           file -> eval(args.toArray)
-          
+
         case "reduce" =>
           var args = List(
             path + "/" + file,
-            "-annotate:arrays+frame",
+            "-annotate:arrays+frame+guard",
             "-vcgen:partial",
             "-prove:simple",
             "-split",
@@ -92,7 +92,7 @@ case class Earlier(mode: String) extends Main {
         case "evaluate" =>
           var args = List(
             path + "/" + file,
-            "-annotate:arrays+frame",
+            "-annotate:arrays+frame+guard",
             "-vcgen:partial",
             "-prove:z3",
             "-prove:strict"

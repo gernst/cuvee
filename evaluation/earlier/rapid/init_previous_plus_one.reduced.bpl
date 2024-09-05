@@ -26,7 +26,6 @@ goal (forall alength: int, v: int, a: [int]int, a₅: [int]int, i₆: int, x₂:
                 || a₅[x₄₂] == a[0 := v][x₄₂])
         && (forall i₄₄: int ::
               (  0 <= i₄₄
-                && i₄₄ <= i₄₄
                 && 0 <= i₄₄
                 && i₄₄ < i₆
                  ==> 1 + i₄₄ < alength))
@@ -66,7 +65,6 @@ goal (forall alength: int, v: int, a: [int]int, a₅: [int]int, i₆: int, pos: 
                 || a₅[x₂] == a[0 := v][x₂])
         && (forall i₁: int ::
               (  0 <= i₁
-                && i₁ <= i₁
                 && 0 <= i₁
                 && i₁ < i₆
                  ==> 1 + i₁ < alength))
@@ -100,7 +98,6 @@ goal (forall alength: int, v: int, a: [int]int, a₅: [int]int, i₆: int, pos: 
                 || a₅[x₂] == a[0 := v][x₂])
         && (forall i₁: int ::
               (  0 <= i₁
-                && i₁ <= i₁
                 && 0 <= i₁
                 && i₁ < i₆
                  ==> 1 + i₁ < alength))

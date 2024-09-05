@@ -28,8 +28,7 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && i₄ < i₁₉)
                 || b₁₈[x₅] == b[x₅])
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 0 <= i₄
+              (  0 <= i₄
                 && i₄ < i₁₉
                  ==> i₄ < 100000))
         && 0 <= j₂₂
@@ -51,8 +50,7 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && j₉ < j₂₂)
                 || a₂₀[x₁₀] == a[x₁₀])
         && (forall i₈: int, j₉: int ::
-              (  j₉ <= j₉
-                && 0 <= j₉
+              (  0 <= j₉
                 && j₉ < j₂₂
                  ==> i₈ < 100000))
         && i₂₁ < 100000
@@ -79,8 +77,7 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && i₄ < i₁₉)
                 || b₁₈[x₅] == b[x₅])
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 0 <= i₄
+              (  0 <= i₄
                 && i₄ < i₁₉
                  ==> i₄ < 100000))
         && 0 <= j₂₂
@@ -102,12 +99,10 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && j₁₂₄ < j₂₂)
                 || a₂₀[x₁₀] == a[x₁₀])
         && (forall i₁₂₆: int, j₁₂₅: int ::
-              (  j₁₂₅ <= j₁₂₅
-                && 0 <= j₁₂₅
+              (  0 <= j₁₂₅
                 && j₁₂₅ < j₂₂
                  ==> i₁₂₆ < 100000))
         && i₂₁ < 100000
-        && j₉ <= j₉
         && 0 <= j₉
         && j₉ < j₂₂ + 1
          ==> i₁₉ < 100000
@@ -133,8 +128,7 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && i₄ < i₁₉)
                 || b₁₈[x₅] == b[x₅])
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 0 <= i₄
+              (  0 <= i₄
                 && i₄ < i₁₉
                  ==> i₄ < 100000))
         && 0 <= j₂₂
@@ -156,15 +150,13 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && j₉ < j₂₂)
                 || a₂₀[x₁₀] == a[x₁₀])
         && (forall i₈: int, j₉: int ::
-              (  j₉ <= j₉
-                && 0 <= j₉
+              (  0 <= j₉
                 && j₉ < j₂₂
                  ==> i₈ < 100000))
         && 0 <= j₂₄
         && i₂₃ <= 100000
         && (forall i₁₄: int, j₁₅: int ::
-              (  j₁₅ <= j₁₅
-                && 0 <= j₁₅
+              (  0 <= j₁₅
                 && j₁₅ < j₂₄
                  ==> i₁₄ < 100000))
         && i₂₃ < 100000
@@ -192,8 +184,7 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && i₄ < i₁₉)
                 || b₁₈[x₅] == b[x₅])
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 0 <= i₄
+              (  0 <= i₄
                 && i₄ < i₁₉
                  ==> i₄ < 100000))
         && 0 <= j₂₂
@@ -215,15 +206,13 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && j₉ < j₂₂)
                 || a₂₀[x₁₀] == a[x₁₀])
         && (forall i₈: int, j₉: int ::
-              (  j₉ <= j₉
-                && 0 <= j₉
+              (  0 <= j₉
                 && j₉ < j₂₂
                  ==> i₈ < 100000))
         && 0 <= j₂₄
         && i₂₃ <= 100000
         && (forall i₁₄: int, j₁₅: int ::
-              (  j₁₅ <= j₁₅
-                && 0 <= j₁₅
+              (  0 <= j₁₅
                 && j₁₅ < j₂₄
                  ==> i₁₄ < 100000))
         && i₂₃ < 100000
@@ -251,8 +240,7 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && i₄ < i₁₉)
                 || b₁₈[x₅] == b[x₅])
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 0 <= i₄
+              (  0 <= i₄
                 && i₄ < i₁₉
                  ==> i₄ < 100000))
         && 0 <= j₂₂
@@ -274,19 +262,16 @@ goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀:
                         && j₉ < j₂₂)
                 || a₂₀[x₁₀] == a[x₁₀])
         && (forall i₈: int, j₉: int ::
-              (  j₉ <= j₉
-                && 0 <= j₉
+              (  0 <= j₉
                 && j₉ < j₂₂
                  ==> i₈ < 100000))
         && 0 <= j₂₄
         && i₂₃ <= 100000
         && (forall i₁₈₈: int, j₁₈₉: int ::
-              (  j₁₈₉ <= j₁₈₉
-                && 0 <= j₁₈₉
+              (  0 <= j₁₈₉
                 && j₁₈₉ < j₂₄
                  ==> i₁₈₈ < 100000))
         && i₂₃ < 100000
-        && j₁₅ <= j₁₅
         && 0 <= j₁₅
         && j₁₅ < j₂₄ + 1
          ==> i₂₁ < 100000

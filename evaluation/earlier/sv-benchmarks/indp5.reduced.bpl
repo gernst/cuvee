@@ -29,8 +29,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₅ < i₂₇)
                 || a₂₆[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₇
                  ==> i₅ < N₂₅))
         && 0 <= i₂₉
@@ -52,8 +51,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₉ < i₂₉)
                 || a₂₈[x₁₀] == a₂₆[x₁₀])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₂₉
                  ==> i₉ < N₂₅))
         && 0 <= i₃₁
@@ -75,8 +73,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₁₃ < i₃₁)
                 || a₃₀[x₁₄] == a₂₈[x₁₄])
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₃₁
                  ==> i₁₃ < N₂₅))
         && 0 <= i₃₃
@@ -98,8 +95,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₁₇ < i₃₃)
                 || a₃₂[x₁₈] == a₃₀[x₁₈])
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && 0 <= i₁₇
+              (  0 <= i₁₇
                 && i₁₇ < i₃₃
                  ==> i₁₇ < N₂₅))
         && x₂₂ == 0
@@ -134,8 +130,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₅ < i₂₇)
                 || a₂₆[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₇
                  ==> i₅ < N₂₅))
         && 0 <= i₂₉
@@ -157,8 +152,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₉ < i₂₉)
                 || a₂₈[x₁₀] == a₂₆[x₁₀])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₂₉
                  ==> i₉ < N₂₅))
         && 0 <= i₃₁
@@ -180,8 +174,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₁₃ < i₃₁)
                 || a₃₀[x₁₄] == a₂₈[x₁₄])
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₃₁
                  ==> i₁₃ < N₂₅))
         && 0 <= i₃₃
@@ -203,8 +196,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₁₇ < i₃₃)
                 || a₃₂[x₁₈] == a₃₀[x₁₈])
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && 0 <= i₁₇
+              (  0 <= i₁₇
                 && i₁₇ < i₃₃
                  ==> i₁₇ < N₂₅))
         && 0 <= i₃₅
@@ -219,8 +211,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                 x₄₁₁ == 0
                 || sum₃₄[x₄₁₁] == sum[0 := 0][x₄₁₁])
         && (forall i₂₁: int ::
-              (  i₂₁ <= i₂₁
-                && 0 <= i₂₁
+              (  0 <= i₂₁
                 && i₂₁ < i₃₅
                  ==> i₂₁ < N₂₅))
         && i₃₅ < N₂₅
@@ -256,8 +247,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₅ < i₂₇)
                 || a₂₆[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₇
                  ==> i₅ < N₂₅))
         && 0 <= i₂₉
@@ -279,8 +269,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₉ < i₂₉)
                 || a₂₈[x₁₀] == a₂₆[x₁₀])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₂₉
                  ==> i₉ < N₂₅))
         && 0 <= i₃₁
@@ -302,8 +291,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₁₃ < i₃₁)
                 || a₃₀[x₁₄] == a₂₈[x₁₄])
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₃₁
                  ==> i₁₃ < N₂₅))
         && 0 <= i₃₃
@@ -325,8 +313,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                         && i₁₇ < i₃₃)
                 || a₃₂[x₁₈] == a₃₀[x₁₈])
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && 0 <= i₁₇
+              (  0 <= i₁₇
                 && i₁₇ < i₃₃
                  ==> i₁₇ < N₂₅))
         && 0 <= i₃₅
@@ -341,8 +328,7 @@ goal (forall N₂₅: int, a: [int]int, sum: [int]int, a₂₆: [int]int, i₂�
                 x₂₂ == 0
                 || sum₃₄[x₂₂] == sum[0 := 0][x₂₂])
         && (forall i₂₁: int ::
-              (  i₂₁ <= i₂₁
-                && 0 <= i₂₁
+              (  0 <= i₂₁
                 && i₂₁ < i₃₅
                  ==> i₂₁ < N₂₅))
          ==> i₃₅ < N₂₅

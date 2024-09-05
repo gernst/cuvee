@@ -30,9 +30,7 @@ goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, k₁₆
                         && k₆ < k₁₆)
                 || a₁₄[x₇] == a[x₇])
         && (forall i₅: int, k₆: int ::
-              (  i₅ <= i₅
-                && k₆ <= k₆
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₁₅
                 && 0 <= k₆
                 && k₆ < k₁₆
@@ -40,8 +38,7 @@ goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, k₁₆
         && 0 <= i₁₇
         && i₁₇ <= N₁₃
         && (forall i₁₁: int ::
-              (  i₁₁ <= i₁₁
-                && 0 <= i₁₁
+              (  0 <= i₁₁
                 && i₁₁ < i₁₇
                  ==> i₁₁ < N₁₃))
         && i₁₇ < N₁₃

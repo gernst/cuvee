@@ -121,15 +121,13 @@ goal (forall CELLCOUNT₁₁: int, MINVAL: int, volArray: [int]int, volArray₁�
                       if(x₆ == -1 + 4 * i₅) then 1 <= i₅ && i₅ < i₁₃ else if(x₆ == -2 + 4 * i₅) then 1 <= i₅ && i₅ < i₁₃ else if(x₆ == -3 + 4 * i₅) then 1 <= i₅ && i₅ < i₁₃ else x₆ == -4 + 4 * i₅ && 1 <= i₅ && i₅ < i₁₃)
                 || volArray₁₂[x₆] == volArray[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 1 <= i₅
+              (  1 <= i₅
                 && i₅ < i₁₃
                  ==> i₅ <= CELLCOUNT₁₁ / 4))
         && 0 <= i₁₄
         && i₁₄ <= CELLCOUNT₁₁
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₁₄
                  ==> i₉ < CELLCOUNT₁₁))
         && i₁₄ < CELLCOUNT₁₁

@@ -29,8 +29,7 @@ goal (forall N₁₉: int, sum: [int]int, a: [int]int, a₂₀: [int]int, i₂�
                         && i₅ < i₂₁)
                 || a₂₀[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₁
                  ==> i₅ < N₁₉))
         && x₁₀ == 0
@@ -62,8 +61,7 @@ goal (forall N₁₉: int, sum: [int]int, a: [int]int, a₂₀: [int]int, i₂�
                         && i₅ < i₂₁)
                 || a₂₀[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₁
                  ==> i₅ < N₁₉))
         && 0 <= i₂₃
@@ -78,8 +76,7 @@ goal (forall N₁₉: int, sum: [int]int, a: [int]int, a₂₀: [int]int, i₂�
                 x₁₁₇ == 0
                 || sum₂₂[x₁₁₇] == sum[0 := 0][x₁₁₇])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₂₃
                  ==> i₉ < N₁₉))
         && i₂₃ < N₁₉
@@ -112,8 +109,7 @@ goal (forall N₁₉: int, sum: [int]int, a: [int]int, a₂₀: [int]int, i₂�
                         && i₅ < i₂₁)
                 || a₂₀[x₆] == a[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₁
                  ==> i₅ < N₁₉))
         && 0 <= i₂₃
@@ -128,8 +124,7 @@ goal (forall N₁₉: int, sum: [int]int, a: [int]int, a₂₀: [int]int, i₂�
                 x₁₀ == 0
                 || sum₂₂[x₁₀] == sum[0 := 0][x₁₀])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₂₃
                  ==> i₉ < N₁₉))
         && 0 <= i₂₅
@@ -151,15 +146,13 @@ goal (forall N₁₉: int, sum: [int]int, a: [int]int, a₂₀: [int]int, i₂�
                         && i₁₃ < i₂₅)
                 || a₂₄[x₁₄] == a₂₀[x₁₄])
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₂₅
                  ==> i₁₃ < N₁₉))
         && 0 <= i₂₆
         && i₂₆ <= N₁₉
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && 0 <= i₁₇
+              (  0 <= i₁₇
                 && i₁₇ < i₂₆
                  ==> i₁₇ < N₁₉))
         && i₂₆ < N₁₉

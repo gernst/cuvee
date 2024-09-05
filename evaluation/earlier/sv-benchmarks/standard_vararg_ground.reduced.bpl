@@ -28,8 +28,7 @@ goal (forall aa: [int]int, aa₁₂: [int]int, i₁₃: int ::
                         && i₃ < i₁₃)
                 || aa₁₂[x₄] == aa[x₄])
         && (forall i₃: int ::
-              (  i₃ <= i₃
-                && 0 <= i₃
+              (  0 <= i₃
                 && i₃ < i₁₃
                  ==> i₃ < 100000))
          ==> i₁₃ < 100000
@@ -55,15 +54,13 @@ goal (forall aa: [int]int, aa₁₂: [int]int, i₁₃: int, a₁₄: int ::
                         && i₃ < i₁₃)
                 || aa₁₂[x₄] == aa[x₄])
         && (forall i₃: int ::
-              (  i₃ <= i₃
-                && 0 <= i₃
+              (  0 <= i₃
                 && i₃ < i₁₃
                  ==> i₃ < 100000))
         && 0 <= a₁₄
         && 0 <= 1 + aa₁₂[a₁₄]
         && (forall a₇: int ::
-              (  a₇ <= a₇
-                && 0 <= a₇
+              (  0 <= a₇
                 && a₇ < a₁₄
                  ==> 0 <= aa₁₂[a₇]))
         && 0 <= aa₁₂[a₁₄]

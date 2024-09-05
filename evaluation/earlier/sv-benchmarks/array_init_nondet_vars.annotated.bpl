@@ -4,149 +4,78 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall __VERIFIER_nondet_int₁: int ::
-      (forall __VERIFIER_nondet_int₂: int ::
-              true
-              && (__VERIFIER_nondet_int₂ < 100000
-                 ==> (forall a: [int]int ::
-                        true
-                        && (  0 < __VERIFIER_nondet_int₁
-                          && __VERIFIER_nondet_int₁ < 10000
-                           ==> true
-                            && 1 <= 1
-                            && 1 <= __VERIFIER_nondet_int₂
-                            && (forall x₁₀: int ::
-                                  ((exists i₉: int ::
-                                          x₁₀ == i₉
-                                          && 1 <= i₉
-                                          && i₉ < 1)
-                                     ==> (exists __VERIFIER_nondet_int₃₇: int, i₉: int ::
-                                            0 < __VERIFIER_nondet_int₃₇
-                                            && __VERIFIER_nondet_int₃₇ < 10000
-                                            && i₉ < __VERIFIER_nondet_int₂
-                                            && x₁₀ == i₉
-                                            && 1 <= i₉
-                                            && i₉ < 1
-                                            && a[x₁₀] == i₉ + __VERIFIER_nondet_int₁ + __VERIFIER_nondet_int₃₇)))
-                            && (forall x₁₀: int ::
-                                  (!((exists i₉: int ::
-                                          x₁₀ == i₉
-                                          && 1 <= i₉
-                                          && i₉ < 1)
-                                  )
-                                     ==> a[x₁₀] == a[x₁₀]))
-                            && (forall i₉: int ::
-                                  (  i₉ <= i₉
-                                    && 1 <= i₉
-                                    && i₉ < 1
-                                     ==> i₉ < __VERIFIER_nondet_int₂))
-                            && (forall a₁₅: [int]int, i₁₆: int ::
-                                  (  true
-                                    && 1 <= i₁₆
-                                    && i₁₆ <= __VERIFIER_nondet_int₂
-                                    && (forall x₁₀: int ::
-                                          ((exists i₉: int ::
-                                                  x₁₀ == i₉
-                                                  && 1 <= i₉
-                                                  && i₉ < i₁₆)
-                                             ==> (exists __VERIFIER_nondet_int₃₇: int, i₉: int ::
-                                                    0 < __VERIFIER_nondet_int₃₇
-                                                    && __VERIFIER_nondet_int₃₇ < 10000
-                                                    && i₉ < __VERIFIER_nondet_int₂
-                                                    && x₁₀ == i₉
-                                                    && 1 <= i₉
-                                                    && i₉ < i₁₆
-                                                    && a₁₅[x₁₀] == i₉ + __VERIFIER_nondet_int₁ + __VERIFIER_nondet_int₃₇)))
-                                    && (forall x₁₀: int ::
-                                          (!((exists i₉: int ::
-                                                  x₁₀ == i₉
-                                                  && 1 <= i₉
-                                                  && i₉ < i₁₆)
-                                          )
-                                             ==> a₁₅[x₁₀] == a[x₁₀]))
-                                    && (forall i₉: int ::
-                                          (  i₉ <= i₉
-                                            && 1 <= i₉
-                                            && i₉ < i₁₆
-                                             ==> i₉ < __VERIFIER_nondet_int₂))
-                                     ==> (i₁₆ < __VERIFIER_nondet_int₂
-                                         ==> (forall __VERIFIER_nondet_int₃: int ::
-                                                true
-                                                && (  0 < __VERIFIER_nondet_int₃
-                                                  && __VERIFIER_nondet_int₃ < 10000
-                                                   ==> true
-                                                    && 1 <= i₁₆ + 1
-                                                    && i₁₆ + 1 <= __VERIFIER_nondet_int₂
-                                                    && (forall x₁₀: int ::
-                                                          ((exists i₉: int ::
-                                                                  x₁₀ == i₉
-                                                                  && 1 <= i₉
-                                                                  && i₉ < i₁₆ + 1)
-                                                             ==> (exists __VERIFIER_nondet_int₃₇: int, i₉: int ::
-                                                                    0 < __VERIFIER_nondet_int₃₇
-                                                                    && __VERIFIER_nondet_int₃₇ < 10000
-                                                                    && i₉ < __VERIFIER_nondet_int₂
-                                                                    && x₁₀ == i₉
-                                                                    && 1 <= i₉
-                                                                    && i₉ < i₁₆ + 1
-                                                                    && a₁₅[i₁₆ := i₁₆ + __VERIFIER_nondet_int₁ + __VERIFIER_nondet_int₃][x₁₀] == i₉ + __VERIFIER_nondet_int₁ + __VERIFIER_nondet_int₃₇)))
-                                                    && (forall x₁₀: int ::
-                                                          (!((exists i₉: int ::
-                                                                  x₁₀ == i₉
-                                                                  && 1 <= i₉
-                                                                  && i₉ < i₁₆ + 1)
-                                                          )
-                                                             ==> a₁₅[i₁₆ := i₁₆ + __VERIFIER_nondet_int₁ + __VERIFIER_nondet_int₃][x₁₀] == a[x₁₀]))
-                                                    && (forall i₉: int ::
-                                                          (  i₉ <= i₉
-                                                            && 1 <= i₉
-                                                            && i₉ < i₁₆ + 1
-                                                             ==> i₉ < __VERIFIER_nondet_int₂))
-                                                    && true
-                                                    && (true
-                                                       ==> true))))
-                                      && (!(i₁₆ < __VERIFIER_nondet_int₂
-                                      )
-                                         ==> true
-                                          && (true
-                                             ==> true
-                                              && 1 <= 1
-                                              && 1 <= __VERIFIER_nondet_int₂
-                                              && (forall i₁₃: int ::
-                                                    (  i₁₃ <= i₁₃
-                                                      && 1 <= i₁₃
-                                                      && i₁₃ < 1
-                                                       ==> i₁₃ < __VERIFIER_nondet_int₂))
-                                              && (forall i₁₇: int ::
-                                                    (  true
-                                                      && 1 <= i₁₇
-                                                      && i₁₇ <= __VERIFIER_nondet_int₂
-                                                      && (forall i₁₃: int ::
-                                                            (  i₁₃ <= i₁₃
-                                                              && 1 <= i₁₃
-                                                              && i₁₃ < i₁₇
-                                                               ==> i₁₃ < __VERIFIER_nondet_int₂))
-                                                       ==> (i₁₇ < __VERIFIER_nondet_int₂
-                                                           ==> i₁₇ + 2 <= a₁₅[i₁₇]
-                                                            && (true
-                                                               ==> true
-                                                                && 1 <= i₁₇ + 1
-                                                                && i₁₇ + 1 <= __VERIFIER_nondet_int₂
-                                                                && (forall i₁₃: int ::
-                                                                      (  i₁₃ <= i₁₃
-                                                                        && 1 <= i₁₃
-                                                                        && i₁₃ < i₁₇ + 1
-                                                                         ==> i₁₃ < __VERIFIER_nondet_int₂))
-                                                                && true
-                                                                && (true
-                                                                   ==> true)))
-                                                        && (!(i₁₇ < __VERIFIER_nondet_int₂
-                                                        )
-                                                           ==> true
-                                                            && (true
-                                                               ==> true)))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var i: int;
+  var __VERIFIER_nondet_int₁: int;
+  var j: int;
+  j := __VERIFIER_nondet_int₁;
+  var __VERIFIER_nondet_int₂: int;
+  var n: int;
+  n := __VERIFIER_nondet_int₂;
+  assume n < 100000;
+  var a: [int]int;
+  assume 0 < j && j < 10000;
+  i := 1;
+  while(i < n)
+    decreases n - i;
+    invariant true
+      && old(i) <= i
+      && i <= n
+      && (forall x₁₀: int ::
+            ((exists i₉: int ::
+                    x₁₀ == i₉
+                    && old(i) <= i₉
+                    && i₉ < i)
+               ==> (exists __VERIFIER_nondet_int₃₇: int, i₉: int ::
+                      0 < __VERIFIER_nondet_int₃₇
+                      && __VERIFIER_nondet_int₃₇ < 10000
+                      && i₉ < n
+                      && x₁₀ == i₉
+                      && old(i) <= i₉
+                      && i₉ < i
+                      && a[x₁₀] == i₉ + j + __VERIFIER_nondet_int₃₇)))
+      && (forall x₁₀: int ::
+            (!((exists i₉: int ::
+                    x₁₀ == i₉
+                    && old(i) <= i₉
+                    && i₉ < i)
+            )
+               ==> a[x₁₀] == old(a[x₁₀])))
+      && (forall i₉: int ::
+            (  old(i) <= i₉
+              && i₉ < i
+               ==> i₉ < n));
+  {
+    var __VERIFIER_nondet_int₃: int;
+    var k: int;
+    k := __VERIFIER_nondet_int₃;
+    assume 0 < k && k < 10000;
+    a := a[i := i + j + k];
+    i := i + 1;
+  }
+  i := 1;
+  while(i < n)
+    decreases n - i;
+    invariant true
+      && old(i) <= i
+      && i <= n
+      && (forall i₁₃: int ::
+            (  old(i) <= i₁₃
+              && i₁₃ < i
+               ==> i₁₃ < n));
+  {
+    assert i + 2 <= a[i];
+    i := i + 1;
+  }
+  c#result := 0;
+  return;
+}
 

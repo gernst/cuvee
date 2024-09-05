@@ -4,172 +4,83 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int ::
-      (forall __VERIFIER_nondet_int₁: int ::
-              true
-              && 0 <= 0
-              && 0 <= 100000
-              && (forall x₇: int ::
-                    ((exists j₆: int ::
-                            x₇ == j₆
-                            && 0 <= j₆
-                            && j₆ < 0)
-                       ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
-                              j₆ < 100000
-                              && x₇ == j₆
-                              && 0 <= j₆
-                              && j₆ < 0
-                              && a[x₇] == __VERIFIER_nondet_int₂₅)))
-              && (forall x₇: int ::
-                    (!((exists j₆: int ::
-                            x₇ == j₆
-                            && 0 <= j₆
-                            && j₆ < 0)
-                    )
-                       ==> a[x₇] == a[x₇]))
-              && (forall j₆: int ::
-                    (  j₆ <= j₆
-                      && 0 <= j₆
-                      && j₆ < 0
-                       ==> j₆ < 100000))
-              && (forall a₁₅: [int]int, j₁₆: int ::
-                    (  true
-                      && 0 <= j₁₆
-                      && j₁₆ <= 100000
-                      && (forall x₇: int ::
-                            ((exists j₆: int ::
-                                    x₇ == j₆
-                                    && 0 <= j₆
-                                    && j₆ < j₁₆)
-                               ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
-                                      j₆ < 100000
-                                      && x₇ == j₆
-                                      && 0 <= j₆
-                                      && j₆ < j₁₆
-                                      && a₁₅[x₇] == __VERIFIER_nondet_int₂₅)))
-                      && (forall x₇: int ::
-                            (!((exists j₆: int ::
-                                    x₇ == j₆
-                                    && 0 <= j₆
-                                    && j₆ < j₁₆)
-                            )
-                               ==> a₁₅[x₇] == a[x₇]))
-                      && (forall j₆: int ::
-                            (  j₆ <= j₆
-                              && 0 <= j₆
-                              && j₆ < j₁₆
-                               ==> j₆ < 100000))
-                       ==> (j₁₆ < 100000
-                           ==> (forall __VERIFIER_nondet_int₂: int ::
-                                  true
-                                  && 0 <= j₁₆ + 1
-                                  && j₁₆ + 1 <= 100000
-                                  && (forall x₇: int ::
-                                        ((exists j₆: int ::
-                                                x₇ == j₆
-                                                && 0 <= j₆
-                                                && j₆ < j₁₆ + 1)
-                                           ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
-                                                  j₆ < 100000
-                                                  && x₇ == j₆
-                                                  && 0 <= j₆
-                                                  && j₆ < j₁₆ + 1
-                                                  && a₁₅[j₁₆ := __VERIFIER_nondet_int₂][x₇] == __VERIFIER_nondet_int₂₅)))
-                                  && (forall x₇: int ::
-                                        (!((exists j₆: int ::
-                                                x₇ == j₆
-                                                && 0 <= j₆
-                                                && j₆ < j₁₆ + 1)
-                                        )
-                                           ==> a₁₅[j₁₆ := __VERIFIER_nondet_int₂][x₇] == a[x₇]))
-                                  && (forall j₆: int ::
-                                        (  j₆ <= j₆
-                                          && 0 <= j₆
-                                          && j₆ < j₁₆ + 1
-                                           ==> j₆ < 100000))
-                                  && true
-                                  && (true
-                                     ==> true)))
-                        && (!(j₁₆ < 100000
-                        )
-                           ==> true
-                            && (true
-                               ==> true
-                                && 0 <= 0
-                                && 0 <= 100000
-                                && (forall i₁₀: int ::
-                                      (  i₁₀ <= i₁₀
-                                        && 0 <= i₁₀
-                                        && i₁₀ < 0
-                                         ==> i₁₀ < 100000
-                                          && a₁₅[i₁₀] != __VERIFIER_nondet_int₁))
-                                && (forall i₁₇: int ::
-                                      (  true
-                                        && 0 <= i₁₇
-                                        && i₁₇ <= 100000
-                                        && (forall i₁₀: int ::
-                                              (  i₁₀ <= i₁₀
-                                                && 0 <= i₁₀
-                                                && i₁₀ < i₁₇
-                                                 ==> i₁₀ < 100000
-                                                  && a₁₅[i₁₀] != __VERIFIER_nondet_int₁))
-                                         ==> (  i₁₇ < 100000
-                                            && a₁₅[i₁₇] != __VERIFIER_nondet_int₁
-                                             ==> true
-                                              && 0 <= i₁₇ + 1
-                                              && i₁₇ + 1 <= 100000
-                                              && (forall i₁₀: int ::
-                                                    (  i₁₀ <= i₁₀
-                                                      && 0 <= i₁₀
-                                                      && i₁₀ < i₁₇ + 1
-                                                       ==> i₁₀ < 100000
-                                                        && a₁₅[i₁₀] != __VERIFIER_nondet_int₁))
-                                              && true
-                                              && (true
-                                                 ==> true))
-                                          && (!(  i₁₇ < 100000
-                                            && a₁₅[i₁₇] != __VERIFIER_nondet_int₁
-                                          )
-                                             ==> true
-                                              && (true
-                                                 ==> true
-                                                  && 0 <= 0
-                                                  && 0 <= i₁₇
-                                                  && (forall x₁₃: int ::
-                                                        (  x₁₃ <= x₁₃
-                                                          && 0 <= x₁₃
-                                                          && x₁₃ < 0
-                                                           ==> x₁₃ < i₁₇))
-                                                  && (forall x₁₈: int ::
-                                                        (  true
-                                                          && 0 <= x₁₈
-                                                          && x₁₈ <= i₁₇
-                                                          && (forall x₁₃: int ::
-                                                                (  x₁₃ <= x₁₃
-                                                                  && 0 <= x₁₃
-                                                                  && x₁₃ < x₁₈
-                                                                   ==> x₁₃ < i₁₇))
-                                                           ==> (x₁₈ < i₁₇
-                                                               ==> a₁₅[x₁₈] != __VERIFIER_nondet_int₁
-                                                                && (true
-                                                                   ==> true
-                                                                    && 0 <= x₁₈ + 1
-                                                                    && x₁₈ + 1 <= i₁₇
-                                                                    && (forall x₁₃: int ::
-                                                                          (  x₁₃ <= x₁₃
-                                                                            && 0 <= x₁₃
-                                                                            && x₁₃ < x₁₈ + 1
-                                                                             ==> x₁₃ < i₁₇))
-                                                                    && true
-                                                                    && (true
-                                                                       ==> true)))
-                                                            && (!(x₁₈ < i₁₇
-                                                            )
-                                                               ==> true
-                                                                && (true
-                                                                   ==> true))))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var a: [int]int;
+  var __VERIFIER_nondet_int₁: int;
+  var e: int;
+  e := __VERIFIER_nondet_int₁;
+  var i: int := 0;
+  var j: int;
+  j := 0;
+  while(j < 100000)
+    decreases 100000 - j;
+    invariant true
+      && old(j) <= j
+      && j <= 100000
+      && (forall x₇: int ::
+            ((exists j₆: int ::
+                    x₇ == j₆
+                    && old(j) <= j₆
+                    && j₆ < j)
+               ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
+                      j₆ < 100000
+                      && x₇ == j₆
+                      && old(j) <= j₆
+                      && j₆ < j
+                      && a[x₇] == __VERIFIER_nondet_int₂₅)))
+      && (forall x₇: int ::
+            (!((exists j₆: int ::
+                    x₇ == j₆
+                    && old(j) <= j₆
+                    && j₆ < j)
+            )
+               ==> a[x₇] == old(a[x₇])))
+      && (forall j₆: int ::
+            (  old(j) <= j₆
+              && j₆ < j
+               ==> j₆ < 100000));
+  {
+    var __VERIFIER_nondet_int₂: int;
+    a := a[j := __VERIFIER_nondet_int₂];
+    j := j + 1;
+  }
+  while(i < 100000 && a[i] != e)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < 100000
+                && a[i₁₀] != e));
+  {
+    i := i + 1;
+  }
+  var x: int;
+  x := 0;
+  while(x < i)
+    decreases i - x;
+    invariant true
+      && old(x) <= x
+      && x <= i
+      && (forall x₁₃: int ::
+            (  old(x) <= x₁₃
+              && x₁₃ < x
+               ==> x₁₃ < i));
+  {
+    assert a[x] != e;
+    x := x + 1;
+  }
+  c#result := 0;
+  return;
+}
 

@@ -4,466 +4,199 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (true
-   ==> true
-    && (forall N₃₁: int ::
-          (true
-             ==> (N₃₁ <= 0
-                 ==> true)
-              && (!(N₃₁ <= 0
-              )
-                 ==> true
-                  && (N₃₁ <= 2147483647 / 4
-                     ==> (forall sum: [int]int ::
-                          (forall a: [int]int ::
-                                (forall b: [int]int ::
-                                      (forall c: [int]int ::
-                                              true
-                                              && 0 <= 0
-                                              && 0 <= N₃₁
-                                              && (forall x₈: int ::
-                                                    ((exists i₇: int ::
-                                                            x₈ == i₇
-                                                            && 0 <= i₇
-                                                            && i₇ < 0)
-                                                       ==> (exists i₇: int ::
-                                                              i₇ < N₃₁
-                                                              && x₈ == i₇
-                                                              && 0 <= i₇
-                                                              && i₇ < 0
-                                                              && a[x₈] == 1)))
-                                              && (forall x₈: int ::
-                                                    (!((exists i₇: int ::
-                                                            x₈ == i₇
-                                                            && 0 <= i₇
-                                                            && i₇ < 0)
-                                                    )
-                                                       ==> a[x₈] == a[x₈]))
-                                              && (forall i₇: int ::
-                                                    (  i₇ <= i₇
-                                                      && 0 <= i₇
-                                                      && i₇ < 0
-                                                       ==> i₇ < N₃₁))
-                                              && (forall a₃₂: [int]int, i₃₃: int ::
-                                                    (  true
-                                                      && 0 <= i₃₃
-                                                      && i₃₃ <= N₃₁
-                                                      && (forall x₈: int ::
-                                                            ((exists i₇: int ::
-                                                                    x₈ == i₇
-                                                                    && 0 <= i₇
-                                                                    && i₇ < i₃₃)
-                                                               ==> (exists i₇: int ::
-                                                                      i₇ < N₃₁
-                                                                      && x₈ == i₇
-                                                                      && 0 <= i₇
-                                                                      && i₇ < i₃₃
-                                                                      && a₃₂[x₈] == 1)))
-                                                      && (forall x₈: int ::
-                                                            (!((exists i₇: int ::
-                                                                    x₈ == i₇
-                                                                    && 0 <= i₇
-                                                                    && i₇ < i₃₃)
-                                                            )
-                                                               ==> a₃₂[x₈] == a[x₈]))
-                                                      && (forall i₇: int ::
-                                                            (  i₇ <= i₇
-                                                              && 0 <= i₇
-                                                              && i₇ < i₃₃
-                                                               ==> i₇ < N₃₁))
-                                                       ==> (i₃₃ < N₃₁
-                                                           ==> true
-                                                            && 0 <= i₃₃ + 1
-                                                            && i₃₃ + 1 <= N₃₁
-                                                            && (forall x₈: int ::
-                                                                  ((exists i₇: int ::
-                                                                          x₈ == i₇
-                                                                          && 0 <= i₇
-                                                                          && i₇ < i₃₃ + 1)
-                                                                     ==> (exists i₇: int ::
-                                                                            i₇ < N₃₁
-                                                                            && x₈ == i₇
-                                                                            && 0 <= i₇
-                                                                            && i₇ < i₃₃ + 1
-                                                                            && a₃₂[i₃₃ := 1][x₈] == 1)))
-                                                            && (forall x₈: int ::
-                                                                  (!((exists i₇: int ::
-                                                                          x₈ == i₇
-                                                                          && 0 <= i₇
-                                                                          && i₇ < i₃₃ + 1)
-                                                                  )
-                                                                     ==> a₃₂[i₃₃ := 1][x₈] == a[x₈]))
-                                                            && (forall i₇: int ::
-                                                                  (  i₇ <= i₇
-                                                                    && 0 <= i₇
-                                                                    && i₇ < i₃₃ + 1
-                                                                     ==> i₇ < N₃₁))
-                                                            && true
-                                                            && (true
-                                                               ==> true))
-                                                        && (!(i₃₃ < N₃₁
-                                                        )
-                                                           ==> true
-                                                            && (true
-                                                               ==> true
-                                                                && 0 <= 0
-                                                                && 0 <= N₃₁
-                                                                && (forall x₁₂: int ::
-                                                                      ((exists i₁₁: int ::
-                                                                              x₁₂ == i₁₁
-                                                                              && 0 <= i₁₁
-                                                                              && i₁₁ < 0)
-                                                                         ==> (exists i₁₁: int ::
-                                                                                i₁₁ < N₃₁
-                                                                                && x₁₂ == i₁₁
-                                                                                && 0 <= i₁₁
-                                                                                && i₁₁ < 0
-                                                                                && b[x₁₂] == 1)))
-                                                                && (forall x₁₂: int ::
-                                                                      (!((exists i₁₁: int ::
-                                                                              x₁₂ == i₁₁
-                                                                              && 0 <= i₁₁
-                                                                              && i₁₁ < 0)
-                                                                      )
-                                                                         ==> b[x₁₂] == b[x₁₂]))
-                                                                && (forall i₁₁: int ::
-                                                                      (  i₁₁ <= i₁₁
-                                                                        && 0 <= i₁₁
-                                                                        && i₁₁ < 0
-                                                                         ==> i₁₁ < N₃₁))
-                                                                && (forall b₃₄: [int]int, i₃₅: int ::
-                                                                      (  true
-                                                                        && 0 <= i₃₅
-                                                                        && i₃₅ <= N₃₁
-                                                                        && (forall x₁₂: int ::
-                                                                              ((exists i₁₁: int ::
-                                                                                      x₁₂ == i₁₁
-                                                                                      && 0 <= i₁₁
-                                                                                      && i₁₁ < i₃₅)
-                                                                                 ==> (exists i₁₁: int ::
-                                                                                        i₁₁ < N₃₁
-                                                                                        && x₁₂ == i₁₁
-                                                                                        && 0 <= i₁₁
-                                                                                        && i₁₁ < i₃₅
-                                                                                        && b₃₄[x₁₂] == 1)))
-                                                                        && (forall x₁₂: int ::
-                                                                              (!((exists i₁₁: int ::
-                                                                                      x₁₂ == i₁₁
-                                                                                      && 0 <= i₁₁
-                                                                                      && i₁₁ < i₃₅)
-                                                                              )
-                                                                                 ==> b₃₄[x₁₂] == b[x₁₂]))
-                                                                        && (forall i₁₁: int ::
-                                                                              (  i₁₁ <= i₁₁
-                                                                                && 0 <= i₁₁
-                                                                                && i₁₁ < i₃₅
-                                                                                 ==> i₁₁ < N₃₁))
-                                                                         ==> (i₃₅ < N₃₁
-                                                                             ==> true
-                                                                              && 0 <= i₃₅ + 1
-                                                                              && i₃₅ + 1 <= N₃₁
-                                                                              && (forall x₁₂: int ::
-                                                                                    ((exists i₁₁: int ::
-                                                                                            x₁₂ == i₁₁
-                                                                                            && 0 <= i₁₁
-                                                                                            && i₁₁ < i₃₅ + 1)
-                                                                                       ==> (exists i₁₁: int ::
-                                                                                              i₁₁ < N₃₁
-                                                                                              && x₁₂ == i₁₁
-                                                                                              && 0 <= i₁₁
-                                                                                              && i₁₁ < i₃₅ + 1
-                                                                                              && b₃₄[i₃₅ := 1][x₁₂] == 1)))
-                                                                              && (forall x₁₂: int ::
-                                                                                    (!((exists i₁₁: int ::
-                                                                                            x₁₂ == i₁₁
-                                                                                            && 0 <= i₁₁
-                                                                                            && i₁₁ < i₃₅ + 1)
-                                                                                    )
-                                                                                       ==> b₃₄[i₃₅ := 1][x₁₂] == b[x₁₂]))
-                                                                              && (forall i₁₁: int ::
-                                                                                    (  i₁₁ <= i₁₁
-                                                                                      && 0 <= i₁₁
-                                                                                      && i₁₁ < i₃₅ + 1
-                                                                                       ==> i₁₁ < N₃₁))
-                                                                              && true
-                                                                              && (true
-                                                                                 ==> true))
-                                                                          && (!(i₃₅ < N₃₁
-                                                                          )
-                                                                             ==> true
-                                                                              && (true
-                                                                                 ==> true
-                                                                                  && 0 <= 0
-                                                                                  && 0 <= N₃₁
-                                                                                  && (forall x₁₆: int ::
-                                                                                        ((exists i₁₅: int ::
-                                                                                                x₁₆ == i₁₅
-                                                                                                && 0 <= i₁₅
-                                                                                                && i₁₅ < 0)
-                                                                                           ==> (exists i₁₅: int ::
-                                                                                                  i₁₅ < N₃₁
-                                                                                                  && x₁₆ == i₁₅
-                                                                                                  && 0 <= i₁₅
-                                                                                                  && i₁₅ < 0
-                                                                                                  && c[x₁₆] == 1)))
-                                                                                  && (forall x₁₆: int ::
-                                                                                        (!((exists i₁₅: int ::
-                                                                                                x₁₆ == i₁₅
-                                                                                                && 0 <= i₁₅
-                                                                                                && i₁₅ < 0)
-                                                                                        )
-                                                                                           ==> c[x₁₆] == c[x₁₆]))
-                                                                                  && (forall i₁₅: int ::
-                                                                                        (  i₁₅ <= i₁₅
-                                                                                          && 0 <= i₁₅
-                                                                                          && i₁₅ < 0
-                                                                                           ==> i₁₅ < N₃₁))
-                                                                                  && (forall c₃₆: [int]int, i₃₇: int ::
-                                                                                        (  true
-                                                                                          && 0 <= i₃₇
-                                                                                          && i₃₇ <= N₃₁
-                                                                                          && (forall x₁₆: int ::
-                                                                                                ((exists i₁₅: int ::
-                                                                                                        x₁₆ == i₁₅
-                                                                                                        && 0 <= i₁₅
-                                                                                                        && i₁₅ < i₃₇)
-                                                                                                   ==> (exists i₁₅: int ::
-                                                                                                          i₁₅ < N₃₁
-                                                                                                          && x₁₆ == i₁₅
-                                                                                                          && 0 <= i₁₅
-                                                                                                          && i₁₅ < i₃₇
-                                                                                                          && c₃₆[x₁₆] == 1)))
-                                                                                          && (forall x₁₆: int ::
-                                                                                                (!((exists i₁₅: int ::
-                                                                                                        x₁₆ == i₁₅
-                                                                                                        && 0 <= i₁₅
-                                                                                                        && i₁₅ < i₃₇)
-                                                                                                )
-                                                                                                   ==> c₃₆[x₁₆] == c[x₁₆]))
-                                                                                          && (forall i₁₅: int ::
-                                                                                                (  i₁₅ <= i₁₅
-                                                                                                  && 0 <= i₁₅
-                                                                                                  && i₁₅ < i₃₇
-                                                                                                   ==> i₁₅ < N₃₁))
-                                                                                           ==> (i₃₇ < N₃₁
-                                                                                               ==> true
-                                                                                                && 0 <= i₃₇ + 1
-                                                                                                && i₃₇ + 1 <= N₃₁
-                                                                                                && (forall x₁₆: int ::
-                                                                                                      ((exists i₁₅: int ::
-                                                                                                              x₁₆ == i₁₅
-                                                                                                              && 0 <= i₁₅
-                                                                                                              && i₁₅ < i₃₇ + 1)
-                                                                                                         ==> (exists i₁₅: int ::
-                                                                                                                i₁₅ < N₃₁
-                                                                                                                && x₁₆ == i₁₅
-                                                                                                                && 0 <= i₁₅
-                                                                                                                && i₁₅ < i₃₇ + 1
-                                                                                                                && c₃₆[i₃₇ := 1][x₁₆] == 1)))
-                                                                                                && (forall x₁₆: int ::
-                                                                                                      (!((exists i₁₅: int ::
-                                                                                                              x₁₆ == i₁₅
-                                                                                                              && 0 <= i₁₅
-                                                                                                              && i₁₅ < i₃₇ + 1)
-                                                                                                      )
-                                                                                                         ==> c₃₆[i₃₇ := 1][x₁₆] == c[x₁₆]))
-                                                                                                && (forall i₁₅: int ::
-                                                                                                      (  i₁₅ <= i₁₅
-                                                                                                        && 0 <= i₁₅
-                                                                                                        && i₁₅ < i₃₇ + 1
-                                                                                                         ==> i₁₅ < N₃₁))
-                                                                                                && true
-                                                                                                && (true
-                                                                                                   ==> true))
-                                                                                            && (!(i₃₇ < N₃₁
-                                                                                            )
-                                                                                               ==> true
-                                                                                                && (true
-                                                                                                   ==> true
-                                                                                                    && 0 <= 0
-                                                                                                    && 0 <= N₃₁
-                                                                                                    && (forall x₂₀: int ::
-                                                                                                          (x₂₀ == 0
-                                                                                                             ==> (exists i₁₉: int ::
-                                                                                                                    i₁₉ < N₃₁
-                                                                                                                    && x₂₀ == 0
-                                                                                                                    && sum[0 := 0][x₂₀] == sum[0 := 0][0] + a₃₂[i₁₉])))
-                                                                                                    && (forall x₂₀: int ::
-                                                                                                          (x₂₀ != 0
-                                                                                                             ==> sum[0 := 0][x₂₀] == sum[0 := 0][x₂₀]))
-                                                                                                    && (forall i₁₉: int ::
-                                                                                                          (  i₁₉ <= i₁₉
-                                                                                                            && 0 <= i₁₉
-                                                                                                            && i₁₉ < 0
-                                                                                                             ==> i₁₉ < N₃₁))
-                                                                                                    && (forall sum₃₈: [int]int, i₃₉: int ::
-                                                                                                          (  true
-                                                                                                            && 0 <= i₃₉
-                                                                                                            && i₃₉ <= N₃₁
-                                                                                                            && (forall x₂₀: int ::
-                                                                                                                  (x₂₀ == 0
-                                                                                                                     ==> (exists i₁₉: int ::
-                                                                                                                            i₁₉ < N₃₁
-                                                                                                                            && x₂₀ == 0
-                                                                                                                            && sum₃₈[x₂₀] == sum[0 := 0][0] + a₃₂[i₁₉])))
-                                                                                                            && (forall x₂₀: int ::
-                                                                                                                  (x₂₀ != 0
-                                                                                                                     ==> sum₃₈[x₂₀] == sum[0 := 0][x₂₀]))
-                                                                                                            && (forall i₁₉: int ::
-                                                                                                                  (  i₁₉ <= i₁₉
-                                                                                                                    && 0 <= i₁₉
-                                                                                                                    && i₁₉ < i₃₉
-                                                                                                                     ==> i₁₉ < N₃₁))
-                                                                                                             ==> (i₃₉ < N₃₁
-                                                                                                                 ==> true
-                                                                                                                  && 0 <= i₃₉ + 1
-                                                                                                                  && i₃₉ + 1 <= N₃₁
-                                                                                                                  && (forall x₂₀: int ::
-                                                                                                                        (x₂₀ == 0
-                                                                                                                           ==> (exists i₁₉: int ::
-                                                                                                                                  i₁₉ < N₃₁
-                                                                                                                                  && x₂₀ == 0
-                                                                                                                                  && sum₃₈[0 := sum₃₈[0] + a₃₂[i₃₉]][x₂₀] == sum[0 := 0][0] + a₃₂[i₁₉])))
-                                                                                                                  && (forall x₂₀: int ::
-                                                                                                                        (x₂₀ != 0
-                                                                                                                           ==> sum₃₈[0 := sum₃₈[0] + a₃₂[i₃₉]][x₂₀] == sum[0 := 0][x₂₀]))
-                                                                                                                  && (forall i₁₉: int ::
-                                                                                                                        (  i₁₉ <= i₁₉
-                                                                                                                          && 0 <= i₁₉
-                                                                                                                          && i₁₉ < i₃₉ + 1
-                                                                                                                           ==> i₁₉ < N₃₁))
-                                                                                                                  && true
-                                                                                                                  && (true
-                                                                                                                     ==> true))
-                                                                                                              && (!(i₃₉ < N₃₁
-                                                                                                              )
-                                                                                                                 ==> true
-                                                                                                                  && (true
-                                                                                                                     ==> true
-                                                                                                                      && 0 <= 0
-                                                                                                                      && 0 <= N₃₁
-                                                                                                                      && (forall x₂₄: int ::
-                                                                                                                            (x₂₄ == 0
-                                                                                                                               ==> (exists i₂₃: int ::
-                                                                                                                                      i₂₃ < N₃₁
-                                                                                                                                      && x₂₄ == 0
-                                                                                                                                      && sum₃₈[x₂₄] == sum₃₈[0] + b₃₄[i₂₃])))
-                                                                                                                      && (forall x₂₄: int ::
-                                                                                                                            (x₂₄ != 0
-                                                                                                                               ==> sum₃₈[x₂₄] == sum₃₈[x₂₄]))
-                                                                                                                      && (forall i₂₃: int ::
-                                                                                                                            (  i₂₃ <= i₂₃
-                                                                                                                              && 0 <= i₂₃
-                                                                                                                              && i₂₃ < 0
-                                                                                                                               ==> i₂₃ < N₃₁))
-                                                                                                                      && (forall sum₄₀: [int]int, i₄₁: int ::
-                                                                                                                            (  true
-                                                                                                                              && 0 <= i₄₁
-                                                                                                                              && i₄₁ <= N₃₁
-                                                                                                                              && (forall x₂₄: int ::
-                                                                                                                                    (x₂₄ == 0
-                                                                                                                                       ==> (exists i₂₃: int ::
-                                                                                                                                              i₂₃ < N₃₁
-                                                                                                                                              && x₂₄ == 0
-                                                                                                                                              && sum₄₀[x₂₄] == sum₃₈[0] + b₃₄[i₂₃])))
-                                                                                                                              && (forall x₂₄: int ::
-                                                                                                                                    (x₂₄ != 0
-                                                                                                                                       ==> sum₄₀[x₂₄] == sum₃₈[x₂₄]))
-                                                                                                                              && (forall i₂₃: int ::
-                                                                                                                                    (  i₂₃ <= i₂₃
-                                                                                                                                      && 0 <= i₂₃
-                                                                                                                                      && i₂₃ < i₄₁
-                                                                                                                                       ==> i₂₃ < N₃₁))
-                                                                                                                               ==> (i₄₁ < N₃₁
-                                                                                                                                   ==> true
-                                                                                                                                    && 0 <= i₄₁ + 1
-                                                                                                                                    && i₄₁ + 1 <= N₃₁
-                                                                                                                                    && (forall x₂₄: int ::
-                                                                                                                                          (x₂₄ == 0
-                                                                                                                                             ==> (exists i₂₃: int ::
-                                                                                                                                                    i₂₃ < N₃₁
-                                                                                                                                                    && x₂₄ == 0
-                                                                                                                                                    && sum₄₀[0 := sum₄₀[0] + b₃₄[i₄₁]][x₂₄] == sum₃₈[0] + b₃₄[i₂₃])))
-                                                                                                                                    && (forall x₂₄: int ::
-                                                                                                                                          (x₂₄ != 0
-                                                                                                                                             ==> sum₄₀[0 := sum₄₀[0] + b₃₄[i₄₁]][x₂₄] == sum₃₈[x₂₄]))
-                                                                                                                                    && (forall i₂₃: int ::
-                                                                                                                                          (  i₂₃ <= i₂₃
-                                                                                                                                            && 0 <= i₂₃
-                                                                                                                                            && i₂₃ < i₄₁ + 1
-                                                                                                                                             ==> i₂₃ < N₃₁))
-                                                                                                                                    && true
-                                                                                                                                    && (true
-                                                                                                                                       ==> true))
-                                                                                                                                && (!(i₄₁ < N₃₁
-                                                                                                                                )
-                                                                                                                                   ==> true
-                                                                                                                                    && (true
-                                                                                                                                       ==> true
-                                                                                                                                        && 0 <= 0
-                                                                                                                                        && 0 <= N₃₁
-                                                                                                                                        && (forall x₂₈: int ::
-                                                                                                                                              (x₂₈ == 0
-                                                                                                                                                 ==> (exists i₂₇: int ::
-                                                                                                                                                        i₂₇ < N₃₁
-                                                                                                                                                        && x₂₈ == 0
-                                                                                                                                                        && sum₄₀[x₂₈] == sum₄₀[0] + c₃₆[i₂₇])))
-                                                                                                                                        && (forall x₂₈: int ::
-                                                                                                                                              (x₂₈ != 0
-                                                                                                                                                 ==> sum₄₀[x₂₈] == sum₄₀[x₂₈]))
-                                                                                                                                        && (forall i₂₇: int ::
-                                                                                                                                              (  i₂₇ <= i₂₇
-                                                                                                                                                && 0 <= i₂₇
-                                                                                                                                                && i₂₇ < 0
-                                                                                                                                                 ==> i₂₇ < N₃₁))
-                                                                                                                                        && (forall sum₄₂: [int]int, i₄₃: int ::
-                                                                                                                                              (  true
-                                                                                                                                                && 0 <= i₄₃
-                                                                                                                                                && i₄₃ <= N₃₁
-                                                                                                                                                && (forall x₂₈: int ::
-                                                                                                                                                      (x₂₈ == 0
-                                                                                                                                                         ==> (exists i₂₇: int ::
-                                                                                                                                                                i₂₇ < N₃₁
-                                                                                                                                                                && x₂₈ == 0
-                                                                                                                                                                && sum₄₂[x₂₈] == sum₄₀[0] + c₃₆[i₂₇])))
-                                                                                                                                                && (forall x₂₈: int ::
-                                                                                                                                                      (x₂₈ != 0
-                                                                                                                                                         ==> sum₄₂[x₂₈] == sum₄₀[x₂₈]))
-                                                                                                                                                && (forall i₂₇: int ::
-                                                                                                                                                      (  i₂₇ <= i₂₇
-                                                                                                                                                        && 0 <= i₂₇
-                                                                                                                                                        && i₂₇ < i₄₃
-                                                                                                                                                         ==> i₂₇ < N₃₁))
-                                                                                                                                                 ==> (i₄₃ < N₃₁
-                                                                                                                                                     ==> true
-                                                                                                                                                      && 0 <= i₄₃ + 1
-                                                                                                                                                      && i₄₃ + 1 <= N₃₁
-                                                                                                                                                      && (forall x₂₈: int ::
-                                                                                                                                                            (x₂₈ == 0
-                                                                                                                                                               ==> (exists i₂₇: int ::
-                                                                                                                                                                      i₂₇ < N₃₁
-                                                                                                                                                                      && x₂₈ == 0
-                                                                                                                                                                      && sum₄₂[0 := sum₄₂[0] + c₃₆[i₄₃]][x₂₈] == sum₄₀[0] + c₃₆[i₂₇])))
-                                                                                                                                                      && (forall x₂₈: int ::
-                                                                                                                                                            (x₂₈ != 0
-                                                                                                                                                               ==> sum₄₂[0 := sum₄₂[0] + c₃₆[i₄₃]][x₂₈] == sum₄₀[x₂₈]))
-                                                                                                                                                      && (forall i₂₇: int ::
-                                                                                                                                                            (  i₂₇ <= i₂₇
-                                                                                                                                                              && 0 <= i₂₇
-                                                                                                                                                              && i₂₇ < i₄₃ + 1
-                                                                                                                                                               ==> i₂₇ < N₃₁))
-                                                                                                                                                      && true
-                                                                                                                                                      && (true
-                                                                                                                                                         ==> true))
-                                                                                                                                                  && (!(i₄₃ < N₃₁
-                                                                                                                                                  )
-                                                                                                                                                     ==> true
-                                                                                                                                                      && (true
-                                                                                                                                                         ==> sum₄₂[0] <= 3 * N₃₁
-                                                                                                                                                          && (true
-                                                                                                                                                             ==> true))))))))))))))))))))))))))))))))));
+procedure malloc(size: int) returns (c#result: c#ptr<c#void>);
+
+var N: int;
+
+procedure main()
+  returns (c#result: int)
+  modifies N;
+{
+  havoc N;
+  if(N <= 0) {
+    c#result := 1;
+    return;
+  }
+  assume N <= 2147483647 / 4;
+  var i: int;
+  var sum: [int]int;
+  var a: [int]int;
+  var b: [int]int;
+  var c: [int]int;
+  sum := sum[0 := 0];
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₈: int ::
+            ((exists i₇: int ::
+                    x₈ == i₇
+                    && old(i) <= i₇
+                    && i₇ < i)
+               ==> (exists i₇: int ::
+                      i₇ < N
+                      && x₈ == i₇
+                      && old(i) <= i₇
+                      && i₇ < i
+                      && a[x₈] == 1)))
+      && (forall x₈: int ::
+            (!((exists i₇: int ::
+                    x₈ == i₇
+                    && old(i) <= i₇
+                    && i₇ < i)
+            )
+               ==> a[x₈] == old(a[x₈])))
+      && (forall i₇: int ::
+            (  old(i) <= i₇
+              && i₇ < i
+               ==> i₇ < N));
+  {
+    a := a[i := 1];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₁₂: int ::
+            ((exists i₁₁: int ::
+                    x₁₂ == i₁₁
+                    && old(i) <= i₁₁
+                    && i₁₁ < i)
+               ==> (exists i₁₁: int ::
+                      i₁₁ < N
+                      && x₁₂ == i₁₁
+                      && old(i) <= i₁₁
+                      && i₁₁ < i
+                      && b[x₁₂] == 1)))
+      && (forall x₁₂: int ::
+            (!((exists i₁₁: int ::
+                    x₁₂ == i₁₁
+                    && old(i) <= i₁₁
+                    && i₁₁ < i)
+            )
+               ==> b[x₁₂] == old(b[x₁₂])))
+      && (forall i₁₁: int ::
+            (  old(i) <= i₁₁
+              && i₁₁ < i
+               ==> i₁₁ < N));
+  {
+    b := b[i := 1];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₁₆: int ::
+            ((exists i₁₅: int ::
+                    x₁₆ == i₁₅
+                    && old(i) <= i₁₅
+                    && i₁₅ < i)
+               ==> (exists i₁₅: int ::
+                      i₁₅ < N
+                      && x₁₆ == i₁₅
+                      && old(i) <= i₁₅
+                      && i₁₅ < i
+                      && c[x₁₆] == 1)))
+      && (forall x₁₆: int ::
+            (!((exists i₁₅: int ::
+                    x₁₆ == i₁₅
+                    && old(i) <= i₁₅
+                    && i₁₅ < i)
+            )
+               ==> c[x₁₆] == old(c[x₁₆])))
+      && (forall i₁₅: int ::
+            (  old(i) <= i₁₅
+              && i₁₅ < i
+               ==> i₁₅ < N));
+  {
+    c := c[i := 1];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₂₀: int ::
+            (x₂₀ == 0
+               ==> (exists i₁₉: int ::
+                      i₁₉ < N
+                      && x₂₀ == 0
+                      && sum[x₂₀] == old(sum)[0] + a[i₁₉])))
+      && (forall x₂₀: int ::
+            (x₂₀ != 0
+               ==> sum[x₂₀] == old(sum[x₂₀])))
+      && (forall i₁₉: int ::
+            (  old(i) <= i₁₉
+              && i₁₉ < i
+               ==> i₁₉ < N));
+  {
+    sum := sum[0 := sum[0] + a[i]];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₂₄: int ::
+            (x₂₄ == 0
+               ==> (exists i₂₃: int ::
+                      i₂₃ < N
+                      && x₂₄ == 0
+                      && sum[x₂₄] == old(sum)[0] + b[i₂₃])))
+      && (forall x₂₄: int ::
+            (x₂₄ != 0
+               ==> sum[x₂₄] == old(sum[x₂₄])))
+      && (forall i₂₃: int ::
+            (  old(i) <= i₂₃
+              && i₂₃ < i
+               ==> i₂₃ < N));
+  {
+    sum := sum[0 := sum[0] + b[i]];
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant true
+      && old(i) <= i
+      && i <= N
+      && (forall x₂₈: int ::
+            (x₂₈ == 0
+               ==> (exists i₂₇: int ::
+                      i₂₇ < N
+                      && x₂₈ == 0
+                      && sum[x₂₈] == old(sum)[0] + c[i₂₇])))
+      && (forall x₂₈: int ::
+            (x₂₈ != 0
+               ==> sum[x₂₈] == old(sum[x₂₈])))
+      && (forall i₂₇: int ::
+            (  old(i) <= i₂₇
+              && i₂₇ < i
+               ==> i₂₇ < N));
+  {
+    sum := sum[0 := sum[0] + c[i]];
+    i := i + 1;
+  }
+  assert sum[0] <= 3 * N;
+  c#result := 1;
+  return;
+}
 

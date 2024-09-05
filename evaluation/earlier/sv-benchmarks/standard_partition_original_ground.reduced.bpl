@@ -28,8 +28,7 @@ goal (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₄: [int]int, i₂�
                         && i₅ < i₂₅)
                 || aa₂₄[x₆] == aa[x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₂₅
                  ==> i₅ < 100000))
         && 0 <= c₂₆
@@ -67,10 +66,7 @@ goal (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₄: [int]int, i₂�
                         && b₁₁ < b₂₉)
                 || bb₃₀[x₁₃] == bb[x₁₃])
         && (forall c₉: int, a₁₀: int, b₁₁: int ::
-              (  c₉ <= c₉
-                && a₁₀ <= a₁₀
-                && b₁₁ <= b₁₁
-                && 0 <= c₉
+              (  0 <= c₉
                 && c₉ < c₂₆
                 && 0 <= a₁₀
                 && a₁₀ < a₂₈
@@ -80,15 +76,13 @@ goal (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₄: [int]int, i₂�
         && 0 <= x₃₁
         && x₃₁ <= b₂₉
         && (forall x₂₀: int ::
-              (  x₂₀ <= x₂₀
-                && 0 <= x₂₀
+              (  0 <= x₂₀
                 && x₂₀ < x₃₁
                  ==> x₂₀ < b₂₉))
         && 0 <= x₃₂
         && x₃₂ <= c₂₆
         && (forall x₂₂: int ::
-              (  x₂₂ <= x₂₂
-                && 0 <= x₂₂
+              (  0 <= x₂₂
                 && x₂₂ < x₃₂
                  ==> x₂₂ < c₂₆))
         && x₃₂ < c₂₆

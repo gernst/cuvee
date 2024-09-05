@@ -1,175 +1,63 @@
-goal (forall a: [int]int, alength: int, b: [int]int ::
-      (  0 <= alength
-        && true
-         ==> 0 <= 0
-          && 0 <= 0
-          && 0 <= alength
-          && (forall x₂: int ::
-                ((exists i₁: int ::
-                        x₂ == i₁
+procedure both_or_none(a: [int]int, alength: int)
+  returns (b: [int]int)
+  requires 0 <= alength
+    && true;
+  ensures true
+    && (forall j: int ::
+          (  0 <= j
+            && j < alength
+            && 0 <= alength
+             ==> a[j] == 1
+                && b[j] == 1
+              ||   a[j] != 1
+                && b[j] == 0));
+{
+  var i: int := 0;
+  while(i < alength)
+    decreases alength - i;
+    invariant 0 <= i
+      && old(i) <= i
+      && i <= alength
+      && (forall x₂: int ::
+            ((exists i₁: int ::
+                    x₂ == i₁
+                    && old(i) <= i₁
+                    && i₁ < i)
+               ==> (exists i₁: int ::
+                        a[i₁] == 1
+                        && i₁ < alength
                         && 0 <= i₁
-                        && i₁ < 0)
-                   ==> (exists i₁: int ::
-                            a[i₁] == 1
-                            && i₁ < alength
-                            && 0 <= i₁
-                            && x₂ == i₁
-                            && 0 <= i₁
-                            && i₁ < 0
-                            && b[x₂] == 1)
-                    || (exists i₁: int ::
-                            a[i₁] != 1
-                            && i₁ < alength
-                            && 0 <= i₁
-                            && x₂ == i₁
-                            && 0 <= i₁
-                            && i₁ < 0
-                            && b[x₂] == 0)))
-          && (forall x₂: int ::
-                (!((exists i₁: int ::
-                        x₂ == i₁
+                        && x₂ == i₁
+                        && old(i) <= i₁
+                        && i₁ < i
+                        && b[x₂] == 1)
+                || (exists i₁: int ::
+                        a[i₁] != 1
+                        && i₁ < alength
                         && 0 <= i₁
-                        && i₁ < 0)
-                )
-                   ==> b[x₂] == b[x₂]))
-          && (forall i₁: int ::
-                (  0 <= i₁
-                  && i₁ <= i₁
-                  && 0 <= i₁
-                  && i₁ < 0
-                   ==> i₁ < alength))
-          && (forall b₅: [int]int, i₆: int ::
-                (  0 <= i₆
-                  && 0 <= i₆
-                  && i₆ <= alength
-                  && (forall x₂: int ::
-                        ((exists i₁: int ::
-                                x₂ == i₁
-                                && 0 <= i₁
-                                && i₁ < i₆)
-                           ==> (exists i₁: int ::
-                                    a[i₁] == 1
-                                    && i₁ < alength
-                                    && 0 <= i₁
-                                    && x₂ == i₁
-                                    && 0 <= i₁
-                                    && i₁ < i₆
-                                    && b₅[x₂] == 1)
-                            || (exists i₁: int ::
-                                    a[i₁] != 1
-                                    && i₁ < alength
-                                    && 0 <= i₁
-                                    && x₂ == i₁
-                                    && 0 <= i₁
-                                    && i₁ < i₆
-                                    && b₅[x₂] == 0)))
-                  && (forall x₂: int ::
-                        (!((exists i₁: int ::
-                                x₂ == i₁
-                                && 0 <= i₁
-                                && i₁ < i₆)
-                        )
-                           ==> b₅[x₂] == b[x₂]))
-                  && (forall i₁: int ::
-                        (  0 <= i₁
-                          && i₁ <= i₁
-                          && 0 <= i₁
-                          && i₁ < i₆
-                           ==> i₁ < alength))
-                   ==> (i₆ < alength
-                       ==> (a[i₆] == 1
-                           ==> 0 <= i₆ + 1
-                            && 0 <= i₆ + 1
-                            && i₆ + 1 <= alength
-                            && (forall x₂: int ::
-                                  ((exists i₁: int ::
-                                          x₂ == i₁
-                                          && 0 <= i₁
-                                          && i₁ < i₆ + 1)
-                                     ==> (exists i₁: int ::
-                                              a[i₁] == 1
-                                              && i₁ < alength
-                                              && 0 <= i₁
-                                              && x₂ == i₁
-                                              && 0 <= i₁
-                                              && i₁ < i₆ + 1
-                                              && b₅[i₆ := 1][x₂] == 1)
-                                      || (exists i₁: int ::
-                                              a[i₁] != 1
-                                              && i₁ < alength
-                                              && 0 <= i₁
-                                              && x₂ == i₁
-                                              && 0 <= i₁
-                                              && i₁ < i₆ + 1
-                                              && b₅[i₆ := 1][x₂] == 0)))
-                            && (forall x₂: int ::
-                                  (!((exists i₁: int ::
-                                          x₂ == i₁
-                                          && 0 <= i₁
-                                          && i₁ < i₆ + 1)
-                                  )
-                                     ==> b₅[i₆ := 1][x₂] == b[x₂]))
-                            && (forall i₁: int ::
-                                  (  0 <= i₁
-                                    && i₁ <= i₁
-                                    && 0 <= i₁
-                                    && i₁ < i₆ + 1
-                                     ==> i₁ < alength))
-                            && true
-                            && (true
-                               ==> true))
-                        && (a[i₆] != 1
-                           ==> 0 <= i₆ + 1
-                            && 0 <= i₆ + 1
-                            && i₆ + 1 <= alength
-                            && (forall x₂: int ::
-                                  ((exists i₁: int ::
-                                          x₂ == i₁
-                                          && 0 <= i₁
-                                          && i₁ < i₆ + 1)
-                                     ==> (exists i₁: int ::
-                                              a[i₁] == 1
-                                              && i₁ < alength
-                                              && 0 <= i₁
-                                              && x₂ == i₁
-                                              && 0 <= i₁
-                                              && i₁ < i₆ + 1
-                                              && b₅[i₆ := 0][x₂] == 1)
-                                      || (exists i₁: int ::
-                                              a[i₁] != 1
-                                              && i₁ < alength
-                                              && 0 <= i₁
-                                              && x₂ == i₁
-                                              && 0 <= i₁
-                                              && i₁ < i₆ + 1
-                                              && b₅[i₆ := 0][x₂] == 0)))
-                            && (forall x₂: int ::
-                                  (!((exists i₁: int ::
-                                          x₂ == i₁
-                                          && 0 <= i₁
-                                          && i₁ < i₆ + 1)
-                                  )
-                                     ==> b₅[i₆ := 0][x₂] == b[x₂]))
-                            && (forall i₁: int ::
-                                  (  0 <= i₁
-                                    && i₁ <= i₁
-                                    && 0 <= i₁
-                                    && i₁ < i₆ + 1
-                                     ==> i₁ < alength))
-                            && true
-                            && (true
-                               ==> true)))
-                    && (!(i₆ < alength
-                    )
-                       ==> true
-                        && (true
-                           ==> true
-                            && (forall j: int ::
-                                  (  0 <= j
-                                    && j < alength
-                                    && 0 <= alength
-                                     ==> a[j] == 1
-                                        && b₅[j] == 1
-                                      ||   a[j] != 1
-                                        && b₅[j] == 0))))))));
+                        && x₂ == i₁
+                        && old(i) <= i₁
+                        && i₁ < i
+                        && b[x₂] == 0)))
+      && (forall x₂: int ::
+            (!((exists i₁: int ::
+                    x₂ == i₁
+                    && old(i) <= i₁
+                    && i₁ < i)
+            )
+               ==> b[x₂] == old(b[x₂])))
+      && (forall i₁: int ::
+            (  0 <= i₁
+              && old(i) <= i₁
+              && i₁ < i
+               ==> i₁ < alength));
+  {
+    if(a[i] == 1) {
+      b := b[i := 1];
+    } else {
+      b := b[i := 0];
+    }
+    i := i + 1;
+  }
+}
 

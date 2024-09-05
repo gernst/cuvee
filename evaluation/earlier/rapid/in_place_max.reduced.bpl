@@ -23,7 +23,6 @@ goal (forall alength: int, a: [int]int, a₅: [int]int, i₆: int, x₂: int, i�
                 || a₅[x₃₉] == a[x₃₉])
         && (forall i₄₁: int ::
               (  0 <= i₄₁
-                && i₄₁ <= i₄₁
                 && 0 <= i₄₁
                 && i₄₁ < i₆
                  ==> i₄₁ < alength))
@@ -66,7 +65,6 @@ goal (forall alength: int, a: [int]int, a₅: [int]int, i₆: int, x₂: int, i�
                 || a₅[x₇₀] == a[x₇₀])
         && (forall i₇₂: int ::
               (  0 <= i₇₂
-                && i₇₂ <= i₇₂
                 && 0 <= i₇₂
                 && i₇₂ < i₆
                  ==> i₇₂ < alength))

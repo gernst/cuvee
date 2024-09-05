@@ -28,8 +28,7 @@ goal (forall a: [int]int, b: [int]int, a₁₆: [int]int, i₁₇: int, b₁₈:
                         && i₄ < i₁₇)
                 || a₁₆[x₅] == a[x₅])
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 0 <= i₄
+              (  0 <= i₄
                 && i₄ < i₁₇
                  ==> i₄ < 100000))
         && 0 <= i₁₉
@@ -55,15 +54,13 @@ goal (forall a: [int]int, b: [int]int, a₁₆: [int]int, i₁₇: int, b₁₈:
                         && i₈ < i₁₉)
                 || b₁₈[x₉] == b[x₉])
         && (forall i₈: int ::
-              (  i₈ <= i₈
-                && 0 <= i₈
+              (  0 <= i₈
                 && i₈ < i₁₉
                  ==> i₈ < 100000))
         && 0 <= i₂₁
         && i₂₁ <= 100000
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₂₁
                  ==> i₁₃ < 100000))
         && f₂₀ == 0

@@ -60,8 +60,7 @@ goal (forall a1: [int]int, a2: [int]int, a3: [int]int, a1₂₈: [int]int, a2₂
                         && i₉ < i₃₁)
                 || a3₃₀[x₁₂] == a3[x₁₂])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₃₁
                  ==> i₉ < 200000))
         && 0 <= i₃₃
@@ -80,8 +79,7 @@ goal (forall a1: [int]int, a2: [int]int, a3: [int]int, a1₂₈: [int]int, a2₂
                         && i₁₇ < i₃₃)
                 || a2₃₂[x₁₈] == a2₂₉[x₁₈])
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && 0 <= i₁₇
+              (  0 <= i₁₇
                 && i₁₇ < i₃₃
                  ==> i₁₇ < 200000))
         && 0 <= i₃₅
@@ -107,15 +105,13 @@ goal (forall a1: [int]int, a2: [int]int, a3: [int]int, a1₂₈: [int]int, a2₂
                         && i₂₁ < i₃₅)
                 || a3₃₄[x₂₂] == a3₃₀[x₂₂])
         && (forall i₂₁: int ::
-              (  i₂₁ <= i₂₁
-                && 0 <= i₂₁
+              (  0 <= i₂₁
                 && i₂₁ < i₃₅
                  ==> i₂₁ < 200000))
         && 0 <= x₃₆
         && x₃₆ <= 200000
         && (forall x₂₆: int ::
-              (  x₂₆ <= x₂₆
-                && 0 <= x₂₆
+              (  0 <= x₂₆
                 && x₂₆ < x₃₆
                  ==> x₂₆ < 200000))
         && x₃₆ < 200000

@@ -23,8 +23,7 @@ goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [i
         && 0 <= i₂₁
         && i₂₁ <= __VERIFIER_nondet_int₂
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₂₁
                  ==> i₉ < __VERIFIER_nondet_int₂))
         && 0 <= i₂₃
@@ -46,15 +45,13 @@ goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [i
                         && i₁₂ < i₂₃)
                 || b₂₂[x₁₃] == b[x₁₃])
         && (forall i₁₂: int ::
-              (  i₁₂ <= i₁₂
-                && 0 <= i₁₂
+              (  0 <= i₁₂
                 && i₁₂ < i₂₃
                  ==> i₁₂ < __VERIFIER_nondet_int₂))
         && 0 <= i₂₅
         && i₂₅ <= __VERIFIER_nondet_int₂
         && (forall i₁₇: int ::
-              (  i₁₇ <= i₁₇
-                && 0 <= i₁₇
+              (  0 <= i₁₇
                 && i₁₇ < i₂₅
                  ==> i₁₇ < __VERIFIER_nondet_int₂))
          ==> i₂₅ < __VERIFIER_nondet_int₂

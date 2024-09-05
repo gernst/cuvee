@@ -28,23 +28,20 @@ goal (forall array: [int]int, array₂₈: [int]int, i₂₉: int, largest1₃�
                         && i₇ < i₂₉)
                 || array₂₈[x₈] == array[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₉
                  ==> i₇ < 100000))
         && array₂₈[0] < array₂₈[1]
         && 2 <= i₃₂
         && i₃₂ <= 100000
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 2 <= i₁₃
+              (  2 <= i₁₃
                 && i₁₃ < i₃₂
                  ==> i₁₃ < 100000))
         && 0 <= x₃₃
         && x₃₃ <= 100000
         && (forall x₂₂: int ::
-              (  x₂₂ <= x₂₂
-                && 0 <= x₂₂
+              (  0 <= x₂₂
                 && x₂₂ < x₃₃
                  ==> x₂₂ < 100000))
         && x₃₃ < 100000
@@ -72,30 +69,26 @@ goal (forall array: [int]int, array₂₈: [int]int, i₂₉: int, largest2₃�
                         && i₇ < i₂₉)
                 || array₂₈[x₈] == array[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₉
                  ==> i₇ < 100000))
         && array₂₈[0] < array₂₈[1]
         && 2 <= i₃₂
         && i₃₂ <= 100000
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 2 <= i₁₃
+              (  2 <= i₁₃
                 && i₁₃ < i₃₂
                  ==> i₁₃ < 100000))
         && 0 <= x₃₃
         && x₃₃ <= 100000
         && (forall x₂₂: int ::
-              (  x₂₂ <= x₂₂
-                && 0 <= x₂₂
+              (  0 <= x₂₂
                 && x₂₂ < x₃₃
                  ==> x₂₂ < 100000))
         && 0 <= x₃₄
         && x₃₄ <= 100000
         && (forall x₂₅: int ::
-              (  x₂₅ <= x₂₅
-                && 0 <= x₂₅
+              (  0 <= x₂₅
                 && x₂₅ < x₃₄
                  ==> x₂₅ < 100000))
         && x₃₄ < 100000
@@ -125,22 +118,19 @@ goal (forall array: [int]int, array₂₈: [int]int, i₂₉: int, largest1₄�
                         && i₇ < i₂₉)
                 || array₂₈[x₈] == array[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₉
                  ==> i₇ < 100000))
         && 2 <= i₄₈
         && i₄₈ <= 100000
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 2 <= i₁₃
+              (  2 <= i₁₃
                 && i₁₃ < i₄₈
                  ==> i₁₃ < 100000))
         && 0 <= x₄₉
         && x₄₉ <= 100000
         && (forall x₂₂: int ::
-              (  x₂₂ <= x₂₂
-                && 0 <= x₂₂
+              (  0 <= x₂₂
                 && x₂₂ < x₄₉
                  ==> x₂₂ < 100000))
         && x₄₉ < 100000
@@ -169,29 +159,25 @@ goal (forall array: [int]int, array₂₈: [int]int, i₂₉: int, largest2₄�
                         && i₇ < i₂₉)
                 || array₂₈[x₈] == array[x₈])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₉
                  ==> i₇ < 100000))
         && 2 <= i₄₈
         && i₄₈ <= 100000
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 2 <= i₁₃
+              (  2 <= i₁₃
                 && i₁₃ < i₄₈
                  ==> i₁₃ < 100000))
         && 0 <= x₄₉
         && x₄₉ <= 100000
         && (forall x₂₂: int ::
-              (  x₂₂ <= x₂₂
-                && 0 <= x₂₂
+              (  0 <= x₂₂
                 && x₂₂ < x₄₉
                  ==> x₂₂ < 100000))
         && 0 <= x₅₀
         && x₅₀ <= 100000
         && (forall x₂₅: int ::
-              (  x₂₅ <= x₂₅
-                && 0 <= x₂₅
+              (  0 <= x₂₅
                 && x₂₅ < x₅₀
                  ==> x₂₅ < 100000))
         && x₅₀ < 100000

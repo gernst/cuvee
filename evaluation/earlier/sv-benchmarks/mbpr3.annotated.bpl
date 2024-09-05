@@ -4,405 +4,158 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (true
-   ==> true
-    && (forall CELLCOUNT₁₈: int ::
-          (true
-             ==> (1 < CELLCOUNT₁₈
-                 ==> (forall volArray: [int]int ::
-                        (CELLCOUNT₁₈ % 3 != 0
-                           ==> true)
-                        && (!(CELLCOUNT₁₈ % 3 != 0
-                        )
-                           ==> true
-                            && (CELLCOUNT₁₈ % 3 == 0
-                               ==> true
-                                && 1 <= 1
-                                && 1 <= 1 + CELLCOUNT₁₈ / 3
-                                && (forall x₅: int ::
-                                      ((exists i₄: int ::
-                                            if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < 1 else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < 1 else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < 1)
-                                         ==> (exists i₄: int ::
-                                                  2 <= 7
-                                                  && i₄ <= CELLCOUNT₁₈ / 3
-                                                  && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < 1 && volArray[x₅] == volArray[-3 + 3 * i₄ := 7][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < 1 && volArray[x₅] == volArray[-3 + 3 * i₄ := 7][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < 1 && volArray[x₅] == 7)
-                                          || (exists i₄: int ::
-                                                  !(2 <= 7
-                                                  )
-                                                  && i₄ <= CELLCOUNT₁₈ / 3
-                                                  && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < 1 && volArray[x₅] == volArray[-3 + 3 * i₄ := 0][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < 1 && volArray[x₅] == volArray[-3 + 3 * i₄ := 0][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < 1 && volArray[x₅] == 0)))
-                                && (forall x₅: int ::
-                                      (!((exists i₄: int ::
-                                            if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < 1 else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < 1 else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < 1)
-                                      )
-                                         ==> volArray[x₅] == volArray[x₅]))
-                                && (forall i₄: int ::
-                                      (  i₄ <= i₄
-                                        && 1 <= i₄
-                                        && i₄ < 1
-                                         ==> i₄ <= CELLCOUNT₁₈ / 3))
-                                && (forall volArray₁₉: [int]int, i₂₀: int ::
-                                      (  true
-                                        && 1 <= i₂₀
-                                        && i₂₀ <= 1 + CELLCOUNT₁₈ / 3
-                                        && (forall x₅: int ::
-                                              ((exists i₄: int ::
-                                                    if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀)
-                                                 ==> (exists i₄: int ::
-                                                          2 <= 7
-                                                          && i₄ <= CELLCOUNT₁₈ / 3
-                                                          && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ && volArray₁₉[x₅] == volArray₁₉[-3 + 3 * i₄ := 7][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ && volArray₁₉[x₅] == volArray₁₉[-3 + 3 * i₄ := 7][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ && volArray₁₉[x₅] == 7)
-                                                  || (exists i₄: int ::
-                                                          !(2 <= 7
-                                                          )
-                                                          && i₄ <= CELLCOUNT₁₈ / 3
-                                                          && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ && volArray₁₉[x₅] == volArray₁₉[-3 + 3 * i₄ := 0][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ && volArray₁₉[x₅] == volArray₁₉[-3 + 3 * i₄ := 0][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ && volArray₁₉[x₅] == 0)))
-                                        && (forall x₅: int ::
-                                              (!((exists i₄: int ::
-                                                    if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀)
-                                              )
-                                                 ==> volArray₁₉[x₅] == volArray[x₅]))
-                                        && (forall i₄: int ::
-                                              (  i₄ <= i₄
-                                                && 1 <= i₄
-                                                && i₄ < i₂₀
-                                                 ==> i₄ <= CELLCOUNT₁₈ / 3))
-                                         ==> (i₂₀ <= CELLCOUNT₁₈ / 3
-                                             ==> (2 <= 7
-                                                 ==> true
-                                                  && 1 <= i₂₀ + 1
-                                                  && i₂₀ + 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                  && (forall x₅: int ::
-                                                        ((exists i₄: int ::
-                                                              if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1)
-                                                           ==> (exists i₄: int ::
-                                                                    2 <= 7
-                                                                    && i₄ <= CELLCOUNT₁₈ / 3
-                                                                    && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 7][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 7][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == 7)
-                                                            || (exists i₄: int ::
-                                                                    !(2 <= 7
-                                                                    )
-                                                                    && i₄ <= CELLCOUNT₁₈ / 3
-                                                                    && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 0][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 0][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == 0)))
-                                                  && (forall x₅: int ::
-                                                        (!((exists i₄: int ::
-                                                              if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1)
-                                                        )
-                                                           ==> volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 7][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray[x₅]))
-                                                  && (forall i₄: int ::
-                                                        (  i₄ <= i₄
-                                                          && 1 <= i₄
-                                                          && i₄ < i₂₀ + 1
-                                                           ==> i₄ <= CELLCOUNT₁₈ / 3))
-                                                  && true
-                                                  && (true
-                                                     ==> true))
-                                              && (!(2 <= 7
-                                              )
-                                                 ==> true
-                                                  && 1 <= i₂₀ + 1
-                                                  && i₂₀ + 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                  && (forall x₅: int ::
-                                                        ((exists i₄: int ::
-                                                              if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1)
-                                                           ==> (exists i₄: int ::
-                                                                    2 <= 7
-                                                                    && i₄ <= CELLCOUNT₁₈ / 3
-                                                                    && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 7][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 7][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == 7)
-                                                            || (exists i₄: int ::
-                                                                    !(2 <= 7
-                                                                    )
-                                                                    && i₄ <= CELLCOUNT₁₈ / 3
-                                                                    && if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 0][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][-3 + 3 * i₄ := 0][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1 && volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == 0)))
-                                                  && (forall x₅: int ::
-                                                        (!((exists i₄: int ::
-                                                              if(x₅ == -1 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else if(x₅ == -2 + 3 * i₄) then 1 <= i₄ && i₄ < i₂₀ + 1 else x₅ == -3 + 3 * i₄ && 1 <= i₄ && i₄ < i₂₀ + 1)
-                                                        )
-                                                           ==> volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2 := volArray₁₉[i₂₀ * 3 - 3 := 0][i₂₀ * 3 - 2]][i₂₀ * 3 - 1]][x₅] == volArray[x₅]))
-                                                  && (forall i₄: int ::
-                                                        (  i₄ <= i₄
-                                                          && 1 <= i₄
-                                                          && i₄ < i₂₀ + 1
-                                                           ==> i₄ <= CELLCOUNT₁₈ / 3))
-                                                  && true
-                                                  && (true
-                                                     ==> true)))
-                                          && (!(i₂₀ <= CELLCOUNT₁₈ / 3
-                                          )
-                                             ==> true
-                                              && (true
-                                                 ==> true
-                                                  && 1 <= 1
-                                                  && 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                  && (forall x₉: int ::
-                                                        ((exists i₈: int ::
-                                                              if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < 1 else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < 1 else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < 1)
-                                                           ==> (exists i₈: int ::
-                                                                    2 <= 3
-                                                                    && i₈ <= CELLCOUNT₁₈ / 3
-                                                                    && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < 1 && volArray₁₉[x₉] == volArray₁₉[-2 + 3 * i₈ := 3][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < 1 && volArray₁₉[x₉] == volArray₁₉[-2 + 3 * i₈ := 3][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < 1 && volArray₁₉[x₉] == 3)
-                                                            || (exists i₈: int ::
-                                                                    !(2 <= 3
-                                                                    )
-                                                                    && i₈ <= CELLCOUNT₁₈ / 3
-                                                                    && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < 1 && volArray₁₉[x₉] == volArray₁₉[-2 + 3 * i₈ := 0][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < 1 && volArray₁₉[x₉] == volArray₁₉[-2 + 3 * i₈ := 0][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < 1 && volArray₁₉[x₉] == 0)))
-                                                  && (forall x₉: int ::
-                                                        (!((exists i₈: int ::
-                                                              if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < 1 else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < 1 else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < 1)
-                                                        )
-                                                           ==> volArray₁₉[x₉] == volArray₁₉[x₉]))
-                                                  && (forall i₈: int ::
-                                                        (  i₈ <= i₈
-                                                          && 1 <= i₈
-                                                          && i₈ < 1
-                                                           ==> i₈ <= CELLCOUNT₁₈ / 3))
-                                                  && (forall volArray₂₁: [int]int, i₂₂: int ::
-                                                        (  true
-                                                          && 1 <= i₂₂
-                                                          && i₂₂ <= 1 + CELLCOUNT₁₈ / 3
-                                                          && (forall x₉: int ::
-                                                                ((exists i₈: int ::
-                                                                      if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂)
-                                                                   ==> (exists i₈: int ::
-                                                                            2 <= 3
-                                                                            && i₈ <= CELLCOUNT₁₈ / 3
-                                                                            && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ && volArray₂₁[x₉] == volArray₂₁[-2 + 3 * i₈ := 3][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ && volArray₂₁[x₉] == volArray₂₁[-2 + 3 * i₈ := 3][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ && volArray₂₁[x₉] == 3)
-                                                                    || (exists i₈: int ::
-                                                                            !(2 <= 3
-                                                                            )
-                                                                            && i₈ <= CELLCOUNT₁₈ / 3
-                                                                            && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ && volArray₂₁[x₉] == volArray₂₁[-2 + 3 * i₈ := 0][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ && volArray₂₁[x₉] == volArray₂₁[-2 + 3 * i₈ := 0][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ && volArray₂₁[x₉] == 0)))
-                                                          && (forall x₉: int ::
-                                                                (!((exists i₈: int ::
-                                                                      if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂)
-                                                                )
-                                                                   ==> volArray₂₁[x₉] == volArray₁₉[x₉]))
-                                                          && (forall i₈: int ::
-                                                                (  i₈ <= i₈
-                                                                  && 1 <= i₈
-                                                                  && i₈ < i₂₂
-                                                                   ==> i₈ <= CELLCOUNT₁₈ / 3))
-                                                           ==> (i₂₂ <= CELLCOUNT₁₈ / 3
-                                                               ==> (2 <= 3
-                                                                   ==> true
-                                                                    && 1 <= i₂₂ + 1
-                                                                    && i₂₂ + 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                                    && (forall x₉: int ::
-                                                                          ((exists i₈: int ::
-                                                                                if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1)
-                                                                             ==> (exists i₈: int ::
-                                                                                      2 <= 3
-                                                                                      && i₈ <= CELLCOUNT₁₈ / 3
-                                                                                      && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 3][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 3][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == 3)
-                                                                              || (exists i₈: int ::
-                                                                                      !(2 <= 3
-                                                                                      )
-                                                                                      && i₈ <= CELLCOUNT₁₈ / 3
-                                                                                      && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 0][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 0][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == 0)))
-                                                                    && (forall x₉: int ::
-                                                                          (!((exists i₈: int ::
-                                                                                if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1)
-                                                                          )
-                                                                             ==> volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 3][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₁₉[x₉]))
-                                                                    && (forall i₈: int ::
-                                                                          (  i₈ <= i₈
-                                                                            && 1 <= i₈
-                                                                            && i₈ < i₂₂ + 1
-                                                                             ==> i₈ <= CELLCOUNT₁₈ / 3))
-                                                                    && true
-                                                                    && (true
-                                                                       ==> true))
-                                                                && (!(2 <= 3
-                                                                )
-                                                                   ==> true
-                                                                    && 1 <= i₂₂ + 1
-                                                                    && i₂₂ + 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                                    && (forall x₉: int ::
-                                                                          ((exists i₈: int ::
-                                                                                if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1)
-                                                                             ==> (exists i₈: int ::
-                                                                                      2 <= 3
-                                                                                      && i₈ <= CELLCOUNT₁₈ / 3
-                                                                                      && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 3][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 3][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == 3)
-                                                                              || (exists i₈: int ::
-                                                                                      !(2 <= 3
-                                                                                      )
-                                                                                      && i₈ <= CELLCOUNT₁₈ / 3
-                                                                                      && if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 0][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][-2 + 3 * i₈ := 0][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1 && volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == 0)))
-                                                                    && (forall x₉: int ::
-                                                                          (!((exists i₈: int ::
-                                                                                if(x₉ == -1 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else if(x₉ == -3 + 3 * i₈) then 1 <= i₈ && i₈ < i₂₂ + 1 else x₉ == -2 + 3 * i₈ && 1 <= i₈ && i₈ < i₂₂ + 1)
-                                                                          )
-                                                                             ==> volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3 := volArray₂₁[i₂₂ * 3 - 2 := 0][i₂₂ * 3 - 3]][i₂₂ * 3 - 1]][x₉] == volArray₁₉[x₉]))
-                                                                    && (forall i₈: int ::
-                                                                          (  i₈ <= i₈
-                                                                            && 1 <= i₈
-                                                                            && i₈ < i₂₂ + 1
-                                                                             ==> i₈ <= CELLCOUNT₁₈ / 3))
-                                                                    && true
-                                                                    && (true
-                                                                       ==> true)))
-                                                            && (!(i₂₂ <= CELLCOUNT₁₈ / 3
-                                                            )
-                                                               ==> true
-                                                                && (true
-                                                                   ==> true
-                                                                    && 1 <= 1
-                                                                    && 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                                    && (forall x₁₃: int ::
-                                                                          ((exists i₁₂: int ::
-                                                                                if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < 1)
-                                                                             ==> (exists i₁₂: int ::
-                                                                                      2 <= 1
-                                                                                      && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                      && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 && volArray₂₁[x₁₃] == volArray₂₁[-1 + 3 * i₁₂ := 1][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 && volArray₂₁[x₁₃] == volArray₂₁[-1 + 3 * i₁₂ := 1][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < 1 && volArray₂₁[x₁₃] == 1)
-                                                                              || (exists i₁₂: int ::
-                                                                                      !(2 <= 1
-                                                                                      )
-                                                                                      && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                      && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 && volArray₂₁[x₁₃] == volArray₂₁[-1 + 3 * i₁₂ := 0][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 && volArray₂₁[x₁₃] == volArray₂₁[-1 + 3 * i₁₂ := 0][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < 1 && volArray₂₁[x₁₃] == 0)))
-                                                                    && (forall x₁₃: int ::
-                                                                          (!((exists i₁₂: int ::
-                                                                                if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < 1 else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < 1)
-                                                                          )
-                                                                             ==> volArray₂₁[x₁₃] == volArray₂₁[x₁₃]))
-                                                                    && (forall i₁₂: int ::
-                                                                          (  i₁₂ <= i₁₂
-                                                                            && 1 <= i₁₂
-                                                                            && i₁₂ < 1
-                                                                             ==> i₁₂ <= CELLCOUNT₁₈ / 3))
-                                                                    && (forall volArray₂₃: [int]int, i₂₄: int ::
-                                                                          (  true
-                                                                            && 1 <= i₂₄
-                                                                            && i₂₄ <= 1 + CELLCOUNT₁₈ / 3
-                                                                            && (forall x₁₃: int ::
-                                                                                  ((exists i₁₂: int ::
-                                                                                        if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄)
-                                                                                     ==> (exists i₁₂: int ::
-                                                                                              2 <= 1
-                                                                                              && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                              && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ && volArray₂₃[x₁₃] == volArray₂₃[-1 + 3 * i₁₂ := 1][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ && volArray₂₃[x₁₃] == volArray₂₃[-1 + 3 * i₁₂ := 1][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ && volArray₂₃[x₁₃] == 1)
-                                                                                      || (exists i₁₂: int ::
-                                                                                              !(2 <= 1
-                                                                                              )
-                                                                                              && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                              && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ && volArray₂₃[x₁₃] == volArray₂₃[-1 + 3 * i₁₂ := 0][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ && volArray₂₃[x₁₃] == volArray₂₃[-1 + 3 * i₁₂ := 0][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ && volArray₂₃[x₁₃] == 0)))
-                                                                            && (forall x₁₃: int ::
-                                                                                  (!((exists i₁₂: int ::
-                                                                                        if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄)
-                                                                                  )
-                                                                                     ==> volArray₂₃[x₁₃] == volArray₂₁[x₁₃]))
-                                                                            && (forall i₁₂: int ::
-                                                                                  (  i₁₂ <= i₁₂
-                                                                                    && 1 <= i₁₂
-                                                                                    && i₁₂ < i₂₄
-                                                                                     ==> i₁₂ <= CELLCOUNT₁₈ / 3))
-                                                                             ==> (i₂₄ <= CELLCOUNT₁₈ / 3
-                                                                                 ==> (2 <= 1
-                                                                                     ==> true
-                                                                                      && 1 <= i₂₄ + 1
-                                                                                      && i₂₄ + 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                                                      && (forall x₁₃: int ::
-                                                                                            ((exists i₁₂: int ::
-                                                                                                  if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1)
-                                                                                               ==> (exists i₁₂: int ::
-                                                                                                        2 <= 1
-                                                                                                        && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                                        && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 1][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 1][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == 1)
-                                                                                                || (exists i₁₂: int ::
-                                                                                                        !(2 <= 1
-                                                                                                        )
-                                                                                                        && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                                        && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 0][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 0][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == 0)))
-                                                                                      && (forall x₁₃: int ::
-                                                                                            (!((exists i₁₂: int ::
-                                                                                                  if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1)
-                                                                                            )
-                                                                                               ==> volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 1][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₁[x₁₃]))
-                                                                                      && (forall i₁₂: int ::
-                                                                                            (  i₁₂ <= i₁₂
-                                                                                              && 1 <= i₁₂
-                                                                                              && i₁₂ < i₂₄ + 1
-                                                                                               ==> i₁₂ <= CELLCOUNT₁₈ / 3))
-                                                                                      && true
-                                                                                      && (true
-                                                                                         ==> true))
-                                                                                  && (!(2 <= 1
-                                                                                  )
-                                                                                     ==> true
-                                                                                      && 1 <= i₂₄ + 1
-                                                                                      && i₂₄ + 1 <= 1 + CELLCOUNT₁₈ / 3
-                                                                                      && (forall x₁₃: int ::
-                                                                                            ((exists i₁₂: int ::
-                                                                                                  if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1)
-                                                                                               ==> (exists i₁₂: int ::
-                                                                                                        2 <= 1
-                                                                                                        && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                                        && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 1][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 1][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == 1)
-                                                                                                || (exists i₁₂: int ::
-                                                                                                        !(2 <= 1
-                                                                                                        )
-                                                                                                        && i₁₂ <= CELLCOUNT₁₈ / 3
-                                                                                                        && if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 0][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][-1 + 3 * i₁₂ := 0][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1 && volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == 0)))
-                                                                                      && (forall x₁₃: int ::
-                                                                                            (!((exists i₁₂: int ::
-                                                                                                  if(x₁₃ == -3 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else if(x₁₃ == -2 + 3 * i₁₂) then 1 <= i₁₂ && i₁₂ < i₂₄ + 1 else x₁₃ == -1 + 3 * i₁₂ && 1 <= i₁₂ && i₁₂ < i₂₄ + 1)
-                                                                                            )
-                                                                                               ==> volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2 := volArray₂₃[i₂₄ * 3 - 1 := 0][i₂₄ * 3 - 2]][i₂₄ * 3 - 3]][x₁₃] == volArray₂₁[x₁₃]))
-                                                                                      && (forall i₁₂: int ::
-                                                                                            (  i₁₂ <= i₁₂
-                                                                                              && 1 <= i₁₂
-                                                                                              && i₁₂ < i₂₄ + 1
-                                                                                               ==> i₁₂ <= CELLCOUNT₁₈ / 3))
-                                                                                      && true
-                                                                                      && (true
-                                                                                         ==> true)))
-                                                                              && (!(i₂₄ <= CELLCOUNT₁₈ / 3
-                                                                              )
-                                                                                 ==> true
-                                                                                  && (true
-                                                                                     ==> true
-                                                                                      && 0 <= 0
-                                                                                      && 0 <= CELLCOUNT₁₈
-                                                                                      && (forall i₁₆: int ::
-                                                                                            (  i₁₆ <= i₁₆
-                                                                                              && 0 <= i₁₆
-                                                                                              && i₁₆ < 0
-                                                                                               ==> i₁₆ < CELLCOUNT₁₈))
-                                                                                      && (forall i₂₅: int ::
-                                                                                            (  true
-                                                                                              && 0 <= i₂₅
-                                                                                              && i₂₅ <= CELLCOUNT₁₈
-                                                                                              && (forall i₁₆: int ::
-                                                                                                    (  i₁₆ <= i₁₆
-                                                                                                      && 0 <= i₁₆
-                                                                                                      && i₁₆ < i₂₅
-                                                                                                       ==> i₁₆ < CELLCOUNT₁₈))
-                                                                                               ==> (i₂₅ < CELLCOUNT₁₈
-                                                                                                   ==> 2 <= volArray₂₃[i₂₅]
-                                                                                                      || volArray₂₃[i₂₅] == 0
-                                                                                                    && (true
-                                                                                                       ==> true
-                                                                                                        && 0 <= i₂₅ + 1
-                                                                                                        && i₂₅ + 1 <= CELLCOUNT₁₈
-                                                                                                        && (forall i₁₆: int ::
-                                                                                                              (  i₁₆ <= i₁₆
-                                                                                                                && 0 <= i₁₆
-                                                                                                                && i₁₆ < i₂₅ + 1
-                                                                                                                 ==> i₁₆ < CELLCOUNT₁₈))
-                                                                                                        && true
-                                                                                                        && (true
-                                                                                                           ==> true)))
-                                                                                                && (!(i₂₅ < CELLCOUNT₁₈
-                                                                                                )
-                                                                                                   ==> true
-                                                                                                    && (true
-                                                                                                       ==> true))))))))))))))))))))
-              && (!(1 < CELLCOUNT₁₈
+var CELLCOUNT: int;
+
+procedure main()
+  returns (c#result: int)
+  modifies CELLCOUNT;
+{
+  havoc CELLCOUNT;
+  if(1 < CELLCOUNT) {
+    var MINVAL: int := 2;
+    var i: int;
+    var volArray: [int]int;
+    var CCCELVOL3: int := 7;
+    var CCCELVOL2: int := 3;
+    var CCCELVOL1: int := 1;
+    if(CELLCOUNT % 3 != 0) {
+      c#result := 1;
+      return;
+    }
+    assume CELLCOUNT % 3 == 0;
+    i := 1;
+    while(i <= CELLCOUNT / 3)
+      decreases CELLCOUNT / 3 + 1 - i;
+      invariant true
+        && old(i) <= i
+        && i <= 1 + CELLCOUNT / 3
+        && (forall x₅: int ::
+              ((exists i₄: int ::
+                    if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i)
+                 ==> (exists i₄: int ::
+                          MINVAL <= CCCELVOL3
+                          && i₄ <= CELLCOUNT / 3
+                          && if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := CCCELVOL3][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := CCCELVOL3][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i && volArray[x₅] == CCCELVOL3)
+                  || (exists i₄: int ::
+                          !(MINVAL <= CCCELVOL3
+                          )
+                          && i₄ <= CELLCOUNT / 3
+                          && if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := 0][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := 0][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i && volArray[x₅] == 0)))
+        && (forall x₅: int ::
+              (!((exists i₄: int ::
+                    if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i)
               )
-                 ==> true))));
+                 ==> volArray[x₅] == old(volArray[x₅])))
+        && (forall i₄: int ::
+              (  old(i) <= i₄
+                && i₄ < i
+                 ==> i₄ <= CELLCOUNT / 3));
+    {
+      if(MINVAL <= CCCELVOL3) {
+        volArray := volArray[i * 3 - 3 := CCCELVOL3];
+      } else {
+        volArray := volArray[i * 3 - 3 := 0];
+      }
+      volArray := volArray[i * 3 - 2 := volArray[i * 3 - 2]];
+      volArray := volArray[i * 3 - 1 := volArray[i * 3 - 1]];
+      i := i + 1;
+    }
+    i := 1;
+    while(i <= CELLCOUNT / 3)
+      decreases CELLCOUNT / 3 + 1 - i;
+      invariant true
+        && old(i) <= i
+        && i <= 1 + CELLCOUNT / 3
+        && (forall x₉: int ::
+              ((exists i₈: int ::
+                    if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i)
+                 ==> (exists i₈: int ::
+                          MINVAL <= CCCELVOL2
+                          && i₈ <= CELLCOUNT / 3
+                          && if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := CCCELVOL2][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := CCCELVOL2][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i && volArray[x₉] == CCCELVOL2)
+                  || (exists i₈: int ::
+                          !(MINVAL <= CCCELVOL2
+                          )
+                          && i₈ <= CELLCOUNT / 3
+                          && if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := 0][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := 0][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i && volArray[x₉] == 0)))
+        && (forall x₉: int ::
+              (!((exists i₈: int ::
+                    if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i)
+              )
+                 ==> volArray[x₉] == old(volArray[x₉])))
+        && (forall i₈: int ::
+              (  old(i) <= i₈
+                && i₈ < i
+                 ==> i₈ <= CELLCOUNT / 3));
+    {
+      if(MINVAL <= CCCELVOL2) {
+        volArray := volArray[i * 3 - 2 := CCCELVOL2];
+      } else {
+        volArray := volArray[i * 3 - 2 := 0];
+      }
+      volArray := volArray[i * 3 - 3 := volArray[i * 3 - 3]];
+      volArray := volArray[i * 3 - 1 := volArray[i * 3 - 1]];
+      i := i + 1;
+    }
+    i := 1;
+    while(i <= CELLCOUNT / 3)
+      decreases CELLCOUNT / 3 + 1 - i;
+      invariant true
+        && old(i) <= i
+        && i <= 1 + CELLCOUNT / 3
+        && (forall x₁₃: int ::
+              ((exists i₁₂: int ::
+                    if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i)
+                 ==> (exists i₁₂: int ::
+                          MINVAL <= CCCELVOL1
+                          && i₁₂ <= CELLCOUNT / 3
+                          && if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := CCCELVOL1][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := CCCELVOL1][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == CCCELVOL1)
+                  || (exists i₁₂: int ::
+                          !(MINVAL <= CCCELVOL1
+                          )
+                          && i₁₂ <= CELLCOUNT / 3
+                          && if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := 0][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := 0][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == 0)))
+        && (forall x₁₃: int ::
+              (!((exists i₁₂: int ::
+                    if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i)
+              )
+                 ==> volArray[x₁₃] == old(volArray[x₁₃])))
+        && (forall i₁₂: int ::
+              (  old(i) <= i₁₂
+                && i₁₂ < i
+                 ==> i₁₂ <= CELLCOUNT / 3));
+    {
+      if(MINVAL <= CCCELVOL1) {
+        volArray := volArray[i * 3 - 1 := CCCELVOL1];
+      } else {
+        volArray := volArray[i * 3 - 1 := 0];
+      }
+      volArray := volArray[i * 3 - 2 := volArray[i * 3 - 2]];
+      volArray := volArray[i * 3 - 3 := volArray[i * 3 - 3]];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < CELLCOUNT)
+      decreases CELLCOUNT - i;
+      invariant true
+        && old(i) <= i
+        && i <= CELLCOUNT
+        && (forall i₁₆: int ::
+              (  old(i) <= i₁₆
+                && i₁₆ < i
+                 ==> i₁₆ < CELLCOUNT));
+    {
+      assert MINVAL <= volArray[i] || volArray[i] == 0;
+      i := i + 1;
+    }
+  }
+  c#result := 1;
+  return;
+}
 

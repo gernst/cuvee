@@ -32,22 +32,19 @@ goal (forall N₃₅: int, x: [int]int, x₃₆: [int]int, i₃₇: int, res₄�
                         && i₁₄ < i₃₇)
                 || x₃₆[x₁₅] == x[x₁₅])
         && (forall i₁₄: int ::
-              (  i₁₄ <= i₁₄
-                && 0 <= i₁₄
+              (  0 <= i₁₄
                 && i₁₄ < i₃₇
                  ==> i₁₄ < N₃₅))
         && 1 <= i₄₂
         && i₄₂ <= N₃₅
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 1 <= i₄
+              (  1 <= i₄
                 && i₄ < i₄₂
                  ==> i₄ < N₃₅))
         && 1 <= i₄₈
         && i₄₈ <= N₃₅
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 1 <= i₄
+              (  1 <= i₄
                 && i₄ < i₄₈
                  ==> i₄ < N₃₅))
         && 0 <= i₅₁
@@ -69,15 +66,13 @@ goal (forall N₃₅: int, x: [int]int, x₃₆: [int]int, i₃₇: int, res₄�
                         && i₂₄ < i₅₁)
                 || x₅₀[x₂₅] == x₃₆[0 := x₃₆[1]][1 := x₃₆[0]][x₂₅])
         && (forall i₂₄: int ::
-              (  i₂₄ <= i₂₄
-                && 0 <= i₂₄
+              (  0 <= i₂₄
                 && i₂₄ < i₅₁
                  ==> i₂₄ < -1 + N₃₅))
         && 1 <= i₅₇
         && i₅₇ <= N₃₅
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 1 <= i₄
+              (  1 <= i₄
                 && i₄ < i₅₇
                  ==> i₄ < N₃₅))
          ==> res₄₁ == res₄₇
@@ -108,22 +103,19 @@ goal (forall N₃₅: int, x: [int]int, x₃₆: [int]int, i₃₇: int, res₄�
                         && i₁₄ < i₃₇)
                 || x₃₆[x₁₅] == x[x₁₅])
         && (forall i₁₄: int ::
-              (  i₁₄ <= i₁₄
-                && 0 <= i₁₄
+              (  0 <= i₁₄
                 && i₁₄ < i₃₇
                  ==> i₁₄ < N₃₅))
         && 1 <= i₄₂
         && i₄₂ <= N₃₅
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 1 <= i₄
+              (  1 <= i₄
                 && i₄ < i₄₂
                  ==> i₄ < N₃₅))
         && 1 <= i₄₈
         && i₄₈ <= N₃₅
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 1 <= i₄
+              (  1 <= i₄
                 && i₄ < i₄₈
                  ==> i₄ < N₃₅))
         && 0 <= i₅₁
@@ -145,15 +137,13 @@ goal (forall N₃₅: int, x: [int]int, x₃₆: [int]int, i₃₇: int, res₄�
                         && i₂₄ < i₅₁)
                 || x₅₀[x₂₅] == x₃₆[0 := x₃₆[1]][1 := x₃₆[0]][x₂₅])
         && (forall i₂₄: int ::
-              (  i₂₄ <= i₂₄
-                && 0 <= i₂₄
+              (  0 <= i₂₄
                 && i₂₄ < i₅₁
                  ==> i₂₄ < -1 + N₃₅))
         && 1 <= i₅₇
         && i₅₇ <= N₃₅
         && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 1 <= i₄
+              (  1 <= i₄
                 && i₄ < i₅₇
                  ==> i₄ < N₃₅))
          ==> res₄₁ == res₅₆

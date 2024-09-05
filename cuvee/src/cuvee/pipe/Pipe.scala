@@ -39,6 +39,10 @@ trait Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, in: State): List[Cmd]
 }
 
+object Incremental {
+  var checkDuplicateEntries = false
+}
+
 class Incremental(stage: Stage, sink: Sink) extends Sink {
   override def toString = "incremental " + stage + " -> " + sink
 
@@ -69,15 +73,18 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
     // println("  cmds:   " + cmds)
 
     top.prefix = top.prefix ++ add
-    val distinct = top.prefix.distinct
 
-    if (distinct != top.prefix) {
-      // println(distinct)
-      // println(top.prefix)
-      // println(last)
-      for (cmd <- top.prefix.duplicates)
-        println(cmd)
-      cuvee.error("duplicate entries")
+    if (Incremental.checkDuplicateEntries) {
+      val distinct = top.prefix.distinct
+
+      if (distinct != top.prefix) {
+        // println(distinct)
+        // println(top.prefix)
+        // println(last)
+        for (cmd <- top.prefix.duplicates)
+          println(cmd)
+        cuvee.error("duplicate entries")
+      }
     }
 
     pending = Nil

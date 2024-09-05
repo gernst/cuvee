@@ -4,180 +4,83 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall array: [int]int ::
-        true
-        && 0 <= 0
-        && 0 <= 100000
-        && (forall x₅: int ::
-              ((exists i₄: int ::
-                      x₅ == i₄
-                      && 0 <= i₄
-                      && i₄ < 0)
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < 0
-                        && array[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-              (!((exists i₄: int ::
-                      x₅ == i₄
-                      && 0 <= i₄
-                      && i₄ < 0)
-              )
-                 ==> array[x₅] == array[x₅]))
-        && (forall i₄: int ::
-              (  i₄ <= i₄
-                && 0 <= i₄
-                && i₄ < 0
-                 ==> i₄ < 100000))
-        && (forall array₁₅: [int]int, i₁₆: int ::
-              (  true
-                && 0 <= i₁₆
-                && i₁₆ <= 100000
-                && (forall x₅: int ::
-                      ((exists i₄: int ::
-                              x₅ == i₄
-                              && 0 <= i₄
-                              && i₄ < i₁₆)
-                         ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                                i₄ < 100000
-                                && x₅ == i₄
-                                && 0 <= i₄
-                                && i₄ < i₁₆
-                                && array₁₅[x₅] == __VERIFIER_nondet_int₁₃)))
-                && (forall x₅: int ::
-                      (!((exists i₄: int ::
-                              x₅ == i₄
-                              && 0 <= i₄
-                              && i₄ < i₁₆)
-                      )
-                         ==> array₁₅[x₅] == array[x₅]))
-                && (forall i₄: int ::
-                      (  i₄ <= i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₆
-                         ==> i₄ < 100000))
-                 ==> (i₁₆ < 100000
-                     ==> (forall __VERIFIER_nondet_int₁: int ::
-                            true
-                            && 0 <= i₁₆ + 1
-                            && i₁₆ + 1 <= 100000
-                            && (forall x₅: int ::
-                                  ((exists i₄: int ::
-                                          x₅ == i₄
-                                          && 0 <= i₄
-                                          && i₄ < i₁₆ + 1)
-                                     ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                                            i₄ < 100000
-                                            && x₅ == i₄
-                                            && 0 <= i₄
-                                            && i₄ < i₁₆ + 1
-                                            && array₁₅[i₁₆ := __VERIFIER_nondet_int₁][x₅] == __VERIFIER_nondet_int₁₃)))
-                            && (forall x₅: int ::
-                                  (!((exists i₄: int ::
-                                          x₅ == i₄
-                                          && 0 <= i₄
-                                          && i₄ < i₁₆ + 1)
-                                  )
-                                     ==> array₁₅[i₁₆ := __VERIFIER_nondet_int₁][x₅] == array[x₅]))
-                            && (forall i₄: int ::
-                                  (  i₄ <= i₄
-                                    && 0 <= i₄
-                                    && i₄ < i₁₆ + 1
-                                     ==> i₄ < 100000))
-                            && true
-                            && (true
-                               ==> true)))
-                  && (!(i₁₆ < 100000
-                  )
-                     ==> true
-                      && (true
-                         ==> true
-                          && 1 <= 1
-                          && 1 <= 100000
-                          && (forall i₉: int ::
-                                (  i₉ <= i₉
-                                  && 1 <= i₉
-                                  && i₉ < 1
-                                   ==> i₉ < 100000))
-                          && (forall largest₁₇: int, i₁₈: int ::
-                                (  true
-                                  && 1 <= i₁₈
-                                  && i₁₈ <= 100000
-                                  && (forall i₉: int ::
-                                        (  i₉ <= i₉
-                                          && 1 <= i₉
-                                          && i₉ < i₁₈
-                                           ==> i₉ < 100000))
-                                   ==> (i₁₈ < 100000
-                                       ==> (largest₁₇ < array₁₅[i₁₈]
-                                           ==> true
-                                            && 1 <= i₁₈ + 1
-                                            && i₁₈ + 1 <= 100000
-                                            && (forall i₉: int ::
-                                                  (  i₉ <= i₉
-                                                    && 1 <= i₉
-                                                    && i₉ < i₁₈ + 1
-                                                     ==> i₉ < 100000))
-                                            && true
-                                            && (true
-                                               ==> true))
-                                        && (!(largest₁₇ < array₁₅[i₁₈]
-                                        )
-                                           ==> true
-                                            && 1 <= i₁₈ + 1
-                                            && i₁₈ + 1 <= 100000
-                                            && (forall i₉: int ::
-                                                  (  i₉ <= i₉
-                                                    && 1 <= i₉
-                                                    && i₉ < i₁₈ + 1
-                                                     ==> i₉ < 100000))
-                                            && true
-                                            && (true
-                                               ==> true)))
-                                    && (!(i₁₈ < 100000
-                                    )
-                                       ==> true
-                                        && (true
-                                           ==> true
-                                            && 0 <= 0
-                                            && 0 <= 100000
-                                            && (forall x₁₃: int ::
-                                                  (  x₁₃ <= x₁₃
-                                                    && 0 <= x₁₃
-                                                    && x₁₃ < 0
-                                                     ==> x₁₃ < 100000))
-                                            && (forall x₁₉: int ::
-                                                  (  true
-                                                    && 0 <= x₁₉
-                                                    && x₁₉ <= 100000
-                                                    && (forall x₁₃: int ::
-                                                          (  x₁₃ <= x₁₃
-                                                            && 0 <= x₁₃
-                                                            && x₁₃ < x₁₉
-                                                             ==> x₁₃ < 100000))
-                                                     ==> (x₁₉ < 100000
-                                                         ==> array₁₅[x₁₉] <= largest₁₇
-                                                          && (true
-                                                             ==> true
-                                                              && 0 <= x₁₉ + 1
-                                                              && x₁₉ + 1 <= 100000
-                                                              && (forall x₁₃: int ::
-                                                                    (  x₁₃ <= x₁₃
-                                                                      && 0 <= x₁₃
-                                                                      && x₁₃ < x₁₉ + 1
-                                                                       ==> x₁₃ < 100000))
-                                                              && true
-                                                              && (true
-                                                                 ==> true)))
-                                                      && (!(x₁₉ < 100000
-                                                      )
-                                                         ==> true
-                                                          && (true
-                                                             ==> true)))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var array: [int]int;
+  var i: int;
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₅: int ::
+            ((exists i₄: int ::
+                    x₅ == i₄
+                    && old(i) <= i₄
+                    && i₄ < i)
+               ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
+                      i₄ < 100000
+                      && x₅ == i₄
+                      && old(i) <= i₄
+                      && i₄ < i
+                      && array[x₅] == __VERIFIER_nondet_int₁₃)))
+      && (forall x₅: int ::
+            (!((exists i₄: int ::
+                    x₅ == i₄
+                    && old(i) <= i₄
+                    && i₄ < i)
+            )
+               ==> array[x₅] == old(array[x₅])))
+      && (forall i₄: int ::
+            (  old(i) <= i₄
+              && i₄ < i
+               ==> i₄ < 100000));
+  {
+    var __VERIFIER_nondet_int₁: int;
+    array := array[i := __VERIFIER_nondet_int₁];
+    i := i + 1;
+  }
+  var largest: int := array[0];
+  i := 1;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall i₉: int ::
+            (  old(i) <= i₉
+              && i₉ < i
+               ==> i₉ < 100000));
+  {
+    if(largest < array[i]) {
+      largest := array[i];
+    }
+    i := i + 1;
+  }
+  var x: int;
+  x := 0;
+  while(x < 100000)
+    decreases 100000 - x;
+    invariant true
+      && old(x) <= x
+      && x <= 100000
+      && (forall x₁₃: int ::
+            (  old(x) <= x₁₃
+              && x₁₃ < x
+               ==> x₁₃ < 100000));
+  {
+    assert array[x] <= largest;
+    x := x + 1;
+  }
+  c#result := 0;
+  return;
+}
 

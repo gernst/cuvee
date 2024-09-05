@@ -44,8 +44,7 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₄: [int]int, B₂₅: 
                         && i₇ < i₂₆)
                 || B₂₅[x₉] == B[x₉])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₆
                  ==> i₇ < 100000))
         && 0 <= j₂₈
@@ -71,9 +70,7 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₄: [int]int, B₂₅: 
                         && j₁₃ < j₂₈)
                 || C₂₇[x₁₅] == C[x₁₅])
         && (forall j₁₃: int, i₁₄: int ::
-              (  j₁₃ <= j₁₃
-                && i₁₄ <= i₁₄
-                && 0 <= j₁₃
+              (  0 <= j₁₃
                 && j₁₃ < j₂₈
                 && 0 <= i₁₄
                 && i₁₄ < i₂₉
@@ -81,8 +78,7 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₄: [int]int, B₂₅: 
         && 0 <= x₃₀
         && x₃₀ <= j₂₈
         && (forall x₂₀: int ::
-              (  x₂₀ <= x₂₀
-                && 0 <= x₂₀
+              (  0 <= x₂₀
                 && x₂₀ < x₃₀
                  ==> x₂₀ < j₂₈))
         && x₃₀ < j₂₈
@@ -126,8 +122,7 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₄: [int]int, B₂₅: 
                         && i₇ < i₂₆)
                 || B₂₅[x₉] == B[x₉])
         && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
+              (  0 <= i₇
                 && i₇ < i₂₆
                  ==> i₇ < 100000))
         && 0 <= j₂₈
@@ -153,9 +148,7 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₄: [int]int, B₂₅: 
                         && j₁₃ < j₂₈)
                 || C₂₇[x₁₅] == C[x₁₅])
         && (forall j₁₃: int, i₁₄: int ::
-              (  j₁₃ <= j₁₃
-                && i₁₄ <= i₁₄
-                && 0 <= j₁₃
+              (  0 <= j₁₃
                 && j₁₃ < j₂₈
                 && 0 <= i₁₄
                 && i₁₄ < i₂₉
@@ -163,15 +156,13 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₄: [int]int, B₂₅: 
         && 0 <= x₃₀
         && x₃₀ <= j₂₈
         && (forall x₂₀: int ::
-              (  x₂₀ <= x₂₀
-                && 0 <= x₂₀
+              (  0 <= x₂₀
                 && x₂₀ < x₃₀
                  ==> x₂₀ < j₂₈))
         && 0 <= x₃₁
         && x₃₁ <= j₂₈
         && (forall x₂₂: int ::
-              (  x₂₂ <= x₂₂
-                && 0 <= x₂₂
+              (  0 <= x₂₂
                 && x₂₂ < x₃₁
                  ==> x₂₂ < j₂₈))
         && x₃₁ < j₂₈

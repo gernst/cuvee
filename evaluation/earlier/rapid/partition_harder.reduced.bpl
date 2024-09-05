@@ -38,9 +38,6 @@ goal (forall a: [int]int, alength: int, b: [int]int, c: [int]int, clength₁₁:
                 || c₁₅[x₅] == c[x₅])
         && (forall clength₁: int, i₂: int, blength₃: int ::
               (  0 <= i₂
-                && clength₁ <= clength₁
-                && i₂ <= i₂
-                && blength₃ <= blength₃
                 && 0 <= clength₁
                 && clength₁ < clength₁₁
                 && 0 <= i₂
@@ -97,9 +94,6 @@ goal (forall a: [int]int, alength: int, b: [int]int, c: [int]int, clength₁₁:
                 || c₁₅[x₅] == c[x₅])
         && (forall clength₁: int, i₂: int, blength₃: int ::
               (  0 <= i₂
-                && clength₁ <= clength₁
-                && i₂ <= i₂
-                && blength₃ <= blength₃
                 && 0 <= clength₁
                 && clength₁ < clength₁₁
                 && 0 <= i₂
@@ -157,9 +151,6 @@ goal (forall a: [int]int, alength: int, b: [int]int, c: [int]int, clength₁₁:
                 || c₁₅[x₅] == c[x₅])
         && (forall clength₁: int, i₂: int, blength₃: int ::
               (  0 <= i₂
-                && clength₁ <= clength₁
-                && i₂ <= i₂
-                && blength₃ <= blength₃
                 && 0 <= clength₁
                 && clength₁ < clength₁₁
                 && 0 <= i₂
@@ -217,9 +208,6 @@ goal (forall a: [int]int, alength: int, b: [int]int, c: [int]int, clength₁₁:
                 || c₁₅[x₅] == c[x₅])
         && (forall clength₁: int, i₂: int, blength₃: int ::
               (  0 <= i₂
-                && clength₁ <= clength₁
-                && i₂ <= i₂
-                && blength₃ <= blength₃
                 && 0 <= clength₁
                 && clength₁ < clength₁₁
                 && 0 <= i₂

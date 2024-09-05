@@ -202,8 +202,23 @@ class Config {
     option("-annotate:arrays", "infer loop annotations (array acceleration)") {
       annotate += "arrays"
     },
-    option("-annotate:arrays+frame", "infer loop annotations (array acceleration)") {
+    option(
+      "-annotate:arrays+frame",
+      "infer loop annotations (array acceleration)"
+    ) {
       annotate ++= Set("arrays", "frame")
+    },
+    option(
+      "-annotate:arrays+guard",
+      "infer loop annotations (array acceleration)"
+    ) {
+      annotate ++= Set("arrays", "guard")
+    },
+    option(
+      "-annotate:arrays+frame+guard",
+      "infer loop annotations (array acceleration)"
+    ) {
+      annotate ++= Set("arrays", "frame", "guard")
     },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
@@ -414,7 +429,13 @@ object Config {
     }
 
     if (config.annotate contains "arrays") {
-      sink = new Incremental(annotate.Arrays(config.annotate contains "frame"), sink)
+      sink = new Incremental(
+        annotate.Arrays(
+          config.annotate contains "frame",
+          config.annotate contains "guard"
+        ),
+        sink
+      )
     }
 
     // println("pipeline: " + sink)

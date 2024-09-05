@@ -4,366 +4,111 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+var c#heap: c#heap;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall array: [int]int ::
-        true
-        && 0 <= 0
-        && 0 <= 100000
-        && (forall x₈: int ::
-              ((exists i₇: int ::
-                      x₈ == i₇
-                      && 0 <= i₇
-                      && i₇ < 0)
-                 ==> (exists __VERIFIER_nondet_int₁₆: int, i₇: int ::
-                        i₇ < 100000
-                        && x₈ == i₇
-                        && 0 <= i₇
-                        && i₇ < 0
-                        && array[x₈] == __VERIFIER_nondet_int₁₆)))
-        && (forall x₈: int ::
-              (!((exists i₇: int ::
-                      x₈ == i₇
-                      && 0 <= i₇
-                      && i₇ < 0)
-              )
-                 ==> array[x₈] == array[x₈]))
-        && (forall i₇: int ::
-              (  i₇ <= i₇
-                && 0 <= i₇
-                && i₇ < 0
-                 ==> i₇ < 100000))
-        && (forall array₂₈: [int]int, i₂₉: int ::
-              (  true
-                && 0 <= i₂₉
-                && i₂₉ <= 100000
-                && (forall x₈: int ::
-                      ((exists i₇: int ::
-                              x₈ == i₇
-                              && 0 <= i₇
-                              && i₇ < i₂₉)
-                         ==> (exists __VERIFIER_nondet_int₁₆: int, i₇: int ::
-                                i₇ < 100000
-                                && x₈ == i₇
-                                && 0 <= i₇
-                                && i₇ < i₂₉
-                                && array₂₈[x₈] == __VERIFIER_nondet_int₁₆)))
-                && (forall x₈: int ::
-                      (!((exists i₇: int ::
-                              x₈ == i₇
-                              && 0 <= i₇
-                              && i₇ < i₂₉)
-                      )
-                         ==> array₂₈[x₈] == array[x₈]))
-                && (forall i₇: int ::
-                      (  i₇ <= i₇
-                        && 0 <= i₇
-                        && i₇ < i₂₉
-                         ==> i₇ < 100000))
-                 ==> (i₂₉ < 100000
-                     ==> (forall __VERIFIER_nondet_int₁: int ::
-                            true
-                            && 0 <= i₂₉ + 1
-                            && i₂₉ + 1 <= 100000
-                            && (forall x₈: int ::
-                                  ((exists i₇: int ::
-                                          x₈ == i₇
-                                          && 0 <= i₇
-                                          && i₇ < i₂₉ + 1)
-                                     ==> (exists __VERIFIER_nondet_int₁₆: int, i₇: int ::
-                                            i₇ < 100000
-                                            && x₈ == i₇
-                                            && 0 <= i₇
-                                            && i₇ < i₂₉ + 1
-                                            && array₂₈[i₂₉ := __VERIFIER_nondet_int₁][x₈] == __VERIFIER_nondet_int₁₆)))
-                            && (forall x₈: int ::
-                                  (!((exists i₇: int ::
-                                          x₈ == i₇
-                                          && 0 <= i₇
-                                          && i₇ < i₂₉ + 1)
-                                  )
-                                     ==> array₂₈[i₂₉ := __VERIFIER_nondet_int₁][x₈] == array[x₈]))
-                            && (forall i₇: int ::
-                                  (  i₇ <= i₇
-                                    && 0 <= i₇
-                                    && i₇ < i₂₉ + 1
-                                     ==> i₇ < 100000))
-                            && true
-                            && (true
-                               ==> true)))
-                  && (!(i₂₉ < 100000
-                  )
-                     ==> true
-                      && (true
-                         ==> (array₂₈[0] < array₂₈[1]
-                             ==> true
-                              && 2 <= 2
-                              && 2 <= 100000
-                              && (forall i₁₃: int ::
-                                    (  i₁₃ <= i₁₃
-                                      && 2 <= i₁₃
-                                      && i₁₃ < 2
-                                       ==> i₁₃ < 100000))
-                              && (forall largest2₃₀: int, largest1₃₁: int, i₃₂: int ::
-                                    (  true
-                                      && 2 <= i₃₂
-                                      && i₃₂ <= 100000
-                                      && (forall i₁₃: int ::
-                                            (  i₁₃ <= i₁₃
-                                              && 2 <= i₁₃
-                                              && i₁₃ < i₃₂
-                                               ==> i₁₃ < 100000))
-                                       ==> (i₃₂ < 100000
-                                           ==> (largest1₃₁ <= array₂₈[i₃₂]
-                                               ==> true
-                                                && 2 <= i₃₂ + 1
-                                                && i₃₂ + 1 <= 100000
-                                                && (forall i₁₃: int ::
-                                                      (  i₁₃ <= i₁₃
-                                                        && 2 <= i₁₃
-                                                        && i₁₃ < i₃₂ + 1
-                                                         ==> i₁₃ < 100000))
-                                                && true
-                                                && (true
-                                                   ==> true))
-                                            && (!(largest1₃₁ <= array₂₈[i₃₂]
-                                            )
-                                               ==> (largest2₃₀ < array₂₈[i₃₂]
-                                                   ==> true
-                                                    && 2 <= i₃₂ + 1
-                                                    && i₃₂ + 1 <= 100000
-                                                    && (forall i₁₃: int ::
-                                                          (  i₁₃ <= i₁₃
-                                                            && 2 <= i₁₃
-                                                            && i₁₃ < i₃₂ + 1
-                                                             ==> i₁₃ < 100000))
-                                                    && true
-                                                    && (true
-                                                       ==> true))
-                                                && (!(largest2₃₀ < array₂₈[i₃₂]
-                                                )
-                                                   ==> true
-                                                    && 2 <= i₃₂ + 1
-                                                    && i₃₂ + 1 <= 100000
-                                                    && (forall i₁₃: int ::
-                                                          (  i₁₃ <= i₁₃
-                                                            && 2 <= i₁₃
-                                                            && i₁₃ < i₃₂ + 1
-                                                             ==> i₁₃ < 100000))
-                                                    && true
-                                                    && (true
-                                                       ==> true))))
-                                        && (!(i₃₂ < 100000
-                                        )
-                                           ==> true
-                                            && (true
-                                               ==> true
-                                                && 0 <= 0
-                                                && 0 <= 100000
-                                                && (forall x₂₂: int ::
-                                                      (  x₂₂ <= x₂₂
-                                                        && 0 <= x₂₂
-                                                        && x₂₂ < 0
-                                                         ==> x₂₂ < 100000))
-                                                && (forall x₃₃: int ::
-                                                      (  true
-                                                        && 0 <= x₃₃
-                                                        && x₃₃ <= 100000
-                                                        && (forall x₂₂: int ::
-                                                              (  x₂₂ <= x₂₂
-                                                                && 0 <= x₂₂
-                                                                && x₂₂ < x₃₃
-                                                                 ==> x₂₂ < 100000))
-                                                         ==> (x₃₃ < 100000
-                                                             ==> array₂₈[x₃₃] <= largest1₃₁
-                                                              && (true
-                                                                 ==> true
-                                                                  && 0 <= x₃₃ + 1
-                                                                  && x₃₃ + 1 <= 100000
-                                                                  && (forall x₂₂: int ::
-                                                                        (  x₂₂ <= x₂₂
-                                                                          && 0 <= x₂₂
-                                                                          && x₂₂ < x₃₃ + 1
-                                                                           ==> x₂₂ < 100000))
-                                                                  && true
-                                                                  && (true
-                                                                     ==> true)))
-                                                          && (!(x₃₃ < 100000
-                                                          )
-                                                             ==> true
-                                                              && (true
-                                                                 ==> true
-                                                                  && 0 <= 0
-                                                                  && 0 <= 100000
-                                                                  && (forall x₂₅: int ::
-                                                                        (  x₂₅ <= x₂₅
-                                                                          && 0 <= x₂₅
-                                                                          && x₂₅ < 0
-                                                                           ==> x₂₅ < 100000))
-                                                                  && (forall x₃₄: int ::
-                                                                        (  true
-                                                                          && 0 <= x₃₄
-                                                                          && x₃₄ <= 100000
-                                                                          && (forall x₂₅: int ::
-                                                                                (  x₂₅ <= x₂₅
-                                                                                  && 0 <= x₂₅
-                                                                                  && x₂₅ < x₃₄
-                                                                                   ==> x₂₅ < 100000))
-                                                                           ==> (x₃₄ < 100000
-                                                                               ==> array₂₈[x₃₄] <= largest2₃₀
-                                                                                  || array₂₈[x₃₄] == largest1₃₁
-                                                                                && (true
-                                                                                   ==> true
-                                                                                    && 0 <= x₃₄ + 1
-                                                                                    && x₃₄ + 1 <= 100000
-                                                                                    && (forall x₂₅: int ::
-                                                                                          (  x₂₅ <= x₂₅
-                                                                                            && 0 <= x₂₅
-                                                                                            && x₂₅ < x₃₄ + 1
-                                                                                             ==> x₂₅ < 100000))
-                                                                                    && true
-                                                                                    && (true
-                                                                                       ==> true)))
-                                                                            && (!(x₃₄ < 100000
-                                                                            )
-                                                                               ==> true
-                                                                                && (true
-                                                                                   ==> true)))))))))))))
-                          && (!(array₂₈[0] < array₂₈[1]
-                          )
-                             ==> true
-                              && 2 <= 2
-                              && 2 <= 100000
-                              && (forall i₁₃: int ::
-                                    (  i₁₃ <= i₁₃
-                                      && 2 <= i₁₃
-                                      && i₁₃ < 2
-                                       ==> i₁₃ < 100000))
-                              && (forall largest2₄₆: int, largest1₄₇: int, i₄₈: int ::
-                                    (  true
-                                      && 2 <= i₄₈
-                                      && i₄₈ <= 100000
-                                      && (forall i₁₃: int ::
-                                            (  i₁₃ <= i₁₃
-                                              && 2 <= i₁₃
-                                              && i₁₃ < i₄₈
-                                               ==> i₁₃ < 100000))
-                                       ==> (i₄₈ < 100000
-                                           ==> (largest1₄₇ <= array₂₈[i₄₈]
-                                               ==> true
-                                                && 2 <= i₄₈ + 1
-                                                && i₄₈ + 1 <= 100000
-                                                && (forall i₁₃: int ::
-                                                      (  i₁₃ <= i₁₃
-                                                        && 2 <= i₁₃
-                                                        && i₁₃ < i₄₈ + 1
-                                                         ==> i₁₃ < 100000))
-                                                && true
-                                                && (true
-                                                   ==> true))
-                                            && (!(largest1₄₇ <= array₂₈[i₄₈]
-                                            )
-                                               ==> (largest2₄₆ < array₂₈[i₄₈]
-                                                   ==> true
-                                                    && 2 <= i₄₈ + 1
-                                                    && i₄₈ + 1 <= 100000
-                                                    && (forall i₁₃: int ::
-                                                          (  i₁₃ <= i₁₃
-                                                            && 2 <= i₁₃
-                                                            && i₁₃ < i₄₈ + 1
-                                                             ==> i₁₃ < 100000))
-                                                    && true
-                                                    && (true
-                                                       ==> true))
-                                                && (!(largest2₄₆ < array₂₈[i₄₈]
-                                                )
-                                                   ==> true
-                                                    && 2 <= i₄₈ + 1
-                                                    && i₄₈ + 1 <= 100000
-                                                    && (forall i₁₃: int ::
-                                                          (  i₁₃ <= i₁₃
-                                                            && 2 <= i₁₃
-                                                            && i₁₃ < i₄₈ + 1
-                                                             ==> i₁₃ < 100000))
-                                                    && true
-                                                    && (true
-                                                       ==> true))))
-                                        && (!(i₄₈ < 100000
-                                        )
-                                           ==> true
-                                            && (true
-                                               ==> true
-                                                && 0 <= 0
-                                                && 0 <= 100000
-                                                && (forall x₂₂: int ::
-                                                      (  x₂₂ <= x₂₂
-                                                        && 0 <= x₂₂
-                                                        && x₂₂ < 0
-                                                         ==> x₂₂ < 100000))
-                                                && (forall x₄₉: int ::
-                                                      (  true
-                                                        && 0 <= x₄₉
-                                                        && x₄₉ <= 100000
-                                                        && (forall x₂₂: int ::
-                                                              (  x₂₂ <= x₂₂
-                                                                && 0 <= x₂₂
-                                                                && x₂₂ < x₄₉
-                                                                 ==> x₂₂ < 100000))
-                                                         ==> (x₄₉ < 100000
-                                                             ==> array₂₈[x₄₉] <= largest1₄₇
-                                                              && (true
-                                                                 ==> true
-                                                                  && 0 <= x₄₉ + 1
-                                                                  && x₄₉ + 1 <= 100000
-                                                                  && (forall x₂₂: int ::
-                                                                        (  x₂₂ <= x₂₂
-                                                                          && 0 <= x₂₂
-                                                                          && x₂₂ < x₄₉ + 1
-                                                                           ==> x₂₂ < 100000))
-                                                                  && true
-                                                                  && (true
-                                                                     ==> true)))
-                                                          && (!(x₄₉ < 100000
-                                                          )
-                                                             ==> true
-                                                              && (true
-                                                                 ==> true
-                                                                  && 0 <= 0
-                                                                  && 0 <= 100000
-                                                                  && (forall x₂₅: int ::
-                                                                        (  x₂₅ <= x₂₅
-                                                                          && 0 <= x₂₅
-                                                                          && x₂₅ < 0
-                                                                           ==> x₂₅ < 100000))
-                                                                  && (forall x₅₀: int ::
-                                                                        (  true
-                                                                          && 0 <= x₅₀
-                                                                          && x₅₀ <= 100000
-                                                                          && (forall x₂₅: int ::
-                                                                                (  x₂₅ <= x₂₅
-                                                                                  && 0 <= x₂₅
-                                                                                  && x₂₅ < x₅₀
-                                                                                   ==> x₂₅ < 100000))
-                                                                           ==> (x₅₀ < 100000
-                                                                               ==> array₂₈[x₅₀] <= largest2₄₆
-                                                                                  || array₂₈[x₅₀] == largest1₄₇
-                                                                                && (true
-                                                                                   ==> true
-                                                                                    && 0 <= x₅₀ + 1
-                                                                                    && x₅₀ + 1 <= 100000
-                                                                                    && (forall x₂₅: int ::
-                                                                                          (  x₂₅ <= x₂₅
-                                                                                            && 0 <= x₂₅
-                                                                                            && x₂₅ < x₅₀ + 1
-                                                                                             ==> x₂₅ < 100000))
-                                                                                    && true
-                                                                                    && (true
-                                                                                       ==> true)))
-                                                                            && (!(x₅₀ < 100000
-                                                                            )
-                                                                               ==> true
-                                                                                && (true
-                                                                                   ==> true))))))))))))))))));
+procedure main()
+  returns (c#result: int)
+{
+  var array: [int]int;
+  var i: int;
+  var largest1: int;
+  var largest2: int;
+  var temp: int;
+  i := 0;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall x₈: int ::
+            ((exists i₇: int ::
+                    x₈ == i₇
+                    && old(i) <= i₇
+                    && i₇ < i)
+               ==> (exists __VERIFIER_nondet_int₁₆: int, i₇: int ::
+                      i₇ < 100000
+                      && x₈ == i₇
+                      && old(i) <= i₇
+                      && i₇ < i
+                      && array[x₈] == __VERIFIER_nondet_int₁₆)))
+      && (forall x₈: int ::
+            (!((exists i₇: int ::
+                    x₈ == i₇
+                    && old(i) <= i₇
+                    && i₇ < i)
+            )
+               ==> array[x₈] == old(array[x₈])))
+      && (forall i₇: int ::
+            (  old(i) <= i₇
+              && i₇ < i
+               ==> i₇ < 100000));
+  {
+    var __VERIFIER_nondet_int₁: int;
+    array := array[i := __VERIFIER_nondet_int₁];
+    i := i + 1;
+  }
+  largest1 := array[0];
+  largest2 := array[1];
+  if(largest1 < largest2) {
+    temp := largest1;
+    largest1 := largest2;
+    largest2 := temp;
+  }
+  i := 2;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant true
+      && old(i) <= i
+      && i <= 100000
+      && (forall i₁₃: int ::
+            (  old(i) <= i₁₃
+              && i₁₃ < i
+               ==> i₁₃ < 100000));
+  {
+    if(largest1 <= array[i]) {
+      largest2 := largest1;
+      largest1 := array[i];
+    } else {
+      if(largest2 < array[i]) {
+        largest2 := array[i];
+      }
+    }
+    i := i + 1;
+  }
+  var x: int;
+  x := 0;
+  while(x < 100000)
+    decreases 100000 - x;
+    invariant true
+      && old(x) <= x
+      && x <= 100000
+      && (forall x₂₂: int ::
+            (  old(x) <= x₂₂
+              && x₂₂ < x
+               ==> x₂₂ < 100000));
+  {
+    assert array[x] <= largest1;
+    x := x + 1;
+  }
+  x := 0;
+  while(x < 100000)
+    decreases 100000 - x;
+    invariant true
+      && old(x) <= x
+      && x <= 100000
+      && (forall x₂₅: int ::
+            (  old(x) <= x₂₅
+              && x₂₅ < x
+               ==> x₂₅ < 100000));
+  {
+    assert array[x] <= largest2 || array[x] == largest1;
+    x := x + 1;
+  }
+  c#result := 0;
+  return;
+}
 

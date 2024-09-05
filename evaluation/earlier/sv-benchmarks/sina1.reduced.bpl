@@ -31,8 +31,7 @@ goal (forall N₁₅: int, sum: [int]int, sum₁₆: [int]int, i₁₇: int, x�
                 x₅₀ == 0
                 || sum₁₆[x₅₀] == sum[0 := 0][x₅₀])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₁₇
                  ==> i₅ < N₁₅))
         && i₁₇ < N₁₅
@@ -57,8 +56,7 @@ goal (forall N₁₅: int, sum: [int]int, a: [int]int, sum₁₆: [int]int, i₁
                 x₆ == 0
                 || sum₁₆[x₆] == sum[0 := 0][x₆])
         && (forall i₅: int ::
-              (  i₅ <= i₅
-                && 0 <= i₅
+              (  0 <= i₅
                 && i₅ < i₁₇
                  ==> i₅ < N₁₅))
         && 0 <= i₁₉
@@ -80,15 +78,13 @@ goal (forall N₁₅: int, sum: [int]int, a: [int]int, sum₁₆: [int]int, i₁
                         && i₉ < i₁₉)
                 || a₁₈[x₁₀] == a[x₁₀])
         && (forall i₉: int ::
-              (  i₉ <= i₉
-                && 0 <= i₉
+              (  0 <= i₉
                 && i₉ < i₁₉
                  ==> i₉ < N₁₅))
         && 0 <= i₂₀
         && i₂₀ <= N₁₅
         && (forall i₁₃: int ::
-              (  i₁₃ <= i₁₃
-                && 0 <= i₁₃
+              (  0 <= i₁₃
                 && i₁₃ < i₂₀
                  ==> i₁₃ < N₁₅))
         && i₂₀ < N₁₅

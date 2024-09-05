@@ -51,8 +51,7 @@ goal (forall N: int, a: [int]int, b: [int]int, c: [int]int, a₂₂: [int]int, b
                         && i₁₀ < i₂₄)
                 || b₂₃[x₁₂] == b[x₁₂])
         && (forall i₁₀: int ::
-              (  i₁₀ <= i₁₀
-                && 1 <= i₁₀
+              (  1 <= i₁₀
                 && i₁₀ < i₂₄
                  ==> i₁₀ < N))
         && 0 <= i₂₆
@@ -74,15 +73,13 @@ goal (forall N: int, a: [int]int, b: [int]int, c: [int]int, a₂₂: [int]int, b
                         && i₁₆ < i₂₆)
                 || c₂₅[x₁₇] == c[x₁₇])
         && (forall i₁₆: int ::
-              (  i₁₆ <= i₁₆
-                && 0 <= i₁₆
+              (  0 <= i₁₆
                 && i₁₆ < i₂₆
                  ==> i₁₆ < N))
         && 1 <= i₂₇
         && i₂₇ <= N
         && (forall i₂₀: int ::
-              (  i₂₀ <= i₂₀
-                && 1 <= i₂₀
+              (  1 <= i₂₀
                 && i₂₀ < i₂₇
                  ==> i₂₀ < N))
         && i₂₇ < N

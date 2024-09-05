@@ -28,8 +28,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₅: [int]int, j₁₆: int, ds
                         && j₄ < j₁₆)
                 || src₁₅[x₅] == src[x₅])
         && (forall j₄: int ::
-              (  j₄ <= j₄
-                && 0 <= j₄
+              (  0 <= j₄
                 && j₄ < j₁₆
                  ==> j₄ < 100000))
         && 0 <= i₁₈
@@ -49,8 +48,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₅: [int]int, j₁₆: int, ds
                         && i₈ < i₁₈)
                 || dst₁₇[x₉] == dst[x₉])
         && (forall i₈: int ::
-              (  i₈ <= i₈
-                && 0 <= i₈
+              (  0 <= i₈
                 && i₈ < i₁₈
                  ==> i₈ < 100000
                   && (src₁₅[i₈] == 0
@@ -58,8 +56,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₅: [int]int, j₁₆: int, ds
         && 0 <= x₁₉
         && x₁₉ <= i₁₈
         && (forall x₁₃: int ::
-              (  x₁₃ <= x₁₃
-                && 0 <= x₁₃
+              (  0 <= x₁₃
                 && x₁₃ < x₁₉
                  ==> x₁₃ < i₁₈))
         && x₁₉ < i₁₈
@@ -87,8 +84,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₅: [int]int, j₁₆: int, ds
                         && j₄ < j₁₆)
                 || src₁₅[x₅] == src[x₅])
         && (forall j₄: int ::
-              (  j₄ <= j₄
-                && 0 <= j₄
+              (  0 <= j₄
                 && j₄ < j₁₆
                  ==> j₄ < 100000))
         && 0 <= i₁₈
@@ -108,8 +104,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₅: [int]int, j₁₆: int, ds
                         && i₈ < i₁₈)
                 || dst₁₇[x₉] == dst[x₉])
         && (forall i₈: int ::
-              (  i₈ <= i₈
-                && 0 <= i₈
+              (  0 <= i₈
                 && i₈ < i₁₈
                  ==> i₈ < 100000
                   && (src₁₅[i₈] == 0
@@ -118,8 +113,7 @@ goal (forall src: [int]int, dst: [int]int, src₁₅: [int]int, j₁₆: int, ds
         && 0 <= x₁₉
         && x₁₉ <= i₁₈
         && (forall x₁₃: int ::
-              (  x₁₃ <= x₁₃
-                && 0 <= x₁₃
+              (  0 <= x₁₃
                 && x₁₃ < x₁₉
                  ==> x₁₃ < i₁₈))
         && x₁₉ < i₁₈
