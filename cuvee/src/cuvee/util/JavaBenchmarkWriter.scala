@@ -155,10 +155,10 @@ object JavaBenchmarkWriter {
           call("program.arrayElement", atom(a.toString), process(index))
       }
 
-      def process(state: State, prog: Prog): List[Gen] = prog match {
+      def process(state: State, toplevel: Boolean, prog: Prog): List[Gen] = prog match {
         case Return =>
-          cuvee.error("cannot translate return (unsound)")
-        // List(call("program.stop"))
+          require(toplevel, "cannot translate return (unsound)")
+          List(call("program.stop"))
 
         case Assign(List(a), List(Store(b, i, e))) if a == b =>
           val ai_ = call("program.arrayElement", atom(a.toString), process(i))
@@ -180,7 +180,7 @@ object JavaBenchmarkWriter {
           Nil
 
         case Local(xs, es) =>
-          process(state, Block(List(Local(xs, Nil), Assign(xs, es))))
+          process(state, toplevel, Block(List(Local(xs, Nil), Assign(xs, es))))
 
         // XXX: inlining of procedures with explicit returns is currently unsound
         case Call(name, in, out) =>
@@ -188,7 +188,7 @@ object JavaBenchmarkWriter {
           val re = Expr.subst(zs, out)
           val body_ = body replace re
           val block = Block(List(Local(xs, Nil), Assign(xs, in), Spec.havoc(out), body_))
-          process(state, block)
+          process(state, toplevel = false, block)
 
         // assert
         case Spec(Nil, pre, True) =>
@@ -204,19 +204,19 @@ object JavaBenchmarkWriter {
 
         case If(test, left, right) =>
           val test_ = process(test)
-          val left_ = process(state, left)
-          val right_ = process(state, right)
+          val left_ = process(state, toplevel, left)
+          val right_ = process(state, toplevel, right)
           List(call("program.if_", test_, block(left_), block(right_)))
 
         case While(test, body, term, inv, sum, frames) =>
           val test_ = process(test)
-          val body_ = process(state, body)
+          val body_ = process(state, toplevel, body)
           List(call("program.while_", test_, block(body_)))
 
         case Block(progs) =>
           for (
             prog <- progs;
-            res <- process(state, prog)
+            res <- process(state, toplevel, prog)
           )
             yield res
       }
@@ -271,14 +271,14 @@ object JavaBenchmarkWriter {
           file.println("import analysis.common.builder.BenchmarkProgram;")
           file.println()
 
-          file.println("class " + klass + " implements Benchmark {")
+          file.println("public class " + klass + " implements Benchmark {")
 
           file.println(
             Indent + "public <ExpressionT, ConditionT, StatementT, AssignableT extends ExpressionT> StatementT statement(BenchmarkProgram<ExpressionT, ConditionT, StatementT, AssignableT> program) {"
           )
 
           file.println(Indent * 2 + "return")
-          format(file, Indent * 3, block(process(state, prog)))
+          format(file, Indent * 3, block(process(state, toplevel = true, prog)))
           file.println(";")
 
           file.println(Indent + "}")
@@ -299,6 +299,7 @@ object JavaBenchmarkWriter {
           case e: Throwable =>
             val rm = new File(path)
             rm.delete()
+            cuvee.error("error: " + e)
         }
       }
     }
