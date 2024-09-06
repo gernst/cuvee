@@ -16,7 +16,7 @@ int main()
     __VERIFIER_assume(-10000 < k && k < 10000);
     __VERIFIER_assume((j + k) == 0);
     a[i]=j;
-    b[i]=-k;
+    b[i]=k;
   }
 
   for(i=0;i<N;i++){
