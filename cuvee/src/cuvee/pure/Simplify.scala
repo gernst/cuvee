@@ -256,7 +256,7 @@ object Simplify {
   def store(base: Expr, index: Expr, value: Expr): Expr = {
     (base, value) match {
       case (_, Select(`base`, `index`))   => base
-      case (Store(`base`, `index`, _), _) => store(base, index, value)
+      case (Store(base, `index`, _), _) => store(base, index, value)
       case _                              => Store(base, index, value)
     }
   }

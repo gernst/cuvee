@@ -199,6 +199,9 @@ class Config {
     ) {
       annotate += "polyhedra"
     },
+    option("-annotate:new-arrays", "infer loop annotations (array acceleration)") {
+      annotate += "new-arrays"
+    },
     option("-annotate:arrays", "infer loop annotations (array acceleration)") {
       annotate += "arrays"
     },
@@ -426,6 +429,10 @@ object Config {
 
     if (config.annotate contains "polyhedra") {
       sink = new Incremental(Abstract, sink)
+    }
+
+    if (config.annotate contains "new-arrays") {
+      sink = new Incremental(annotate.NewArrays, sink)
     }
 
     if (config.annotate contains "arrays") {

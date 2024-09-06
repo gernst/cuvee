@@ -36,7 +36,7 @@ ifeqn1.bpl, Unknown
 avg60-1.bpl, Unknown
 s4if.bpl, Unknown
 standard_find_ground-1.bpl, Success
-array1_pattern.bpl, Unknown
+array1_pattern.bpl, Unsupported
 sanfoundry_24-1.bpl, Unknown
 standard_password_ground.bpl, Unknown
 standard_two_index_03.bpl, Unknown
@@ -62,9 +62,9 @@ s22if.bpl, Unknown
 standard_reverse_ground.bpl, Success
 sep20-1.bpl, Unknown
 sep10-2.bpl, Unknown
-standard_partition_ground-2.bpl, Success
+standard_partition_ground-2.bpl, Unknown
 ifeqn2.bpl, Unknown
-pr3.bpl, Unknown
+pr3.bpl, Unsupported
 ifncomp.bpl, Unknown
 max05-1.bpl, Unknown
 condg.bpl, Unknown
@@ -76,7 +76,7 @@ copysome2-1.bpl, Unknown
 standard_compare_ground.bpl, Unknown
 mbpr2.bpl, Unknown
 indp4.bpl, Success
-array_tripl_access_init_const.bpl, Unknown
+array_tripl_access_init_const.bpl, Unsupported
 eqn4.bpl, Unknown
 ms3.bpl, Unknown
 avg10-2.bpl, Unknown
@@ -99,7 +99,7 @@ indp3.bpl, Success
 standard_two_index_05.bpl, Unknown
 standard_partition_original_ground.bpl, Unknown
 s2if.bpl, Unknown
-array_doub_access_init_const.bpl, Unknown
+array_doub_access_init_const.bpl, Unsupported
 array_init_pair_sum_const.bpl, Success
 sep05-1.bpl, Unknown
 ms1.bpl, Unknown
@@ -127,8 +127,8 @@ array_min_and_copy_shift_sum_add.bpl, Unknown
 sum20-2.bpl, Unknown
 modp.bpl, Unknown
 standard_init1_ground-2.bpl, Success
-array4_pattern.bpl, Unknown
-array_tiling_tcpy.bpl, Unknown
+array4_pattern.bpl, Unsupported
+array_tiling_tcpy.bpl, Unsupported
 standard_two_index_06.bpl, Unknown
 bAnd4.bpl, Unknown
 ms2.bpl, Unknown
@@ -166,9 +166,9 @@ ifcomp.bpl, Unknown
 mapsum2.bpl, Unknown
 sina1.bpl, Unknown
 sina2.bpl, Unknown
-pr2.bpl, Unknown
+pr2.bpl, Unsupported
 partial_lesser_bound-1.bpl, Success
-condn.bpl, Unknown
+condn.bpl, Unsupported
 sanfoundry_10_ground.bpl, Unknown
 standard_running-2.bpl, Unknown
 zero_sum_m2.bpl, Unknown
@@ -192,8 +192,8 @@ bor5.bpl, Unknown
 standard_init5_ground-1.bpl, Success
 max.bpl, Unknown
 mapsum1.bpl, Unknown
-pr4.bpl, Unknown
-pr5.bpl, Unknown
+pr4.bpl, Unsupported
+pr5.bpl, Unsupported
 res2.bpl, Unknown
 s3lif.bpl, Unknown
 mapavg1.bpl, Unknown

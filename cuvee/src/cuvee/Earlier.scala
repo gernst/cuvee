@@ -34,6 +34,12 @@ object evaluate
       "examples/boogie/rapid"
     )
 
+object evaluate_
+    extends Run(
+      Earlier(mode = "evaluate_"),
+      "examples/chc/maxpranq/bench_precondn/c_serialized",
+    )
+
 case class Earlier(mode: String) extends Main {
   val dst = "evaluation/earlier/"
 
@@ -92,10 +98,23 @@ case class Earlier(mode: String) extends Main {
         case "evaluate" =>
           var args = List(
             path + "/" + file,
-            "-annotate:arrays+frame+guard",
+            "-annotate:new-arrays",
             "-vcgen:partial",
             "-prove:z3",
             "-prove:strict"
+          )
+
+          file -> eval(args.toArray)
+
+        case "evaluate_" =>
+          var args = List(
+            path + "/" + file,
+            "-annotate:new-arrays",
+            "-vcgen:partial",
+            "-prove:simple",
+            // "-prove:strict",
+            "-o",
+            dst_ + file_ + ".foo.bpl"
           )
 
           file -> eval(args.toArray)

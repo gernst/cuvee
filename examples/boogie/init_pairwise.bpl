@@ -6,7 +6,8 @@ procedure main()
 
   var i: int := 0;
 
-  while(i < N) {
+  while(i < N)
+  {
     var z: int;
     a[i] := z;
     b[i] := z;
