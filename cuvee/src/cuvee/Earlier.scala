@@ -85,7 +85,7 @@ case class Earlier(mode: String) extends Main {
         case "reduce" =>
           var args = List(
             path + "/" + file,
-            "-annotate:arrays+frame+guard",
+            "-annotate:new-arrays",
             "-vcgen:partial",
             "-prove:simple",
             "-split",

@@ -419,7 +419,7 @@ object Conj {
             from(rest, xs, props)
 
           case prop =>
-            from(rest, xs, props ++ List(prop))
+            from(rest, pos, xs, props ++ List(prop))
         }
 
       // case phi :: rest =>

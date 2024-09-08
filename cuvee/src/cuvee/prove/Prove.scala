@@ -11,6 +11,7 @@ import cuvee.smtlib.Assert
 import cuvee.smtlib.Solver
 import cuvee.smtlib.Free
 import cuvee.smtlib.DeclareVar
+import cuvee.smtlib.DeclareSort
 
 class Prove(
     prover: Prover,
@@ -42,7 +43,9 @@ class Prove(
         val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
           yield {
-            Lemma(goal_.toExpr, None, mode)
+            val expr_ = goal_.toExpr
+            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
+            Lemma(expr_, None, mode)
           }
 
       case cmd @ Assert(Not(App(Inst(fun, _), _)))
@@ -58,33 +61,7 @@ class Prove(
         for (goal_ <- reduce(goal, None, rws, state))
           yield {
             val expr_ = goal_.toExpr
-
-            if (crosscheckProver) {
-              val solver = Solver.z3(timeout = 10000)
-              try { solver.exec(prefix ++ cmds, state) }
-              catch {
-                case cuvee.smtlib.Error(info) =>
-                  println(info)
-                  ???
-              }
-
-              if (!solver.isTrue(expr === goal.toExpr)) {
-                // println(expr)
-                assert(false, "conversion to prop did not produce original formula!")
-              }
-
-              if (!solver.isTrue(expr_ === goal_.toExpr)) {
-                // println(expr)
-                assert(false, "conversion to prop did not produce reduced formula!")
-              }
-
-              if (!solver.isTrue(expr === expr_)) {
-                println(expr + " != " + expr_)
-                for ((_, rules) <- rws; eq <- rules) println(eq)
-                assert(false, "reduce did not produce formulas recognized equivalent by Z3!")
-              }
-            }
-
+            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             Assert(Simplify.not(expr_))
           }
 
@@ -95,6 +72,47 @@ class Prove(
         prover.exec(cmd, state)
         List(cmd)
     }
+  }
+
+  def crosscheck(
+      expr: Expr,
+      goal: Prop,
+      goal_ : Prop,
+      expr_ : Expr,
+      ctx: List[Cmd],
+      state: State
+  ) = {
+    if (crosscheckProver) {
+      val solver = Solver.z3(timeout = 10000)
+      try {
+        ctx foreach {
+          case _: Lemma =>
+          case cmd =>
+            solver.exec(cmd, state)
+        }
+      } catch {
+        case cuvee.smtlib.Error(info) =>
+          println(info)
+        // ???
+      }
+
+      if (!solver.isTrue(expr === goal.toExpr)) {
+        println(expr)
+        println(goal)
+        assert(false, "conversion to prop did not produce original formula!")
+      }
+
+      if (!solver.isTrue(expr_ === goal_.toExpr)) {
+        // println(expr)
+        assert(false, "conversion to prop did not produce reduced formula!")
+      }
+
+      if (!solver.isTrue(expr === expr_)) {
+        println(expr + " != " + expr_)
+        assert(false, "reduce did not produce formulas recognized equivalent by Z3!")
+      }
+    }
+
   }
 
   def auto(goal: Prop, rws: Map[Fun, List[Rule]], state: State) = if (simplify) {

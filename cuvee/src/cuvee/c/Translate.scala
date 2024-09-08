@@ -10,6 +10,7 @@ import cuvee.pure.Sort
 
 object Translate {
   var split = false
+  var translateAsserts = true
   val (prelude, state) = cuvee.boogie.parse("cuvee/src/cuvee/c/c.bpl")
 }
 
@@ -412,7 +413,8 @@ class Translate(state: State) {
         val (res_, progs2) = assign(lhs, arg_, scope)
         (res_, progs1 ++ progs2)
 
-      case BinOp("&&", arg1, arg2) if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("&&", arg1, arg2)
+          if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -421,7 +423,8 @@ class Translate(state: State) {
         val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
         (bool(x0), progs1 ++ List(asg1_, if_))
 
-      case BinOp("||", arg1, arg2) if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
+      case BinOp("||", arg1, arg2)
+          if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
         val (arg1_, progs1) = eval(arg1, scope)
         val (arg2_, progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
@@ -472,12 +475,18 @@ class Translate(state: State) {
         (void, progs ++ List(assm_))
 
       case FunCall("reach_error", List()) =>
-        (void, List(imp.Spec.assert(pure.False)))
+        if (Translate.translateAsserts)
+          (void, List(imp.Spec.assert(pure.False)))
+        else
+          (void, Nil)
 
       case FunCall("assert", List(arg)) =>
         val (arg_, progs) = eval(arg, scope)
         val assrt_ = imp.Spec.assert(truth(arg_))
-        (void, progs ++ List(assrt_))
+        if (Translate.translateAsserts)
+          (void, progs ++ List(assrt_))
+        else
+          (void, progs) // keep side-effects
 
       case FunCall("__VERIFIER_assume", List(arg)) =>
         val (arg_, progs) = eval(arg, scope)
@@ -487,10 +496,16 @@ class Translate(state: State) {
       case FunCall("__VERIFIER_assert", List(arg)) =>
         val (arg_, progs) = eval(arg, scope)
         val assrt_ = imp.Spec.assert(truth(arg_))
-        (void, progs ++ List(assrt_))
+        if (Translate.translateAsserts)
+          (void, progs ++ List(assrt_))
+        else
+          (void, progs) // keep side-effects
 
       case FunCall("__VERIFIER_error", List()) =>
-        (void, List(imp.Spec.assert(pure.False)))
+        if (Translate.translateAsserts)
+          (void, List(imp.Spec.assert(pure.False)))
+        else
+          (void, Nil)
 
       case FunCall(name, args) if name startsWith "__VERIFIER_nondet" =>
         val typ_ = pure.Sort.int
