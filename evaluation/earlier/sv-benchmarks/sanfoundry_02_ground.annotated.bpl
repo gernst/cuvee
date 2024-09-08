@@ -21,31 +21,19 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₈: int ::
-            ((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-               ==> (exists __VERIFIER_nondet_int₁₆: int, i₇: int ::
-                      i₇ < 100000
-                      && x₈ == i₇
-                      && old(i) <= i₇
-                      && i₇ < i
-                      && array[x₈] == __VERIFIER_nondet_int₁₆)))
-      && (forall x₈: int ::
-            (!((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-            )
-               ==> array[x₈] == old(array[x₈])))
       && (forall i₇: int ::
             (  old(i) <= i₇
               && i₇ < i
-               ==> i₇ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₆: int ::
+                      i₇ < 100000
+                      && array[i₇] == __VERIFIER_nondet_int₁₆)))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
+            )
+               ==> array[i₇] == old(array)[i₇]));
   {
     var __VERIFIER_nondet_int₁: int;
     array := array[i := __VERIFIER_nondet_int₁];
@@ -61,13 +49,22 @@ procedure main()
   i := 2;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall i₁₃: int ::
-            (  old(i) <= i₁₃
-              && i₁₃ < i
-               ==> i₁₃ < 100000));
+      && (forall largest2₁₀: int, largest1₁₁: int, i₁₂: int ::
+            (  old(i) <= i₁₂
+              && i₁₂ < i
+               ==> largest1₁₁ <= array[i₁₂]
+                  && i₁₂ < 100000
+                ||   largest2₁₀ < array[i₁₂]
+                  && !(largest1₁₁ <= array[i₁₂]
+                  )
+                  && i₁₂ < 100000
+                ||   !(largest2₁₀ < array[i₁₂]
+                  )
+                  && !(largest1₁₁ <= array[i₁₂]
+                  )
+                  && i₁₂ < 100000));
   {
     if(largest1 <= array[i]) {
       largest2 := largest1;
@@ -83,13 +80,12 @@ procedure main()
   x := 0;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₂₂: int ::
-            (  old(x) <= x₂₂
-              && x₂₂ < x
-               ==> x₂₂ < 100000));
+      && (forall x₂₁: int ::
+            (  old(x) <= x₂₁
+              && x₂₁ < x
+               ==> x₂₁ < 100000));
   {
     assert array[x] <= largest1;
     x := x + 1;
@@ -97,13 +93,12 @@ procedure main()
   x := 0;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₂₅: int ::
-            (  old(x) <= x₂₅
-              && x₂₅ < x
-               ==> x₂₅ < 100000));
+      && (forall x₂₄: int ::
+            (  old(x) <= x₂₄
+              && x₂₄ < x
+               ==> x₂₄ < 100000));
   {
     assert array[x] <= largest2 || array[x] == largest1;
     x := x + 1;

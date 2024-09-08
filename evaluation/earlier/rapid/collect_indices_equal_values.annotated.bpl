@@ -42,35 +42,25 @@ procedure collect_indices_equal_values(a1: [int]int, a2: [int]int, alength: int)
       && old(blength) <= blength
       && old(i) <= i
       && i <= alength
-      && (forall x₃: int ::
-            ((exists blength₁: int ::
-                    x₃ == blength₁
-                    && old(blength) <= blength₁
-                    && blength₁ < blength)
-               ==> (exists blength₁: int, i₂: int ::
-                      a1[i₂] == a2[i₂]
-                      && i₂ < alength
-                      && 0 <= i₂
-                      && x₃ == blength₁
-                      && old(blength) <= blength₁
-                      && blength₁ < blength
-                      && old(i) <= i₂
-                      && i₂ < i
-                      && b[x₃] == i₂)))
-      && (forall x₃: int ::
-            (!((exists blength₁: int ::
-                    x₃ == blength₁
-                    && old(blength) <= blength₁
-                    && blength₁ < blength)
-            )
-               ==> b[x₃] == old(b[x₃])))
       && (forall blength₁: int, i₂: int ::
-            (  0 <= i₂
-              && old(blength) <= blength₁
+            (  old(blength) <= blength₁
               && blength₁ < blength
               && old(i) <= i₂
               && i₂ < i
-               ==> i₂ < alength));
+               ==> a1[i₂] == a2[i₂]
+                  && i₂ < alength
+                  && 0 <= i₂
+                  && b[blength₁] == i₂
+                ||   a1[i₂] != a2[i₂]
+                  && i₂ < alength
+                  && 0 <= i₂))
+      && (forall blength₁: int, i₂: int ::
+            (!(  old(blength) <= blength₁
+              && blength₁ < blength
+              && old(i) <= i₂
+              && i₂ < i
+            )
+               ==> b[blength₁] == old(b)[blength₁]));
   {
     if(a1[i] == a2[i]) {
       b := b[blength := i];

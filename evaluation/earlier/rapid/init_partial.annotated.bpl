@@ -17,30 +17,17 @@ procedure init_partial(alength: int, k: int)
     invariant 0 <= i
       && old(i) <= i
       && i <= k
-      && (forall x₂: int ::
-            ((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-               ==> (exists i₁: int ::
-                      i₁ < k
-                      && 0 <= i₁
-                      && x₂ == i₁
-                      && old(i) <= i₁
-                      && i₁ < i
-                      && a[x₂] == 0)))
-      && (forall x₂: int ::
-            (!((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-            )
-               ==> a[x₂] == old(a[x₂])))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
-               ==> i₁ < k));
+               ==> i₁ < k
+                && 0 <= i₁
+                && a[i₁] == 0))
+      && (forall i₁: int ::
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
+               ==> a[i₁] == old(a)[i₁]));
   {
     a := a[i := 0];
     i := i + 1;

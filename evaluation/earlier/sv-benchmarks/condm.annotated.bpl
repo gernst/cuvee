@@ -29,31 +29,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₅: int ::
-            ((exists i₄: int ::
-                    x₅ == i₄
-                    && old(i) <= i₄
-                    && i₄ < i)
-               ==> (exists i₄: int ::
-                      i₄ < N
-                      && x₅ == i₄
-                      && old(i) <= i₄
-                      && i₄ < i
-                      && a[x₅] == 0)))
-      && (forall x₅: int ::
-            (!((exists i₄: int ::
-                    x₅ == i₄
-                    && old(i) <= i₄
-                    && i₄ < i)
-            )
-               ==> a[x₅] == old(a[x₅])))
       && (forall i₄: int ::
             (  old(i) <= i₄
               && i₄ < i
-               ==> i₄ < N));
+               ==> i₄ < N
+                && a[i₄] == 0))
+      && (forall i₄: int ::
+            (!(  old(i) <= i₄
+              && i₄ < i
+            )
+               ==> a[i₄] == old(a)[i₄]));
   {
     a := a[i := 0];
     i := i + 1;
@@ -61,39 +48,22 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₉: int ::
-            ((exists i₈: int ::
-                    x₉ == i₈
-                    && old(i) <= i₈
-                    && i₈ < i)
-               ==> (exists i₈: int ::
-                        N % 2 == 0
-                        && i₈ < N
-                        && x₉ == i₈
-                        && old(i) <= i₈
-                        && i₈ < i
-                        && a[x₉] == 2 + old(a)[i₈])
-                || (exists i₈: int ::
-                        N % 2 != 0
-                        && i₈ < N
-                        && x₉ == i₈
-                        && old(i) <= i₈
-                        && i₈ < i
-                        && a[x₉] == 1 + old(a)[i₈])))
-      && (forall x₉: int ::
-            (!((exists i₈: int ::
-                    x₉ == i₈
-                    && old(i) <= i₈
-                    && i₈ < i)
+      && (forall i₇: int ::
+            (  old(i) <= i₇
+              && i₇ < i
+               ==> N % 2 == 0
+                  && i₇ < N
+                  && a[i₇] == 2 + old(a)[i₇]
+                ||   N % 2 != 0
+                  && i₇ < N
+                  && a[i₇] == 1 + old(a)[i₇]))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
             )
-               ==> a[x₉] == old(a[x₉])))
-      && (forall i₈: int ::
-            (  old(i) <= i₈
-              && i₈ < i
-               ==> i₈ < N));
+               ==> a[i₇] == old(a)[i₇]));
   {
     if(N % 2 == 0) {
       a := a[i := a[i] + 2];
@@ -105,13 +75,12 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall i₁₂: int ::
-            (  old(i) <= i₁₂
-              && i₁₂ < i
-               ==> i₁₂ < N));
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < N));
   {
     assert a[i] % 2 == N % 2;
     i := i + 1;

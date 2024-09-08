@@ -8,43 +8,37 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int, a₁₄: [int]int, i₁₅: int, min₁₆: int, i₁₇: int, x₁₈: int ::
-      (  0 <= i₁₅
-        && i₁₅ <= 100000
-        && (forall x₄: int, i₃: int ::
-              (  x₄ == i₃
-                && 0 <= i₃
-                && i₃ < i₁₅
-                 ==> (exists __VERIFIER_nondet_int₁₂: int, i₃: int ::
-                        i₃ < 100000
-                        && x₄ == i₃
-                        && 0 <= i₃
-                        && i₃ < i₁₅
-                        && a₁₄[x₄] == __VERIFIER_nondet_int₁₂)))
-        && (forall x₄: int ::
-                (exists i₃: int ::
-                        x₄ == i₃
-                        && 0 <= i₃
-                        && i₃ < i₁₅)
-                || a₁₄[x₄] == a[x₄])
+goal (forall a: [int]int, a₁₃: [int]int, i₁₄: int, min₁₅: int, i₁₆: int, x₁₇: int ::
+      (  0 <= i₁₄
+        && i₁₄ <= 100000
         && (forall i₃: int ::
               (  0 <= i₃
-                && i₃ < i₁₅
-                 ==> i₃ < 100000))
-        && 0 <= i₁₇
-        && i₁₇ <= 100000
-        && (forall i₈: int ::
-              (  0 <= i₈
-                && i₈ < i₁₇
-                 ==> i₈ < 100000))
-        && 0 <= x₁₈
-        && x₁₈ <= 100000
-        && (forall x₁₂: int ::
-              (  0 <= x₁₂
-                && x₁₂ < x₁₈
-                 ==> x₁₂ < 100000))
-        && x₁₈ < 100000
-         ==> i₁₇ < 100000
-          || i₁₅ < 100000
-          || min₁₆ <= a₁₄[x₁₈]));
+                && i₃ < i₁₄
+                 ==> (exists __VERIFIER_nondet_int₁₂: int ::
+                        i₃ < 100000
+                        && a₁₃[i₃] == __VERIFIER_nondet_int₁₂)))
+        && (forall i₃: int ::
+                  0 <= i₃
+                  && i₃ < i₁₄
+                || a₁₃[i₃] == a[i₃])
+        && 0 <= i₁₆
+        && i₁₆ <= 100000
+        && (forall min₆: int, i₇: int ::
+              (  0 <= i₇
+                && i₇ < i₁₆
+                 ==> a₁₃[i₇] < min₆
+                    && i₇ < 100000
+                  ||   (a₁₃[i₇] < min₆
+                       ==> false)
+                    && i₇ < 100000))
+        && 0 <= x₁₇
+        && x₁₇ <= 100000
+        && (forall x₁₁: int ::
+              (  0 <= x₁₁
+                && x₁₁ < x₁₇
+                 ==> x₁₁ < 100000))
+        && x₁₇ < 100000
+         ==> i₁₆ < 100000
+          || i₁₄ < 100000
+          || min₁₅ <= a₁₃[x₁₇]));
 

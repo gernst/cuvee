@@ -8,273 +8,198 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀: [int]int, i₂₁: int, j₂₂: int ::
-      (  0 <= i₁₉
-        && i₁₉ <= 100000
-        && (forall x₅: int, i₄: int ::
-              (  x₅ == i₄
-                && 0 <= i₄
-                && i₄ < i₁₉
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉
-                        && b₁₈[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-                (exists i₄: int ::
-                        x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉)
-                || b₁₈[x₅] == b[x₅])
+goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int ::
+      (  0 <= i₁₇
+        && i₁₇ <= 100000
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₁₉
-                 ==> i₄ < 100000))
+                && i₄ < i₁₇
+                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                        i₄ < 100000
+                        && b₁₆[i₄] == __VERIFIER_nondet_int₁₃)))
+        && (forall i₄: int ::
+                  0 <= i₄
+                  && i₄ < i₁₇
+                || b₁₆[i₄] == b[i₄])
+        && 0 <= j₂₀
+        && i₁₉ <= 100000
+        && (forall i₇: int, j₈: int ::
+              (  0 <= j₈
+                && j₈ < j₂₀
+                 ==> i₇ < 100000
+                  && a₁₈[j₈] == b₁₆[i₇]))
+        && (forall j₈: int ::
+                  0 <= j₈
+                  && j₈ < j₂₀
+                || a₁₈[j₈] == a[j₈])
+        && i₁₉ < 100000
+         ==> i₁₇ < 100000
+          || i₁₉ + 8 <= 100000));
+
+goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₇: int, j₈: int ::
+      (  0 <= i₁₇
+        && i₁₇ <= 100000
+        && (forall i₄: int ::
+              (  0 <= i₄
+                && i₄ < i₁₇
+                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                        i₄ < 100000
+                        && b₁₆[i₄] == __VERIFIER_nondet_int₁₃)))
+        && (forall i₄: int ::
+                  0 <= i₄
+                  && i₄ < i₁₇
+                || b₁₆[i₄] == b[i₄])
+        && 0 <= j₂₀
+        && i₁₉ <= 100000
+        && (forall i₁₀₇: int, j₁₀₈: int ::
+              (  0 <= j₁₀₈
+                && j₁₀₈ < j₂₀
+                 ==> i₁₀₇ < 100000
+                  && a₁₈[j₁₀₈] == b₁₆[i₁₀₇]))
+        && (forall j₁₀₉: int ::
+                  0 <= j₁₀₉
+                  && j₁₀₉ < j₂₀
+                || a₁₈[j₁₀₉] == a[j₁₀₉])
+        && i₁₉ < 100000
+        && 0 <= j₈
+        && j₈ < j₂₀ + 1
+         ==> i₁₇ < 100000
+          || i₇ < 100000));
+
+goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₇: int, j₈: int ::
+      (  0 <= i₁₇
+        && i₁₇ <= 100000
+        && (forall i₄: int ::
+              (  0 <= i₄
+                && i₄ < i₁₇
+                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                        i₄ < 100000
+                        && b₁₆[i₄] == __VERIFIER_nondet_int₁₃)))
+        && (forall i₄: int ::
+                  0 <= i₄
+                  && i₄ < i₁₇
+                || b₁₆[i₄] == b[i₄])
+        && 0 <= j₂₀
+        && i₁₉ <= 100000
+        && (forall i₁₁₉: int, j₁₂₀: int ::
+              (  0 <= j₁₂₀
+                && j₁₂₀ < j₂₀
+                 ==> i₁₁₉ < 100000
+                  && a₁₈[j₁₂₀] == b₁₆[i₁₁₉]))
+        && (forall j₁₂₁: int ::
+                  0 <= j₁₂₁
+                  && j₁₂₁ < j₂₀
+                || a₁₈[j₁₂₁] == a[j₁₂₁])
+        && i₁₉ < 100000
+        && 0 <= j₈
+        && j₈ < j₂₀ + 1
+         ==> i₁₇ < 100000
+          || a₁₈[j₂₀ := b₁₆[i₁₉]][j₈] == b₁₆[i₇]));
+
+goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int ::
+      (  0 <= i₁₇
+        && i₁₇ <= 100000
+        && (forall i₄: int ::
+              (  0 <= i₄
+                && i₄ < i₁₇
+                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                        i₄ < 100000
+                        && b₁₆[i₄] == __VERIFIER_nondet_int₁₃)))
+        && (forall i₄: int ::
+                  0 <= i₄
+                  && i₄ < i₁₇
+                || b₁₆[i₄] == b[i₄])
+        && 0 <= j₂₀
+        && i₁₉ <= 100000
+        && (forall i₇: int, j₈: int ::
+              (  0 <= j₈
+                && j₈ < j₂₀
+                 ==> i₇ < 100000
+                  && a₁₈[j₈] == b₁₆[i₇]))
+        && (forall j₈: int ::
+                  0 <= j₈
+                  && j₈ < j₂₀
+                || a₁₈[j₈] == a[j₈])
         && 0 <= j₂₂
         && i₂₁ <= 100000
-        && (forall x₁₀: int, j₉: int ::
-              (  x₁₀ == j₉
-                && 0 <= j₉
-                && j₉ < j₂₂
-                 ==> (exists i₈: int, j₉: int ::
-                        i₈ < 100000
-                        && x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂
-                        && a₂₀[x₁₀] == b₁₈[i₈])))
-        && (forall x₁₀: int ::
-                (exists j₉: int ::
-                        x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂)
-                || a₂₀[x₁₀] == a[x₁₀])
-        && (forall i₈: int, j₉: int ::
-              (  0 <= j₉
-                && j₉ < j₂₂
-                 ==> i₈ < 100000))
+        && (forall i₁₂: int, j₁₃: int ::
+              (  0 <= j₁₃
+                && j₁₃ < j₂₂
+                 ==> i₁₂ < 100000))
         && i₂₁ < 100000
          ==> i₁₉ < 100000
+          || i₁₇ < 100000
+          || a₁₈[j₂₂] == b₁₆[8 * j₂₂ + 1]));
+
+goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int ::
+      (  0 <= i₁₇
+        && i₁₇ <= 100000
+        && (forall i₄: int ::
+              (  0 <= i₄
+                && i₄ < i₁₇
+                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                        i₄ < 100000
+                        && b₁₆[i₄] == __VERIFIER_nondet_int₁₃)))
+        && (forall i₄: int ::
+                  0 <= i₄
+                  && i₄ < i₁₇
+                || b₁₆[i₄] == b[i₄])
+        && 0 <= j₂₀
+        && i₁₉ <= 100000
+        && (forall i₇: int, j₈: int ::
+              (  0 <= j₈
+                && j₈ < j₂₀
+                 ==> i₇ < 100000
+                  && a₁₈[j₈] == b₁₆[i₇]))
+        && (forall j₈: int ::
+                  0 <= j₈
+                  && j₈ < j₂₀
+                || a₁₈[j₈] == a[j₈])
+        && 0 <= j₂₂
+        && i₂₁ <= 100000
+        && (forall i₁₂: int, j₁₃: int ::
+              (  0 <= j₁₃
+                && j₁₃ < j₂₂
+                 ==> i₁₂ < 100000))
+        && i₂₁ < 100000
+         ==> i₁₉ < 100000
+          || i₁₇ < 100000
           || i₂₁ + 8 <= 100000));
 
-goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀: [int]int, i₂₁: int, j₂₂: int, i₈: int, j₉: int ::
-      (  0 <= i₁₉
-        && i₁₉ <= 100000
-        && (forall x₅: int, i₄: int ::
-              (  x₅ == i₄
-                && 0 <= i₄
-                && i₄ < i₁₉
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉
-                        && b₁₈[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-                (exists i₄: int ::
-                        x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉)
-                || b₁₈[x₅] == b[x₅])
+goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int, i₁₂: int, j₁₃: int ::
+      (  0 <= i₁₇
+        && i₁₇ <= 100000
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₁₉
-                 ==> i₄ < 100000))
+                && i₄ < i₁₇
+                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                        i₄ < 100000
+                        && b₁₆[i₄] == __VERIFIER_nondet_int₁₃)))
+        && (forall i₄: int ::
+                  0 <= i₄
+                  && i₄ < i₁₇
+                || b₁₆[i₄] == b[i₄])
+        && 0 <= j₂₀
+        && i₁₉ <= 100000
+        && (forall i₇: int, j₈: int ::
+              (  0 <= j₈
+                && j₈ < j₂₀
+                 ==> i₇ < 100000
+                  && a₁₈[j₈] == b₁₆[i₇]))
+        && (forall j₈: int ::
+                  0 <= j₈
+                  && j₈ < j₂₀
+                || a₁₈[j₈] == a[j₈])
         && 0 <= j₂₂
         && i₂₁ <= 100000
-        && (forall x₁₀: int, j₁₂₁: int ::
-              (  x₁₀ == j₁₂₁
-                && 0 <= j₁₂₁
-                && j₁₂₁ < j₂₂
-                 ==> (exists i₁₂₃: int, j₁₂₂: int ::
-                        i₁₂₃ < 100000
-                        && x₁₀ == j₁₂₂
-                        && 0 <= j₁₂₂
-                        && j₁₂₂ < j₂₂
-                        && a₂₀[x₁₀] == b₁₈[i₁₂₃])))
-        && (forall x₁₀: int ::
-                (exists j₁₂₄: int ::
-                        x₁₀ == j₁₂₄
-                        && 0 <= j₁₂₄
-                        && j₁₂₄ < j₂₂)
-                || a₂₀[x₁₀] == a[x₁₀])
-        && (forall i₁₂₆: int, j₁₂₅: int ::
-              (  0 <= j₁₂₅
-                && j₁₂₅ < j₂₂
-                 ==> i₁₂₆ < 100000))
+        && (forall i₁₉₉: int, j₂₀₀: int ::
+              (  0 <= j₂₀₀
+                && j₂₀₀ < j₂₂
+                 ==> i₁₉₉ < 100000))
         && i₂₁ < 100000
-        && 0 <= j₉
-        && j₉ < j₂₂ + 1
+        && 0 <= j₁₃
+        && j₁₃ < j₂₂ + 1
          ==> i₁₉ < 100000
-          || i₈ < 100000));
-
-goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀: [int]int, i₂₁: int, j₂₂: int, i₂₃: int, j₂₄: int ::
-      (  0 <= i₁₉
-        && i₁₉ <= 100000
-        && (forall x₅: int, i₄: int ::
-              (  x₅ == i₄
-                && 0 <= i₄
-                && i₄ < i₁₉
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉
-                        && b₁₈[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-                (exists i₄: int ::
-                        x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉)
-                || b₁₈[x₅] == b[x₅])
-        && (forall i₄: int ::
-              (  0 <= i₄
-                && i₄ < i₁₉
-                 ==> i₄ < 100000))
-        && 0 <= j₂₂
-        && i₂₁ <= 100000
-        && (forall x₁₀: int, j₉: int ::
-              (  x₁₀ == j₉
-                && 0 <= j₉
-                && j₉ < j₂₂
-                 ==> (exists i₈: int, j₉: int ::
-                        i₈ < 100000
-                        && x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂
-                        && a₂₀[x₁₀] == b₁₈[i₈])))
-        && (forall x₁₀: int ::
-                (exists j₉: int ::
-                        x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂)
-                || a₂₀[x₁₀] == a[x₁₀])
-        && (forall i₈: int, j₉: int ::
-              (  0 <= j₉
-                && j₉ < j₂₂
-                 ==> i₈ < 100000))
-        && 0 <= j₂₄
-        && i₂₃ <= 100000
-        && (forall i₁₄: int, j₁₅: int ::
-              (  0 <= j₁₅
-                && j₁₅ < j₂₄
-                 ==> i₁₄ < 100000))
-        && i₂₃ < 100000
-         ==> i₂₁ < 100000
-          || i₁₉ < 100000
-          || a₂₀[j₂₄] == b₁₈[8 * j₂₄ + 1]));
-
-goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀: [int]int, i₂₁: int, j₂₂: int, i₂₃: int, j₂₄: int ::
-      (  0 <= i₁₉
-        && i₁₉ <= 100000
-        && (forall x₅: int, i₄: int ::
-              (  x₅ == i₄
-                && 0 <= i₄
-                && i₄ < i₁₉
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉
-                        && b₁₈[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-                (exists i₄: int ::
-                        x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉)
-                || b₁₈[x₅] == b[x₅])
-        && (forall i₄: int ::
-              (  0 <= i₄
-                && i₄ < i₁₉
-                 ==> i₄ < 100000))
-        && 0 <= j₂₂
-        && i₂₁ <= 100000
-        && (forall x₁₀: int, j₉: int ::
-              (  x₁₀ == j₉
-                && 0 <= j₉
-                && j₉ < j₂₂
-                 ==> (exists i₈: int, j₉: int ::
-                        i₈ < 100000
-                        && x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂
-                        && a₂₀[x₁₀] == b₁₈[i₈])))
-        && (forall x₁₀: int ::
-                (exists j₉: int ::
-                        x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂)
-                || a₂₀[x₁₀] == a[x₁₀])
-        && (forall i₈: int, j₉: int ::
-              (  0 <= j₉
-                && j₉ < j₂₂
-                 ==> i₈ < 100000))
-        && 0 <= j₂₄
-        && i₂₃ <= 100000
-        && (forall i₁₄: int, j₁₅: int ::
-              (  0 <= j₁₅
-                && j₁₅ < j₂₄
-                 ==> i₁₄ < 100000))
-        && i₂₃ < 100000
-         ==> i₂₁ < 100000
-          || i₁₉ < 100000
-          || i₂₃ + 8 <= 100000));
-
-goal (forall a: [int]int, b: [int]int, b₁₈: [int]int, i₁₉: int, a₂₀: [int]int, i₂₁: int, j₂₂: int, i₂₃: int, j₂₄: int, i₁₄: int, j₁₅: int ::
-      (  0 <= i₁₉
-        && i₁₉ <= 100000
-        && (forall x₅: int, i₄: int ::
-              (  x₅ == i₄
-                && 0 <= i₄
-                && i₄ < i₁₉
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉
-                        && b₁₈[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-                (exists i₄: int ::
-                        x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₉)
-                || b₁₈[x₅] == b[x₅])
-        && (forall i₄: int ::
-              (  0 <= i₄
-                && i₄ < i₁₉
-                 ==> i₄ < 100000))
-        && 0 <= j₂₂
-        && i₂₁ <= 100000
-        && (forall x₁₀: int, j₉: int ::
-              (  x₁₀ == j₉
-                && 0 <= j₉
-                && j₉ < j₂₂
-                 ==> (exists i₈: int, j₉: int ::
-                        i₈ < 100000
-                        && x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂
-                        && a₂₀[x₁₀] == b₁₈[i₈])))
-        && (forall x₁₀: int ::
-                (exists j₉: int ::
-                        x₁₀ == j₉
-                        && 0 <= j₉
-                        && j₉ < j₂₂)
-                || a₂₀[x₁₀] == a[x₁₀])
-        && (forall i₈: int, j₉: int ::
-              (  0 <= j₉
-                && j₉ < j₂₂
-                 ==> i₈ < 100000))
-        && 0 <= j₂₄
-        && i₂₃ <= 100000
-        && (forall i₁₈₈: int, j₁₈₉: int ::
-              (  0 <= j₁₈₉
-                && j₁₈₉ < j₂₄
-                 ==> i₁₈₈ < 100000))
-        && i₂₃ < 100000
-        && 0 <= j₁₅
-        && j₁₅ < j₂₄ + 1
-         ==> i₂₁ < 100000
-          || i₁₉ < 100000
-          || i₁₄ < 100000));
+          || i₁₇ < 100000
+          || i₁₂ < 100000));
 

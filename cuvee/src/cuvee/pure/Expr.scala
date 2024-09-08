@@ -377,7 +377,18 @@ object Ite extends Sugar.ternary(Fun.ite)
 
 object Const extends Sugar.unary(Fun.const)
 object Select extends Sugar.binary(Fun.select)
-object Store extends Sugar.ternary(Fun.store)
+
+object Store extends Sugar.ternary(Fun.store) {
+  def flatten(expr: Expr): (Expr, List[(Expr, Expr)]) =
+    expr match {
+      case Store(inner, index, value) =>
+        val (base, pairs) = flatten(inner)
+        (base, (index, value) :: pairs)
+
+      case _ =>
+        (expr, Nil)
+    }
+}
 
 object Not extends Sugar.unary(Fun.not) {
   def apply(args: List[Expr]) =

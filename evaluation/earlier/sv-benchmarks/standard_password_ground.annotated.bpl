@@ -20,49 +20,21 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₇: int ::
-            ((exists i₆: int ::
-                    x₇ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-               ==> (exists __VERIFIER_nondet_int₁₄: int, i₆: int ::
-                      i₆ < 100000
-                      && x₇ == i₆
-                      && old(i) <= i₆
-                      && i₆ < i
-                      && password[x₇] == __VERIFIER_nondet_int₁₄)))
-      && (forall x₇: int ::
-            (!((exists i₆: int ::
-                    x₇ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-            )
-               ==> password[x₇] == old(password[x₇])))
-      && (forall x₈: int ::
-            ((exists i₆: int ::
-                    x₈ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-               ==> (exists __VERIFIER_nondet_int₂₅: int, i₆: int ::
-                      i₆ < 100000
-                      && x₈ == i₆
-                      && old(i) <= i₆
-                      && i₆ < i
-                      && guess[x₈] == __VERIFIER_nondet_int₂₅)))
-      && (forall x₈: int ::
-            (!((exists i₆: int ::
-                    x₈ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-            )
-               ==> guess[x₈] == old(guess[x₈])))
       && (forall i₆: int ::
             (  old(i) <= i₆
               && i₆ < i
-               ==> i₆ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₄: int, __VERIFIER_nondet_int₂₅: int ::
+                      i₆ < 100000
+                      && password[i₆] == __VERIFIER_nondet_int₁₄
+                      && guess[i₆] == __VERIFIER_nondet_int₂₅)))
+      && (forall i₆: int ::
+            (!(  old(i) <= i₆
+              && i₆ < i
+            )
+               ==> password[i₆] == old(password)[i₆]
+                && guess[i₆] == old(guess)[i₆]));
   {
     var __VERIFIER_nondet_int₁: int;
     password := password[i := __VERIFIER_nondet_int₁];
@@ -73,13 +45,15 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall i₁₃: int ::
-            (  old(i) <= i₁₃
-              && i₁₃ < i
-               ==> i₁₃ < 100000));
+      && (forall i₁₁: int ::
+            (  old(i) <= i₁₁
+              && i₁₁ < i
+               ==> password[i₁₁] != guess[i₁₁]
+                  && i₁₁ < 100000
+                ||   password[i₁₁] == guess[i₁₁]
+                  && i₁₁ < 100000));
   {
     if(password[i] != guess[i]) {
       result := 0;
@@ -91,13 +65,12 @@ procedure main()
     x := 0;
     while(x < 100000)
       decreases 100000 - x;
-      invariant true
-        && old(x) <= x
+      invariant old(x) <= x
         && x <= 100000
-        && (forall x₁₇: int ::
-              (  old(x) <= x₁₇
-                && x₁₇ < x
-                 ==> x₁₇ < 100000));
+        && (forall x₁₅: int ::
+              (  old(x) <= x₁₅
+                && x₁₅ < x
+                 ==> x₁₅ < 100000));
     {
       assert password[x] == guess[x];
       x := x + 1;

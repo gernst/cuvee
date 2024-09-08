@@ -18,34 +18,22 @@ procedure copy_two_indices(b: [int]int, blength: int)
       && old(i) <= i
       && old(j) <= j
       && i <= blength
-      && (forall x₃: int ::
-            ((exists i₁: int ::
-                    x₃ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-               ==> (exists i₁: int, j₂: int ::
-                      i₁ < blength
-                      && 0 <= i₁
-                      && i₁ == j₂
-                      && x₃ == i₁
-                      && old(i) <= i₁
-                      && i₁ < i
-                      && a[x₃] == b[j₂])))
-      && (forall x₃: int ::
-            (!((exists i₁: int ::
-                    x₃ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-            )
-               ==> a[x₃] == old(a[x₃])))
       && (forall i₁: int, j₂: int ::
-            (  0 <= i₁
-              && i₁ == j₂
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
               && old(j) <= j₂
               && j₂ < j
-               ==> i₁ < blength));
+               ==> i₁ < blength
+                && 0 <= i₁
+                && i₁ == j₂
+                && a[i₁] == b[j₂]))
+      && (forall i₁: int, j₂: int ::
+            (!(  old(i) <= i₁
+              && i₁ < i
+              && old(j) <= j₂
+              && j₂ < j
+            )
+               ==> a[i₁] == old(a)[i₁]));
   {
     a := a[i := b[j]];
     i := i + 1;

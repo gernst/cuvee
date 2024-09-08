@@ -19,41 +19,17 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && i <= 100000
-      && (forall x₆: int ::
-            ((exists i₅: int ::
-                  x₆ == i₅)
-               ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                        __VERIFIER_nondet_int₁₄ == 10
-                        && i₅ < 100000
-                        && x₆ == i₅
-                        && a[x₆] == __VERIFIER_nondet_int₁₄)
-                || (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                        __VERIFIER_nondet_int₁₄ != 10
-                        && i₅ < 100000
-                        && x₆ == i₅
-                        && a[x₆] == __VERIFIER_nondet_int₁₄)))
-      && (forall x₆: int ::
-            (!((exists i₅: int ::
-                  x₆ == i₅)
-            )
-               ==> a[x₆] == old(a[x₆])))
-      && (forall x₇: int ::
-            ((exists i₅: int ::
-                  x₇ == i₅)
-               ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
+    invariant i <= 100000
+      && (forall i₅: int ::
+              (exists __VERIFIER_nondet_int₁₄: int ::
                       __VERIFIER_nondet_int₁₄ == 10
                       && i₅ < 100000
-                      && x₇ == i₅
-                      && b[x₇] == 20)))
-      && (forall x₇: int ::
-            (!((exists i₅: int ::
-                  x₇ == i₅)
-            )
-               ==> b[x₇] == old(b[x₇])))
-      && (forall i₅: int ::
-            i₅ < 100000);
+                      && a[i₅] == __VERIFIER_nondet_int₁₄
+                      && b[i₅] == 20)
+              || (exists __VERIFIER_nondet_int₁₄: int ::
+                      __VERIFIER_nondet_int₁₄ != 10
+                      && i₅ < 100000
+                      && a[i₅] == __VERIFIER_nondet_int₁₄));
   {
     var __VERIFIER_nondet_int₁: int;
     a := a[i := __VERIFIER_nondet_int₁];
@@ -65,10 +41,12 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && i <= 100000
-      && (forall i₁₁: int ::
-            i₁₁ < 100000);
+    invariant i <= 100000
+      && (forall i₉: int ::
+                a[i₉] == 10
+                && i₉ < 100000
+              ||   a[i₉] != 10
+                && i₉ < 100000);
   {
     if(a[i] == 10) {
       assert b[i] == 20;

@@ -19,31 +19,19 @@ procedure main()
   var j: int := 0;
   while(j < 100000)
     decreases 100000 - j;
-    invariant true
-      && old(j) <= j
+    invariant old(j) <= j
       && j <= 100000
-      && (forall x₅: int ::
-            ((exists j₄: int ::
-                    x₅ == j₄
-                    && old(j) <= j₄
-                    && j₄ < j)
-               ==> (exists __VERIFIER_nondet_int₁₃: int, j₄: int ::
-                      j₄ < 100000
-                      && x₅ == j₄
-                      && old(j) <= j₄
-                      && j₄ < j
-                      && src[x₅] == __VERIFIER_nondet_int₁₃)))
-      && (forall x₅: int ::
-            (!((exists j₄: int ::
-                    x₅ == j₄
-                    && old(j) <= j₄
-                    && j₄ < j)
-            )
-               ==> src[x₅] == old(src[x₅])))
       && (forall j₄: int ::
             (  old(j) <= j₄
               && j₄ < j
-               ==> j₄ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                      j₄ < 100000
+                      && src[j₄] == __VERIFIER_nondet_int₁₃)))
+      && (forall j₄: int ::
+            (!(  old(j) <= j₄
+              && j₄ < j
+            )
+               ==> src[j₄] == old(src)[j₄]));
   {
     var __VERIFIER_nondet_int₁: int;
     src := src[j := __VERIFIER_nondet_int₁];
@@ -51,33 +39,19 @@ procedure main()
   }
   while(i < 100000 && src[i] != 0)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₉: int ::
-            ((exists i₈: int ::
-                    x₉ == i₈
-                    && old(i) <= i₈
-                    && i₈ < i)
-               ==> (exists i₈: int ::
-                      i₈ < 100000
-                      && src[i₈] != 0
-                      && x₉ == i₈
-                      && old(i) <= i₈
-                      && i₈ < i
-                      && dst[x₉] == src[i₈])))
-      && (forall x₉: int ::
-            (!((exists i₈: int ::
-                    x₉ == i₈
-                    && old(i) <= i₈
-                    && i₈ < i)
+      && (forall i₇: int ::
+            (  old(i) <= i₇
+              && i₇ < i
+               ==> i₇ < 100000
+                && src[i₇] != 0
+                && dst[i₇] == src[i₇]))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
             )
-               ==> dst[x₉] == old(dst[x₉])))
-      && (forall i₈: int ::
-            (  old(i) <= i₈
-              && i₈ < i
-               ==> i₈ < 100000
-                && src[i₈] != 0));
+               ==> dst[i₇] == old(dst)[i₇]));
   {
     dst := dst[i := src[i]];
     i := i + 1;
@@ -85,14 +59,13 @@ procedure main()
   i := 0;
   while(i < 100000 && src[i] != 0)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall i₁₂: int ::
-            (  old(i) <= i₁₂
-              && i₁₂ < i
-               ==> i₁₂ < 100000
-                && src[i₁₂] != 0));
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < 100000
+                && src[i₁₀] != 0));
   {
     assert dst[i] == src[i];
     i := i + 1;

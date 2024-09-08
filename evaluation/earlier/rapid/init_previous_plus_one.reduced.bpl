@@ -2,108 +2,65 @@ goal (forall alength: int ::
       (0 <= alength
          ==> 1 + 0 <= alength));
 
-goal (forall alength: int, v: int, a: [int]int, a₅: [int]int, i₆: int, x₂: int, i₁: int ::
+goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, i₁: int ::
       (  0 <= alength
-        && 0 <= i₆
-        && 0 <= i₆
-        && 1 + i₆ <= alength
-        && (forall x₃₉: int, i₄₀: int ::
-              (  x₃₉ == 1 + i₄₀
-                && 0 <= i₄₀
-                && i₄₀ < i₆
-                 ==> (exists i₄₁: int ::
-                        1 + i₄₁ < alength
-                        && 0 <= i₄₁
-                        && x₃₉ == 1 + i₄₁
-                        && 0 <= i₄₁
-                        && i₄₁ < i₆
-                        && a₅[x₃₉] == 1 + a[0 := v][i₄₁])))
-        && (forall x₄₂: int ::
-                (exists i₄₃: int ::
-                        x₄₂ == 1 + i₄₃
-                        && 0 <= i₄₃
-                        && i₄₃ < i₆)
-                || a₅[x₄₂] == a[0 := v][x₄₂])
-        && (forall i₄₄: int ::
-              (  0 <= i₄₄
-                && 0 <= i₄₄
-                && i₄₄ < i₆
-                 ==> 1 + i₄₄ < alength))
-        && i₆ + 1 < alength
-        && x₂ == 1 + i₁
+        && 0 <= i₅
+        && 0 <= i₅
+        && 1 + i₅ <= alength
+        && (forall i₅₄: int ::
+              (  0 <= i₅₄
+                && i₅₄ < i₅
+                 ==> 1 + i₅₄ < alength
+                  && 0 <= i₅₄
+                  && a₄[1 + i₅₄] == 1 + a[0 := v][i₅₄]))
+        && (forall i₅₅: int ::
+                  0 <= i₅₅
+                  && i₅₅ < i₅
+                || a₄[1 + i₅₅] == a[0 := v][1 + i₅₅])
+        && i₅ + 1 < alength
         && 0 <= i₁
-        && i₁ < i₆ + 1
-         ==> (exists i₄₅: int ::
-                1 + i₄₅ < alength
-                && 0 <= i₄₅
-                && x₂ == 1 + i₄₅
-                && 0 <= i₄₅
-                && i₄₅ < i₆ + 1
-                && a₅[i₆ + 1 := a₅[i₆] + 1][x₂] == 1 + a[0 := v][i₄₅])));
+        && i₁ < i₅ + 1
+         ==> a₄[i₅ + 1 := a₄[i₅] + 1][1 + i₁] == 1 + a[0 := v][i₁]));
 
-goal (forall alength: int, v: int, a: [int]int, a₅: [int]int, i₆: int, pos: int ::
+goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, pos: int ::
       (  0 <= alength
-        && 0 <= i₆
-        && 0 <= i₆
-        && 1 + i₆ <= alength
-        && (forall x₂: int, i₁: int ::
-              (  x₂ == 1 + i₁
-                && 0 <= i₁
-                && i₁ < i₆
-                 ==> (exists i₁: int ::
-                        1 + i₁ < alength
-                        && 0 <= i₁
-                        && x₂ == 1 + i₁
-                        && 0 <= i₁
-                        && i₁ < i₆
-                        && a₅[x₂] == 1 + a[0 := v][i₁])))
-        && (forall x₂: int ::
-                (exists i₁: int ::
-                        x₂ == 1 + i₁
-                        && 0 <= i₁
-                        && i₁ < i₆)
-                || a₅[x₂] == a[0 := v][x₂])
+        && 0 <= i₅
+        && 0 <= i₅
+        && 1 + i₅ <= alength
         && (forall i₁: int ::
               (  0 <= i₁
-                && 0 <= i₁
-                && i₁ < i₆
-                 ==> 1 + i₁ < alength))
+                && i₁ < i₅
+                 ==> 1 + i₁ < alength
+                  && 0 <= i₁
+                  && a₄[1 + i₁] == 1 + a[0 := v][i₁]))
+        && (forall i₁: int ::
+                  0 <= i₁
+                  && i₁ < i₅
+                || a₄[1 + i₁] == a[0 := v][1 + i₁])
         && 0 <= pos
         && pos + 1 < alength
         && 0 <= alength
-         ==> i₆ + 1 < alength
-          || a₅[pos] <= a₅[pos + 1]));
+         ==> i₅ + 1 < alength
+          || a₄[pos] <= a₄[pos + 1]));
 
-goal (forall alength: int, v: int, a: [int]int, a₅: [int]int, i₆: int, pos: int ::
+goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, pos: int ::
       (  0 <= alength
-        && 0 <= i₆
-        && 0 <= i₆
-        && 1 + i₆ <= alength
-        && (forall x₂: int, i₁: int ::
-              (  x₂ == 1 + i₁
-                && 0 <= i₁
-                && i₁ < i₆
-                 ==> (exists i₁: int ::
-                        1 + i₁ < alength
-                        && 0 <= i₁
-                        && x₂ == 1 + i₁
-                        && 0 <= i₁
-                        && i₁ < i₆
-                        && a₅[x₂] == 1 + a[0 := v][i₁])))
-        && (forall x₂: int ::
-                (exists i₁: int ::
-                        x₂ == 1 + i₁
-                        && 0 <= i₁
-                        && i₁ < i₆)
-                || a₅[x₂] == a[0 := v][x₂])
+        && 0 <= i₅
+        && 0 <= i₅
+        && 1 + i₅ <= alength
         && (forall i₁: int ::
               (  0 <= i₁
-                && 0 <= i₁
-                && i₁ < i₆
-                 ==> 1 + i₁ < alength))
+                && i₁ < i₅
+                 ==> 1 + i₁ < alength
+                  && 0 <= i₁
+                  && a₄[1 + i₁] == 1 + a[0 := v][i₁]))
+        && (forall i₁: int ::
+                  0 <= i₁
+                  && i₁ < i₅
+                || a₄[1 + i₁] == a[0 := v][1 + i₁])
         && 0 <= pos
         && pos + 1 < alength
         && 0 <= alength
-         ==> i₆ + 1 < alength
-          || a₅[pos] < a₅[pos + 1]));
+         ==> i₅ + 1 < alength
+          || a₄[pos] < a₄[pos + 1]));
 

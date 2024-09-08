@@ -22,8 +22,7 @@ procedure bAnd(x: [int]int)
   i := 1;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
       && (forall i₄: int ::
             (  old(i) <= i₄
@@ -51,31 +50,19 @@ procedure main()
     var i: int := 0;
     while(i < N)
       decreases N - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= N
-        && (forall x₁₅: int ::
-              ((exists i₁₄: int ::
-                      x₁₅ == i₁₄
-                      && old(i) <= i₁₄
-                      && i₁₄ < i)
-                 ==> (exists __VERIFIER_nondet_int₂₁₃: int, i₁₄: int ::
-                        i₁₄ < N
-                        && x₁₅ == i₁₄
-                        && old(i) <= i₁₄
-                        && i₁₄ < i
-                        && x[x₁₅] == __VERIFIER_nondet_int₂₁₃)))
-        && (forall x₁₅: int ::
-              (!((exists i₁₄: int ::
-                      x₁₅ == i₁₄
-                      && old(i) <= i₁₄
-                      && i₁₄ < i)
-              )
-                 ==> x[x₁₅] == old(x[x₁₅])))
         && (forall i₁₄: int ::
               (  old(i) <= i₁₄
                 && i₁₄ < i
-                 ==> i₁₄ < N));
+                 ==> (exists __VERIFIER_nondet_int₂₁₃: int ::
+                        i₁₄ < N
+                        && x[i₁₄] == __VERIFIER_nondet_int₂₁₃)))
+        && (forall i₁₄: int ::
+              (!(  old(i) <= i₁₄
+                && i₁₄ < i
+              )
+                 ==> x[i₁₄] == old(x)[i₁₄]));
     {
       var __VERIFIER_nondet_int₂: int;
       x := x[i := __VERIFIER_nondet_int₂];
@@ -94,31 +81,18 @@ procedure main()
     var i: int := 0;
     while(i < N - 1)
       decreases N - 1 - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= -1 + N
-        && (forall x₂₅: int ::
-              ((exists i₂₄: int ::
-                      x₂₅ == i₂₄
-                      && old(i) <= i₂₄
-                      && i₂₄ < i)
-                 ==> (exists i₂₄: int ::
-                        i₂₄ < -1 + N
-                        && x₂₅ == i₂₄
-                        && old(i) <= i₂₄
-                        && i₂₄ < i
-                        && x[x₂₅] == old(x)[1 + i₂₄])))
-        && (forall x₂₅: int ::
-              (!((exists i₂₄: int ::
-                      x₂₅ == i₂₄
-                      && old(i) <= i₂₄
-                      && i₂₄ < i)
+        && (forall i₂₃: int ::
+              (  old(i) <= i₂₃
+                && i₂₃ < i
+                 ==> i₂₃ < -1 + N
+                  && x[i₂₃] == old(x)[1 + i₂₃]))
+        && (forall i₂₃: int ::
+              (!(  old(i) <= i₂₃
+                && i₂₃ < i
               )
-                 ==> x[x₂₅] == old(x[x₂₅])))
-        && (forall i₂₄: int ::
-              (  old(i) <= i₂₄
-                && i₂₄ < i
-                 ==> i₂₄ < -1 + N));
+                 ==> x[i₂₃] == old(x)[i₂₃]));
     {
       x := x[i := x[i + 1]];
       i := i + 1;

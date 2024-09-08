@@ -16,16 +16,19 @@ procedure _strcmp(src: [int]int, dst: [int]int)
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
-               ==> i₂ < 100000
-                && !(  dst[i₂] != src[i₂]
-                  && i₂ < 100000
-                )));
+               ==> dst[i₂] == src[i₂]
+                && i₂ < 100000))
+      && (forall i₂: int ::
+            (  old(i) <= i₂
+              && i₂ < i
+               ==> !(  dst[i₂] != src[i₂]
+                && i₂ < 100000
+              )));
   {
     if(dst[i] != src[i]) {
       c#result := 1;
@@ -45,49 +48,21 @@ procedure main()
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₁₀: int ::
-            ((exists i₉: int ::
-                    x₁₀ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
-               ==> (exists __VERIFIER_nondet_int₁₇: int, i₉: int ::
-                      i₉ < 100000
-                      && x₁₀ == i₉
-                      && old(i) <= i₉
-                      && i₉ < i
-                      && a[x₁₀] == __VERIFIER_nondet_int₁₇)))
-      && (forall x₁₀: int ::
-            (!((exists i₉: int ::
-                    x₁₀ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
-            )
-               ==> a[x₁₀] == old(a[x₁₀])))
-      && (forall x₁₁: int ::
-            ((exists i₉: int ::
-                    x₁₁ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
-               ==> (exists __VERIFIER_nondet_int₂₈: int, i₉: int ::
-                      i₉ < 100000
-                      && x₁₁ == i₉
-                      && old(i) <= i₉
-                      && i₉ < i
-                      && b[x₁₁] == __VERIFIER_nondet_int₂₈)))
-      && (forall x₁₁: int ::
-            (!((exists i₉: int ::
-                    x₁₁ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
-            )
-               ==> b[x₁₁] == old(b[x₁₁])))
       && (forall i₉: int ::
             (  old(i) <= i₉
               && i₉ < i
-               ==> i₉ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₇: int, __VERIFIER_nondet_int₂₈: int ::
+                      i₉ < 100000
+                      && a[i₉] == __VERIFIER_nondet_int₁₇
+                      && b[i₉] == __VERIFIER_nondet_int₂₈)))
+      && (forall i₉: int ::
+            (!(  old(i) <= i₉
+              && i₉ < i
+            )
+               ==> a[i₉] == old(a)[i₉]
+                && b[i₉] == old(b)[i₉]));
   {
     var __VERIFIER_nondet_int₁: int;
     a := a[i := __VERIFIER_nondet_int₁];
@@ -104,13 +79,12 @@ procedure main()
     x := 0;
     while(x < 100000)
       decreases 100000 - x;
-      invariant true
-        && old(x) <= x
+      invariant old(x) <= x
         && x <= 100000
-        && (forall x₁₈: int ::
-              (  old(x) <= x₁₈
-                && x₁₈ < x
-                 ==> x₁₈ < 100000));
+        && (forall x₁₆: int ::
+              (  old(x) <= x₁₆
+                && x₁₆ < x
+                 ==> x₁₆ < 100000));
     {
       assert a[x] == b[x];
       x := x + 1;

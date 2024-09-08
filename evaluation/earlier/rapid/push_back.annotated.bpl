@@ -19,36 +19,23 @@ procedure push_back(b: [int]int, blength: int)
       && old(alength) <= alength
       && old(i) <= i
       && i <= blength
-      && (forall x₃: int ::
-            ((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-               ==> (exists alength₁: int, i₂: int ::
-                      i₂ < blength
-                      && 0 <= i₂
-                      && i₂ == alength₁
-                      && alength₁ <= blength
-                      && x₃ == i₂
-                      && old(i) <= i₂
-                      && i₂ < i
-                      && a[x₃] == b[i₂])))
-      && (forall x₃: int ::
-            (!((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-            )
-               ==> a[x₃] == old(a[x₃])))
       && (forall alength₁: int, i₂: int ::
-            (  0 <= i₂
-              && i₂ == alength₁
-              && alength₁ <= blength
-              && old(alength) <= alength₁
+            (  old(alength) <= alength₁
               && alength₁ < alength
               && old(i) <= i₂
               && i₂ < i
-               ==> i₂ < blength));
+               ==> i₂ < blength
+                && 0 <= i₂
+                && i₂ == alength₁
+                && alength₁ <= blength
+                && a[i₂] == b[i₂]))
+      && (forall alength₁: int, i₂: int ::
+            (!(  old(alength) <= alength₁
+              && alength₁ < alength
+              && old(i) <= i₂
+              && i₂ < i
+            )
+               ==> a[i₂] == old(a)[i₂]));
   {
     a := a[i := b[i]];
     alength := alength + 1;

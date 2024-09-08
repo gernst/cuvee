@@ -14,30 +14,24 @@ object annotate
     extends Run(
       Earlier(mode = "annotate"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
-      "examples/boogie/sv-benchmarks",
-      "examples/boogie/rapid"
+      "examples/boogie/rapid",
+      "examples/boogie/sv-benchmarks"
     )
 
 object reduce
     extends Run(
       Earlier(mode = "reduce"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
-      "examples/boogie/sv-benchmarks",
-      "examples/boogie/rapid"
+      "examples/boogie/rapid",
+      "examples/boogie/sv-benchmarks"
     )
 
 object evaluate
     extends Run(
       Earlier(mode = "evaluate"),
-      // "examples/chc/maxpranq/bench_precondn/c_serialized",
-      "examples/boogie/sv-benchmarks",
-      // "examples/boogie/rapid"
-    )
-
-object evaluate_
-    extends Run(
-      Earlier(mode = "evaluate_"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
+      "examples/boogie/rapid",
+      "examples/boogie/sv-benchmarks"
     )
 
 case class Earlier(mode: String) extends Main {
@@ -74,7 +68,7 @@ case class Earlier(mode: String) extends Main {
         case "annotate" =>
           var args = List(
             path + "/" + file,
-            "-annotate:arrays+frame+guard",
+            "-annotate:new-arrays",
             // "-vcgen:partial", DO NOT VCGEN THIS
             "-o",
             dst_ + file_ + ".annotated.bpl"
@@ -103,19 +97,6 @@ case class Earlier(mode: String) extends Main {
             "-prove:z3",
             "-prove:crosscheck",
             "-prove:strict"
-          )
-
-          file -> eval(args.toArray)
-
-        case "evaluate_" =>
-          var args = List(
-            path + "/" + file,
-            "-annotate:new-arrays",
-            "-vcgen:partial",
-            "-prove:simple",
-            // "-prove:strict",
-            "-o",
-            dst_ + file_ + ".foo.bpl"
           )
 
           file -> eval(args.toArray)

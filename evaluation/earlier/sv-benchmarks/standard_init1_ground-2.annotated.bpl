@@ -17,31 +17,18 @@ procedure main()
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₃: int ::
-            ((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-               ==> (exists i₂: int ::
-                      i₂ < 100000
-                      && x₃ == i₂
-                      && old(i) <= i₂
-                      && i₂ < i
-                      && a[x₃] == 42)))
-      && (forall x₃: int ::
-            (!((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-            )
-               ==> a[x₃] == old(a[x₃])))
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
-               ==> i₂ < 100000));
+               ==> i₂ < 100000
+                && a[i₂] == 42))
+      && (forall i₂: int ::
+            (!(  old(i) <= i₂
+              && i₂ < i
+            )
+               ==> a[i₂] == old(a)[i₂]));
   {
     a := a[i := 42];
     i := i + 1;
@@ -50,13 +37,12 @@ procedure main()
   x := 0;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₇: int ::
-            (  old(x) <= x₇
-              && x₇ < x
-               ==> x₇ < 100000));
+      && (forall x₆: int ::
+            (  old(x) <= x₆
+              && x₆ < x
+               ==> x₆ < 100000));
   {
     assert a[x] == 42;
     x := x + 1;

@@ -19,31 +19,19 @@ procedure main()
   a := 0;
   while(a < 100000)
     decreases 100000 - a;
-    invariant true
-      && old(a) <= a
+    invariant old(a) <= a
       && a <= 100000
-      && (forall x₆: int ::
-            ((exists a₅: int ::
-                    x₆ == a₅
-                    && old(a) <= a₅
-                    && a₅ < a)
-               ==> (exists __VERIFIER_nondet_int₁₄: int, a₅: int ::
-                      a₅ < 100000
-                      && x₆ == a₅
-                      && old(a) <= a₅
-                      && a₅ < a
-                      && a1[x₆] == __VERIFIER_nondet_int₁₄)))
-      && (forall x₆: int ::
-            (!((exists a₅: int ::
-                    x₆ == a₅
-                    && old(a) <= a₅
-                    && a₅ < a)
-            )
-               ==> a1[x₆] == old(a1[x₆])))
       && (forall a₅: int ::
             (  old(a) <= a₅
               && a₅ < a
-               ==> a₅ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₄: int ::
+                      a₅ < 100000
+                      && a1[a₅] == __VERIFIER_nondet_int₁₄)))
+      && (forall a₅: int ::
+            (!(  old(a) <= a₅
+              && a₅ < a
+            )
+               ==> a1[a₅] == old(a1)[a₅]));
   {
     var __VERIFIER_nondet_int₁: int;
     a1 := a1[a := __VERIFIER_nondet_int₁];
@@ -53,31 +41,18 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₁₁: int ::
-            ((exists i₁₀: int ::
-                    x₁₁ == i₁₀
-                    && old(i) <= i₁₀
-                    && i₁₀ < i)
-               ==> (exists i₁₀: int ::
-                      i₁₀ < 100000
-                      && x₁₁ == i₁₀
-                      && old(i) <= i₁₀
-                      && i₁₀ < i
-                      && a2[x₁₁] == a1[i₁₀])))
-      && (forall x₁₁: int ::
-            (!((exists i₁₀: int ::
-                    x₁₁ == i₁₀
-                    && old(i) <= i₁₀
-                    && i₁₀ < i)
+      && (forall i₉: int ::
+            (  old(i) <= i₉
+              && i₉ < i
+               ==> i₉ < 100000
+                && a2[i₉] == a1[i₉]))
+      && (forall i₉: int ::
+            (!(  old(i) <= i₉
+              && i₉ < i
             )
-               ==> a2[x₁₁] == old(a2[x₁₁])))
-      && (forall i₁₀: int ::
-            (  old(i) <= i₁₀
-              && i₁₀ < i
-               ==> i₁₀ < 100000));
+               ==> a2[i₉] == old(a2)[i₉]));
   {
     a2 := a2[i := a1[i]];
     i := i + 1;
@@ -86,13 +61,12 @@ procedure main()
   x := 0;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₁₅: int ::
-            (  old(x) <= x₁₅
-              && x₁₅ < x
-               ==> x₁₅ < 100000));
+      && (forall x₁₃: int ::
+            (  old(x) <= x₁₃
+              && x₁₃ < x
+               ==> x₁₃ < 100000));
   {
     assert a1[x] == a2[x];
     x := x + 1;

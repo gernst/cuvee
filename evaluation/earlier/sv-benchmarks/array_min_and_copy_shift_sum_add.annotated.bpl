@@ -28,13 +28,20 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall i₉: int ::
+      && (forall j₈: int, i₉: int ::
             (  old(i) <= i₉
               && i₉ < i
-               ==> i₉ < N));
+               ==> a[i₉] < j₈
+                  && a[i₉] < 10000
+                  && -10000 < a[i₉]
+                  && i₉ < N
+                ||   !(a[i₉] < j₈
+                  )
+                  && a[i₉] < 10000
+                  && -10000 < a[i₉]
+                  && i₉ < N));
   {
     assume a[i] < 10000 && -10000 < a[i];
     if(a[i] < j) {
@@ -45,31 +52,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₁₃: int ::
-            ((exists i₁₂: int ::
-                    x₁₃ == i₁₂
-                    && old(i) <= i₁₂
-                    && i₁₂ < i)
-               ==> (exists i₁₂: int ::
-                      i₁₂ < N
-                      && x₁₃ == i₁₂
-                      && old(i) <= i₁₂
-                      && i₁₂ < i
-                      && b[x₁₃] == a[i₁₂] + -j)))
-      && (forall x₁₃: int ::
-            (!((exists i₁₂: int ::
-                    x₁₃ == i₁₂
-                    && old(i) <= i₁₂
-                    && i₁₂ < i)
-            )
-               ==> b[x₁₃] == old(b[x₁₃])))
       && (forall i₁₂: int ::
             (  old(i) <= i₁₂
               && i₁₂ < i
-               ==> i₁₂ < N));
+               ==> i₁₂ < N
+                && b[i₁₂] == a[i₁₂] + -j))
+      && (forall i₁₂: int ::
+            (!(  old(i) <= i₁₂
+              && i₁₂ < i
+            )
+               ==> b[i₁₂] == old(b)[i₁₂]));
   {
     b := b[i := a[i] - j];
     i := i + 1;
@@ -77,13 +71,12 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall i₁₇: int ::
-            (  old(i) <= i₁₇
-              && i₁₇ < i
-               ==> i₁₇ < N));
+      && (forall i₁₆: int ::
+            (  old(i) <= i₁₆
+              && i₁₆ < i
+               ==> i₁₆ < N));
   {
     k := k + b[i] + i;
     i := i + 1;

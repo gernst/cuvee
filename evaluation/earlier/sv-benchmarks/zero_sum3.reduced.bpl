@@ -8,72 +8,62 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall SIZE₃₃: int, a: [int]int, a₃₅: [int]int, i₃₆: int, i₃₈: int, i₄₀: int, i₄₂: int, i₄₄: int, i₄₆: int, sum₄₇: int, i₄₈: int ::
-      (  1 < SIZE₃₃
-        && 0 <= i₃₆
-        && i₃₆ <= SIZE₃₃
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < i₃₆
-                 ==> (exists __VERIFIER_nondet_short₁₄: int, i₅: int ::
-                        i₅ < SIZE₃₃
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₃₆
-                        && a₃₅[x₆] == __VERIFIER_nondet_short₁₄)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₃₆)
-                || a₃₅[x₆] == a[x₆])
+goal (forall SIZE₃₂: int, a: [int]int, a₃₄: [int]int, i₃₅: int, i₃₇: int, i₃₉: int, i₄₁: int, i₄₃: int, i₄₅: int, sum₄₆: int, i₄₇: int ::
+      (  1 < SIZE₃₂
+        && 0 <= i₃₅
+        && i₃₅ <= SIZE₃₂
         && (forall i₅: int ::
               (  0 <= i₅
-                && i₅ < i₃₆
-                 ==> i₅ < SIZE₃₃))
-        && 0 <= i₃₈
-        && i₃₈ <= SIZE₃₃
-        && (forall i₁₀: int ::
-              (  0 <= i₁₀
-                && i₁₀ < i₃₈
-                 ==> i₁₀ < SIZE₃₃))
-        && 0 <= i₄₀
-        && i₄₀ <= SIZE₃₃
-        && (forall i₁₄: int ::
-              (  0 <= i₁₄
-                && i₁₄ < i₄₀
-                 ==> i₁₄ < SIZE₃₃))
-        && 0 <= i₄₂
-        && i₄₂ <= SIZE₃₃
-        && (forall i₁₈: int ::
-              (  0 <= i₁₈
-                && i₁₈ < i₄₂
-                 ==> i₁₈ < SIZE₃₃))
-        && 0 <= i₄₄
-        && i₄₄ <= SIZE₃₃
-        && (forall i₂₂: int ::
-              (  0 <= i₂₂
-                && i₂₂ < i₄₄
-                 ==> i₂₂ < SIZE₃₃))
-        && 0 <= i₄₆
-        && i₄₆ <= SIZE₃₃
-        && (forall i₂₆: int ::
-              (  0 <= i₂₆
-                && i₂₆ < i₄₆
-                 ==> i₂₆ < SIZE₃₃))
-        && 0 <= i₄₈
-        && i₄₈ <= SIZE₃₃
-        && (forall i₃₀: int ::
-              (  0 <= i₃₀
-                && i₃₀ < i₄₈
-                 ==> i₃₀ < SIZE₃₃))
-         ==> i₄₈ < SIZE₃₃
-          || i₄₆ < SIZE₃₃
-          || i₄₄ < SIZE₃₃
-          || i₄₂ < SIZE₃₃
-          || i₄₀ < SIZE₃₃
-          || i₃₈ < SIZE₃₃
-          || i₃₆ < SIZE₃₃
-          || sum₄₇ == 0));
+                && i₅ < i₃₅
+                 ==> (exists __VERIFIER_nondet_short₁₄: int ::
+                        i₅ < SIZE₃₂
+                        && a₃₄[i₅] == __VERIFIER_nondet_short₁₄)))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₃₅
+                || a₃₄[i₅] == a[i₅])
+        && 0 <= i₃₇
+        && i₃₇ <= SIZE₃₂
+        && (forall i₉: int ::
+              (  0 <= i₉
+                && i₉ < i₃₇
+                 ==> i₉ < SIZE₃₂))
+        && 0 <= i₃₉
+        && i₃₉ <= SIZE₃₂
+        && (forall i₁₃: int ::
+              (  0 <= i₁₃
+                && i₁₃ < i₃₉
+                 ==> i₁₃ < SIZE₃₂))
+        && 0 <= i₄₁
+        && i₄₁ <= SIZE₃₂
+        && (forall i₁₇: int ::
+              (  0 <= i₁₇
+                && i₁₇ < i₄₁
+                 ==> i₁₇ < SIZE₃₂))
+        && 0 <= i₄₃
+        && i₄₃ <= SIZE₃₂
+        && (forall i₂₁: int ::
+              (  0 <= i₂₁
+                && i₂₁ < i₄₃
+                 ==> i₂₁ < SIZE₃₂))
+        && 0 <= i₄₅
+        && i₄₅ <= SIZE₃₂
+        && (forall i₂₅: int ::
+              (  0 <= i₂₅
+                && i₂₅ < i₄₅
+                 ==> i₂₅ < SIZE₃₂))
+        && 0 <= i₄₇
+        && i₄₇ <= SIZE₃₂
+        && (forall i₂₉: int ::
+              (  0 <= i₂₉
+                && i₂₉ < i₄₇
+                 ==> i₂₉ < SIZE₃₂))
+         ==> i₄₇ < SIZE₃₂
+          || i₄₅ < SIZE₃₂
+          || i₄₃ < SIZE₃₂
+          || i₄₁ < SIZE₃₂
+          || i₃₉ < SIZE₃₂
+          || i₃₇ < SIZE₃₂
+          || i₃₅ < SIZE₃₂
+          || sum₄₆ == 0));
 

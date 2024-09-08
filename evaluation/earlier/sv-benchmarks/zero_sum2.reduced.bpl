@@ -8,58 +8,48 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall SIZE₂₅: int, a: [int]int, a₂₇: [int]int, i₂₈: int, i₃₀: int, i₃₂: int, i₃₄: int, sum₃₅: int, i₃₆: int ::
-      (  1 < SIZE₂₅
-        && 0 <= i₂₈
-        && i₂₈ <= SIZE₂₅
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < i₂₈
-                 ==> (exists __VERIFIER_nondet_short₁₄: int, i₅: int ::
-                        i₅ < SIZE₂₅
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₂₈
-                        && a₂₇[x₆] == __VERIFIER_nondet_short₁₄)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₂₈)
-                || a₂₇[x₆] == a[x₆])
+goal (forall SIZE₂₄: int, a: [int]int, a₂₆: [int]int, i₂₇: int, i₂₉: int, i₃₁: int, i₃₃: int, sum₃₄: int, i₃₅: int ::
+      (  1 < SIZE₂₄
+        && 0 <= i₂₇
+        && i₂₇ <= SIZE₂₄
         && (forall i₅: int ::
               (  0 <= i₅
-                && i₅ < i₂₈
-                 ==> i₅ < SIZE₂₅))
-        && 0 <= i₃₀
-        && i₃₀ <= SIZE₂₅
-        && (forall i₁₀: int ::
-              (  0 <= i₁₀
-                && i₁₀ < i₃₀
-                 ==> i₁₀ < SIZE₂₅))
-        && 0 <= i₃₂
-        && i₃₂ <= SIZE₂₅
-        && (forall i₁₄: int ::
-              (  0 <= i₁₄
-                && i₁₄ < i₃₂
-                 ==> i₁₄ < SIZE₂₅))
-        && 0 <= i₃₄
-        && i₃₄ <= SIZE₂₅
-        && (forall i₁₈: int ::
-              (  0 <= i₁₈
-                && i₁₈ < i₃₄
-                 ==> i₁₈ < SIZE₂₅))
-        && 0 <= i₃₆
-        && i₃₆ <= SIZE₂₅
-        && (forall i₂₂: int ::
-              (  0 <= i₂₂
-                && i₂₂ < i₃₆
-                 ==> i₂₂ < SIZE₂₅))
-         ==> i₃₆ < SIZE₂₅
-          || i₃₄ < SIZE₂₅
-          || i₃₂ < SIZE₂₅
-          || i₃₀ < SIZE₂₅
-          || i₂₈ < SIZE₂₅
-          || sum₃₅ == 0));
+                && i₅ < i₂₇
+                 ==> (exists __VERIFIER_nondet_short₁₄: int ::
+                        i₅ < SIZE₂₄
+                        && a₂₆[i₅] == __VERIFIER_nondet_short₁₄)))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₂₇
+                || a₂₆[i₅] == a[i₅])
+        && 0 <= i₂₉
+        && i₂₉ <= SIZE₂₄
+        && (forall i₉: int ::
+              (  0 <= i₉
+                && i₉ < i₂₉
+                 ==> i₉ < SIZE₂₄))
+        && 0 <= i₃₁
+        && i₃₁ <= SIZE₂₄
+        && (forall i₁₃: int ::
+              (  0 <= i₁₃
+                && i₁₃ < i₃₁
+                 ==> i₁₃ < SIZE₂₄))
+        && 0 <= i₃₃
+        && i₃₃ <= SIZE₂₄
+        && (forall i₁₇: int ::
+              (  0 <= i₁₇
+                && i₁₇ < i₃₃
+                 ==> i₁₇ < SIZE₂₄))
+        && 0 <= i₃₅
+        && i₃₅ <= SIZE₂₄
+        && (forall i₂₁: int ::
+              (  0 <= i₂₁
+                && i₂₁ < i₃₅
+                 ==> i₂₁ < SIZE₂₄))
+         ==> i₃₅ < SIZE₂₄
+          || i₃₃ < SIZE₂₄
+          || i₃₁ < SIZE₂₄
+          || i₂₉ < SIZE₂₄
+          || i₂₇ < SIZE₂₄
+          || sum₃₄ == 0));
 

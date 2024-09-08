@@ -15,30 +15,17 @@ procedure copy_partial(blength: int, k: int, b: [int]int)
     invariant 0 <= alength
       && old(alength) <= alength
       && alength <= k
-      && (forall x₂: int ::
-            ((exists alength₁: int ::
-                    x₂ == alength₁
-                    && old(alength) <= alength₁
-                    && alength₁ < alength)
-               ==> (exists alength₁: int ::
-                      alength₁ < k
-                      && 0 <= alength₁
-                      && x₂ == alength₁
-                      && old(alength) <= alength₁
-                      && alength₁ < alength
-                      && a[x₂] == b[alength₁])))
-      && (forall x₂: int ::
-            (!((exists alength₁: int ::
-                    x₂ == alength₁
-                    && old(alength) <= alength₁
-                    && alength₁ < alength)
-            )
-               ==> a[x₂] == old(a[x₂])))
       && (forall alength₁: int ::
-            (  0 <= alength₁
-              && old(alength) <= alength₁
+            (  old(alength) <= alength₁
               && alength₁ < alength
-               ==> alength₁ < k));
+               ==> alength₁ < k
+                && 0 <= alength₁
+                && a[alength₁] == b[alength₁]))
+      && (forall alength₁: int ::
+            (!(  old(alength) <= alength₁
+              && alength₁ < alength
+            )
+               ==> a[alength₁] == old(a)[alength₁]));
   {
     a := a[alength := b[alength]];
     alength := alength + 1;

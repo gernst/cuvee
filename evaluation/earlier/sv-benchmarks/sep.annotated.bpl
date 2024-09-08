@@ -20,13 +20,15 @@ procedure sep(x: [int]int)
   var i: int := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
-               ==> i₂ < N));
+               ==> x[i₂] % 2 == 0
+                  && i₂ < N
+                ||   x[i₂] % 2 != 0
+                  && i₂ < N));
   {
     if(x[i] % 2 == 0) {
       ret := ret + 1;
@@ -63,31 +65,18 @@ procedure main()
     var i: int := 0;
     while(i < N - 1)
       decreases N - 1 - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= -1 + N
-        && (forall x₁₈: int ::
-              ((exists i₁₇: int ::
-                      x₁₈ == i₁₇
-                      && old(i) <= i₁₇
-                      && i₁₇ < i)
-                 ==> (exists i₁₇: int ::
-                        i₁₇ < -1 + N
-                        && x₁₈ == i₁₇
-                        && old(i) <= i₁₇
-                        && i₁₇ < i
-                        && x[x₁₈] == old(x)[1 + i₁₇])))
-        && (forall x₁₈: int ::
-              (!((exists i₁₇: int ::
-                      x₁₈ == i₁₇
-                      && old(i) <= i₁₇
-                      && i₁₇ < i)
-              )
-                 ==> x[x₁₈] == old(x[x₁₈])))
         && (forall i₁₇: int ::
               (  old(i) <= i₁₇
                 && i₁₇ < i
-                 ==> i₁₇ < -1 + N));
+                 ==> i₁₇ < -1 + N
+                  && x[i₁₇] == old(x)[1 + i₁₇]))
+        && (forall i₁₇: int ::
+              (!(  old(i) <= i₁₇
+                && i₁₇ < i
+              )
+                 ==> x[i₁₇] == old(x)[i₁₇]));
     {
       x := x[i := x[i + 1]];
       i := i + 1;

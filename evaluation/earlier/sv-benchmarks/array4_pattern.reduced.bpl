@@ -8,103 +8,95 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall ARR_SIZE₃₃: int, array1: [int]int, array2: [int]int, array1₃₄: [int]int, array2₃₅: [int]int, count₃₆: int, count₁₈: int, index1₁₃: int, index2₁₄: int, temp₁₅: int ::
-      (  0 < ARR_SIZE₃₃
-        && 0 <= count₃₆
-        && count₃₆ <= ARR_SIZE₃₃
-        && (forall x₈: int, count₇: int ::
-              (  x₈ == count₇
-                && 0 <= count₇
-                && count₇ < count₃₆
-                 ==> (exists count₇: int ::
-                        count₇ < ARR_SIZE₃₃
-                        && x₈ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆
-                        && array1₃₄[x₈] == 0)))
-        && (forall x₈: int ::
-                (exists count₇: int ::
-                        x₈ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆)
-                || array1₃₄[x₈] == array1[x₈])
-        && (forall x₉: int, count₇: int ::
-              (  x₉ == count₇
-                && 0 <= count₇
-                && count₇ < count₃₆
-                 ==> (exists count₇: int ::
-                        count₇ < ARR_SIZE₃₃
-                        && x₉ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆
-                        && array2₃₅[x₉] == 0)))
-        && (forall x₉: int ::
-                (exists count₇: int ::
-                        x₉ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆)
-                || array2₃₅[x₉] == array2[x₉])
+goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int ::
+      (  0 < ARR_SIZE₂₉
+        && 0 <= count₃₂
+        && count₃₂ <= ARR_SIZE₂₉
         && (forall count₇: int ::
               (  0 <= count₇
-                && count₇ < count₃₆
-                 ==> count₇ < ARR_SIZE₃₃))
-        && temp₁₅ == 0
-        && count₁₈ == 200
-        && array2₃₅[index2₁₄] == 0
-        && array1₃₄[index1₁₃] == 0
-        && 0 <= index2₁₄
-        && index2₁₄ < ARR_SIZE₃₃
-        && 0 <= index1₁₃
-        && index1₁₃ < ARR_SIZE₃₃
-         ==> count₃₆ < ARR_SIZE₃₃));
+                && count₇ < count₃₂
+                 ==> count₇ < ARR_SIZE₂₉
+                  && array1₃₀[count₇] == 0
+                  && array2₃₁[count₇] == 0))
+        && (forall count₇: int ::
+                  0 <= count₇
+                  && count₇ < count₃₂
+                ||   array1₃₀[count₇] == array1[count₇]
+                  && array2₃₁[count₇] == array2[count₇])
+         ==> count₃₂ < ARR_SIZE₂₉
+          || (exists index1₁₁: int, index2₁₂: int, temp₁₃: int ::
+                  (temp₁₃ == 0
+                     ==> false)
+                  && count₁₆ == 200
+                  && array2₃₁[index2₁₂] == 0
+                  && array1₃₀[index1₁₁] == 0
+                  && 0 <= index2₁₂
+                  && index2₁₂ < ARR_SIZE₂₉
+                  && 0 <= index1₁₁
+                  && index1₁₁ < ARR_SIZE₂₉
+                  && array2₃₁[index2₁₂] == (-1) * count₁₆
+                  && array1₃₀[index1₁₁] == (-1) * (-1) * count₁₆)
+          || (exists index1₁₁: int, index2₁₂: int, temp₁₄: int ::
+                  (temp₁₄ == 0
+                     ==> false)
+                  && (count₁₆ == 200
+                     ==> false)
+                  && array2₃₁[index2₁₂] == 0
+                  && array1₃₀[index1₁₁] == 0
+                  && 0 <= index2₁₂
+                  && index2₁₂ < ARR_SIZE₂₉
+                  && 0 <= index1₁₁
+                  && index1₁₁ < ARR_SIZE₂₉
+                  && array2₃₁[index2₁₂] == (-1) * count₁₆
+                  && array1₃₀[index1₁₁] == (-1) * (-1) * count₁₆)));
 
-goal (forall ARR_SIZE₃₃: int, array1: [int]int, array2: [int]int, array1₃₄: [int]int, array2₃₅: [int]int, count₃₆: int, count₁₈: int, index1₁₃: int, index2₁₄: int, temp₁₆: int ::
-      (  0 < ARR_SIZE₃₃
-        && 0 <= count₃₆
-        && count₃₆ <= ARR_SIZE₃₃
-        && (forall x₈: int, count₇: int ::
-              (  x₈ == count₇
-                && 0 <= count₇
-                && count₇ < count₃₆
-                 ==> (exists count₇: int ::
-                        count₇ < ARR_SIZE₃₃
-                        && x₈ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆
-                        && array1₃₄[x₈] == 0)))
-        && (forall x₈: int ::
-                (exists count₇: int ::
-                        x₈ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆)
-                || array1₃₄[x₈] == array1[x₈])
-        && (forall x₉: int, count₇: int ::
-              (  x₉ == count₇
-                && 0 <= count₇
-                && count₇ < count₃₆
-                 ==> (exists count₇: int ::
-                        count₇ < ARR_SIZE₃₃
-                        && x₉ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆
-                        && array2₃₅[x₉] == 0)))
-        && (forall x₉: int ::
-                (exists count₇: int ::
-                        x₉ == count₇
-                        && 0 <= count₇
-                        && count₇ < count₃₆)
-                || array2₃₅[x₉] == array2[x₉])
+goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₃: int ::
+      (  0 < ARR_SIZE₂₉
+        && 0 <= count₃₂
+        && count₃₂ <= ARR_SIZE₂₉
         && (forall count₇: int ::
               (  0 <= count₇
-                && count₇ < count₃₆
-                 ==> count₇ < ARR_SIZE₃₃))
-        && temp₁₆ == 0
-        && array2₃₅[index2₁₄] == 0
-        && array1₃₄[index1₁₃] == 0
-        && 0 <= index2₁₄
-        && index2₁₄ < ARR_SIZE₃₃
-        && 0 <= index1₁₃
-        && index1₁₃ < ARR_SIZE₃₃
-         ==> count₁₈ == 200
-          || count₃₆ < ARR_SIZE₃₃));
+                && count₇ < count₃₂
+                 ==> count₇ < ARR_SIZE₂₉
+                  && array1₃₀[count₇] == 0
+                  && array2₃₁[count₇] == 0))
+        && (forall count₇: int ::
+                  0 <= count₇
+                  && count₇ < count₃₂
+                ||   array1₃₀[count₇] == array1[count₇]
+                  && array2₃₁[count₇] == array2[count₇])
+        && temp₁₃ == 0
+        && count₁₆ == 200
+        && array2₃₁[index2₁₂] == 0
+        && array1₃₀[index1₁₁] == 0
+        && 0 <= index2₁₂
+        && index2₁₂ < ARR_SIZE₂₉
+        && 0 <= index1₁₁
+        && index1₁₁ < ARR_SIZE₂₉
+         ==> count₃₂ < ARR_SIZE₂₉));
+
+goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₄: int ::
+      (  0 < ARR_SIZE₂₉
+        && 0 <= count₃₂
+        && count₃₂ <= ARR_SIZE₂₉
+        && (forall count₇: int ::
+              (  0 <= count₇
+                && count₇ < count₃₂
+                 ==> count₇ < ARR_SIZE₂₉
+                  && array1₃₀[count₇] == 0
+                  && array2₃₁[count₇] == 0))
+        && (forall count₇: int ::
+                  0 <= count₇
+                  && count₇ < count₃₂
+                ||   array1₃₀[count₇] == array1[count₇]
+                  && array2₃₁[count₇] == array2[count₇])
+        && temp₁₄ == 0
+        && array2₃₁[index2₁₂] == 0
+        && array1₃₀[index1₁₁] == 0
+        && 0 <= index2₁₂
+        && index2₁₂ < ARR_SIZE₂₉
+        && 0 <= index1₁₁
+        && index1₁₁ < ARR_SIZE₂₉
+         ==> count₁₆ == 200
+          || count₃₂ < ARR_SIZE₂₉));
 

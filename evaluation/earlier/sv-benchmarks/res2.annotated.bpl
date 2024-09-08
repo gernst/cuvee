@@ -33,31 +33,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₈: int ::
-            ((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-               ==> (exists i₇: int ::
-                      i₇ < N
-                      && x₈ == i₇
-                      && old(i) <= i₇
-                      && i₇ < i
-                      && a[x₈] == 1)))
-      && (forall x₈: int ::
-            (!((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-            )
-               ==> a[x₈] == old(a[x₈])))
       && (forall i₇: int ::
             (  old(i) <= i₇
               && i₇ < i
-               ==> i₇ < N));
+               ==> i₇ < N
+                && a[i₇] == 1))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
+            )
+               ==> a[i₇] == old(a)[i₇]));
   {
     a := a[i := 1];
     i := i + 1;
@@ -65,22 +52,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₁₂: int ::
-            (x₁₂ == 0
-               ==> (exists i₁₁: int ::
-                      i₁₁ < N
-                      && x₁₂ == 0
-                      && sum[x₁₂] == old(sum)[0] + a[i₁₁])))
-      && (forall x₁₂: int ::
-            (x₁₂ != 0
-               ==> sum[x₁₂] == old(sum[x₁₂])))
-      && (forall i₁₁: int ::
-            (  old(i) <= i₁₁
-              && i₁₁ < i
-               ==> i₁₁ < N));
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < N
+                && sum[0] == old(sum)[0] + a[i₁₀]))
+      && (forall i₁₀: int ::
+            (!(  old(i) <= i₁₀
+              && i₁₀ < i
+            )
+               ==> sum[0] == old(sum)[0]));
   {
     sum := sum[0 := sum[0] + a[i]];
     i := i + 1;
@@ -88,31 +71,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₁₆: int ::
-            ((exists i₁₅: int ::
-                    x₁₆ == i₁₅
-                    && old(i) <= i₁₅
-                    && i₁₅ < i)
-               ==> (exists i₁₅: int ::
-                      i₁₅ < N
-                      && x₁₆ == i₁₅
-                      && old(i) <= i₁₅
-                      && i₁₅ < i
-                      && b[x₁₆] == 1)))
-      && (forall x₁₆: int ::
-            (!((exists i₁₅: int ::
-                    x₁₆ == i₁₅
-                    && old(i) <= i₁₅
-                    && i₁₅ < i)
+      && (forall i₁₃: int ::
+            (  old(i) <= i₁₃
+              && i₁₃ < i
+               ==> i₁₃ < N
+                && b[i₁₃] == 1))
+      && (forall i₁₃: int ::
+            (!(  old(i) <= i₁₃
+              && i₁₃ < i
             )
-               ==> b[x₁₆] == old(b[x₁₆])))
-      && (forall i₁₅: int ::
-            (  old(i) <= i₁₅
-              && i₁₅ < i
-               ==> i₁₅ < N));
+               ==> b[i₁₃] == old(b)[i₁₃]));
   {
     b := b[i := 1];
     i := i + 1;
@@ -120,22 +90,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₂₀: int ::
-            (x₂₀ == 0
-               ==> (exists i₁₉: int ::
-                      i₁₉ < N
-                      && x₂₀ == 0
-                      && sum[x₂₀] == b[i₁₉] + old(sum)[0])))
-      && (forall x₂₀: int ::
-            (x₂₀ != 0
-               ==> sum[x₂₀] == old(sum[x₂₀])))
-      && (forall i₁₉: int ::
-            (  old(i) <= i₁₉
-              && i₁₉ < i
-               ==> i₁₉ < N));
+      && (forall i₁₆: int ::
+            (  old(i) <= i₁₆
+              && i₁₆ < i
+               ==> i₁₆ < N
+                && sum[0] == old(sum)[0] + b[i₁₆]))
+      && (forall i₁₆: int ::
+            (!(  old(i) <= i₁₆
+              && i₁₆ < i
+            )
+               ==> sum[0] == old(sum)[0]));
   {
     sum := sum[0 := sum[0] + b[i]];
     i := i + 1;
@@ -143,31 +109,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₂₄: int ::
-            ((exists i₂₃: int ::
-                    x₂₄ == i₂₃
-                    && old(i) <= i₂₃
-                    && i₂₃ < i)
-               ==> (exists i₂₃: int ::
-                      i₂₃ < N
-                      && x₂₄ == i₂₃
-                      && old(i) <= i₂₃
-                      && i₂₃ < i
-                      && c[x₂₄] == 1)))
-      && (forall x₂₄: int ::
-            (!((exists i₂₃: int ::
-                    x₂₄ == i₂₃
-                    && old(i) <= i₂₃
-                    && i₂₃ < i)
+      && (forall i₁₉: int ::
+            (  old(i) <= i₁₉
+              && i₁₉ < i
+               ==> i₁₉ < N
+                && c[i₁₉] == 1))
+      && (forall i₁₉: int ::
+            (!(  old(i) <= i₁₉
+              && i₁₉ < i
             )
-               ==> c[x₂₄] == old(c[x₂₄])))
-      && (forall i₂₃: int ::
-            (  old(i) <= i₂₃
-              && i₂₃ < i
-               ==> i₂₃ < N));
+               ==> c[i₁₉] == old(c)[i₁₉]));
   {
     c := c[i := 1];
     i := i + 1;
@@ -175,22 +128,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₂₈: int ::
-            (x₂₈ == 0
-               ==> (exists i₂₇: int ::
-                      i₂₇ < N
-                      && x₂₈ == 0
-                      && sum[x₂₈] == old(sum)[0] + c[i₂₇])))
-      && (forall x₂₈: int ::
-            (x₂₈ != 0
-               ==> sum[x₂₈] == old(sum[x₂₈])))
-      && (forall i₂₇: int ::
-            (  old(i) <= i₂₇
-              && i₂₇ < i
-               ==> i₂₇ < N));
+      && (forall i₂₂: int ::
+            (  old(i) <= i₂₂
+              && i₂₂ < i
+               ==> i₂₂ < N
+                && sum[0] == c[i₂₂] + old(sum)[0]))
+      && (forall i₂₂: int ::
+            (!(  old(i) <= i₂₂
+              && i₂₂ < i
+            )
+               ==> sum[0] == old(sum)[0]));
   {
     sum := sum[0 := sum[0] + c[i]];
     i := i + 1;

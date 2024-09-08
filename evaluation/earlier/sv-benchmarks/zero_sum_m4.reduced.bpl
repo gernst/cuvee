@@ -8,86 +8,76 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall SIZE₄₁: int, a: [int]int, a₄₃: [int]int, i₄₄: int, i₄₆: int, i₄₈: int, i₅₀: int, i₅₂: int, i₅₄: int, i₅₆: int, i₅₈: int, sum₅₉: int, i₆₀: int ::
-      (  1 < SIZE₄₁
-        && 0 <= i₄₄
-        && i₄₄ <= SIZE₄₁
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < i₄₄
-                 ==> (exists __VERIFIER_nondet_short₁₄: int, i₅: int ::
-                        i₅ < SIZE₄₁
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₄₄
-                        && a₄₃[x₆] == __VERIFIER_nondet_short₁₄)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₄₄)
-                || a₄₃[x₆] == a[x₆])
+goal (forall SIZE₄₀: int, a: [int]int, a₄₂: [int]int, i₄₃: int, i₄₅: int, i₄₇: int, i₄₉: int, i₅₁: int, i₅₃: int, i₅₅: int, i₅₇: int, sum₅₈: int, i₅₉: int ::
+      (  1 < SIZE₄₀
+        && 0 <= i₄₃
+        && i₄₃ <= SIZE₄₀
         && (forall i₅: int ::
               (  0 <= i₅
-                && i₅ < i₄₄
-                 ==> i₅ < SIZE₄₁))
-        && 0 <= i₄₆
-        && i₄₆ <= SIZE₄₁
-        && (forall i₁₀: int ::
-              (  0 <= i₁₀
-                && i₁₀ < i₄₆
-                 ==> i₁₀ < SIZE₄₁))
-        && 0 <= i₄₈
-        && i₄₈ <= SIZE₄₁
-        && (forall i₁₄: int ::
-              (  0 <= i₁₄
-                && i₁₄ < i₄₈
-                 ==> i₁₄ < SIZE₄₁))
-        && 0 <= i₅₀
-        && i₅₀ <= SIZE₄₁
-        && (forall i₁₈: int ::
-              (  0 <= i₁₈
-                && i₁₈ < i₅₀
-                 ==> i₁₈ < SIZE₄₁))
-        && 0 <= i₅₂
-        && i₅₂ <= SIZE₄₁
-        && (forall i₂₂: int ::
-              (  0 <= i₂₂
-                && i₂₂ < i₅₂
-                 ==> i₂₂ < SIZE₄₁))
-        && 0 <= i₅₄
-        && i₅₄ <= SIZE₄₁
-        && (forall i₂₆: int ::
-              (  0 <= i₂₆
-                && i₂₆ < i₅₄
-                 ==> i₂₆ < SIZE₄₁))
-        && 0 <= i₅₆
-        && i₅₆ <= SIZE₄₁
-        && (forall i₃₀: int ::
-              (  0 <= i₃₀
-                && i₃₀ < i₅₆
-                 ==> i₃₀ < SIZE₄₁))
-        && 0 <= i₅₈
-        && i₅₈ <= SIZE₄₁
-        && (forall i₃₄: int ::
-              (  0 <= i₃₄
-                && i₃₄ < i₅₈
-                 ==> i₃₄ < SIZE₄₁))
-        && 0 <= i₆₀
-        && i₆₀ <= SIZE₄₁
-        && (forall i₃₈: int ::
-              (  0 <= i₃₈
-                && i₃₈ < i₆₀
-                 ==> i₃₈ < SIZE₄₁))
-         ==> i₆₀ < SIZE₄₁
-          || i₅₈ < SIZE₄₁
-          || i₅₆ < SIZE₄₁
-          || i₅₄ < SIZE₄₁
-          || i₅₂ < SIZE₄₁
-          || i₅₀ < SIZE₄₁
-          || i₄₈ < SIZE₄₁
-          || i₄₆ < SIZE₄₁
-          || i₄₄ < SIZE₄₁
-          || sum₅₉ == 0));
+                && i₅ < i₄₃
+                 ==> (exists __VERIFIER_nondet_short₁₄: int ::
+                        i₅ < SIZE₄₀
+                        && a₄₂[i₅] == __VERIFIER_nondet_short₁₄)))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₄₃
+                || a₄₂[i₅] == a[i₅])
+        && 0 <= i₄₅
+        && i₄₅ <= SIZE₄₀
+        && (forall i₉: int ::
+              (  0 <= i₉
+                && i₉ < i₄₅
+                 ==> i₉ < SIZE₄₀))
+        && 0 <= i₄₇
+        && i₄₇ <= SIZE₄₀
+        && (forall i₁₃: int ::
+              (  0 <= i₁₃
+                && i₁₃ < i₄₇
+                 ==> i₁₃ < SIZE₄₀))
+        && 0 <= i₄₉
+        && i₄₉ <= SIZE₄₀
+        && (forall i₁₇: int ::
+              (  0 <= i₁₇
+                && i₁₇ < i₄₉
+                 ==> i₁₇ < SIZE₄₀))
+        && 0 <= i₅₁
+        && i₅₁ <= SIZE₄₀
+        && (forall i₂₁: int ::
+              (  0 <= i₂₁
+                && i₂₁ < i₅₁
+                 ==> i₂₁ < SIZE₄₀))
+        && 0 <= i₅₃
+        && i₅₃ <= SIZE₄₀
+        && (forall i₂₅: int ::
+              (  0 <= i₂₅
+                && i₂₅ < i₅₃
+                 ==> i₂₅ < SIZE₄₀))
+        && 0 <= i₅₅
+        && i₅₅ <= SIZE₄₀
+        && (forall i₂₉: int ::
+              (  0 <= i₂₉
+                && i₂₉ < i₅₅
+                 ==> i₂₉ < SIZE₄₀))
+        && 0 <= i₅₇
+        && i₅₇ <= SIZE₄₀
+        && (forall i₃₃: int ::
+              (  0 <= i₃₃
+                && i₃₃ < i₅₇
+                 ==> i₃₃ < SIZE₄₀))
+        && 0 <= i₅₉
+        && i₅₉ <= SIZE₄₀
+        && (forall i₃₇: int ::
+              (  0 <= i₃₇
+                && i₃₇ < i₅₉
+                 ==> i₃₇ < SIZE₄₀))
+         ==> i₅₉ < SIZE₄₀
+          || i₅₇ < SIZE₄₀
+          || i₅₅ < SIZE₄₀
+          || i₅₃ < SIZE₄₀
+          || i₅₁ < SIZE₄₀
+          || i₄₉ < SIZE₄₀
+          || i₄₇ < SIZE₄₀
+          || i₄₅ < SIZE₄₀
+          || i₄₃ < SIZE₄₀
+          || sum₅₈ == 0));
 

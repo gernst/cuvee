@@ -22,31 +22,19 @@ procedure main()
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₆: int ::
-            ((exists i₅: int ::
-                    x₆ == i₅
-                    && old(i) <= i₅
-                    && i₅ < i)
-               ==> (exists __VERIFIER_nondet_int₁₄: int, i₅: int ::
-                      i₅ < 100000
-                      && x₆ == i₅
-                      && old(i) <= i₅
-                      && i₅ < i
-                      && aa[x₆] == __VERIFIER_nondet_int₁₄)))
-      && (forall x₆: int ::
-            (!((exists i₅: int ::
-                    x₆ == i₅
-                    && old(i) <= i₅
-                    && i₅ < i)
-            )
-               ==> aa[x₆] == old(aa[x₆])))
       && (forall i₅: int ::
             (  old(i) <= i₅
               && i₅ < i
-               ==> i₅ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₄: int ::
+                      i₅ < 100000
+                      && aa[i₅] == __VERIFIER_nondet_int₁₄)))
+      && (forall i₅: int ::
+            (!(  old(i) <= i₅
+              && i₅ < i
+            )
+               ==> aa[i₅] == old(aa)[i₅]));
   {
     var __VERIFIER_nondet_int₁: int;
     aa := aa[i := __VERIFIER_nondet_int₁];
@@ -54,58 +42,34 @@ procedure main()
   }
   while(a < 100000)
     decreases 100000 - a;
-    invariant true
-      && old(c) <= c
+    invariant old(c) <= c
       && old(a) <= a
       && old(b) <= b
       && a <= 100000
-      && (forall x₁₂: int ::
-            ((exists c₉: int ::
-                    x₁₂ == c₉
-                    && old(c) <= c₉
-                    && c₉ < c)
-               ==> (exists c₉: int, a₁₀: int ::
-                      !(0 <= aa[a₁₀]
-                      )
-                      && a₁₀ < 100000
-                      && x₁₂ == c₉
-                      && old(c) <= c₉
-                      && c₉ < c
-                      && cc[x₁₂] == aa[a₁₀])))
-      && (forall x₁₂: int ::
-            (!((exists c₉: int ::
-                    x₁₂ == c₉
-                    && old(c) <= c₉
-                    && c₉ < c)
+      && (forall c₈: int, a₉: int, b₁₀: int ::
+            (  old(c) <= c₈
+              && c₈ < c
+              && old(a) <= a₉
+              && a₉ < a
+              && old(b) <= b₁₀
+              && b₁₀ < b
+               ==> 0 <= aa[a₉]
+                  && a₉ < 100000
+                  && bb[b₁₀] == aa[a₉]
+                ||   !(0 <= aa[a₉]
+                  )
+                  && a₉ < 100000
+                  && cc[c₈] == aa[a₉]))
+      && (forall c₈: int, a₉: int, b₁₀: int ::
+            (!(  old(c) <= c₈
+              && c₈ < c
+              && old(a) <= a₉
+              && a₉ < a
+              && old(b) <= b₁₀
+              && b₁₀ < b
             )
-               ==> cc[x₁₂] == old(cc[x₁₂])))
-      && (forall x₁₃: int ::
-            ((exists b₁₁: int ::
-                    x₁₃ == b₁₁
-                    && old(b) <= b₁₁
-                    && b₁₁ < b)
-               ==> (exists a₁₀: int, b₁₁: int ::
-                      0 <= aa[a₁₀]
-                      && a₁₀ < 100000
-                      && x₁₃ == b₁₁
-                      && old(b) <= b₁₁
-                      && b₁₁ < b
-                      && bb[x₁₃] == aa[a₁₀])))
-      && (forall x₁₃: int ::
-            (!((exists b₁₁: int ::
-                    x₁₃ == b₁₁
-                    && old(b) <= b₁₁
-                    && b₁₁ < b)
-            )
-               ==> bb[x₁₃] == old(bb[x₁₃])))
-      && (forall c₉: int, a₁₀: int, b₁₁: int ::
-            (  old(c) <= c₉
-              && c₉ < c
-              && old(a) <= a₁₀
-              && a₁₀ < a
-              && old(b) <= b₁₁
-              && b₁₁ < b
-               ==> a₁₀ < 100000));
+               ==> bb[b₁₀] == old(bb)[b₁₀]
+                && cc[c₈] == old(cc)[c₈]));
   {
     if(0 <= aa[a]) {
       bb := bb[b := aa[a]];
@@ -120,13 +84,12 @@ procedure main()
   x := 0;
   while(x < b)
     decreases b - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= b
-      && (forall x₂₀: int ::
-            (  old(x) <= x₂₀
-              && x₂₀ < x
-               ==> x₂₀ < b));
+      && (forall x₁₇: int ::
+            (  old(x) <= x₁₇
+              && x₁₇ < x
+               ==> x₁₇ < b));
   {
     assert 0 <= bb[x];
     x := x + 1;
@@ -134,13 +97,12 @@ procedure main()
   x := 0;
   while(x < c)
     decreases c - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= c
-      && (forall x₂₂: int ::
-            (  old(x) <= x₂₂
-              && x₂₂ < x
-               ==> x₂₂ < c));
+      && (forall x₁₉: int ::
+            (  old(x) <= x₁₉
+              && x₁₉ < x
+               ==> x₁₉ < c));
   {
     assert cc[x] < 0;
     x := x + 1;

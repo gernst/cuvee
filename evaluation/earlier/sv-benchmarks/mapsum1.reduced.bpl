@@ -8,143 +8,101 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall x: [int]int, x₂₈: [int]int, i₂₉: int, ret₃₄: int, i₃₅: int, ret₄₀: int, i₄₁: int, x₄₃: [int]int, i₄₄: int, i₅₀: int ::
-      (  0 <= i₂₉
-        && i₂₉ <= 100
-        && (forall x₁₄: int, i₁₃: int ::
-              (  x₁₄ == i₁₃
-                && 0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> (exists __VERIFIER_nondet_int₂₁₂: int, i₁₃: int ::
-                        i₁₃ < 100
-                        && x₁₄ == i₁₃
-                        && 0 <= i₁₃
-                        && i₁₃ < i₂₉
-                        && x₂₈[x₁₄] == __VERIFIER_nondet_int₂₁₂)))
-        && (forall x₁₄: int ::
-                (exists i₁₃: int ::
-                        x₁₄ == i₁₃
-                        && 0 <= i₁₃
-                        && i₁₃ < i₂₉)
-                || x₂₈[x₁₄] == x[x₁₄])
+goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃₃: int, ret₃₈: int, i₃₉: int, x₄₁: [int]int, i₄₂: int, i₄₈: int ::
+      (  0 <= i₂₇
+        && i₂₇ <= 100
         && (forall i₁₃: int ::
               (  0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> i₁₃ < 100))
-        && 0 <= i₃₅
-        && i₃₅ <= 100
+                && i₁₃ < i₂₇
+                 ==> (exists __VERIFIER_nondet_int₂₁₂: int ::
+                        i₁₃ < 100
+                        && x₂₆[i₁₃] == __VERIFIER_nondet_int₂₁₂)))
+        && (forall i₁₃: int ::
+                  0 <= i₁₃
+                  && i₁₃ < i₂₇
+                || x₂₆[i₁₃] == x[i₁₃])
+        && 0 <= i₃₃
+        && i₃₃ <= 100
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₃₅
+                && i₄ < i₃₃
                  ==> i₄ < 100))
-        && 0 <= i₄₁
-        && i₄₁ <= 100
+        && 0 <= i₃₉
+        && i₃₉ <= 100
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₄₁
+                && i₄ < i₃₉
                  ==> i₄ < 100))
-        && 0 <= i₄₄
-        && i₄₄ <= 99
-        && (forall x₂₀: int, i₁₉: int ::
-              (  x₂₀ == i₁₉
-                && 0 <= i₁₉
-                && i₁₉ < i₄₄
-                 ==> (exists i₁₉: int ::
-                        i₁₉ < 99
-                        && x₂₀ == i₁₉
-                        && 0 <= i₁₉
-                        && i₁₉ < i₄₄
-                        && x₄₃[x₂₀] == x₂₈[0 := x₂₈[1]][1 := x₂₈[0]][1 + i₁₉])))
-        && (forall x₂₀: int ::
-                (exists i₁₉: int ::
-                        x₂₀ == i₁₉
-                        && 0 <= i₁₉
-                        && i₁₉ < i₄₄)
-                || x₄₃[x₂₀] == x₂₈[0 := x₂₈[1]][1 := x₂₈[0]][x₂₀])
-        && (forall i₁₉: int ::
-              (  0 <= i₁₉
-                && i₁₉ < i₄₄
-                 ==> i₁₉ < 99))
-        && 0 <= i₅₀
-        && i₅₀ <= 100
+        && 0 <= i₄₂
+        && i₄₂ <= 99
+        && (forall i₁₈: int ::
+              (  0 <= i₁₈
+                && i₁₈ < i₄₂
+                 ==> i₁₈ < 99
+                  && x₄₁[i₁₈] == x₂₆[0 := x₂₆[1]][1 := x₂₆[0]][1 + i₁₈]))
+        && (forall i₁₈: int ::
+                  0 <= i₁₈
+                  && i₁₈ < i₄₂
+                || x₄₁[i₁₈] == x₂₆[0 := x₂₆[1]][1 := x₂₆[0]][i₁₈])
+        && 0 <= i₄₈
+        && i₄₈ <= 100
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₅₀
+                && i₄ < i₄₈
                  ==> i₄ < 100))
-         ==> ret₃₄ == ret₄₀
-          || i₅₀ < 100
-          || i₄₄ < 100 - 1
-          || i₄₁ < 100
-          || i₃₅ < 100
-          || i₂₉ < 100));
+         ==> ret₃₂ == ret₃₈
+          || i₄₈ < 100
+          || i₄₂ < 100 - 1
+          || i₃₉ < 100
+          || i₃₃ < 100
+          || i₂₇ < 100));
 
-goal (forall x: [int]int, x₂₈: [int]int, i₂₉: int, ret₃₄: int, i₃₅: int, i₄₁: int, x₄₃: [int]int, i₄₄: int, ret₄₉: int, i₅₀: int ::
-      (  0 <= i₂₉
-        && i₂₉ <= 100
-        && (forall x₁₄: int, i₁₃: int ::
-              (  x₁₄ == i₁₃
-                && 0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> (exists __VERIFIER_nondet_int₂₁₂: int, i₁₃: int ::
-                        i₁₃ < 100
-                        && x₁₄ == i₁₃
-                        && 0 <= i₁₃
-                        && i₁₃ < i₂₉
-                        && x₂₈[x₁₄] == __VERIFIER_nondet_int₂₁₂)))
-        && (forall x₁₄: int ::
-                (exists i₁₃: int ::
-                        x₁₄ == i₁₃
-                        && 0 <= i₁₃
-                        && i₁₃ < i₂₉)
-                || x₂₈[x₁₄] == x[x₁₄])
+goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃₃: int, i₃₉: int, x₄₁: [int]int, i₄₂: int, ret₄₇: int, i₄₈: int ::
+      (  0 <= i₂₇
+        && i₂₇ <= 100
         && (forall i₁₃: int ::
               (  0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> i₁₃ < 100))
-        && 0 <= i₃₅
-        && i₃₅ <= 100
+                && i₁₃ < i₂₇
+                 ==> (exists __VERIFIER_nondet_int₂₁₂: int ::
+                        i₁₃ < 100
+                        && x₂₆[i₁₃] == __VERIFIER_nondet_int₂₁₂)))
+        && (forall i₁₃: int ::
+                  0 <= i₁₃
+                  && i₁₃ < i₂₇
+                || x₂₆[i₁₃] == x[i₁₃])
+        && 0 <= i₃₃
+        && i₃₃ <= 100
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₃₅
+                && i₄ < i₃₃
                  ==> i₄ < 100))
-        && 0 <= i₄₁
-        && i₄₁ <= 100
+        && 0 <= i₃₉
+        && i₃₉ <= 100
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₄₁
+                && i₄ < i₃₉
                  ==> i₄ < 100))
-        && 0 <= i₄₄
-        && i₄₄ <= 99
-        && (forall x₂₀: int, i₁₉: int ::
-              (  x₂₀ == i₁₉
-                && 0 <= i₁₉
-                && i₁₉ < i₄₄
-                 ==> (exists i₁₉: int ::
-                        i₁₉ < 99
-                        && x₂₀ == i₁₉
-                        && 0 <= i₁₉
-                        && i₁₉ < i₄₄
-                        && x₄₃[x₂₀] == x₂₈[0 := x₂₈[1]][1 := x₂₈[0]][1 + i₁₉])))
-        && (forall x₂₀: int ::
-                (exists i₁₉: int ::
-                        x₂₀ == i₁₉
-                        && 0 <= i₁₉
-                        && i₁₉ < i₄₄)
-                || x₄₃[x₂₀] == x₂₈[0 := x₂₈[1]][1 := x₂₈[0]][x₂₀])
-        && (forall i₁₉: int ::
-              (  0 <= i₁₉
-                && i₁₉ < i₄₄
-                 ==> i₁₉ < 99))
-        && 0 <= i₅₀
-        && i₅₀ <= 100
+        && 0 <= i₄₂
+        && i₄₂ <= 99
+        && (forall i₁₈: int ::
+              (  0 <= i₁₈
+                && i₁₈ < i₄₂
+                 ==> i₁₈ < 99
+                  && x₄₁[i₁₈] == x₂₆[0 := x₂₆[1]][1 := x₂₆[0]][1 + i₁₈]))
+        && (forall i₁₈: int ::
+                  0 <= i₁₈
+                  && i₁₈ < i₄₂
+                || x₄₁[i₁₈] == x₂₆[0 := x₂₆[1]][1 := x₂₆[0]][i₁₈])
+        && 0 <= i₄₈
+        && i₄₈ <= 100
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₅₀
+                && i₄ < i₄₈
                  ==> i₄ < 100))
-         ==> ret₃₄ == ret₄₉
-          || i₅₀ < 100
-          || i₄₄ < 100 - 1
-          || i₄₁ < 100
-          || i₃₅ < 100
-          || i₂₉ < 100));
+         ==> ret₃₂ == ret₄₇
+          || i₄₈ < 100
+          || i₄₂ < 100 - 1
+          || i₃₉ < 100
+          || i₃₃ < 100
+          || i₂₇ < 100));
 

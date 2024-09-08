@@ -22,31 +22,19 @@ procedure main()
   j := 0;
   while(j < 100000)
     decreases 100000 - j;
-    invariant true
-      && old(j) <= j
+    invariant old(j) <= j
       && j <= 100000
-      && (forall x₇: int ::
-            ((exists j₆: int ::
-                    x₇ == j₆
-                    && old(j) <= j₆
-                    && j₆ < j)
-               ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
-                      j₆ < 100000
-                      && x₇ == j₆
-                      && old(j) <= j₆
-                      && j₆ < j
-                      && a[x₇] == __VERIFIER_nondet_int₂₅)))
-      && (forall x₇: int ::
-            (!((exists j₆: int ::
-                    x₇ == j₆
-                    && old(j) <= j₆
-                    && j₆ < j)
-            )
-               ==> a[x₇] == old(a[x₇])))
       && (forall j₆: int ::
             (  old(j) <= j₆
               && j₆ < j
-               ==> j₆ < 100000));
+               ==> (exists __VERIFIER_nondet_int₂₅: int ::
+                      j₆ < 100000
+                      && a[j₆] == __VERIFIER_nondet_int₂₅)))
+      && (forall j₆: int ::
+            (!(  old(j) <= j₆
+              && j₆ < j
+            )
+               ==> a[j₆] == old(a)[j₆]));
   {
     var __VERIFIER_nondet_int₂: int;
     a := a[j := __VERIFIER_nondet_int₂];
@@ -54,14 +42,13 @@ procedure main()
   }
   while(i < 100000 && a[i] != e)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall i₁₀: int ::
-            (  old(i) <= i₁₀
-              && i₁₀ < i
-               ==> i₁₀ < 100000
-                && a[i₁₀] != e));
+      && (forall i₉: int ::
+            (  old(i) <= i₉
+              && i₉ < i
+               ==> i₉ < 100000
+                && a[i₉] != e));
   {
     i := i + 1;
   }
@@ -69,13 +56,12 @@ procedure main()
   x := 0;
   while(x < i)
     decreases i - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= i
-      && (forall x₁₃: int ::
-            (  old(x) <= x₁₃
-              && x₁₃ < x
-               ==> x₁₃ < i));
+      && (forall x₁₂: int ::
+            (  old(x) <= x₁₂
+              && x₁₂ < x
+               ==> x₁₂ < i));
   {
     assert a[x] != e;
     x := x + 1;

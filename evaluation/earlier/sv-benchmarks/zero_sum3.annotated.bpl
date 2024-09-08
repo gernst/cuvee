@@ -25,31 +25,19 @@ procedure main()
       var i: int := 0;
       while(i < SIZE)
         decreases SIZE - i;
-        invariant true
-          && old(i) <= i
+        invariant old(i) <= i
           && i <= SIZE
-          && (forall x₆: int ::
-                ((exists i₅: int ::
-                        x₆ == i₅
-                        && old(i) <= i₅
-                        && i₅ < i)
-                   ==> (exists __VERIFIER_nondet_short₁₄: int, i₅: int ::
-                          i₅ < SIZE
-                          && x₆ == i₅
-                          && old(i) <= i₅
-                          && i₅ < i
-                          && a[x₆] == __VERIFIER_nondet_short₁₄)))
-          && (forall x₆: int ::
-                (!((exists i₅: int ::
-                        x₆ == i₅
-                        && old(i) <= i₅
-                        && i₅ < i)
-                )
-                   ==> a[x₆] == old(a[x₆])))
           && (forall i₅: int ::
                 (  old(i) <= i₅
                   && i₅ < i
-                   ==> i₅ < SIZE));
+                   ==> (exists __VERIFIER_nondet_short₁₄: int ::
+                          i₅ < SIZE
+                          && a[i₅] == __VERIFIER_nondet_short₁₄)))
+          && (forall i₅: int ::
+                (!(  old(i) <= i₅
+                  && i₅ < i
+                )
+                   ==> a[i₅] == old(a)[i₅]));
       {
         var __VERIFIER_nondet_short₁: int;
         a := a[i := __VERIFIER_nondet_short₁];
@@ -59,13 +47,12 @@ procedure main()
     i := 0;
     while(i < SIZE)
       decreases SIZE - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= SIZE
-        && (forall i₁₀: int ::
-              (  old(i) <= i₁₀
-                && i₁₀ < i
-                 ==> i₁₀ < SIZE));
+        && (forall i₉: int ::
+              (  old(i) <= i₉
+                && i₉ < i
+                 ==> i₉ < SIZE));
     {
       sum := sum + a[i];
       i := i + 1;
@@ -73,13 +60,12 @@ procedure main()
     i := 0;
     while(i < SIZE)
       decreases SIZE - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= SIZE
-        && (forall i₁₄: int ::
-              (  old(i) <= i₁₄
-                && i₁₄ < i
-                 ==> i₁₄ < SIZE));
+        && (forall i₁₃: int ::
+              (  old(i) <= i₁₃
+                && i₁₃ < i
+                 ==> i₁₃ < SIZE));
     {
       sum := sum - a[i];
       i := i + 1;
@@ -87,13 +73,12 @@ procedure main()
     i := 0;
     while(i < SIZE)
       decreases SIZE - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= SIZE
-        && (forall i₁₈: int ::
-              (  old(i) <= i₁₈
-                && i₁₈ < i
-                 ==> i₁₈ < SIZE));
+        && (forall i₁₇: int ::
+              (  old(i) <= i₁₇
+                && i₁₇ < i
+                 ==> i₁₇ < SIZE));
     {
       sum := sum + a[i];
       i := i + 1;
@@ -101,13 +86,12 @@ procedure main()
     i := 0;
     while(i < SIZE)
       decreases SIZE - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= SIZE
-        && (forall i₂₂: int ::
-              (  old(i) <= i₂₂
-                && i₂₂ < i
-                 ==> i₂₂ < SIZE));
+        && (forall i₂₁: int ::
+              (  old(i) <= i₂₁
+                && i₂₁ < i
+                 ==> i₂₁ < SIZE));
     {
       sum := sum - a[i];
       i := i + 1;
@@ -115,13 +99,12 @@ procedure main()
     i := 0;
     while(i < SIZE)
       decreases SIZE - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= SIZE
-        && (forall i₂₆: int ::
-              (  old(i) <= i₂₆
-                && i₂₆ < i
-                 ==> i₂₆ < SIZE));
+        && (forall i₂₅: int ::
+              (  old(i) <= i₂₅
+                && i₂₅ < i
+                 ==> i₂₅ < SIZE));
     {
       sum := sum + a[i];
       i := i + 1;
@@ -129,13 +112,12 @@ procedure main()
     i := 0;
     while(i < SIZE)
       decreases SIZE - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= SIZE
-        && (forall i₃₀: int ::
-              (  old(i) <= i₃₀
-                && i₃₀ < i
-                 ==> i₃₀ < SIZE));
+        && (forall i₂₉: int ::
+              (  old(i) <= i₂₉
+                && i₂₉ < i
+                 ==> i₂₉ < SIZE));
     {
       sum := sum - a[i];
       i := i + 1;

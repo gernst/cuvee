@@ -8,241 +8,46 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int, b: [int]int, c: [int]int, a₂₄: [int]int, b₂₅: [int]int, j₂₆: int, rv₂₇: int, c₂₈: [int]int, i₂₉: int, x₃₀: int ::
-      (  0 <= j₂₆
-        && j₂₆ <= 100000
-        && (forall x₇: int, j₆: int ::
-              (  x₇ == j₆
-                && 0 <= j₆
-                && j₆ < j₂₆
-                 ==> (exists __VERIFIER_nondet_int₁₄: int, j₆: int ::
-                        j₆ < 100000
-                        && x₇ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆
-                        && a₂₄[x₇] == __VERIFIER_nondet_int₁₄)))
-        && (forall x₇: int ::
-                (exists j₆: int ::
-                        x₇ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆)
-                || a₂₄[x₇] == a[x₇])
-        && (forall x₈: int, j₆: int ::
-              (  x₈ == j₆
-                && 0 <= j₆
-                && j₆ < j₂₆
-                 ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
-                        j₆ < 100000
-                        && x₈ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆
-                        && b₂₅[x₈] == __VERIFIER_nondet_int₂₅)))
-        && (forall x₈: int ::
-                (exists j₆: int ::
-                        x₈ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆)
-                || b₂₅[x₈] == b[x₈])
+goal (forall a: [int]int, b: [int]int, c: [int]int, a₂₁: [int]int, b₂₂: [int]int, j₂₃: int, rv₂₄: int, c₂₅: [int]int, i₂₆: int, x₂₇: int ::
+      (  0 <= j₂₃
+        && j₂₃ <= 100000
         && (forall j₆: int ::
               (  0 <= j₆
-                && j₆ < j₂₆
-                 ==> j₆ < 100000))
-        && 0 <= i₂₉
-        && i₂₉ <= 100000
-        && (forall x₁₄: int, i₁₃: int ::
-              (  x₁₄ == i₁₃
-                && 0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> (exists i₁₃: int ::
-                        (a₂₄[i₁₃] == b₂₅[i₁₃]
-                           ==> false))
-                  || (exists i₁₃: int ::
-                          a₂₄[i₁₃] == b₂₅[i₁₃]
-                          && i₁₃ < 100000
-                          && x₁₄ == i₁₃
-                          && 0 <= i₁₃
-                          && i₁₃ < i₂₉
-                          && c₂₈[x₁₄] == a₂₄[i₁₃])))
-        && (forall x₁₄: int ::
-                (exists i₁₃: int ::
-                        x₁₄ == i₁₃
-                        && 0 <= i₁₃
-                        && i₁₃ < i₂₉)
-                || c₂₈[x₁₄] == c[x₁₄])
-        && (forall i₁₃: int ::
-              (  0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> i₁₃ < 100000))
-        && 0 <= x₃₀
-        && x₃₀ <= 100000
-        && (forall x₁₉: int ::
-              (  0 <= x₁₉
-                && x₁₉ < x₃₀
-                 ==> x₁₉ < 100000))
-        && x₃₀ < 100000
-         ==> rv₂₇ == 0
-          || i₂₉ < 100000
-          || j₂₆ < 100000
-          || a₂₄[x₃₀] == b₂₅[x₃₀]));
-
-goal (forall a: [int]int, b: [int]int, c: [int]int, a₂₄: [int]int, b₂₅: [int]int, j₂₆: int, rv₂₇: int, c₂₈: [int]int, i₂₉: int, x₃₀: int, x₃₁: int ::
-      (  0 <= j₂₆
-        && j₂₆ <= 100000
-        && (forall x₇: int, j₆: int ::
-              (  x₇ == j₆
-                && 0 <= j₆
-                && j₆ < j₂₆
-                 ==> (exists __VERIFIER_nondet_int₁₄: int, j₆: int ::
+                && j₆ < j₂₃
+                 ==> (exists __VERIFIER_nondet_int₁₄: int, __VERIFIER_nondet_int₂₅: int ::
                         j₆ < 100000
-                        && x₇ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆
-                        && a₂₄[x₇] == __VERIFIER_nondet_int₁₄)))
-        && (forall x₇: int ::
-                (exists j₆: int ::
-                        x₇ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆)
-                || a₂₄[x₇] == a[x₇])
-        && (forall x₈: int, j₆: int ::
-              (  x₈ == j₆
-                && 0 <= j₆
-                && j₆ < j₂₆
-                 ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
-                        j₆ < 100000
-                        && x₈ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆
-                        && b₂₅[x₈] == __VERIFIER_nondet_int₂₅)))
-        && (forall x₈: int ::
-                (exists j₆: int ::
-                        x₈ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆)
-                || b₂₅[x₈] == b[x₈])
+                        && a₂₁[j₆] == __VERIFIER_nondet_int₁₄
+                        && b₂₂[j₆] == __VERIFIER_nondet_int₂₅)))
         && (forall j₆: int ::
-              (  0 <= j₆
-                && j₆ < j₂₆
-                 ==> j₆ < 100000))
-        && 0 <= i₂₉
-        && i₂₉ <= 100000
-        && (forall x₁₄: int, i₁₃: int ::
-              (  x₁₄ == i₁₃
-                && 0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> (exists i₁₃: int ::
-                        (a₂₄[i₁₃] == b₂₅[i₁₃]
-                           ==> false))
-                  || (exists i₁₃: int ::
-                          a₂₄[i₁₃] == b₂₅[i₁₃]
-                          && i₁₃ < 100000
-                          && x₁₄ == i₁₃
-                          && 0 <= i₁₃
-                          && i₁₃ < i₂₉
-                          && c₂₈[x₁₄] == a₂₄[i₁₃])))
-        && (forall x₁₄: int ::
-                (exists i₁₃: int ::
-                        x₁₄ == i₁₃
-                        && 0 <= i₁₃
-                        && i₁₃ < i₂₉)
-                || c₂₈[x₁₄] == c[x₁₄])
-        && (forall i₁₃: int ::
-              (  0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> i₁₃ < 100000))
-        && 0 <= x₃₀
-        && x₃₀ <= 100000
-        && (forall x₁₉: int ::
-              (  0 <= x₁₉
-                && x₁₉ < x₃₀
-                 ==> x₁₉ < 100000))
-        && 0 <= x₃₁
-        && x₃₁ <= 100000
-        && (forall x₂₁: int ::
-              (  0 <= x₂₁
-                && x₂₁ < x₃₁
-                 ==> x₂₁ < 100000))
-        && x₃₁ < 100000
-         ==> x₃₀ < 100000
-          || rv₂₇ == 0
-          || i₂₉ < 100000
-          || j₂₆ < 100000
-          || a₂₄[x₃₁] == c₂₈[x₃₁]));
-
-goal (forall a: [int]int, b: [int]int, c: [int]int, a₂₄: [int]int, b₂₅: [int]int, j₂₆: int, rv₂₇: int, c₂₈: [int]int, i₂₉: int, x₃₄: int ::
-      (  0 <= j₂₆
-        && j₂₆ <= 100000
-        && (forall x₇: int, j₆: int ::
-              (  x₇ == j₆
-                && 0 <= j₆
-                && j₆ < j₂₆
-                 ==> (exists __VERIFIER_nondet_int₁₄: int, j₆: int ::
-                        j₆ < 100000
-                        && x₇ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆
-                        && a₂₄[x₇] == __VERIFIER_nondet_int₁₄)))
-        && (forall x₇: int ::
-                (exists j₆: int ::
-                        x₇ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆)
-                || a₂₄[x₇] == a[x₇])
-        && (forall x₈: int, j₆: int ::
-              (  x₈ == j₆
-                && 0 <= j₆
-                && j₆ < j₂₆
-                 ==> (exists __VERIFIER_nondet_int₂₅: int, j₆: int ::
-                        j₆ < 100000
-                        && x₈ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆
-                        && b₂₅[x₈] == __VERIFIER_nondet_int₂₅)))
-        && (forall x₈: int ::
-                (exists j₆: int ::
-                        x₈ == j₆
-                        && 0 <= j₆
-                        && j₆ < j₂₆)
-                || b₂₅[x₈] == b[x₈])
-        && (forall j₆: int ::
-              (  0 <= j₆
-                && j₆ < j₂₆
-                 ==> j₆ < 100000))
-        && 0 <= i₂₉
-        && i₂₉ <= 100000
-        && (forall x₁₄: int, i₁₃: int ::
-              (  x₁₄ == i₁₃
-                && 0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> (exists i₁₃: int ::
-                        (a₂₄[i₁₃] == b₂₅[i₁₃]
-                           ==> false))
-                  || (exists i₁₃: int ::
-                          a₂₄[i₁₃] == b₂₅[i₁₃]
-                          && i₁₃ < 100000
-                          && x₁₄ == i₁₃
-                          && 0 <= i₁₃
-                          && i₁₃ < i₂₉
-                          && c₂₈[x₁₄] == a₂₄[i₁₃])))
-        && (forall x₁₄: int ::
-                (exists i₁₃: int ::
-                        x₁₄ == i₁₃
-                        && 0 <= i₁₃
-                        && i₁₃ < i₂₉)
-                || c₂₈[x₁₄] == c[x₁₄])
-        && (forall i₁₃: int ::
-              (  0 <= i₁₃
-                && i₁₃ < i₂₉
-                 ==> i₁₃ < 100000))
-        && rv₂₇ == 0
-        && 0 <= x₃₄
-        && x₃₄ <= 100000
-        && (forall x₂₁: int ::
-              (  0 <= x₂₁
-                && x₂₁ < x₃₄
-                 ==> x₂₁ < 100000))
-        && x₃₄ < 100000
-         ==> i₂₉ < 100000
-          || j₂₆ < 100000
-          || a₂₄[x₃₄] == c₂₈[x₃₄]));
+                  0 <= j₆
+                  && j₆ < j₂₃
+                ||   a₂₁[j₆] == a[j₆]
+                  && b₂₂[j₆] == b[j₆])
+        && 0 <= i₂₆
+        && i₂₆ <= 100000
+        && (forall i₁₁: int ::
+              (  0 <= i₁₁
+                && i₁₁ < i₂₆
+                 ==> (a₂₁[i₁₁] == b₂₂[i₁₁]
+                       ==> false)
+                    && i₁₁ < 100000
+                    && c₂₅[i₁₁] == a₂₁[i₁₁]
+                  ||   a₂₁[i₁₁] == b₂₂[i₁₁]
+                    && i₁₁ < 100000
+                    && c₂₅[i₁₁] == a₂₁[i₁₁]))
+        && (forall i₁₁: int ::
+                  0 <= i₁₁
+                  && i₁₁ < i₂₆
+                || c₂₅[i₁₁] == c[i₁₁])
+        && 0 <= x₂₇
+        && x₂₇ <= 100000
+        && (forall x₁₆: int ::
+              (  0 <= x₁₆
+                && x₁₆ < x₂₇
+                 ==> x₁₆ < 100000))
+        && x₂₇ < 100000
+         ==> rv₂₄ == 0
+          || i₂₆ < 100000
+          || j₂₃ < 100000
+          || a₂₁[x₂₇] == b₂₂[x₂₇]));
 

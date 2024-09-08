@@ -24,31 +24,19 @@ procedure main()
   i := 0;
   while(i < n)
     decreases n - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= n
-      && (forall x₈: int ::
-            ((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-               ==> (exists __VERIFIER_nondet_int₂₆: int, i₇: int ::
-                      i₇ < n
-                      && x₈ == i₇
-                      && old(i) <= i₇
-                      && i₇ < i
-                      && vectorx[x₈] == __VERIFIER_nondet_int₂₆)))
-      && (forall x₈: int ::
-            (!((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-            )
-               ==> vectorx[x₈] == old(vectorx[x₈])))
       && (forall i₇: int ::
             (  old(i) <= i₇
               && i₇ < i
-               ==> i₇ < n));
+               ==> (exists __VERIFIER_nondet_int₂₆: int ::
+                      i₇ < n
+                      && vectorx[i₇] == __VERIFIER_nondet_int₂₆)))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
+            )
+               ==> vectorx[i₇] == old(vectorx)[i₇]));
   {
     var __VERIFIER_nondet_int₂: int;
     vectorx := vectorx[i := __VERIFIER_nondet_int₂];
@@ -57,14 +45,17 @@ procedure main()
   i := 0;
   while(i < n && !(found != 0))
     decreases n - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= n
-      && (forall found₁₁: int, i₁₃: int ::
-            (  old(i) <= i₁₃
-              && i₁₃ < i
-               ==> i₁₃ < n
-                && found₁₁ == 0));
+      && (forall found₁₀: int, i₁₂: int ::
+            (  old(i) <= i₁₂
+              && i₁₂ < i
+               ==> vectorx[i₁₂] == element
+                  && i₁₂ < n
+                  && found₁₀ == 0
+                ||   vectorx[i₁₂] != element
+                  && i₁₂ < n
+                  && found₁₀ == 0));
   {
     if(vectorx[i] == element) {
       found := 1;
@@ -76,31 +67,18 @@ procedure main()
     i := pos;
     while(i < n - 1)
       decreases n - 1 - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= -1 + n
-        && (forall x₁₈: int ::
-              ((exists i₁₇: int ::
-                      x₁₈ == i₁₇
-                      && old(i) <= i₁₇
-                      && i₁₇ < i)
-                 ==> (exists i₁₇: int ::
-                        i₁₇ < -1 + n
-                        && x₁₈ == i₁₇
-                        && old(i) <= i₁₇
-                        && i₁₇ < i
-                        && vectorx[x₁₈] == old(vectorx)[1 + i₁₇])))
-        && (forall x₁₈: int ::
-              (!((exists i₁₇: int ::
-                      x₁₈ == i₁₇
-                      && old(i) <= i₁₇
-                      && i₁₇ < i)
+        && (forall i₁₆: int ::
+              (  old(i) <= i₁₆
+                && i₁₆ < i
+                 ==> i₁₆ < -1 + n
+                  && vectorx[i₁₆] == old(vectorx)[1 + i₁₆]))
+        && (forall i₁₆: int ::
+              (!(  old(i) <= i₁₆
+                && i₁₆ < i
               )
-                 ==> vectorx[x₁₈] == old(vectorx[x₁₈])))
-        && (forall i₁₇: int ::
-              (  old(i) <= i₁₇
-                && i₁₇ < i
-                 ==> i₁₇ < -1 + n));
+                 ==> vectorx[i₁₆] == old(vectorx)[i₁₆]));
     {
       vectorx := vectorx[i := vectorx[i + 1]];
       i := i + 1;
@@ -111,13 +89,12 @@ procedure main()
     x := 0;
     while(x < pos)
       decreases pos - x;
-      invariant true
-        && old(x) <= x
+      invariant old(x) <= x
         && x <= pos
-        && (forall x₂₃: int ::
-              (  old(x) <= x₂₃
-                && x₂₃ < x
-                 ==> x₂₃ < pos));
+        && (forall x₂₁: int ::
+              (  old(x) <= x₂₁
+                && x₂₁ < x
+                 ==> x₂₁ < pos));
     {
       assert vectorx[x] != element;
       x := x + 1;

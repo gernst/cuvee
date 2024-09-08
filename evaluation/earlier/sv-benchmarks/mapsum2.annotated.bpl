@@ -19,8 +19,7 @@ procedure mapsum(x: [int]int)
   i := 0;
   while(i < 1000)
     decreases 1000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 1000
       && (forall i₄: int ::
             (  old(i) <= i₄
@@ -45,31 +44,19 @@ procedure main()
   var i: int := 0;
   while(i < 1000)
     decreases 1000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 1000
-      && (forall x₁₄: int ::
-            ((exists i₁₃: int ::
-                    x₁₄ == i₁₃
-                    && old(i) <= i₁₃
-                    && i₁₃ < i)
-               ==> (exists __VERIFIER_nondet_int₂₁₂: int, i₁₃: int ::
-                      i₁₃ < 1000
-                      && x₁₄ == i₁₃
-                      && old(i) <= i₁₃
-                      && i₁₃ < i
-                      && x[x₁₄] == __VERIFIER_nondet_int₂₁₂)))
-      && (forall x₁₄: int ::
-            (!((exists i₁₃: int ::
-                    x₁₄ == i₁₃
-                    && old(i) <= i₁₃
-                    && i₁₃ < i)
-            )
-               ==> x[x₁₄] == old(x[x₁₄])))
       && (forall i₁₃: int ::
             (  old(i) <= i₁₃
               && i₁₃ < i
-               ==> i₁₃ < 1000));
+               ==> (exists __VERIFIER_nondet_int₂₁₂: int ::
+                      i₁₃ < 1000
+                      && x[i₁₃] == __VERIFIER_nondet_int₂₁₂)))
+      && (forall i₁₃: int ::
+            (!(  old(i) <= i₁₃
+              && i₁₃ < i
+            )
+               ==> x[i₁₃] == old(x)[i₁₃]));
   {
     var __VERIFIER_nondet_int₂: int;
     x := x[i := __VERIFIER_nondet_int₂];
@@ -88,31 +75,18 @@ procedure main()
   var i: int := 0;
   while(i < 1000 - 1)
     decreases 1000 - 1 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 999
-      && (forall x₂₀: int ::
-            ((exists i₁₉: int ::
-                    x₂₀ == i₁₉
-                    && old(i) <= i₁₉
-                    && i₁₉ < i)
-               ==> (exists i₁₉: int ::
-                      i₁₉ < 999
-                      && x₂₀ == i₁₉
-                      && old(i) <= i₁₉
-                      && i₁₉ < i
-                      && x[x₂₀] == old(x)[1 + i₁₉])))
-      && (forall x₂₀: int ::
-            (!((exists i₁₉: int ::
-                    x₂₀ == i₁₉
-                    && old(i) <= i₁₉
-                    && i₁₉ < i)
+      && (forall i₁₈: int ::
+            (  old(i) <= i₁₈
+              && i₁₈ < i
+               ==> i₁₈ < 999
+                && x[i₁₈] == old(x)[1 + i₁₈]))
+      && (forall i₁₈: int ::
+            (!(  old(i) <= i₁₈
+              && i₁₈ < i
             )
-               ==> x[x₂₀] == old(x[x₂₀])))
-      && (forall i₁₉: int ::
-            (  old(i) <= i₁₉
-              && i₁₉ < i
-               ==> i₁₉ < 999));
+               ==> x[i₁₈] == old(x)[i₁₈]));
   {
     x := x[i := x[i + 1]];
     i := i + 1;

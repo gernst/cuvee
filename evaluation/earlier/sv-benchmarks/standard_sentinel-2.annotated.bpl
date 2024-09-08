@@ -23,31 +23,19 @@ procedure main()
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₈: int ::
-            ((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-               ==> (exists __VERIFIER_nondet_int₃₆: int, i₇: int ::
-                      i₇ < 100000
-                      && x₈ == i₇
-                      && old(i) <= i₇
-                      && i₇ < i
-                      && a[x₈] == __VERIFIER_nondet_int₃₆)))
-      && (forall x₈: int ::
-            (!((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-            )
-               ==> a[x₈] == old(a[x₈])))
       && (forall i₇: int ::
             (  old(i) <= i₇
               && i₇ < i
-               ==> i₇ < 100000));
+               ==> (exists __VERIFIER_nondet_int₃₆: int ::
+                      i₇ < 100000
+                      && a[i₇] == __VERIFIER_nondet_int₃₆)))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
+            )
+               ==> a[i₇] == old(a)[i₇]));
   {
     var __VERIFIER_nondet_int₃: int;
     a := a[i := __VERIFIER_nondet_int₃];
@@ -57,12 +45,11 @@ procedure main()
     a := a[pos := marker];
     var i: int := 0;
     while(a[i] != marker)
-      invariant true
-        && old(i) <= i
-        && (forall i₁₁: int ::
-              (  old(i) <= i₁₁
-                && i₁₁ < i
-                 ==> a[i₁₁] != marker));
+      invariant old(i) <= i
+        && (forall i₁₀: int ::
+              (  old(i) <= i₁₀
+                && i₁₀ < i
+                 ==> a[i₁₀] != marker));
     {
       i := i + 1;
     }

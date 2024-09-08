@@ -35,40 +35,23 @@ procedure find_max_up_to(a: [int]int, alength: int)
     invariant 0 <= i
       && old(i) <= i
       && i <= alength
-      && (forall x₃: int ::
-            ((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-               ==> (exists m₁: int, i₂: int ::
-                        a[i₂] > a[m₁]
-                        && i₂ < alength
-                        && 0 <= i₂
-                        && x₃ == i₂
-                        && old(i) <= i₂
-                        && i₂ < i
-                        && b[x₃] == a[i₂])
-                || (exists m₁: int, i₂: int ::
-                        !(a[i₂] > a[m₁]
-                        )
-                        && i₂ < alength
-                        && 0 <= i₂
-                        && x₃ == i₂
-                        && old(i) <= i₂
-                        && i₂ < i
-                        && b[x₃] == a[m₁])))
-      && (forall x₃: int ::
-            (!((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-            )
-               ==> b[x₃] == old(b[x₃])))
-      && (forall i₂: int ::
-            (  0 <= i₂
-              && old(i) <= i₂
+      && (forall m₁: int, i₂: int ::
+            (  old(i) <= i₂
               && i₂ < i
-               ==> i₂ < alength));
+               ==> a[i₂] > a[m₁]
+                  && i₂ < alength
+                  && 0 <= i₂
+                  && b[i₂] == a[i₂]
+                ||   !(a[i₂] > a[m₁]
+                  )
+                  && i₂ < alength
+                  && 0 <= i₂
+                  && b[i₂] == a[m₁]))
+      && (forall i₂: int ::
+            (!(  old(i) <= i₂
+              && i₂ < i
+            )
+               ==> b[i₂] == old(b)[i₂]));
   {
     if(a[i] > a[m]) {
       b := b[i := a[i]];

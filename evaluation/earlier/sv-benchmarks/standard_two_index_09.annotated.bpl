@@ -19,31 +19,19 @@ procedure main()
   var j: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₅: int ::
-            ((exists i₄: int ::
-                    x₅ == i₄
-                    && old(i) <= i₄
-                    && i₄ < i)
-               ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                      i₄ < 100000
-                      && x₅ == i₄
-                      && old(i) <= i₄
-                      && i₄ < i
-                      && b[x₅] == __VERIFIER_nondet_int₁₃)))
-      && (forall x₅: int ::
-            (!((exists i₄: int ::
-                    x₅ == i₄
-                    && old(i) <= i₄
-                    && i₄ < i)
-            )
-               ==> b[x₅] == old(b[x₅])))
       && (forall i₄: int ::
             (  old(i) <= i₄
               && i₄ < i
-               ==> i₄ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                      i₄ < 100000
+                      && b[i₄] == __VERIFIER_nondet_int₁₃)))
+      && (forall i₄: int ::
+            (!(  old(i) <= i₄
+              && i₄ < i
+            )
+               ==> b[i₄] == old(b)[i₄]));
   {
     var __VERIFIER_nondet_int₁: int;
     b := b[i := __VERIFIER_nondet_int₁];
@@ -52,31 +40,18 @@ procedure main()
   i := 1;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(j) <= j
+    invariant old(j) <= j
       && i <= 100000
-      && (forall x₁₀: int ::
-            ((exists j₉: int ::
-                    x₁₀ == j₉
-                    && old(j) <= j₉
-                    && j₉ < j)
-               ==> (exists i₈: int, j₉: int ::
-                      i₈ < 100000
-                      && x₁₀ == j₉
-                      && old(j) <= j₉
-                      && j₉ < j
-                      && a[x₁₀] == b[i₈])))
-      && (forall x₁₀: int ::
-            (!((exists j₉: int ::
-                    x₁₀ == j₉
-                    && old(j) <= j₉
-                    && j₉ < j)
+      && (forall i₇: int, j₈: int ::
+            (  old(j) <= j₈
+              && j₈ < j
+               ==> i₇ < 100000
+                && a[j₈] == b[i₇]))
+      && (forall j₈: int ::
+            (!(  old(j) <= j₈
+              && j₈ < j
             )
-               ==> a[x₁₀] == old(a[x₁₀])))
-      && (forall i₈: int, j₉: int ::
-            (  old(j) <= j₉
-              && j₉ < j
-               ==> i₈ < 100000));
+               ==> a[j₈] == old(a)[j₈]));
   {
     a := a[j := b[i]];
     i := i + 9;
@@ -86,13 +61,12 @@ procedure main()
   j := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(j) <= j
+    invariant old(j) <= j
       && i <= 100000
-      && (forall i₁₄: int, j₁₅: int ::
-            (  old(j) <= j₁₅
-              && j₁₅ < j
-               ==> i₁₄ < 100000));
+      && (forall i₁₂: int, j₁₃: int ::
+            (  old(j) <= j₁₃
+              && j₁₃ < j
+               ==> i₁₂ < 100000));
   {
     assert a[j] == b[9 * j + 1];
     i := i + 9;

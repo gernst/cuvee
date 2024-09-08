@@ -22,13 +22,16 @@ procedure max(x: [int]int)
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall i₅: int ::
+      && (forall ret₄: int, i₅: int ::
             (  old(i) <= i₅
               && i₅ < i
-               ==> i₅ < N));
+               ==> ret₄ < x[i₅]
+                  && i₅ < N
+                ||   !(ret₄ < x[i₅]
+                  )
+                  && i₅ < N));
   {
     var x₁: int;
     if(ret < x[i]) {
@@ -67,31 +70,18 @@ procedure main()
     var i: int := 0;
     while(i < N - 1)
       decreases N - 1 - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= -1 + N
-        && (forall x₂₁: int ::
-              ((exists i₂₀: int ::
-                      x₂₁ == i₂₀
-                      && old(i) <= i₂₀
-                      && i₂₀ < i)
-                 ==> (exists i₂₀: int ::
-                        i₂₀ < -1 + N
-                        && x₂₁ == i₂₀
-                        && old(i) <= i₂₀
-                        && i₂₀ < i
-                        && x[x₂₁] == old(x)[1 + i₂₀])))
-        && (forall x₂₁: int ::
-              (!((exists i₂₀: int ::
-                      x₂₁ == i₂₀
-                      && old(i) <= i₂₀
-                      && i₂₀ < i)
-              )
-                 ==> x[x₂₁] == old(x[x₂₁])))
         && (forall i₂₀: int ::
               (  old(i) <= i₂₀
                 && i₂₀ < i
-                 ==> i₂₀ < -1 + N));
+                 ==> i₂₀ < -1 + N
+                  && x[i₂₀] == old(x)[1 + i₂₀]))
+        && (forall i₂₀: int ::
+              (!(  old(i) <= i₂₀
+                && i₂₀ < i
+              )
+                 ==> x[i₂₀] == old(x)[i₂₀]));
     {
       x := x[i := x[i + 1]];
       i := i + 1;

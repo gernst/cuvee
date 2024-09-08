@@ -15,47 +15,44 @@ goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int ::
         && -10000 < __VERIFIER_nondet_int₂
          ==> 0 <= __VERIFIER_nondet_int₂));
 
-goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [int]int, b: [int]int, j₂₀: int, i₂₁: int, b₂₂: [int]int, i₂₃: int, k₂₄: int, i₂₅: int ::
+goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [int]int, b: [int]int, j₁₉: int, i₂₀: int, b₂₁: [int]int, i₂₂: int, k₂₃: int, i₂₄: int ::
       (  __VERIFIER_nondet_int₁ < 10000
         && -10000 < __VERIFIER_nondet_int₁
         && __VERIFIER_nondet_int₂ < 10000
         && -10000 < __VERIFIER_nondet_int₂
-        && 0 <= i₂₁
-        && i₂₁ <= __VERIFIER_nondet_int₂
-        && (forall i₉: int ::
+        && 0 <= i₂₀
+        && i₂₀ <= __VERIFIER_nondet_int₂
+        && (forall j₈: int, i₉: int ::
               (  0 <= i₉
-                && i₉ < i₂₁
-                 ==> i₉ < __VERIFIER_nondet_int₂))
-        && 0 <= i₂₃
-        && i₂₃ <= __VERIFIER_nondet_int₂
-        && (forall x₁₃: int, i₁₂: int ::
-              (  x₁₃ == i₁₂
-                && 0 <= i₁₂
-                && i₁₂ < i₂₃
-                 ==> (exists i₁₂: int ::
-                        i₁₂ < __VERIFIER_nondet_int₂
-                        && x₁₃ == i₁₂
-                        && 0 <= i₁₂
-                        && i₁₂ < i₂₃
-                        && b₂₂[x₁₃] == a[i₁₂] + -j₂₀)))
-        && (forall x₁₃: int ::
-                (exists i₁₂: int ::
-                        x₁₃ == i₁₂
-                        && 0 <= i₁₂
-                        && i₁₂ < i₂₃)
-                || b₂₂[x₁₃] == b[x₁₃])
+                && i₉ < i₂₀
+                 ==> a[i₉] < j₈
+                    && a[i₉] < 10000
+                    && -10000 < a[i₉]
+                    && i₉ < __VERIFIER_nondet_int₂
+                  ||   (a[i₉] < j₈
+                       ==> false)
+                    && a[i₉] < 10000
+                    && -10000 < a[i₉]
+                    && i₉ < __VERIFIER_nondet_int₂))
+        && 0 <= i₂₂
+        && i₂₂ <= __VERIFIER_nondet_int₂
         && (forall i₁₂: int ::
               (  0 <= i₁₂
-                && i₁₂ < i₂₃
-                 ==> i₁₂ < __VERIFIER_nondet_int₂))
-        && 0 <= i₂₅
-        && i₂₅ <= __VERIFIER_nondet_int₂
-        && (forall i₁₇: int ::
-              (  0 <= i₁₇
-                && i₁₇ < i₂₅
-                 ==> i₁₇ < __VERIFIER_nondet_int₂))
-         ==> i₂₅ < __VERIFIER_nondet_int₂
-          || i₂₃ < __VERIFIER_nondet_int₂
-          || i₂₁ < __VERIFIER_nondet_int₂
-          || 0 <= k₂₄));
+                && i₁₂ < i₂₂
+                 ==> i₁₂ < __VERIFIER_nondet_int₂
+                  && b₂₁[i₁₂] == a[i₁₂] + -j₁₉))
+        && (forall i₁₂: int ::
+                  0 <= i₁₂
+                  && i₁₂ < i₂₂
+                || b₂₁[i₁₂] == b[i₁₂])
+        && 0 <= i₂₄
+        && i₂₄ <= __VERIFIER_nondet_int₂
+        && (forall i₁₆: int ::
+              (  0 <= i₁₆
+                && i₁₆ < i₂₄
+                 ==> i₁₆ < __VERIFIER_nondet_int₂))
+         ==> i₂₄ < __VERIFIER_nondet_int₂
+          || i₂₂ < __VERIFIER_nondet_int₂
+          || i₂₀ < __VERIFIER_nondet_int₂
+          || 0 <= k₂₃));
 

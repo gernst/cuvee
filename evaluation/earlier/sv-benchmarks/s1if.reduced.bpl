@@ -8,144 +8,75 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N₁₃: int, sum: [int]int, a: [int]int, a₁₄: [int]int, i₁₅: int, x₁₀: int ::
-      (  N₁₃ <= 2147483647 / 4
-        && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < i₁₅
-                 ==> (exists i₅: int ::
-                        i₅ < N₁₃
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₁₅
-                        && a₁₄[x₆] == 1)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₁₅)
-                || a₁₄[x₆] == a[x₆])
+goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
+      (  N₁₁ <= 2147483647 / 4
+        && 0 <= i₁₃
+        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
-                && i₅ < i₁₅
-                 ==> i₅ < N₁₃))
-        && x₁₀ == 0
-         ==> i₁₅ < N₁₃
-          || N₁₃ <= 0
-          || (exists i₉: int ::
-                  a₁₄[i₉] == 1
-                  && i₉ < N₁₃
-                  && x₁₀ == 0
-                  && sum[0 := 0][x₁₀] == a₁₄[i₉] + sum[0 := 0][0])
-          || (exists i₉: int ::
-                (a₁₄[i₉] == 1
-                   ==> false))));
+                && i₅ < i₁₃
+                 ==> i₅ < N₁₁
+                  && a₁₂[i₅] == 1))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₁₃
+                || a₁₂[i₅] == a[i₅])
+        && 0 <= i₁₅
+        && i₁₅ <= N₁₁
+        && (forall i₂₂₇: int ::
+              (  0 <= i₂₂₇
+                && i₂₂₇ < i₁₅
+                 ==> a₁₂[i₂₂₇] == 1
+                    && i₂₂₇ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₂₂₇] + sum[0 := 0][0]
+                  ||   (a₁₂[i₂₂₇] == 1
+                       ==> false)
+                    && i₂₂₇ < N₁₁
+                    && sum₁₄[0] == sum[0 := 0][0] * a₁₂[i₂₂₇]))
+        && (forall i₂₂₈: int ::
+                  0 <= i₂₂₈
+                  && i₂₂₈ < i₁₅
+                || sum₁₄[0] == sum[0 := 0][0])
+        && i₁₅ < N₁₁
+        && a₁₂[i₁₅] == 1
+         ==> 0 <= i₈
+          || i₁₃ < N₁₁
+          || N₁₁ <= 0
+          || sum₁₄[0 := sum₁₄[0] + a₁₂[i₁₅]][0] == sum[0 := 0][0]));
 
-goal (forall N₁₃: int, sum: [int]int, a: [int]int, a₁₄: [int]int, i₁₅: int, sum₁₆: [int]int, i₁₇: int, x₁₀: int ::
-      (  N₁₃ <= 2147483647 / 4
-        && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < i₁₅
-                 ==> (exists i₅: int ::
-                        i₅ < N₁₃
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₁₅
-                        && a₁₄[x₆] == 1)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₁₅)
-                || a₁₄[x₆] == a[x₆])
+goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
+      (  N₁₁ <= 2147483647 / 4
+        && 0 <= i₁₃
+        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
-                && i₅ < i₁₅
-                 ==> i₅ < N₁₃))
-        && 0 <= i₁₇
-        && i₁₇ <= N₁₃
-        && (forall x₁₀₆: int ::
-              (x₁₀₆ == 0
-                 ==> (exists i₉: int ::
-                          a₁₄[i₉] == 1
-                          && i₉ < N₁₃
-                          && x₁₀₆ == 0
-                          && sum₁₆[x₁₀₆] == a₁₄[i₉] + sum[0 := 0][0])
-                  || (exists i₉: int ::
-                        (a₁₄[i₉] == 1
-                           ==> false))))
-        && (forall x₁₀₇: int ::
-                x₁₀₇ == 0
-                || sum₁₆[x₁₀₇] == sum[0 := 0][x₁₀₇])
-        && (forall i₉: int ::
-              (  0 <= i₉
-                && i₉ < i₁₇
-                 ==> i₉ < N₁₃))
-        && i₁₇ < N₁₃
-        && a₁₄[i₁₇] == 1
-        && x₁₀ == 0
-         ==> i₁₅ < N₁₃
-          || N₁₃ <= 0
-          || (exists i₉: int ::
-                  a₁₄[i₉] == 1
-                  && i₉ < N₁₃
-                  && x₁₀ == 0
-                  && sum₁₆[0 := sum₁₆[0] + a₁₄[i₁₇]][x₁₀] == a₁₄[i₉] + sum[0 := 0][0])
-          || (exists i₉: int ::
-                (a₁₄[i₉] == 1
-                   ==> false))));
-
-goal (forall N₁₃: int, sum: [int]int, a: [int]int, a₁₄: [int]int, i₁₅: int, sum₁₆: [int]int, i₁₇: int ::
-      (  N₁₃ <= 2147483647 / 4
-        && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < i₁₅
-                 ==> (exists i₅: int ::
-                        i₅ < N₁₃
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₁₅
-                        && a₁₄[x₆] == 1)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₁₅)
-                || a₁₄[x₆] == a[x₆])
+                && i₅ < i₁₃
+                 ==> i₅ < N₁₁
+                  && a₁₂[i₅] == 1))
         && (forall i₅: int ::
-              (  0 <= i₅
-                && i₅ < i₁₅
-                 ==> i₅ < N₁₃))
-        && 0 <= i₁₇
-        && i₁₇ <= N₁₃
-        && (forall x₁₀: int ::
-              (x₁₀ == 0
-                 ==> (exists i₉: int ::
-                          a₁₄[i₉] == 1
-                          && i₉ < N₁₃
-                          && x₁₀ == 0
-                          && sum₁₆[x₁₀] == a₁₄[i₉] + sum[0 := 0][0])
-                  || (exists i₉: int ::
-                        (a₁₄[i₉] == 1
-                           ==> false))))
-        && (forall x₁₀: int ::
-                x₁₀ == 0
-                || sum₁₆[x₁₀] == sum[0 := 0][x₁₀])
-        && (forall i₉: int ::
-              (  0 <= i₉
-                && i₉ < i₁₇
-                 ==> i₉ < N₁₃))
-         ==> i₁₇ < N₁₃
-          || i₁₅ < N₁₃
-          || N₁₃ <= 0
-          || sum₁₆[0] == N₁₃));
+                  0 <= i₅
+                  && i₅ < i₁₃
+                || a₁₂[i₅] == a[i₅])
+        && 0 <= i₁₅
+        && i₁₅ <= N₁₁
+        && (forall i₂₃₇: int ::
+              (  0 <= i₂₃₇
+                && i₂₃₇ < i₁₅
+                 ==> a₁₂[i₂₃₇] == 1
+                    && i₂₃₇ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₂₃₇] + sum[0 := 0][0]
+                  ||   (a₁₂[i₂₃₇] == 1
+                       ==> false)
+                    && i₂₃₇ < N₁₁
+                    && sum₁₄[0] == sum[0 := 0][0] * a₁₂[i₂₃₇]))
+        && (forall i₂₃₈: int ::
+                  0 <= i₂₃₈
+                  && i₂₃₈ < i₁₅
+                || sum₁₄[0] == sum[0 := 0][0])
+        && i₁₅ < N₁₁
+        && a₁₂[i₁₅] == 1
+         ==> i₈ < i₁₅ + 1
+          || i₁₃ < N₁₁
+          || N₁₁ <= 0
+          || sum₁₄[0 := sum₁₄[0] + a₁₂[i₁₅]][0] == sum[0 := 0][0]));
 

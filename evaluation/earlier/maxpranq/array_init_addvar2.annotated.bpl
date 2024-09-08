@@ -20,32 +20,20 @@ procedure main()
   i := 1;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₉: int ::
-            ((exists i₈: int ::
-                    x₉ == i₈
-                    && old(i) <= i₈
-                    && i₈ < i)
-               ==> (exists j₇: int, i₈: int ::
-                      i₈ <= j₇
-                      && i₈ < N
-                      && x₉ == i₈
-                      && old(i) <= i₈
-                      && i₈ < i
-                      && a[x₉] == j₇)))
-      && (forall x₉: int ::
-            (!((exists i₈: int ::
-                    x₉ == i₈
-                    && old(i) <= i₈
-                    && i₈ < i)
-            )
-               ==> a[x₉] == old(a[x₉])))
       && (forall i₈: int ::
             (  old(i) <= i₈
               && i₈ < i
-               ==> i₈ < N));
+               ==> (exists j₇: int ::
+                      i₈ <= j₇
+                      && i₈ < N
+                      && a[i₈] == j₇)))
+      && (forall i₈: int ::
+            (!(  old(i) <= i₈
+              && i₈ < i
+            )
+               ==> a[i₈] == old(a)[i₈]));
   {
     var j: int;
     assume i <= j;
@@ -55,31 +43,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₁₃: int ::
-            ((exists i₁₂: int ::
-                    x₁₃ == i₁₂
-                    && old(i) <= i₁₂
-                    && i₁₂ < i)
-               ==> (exists i₁₂: int ::
-                      i₁₂ < N
-                      && x₁₃ == i₁₂
-                      && old(i) <= i₁₂
-                      && i₁₂ < i
-                      && a[x₁₃] == old(a)[i₁₂] + -i₁₂)))
-      && (forall x₁₃: int ::
-            (!((exists i₁₂: int ::
-                    x₁₃ == i₁₂
-                    && old(i) <= i₁₂
-                    && i₁₂ < i)
+      && (forall i₁₁: int ::
+            (  old(i) <= i₁₁
+              && i₁₁ < i
+               ==> i₁₁ < N
+                && a[i₁₁] == -i₁₁ + old(a)[i₁₁]))
+      && (forall i₁₁: int ::
+            (!(  old(i) <= i₁₁
+              && i₁₁ < i
             )
-               ==> a[x₁₃] == old(a[x₁₃])))
-      && (forall i₁₂: int ::
-            (  old(i) <= i₁₂
-              && i₁₂ < i
-               ==> i₁₂ < N));
+               ==> a[i₁₁] == old(a)[i₁₁]));
   {
     a := a[i := a[i] - i];
     i := i + 1;
@@ -87,13 +62,12 @@ procedure main()
   i := 1;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall i₁₆: int ::
-            (  old(i) <= i₁₆
-              && i₁₆ < i
-               ==> i₁₆ < N));
+      && (forall i₁₄: int ::
+            (  old(i) <= i₁₄
+              && i₁₄ < i
+               ==> i₁₄ < N));
   {
     assert 0 <= a[i];
     i := i + 1;

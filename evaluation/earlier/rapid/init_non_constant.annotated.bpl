@@ -36,30 +36,17 @@ procedure init_non_constant(alength: int, v: int)
     invariant 0 <= i
       && old(i) <= i
       && i <= alength
-      && (forall x₂: int ::
-            ((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-               ==> (exists i₁: int ::
-                      i₁ < alength
-                      && 0 <= i₁
-                      && x₂ == i₁
-                      && old(i) <= i₁
-                      && i₁ < i
-                      && a[x₂] == v + 2 * i₁)))
-      && (forall x₂: int ::
-            (!((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-            )
-               ==> a[x₂] == old(a[x₂])))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
-               ==> i₁ < alength));
+               ==> i₁ < alength
+                && 0 <= i₁
+                && a[i₁] == v + 2 * i₁))
+      && (forall i₁: int ::
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
+               ==> a[i₁] == old(a)[i₁]));
   {
     a := a[i := 2 * i + v];
     i := i + 1;

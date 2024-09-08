@@ -18,39 +18,22 @@ procedure both_or_none(a: [int]int, alength: int)
     invariant 0 <= i
       && old(i) <= i
       && i <= alength
-      && (forall x₂: int ::
-            ((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-               ==> (exists i₁: int ::
-                        a[i₁] == 1
-                        && i₁ < alength
-                        && 0 <= i₁
-                        && x₂ == i₁
-                        && old(i) <= i₁
-                        && i₁ < i
-                        && b[x₂] == 1)
-                || (exists i₁: int ::
-                        a[i₁] != 1
-                        && i₁ < alength
-                        && 0 <= i₁
-                        && x₂ == i₁
-                        && old(i) <= i₁
-                        && i₁ < i
-                        && b[x₂] == 0)))
-      && (forall x₂: int ::
-            (!((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-            )
-               ==> b[x₂] == old(b[x₂])))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
-               ==> i₁ < alength));
+               ==> a[i₁] == 1
+                  && i₁ < alength
+                  && 0 <= i₁
+                  && b[i₁] == 1
+                ||   a[i₁] != 1
+                  && i₁ < alength
+                  && 0 <= i₁
+                  && b[i₁] == 0))
+      && (forall i₁: int ::
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
+               ==> b[i₁] == old(b)[i₁]));
   {
     if(a[i] == 1) {
       b := b[i := 1];

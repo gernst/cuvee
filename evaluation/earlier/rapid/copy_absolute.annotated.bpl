@@ -20,40 +20,23 @@ procedure copy_absolute(blength: int, b: [int]int)
     invariant 0 <= i
       && old(i) <= i
       && i <= blength
-      && (forall x₂: int ::
-            ((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-               ==> (exists i₁: int ::
-                        b[i₁] >= 0
-                        && i₁ < blength
-                        && 0 <= i₁
-                        && x₂ == i₁
-                        && old(i) <= i₁
-                        && i₁ < i
-                        && a[x₂] == b[i₁])
-                || (exists i₁: int ::
-                        !(b[i₁] >= 0
-                        )
-                        && i₁ < blength
-                        && 0 <= i₁
-                        && x₂ == i₁
-                        && old(i) <= i₁
-                        && i₁ < i
-                        && a[x₂] == -b[i₁])))
-      && (forall x₂: int ::
-            (!((exists i₁: int ::
-                    x₂ == i₁
-                    && old(i) <= i₁
-                    && i₁ < i)
-            )
-               ==> a[x₂] == old(a[x₂])))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
-               ==> i₁ < blength));
+               ==> b[i₁] >= 0
+                  && i₁ < blength
+                  && 0 <= i₁
+                  && a[i₁] == b[i₁]
+                ||   !(b[i₁] >= 0
+                  )
+                  && i₁ < blength
+                  && 0 <= i₁
+                  && a[i₁] == -b[i₁]))
+      && (forall i₁: int ::
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
+               ==> a[i₁] == old(a)[i₁]));
   {
     if(b[i] >= 0) {
       a := a[i := b[i]];

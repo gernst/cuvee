@@ -17,13 +17,15 @@ procedure sep(x: [int]int)
   var i: int := 0;
   while(i < 40)
     decreases 40 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 40
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
-               ==> i₂ < 40));
+               ==> x[i₂] % 2 == 0
+                  && i₂ < 40
+                ||   x[i₂] % 2 != 0
+                  && i₂ < 40));
   {
     if(x[i] % 2 == 0) {
       ret := ret + 1;
@@ -47,31 +49,19 @@ procedure main()
   var i: int := 0;
   while(i < 40)
     decreases 40 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 40
-      && (forall x₁₂: int ::
-            ((exists i₁₁: int ::
-                    x₁₂ == i₁₁
-                    && old(i) <= i₁₁
-                    && i₁₁ < i)
-               ==> (exists __VERIFIER_nondet_int₄₁₀: int, i₁₁: int ::
-                      i₁₁ < 40
-                      && x₁₂ == i₁₁
-                      && old(i) <= i₁₁
-                      && i₁₁ < i
-                      && x[x₁₂] == __VERIFIER_nondet_int₄₁₀)))
-      && (forall x₁₂: int ::
-            (!((exists i₁₁: int ::
-                    x₁₂ == i₁₁
-                    && old(i) <= i₁₁
-                    && i₁₁ < i)
-            )
-               ==> x[x₁₂] == old(x[x₁₂])))
       && (forall i₁₁: int ::
             (  old(i) <= i₁₁
               && i₁₁ < i
-               ==> i₁₁ < 40));
+               ==> (exists __VERIFIER_nondet_int₄₁₀: int ::
+                      i₁₁ < 40
+                      && x[i₁₁] == __VERIFIER_nondet_int₄₁₀)))
+      && (forall i₁₁: int ::
+            (!(  old(i) <= i₁₁
+              && i₁₁ < i
+            )
+               ==> x[i₁₁] == old(x)[i₁₁]));
   {
     var __VERIFIER_nondet_int₄: int;
     x := x[i := __VERIFIER_nondet_int₄];
@@ -90,31 +80,18 @@ procedure main()
   var i: int := 0;
   while(i < 40 - 1)
     decreases 40 - 1 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 39
-      && (forall x₁₈: int ::
-            ((exists i₁₇: int ::
-                    x₁₈ == i₁₇
-                    && old(i) <= i₁₇
-                    && i₁₇ < i)
-               ==> (exists i₁₇: int ::
-                      i₁₇ < 39
-                      && x₁₈ == i₁₇
-                      && old(i) <= i₁₇
-                      && i₁₇ < i
-                      && x[x₁₈] == old(x)[1 + i₁₇])))
-      && (forall x₁₈: int ::
-            (!((exists i₁₇: int ::
-                    x₁₈ == i₁₇
-                    && old(i) <= i₁₇
-                    && i₁₇ < i)
+      && (forall i₁₆: int ::
+            (  old(i) <= i₁₆
+              && i₁₆ < i
+               ==> i₁₆ < 39
+                && x[i₁₆] == old(x)[1 + i₁₆]))
+      && (forall i₁₆: int ::
+            (!(  old(i) <= i₁₆
+              && i₁₆ < i
             )
-               ==> x[x₁₈] == old(x[x₁₈])))
-      && (forall i₁₇: int ::
-            (  old(i) <= i₁₇
-              && i₁₇ < i
-               ==> i₁₇ < 39));
+               ==> x[i₁₆] == old(x)[i₁₆]));
   {
     x := x[i := x[i + 1]];
     i := i + 1;

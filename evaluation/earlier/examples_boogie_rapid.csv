@@ -1,14 +1,14 @@
 Name, Result
 find_min_up_to.bpl, Unknown
 init_previous_plus_one.bpl, Unknown
-min_prop.bpl, Unknown
+min_prop.bpl, Success
 max_prop.bpl, Unknown
 copy_partial.bpl, Success
 init_conditionally.bpl, Unknown
 partition_harder.bpl, Unknown
 find_min_local.bpl, Unknown
 reverse.bpl, Success
-str_cpy.bpl, Unknown
+str_cpy.bpl, Success
 init.bpl, Success
 partition.bpl, Unknown
 init_non_constant_easy.bpl, Success
@@ -17,7 +17,7 @@ increment_by_one_harder.bpl, Success
 copy_positive.bpl, Unknown
 vector_addition.bpl, Success
 vector_subtraction.bpl, Success
-copy_absolute.bpl, Unknown
+copy_absolute.bpl, Success
 init_non_constant.bpl, Success
 init_partial.bpl, Success
 collect_indices_equal_values.bpl, Unknown

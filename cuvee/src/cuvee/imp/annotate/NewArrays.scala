@@ -56,7 +56,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
             for (a @ Var(name, Sort(Con.array, List(dom, ran))) <- as if (path lookup a) != a)
               yield {
                 // XXX: collapses multiple stores to the same location (for array_init_increm_twice.c)
-                val rhs = path lookup a // Simplify.simplify(path lookup a, Map(), Set())
+                val rhs = Simplify.simplify(path lookup a, state)
 
                 val eq_ = rhs match {
                   case Store(`a`, index, value) =>

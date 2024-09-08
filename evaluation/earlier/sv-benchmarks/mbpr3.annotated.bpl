@@ -32,30 +32,23 @@ procedure main()
     i := 1;
     while(i <= CELLCOUNT / 3)
       decreases CELLCOUNT / 3 + 1 - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= 1 + CELLCOUNT / 3
-        && (forall x₅: int ::
-              ((exists i₄: int ::
-                    if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i)
-                 ==> (exists i₄: int ::
-                          MINVAL <= CCCELVOL3
-                          && i₄ <= CELLCOUNT / 3
-                          && if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := CCCELVOL3][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := CCCELVOL3][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i && volArray[x₅] == CCCELVOL3)
-                  || (exists i₄: int ::
-                          !(MINVAL <= CCCELVOL3
-                          )
-                          && i₄ <= CELLCOUNT / 3
-                          && if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := 0][-1 + 3 * i₄] else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i && volArray[x₅] == volArray[-3 + 3 * i₄ := 0][-2 + 3 * i₄] else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i && volArray[x₅] == 0)))
-        && (forall x₅: int ::
-              (!((exists i₄: int ::
-                    if(x₅ == -1 + 3 * i₄) then old(i) <= i₄ && i₄ < i else if(x₅ == -2 + 3 * i₄) then old(i) <= i₄ && i₄ < i else x₅ == -3 + 3 * i₄ && old(i) <= i₄ && i₄ < i)
-              )
-                 ==> volArray[x₅] == old(volArray[x₅])))
         && (forall i₄: int ::
               (  old(i) <= i₄
                 && i₄ < i
-                 ==> i₄ <= CELLCOUNT / 3));
+                 ==> MINVAL <= CCCELVOL3
+                    && i₄ <= CELLCOUNT / 3
+                    && volArray[-3 + 3 * i₄] == CCCELVOL3
+                  ||   !(MINVAL <= CCCELVOL3
+                    )
+                    && i₄ <= CELLCOUNT / 3
+                    && volArray[-3 + 3 * i₄] == 0))
+        && (forall i₄: int ::
+              (!(  old(i) <= i₄
+                && i₄ < i
+              )
+                 ==> volArray[-3 + 3 * i₄] == old(volArray)[-3 + 3 * i₄]));
     {
       if(MINVAL <= CCCELVOL3) {
         volArray := volArray[i * 3 - 3 := CCCELVOL3];
@@ -69,30 +62,23 @@ procedure main()
     i := 1;
     while(i <= CELLCOUNT / 3)
       decreases CELLCOUNT / 3 + 1 - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= 1 + CELLCOUNT / 3
-        && (forall x₉: int ::
-              ((exists i₈: int ::
-                    if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i)
-                 ==> (exists i₈: int ::
-                          MINVAL <= CCCELVOL2
-                          && i₈ <= CELLCOUNT / 3
-                          && if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := CCCELVOL2][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := CCCELVOL2][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i && volArray[x₉] == CCCELVOL2)
-                  || (exists i₈: int ::
-                          !(MINVAL <= CCCELVOL2
-                          )
-                          && i₈ <= CELLCOUNT / 3
-                          && if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := 0][-1 + 3 * i₈] else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i && volArray[x₉] == volArray[-2 + 3 * i₈ := 0][-3 + 3 * i₈] else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i && volArray[x₉] == 0)))
-        && (forall x₉: int ::
-              (!((exists i₈: int ::
-                    if(x₉ == -1 + 3 * i₈) then old(i) <= i₈ && i₈ < i else if(x₉ == -3 + 3 * i₈) then old(i) <= i₈ && i₈ < i else x₉ == -2 + 3 * i₈ && old(i) <= i₈ && i₈ < i)
+        && (forall i₇: int ::
+              (  old(i) <= i₇
+                && i₇ < i
+                 ==> MINVAL <= CCCELVOL2
+                    && i₇ <= CELLCOUNT / 3
+                    && volArray[-2 + 3 * i₇] == CCCELVOL2
+                  ||   !(MINVAL <= CCCELVOL2
+                    )
+                    && i₇ <= CELLCOUNT / 3
+                    && volArray[-2 + 3 * i₇] == 0))
+        && (forall i₇: int ::
+              (!(  old(i) <= i₇
+                && i₇ < i
               )
-                 ==> volArray[x₉] == old(volArray[x₉])))
-        && (forall i₈: int ::
-              (  old(i) <= i₈
-                && i₈ < i
-                 ==> i₈ <= CELLCOUNT / 3));
+                 ==> volArray[-2 + 3 * i₇] == old(volArray)[-2 + 3 * i₇]));
     {
       if(MINVAL <= CCCELVOL2) {
         volArray := volArray[i * 3 - 2 := CCCELVOL2];
@@ -106,30 +92,23 @@ procedure main()
     i := 1;
     while(i <= CELLCOUNT / 3)
       decreases CELLCOUNT / 3 + 1 - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= 1 + CELLCOUNT / 3
-        && (forall x₁₃: int ::
-              ((exists i₁₂: int ::
-                    if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i)
-                 ==> (exists i₁₂: int ::
-                          MINVAL <= CCCELVOL1
-                          && i₁₂ <= CELLCOUNT / 3
-                          && if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := CCCELVOL1][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := CCCELVOL1][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == CCCELVOL1)
-                  || (exists i₁₂: int ::
-                          !(MINVAL <= CCCELVOL1
-                          )
-                          && i₁₂ <= CELLCOUNT / 3
-                          && if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := 0][-3 + 3 * i₁₂] else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == volArray[-1 + 3 * i₁₂ := 0][-2 + 3 * i₁₂] else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i && volArray[x₁₃] == 0)))
-        && (forall x₁₃: int ::
-              (!((exists i₁₂: int ::
-                    if(x₁₃ == -3 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else if(x₁₃ == -2 + 3 * i₁₂) then old(i) <= i₁₂ && i₁₂ < i else x₁₃ == -1 + 3 * i₁₂ && old(i) <= i₁₂ && i₁₂ < i)
+        && (forall i₁₀: int ::
+              (  old(i) <= i₁₀
+                && i₁₀ < i
+                 ==> MINVAL <= CCCELVOL1
+                    && i₁₀ <= CELLCOUNT / 3
+                    && volArray[-1 + 3 * i₁₀] == CCCELVOL1
+                  ||   !(MINVAL <= CCCELVOL1
+                    )
+                    && i₁₀ <= CELLCOUNT / 3
+                    && volArray[-1 + 3 * i₁₀] == 0))
+        && (forall i₁₀: int ::
+              (!(  old(i) <= i₁₀
+                && i₁₀ < i
               )
-                 ==> volArray[x₁₃] == old(volArray[x₁₃])))
-        && (forall i₁₂: int ::
-              (  old(i) <= i₁₂
-                && i₁₂ < i
-                 ==> i₁₂ <= CELLCOUNT / 3));
+                 ==> volArray[-1 + 3 * i₁₀] == old(volArray)[-1 + 3 * i₁₀]));
     {
       if(MINVAL <= CCCELVOL1) {
         volArray := volArray[i * 3 - 1 := CCCELVOL1];
@@ -143,13 +122,12 @@ procedure main()
     i := 0;
     while(i < CELLCOUNT)
       decreases CELLCOUNT - i;
-      invariant true
-        && old(i) <= i
+      invariant old(i) <= i
         && i <= CELLCOUNT
-        && (forall i₁₆: int ::
-              (  old(i) <= i₁₆
-                && i₁₆ < i
-                 ==> i₁₆ < CELLCOUNT));
+        && (forall i₁₃: int ::
+              (  old(i) <= i₁₃
+                && i₁₃ < i
+                 ==> i₁₃ < CELLCOUNT));
     {
       assert MINVAL <= volArray[i] || volArray[i] == 0;
       i := i + 1;

@@ -19,31 +19,18 @@ procedure main()
   a := a[0 := 7];
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₄: int ::
-            ((exists i₃: int ::
-                    x₄ == i₃
-                    && old(i) <= i₃
-                    && i₃ < i)
-               ==> (exists i₃: int ::
-                      i₃ < 100000
-                      && x₄ == i₃
-                      && old(i) <= i₃
-                      && i₃ < i
-                      && a[x₄] == 1 + old(a)[-1 + i₃])))
-      && (forall x₄: int ::
-            (!((exists i₃: int ::
-                    x₄ == i₃
-                    && old(i) <= i₃
-                    && i₃ < i)
-            )
-               ==> a[x₄] == old(a[x₄])))
       && (forall i₃: int ::
             (  old(i) <= i₃
               && i₃ < i
-               ==> i₃ < 100000));
+               ==> i₃ < 100000
+                && a[i₃] == 1 + old(a)[-1 + i₃]))
+      && (forall i₃: int ::
+            (!(  old(i) <= i₃
+              && i₃ < i
+            )
+               ==> a[i₃] == old(a)[i₃]));
   {
     a := a[i := a[i - 1] + 1];
     i := i + 1;
@@ -52,13 +39,12 @@ procedure main()
   x := 1;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₈: int ::
-            (  old(x) <= x₈
-              && x₈ < x
-               ==> x₈ < 100000));
+      && (forall x₇: int ::
+            (  old(x) <= x₇
+              && x₇ < x
+               ==> x₇ < 100000));
   {
     assert a[x - 1] <= a[x];
     x := x + 1;

@@ -21,49 +21,21 @@ procedure main()
   i := 0;
   while(i < 200000)
     decreases 200000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 200000
-      && (forall x₈: int ::
-            ((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-               ==> (exists __VERIFIER_nondet_int₁₅: int, i₇: int ::
-                      i₇ < 200000
-                      && x₈ == i₇
-                      && old(i) <= i₇
-                      && i₇ < i
-                      && a1[x₈] == __VERIFIER_nondet_int₁₅)))
-      && (forall x₈: int ::
-            (!((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-            )
-               ==> a1[x₈] == old(a1[x₈])))
-      && (forall x₉: int ::
-            ((exists i₇: int ::
-                    x₉ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-               ==> (exists __VERIFIER_nondet_int₂₆: int, i₇: int ::
-                      i₇ < 200000
-                      && x₉ == i₇
-                      && old(i) <= i₇
-                      && i₇ < i
-                      && a2[x₉] == __VERIFIER_nondet_int₂₆)))
-      && (forall x₉: int ::
-            (!((exists i₇: int ::
-                    x₉ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-            )
-               ==> a2[x₉] == old(a2[x₉])))
       && (forall i₇: int ::
             (  old(i) <= i₇
               && i₇ < i
-               ==> i₇ < 200000));
+               ==> (exists __VERIFIER_nondet_int₁₅: int, __VERIFIER_nondet_int₂₆: int ::
+                      i₇ < 200000
+                      && a1[i₇] == __VERIFIER_nondet_int₁₅
+                      && a2[i₇] == __VERIFIER_nondet_int₂₆)))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
+            )
+               ==> a1[i₇] == old(a1)[i₇]
+                && a2[i₇] == old(a2)[i₇]));
   {
     var __VERIFIER_nondet_int₁: int;
     a1 := a1[i := __VERIFIER_nondet_int₁];
@@ -74,32 +46,21 @@ procedure main()
   i := 0;
   while(i < 200000)
     decreases 200000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 200000
-      && (forall x₁₄: int ::
-            ((exists i₁₃: int ::
-                    x₁₄ == i₁₃
-                    && old(i) <= i₁₃
-                    && i₁₃ < i)
-               ==> (exists i₁₃: int ::
-                      i₁₃ != z
-                      && i₁₃ < 200000
-                      && x₁₄ == i₁₃
-                      && old(i) <= i₁₃
-                      && i₁₃ < i
-                      && a2[x₁₄] == a1[i₁₃])))
-      && (forall x₁₄: int ::
-            (!((exists i₁₃: int ::
-                    x₁₄ == i₁₃
-                    && old(i) <= i₁₃
-                    && i₁₃ < i)
+      && (forall i₁₁: int ::
+            (  old(i) <= i₁₁
+              && i₁₁ < i
+               ==> i₁₁ != z
+                  && i₁₁ < 200000
+                  && a2[i₁₁] == a1[i₁₁]
+                ||   i₁₁ == z
+                  && i₁₁ < 200000))
+      && (forall i₁₁: int ::
+            (!(  old(i) <= i₁₁
+              && i₁₁ < i
             )
-               ==> a2[x₁₄] == old(a2[x₁₄])))
-      && (forall i₁₃: int ::
-            (  old(i) <= i₁₃
-              && i₁₃ < i
-               ==> i₁₃ < 200000));
+               ==> a2[i₁₁] == old(a2)[i₁₁]));
   {
     if(i != z) {
       a2 := a2[i := a1[i]];
@@ -110,13 +71,15 @@ procedure main()
   x := 0;
   while(x < 200000)
     decreases 200000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 200000
-      && (forall x₁₈: int ::
-            (  old(x) <= x₁₈
-              && x₁₈ < x
-               ==> x₁₈ < 200000));
+      && (forall x₁₅: int ::
+            (  old(x) <= x₁₅
+              && x₁₅ < x
+               ==> x₁₅ != z
+                  && x₁₅ < 200000
+                ||   x₁₅ == z
+                  && x₁₅ < 200000));
   {
     if(x != z) {
       assert a1[x] == a2[x];

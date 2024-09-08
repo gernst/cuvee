@@ -26,33 +26,21 @@ procedure main()
   i := 1;
   while(i < n)
     decreases n - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= n
-      && (forall x₁₀: int ::
-            ((exists i₉: int ::
-                    x₁₀ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
-               ==> (exists __VERIFIER_nondet_int₃₇: int, i₉: int ::
-                      0 < __VERIFIER_nondet_int₃₇
-                      && __VERIFIER_nondet_int₃₇ < 10000
-                      && i₉ < n
-                      && x₁₀ == i₉
-                      && old(i) <= i₉
-                      && i₉ < i
-                      && a[x₁₀] == i₉ + j + __VERIFIER_nondet_int₃₇)))
-      && (forall x₁₀: int ::
-            (!((exists i₉: int ::
-                    x₁₀ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
-            )
-               ==> a[x₁₀] == old(a[x₁₀])))
       && (forall i₉: int ::
             (  old(i) <= i₉
               && i₉ < i
-               ==> i₉ < n));
+               ==> (exists __VERIFIER_nondet_int₃₇: int ::
+                      0 < __VERIFIER_nondet_int₃₇
+                      && __VERIFIER_nondet_int₃₇ < 10000
+                      && i₉ < n
+                      && a[i₉] == i₉ + j + __VERIFIER_nondet_int₃₇)))
+      && (forall i₉: int ::
+            (!(  old(i) <= i₉
+              && i₉ < i
+            )
+               ==> a[i₉] == old(a)[i₉]));
   {
     var __VERIFIER_nondet_int₃: int;
     var k: int;
@@ -64,13 +52,12 @@ procedure main()
   i := 1;
   while(i < n)
     decreases n - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= n
-      && (forall i₁₃: int ::
-            (  old(i) <= i₁₃
-              && i₁₃ < i
-               ==> i₁₃ < n));
+      && (forall i₁₂: int ::
+            (  old(i) <= i₁₂
+              && i₁₂ < i
+               ==> i₁₂ < n));
   {
     assert i + 2 <= a[i];
     i := i + 1;

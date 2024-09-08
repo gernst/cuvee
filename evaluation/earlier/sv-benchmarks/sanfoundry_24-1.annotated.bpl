@@ -33,31 +33,19 @@ procedure main()
   i := 0;
   while(i < num)
     decreases num - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= num
-      && (forall x₇: int ::
-            ((exists i₆: int ::
-                    x₇ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-               ==> (exists __VERIFIER_nondet_int₂₅: int, i₆: int ::
-                      i₆ < num
-                      && x₇ == i₆
-                      && old(i) <= i₆
-                      && i₆ < i
-                      && array[x₇] == __VERIFIER_nondet_int₂₅)))
-      && (forall x₇: int ::
-            (!((exists i₆: int ::
-                    x₇ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-            )
-               ==> array[x₇] == old(array[x₇])))
       && (forall i₆: int ::
             (  old(i) <= i₆
               && i₆ < i
-               ==> i₆ < num));
+               ==> (exists __VERIFIER_nondet_int₂₅: int ::
+                      i₆ < num
+                      && array[i₆] == __VERIFIER_nondet_int₂₅)))
+      && (forall i₆: int ::
+            (!(  old(i) <= i₆
+              && i₆ < i
+            )
+               ==> array[i₆] == old(array)[i₆]));
   {
     var __VERIFIER_nondet_int₂: int;
     array := array[i := __VERIFIER_nondet_int₂];
@@ -66,13 +54,15 @@ procedure main()
   i := 0;
   while(i < num)
     decreases num - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= num
-      && (forall i₁₁: int ::
-            (  old(i) <= i₁₁
-              && i₁₁ < i
-               ==> i₁₁ < num));
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> array[i₁₀] % 2 == 0
+                  && i₁₀ < num
+                ||   array[i₁₀] % 2 != 0
+                  && i₁₀ < num));
   {
     if(array[i] % 2 == 0) {
       var printEven₄: c#void;
@@ -83,13 +73,15 @@ procedure main()
   i := 0;
   while(i < num)
     decreases num - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= num
-      && (forall i₁₄: int ::
-            (  old(i) <= i₁₄
-              && i₁₄ < i
-               ==> i₁₄ < num));
+      && (forall i₁₃: int ::
+            (  old(i) <= i₁₃
+              && i₁₃ < i
+               ==> array[i₁₃] % 2 != 0
+                  && i₁₃ < num
+                ||   array[i₁₃] % 2 == 0
+                  && i₁₃ < num));
   {
     if(array[i] % 2 != 0) {
       var printOdd₆: c#void;

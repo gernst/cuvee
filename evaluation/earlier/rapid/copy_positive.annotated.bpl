@@ -24,33 +24,26 @@ procedure copy_positive(b: [int]int, blength: int)
       && old(alength) <= alength
       && old(i) <= i
       && i <= blength
-      && (forall x₃: int ::
-            ((exists alength₁: int ::
-                    x₃ == alength₁
-                    && old(alength) <= alength₁
-                    && alength₁ < alength)
-               ==> (exists alength₁: int, i₂: int ::
-                      b[i₂] >= 0
-                      && i₂ < blength
-                      && 0 <= i₂
-                      && x₃ == alength₁
-                      && old(alength) <= alength₁
-                      && alength₁ < alength
-                      && a[x₃] == b[i₂])))
-      && (forall x₃: int ::
-            (!((exists alength₁: int ::
-                    x₃ == alength₁
-                    && old(alength) <= alength₁
-                    && alength₁ < alength)
-            )
-               ==> a[x₃] == old(a[x₃])))
       && (forall alength₁: int, i₂: int ::
-            (  0 <= i₂
-              && old(alength) <= alength₁
+            (  old(alength) <= alength₁
               && alength₁ < alength
               && old(i) <= i₂
               && i₂ < i
-               ==> i₂ < blength));
+               ==> b[i₂] >= 0
+                  && i₂ < blength
+                  && 0 <= i₂
+                  && a[alength₁] == b[i₂]
+                ||   !(b[i₂] >= 0
+                  )
+                  && i₂ < blength
+                  && 0 <= i₂))
+      && (forall alength₁: int, i₂: int ::
+            (!(  old(alength) <= alength₁
+              && alength₁ < alength
+              && old(i) <= i₂
+              && i₂ < i
+            )
+               ==> a[alength₁] == old(a)[alength₁]));
   {
     if(b[i] >= 0) {
       a := a[alength := b[i]];

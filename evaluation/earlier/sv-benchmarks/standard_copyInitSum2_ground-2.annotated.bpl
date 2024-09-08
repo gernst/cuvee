@@ -18,31 +18,18 @@ procedure main()
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₄: int ::
-            ((exists i₃: int ::
-                    x₄ == i₃
-                    && old(i) <= i₃
-                    && i₃ < i)
-               ==> (exists i₃: int ::
-                      i₃ < 100000
-                      && x₄ == i₃
-                      && old(i) <= i₃
-                      && i₃ < i
-                      && a[x₄] == 42)))
-      && (forall x₄: int ::
-            (!((exists i₃: int ::
-                    x₄ == i₃
-                    && old(i) <= i₃
-                    && i₃ < i)
-            )
-               ==> a[x₄] == old(a[x₄])))
       && (forall i₃: int ::
             (  old(i) <= i₃
               && i₃ < i
-               ==> i₃ < 100000));
+               ==> i₃ < 100000
+                && a[i₃] == 42))
+      && (forall i₃: int ::
+            (!(  old(i) <= i₃
+              && i₃ < i
+            )
+               ==> a[i₃] == old(a)[i₃]));
   {
     a := a[i := 42];
     i := i + 1;
@@ -50,31 +37,18 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₈: int ::
-            ((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
-               ==> (exists i₇: int ::
-                      i₇ < 100000
-                      && x₈ == i₇
-                      && old(i) <= i₇
-                      && i₇ < i
-                      && b[x₈] == a[i₇])))
-      && (forall x₈: int ::
-            (!((exists i₇: int ::
-                    x₈ == i₇
-                    && old(i) <= i₇
-                    && i₇ < i)
+      && (forall i₆: int ::
+            (  old(i) <= i₆
+              && i₆ < i
+               ==> i₆ < 100000
+                && b[i₆] == a[i₆]))
+      && (forall i₆: int ::
+            (!(  old(i) <= i₆
+              && i₆ < i
             )
-               ==> b[x₈] == old(b[x₈])))
-      && (forall i₇: int ::
-            (  old(i) <= i₇
-              && i₇ < i
-               ==> i₇ < 100000));
+               ==> b[i₆] == old(b)[i₆]));
   {
     b := b[i := a[i]];
     i := i + 1;
@@ -82,31 +56,18 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₁₂: int ::
-            ((exists i₁₁: int ::
-                    x₁₂ == i₁₁
-                    && old(i) <= i₁₁
-                    && i₁₁ < i)
-               ==> (exists i₁₁: int ::
-                      i₁₁ < 100000
-                      && x₁₂ == i₁₁
-                      && old(i) <= i₁₁
-                      && i₁₁ < i
-                      && b[x₁₂] == old(b)[i₁₁] + i₁₁)))
-      && (forall x₁₂: int ::
-            (!((exists i₁₁: int ::
-                    x₁₂ == i₁₁
-                    && old(i) <= i₁₁
-                    && i₁₁ < i)
+      && (forall i₉: int ::
+            (  old(i) <= i₉
+              && i₉ < i
+               ==> i₉ < 100000
+                && b[i₉] == i₉ + old(b)[i₉]))
+      && (forall i₉: int ::
+            (!(  old(i) <= i₉
+              && i₉ < i
             )
-               ==> b[x₁₂] == old(b[x₁₂])))
-      && (forall i₁₁: int ::
-            (  old(i) <= i₁₁
-              && i₁₁ < i
-               ==> i₁₁ < 100000));
+               ==> b[i₉] == old(b)[i₉]));
   {
     b := b[i := b[i] + i];
     i := i + 1;
@@ -115,13 +76,12 @@ procedure main()
   x := 0;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₁₆: int ::
-            (  old(x) <= x₁₆
-              && x₁₆ < x
-               ==> x₁₆ < 100000));
+      && (forall x₁₃: int ::
+            (  old(x) <= x₁₃
+              && x₁₃ < x
+               ==> x₁₃ < 100000));
   {
     assert b[x] == 42 + x;
     x := x + 1;

@@ -31,31 +31,18 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₆: int ::
-            ((exists i₅: int ::
-                    x₆ == i₅
-                    && old(i) <= i₅
-                    && i₅ < i)
-               ==> (exists i₅: int ::
-                      i₅ < N
-                      && x₆ == i₅
-                      && old(i) <= i₅
-                      && i₅ < i
-                      && a[x₆] == 4)))
-      && (forall x₆: int ::
-            (!((exists i₅: int ::
-                    x₆ == i₅
-                    && old(i) <= i₅
-                    && i₅ < i)
-            )
-               ==> a[x₆] == old(a[x₆])))
       && (forall i₅: int ::
             (  old(i) <= i₅
               && i₅ < i
-               ==> i₅ < N));
+               ==> i₅ < N
+                && a[i₅] == 4))
+      && (forall i₅: int ::
+            (!(  old(i) <= i₅
+              && i₅ < i
+            )
+               ==> a[i₅] == old(a)[i₅]));
   {
     a := a[i := 4];
     i := i + 1;
@@ -63,28 +50,22 @@ procedure main()
   i := 0;
   while(i < N)
     decreases N - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= N
-      && (forall x₁₀: int ::
-            (x₁₀ == 0
-               ==> (exists i₉: int ::
-                        a[i₉] == 4
-                        && i₉ < N
-                        && x₁₀ == 0
-                        && sum[x₁₀] == a[i₉] + old(sum)[0])
-                || (exists i₉: int ::
-                        a[i₉] != 4
-                        && i₉ < N
-                        && x₁₀ == 0
-                        && sum[x₁₀] == old(sum)[0] * a[i₉])))
-      && (forall x₁₀: int ::
-            (x₁₀ != 0
-               ==> sum[x₁₀] == old(sum[x₁₀])))
-      && (forall i₉: int ::
-            (  old(i) <= i₉
-              && i₉ < i
-               ==> i₉ < N));
+      && (forall i₈: int ::
+            (  old(i) <= i₈
+              && i₈ < i
+               ==> a[i₈] == 4
+                  && i₈ < N
+                  && sum[0] == a[i₈] + old(sum)[0]
+                ||   a[i₈] != 4
+                  && i₈ < N
+                  && sum[0] == old(sum)[0] * a[i₈]))
+      && (forall i₈: int ::
+            (!(  old(i) <= i₈
+              && i₈ < i
+            )
+               ==> sum[0] == old(sum)[0]));
   {
     if(a[i] == 4) {
       sum := sum[0 := sum[0] + a[i]];

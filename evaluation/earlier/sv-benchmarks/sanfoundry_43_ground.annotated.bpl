@@ -17,31 +17,18 @@ procedure incrementArray(src: [int]int, dst: [int]int)
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₃: int ::
-            ((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-               ==> (exists i₂: int ::
-                      i₂ < 100000
-                      && x₃ == i₂
-                      && old(i) <= i₂
-                      && i₂ < i
-                      && dst[x₃] == 1 + src[i₂])))
-      && (forall x₃: int ::
-            (!((exists i₂: int ::
-                    x₃ == i₂
-                    && old(i) <= i₂
-                    && i₂ < i)
-            )
-               ==> dst[x₃] == old(dst[x₃])))
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
-               ==> i₂ < 100000));
+               ==> i₂ < 100000
+                && dst[i₂] == 1 + src[i₂]))
+      && (forall i₂: int ::
+            (!(  old(i) <= i₂
+              && i₂ < i
+            )
+               ==> dst[i₂] == old(dst)[i₂]));
   {
     dst := dst[i := src[i] + 1];
     i := i + 1;
@@ -56,31 +43,19 @@ procedure main()
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₁₀: int ::
-            ((exists i₉: int ::
-                    x₁₀ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
-               ==> (exists __VERIFIER_nondet_int₂₈: int, i₉: int ::
-                      i₉ < 100000
-                      && x₁₀ == i₉
-                      && old(i) <= i₉
-                      && i₉ < i
-                      && src[x₁₀] == __VERIFIER_nondet_int₂₈)))
-      && (forall x₁₀: int ::
-            (!((exists i₉: int ::
-                    x₁₀ == i₉
-                    && old(i) <= i₉
-                    && i₉ < i)
+      && (forall i₈: int ::
+            (  old(i) <= i₈
+              && i₈ < i
+               ==> (exists __VERIFIER_nondet_int₂₇: int ::
+                      i₈ < 100000
+                      && src[i₈] == __VERIFIER_nondet_int₂₇)))
+      && (forall i₈: int ::
+            (!(  old(i) <= i₈
+              && i₈ < i
             )
-               ==> src[x₁₀] == old(src[x₁₀])))
-      && (forall i₉: int ::
-            (  old(i) <= i₉
-              && i₉ < i
-               ==> i₉ < 100000));
+               ==> src[i₈] == old(src)[i₈]));
   {
     var __VERIFIER_nondet_int₂: int;
     src := src[i := __VERIFIER_nondet_int₂];
@@ -92,31 +67,18 @@ procedure main()
   x := 0;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₁₆: int ::
-            ((exists x₁₅: int ::
-                    x₁₆ == x₁₅
-                    && old(x) <= x₁₅
-                    && x₁₅ < x)
-               ==> (exists x₁₅: int ::
-                      x₁₅ < 100000
-                      && x₁₆ == x₁₅
-                      && old(x) <= x₁₅
-                      && x₁₅ < x
-                      && src[x₁₆] == -1 + dst[x₁₅])))
-      && (forall x₁₆: int ::
-            (!((exists x₁₅: int ::
-                    x₁₆ == x₁₅
-                    && old(x) <= x₁₅
-                    && x₁₅ < x)
+      && (forall x₁₃: int ::
+            (  old(x) <= x₁₃
+              && x₁₃ < x
+               ==> x₁₃ < 100000
+                && src[x₁₃] == -1 + dst[x₁₃]))
+      && (forall x₁₃: int ::
+            (!(  old(x) <= x₁₃
+              && x₁₃ < x
             )
-               ==> src[x₁₆] == old(src[x₁₆])))
-      && (forall x₁₅: int ::
-            (  old(x) <= x₁₅
-              && x₁₅ < x
-               ==> x₁₅ < 100000));
+               ==> src[x₁₃] == old(src)[x₁₃]));
   {
     src := src[x := dst[x] - 1];
     x := x + 1;

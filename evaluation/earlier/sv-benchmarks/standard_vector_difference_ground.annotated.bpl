@@ -20,49 +20,21 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₇: int ::
-            ((exists i₆: int ::
-                    x₇ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-               ==> (exists __VERIFIER_nondet_int₁₄: int, i₆: int ::
-                      i₆ < 100000
-                      && x₇ == i₆
-                      && old(i) <= i₆
-                      && i₆ < i
-                      && a[x₇] == __VERIFIER_nondet_int₁₄)))
-      && (forall x₇: int ::
-            (!((exists i₆: int ::
-                    x₇ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-            )
-               ==> a[x₇] == old(a[x₇])))
-      && (forall x₈: int ::
-            ((exists i₆: int ::
-                    x₈ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-               ==> (exists __VERIFIER_nondet_int₂₅: int, i₆: int ::
-                      i₆ < 100000
-                      && x₈ == i₆
-                      && old(i) <= i₆
-                      && i₆ < i
-                      && b[x₈] == __VERIFIER_nondet_int₂₅)))
-      && (forall x₈: int ::
-            (!((exists i₆: int ::
-                    x₈ == i₆
-                    && old(i) <= i₆
-                    && i₆ < i)
-            )
-               ==> b[x₈] == old(b[x₈])))
       && (forall i₆: int ::
             (  old(i) <= i₆
               && i₆ < i
-               ==> i₆ < 100000));
+               ==> (exists __VERIFIER_nondet_int₁₄: int, __VERIFIER_nondet_int₂₅: int ::
+                      i₆ < 100000
+                      && a[i₆] == __VERIFIER_nondet_int₁₄
+                      && b[i₆] == __VERIFIER_nondet_int₂₅)))
+      && (forall i₆: int ::
+            (!(  old(i) <= i₆
+              && i₆ < i
+            )
+               ==> a[i₆] == old(a)[i₆]
+                && b[i₆] == old(b)[i₆]));
   {
     var __VERIFIER_nondet_int₁: int;
     a := a[i := __VERIFIER_nondet_int₁];
@@ -73,31 +45,18 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant true
-      && old(i) <= i
+    invariant old(i) <= i
       && i <= 100000
-      && (forall x₁₃: int ::
-            ((exists i₁₂: int ::
-                    x₁₃ == i₁₂
-                    && old(i) <= i₁₂
-                    && i₁₂ < i)
-               ==> (exists i₁₂: int ::
-                      i₁₂ < 100000
-                      && x₁₃ == i₁₂
-                      && old(i) <= i₁₂
-                      && i₁₂ < i
-                      && c[x₁₃] == a[i₁₂] + -b[i₁₂])))
-      && (forall x₁₃: int ::
-            (!((exists i₁₂: int ::
-                    x₁₃ == i₁₂
-                    && old(i) <= i₁₂
-                    && i₁₂ < i)
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < 100000
+                && c[i₁₀] == -b[i₁₀] + a[i₁₀]))
+      && (forall i₁₀: int ::
+            (!(  old(i) <= i₁₀
+              && i₁₀ < i
             )
-               ==> c[x₁₃] == old(c[x₁₃])))
-      && (forall i₁₂: int ::
-            (  old(i) <= i₁₂
-              && i₁₂ < i
-               ==> i₁₂ < 100000));
+               ==> c[i₁₀] == old(c)[i₁₀]));
   {
     c := c[i := a[i] - b[i]];
     i := i + 1;
@@ -106,13 +65,12 @@ procedure main()
   x := 0;
   while(x < 100000)
     decreases 100000 - x;
-    invariant true
-      && old(x) <= x
+    invariant old(x) <= x
       && x <= 100000
-      && (forall x₁₇: int ::
-            (  old(x) <= x₁₇
-              && x₁₇ < x
-               ==> x₁₇ < 100000));
+      && (forall x₁₄: int ::
+            (  old(x) <= x₁₄
+              && x₁₄ < x
+               ==> x₁₄ < 100000));
   {
     assert c[x] == a[x] - b[x];
     x := x + 1;

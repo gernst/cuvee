@@ -64,56 +64,32 @@ procedure partition(a: [int]int, alength: int)
       && old(i) <= i
       && old(blength) <= blength
       && i <= alength
-      && (forall x₄: int ::
-            ((exists blength₃: int ::
-                    x₄ == blength₃
-                    && old(blength) <= blength₃
-                    && blength₃ < blength)
-               ==> (exists i₂: int, blength₃: int ::
-                      a[i₂] >= 0
-                      && i₂ < alength
-                      && 0 <= i₂
-                      && x₄ == blength₃
-                      && old(blength) <= blength₃
-                      && blength₃ < blength
-                      && b[x₄] == a[i₂])))
-      && (forall x₄: int ::
-            (!((exists blength₃: int ::
-                    x₄ == blength₃
-                    && old(blength) <= blength₃
-                    && blength₃ < blength)
-            )
-               ==> b[x₄] == old(b[x₄])))
-      && (forall x₅: int ::
-            ((exists clength₁: int ::
-                    x₅ == clength₁
-                    && old(clength) <= clength₁
-                    && clength₁ < clength)
-               ==> (exists clength₁: int, i₂: int ::
-                      !(a[i₂] >= 0
-                      )
-                      && i₂ < alength
-                      && 0 <= i₂
-                      && x₅ == clength₁
-                      && old(clength) <= clength₁
-                      && clength₁ < clength
-                      && c[x₅] == a[i₂])))
-      && (forall x₅: int ::
-            (!((exists clength₁: int ::
-                    x₅ == clength₁
-                    && old(clength) <= clength₁
-                    && clength₁ < clength)
-            )
-               ==> c[x₅] == old(c[x₅])))
       && (forall clength₁: int, i₂: int, blength₃: int ::
-            (  0 <= i₂
-              && old(clength) <= clength₁
+            (  old(clength) <= clength₁
               && clength₁ < clength
               && old(i) <= i₂
               && i₂ < i
               && old(blength) <= blength₃
               && blength₃ < blength
-               ==> i₂ < alength));
+               ==> a[i₂] >= 0
+                  && i₂ < alength
+                  && 0 <= i₂
+                  && b[blength₃] == a[i₂]
+                ||   !(a[i₂] >= 0
+                  )
+                  && i₂ < alength
+                  && 0 <= i₂
+                  && c[clength₁] == a[i₂]))
+      && (forall clength₁: int, i₂: int, blength₃: int ::
+            (!(  old(clength) <= clength₁
+              && clength₁ < clength
+              && old(i) <= i₂
+              && i₂ < i
+              && old(blength) <= blength₃
+              && blength₃ < blength
+            )
+               ==> b[blength₃] == old(b)[blength₃]
+                && c[clength₁] == old(c)[clength₁]));
   {
     if(a[i] >= 0) {
       b := b[blength := a[i]];

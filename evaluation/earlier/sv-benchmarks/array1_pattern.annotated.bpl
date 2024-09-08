@@ -28,88 +28,36 @@ procedure main()
   count := 0;
   while(count < ARR_SIZE)
     decreases ARR_SIZE - count;
-    invariant true
-      && old(count) <= count
+    invariant old(count) <= count
       && count <= ARR_SIZE
-      && (forall x₇: int ::
-            ((exists count₆: int ::
-                    x₇ == count₆
-                    && old(count) <= count₆
-                    && count₆ < count)
-               ==> (exists count₆: int ::
-                      count₆ < ARR_SIZE
-                      && x₇ == count₆
-                      && old(count) <= count₆
-                      && count₆ < count
-                      && array1[x₇] == 0)))
-      && (forall x₇: int ::
-            (!((exists count₆: int ::
-                    x₇ == count₆
-                    && old(count) <= count₆
-                    && count₆ < count)
-            )
-               ==> array1[x₇] == old(array1[x₇])))
-      && (forall x₈: int ::
-            ((exists count₆: int ::
-                    x₈ == count₆
-                    && old(count) <= count₆
-                    && count₆ < count)
-               ==> (exists count₆: int ::
-                      count₆ < ARR_SIZE
-                      && x₈ == count₆
-                      && old(count) <= count₆
-                      && count₆ < count
-                      && array2[x₈] == 0)))
-      && (forall x₈: int ::
-            (!((exists count₆: int ::
-                    x₈ == count₆
-                    && old(count) <= count₆
-                    && count₆ < count)
-            )
-               ==> array2[x₈] == old(array2[x₈])))
       && (forall count₆: int ::
             (  old(count) <= count₆
               && count₆ < count
-               ==> count₆ < ARR_SIZE));
+               ==> count₆ < ARR_SIZE
+                && array1[count₆] == 0
+                && array2[count₆] == 0))
+      && (forall count₆: int ::
+            (!(  old(count) <= count₆
+              && count₆ < count
+            )
+               ==> array1[count₆] == old(array1)[count₆]
+                && array2[count₆] == old(array2)[count₆]));
   {
     array1 := array1[count := 0];
     array2 := array2[count := 0];
     count := count + 1;
   }
   while(1 != 0)
-    invariant true
-      && (forall x₁₆: int ::
-            ((exists index₁₂: int ::
-                  x₁₆ == index₁₂)
-               ==> (exists index₁₂: int, temp₁₃: int ::
-                      temp₁₃ != 0
-                      && 0 <= index₁₂
-                      && index₁₂ < ARR_SIZE
-                      && x₁₆ == index₁₂
-                      && array1[x₁₆] == num * num * index₁₂)))
-      && (forall x₁₆: int ::
-            (!((exists index₁₂: int ::
-                  x₁₆ == index₁₂)
-            )
-               ==> array1[x₁₆] == old(array1[x₁₆])))
-      && (forall x₁₇: int ::
-            ((exists index₁₂: int ::
-                  x₁₇ == -1 + -index₁₂ + ARR_SIZE)
-               ==> (exists index₁₂: int, temp₁₃: int ::
-                      temp₁₃ != 0
-                      && 0 <= index₁₂
-                      && index₁₂ < ARR_SIZE
-                      && x₁₇ == -1 + -index₁₂ + ARR_SIZE
-                      && array2[x₁₇] == num * index₁₂)))
-      && (forall x₁₇: int ::
-            (!((exists index₁₂: int ::
-                  x₁₇ == -1 + -index₁₂ + ARR_SIZE)
-            )
-               ==> array2[x₁₇] == old(array2[x₁₇])))
-      && !((exists index₁₂: int, temp₁₃: int ::
-              temp₁₃ == 0
-              && 0 <= index₁₂
-              && index₁₂ < ARR_SIZE)
+    invariant (exists index₁₀: int, temp₁₁: int ::
+              temp₁₁ != 0
+              && 0 <= index₁₀
+              && index₁₀ < ARR_SIZE
+              && array1[index₁₀] == num * num * index₁₀
+              && array2[-1 + -index₁₀ + ARR_SIZE] == num * index₁₀)
+      && !((exists index₁₀: int, temp₁₁: int ::
+              temp₁₁ == 0
+              && 0 <= index₁₀
+              && index₁₀ < ARR_SIZE)
       );
   {
     havoc index;
@@ -124,13 +72,12 @@ procedure main()
   count := 0;
   while(count < ARR_SIZE)
     decreases ARR_SIZE - count;
-    invariant true
-      && old(count) <= count
+    invariant old(count) <= count
       && count <= ARR_SIZE
-      && (forall count₂₃: int ::
-            (  old(count) <= count₂₃
-              && count₂₃ < count
-               ==> count₂₃ < ARR_SIZE));
+      && (forall count₁₉: int ::
+            (  old(count) <= count₁₉
+              && count₁₉ < count
+               ==> count₁₉ < ARR_SIZE));
   {
     sum := sum + array1[count] + array2[count];
     count := count + 1;

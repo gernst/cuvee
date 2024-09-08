@@ -23,35 +23,25 @@ procedure init_conditionally(a: [int]int, b: [int]int, length: int)
       && old(clength) <= clength
       && old(i) <= i
       && i <= length
-      && (forall x₃: int ::
-            ((exists clength₁: int ::
-                    x₃ == clength₁
-                    && old(clength) <= clength₁
-                    && clength₁ < clength)
-               ==> (exists clength₁: int, i₂: int ::
-                      a[i₂] == b[i₂]
-                      && i₂ < length
-                      && 0 <= i₂
-                      && x₃ == clength₁
-                      && old(clength) <= clength₁
-                      && clength₁ < clength
-                      && old(i) <= i₂
-                      && i₂ < i
-                      && c[x₃] == i₂)))
-      && (forall x₃: int ::
-            (!((exists clength₁: int ::
-                    x₃ == clength₁
-                    && old(clength) <= clength₁
-                    && clength₁ < clength)
-            )
-               ==> c[x₃] == old(c[x₃])))
       && (forall clength₁: int, i₂: int ::
-            (  0 <= i₂
-              && old(clength) <= clength₁
+            (  old(clength) <= clength₁
               && clength₁ < clength
               && old(i) <= i₂
               && i₂ < i
-               ==> i₂ < length));
+               ==> a[i₂] == b[i₂]
+                  && i₂ < length
+                  && 0 <= i₂
+                  && c[clength₁] == i₂
+                ||   a[i₂] != b[i₂]
+                  && i₂ < length
+                  && 0 <= i₂))
+      && (forall clength₁: int, i₂: int ::
+            (!(  old(clength) <= clength₁
+              && clength₁ < clength
+              && old(i) <= i₂
+              && i₂ < i
+            )
+               ==> c[clength₁] == old(c)[clength₁]));
   {
     if(a[i] == b[i]) {
       c := c[clength := i];

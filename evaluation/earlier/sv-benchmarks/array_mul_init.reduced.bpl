@@ -8,86 +8,48 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int, b: [int]int, a₂₃: [int]int, b₂₄: [int]int, i₂₅: int, a₂₇: [int]int, b₂₈: [int]int, i₂₉: int, i₃₀: int ::
-      (  0 <= i₂₅
-        && i₂₅ <= 100000
-        && (forall x₆: int, i₅: int ::
-              (  x₆ == i₅
-                && 0 <= i₅
-                && i₅ < i₂₅
-                 ==> (exists i₅: int ::
-                        i₅ < 100000
-                        && x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₂₅
-                        && a₂₃[x₆] == i₅)))
-        && (forall x₆: int ::
-                (exists i₅: int ::
-                        x₆ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₂₅)
-                || a₂₃[x₆] == a[x₆])
-        && (forall x₇: int, i₅: int ::
-              (  x₇ == i₅
-                && 0 <= i₅
-                && i₅ < i₂₅
-                 ==> (exists i₅: int ::
-                        i₅ < 100000
-                        && x₇ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₂₅
-                        && b₂₄[x₇] == i₅)))
-        && (forall x₇: int ::
-                (exists i₅: int ::
-                        x₇ == i₅
-                        && 0 <= i₅
-                        && i₅ < i₂₅)
-                || b₂₄[x₇] == b[x₇])
+goal (forall a: [int]int, b: [int]int, a₁₉: [int]int, b₂₀: [int]int, i₂₁: int, a₂₃: [int]int, b₂₄: [int]int, i₂₅: int, i₂₆: int ::
+      (  0 <= i₂₁
+        && i₂₁ <= 100000
         && (forall i₅: int ::
               (  0 <= i₅
-                && i₅ < i₂₅
-                 ==> i₅ < 100000))
-        && 0 <= i₂₉
-        && i₂₉ <= 100000
-        && (forall x₁₅: int, i₁₄: int ::
-              (  x₁₅ == i₁₄
-                && 0 <= i₁₄
-                && i₁₄ < i₂₉
-                 ==> (exists __VERIFIER_nondet_short₂₁₁: int ::
-                      (__VERIFIER_nondet_short₂₁₁ == 0
-                         ==> false))))
-        && (forall x₁₅: int ::
-                (exists i₁₄: int ::
-                        x₁₅ == i₁₄
-                        && 0 <= i₁₄
-                        && i₁₄ < i₂₉)
-                || a₂₇[x₁₅] == a₂₃[x₁₅])
-        && (forall x₁₆: int, i₁₄: int ::
-              (  x₁₆ == i₁₄
-                && 0 <= i₁₄
-                && i₁₄ < i₂₉
-                 ==> (exists __VERIFIER_nondet_short₂₁₁: int ::
-                      (__VERIFIER_nondet_short₂₁₁ == 0
-                         ==> false))))
-        && (forall x₁₆: int ::
-                (exists i₁₄: int ::
-                        x₁₆ == i₁₄
-                        && 0 <= i₁₄
-                        && i₁₄ < i₂₉)
-                || b₂₈[x₁₆] == b₂₄[x₁₆])
-        && (forall i₁₄: int ::
-              (  0 <= i₁₄
-                && i₁₄ < i₂₉
-                 ==> i₁₄ < 100000))
-        && 0 <= i₃₀
-        && i₃₀ <= 100000
-        && (forall i₂₁: int ::
-              (  0 <= i₂₁
-                && i₂₁ < i₃₀
-                 ==> i₂₁ < 100000))
-        && i₃₀ < 100000
-         ==> i₂₉ < 100000
-          || i₂₅ < 100000
-          || a₂₇[i₃₀] == b₂₈[i₃₀]
-          || b₂₈[i₃₀] == a₂₇[i₃₀] * a₂₇[i₃₀]));
+                && i₅ < i₂₁
+                 ==> i₅ < 100000
+                  && a₁₉[i₅] == i₅
+                  && b₂₀[i₅] == i₅))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₂₁
+                ||   a₁₉[i₅] == a[i₅]
+                  && b₂₀[i₅] == b[i₅])
+        && 0 <= i₂₅
+        && i₂₅ <= 100000
+        && (forall i₁₂: int ::
+              (  0 <= i₁₂
+                && i₁₂ < i₂₅
+                 ==> (exists __VERIFIER_nondet_short₂₉: int, k₁₀: int ::
+                          (__VERIFIER_nondet_short₂₉ == 0
+                             ==> false)
+                          && i₁₂ < 100000
+                          && a₂₃[i₁₂] == k₁₀
+                          && b₂₄[i₁₂] == k₁₀ * k₁₀)
+                  || (exists __VERIFIER_nondet_short₂₉: int ::
+                          __VERIFIER_nondet_short₂₉ == 0
+                          && i₁₂ < 100000)))
+        && (forall i₁₂: int ::
+                  0 <= i₁₂
+                  && i₁₂ < i₂₅
+                ||   a₂₃[i₁₂] == a₁₉[i₁₂]
+                  && b₂₄[i₁₂] == b₂₀[i₁₂])
+        && 0 <= i₂₆
+        && i₂₆ <= 100000
+        && (forall i₁₇: int ::
+              (  0 <= i₁₇
+                && i₁₇ < i₂₆
+                 ==> i₁₇ < 100000))
+        && i₂₆ < 100000
+         ==> i₂₅ < 100000
+          || i₂₁ < 100000
+          || a₂₃[i₂₆] == b₂₄[i₂₆]
+          || b₂₄[i₂₆] == a₂₃[i₂₆] * a₂₃[i₂₆]));
 

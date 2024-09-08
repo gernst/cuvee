@@ -8,43 +8,37 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall array: [int]int, array₁₅: [int]int, i₁₆: int, largest₁₇: int, i₁₈: int, x₁₉: int ::
-      (  0 <= i₁₆
-        && i₁₆ <= 100000
-        && (forall x₅: int, i₄: int ::
-              (  x₅ == i₄
-                && 0 <= i₄
-                && i₄ < i₁₆
-                 ==> (exists __VERIFIER_nondet_int₁₃: int, i₄: int ::
-                        i₄ < 100000
-                        && x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₆
-                        && array₁₅[x₅] == __VERIFIER_nondet_int₁₃)))
-        && (forall x₅: int ::
-                (exists i₄: int ::
-                        x₅ == i₄
-                        && 0 <= i₄
-                        && i₄ < i₁₆)
-                || array₁₅[x₅] == array[x₅])
+goal (forall array: [int]int, array₁₄: [int]int, i₁₅: int, largest₁₆: int, i₁₇: int, x₁₈: int ::
+      (  0 <= i₁₅
+        && i₁₅ <= 100000
         && (forall i₄: int ::
               (  0 <= i₄
-                && i₄ < i₁₆
-                 ==> i₄ < 100000))
-        && 1 <= i₁₈
-        && i₁₈ <= 100000
-        && (forall i₉: int ::
-              (  1 <= i₉
-                && i₉ < i₁₈
-                 ==> i₉ < 100000))
-        && 0 <= x₁₉
-        && x₁₉ <= 100000
-        && (forall x₁₃: int ::
-              (  0 <= x₁₃
-                && x₁₃ < x₁₉
-                 ==> x₁₃ < 100000))
-        && x₁₉ < 100000
-         ==> i₁₈ < 100000
-          || i₁₆ < 100000
-          || array₁₅[x₁₉] <= largest₁₇));
+                && i₄ < i₁₅
+                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
+                        i₄ < 100000
+                        && array₁₄[i₄] == __VERIFIER_nondet_int₁₃)))
+        && (forall i₄: int ::
+                  0 <= i₄
+                  && i₄ < i₁₅
+                || array₁₄[i₄] == array[i₄])
+        && 1 <= i₁₇
+        && i₁₇ <= 100000
+        && (forall largest₇: int, i₈: int ::
+              (  1 <= i₈
+                && i₈ < i₁₇
+                 ==> largest₇ < array₁₄[i₈]
+                    && i₈ < 100000
+                  ||   (largest₇ < array₁₄[i₈]
+                       ==> false)
+                    && i₈ < 100000))
+        && 0 <= x₁₈
+        && x₁₈ <= 100000
+        && (forall x₁₂: int ::
+              (  0 <= x₁₂
+                && x₁₂ < x₁₈
+                 ==> x₁₂ < 100000))
+        && x₁₈ < 100000
+         ==> i₁₇ < 100000
+          || i₁₅ < 100000
+          || array₁₄[x₁₈] <= largest₁₆));
 
