@@ -82,8 +82,13 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val psi = Forall(ys_, !And(prems) ==> And(frame))
     val chi = Forall(ys_, And(prems) ==> And(avoids))
 
-    val inv_ = inv && And(lbs) && ub && phi && psi && chi
+    // TODO: /home/ernst/Projects/cuvee/evaluation/earlier/sv-benchmarks/standard_vararg_ground.annotated.bpl
+    //       does not have a loop test that involves counters so ub is wrong
+    val inv_ = inv && And(lbs) && /* ub && */ phi && psi && chi
     val inv__ = Simplify.simplify(inv_, state)
+
+    // println("lb: " + lbs)
+    // println("ub: " + ub)
 
     var term_ = if (term == Zero) decreases else term
 

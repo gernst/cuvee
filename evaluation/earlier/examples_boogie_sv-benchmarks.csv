@@ -15,13 +15,13 @@ sanfoundry_43_ground.bpl, Success
 s5lif.bpl, Unknown
 standard_init6_ground-2.bpl, Success
 zero_sum_m3.bpl, Unknown
-standard_vararg_ground.bpl, Unknown
+standard_vararg_ground.bpl, Success
 sum40-2.bpl, Unknown
 max40-1.bpl, Unknown
 standard_copy7_ground-2.bpl, Success
 standard_vector_difference_ground.bpl, Success
 mbpr3.bpl, Unknown
-array_init_nondet_vars.bpl, Unknown
+array_init_nondet_vars.bpl, Success
 condm.bpl, Success
 sanfoundry_02_ground.bpl, Unknown
 standard_copy6_ground-2.bpl, Success
