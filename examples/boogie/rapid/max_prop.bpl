@@ -2,7 +2,7 @@ procedure max_prop(b: [int]int, blength: int)
   returns (a: [int]int)
   requires 0 <= blength;
   ensures forall pos: int :: 0 <= pos && pos < blength && 0 <= blength ==>
-    a[pos] <= 0;
+    0 <= a[pos];
   ensures forall pos: int :: 0 <= pos && pos < blength && 0 <= blength ==>
     a[pos] == 0 || a[pos] == b[pos];
 {
