@@ -29,9 +29,9 @@ object reduce
 object evaluate
     extends Run(
       Earlier(mode = "evaluate"),
-      "examples/chc/maxpranq/bench_precondn/c_serialized",
+      // "examples/chc/maxpranq/bench_precondn/c_serialized",
       "examples/boogie/sv-benchmarks",
-      "examples/boogie/rapid"
+      // "examples/boogie/rapid"
     )
 
 object evaluate_
@@ -101,6 +101,7 @@ case class Earlier(mode: String) extends Main {
             "-annotate:new-arrays",
             "-vcgen:partial",
             "-prove:z3",
+            "-prove:crosscheck",
             "-prove:strict"
           )
 

@@ -33,8 +33,10 @@ trait Solver extends Sink {
       case Lemma(expr, tactic, Some(Free)) =>
         this.assert(expr)
       case Lemma(expr, tactic, Some(Goal)) =>
-        println("warning: ignoring goal: " + cmd)
-        ???
+        scoped {
+          assert(!expr)
+          require(check() == Unsat, "goal does not hold: " + expr)
+        }
         Success
       case GetModel =>
         model(state)

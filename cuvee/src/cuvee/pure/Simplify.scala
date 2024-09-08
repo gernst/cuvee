@@ -4,6 +4,7 @@ import cuvee.smtlib.Model
 import cuvee.pure.True
 import cuvee.Intersect
 import cuvee.ai.AInt.one
+import cuvee.State
 
 object Simplify {
   def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
@@ -62,7 +63,11 @@ object Simplify {
         select(simplify(base, rules, constrs), simplify(index, rules, constrs))
 
       case Store(base, index, value) =>
-        store(simplify(base, rules, constrs), simplify(index, rules, constrs), simplify(value, rules, constrs))
+        store(
+          simplify(base, rules, constrs),
+          simplify(index, rules, constrs),
+          simplify(value, rules, constrs)
+        )
 
       case App(inst, args) =>
         app(expr, inst, simplify(args, rules, constrs), rules, constrs)
@@ -120,6 +125,10 @@ object Simplify {
         val (rest_, su_) = onePoint(rest, su)
         (assm :: rest_, su_)
     }
+  }
+
+  def simplify(expr: Expr, state: State): Expr = {
+    simplify(expr, Map(), state.constrs)
   }
 
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
@@ -249,15 +258,15 @@ object Simplify {
   def select(base: Expr, index: Expr) = {
     base match {
       case Store(_, `index`, value) => value
-      case _                             => Select(base, index)
+      case _                        => Select(base, index)
     }
   }
 
   def store(base: Expr, index: Expr, value: Expr): Expr = {
     (base, value) match {
-      case (_, Select(`base`, `index`))   => base
+      case (_, Select(`base`, `index`)) => base
       case (Store(base, `index`, _), _) => store(base, index, value)
-      case _                              => Store(base, index, value)
+      case _                            => Store(base, index, value)
     }
   }
 

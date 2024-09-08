@@ -75,10 +75,14 @@ case class Path(
   def step(xs: List[Var], rel: Expr) = {
     val su = Expr.fresh(xs)
     val xs_ = xs rename su
+    // println()
     // println("evaluating:")
     // println(rel)
+    // println(fresh)
     // println(su)
     // println(stack)
+    // println()
+    
     val rel_ = Path.eval(fresh, su :: stack, stack :: old, rel)
     val fresh_ = fresh ++ xs_
     val constraints_ = rel_ :: constraints
@@ -99,15 +103,16 @@ object Path {
       expr: Expr
   ): Expr = {
     // println("evaluating: " + expr)
-    // println("stack:      " + stack)
-    // println("old:        " + old)
-    // println()
     expr match {
       case x: Var =>
         try {
           lookup(bound, stack, x)
         } catch {
           case Unbound =>
+    // println("bound:      " + bound)
+    // println("stack:      " + stack)
+    // println("old:        " + old)
+    // println()
             cuvee.error("unbound variable: " + x + " in " + stack.flatMap(_.keySet).mkString(", "))
         }
 

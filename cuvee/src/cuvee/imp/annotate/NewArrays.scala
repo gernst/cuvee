@@ -73,7 +73,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
 
           val (eqs_, neqs_) = pairs.unzip
           val constraints_ = constraints rename re
-          (Exists(fresh, And(constraints_ ++ eqs_)), And(neqs_))
+          (Exists(fresh, And(constraints_ ++ eqs_)), Forall(fresh, And(neqs_)))
         }
 
     val (updated, frame) = cases.unzip
@@ -81,10 +81,14 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val phi = Forall(ys_, And(prems) ==> Or(updated))
     val psi = Forall(ys_, !And(prems) ==> And(frame))
     val chi = Forall(ys_, And(prems) ==> And(avoids))
-    val inv_ = inv && And(lbs) && ub && phi && psi && chi
 
-    val prog_ = While(test, body_, term, inv_, sum, frames)
-    val paths_ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
+    val inv_ = inv && And(lbs) && ub && phi && psi && chi
+    val inv__ = Simplify.simplify(inv_, state)
+
+    var term_ = if (term == Zero) decreases else term
+
+    val prog_ = While(test, body_, term_, inv__, sum, frames)
+    val paths_ = exec.spec(paths, mod.toList, inv__, inv__ && !test)
 
     (paths_, prog_)
   }
