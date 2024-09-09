@@ -78,11 +78,13 @@ case object NewArrays extends Annotate(ExecNoLoops) {
 
     val (updated, frame) = cases.unzip
 
-    val phi = Forall(ys_, And(prems) ==> Or(updated))
-    val psi = Forall(ys_, !And(prems) ==> And(frame))
-    val chi = Forall(ys_, And(prems) ==> And(avoids))
+    val prems_ = (inv rename re) :: prems
 
-    // TODO: /home/ernst/Projects/cuvee/evaluation/earlier/sv-benchmarks/standard_vararg_ground.annotated.bpl
+    val phi = Forall(ys_, And(prems_) ==> Or(updated))
+    val psi = Forall(ys_, ((inv rename re) && !And(prems)) ==> And(frame))
+    val chi = Forall(ys_, And(prems_) ==> And(avoids))
+
+    // TODO: evaluation/earlier/sv-benchmarks/standard_vararg_ground.annotated.bpl
     //       does not have a loop test that involves counters so ub is wrong
     val inv_ = inv && And(lbs) && /* ub && */ phi && psi && chi
     val inv__ = Simplify.simplify(inv_, state)

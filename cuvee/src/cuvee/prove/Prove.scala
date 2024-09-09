@@ -83,7 +83,7 @@ class Prove(
       state: State
   ) = {
     if (crosscheckProver) {
-      val solver = Solver.z3(timeout = 10000)
+      val solver = Solver.cvc5(timeout = 10000)
       try {
         ctx foreach {
           case _: Lemma =>
@@ -98,6 +98,7 @@ class Prove(
 
       if (!solver.isTrue(expr === goal.toExpr)) {
         println(expr)
+        println(goal.toExpr)
         println(goal)
         assert(false, "conversion to prop did not produce original formula!")
       }
@@ -109,7 +110,7 @@ class Prove(
 
       if (!solver.isTrue(expr === expr_)) {
         println(expr + " != " + expr_)
-        assert(false, "reduce did not produce formulas recognized equivalent by Z3!")
+        assert(false, "reduce did not produce formulas recognized equivalent!")
       }
     }
 

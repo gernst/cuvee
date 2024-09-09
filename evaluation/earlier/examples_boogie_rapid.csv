@@ -2,7 +2,7 @@ Name, Result
 find_min_up_to.bpl, Unknown
 init_previous_plus_one.bpl, Unknown
 min_prop.bpl, Success
-max_prop.bpl, Unknown
+max_prop.bpl, Success
 copy_partial.bpl, Success
 init_conditionally.bpl, Unknown
 partition_harder.bpl, Unknown
@@ -23,12 +23,12 @@ init_partial.bpl, Success
 collect_indices_equal_values.bpl, Unknown
 in_place_max.bpl, Success
 copy.bpl, Success
-push_back.bpl, Unknown
+push_back.bpl, Success
 copy_nonzero.bpl, Unknown
 find_max_up_to.bpl, Unknown
 increment_by_one.bpl, Success
 swap.bpl, Success
 find_max_local.bpl, Unknown
-copy_two_indices.bpl, Unknown
+copy_two_indices.bpl, Success
 init_previous_plus_one_alternative.bpl, Unknown
 both_or_none.bpl, Success

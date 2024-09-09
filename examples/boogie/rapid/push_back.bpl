@@ -9,8 +9,7 @@ procedure push_back(b: [int]int, blength: int)
 	alength := 0;
 	var i: int := 0;
 	while(i < blength)
-    decreases blength - i;
-    invariant 0 <= i && i == alength && alength <= blength;
+		invariant alength == i;
 	{
 		a := a[i := b[i]];
 		alength := alength + 1;
