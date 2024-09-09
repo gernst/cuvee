@@ -1,4 +1,4 @@
-goal (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇: int, i₈: int ::
+goal {:named "invariant forward"} (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇: int, i₈: int ::
       (  0 <= blength
         && 0 + alength₇ == i₈ + 0
         && 0 <= alength₇
@@ -26,7 +26,7 @@ goal (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇:
         && b[i₈] == 0
          ==> 0 + alength₇ == i₈ + 1 + 0));
 
-goal (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇: int, i₈: int, k: int ::
+goal {:named "ensures"} (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇: int, i₈: int, k: int ::
       (  0 <= blength
         && 0 + alength₇ == i₈ + 0
         && 0 <= alength₇
@@ -56,7 +56,7 @@ goal (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇:
         && a₆[k] == 0
          ==> i₈ < blength));
 
-goal (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇: int, i₈: int, k: int ::
+goal {:named "ensures"} (forall b: [int]int, blength: int, a: [int]int, a₆: [int]int, alength₇: int, i₈: int, k: int ::
       (  0 <= blength
         && 0 + alength₇ == i₈ + 0
         && 0 <= alength₇

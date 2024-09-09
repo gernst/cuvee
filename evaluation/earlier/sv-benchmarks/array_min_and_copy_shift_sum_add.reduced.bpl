@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [int]int, b: [int]int, j₁₉: int, i₂₀: int, b₂₁: [int]int, i₂₂: int, k₂₃: int, i₂₄: int ::
+goal {:named "assert"} (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [int]int, b: [int]int, j₁₉: int, i₂₀: int, b₂₁: [int]int, i₂₂: int, k₂₃: int, i₂₄: int ::
       (  __VERIFIER_nondet_int₁ < 10000
         && -10000 < __VERIFIER_nondet_int₁
         && __VERIFIER_nondet_int₂ < 10000

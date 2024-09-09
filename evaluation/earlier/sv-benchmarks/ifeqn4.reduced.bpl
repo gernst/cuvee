@@ -8,81 +8,86 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
+goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && (forall i₁₁₈: int ::
-              (  0 <= i₁₁₈
-                && i₁₁₈ < i₁₅
-                 ==> i₁₁₈ == 0
-                    && i₁₁₈ < N₁₃
+        && (forall i₅₈: int ::
+              (  0 <= i₅₈
+                && i₅₈ < i₁₅
+                 ==> i₅₈ == 0
+                    && i₅₈ < N₁₃
                     && a₁₄[0] == 8
-                  ||   (i₁₁₈ == 0
+                  ||   (i₅₈ == 0
                        ==> false)
-                    && i₁₁₈ < N₁₃
-                    && a₁₄[i₁₁₈] == 8 + a[-1 + i₁₁₈]))
-        && (forall i₁₁₉: int ::
-                  0 <= i₁₁₉
-                  && i₁₁₉ < i₁₅
+                    && i₅₈ < N₁₃
+                    && a₁₄[i₅₈] == 8 + a[-1 + i₅₈]))
+        && (forall i₅₉: int ::
+                  0 <= i₅₉
+                  && i₅₉ < i₁₅
                 ||   a₁₄[0] == a[0]
-                  && a₁₄[i₁₁₉] == a[i₁₁₉])
+                  && a₁₄[i₅₉] == a[i₅₉])
         && i₁₅ < N₁₃
         && i₁₅ == 0
          ==> 0 <= i₅
           || N₁₃ <= 0
           || a₁₄[0 := 8][0] == a[0]));
 
-goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
+goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && (forall i₁₃₀: int ::
-              (  0 <= i₁₃₀
-                && i₁₃₀ < i₁₅
-                 ==> i₁₃₀ == 0
-                    && i₁₃₀ < N₁₃
+        && (forall i₇₀: int ::
+              (  0 <= i₇₀
+                && i₇₀ < i₁₅
+                 ==> i₇₀ == 0
+                    && i₇₀ < N₁₃
                     && a₁₄[0] == 8
-                  ||   (i₁₃₀ == 0
+                  ||   (i₇₀ == 0
                        ==> false)
-                    && i₁₃₀ < N₁₃
-                    && a₁₄[i₁₃₀] == 8 + a[-1 + i₁₃₀]))
-        && (forall i₁₃₁: int ::
-                  0 <= i₁₃₁
-                  && i₁₃₁ < i₁₅
+                    && i₇₀ < N₁₃
+                    && a₁₄[i₇₀] == 8 + a[-1 + i₇₀]))
+        && (forall i₇₁: int ::
+                  0 <= i₇₁
+                  && i₇₁ < i₁₅
                 ||   a₁₄[0] == a[0]
-                  && a₁₄[i₁₃₁] == a[i₁₃₁])
+                  && a₁₄[i₇₁] == a[i₇₁])
         && i₁₅ < N₁₃
         && i₁₅ == 0
          ==> i₅ < i₁₅ + 1
           || N₁₃ <= 0
           || a₁₄[0 := 8][0] == a[0]));
 
-goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
+goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && (forall i₁₅₆: int ::
-              (  0 <= i₁₅₆
-                && i₁₅₆ < i₁₅
-                 ==> i₁₅₆ == 0
-                    && i₁₅₆ < N₁₃
+        && (forall i₈₆: int ::
+              (  0 <= i₈₆
+                && i₈₆ < i₁₅
+                 ==> i₈₆ == 0
+                    && i₈₆ < N₁₃
                     && a₁₄[0] == 8
-                  ||   (i₁₅₆ == 0
+                  ||   (i₈₆ == 0
                        ==> false)
-                    && i₁₅₆ < N₁₃
-                    && a₁₄[i₁₅₆] == 8 + a[-1 + i₁₅₆]))
-        && (forall i₁₅₇: int ::
-                  0 <= i₁₅₇
-                  && i₁₅₇ < i₁₅
+                    && i₈₆ < N₁₃
+                    && a₁₄[i₈₆] == 8 + a[-1 + i₈₆]))
+        && (forall i₈₇: int ::
+                  0 <= i₈₇
+                  && i₈₇ < i₁₅
                 ||   a₁₄[0] == a[0]
-                  && a₁₄[i₁₅₇] == a[i₁₅₇])
+                  && a₁₄[i₈₇] == a[i₈₇])
         && i₁₅ < N₁₃
         && 0 <= i₅
         && i₅ < i₁₅ + 1
          ==> i₁₅ == 0
           || N₁₃ <= 0
-          || i₅ == 0
-          || a₁₄[i₁₅ := a₁₄[i₁₅ - 1] + 8][i₅] == 8 + a[-1 + i₅]));
+          ||   i₅ == 0
+            && i₅ < N₁₃
+            && a₁₄[i₁₅ := a₁₄[i₁₅ - 1] + 8][0] == 8
+          ||   (i₅ == 0
+               ==> false)
+            && i₅ < N₁₃
+            && a₁₄[i₁₅ := a₁₄[i₁₅ - 1] + 8][i₅] == 8 + a[-1 + i₅]));
 
-goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
+goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::
@@ -101,21 +106,21 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   a₁₄[0] == a[0]
                   && a₁₄[i₅] == a[i₅])
         && 0 <= i₁₇
-        && (forall i₃₇₃: int ::
-              (  0 <= i₃₇₃
-                && i₃₇₃ < i₁₇
-                 ==> i₃₇₃ == 0
-                    && i₃₇₃ < N₁₃
+        && (forall i₁₆₅: int ::
+              (  0 <= i₁₆₅
+                && i₁₆₅ < i₁₇
+                 ==> i₁₆₅ == 0
+                    && i₁₆₅ < N₁₃
                     && b₁₆[0] == 1
-                  ||   (i₃₇₃ == 0
+                  ||   (i₁₆₅ == 0
                        ==> false)
-                    && i₃₇₃ < N₁₃
-                    && b₁₆[i₃₇₃] == b[-1 + i₃₇₃] + a₁₄[-1 + i₃₇₃]))
-        && (forall i₃₇₄: int ::
-                  0 <= i₃₇₄
-                  && i₃₇₄ < i₁₇
+                    && i₁₆₅ < N₁₃
+                    && b₁₆[i₁₆₅] == b[-1 + i₁₆₅] + a₁₄[-1 + i₁₆₅]))
+        && (forall i₁₆₆: int ::
+                  0 <= i₁₆₆
+                  && i₁₆₆ < i₁₇
                 ||   b₁₆[0] == b[0]
-                  && b₁₆[i₃₇₄] == b[i₃₇₄])
+                  && b₁₆[i₁₆₆] == b[i₁₆₆])
         && i₁₇ < N₁₃
         && i₁₇ == 0
          ==> 0 <= i₈
@@ -123,7 +128,7 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
           || N₁₃ <= 0
           || b₁₆[0 := 1][0] == b[0]));
 
-goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
+goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::
@@ -142,21 +147,21 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   a₁₄[0] == a[0]
                   && a₁₄[i₅] == a[i₅])
         && 0 <= i₁₇
-        && (forall i₃₉₁: int ::
-              (  0 <= i₃₉₁
-                && i₃₉₁ < i₁₇
-                 ==> i₃₉₁ == 0
-                    && i₃₉₁ < N₁₃
+        && (forall i₁₈₃: int ::
+              (  0 <= i₁₈₃
+                && i₁₈₃ < i₁₇
+                 ==> i₁₈₃ == 0
+                    && i₁₈₃ < N₁₃
                     && b₁₆[0] == 1
-                  ||   (i₃₉₁ == 0
+                  ||   (i₁₈₃ == 0
                        ==> false)
-                    && i₃₉₁ < N₁₃
-                    && b₁₆[i₃₉₁] == b[-1 + i₃₉₁] + a₁₄[-1 + i₃₉₁]))
-        && (forall i₃₉₂: int ::
-                  0 <= i₃₉₂
-                  && i₃₉₂ < i₁₇
+                    && i₁₈₃ < N₁₃
+                    && b₁₆[i₁₈₃] == b[-1 + i₁₈₃] + a₁₄[-1 + i₁₈₃]))
+        && (forall i₁₈₄: int ::
+                  0 <= i₁₈₄
+                  && i₁₈₄ < i₁₇
                 ||   b₁₆[0] == b[0]
-                  && b₁₆[i₃₉₂] == b[i₃₉₂])
+                  && b₁₆[i₁₈₄] == b[i₁₈₄])
         && i₁₇ < N₁₃
         && i₁₇ == 0
          ==> i₈ < i₁₇ + 1
@@ -164,7 +169,7 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
           || N₁₃ <= 0
           || b₁₆[0 := 1][0] == b[0]));
 
-goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
+goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::
@@ -183,31 +188,36 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   a₁₄[0] == a[0]
                   && a₁₄[i₅] == a[i₅])
         && 0 <= i₁₇
-        && (forall i₄₃₂: int ::
-              (  0 <= i₄₃₂
-                && i₄₃₂ < i₁₇
-                 ==> i₄₃₂ == 0
-                    && i₄₃₂ < N₁₃
+        && (forall i₂₀₈: int ::
+              (  0 <= i₂₀₈
+                && i₂₀₈ < i₁₇
+                 ==> i₂₀₈ == 0
+                    && i₂₀₈ < N₁₃
                     && b₁₆[0] == 1
-                  ||   (i₄₃₂ == 0
+                  ||   (i₂₀₈ == 0
                        ==> false)
-                    && i₄₃₂ < N₁₃
-                    && b₁₆[i₄₃₂] == b[-1 + i₄₃₂] + a₁₄[-1 + i₄₃₂]))
-        && (forall i₄₃₃: int ::
-                  0 <= i₄₃₃
-                  && i₄₃₃ < i₁₇
+                    && i₂₀₈ < N₁₃
+                    && b₁₆[i₂₀₈] == b[-1 + i₂₀₈] + a₁₄[-1 + i₂₀₈]))
+        && (forall i₂₀₉: int ::
+                  0 <= i₂₀₉
+                  && i₂₀₉ < i₁₇
                 ||   b₁₆[0] == b[0]
-                  && b₁₆[i₄₃₃] == b[i₄₃₃])
+                  && b₁₆[i₂₀₉] == b[i₂₀₉])
         && i₁₇ < N₁₃
         && 0 <= i₈
         && i₈ < i₁₇ + 1
          ==> i₁₇ == 0
           || i₁₅ < N₁₃
           || N₁₃ <= 0
-          || i₈ == 0
-          || b₁₆[i₁₇ := b₁₆[i₁₇ - 1] + a₁₄[i₁₇ - 1]][i₈] == b[-1 + i₈] + a₁₄[-1 + i₈]));
+          ||   i₈ == 0
+            && i₈ < N₁₃
+            && b₁₆[i₁₇ := b₁₆[i₁₇ - 1] + a₁₄[i₁₇ - 1]][0] == 1
+          ||   (i₈ == 0
+               ==> false)
+            && i₈ < N₁₃
+            && b₁₆[i₁₇ := b₁₆[i₁₇ - 1] + a₁₄[i₁₇ - 1]][i₈] == b[-1 + i₈] + a₁₄[-1 + i₈]));
 
-goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₁₈: int ::
+goal {:named "assert"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₁₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::

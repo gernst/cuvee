@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int, b: [int]int, i₅: int ::
+goal {:named "invariant entry"} (forall a: [int]int, b: [int]int, i₅: int ::
         (exists __VERIFIER_nondet_int₁₄: int ::
                 __VERIFIER_nondet_int₁₄ == 10
                 && i₅ < 100000

@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int ::
+goal {:named "invariant entry"} (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int ::
       (  0 < ARR_SIZE₂₉
         && 0 <= count₃₂
         && (forall count₇: int ::
@@ -49,7 +49,7 @@ goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃�
                   && array2₃₁[index2₁₂] == (-1) * count₁₆
                   && array1₃₀[index1₁₁] == (-1) * (-1) * count₁₆)));
 
-goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₃: int ::
+goal {:named "invariant entry"} (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₃: int ::
       (  0 < ARR_SIZE₂₉
         && 0 <= count₃₂
         && (forall count₇: int ::
@@ -73,7 +73,7 @@ goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃�
         && index1₁₁ < ARR_SIZE₂₉
          ==> count₃₂ < ARR_SIZE₂₉));
 
-goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₄: int ::
+goal {:named "invariant entry"} (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₄: int ::
       (  0 < ARR_SIZE₂₉
         && 0 <= count₃₂
         && (forall count₇: int ::
@@ -94,6 +94,6 @@ goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃�
         && index2₁₂ < ARR_SIZE₂₉
         && 0 <= index1₁₁
         && index1₁₁ < ARR_SIZE₂₉
-         ==> count₁₆ == 200
-          || count₃₂ < ARR_SIZE₂₉));
+         ==> count₃₂ < ARR_SIZE₂₉
+          || count₁₆ == 200));
 

@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall SIZE₄₀: int, a: [int]int, a₄₂: [int]int, i₄₃: int, i₄₅: int, i₄₇: int, i₄₉: int, i₅₁: int, i₅₃: int, i₅₅: int, i₅₇: int, sum₅₈: int, i₅₉: int ::
+goal {:named "assert"} (forall SIZE₄₀: int, a: [int]int, a₄₂: [int]int, i₄₃: int, i₄₅: int, i₄₇: int, i₄₉: int, i₅₁: int, i₅₃: int, i₅₅: int, i₅₇: int, sum₅₈: int, i₅₉: int ::
       (  1 < SIZE₄₀
         && 0 <= i₄₃
         && (forall i₅: int ::

@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall aa: [int]int, bb: [int]int, aa₂₁: [int]int, i₂₂: int, bb₂₃: [int]int, b₂₄: int, a₂₅: int ::
+goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, aa₂₁: [int]int, i₂₂: int, bb₂₃: [int]int, b₂₄: int, a₂₅: int ::
       (  0 <= i₂₂
         && (forall i₅: int ::
               (  0 <= i₅
@@ -47,7 +47,7 @@ goal (forall aa: [int]int, bb: [int]int, aa₂₁: [int]int, i₂₂: int, bb₂
           || i₂₂ < 100000
           || 0 + b₂₄ == 0 + a₂₅ + 1));
 
-goal (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, bb₂₃: [int]int, b₂₄: int, a₂₅: int, cc₂₆: [int]int, c₂₇: int, a₂₈: int ::
+goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, bb₂₃: [int]int, b₂₄: int, a₂₅: int, cc₂₆: [int]int, c₂₇: int, a₂₈: int ::
       (  0 <= i₂₂
         && (forall i₅: int ::
               (  0 <= i₅
@@ -109,7 +109,7 @@ goal (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂�
           || i₂₂ < 100000
           || c₂₇ + 0 == 0 + a₂₈ + 1));
 
-goal (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, bb₂₃: [int]int, b₂₄: int, a₂₅: int, cc₂₆: [int]int, c₂₇: int, a₂₈: int, x₂₉: int ::
+goal {:named "assert"} (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, bb₂₃: [int]int, b₂₄: int, a₂₅: int, cc₂₆: [int]int, c₂₇: int, a₂₈: int, x₂₉: int ::
       (  0 <= i₂₂
         && (forall i₅: int ::
               (  0 <= i₅

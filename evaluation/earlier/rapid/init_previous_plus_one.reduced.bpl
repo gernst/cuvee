@@ -1,4 +1,4 @@
-goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, i₁: int ::
+goal {:named "invariant forward"} (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, i₁: int ::
       (  0 <= alength
         && 0 <= i₅
         && (forall i₄₀: int ::
@@ -15,7 +15,7 @@ goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, i₁:
         && i₁ < i₅ + 1
          ==> a₄[i₅ + 1 := a₄[i₅] + 1][1 + i₁] == 1 + a[0 := v][i₁]));
 
-goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, pos: int ::
+goal {:named "ensures"} (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, pos: int ::
       (  0 <= alength
         && 0 <= i₅
         && (forall i₁: int ::
@@ -33,7 +33,7 @@ goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, pos: 
          ==> i₅ + 1 < alength
           || a₄[pos] <= a₄[pos + 1]));
 
-goal (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, pos: int ::
+goal {:named "ensures"} (forall alength: int, v: int, a: [int]int, a₄: [int]int, i₅: int, pos: int ::
       (  0 <= alength
         && 0 <= i₅
         && (forall i₁: int ::

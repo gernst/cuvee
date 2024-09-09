@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N₁₈: int, sum: [int]int, a: [int]int, a₁₉: [int]int, i₂₀: int, sum₂₁: [int]int, i₂₂: int, i₉: int ::
+goal {:named "invariant forward"} (forall N₁₈: int, sum: [int]int, a: [int]int, a₁₉: [int]int, i₂₀: int, sum₂₁: [int]int, i₂₂: int, i₉: int ::
       (  N₁₈ <= 2147483647 / 4
         && 0 <= i₂₀
         && (forall i₆: int ::
@@ -36,7 +36,7 @@ goal (forall N₁₈: int, sum: [int]int, a: [int]int, a₁₉: [int]int, i₂�
           || N₁₈ <= 0
           || sum₂₁[0 := sum₂₁[0] + a₁₉[i₂₂]][0] == sum[0 := 0][0]));
 
-goal (forall N₁₈: int, sum: [int]int, a: [int]int, a₁₉: [int]int, i₂₀: int, sum₂₁: [int]int, i₂₂: int, i₉: int ::
+goal {:named "invariant forward"} (forall N₁₈: int, sum: [int]int, a: [int]int, a₁₉: [int]int, i₂₀: int, sum₂₁: [int]int, i₂₂: int, i₉: int ::
       (  N₁₈ <= 2147483647 / 4
         && 0 <= i₂₀
         && (forall i₆: int ::

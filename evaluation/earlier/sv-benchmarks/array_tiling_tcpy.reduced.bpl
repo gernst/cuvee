@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₆: int ::
+goal {:named "invariant forward"} (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₆: int ::
       (  1 < __VERIFIER_nondet_int₁
         && __VERIFIER_nondet_int₁ < 1073741823
         && 0 <= i₁₂
@@ -28,7 +28,7 @@ goal (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy�
          ==> i₆ < i₁₂ + 1
           || acopy₁₁[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1 := a[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1]][i₁₂ := a[i₁₂]][i₆] == acopy[i₆]));
 
-goal (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₆: int ::
+goal {:named "invariant forward"} (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₆: int ::
       (  1 < __VERIFIER_nondet_int₁
         && __VERIFIER_nondet_int₁ < 1073741823
         && 0 <= i₁₂
@@ -48,7 +48,7 @@ goal (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy�
          ==> i₆ < i₁₂ + 1
           || acopy₁₁[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1 := a[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1]][i₁₂ := a[i₁₂]][1 + 2 * __VERIFIER_nondet_int₁ + -i₆] == acopy[1 + 2 * __VERIFIER_nondet_int₁ + -i₆]));
 
-goal (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₁₃: int ::
+goal {:named "assert"} (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₁₃: int ::
       (  1 < __VERIFIER_nondet_int₁
         && __VERIFIER_nondet_int₁ < 1073741823
         && 0 <= i₁₂

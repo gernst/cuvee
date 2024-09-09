@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
+goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
         && (forall i₅: int ::
@@ -21,19 +21,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && (forall i₂₁₁: int ::
-              (  0 <= i₂₁₁
-                && i₂₁₁ < i₁₅
-                 ==> i₂₁₁ == 0
-                    && i₂₁₁ < N₁₁
+        && (forall i₁₀₃: int ::
+              (  0 <= i₁₀₃
+                && i₁₀₃ < i₁₅
+                 ==> i₁₀₃ == 0
+                    && i₁₀₃ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₂₁₁ == 0
+                  ||   (i₁₀₃ == 0
                        ==> false)
-                    && i₂₁₁ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₂₁₁] + sum[0]))
-        && (forall i₂₁₂: int ::
-                  0 <= i₂₁₂
-                  && i₂₁₂ < i₁₅
+                    && i₁₀₃ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₁₀₃] + sum[0]))
+        && (forall i₁₀₄: int ::
+                  0 <= i₁₀₄
+                  && i₁₀₄ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
         && i₁₅ == 0
@@ -42,7 +42,7 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
           || N₁₁ <= 0
           || sum₁₄[0 := 0][0] == sum[0]));
 
-goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
+goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
         && (forall i₅: int ::
@@ -55,19 +55,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && (forall i₂₂₁: int ::
-              (  0 <= i₂₂₁
-                && i₂₂₁ < i₁₅
-                 ==> i₂₂₁ == 0
-                    && i₂₂₁ < N₁₁
+        && (forall i₁₁₃: int ::
+              (  0 <= i₁₁₃
+                && i₁₁₃ < i₁₅
+                 ==> i₁₁₃ == 0
+                    && i₁₁₃ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₂₂₁ == 0
+                  ||   (i₁₁₃ == 0
                        ==> false)
-                    && i₂₂₁ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₂₂₁] + sum[0]))
-        && (forall i₂₂₂: int ::
-                  0 <= i₂₂₂
-                  && i₂₂₂ < i₁₅
+                    && i₁₁₃ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₁₁₃] + sum[0]))
+        && (forall i₁₁₄: int ::
+                  0 <= i₁₁₄
+                  && i₁₁₄ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
         && i₁₅ == 0

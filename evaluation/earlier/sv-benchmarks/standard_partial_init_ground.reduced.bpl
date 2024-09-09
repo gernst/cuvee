@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int ::
+goal {:named "invariant forward"} (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int ::
       (  0 <= i₂₃
         && (forall i₇: int ::
               (  0 <= i₇
@@ -49,7 +49,7 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
           || i₂₃ < 100000
           || j₂₅ + 0 == i₂₆ + 1 + 0));
 
-goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, x₂₇: int ::
+goal {:named "assert"} (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, x₂₇: int ::
       (  0 <= i₂₃
         && (forall i₇: int ::
               (  0 <= i₇
@@ -95,7 +95,7 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
           || i₂₃ < 100000
           || C₂₄[x₂₇] <= x₂₇ + i₂₆ - j₂₅));
 
-goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, x₂₇: int, x₂₈: int ::
+goal {:named "assert"} (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, x₂₇: int, x₂₈: int ::
       (  0 <= i₂₃
         && (forall i₇: int ::
               (  0 <= i₇

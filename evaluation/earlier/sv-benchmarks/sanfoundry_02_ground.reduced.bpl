@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₃₀: int, i₃₁: int, x₃₂: int ::
+goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₃₀: int, i₃₁: int, x₃₂: int ::
       (  0 <= i₂₈
         && (forall i₇: int ::
               (  0 <= i₇
@@ -46,7 +46,7 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₃�
           || i₂₈ < 100000
           || array₂₇[x₃₂] <= largest1₃₀));
 
-goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₂₉: int, largest1₃₀: int, i₃₁: int, x₃₂: int, x₃₃: int ::
+goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₂₉: int, largest1₃₀: int, i₃₁: int, x₃₂: int, x₃₃: int ::
       (  0 <= i₂₈
         && (forall i₇: int ::
               (  0 <= i₇
@@ -91,7 +91,7 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₂�
           || array₂₇[x₃₃] <= largest2₂₉
           || array₂₇[x₃₃] == largest1₃₀));
 
-goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₄₆: int, i₄₇: int, x₄₈: int ::
+goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₄₆: int, i₄₇: int, x₄₈: int ::
       (  0 <= i₂₈
         && (forall i₇: int ::
               (  0 <= i₇
@@ -129,7 +129,7 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₄�
           || i₂₈ < 100000
           || array₂₇[x₄₈] <= largest1₄₆));
 
-goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₄₅: int, largest1₄₆: int, i₄₇: int, x₄₈: int, x₄₉: int ::
+goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₄₅: int, largest1₄₆: int, i₄₇: int, x₄₈: int, x₄₉: int ::
       (  0 <= i₂₈
         && (forall i₇: int ::
               (  0 <= i₇

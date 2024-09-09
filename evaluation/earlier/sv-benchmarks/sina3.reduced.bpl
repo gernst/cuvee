@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall N₂₀: int, sum: [int]int, a: [int]int, b: [int]int, a₂₁: [int]int, i₂₂: int, b₂₃: [int]int, i₂₄: int, sum₂₅: [int]int, i₂₆: int, i₁₂: int ::
+goal {:named "invariant forward"} (forall N₂₀: int, sum: [int]int, a: [int]int, b: [int]int, a₂₁: [int]int, i₂₂: int, b₂₃: [int]int, i₂₄: int, sum₂₅: [int]int, i₂₆: int, i₁₂: int ::
       (  N₂₀ <= 2147483647 / 4
         && 0 <= i₂₂
         && (forall i₆: int ::
@@ -47,7 +47,7 @@ goal (forall N₂₀: int, sum: [int]int, a: [int]int, b: [int]int, a₂₁: [in
           || N₂₀ <= 0
           || sum₂₅[0 := sum₂₅[0] + a₂₁[i₂₆]][0] == sum[0 := 0][0]));
 
-goal (forall N₂₀: int, sum: [int]int, a: [int]int, b: [int]int, a₂₁: [int]int, i₂₂: int, b₂₃: [int]int, i₂₄: int, sum₂₅: [int]int, i₂₆: int, i₁₂: int ::
+goal {:named "invariant forward"} (forall N₂₀: int, sum: [int]int, a: [int]int, b: [int]int, a₂₁: [int]int, i₂₂: int, b₂₃: [int]int, i₂₄: int, sum₂₅: [int]int, i₂₆: int, i₁₂: int ::
       (  N₂₀ <= 2147483647 / 4
         && 0 <= i₂₂
         && (forall i₆: int ::

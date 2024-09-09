@@ -8,10 +8,10 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall i: int ::
+goal {:named "assert"} (forall i: int ::
       i % 2 == 0);
 
-goal (forall i: int ::
+goal {:named "assert"} (forall i: int ::
       (i % 2 == 0
          ==> false));
 

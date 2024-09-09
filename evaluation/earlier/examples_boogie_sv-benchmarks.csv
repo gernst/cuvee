@@ -36,7 +36,7 @@ ifeqn1.bpl, Unknown
 avg60-1.bpl, Unknown
 s4if.bpl, Unknown
 standard_find_ground-1.bpl, Success
-array1_pattern.bpl, Unknown
+array1_pattern.bpl, Success
 sanfoundry_24-1.bpl, Unknown
 standard_password_ground.bpl, Unknown
 standard_two_index_03.bpl, Unknown

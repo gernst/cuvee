@@ -1,4 +1,4 @@
-goal (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int, clength₇: int, i₈: int ::
+goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int, clength₇: int, i₈: int ::
       (  0 <= length
         && clength₇ + 0 == i₈ + 0
         && 0 <= clength₇
@@ -26,7 +26,7 @@ goal (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int,
          ==> a[i₈] == b[i₈]
           || clength₇ + 0 == i₈ + 1 + 0));
 
-goal (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int, clength₇: int, i₈: int, pos: int ::
+goal {:named "ensures"} (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int, clength₇: int, i₈: int, pos: int ::
       (  0 <= length
         && clength₇ + 0 == i₈ + 0
         && 0 <= clength₇
@@ -56,7 +56,7 @@ goal (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int,
          ==> i₈ < length
           || a[c₆[pos]] == b[c₆[pos]]));
 
-goal (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int, clength₇: int, i₈: int, pos: int ::
+goal {:named "ensures"} (forall a: [int]int, b: [int]int, length: int, c: [int]int, c₆: [int]int, clength₇: int, i₈: int, pos: int ::
       (  0 <= length
         && clength₇ + 0 == i₈ + 0
         && 0 <= clength₇

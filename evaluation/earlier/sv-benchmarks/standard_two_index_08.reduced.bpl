@@ -8,7 +8,7 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₇: int, j₈: int ::
+goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₇: int, j₈: int ::
       (  0 <= i₁₇
         && (forall i₄: int ::
               (  0 <= i₄
@@ -37,7 +37,7 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
          ==> i₁₇ < 100000
           || i₇ < 100000));
 
-goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₇: int, j₈: int ::
+goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₇: int, j₈: int ::
       (  0 <= i₁₇
         && (forall i₄: int ::
               (  0 <= i₄
@@ -66,7 +66,7 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
          ==> i₁₇ < 100000
           || a₁₈[j₂₀ := b₁₆[i₁₉]][j₈] == b₁₆[i₇]));
 
-goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int ::
+goal {:named "assert"} (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int ::
       (  0 <= i₁₇
         && (forall i₄: int ::
               (  0 <= i₄
@@ -100,7 +100,7 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
           || i₁₇ < 100000
           || a₁₈[j₂₂] == b₁₆[8 * j₂₂ + 1]));
 
-goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int, i₁₂: int, j₁₃: int ::
+goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int, i₁₂: int, j₁₃: int ::
       (  0 <= i₁₇
         && (forall i₄: int ::
               (  0 <= i₄

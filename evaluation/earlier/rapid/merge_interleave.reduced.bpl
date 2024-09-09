@@ -1,4 +1,4 @@
-goal (forall a: [int]int, b: [int]int, alength: int, c: [int]int, c₄: [int]int, i₅: int, pos: int ::
+goal {:named "ensures"} (forall a: [int]int, b: [int]int, alength: int, c: [int]int, c₄: [int]int, i₅: int, pos: int ::
       (  0 <= alength
         && 0 <= i₅
         && (forall i₁: int ::
