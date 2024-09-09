@@ -12,7 +12,7 @@ str_cpy.bpl, Success
 init.bpl, Success
 partition.bpl, Unknown
 init_non_constant_easy.bpl, Success
-merge_interleave.bpl, Unsupported
+merge_interleave.bpl, Unknown
 increment_by_one_harder.bpl, Success
 copy_positive.bpl, Unknown
 vector_addition.bpl, Success

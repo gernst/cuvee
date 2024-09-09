@@ -39,7 +39,8 @@ procedure main()
   i := 1;
   while(i < 100000)
     decreases 100000 - i;
-    invariant old(j) <= j
+    invariant old(i) <= i
+      && old(j) <= j
       && (forall i₇: int, j₈: int ::
             (  old(j) <= j₈
               && j₈ < j
@@ -59,7 +60,8 @@ procedure main()
   j := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant old(j) <= j
+    invariant old(i) <= i
+      && old(j) <= j
       && (forall i₁₂: int, j₁₃: int ::
             (  old(j) <= j₁₃
               && j₁₃ < j
