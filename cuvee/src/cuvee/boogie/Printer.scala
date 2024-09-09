@@ -89,13 +89,15 @@ object Printer extends cuvee.util.Printer {
         }
       }
 
+      val named_ = named.mkString("{", ", ", "}")
+
       mode match {
         case Some(Goal) =>
-          result = format(s"goal$named", expr)
+          result = format(s"goal $named_", expr)
         case Some(Free) =>
-          result = format(s"free lemma$named", expr)
+          result = format(s"free lemma $named_", expr)
         case None =>
-          result = format(s"lemma$named", expr)
+          result = format(s"lemma $named_", expr)
       }
 
       if (tactic.nonEmpty) {

@@ -21,6 +21,17 @@ sealed trait Expr extends Expr.term with util.Syntax {
   def named(named: String) =
     Note(this, List(sexpr.Kw("named") -> Some(sexpr.Id(named))))
 
+  def lookupNamed =
+    this match {
+      case Note(expr, attr) =>
+        attr collectFirst { case (sexpr.Kw("named"), Some(sexpr.Id(arg))) =>
+          arg
+        }
+
+      case _ =>
+        None
+    }
+
   def unary_+ = this
   def unary_- = UMinus(this)
   def unary_! = Not(this)
