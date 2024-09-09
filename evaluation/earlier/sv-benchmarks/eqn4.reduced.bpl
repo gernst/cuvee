@@ -55,3 +55,36 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
           || N₁₃ <= 0
           || b₁₆[i₁₇ := b₁₆[i₁₇ - 1] + a₁₄[i₁₇ - 1]][i₈] == b[0 := 1][-1 + i₈] + a₁₄[-1 + i₈]));
 
+goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₁₈: int ::
+      (  N₁₃ <= 2147483647 / 4
+        && 1 <= i₁₅
+        && (forall i₅: int ::
+              (  1 <= i₅
+                && i₅ < i₁₅
+                 ==> i₅ < N₁₃
+                  && a₁₄[i₅] == 8 + a[0 := 8][-1 + i₅]))
+        && (forall i₅: int ::
+                  1 <= i₅
+                  && i₅ < i₁₅
+                || a₁₄[i₅] == a[0 := 8][i₅])
+        && 1 <= i₁₇
+        && (forall i₈: int ::
+              (  1 <= i₈
+                && i₈ < i₁₇
+                 ==> i₈ < N₁₃
+                  && b₁₆[i₈] == b[0 := 1][-1 + i₈] + a₁₄[-1 + i₈]))
+        && (forall i₈: int ::
+                  1 <= i₈
+                  && i₈ < i₁₇
+                || b₁₆[i₈] == b[0 := 1][i₈])
+        && 0 <= i₁₈
+        && (forall i₁₁: int ::
+              (  0 <= i₁₁
+                && i₁₁ < i₁₈
+                 ==> i₁₁ < N₁₃))
+        && i₁₈ < N₁₃
+         ==> i₁₇ < N₁₃
+          || i₁₅ < N₁₃
+          || N₁₃ <= 0
+          || b₁₆[i₁₈] == 4 * i₁₈ * i₁₈ + 4 * i₁₈ + 1));
+

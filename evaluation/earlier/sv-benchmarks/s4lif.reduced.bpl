@@ -44,3 +44,46 @@ goal (forall N₁₄: int, a: [int]int, a₁₅: [int]int, i₁₆: int, a₁₇
           || a₁₇[i₁₈ := a₁₇[i₁₈] + 4][i₈] == 1
           || a₁₇[i₁₈ := a₁₇[i₁₈] + 4][i₈] == -1 + a₁₅[i₈]));
 
+goal (forall N₁₄: int, sum: [int]int, a: [int]int, a₁₅: [int]int, i₁₆: int, a₁₇: [int]int, i₁₈: int, sum₁₉: [int]int, i₂₀: int ::
+      (  N₁₄ <= 2147483647 / 4
+        && 0 <= i₁₆
+        && (forall i₅: int ::
+              (  0 <= i₅
+                && i₅ < i₁₆
+                 ==> i₅ < N₁₄
+                  && a₁₅[i₅] == 1))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₁₆
+                || a₁₅[i₅] == a[i₅])
+        && 0 <= i₁₈
+        && (forall i₈: int ::
+              (  0 <= i₈
+                && i₈ < i₁₈
+                 ==> a₁₇[i₈] == 1
+                    && i₈ < N₁₄
+                    && a₁₇[i₈] == 4 + a₁₅[i₈]
+                  ||   (a₁₇[i₈] == 1
+                       ==> false)
+                    && i₈ < N₁₄
+                    && a₁₇[i₈] == -1 + a₁₅[i₈]))
+        && (forall i₈: int ::
+                  0 <= i₈
+                  && i₈ < i₁₈
+                || a₁₇[i₈] == a₁₅[i₈])
+        && 0 <= i₂₀
+        && (forall i₁₁: int ::
+              (  0 <= i₁₁
+                && i₁₁ < i₂₀
+                 ==> i₁₁ < N₁₄
+                  && sum₁₉[0] == sum[0 := 0][0] + a₁₇[i₁₁]))
+        && (forall i₁₁: int ::
+                  0 <= i₁₁
+                  && i₁₁ < i₂₀
+                || sum₁₉[0] == sum[0 := 0][0])
+         ==> i₂₀ < N₁₄
+          || i₁₈ < N₁₄
+          || i₁₆ < N₁₄
+          || N₁₄ <= 0
+          || sum₁₉[0] == 5 * N₁₄));
+

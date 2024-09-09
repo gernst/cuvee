@@ -20,16 +20,17 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
                   0 <= i₄
                   && i₄ < i₁₇
                 || b₁₆[i₄] == b[i₄])
+        && 1 <= i₁₉
         && 0 <= j₂₀
-        && (forall i₉₄: int, j₉₅: int ::
-              (  0 <= j₉₅
-                && j₉₅ < j₂₀
-                 ==> i₉₄ < 100000
-                  && a₁₈[j₉₅] == b₁₆[i₉₄]))
-        && (forall j₉₆: int ::
-                  0 <= j₉₆
-                  && j₉₆ < j₂₀
-                || a₁₈[j₉₆] == a[j₉₆])
+        && (forall i₁₀₄: int, j₁₀₅: int ::
+              (  0 <= j₁₀₅
+                && j₁₀₅ < j₂₀
+                 ==> i₁₀₄ < 100000
+                  && a₁₈[j₁₀₅] == b₁₆[i₁₀₄]))
+        && (forall j₁₀₆: int ::
+                  0 <= j₁₀₆
+                  && j₁₀₆ < j₂₀
+                || a₁₈[j₁₀₆] == a[j₁₀₆])
         && i₁₉ < 100000
         && 0 <= j₈
         && j₈ < j₂₀ + 1
@@ -48,16 +49,17 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
                   0 <= i₄
                   && i₄ < i₁₇
                 || b₁₆[i₄] == b[i₄])
+        && 1 <= i₁₉
         && 0 <= j₂₀
-        && (forall i₁₀₆: int, j₁₀₇: int ::
-              (  0 <= j₁₀₇
-                && j₁₀₇ < j₂₀
-                 ==> i₁₀₆ < 100000
-                  && a₁₈[j₁₀₇] == b₁₆[i₁₀₆]))
-        && (forall j₁₀₈: int ::
-                  0 <= j₁₀₈
-                  && j₁₀₈ < j₂₀
-                || a₁₈[j₁₀₈] == a[j₁₀₈])
+        && (forall i₁₁₆: int, j₁₁₇: int ::
+              (  0 <= j₁₁₇
+                && j₁₁₇ < j₂₀
+                 ==> i₁₁₆ < 100000
+                  && a₁₈[j₁₁₇] == b₁₆[i₁₁₆]))
+        && (forall j₁₁₈: int ::
+                  0 <= j₁₁₈
+                  && j₁₁₈ < j₂₀
+                || a₁₈[j₁₁₈] == a[j₁₁₈])
         && i₁₉ < 100000
         && 0 <= j₈
         && j₈ < j₂₀ + 1
@@ -76,6 +78,7 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
                   0 <= i₄
                   && i₄ < i₁₇
                 || b₁₆[i₄] == b[i₄])
+        && 1 <= i₁₉
         && 0 <= j₂₀
         && (forall i₇: int, j₈: int ::
               (  0 <= j₈
@@ -86,6 +89,7 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
                   0 <= j₈
                   && j₈ < j₂₀
                 || a₁₈[j₈] == a[j₈])
+        && 1 <= i₂₁
         && 0 <= j₂₂
         && (forall i₁₂: int, j₁₃: int ::
               (  0 <= j₁₃
@@ -108,6 +112,7 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
                   0 <= i₄
                   && i₄ < i₁₇
                 || b₁₆[i₄] == b[i₄])
+        && 1 <= i₁₉
         && 0 <= j₂₀
         && (forall i₇: int, j₈: int ::
               (  0 <= j₈
@@ -118,11 +123,12 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
                   0 <= j₈
                   && j₈ < j₂₀
                 || a₁₈[j₈] == a[j₈])
+        && 1 <= i₂₁
         && 0 <= j₂₂
-        && (forall i₁₇₀: int, j₁₇₁: int ::
-              (  0 <= j₁₇₁
-                && j₁₇₁ < j₂₂
-                 ==> i₁₇₀ < 100000))
+        && (forall i₁₉₆: int, j₁₉₇: int ::
+              (  0 <= j₁₉₇
+                && j₁₉₇ < j₂₂
+                 ==> i₁₉₆ < 100000))
         && i₂₁ < 100000
         && 0 <= j₁₃
         && j₁₃ < j₂₂ + 1
