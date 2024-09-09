@@ -69,9 +69,10 @@ object Printer extends cuvee.util.Printer {
     case Reset                      => parens("reset")
     case Assert(expr)               => parens("assert", expr)
     case CheckSat                   => parens("check-sat")
-    case Lemma(expr, _, Some(Goal)) => parens("goal", expr)
-    case Lemma(expr, _, Some(Free)) => parens("free lemma", expr)
-    case Lemma(expr, _, _)          => parens("lemma", expr)
+    // TODO
+    case Lemma(expr, _, Some(Goal), _) => parens("goal", expr)
+    case Lemma(expr, _, Some(Free), _) => parens("free lemma", expr)
+    case Lemma(expr, _, _, _)          => parens("lemma", expr)
     case SetInfo(attr, None)        => parens("set-info", ":" + attr)
     case SetInfo(attr, Some(arg))   => parens("set-info", ":" + attr, arg)
 

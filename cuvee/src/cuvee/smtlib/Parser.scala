@@ -114,7 +114,7 @@ class Parser(init: State) {
       // these are extensions to SMT-LIB
       case App(Id("lemma"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, None)
+        Lemma(phi_, None, None, Nil)
 
       // case App(Id("free-lemma"), phi) =>
       //   val phi_ = expr_typed(phi, bool)
@@ -123,7 +123,7 @@ class Parser(init: State) {
       // prove is used in TIP https://github.com/tip-org/
       case App(Id("prove"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, Some(Goal))
+        Lemma(phi_, None, Some(Goal), Nil)
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt

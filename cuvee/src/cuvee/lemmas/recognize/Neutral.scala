@@ -31,7 +31,7 @@ object Neutral extends Stage {
 
       val lemmas =
         for ((eq, _) <- eqs)
-          yield Lemma(eq.toExpr, None, None)
+          yield Lemma(eq.toExpr, None, None, Nil)
 
       cmds ++ lemmas
     } else {

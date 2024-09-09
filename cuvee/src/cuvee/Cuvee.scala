@@ -520,7 +520,7 @@ object CompareTheories {
         cuvee.thesy.storedLemmas(file, st)
       } else {
         val (cmds, _) = parse(file)
-        cmds collect { case Lemma(phi, _, _) => phi }
+        cmds collect { case Lemma(phi, _, _, _) => phi }
       }
 
       import util.TheoryComparison

@@ -95,7 +95,7 @@ object Printer extends cuvee.util.Printer with Counter {
           parens("=>", "rule" + next, Imp(And(ant), Eq(lhs, rhs)))
       }
 
-    case Lemma(phi, tactic, assert) =>
+    case Lemma(phi, tactic, assert, label) =>
       parens("prove", phi)
 
     case s: String   => just(s)

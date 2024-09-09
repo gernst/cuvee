@@ -106,7 +106,7 @@ object Test extends Main {
     lemmas.useConditional = true
 
     for (
-      Lemma(phi, _, _) <- cmds;
+      Lemma(phi, _, _, _) <- cmds;
       Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
     ) {
       lemmas.addLemma("provided", lhs, rhs, cond)
