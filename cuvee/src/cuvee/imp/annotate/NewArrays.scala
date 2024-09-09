@@ -67,11 +67,12 @@ case object NewArrays extends Annotate(ExecNoLoops) {
 
                     (yes, no)
 
-                  case rhs =>
+                  case _ =>
                     var x = Expr.fresh("x", dom)
+                    val yes = assignmentEqualities(mod, counters, re, a, x, rhs)
+                    val no = True // TODO: think about how to define unmodified
 
-                    val no = True // TODO: think about how to define unmodified 
-                    ???
+                    (Forall(List(x), yes), no)
                 }
 
                 eq_
@@ -123,7 +124,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
   ): Expr =
     rhs match {
       case `a` =>
-        False
+        True
 
       case Store(rhs_, key, value) =>
         val now = key rename re

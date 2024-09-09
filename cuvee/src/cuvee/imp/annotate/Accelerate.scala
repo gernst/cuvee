@@ -30,10 +30,10 @@ object Accelerate {
   def lbsFromCounter(counters: Map[Var, Counter]): List[Expr] = {
     val lb = for ((var_, counter) <- counters) yield {
       counter match {
-        case Counter(init, `plus_one`) =>
+        case Counter(init, step) if step > 0 =>
           Old(var_) <= var_
 
-        case Counter(init, `minus_one`) =>
+        case Counter(init, step) if step < 0 =>
           var_ <= Old(var_)
 
         case _ =>

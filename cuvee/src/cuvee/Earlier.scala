@@ -94,7 +94,7 @@ case class Earlier(mode: String) extends Main {
             path + "/" + file,
             "-annotate:new-arrays",
             "-vcgen:partial",
-            "-prove:z3",
+            "-prove:simple",
             "-prove:crosscheck",
             "-prove:strict"
           )
