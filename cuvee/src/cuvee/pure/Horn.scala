@@ -7,19 +7,33 @@ import cuvee.smtlib.Lemma
 
 object Horn extends Stage {
 
-  override def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, in: State): List[Cmd] = {
+  override def exec(
+      prefix: List[Cmd],
+      cmds: List[Cmd],
+      last: Cmd,
+      in: State
+  ): List[Cmd] = {
     cmds flatMap {
-      case Lemma(todo, None, flag, label) =>
+      case Lemma(todo, None, flag, named) =>
         val goals = assert(List(todo), Nil, Nil, Nil)
-        for (expr <- goals.distinct)
-          yield Lemma(expr, None, flag, label)
+        goals.distinct map {
+          case Note(expr, attr) =>
+            Lemma(expr, None, flag, named ++ attr)
+          case expr =>
+            Lemma(expr, None, flag, named)
+        }
 
       case cmd =>
         List(cmd)
     }
   }
 
-  def assert(todo: List[Expr], xs: List[Var], ant: List[Expr], suc: List[Expr]): List[Expr] = {
+  def assert(
+      todo: List[Expr],
+      xs: List[Var],
+      ant: List[Expr],
+      suc: List[Expr]
+  ): List[Expr] = {
     todo match {
       case Nil =>
         List(Clause(xs, ant, Or(suc)))
