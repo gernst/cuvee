@@ -11,22 +11,21 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall i₁₂₃: int ::
-              (  0 <= i₁₂₃
-                && i₁₂₃ < i₁₅
-                 ==> i₁₂₃ == 0
-                    && i₁₂₃ < N₁₃
+        && (forall i₁₁₈: int ::
+              (  0 <= i₁₁₈
+                && i₁₁₈ < i₁₅
+                 ==> i₁₁₈ == 0
+                    && i₁₁₈ < N₁₃
                     && a₁₄[0] == 2
-                  ||   (i₁₂₃ == 0
+                  ||   (i₁₁₈ == 0
                        ==> false)
-                    && i₁₂₃ < N₁₃
-                    && a₁₄[i₁₂₃] == 2 + a[-1 + i₁₂₃]))
-        && (forall i₁₂₄: int ::
-                  0 <= i₁₂₄
-                  && i₁₂₄ < i₁₅
+                    && i₁₁₈ < N₁₃
+                    && a₁₄[i₁₁₈] == 2 + a[-1 + i₁₁₈]))
+        && (forall i₁₁₉: int ::
+                  0 <= i₁₁₉
+                  && i₁₁₉ < i₁₅
                 ||   a₁₄[0] == a[0]
-                  && a₁₄[i₁₂₄] == a[i₁₂₄])
+                  && a₁₄[i₁₁₉] == a[i₁₁₉])
         && i₁₅ < N₁₃
         && i₁₅ == 0
          ==> 0 <= i₅
@@ -36,22 +35,21 @@ goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: i
 goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall i₁₃₅: int ::
-              (  0 <= i₁₃₅
-                && i₁₃₅ < i₁₅
-                 ==> i₁₃₅ == 0
-                    && i₁₃₅ < N₁₃
+        && (forall i₁₃₀: int ::
+              (  0 <= i₁₃₀
+                && i₁₃₀ < i₁₅
+                 ==> i₁₃₀ == 0
+                    && i₁₃₀ < N₁₃
                     && a₁₄[0] == 2
-                  ||   (i₁₃₅ == 0
+                  ||   (i₁₃₀ == 0
                        ==> false)
-                    && i₁₃₅ < N₁₃
-                    && a₁₄[i₁₃₅] == 2 + a[-1 + i₁₃₅]))
-        && (forall i₁₃₆: int ::
-                  0 <= i₁₃₆
-                  && i₁₃₆ < i₁₅
+                    && i₁₃₀ < N₁₃
+                    && a₁₄[i₁₃₀] == 2 + a[-1 + i₁₃₀]))
+        && (forall i₁₃₁: int ::
+                  0 <= i₁₃₁
+                  && i₁₃₁ < i₁₅
                 ||   a₁₄[0] == a[0]
-                  && a₁₄[i₁₃₆] == a[i₁₃₆])
+                  && a₁₄[i₁₃₁] == a[i₁₃₁])
         && i₁₅ < N₁₃
         && i₁₅ == 0
          ==> i₅ < i₁₅ + 1
@@ -61,22 +59,21 @@ goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: i
 goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall i₁₆₅: int ::
-              (  0 <= i₁₆₅
-                && i₁₆₅ < i₁₅
-                 ==> i₁₆₅ == 0
-                    && i₁₆₅ < N₁₃
+        && (forall i₁₅₆: int ::
+              (  0 <= i₁₅₆
+                && i₁₅₆ < i₁₅
+                 ==> i₁₅₆ == 0
+                    && i₁₅₆ < N₁₃
                     && a₁₄[0] == 2
-                  ||   (i₁₆₅ == 0
+                  ||   (i₁₅₆ == 0
                        ==> false)
-                    && i₁₆₅ < N₁₃
-                    && a₁₄[i₁₆₅] == 2 + a[-1 + i₁₆₅]))
-        && (forall i₁₆₆: int ::
-                  0 <= i₁₆₆
-                  && i₁₆₆ < i₁₅
+                    && i₁₅₆ < N₁₃
+                    && a₁₄[i₁₅₆] == 2 + a[-1 + i₁₅₆]))
+        && (forall i₁₅₇: int ::
+                  0 <= i₁₅₇
+                  && i₁₅₇ < i₁₅
                 ||   a₁₄[0] == a[0]
-                  && a₁₄[i₁₆₆] == a[i₁₆₆])
+                  && a₁₄[i₁₅₇] == a[i₁₅₇])
         && i₁₅ < N₁₃
         && 0 <= i₅
         && i₅ < i₁₅ + 1
@@ -88,7 +85,6 @@ goal (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: i
 goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₅
@@ -105,22 +101,21 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   a₁₄[0] == a[0]
                   && a₁₄[i₅] == a[i₅])
         && 0 <= i₁₇
-        && i₁₇ <= N₁₃
-        && (forall i₃₉₃: int ::
-              (  0 <= i₃₉₃
-                && i₃₉₃ < i₁₇
-                 ==> i₃₉₃ == 0
-                    && i₃₉₃ < N₁₃
+        && (forall i₃₇₃: int ::
+              (  0 <= i₃₇₃
+                && i₃₇₃ < i₁₇
+                 ==> i₃₇₃ == 0
+                    && i₃₇₃ < N₁₃
                     && b₁₆[0] == 1
-                  ||   (i₃₉₃ == 0
+                  ||   (i₃₇₃ == 0
                        ==> false)
-                    && i₃₉₃ < N₁₃
-                    && b₁₆[i₃₉₃] == b[-1 + i₃₉₃] + a₁₄[-1 + i₃₉₃]))
-        && (forall i₃₉₄: int ::
-                  0 <= i₃₉₄
-                  && i₃₉₄ < i₁₇
+                    && i₃₇₃ < N₁₃
+                    && b₁₆[i₃₇₃] == b[-1 + i₃₇₃] + a₁₄[-1 + i₃₇₃]))
+        && (forall i₃₇₄: int ::
+                  0 <= i₃₇₄
+                  && i₃₇₄ < i₁₇
                 ||   b₁₆[0] == b[0]
-                  && b₁₆[i₃₉₄] == b[i₃₉₄])
+                  && b₁₆[i₃₇₄] == b[i₃₇₄])
         && i₁₇ < N₁₃
         && i₁₇ == 0
          ==> 0 <= i₈
@@ -131,7 +126,6 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
 goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₅
@@ -148,22 +142,21 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   a₁₄[0] == a[0]
                   && a₁₄[i₅] == a[i₅])
         && 0 <= i₁₇
-        && i₁₇ <= N₁₃
-        && (forall i₄₁₁: int ::
-              (  0 <= i₄₁₁
-                && i₄₁₁ < i₁₇
-                 ==> i₄₁₁ == 0
-                    && i₄₁₁ < N₁₃
+        && (forall i₃₉₁: int ::
+              (  0 <= i₃₉₁
+                && i₃₉₁ < i₁₇
+                 ==> i₃₉₁ == 0
+                    && i₃₉₁ < N₁₃
                     && b₁₆[0] == 1
-                  ||   (i₄₁₁ == 0
+                  ||   (i₃₉₁ == 0
                        ==> false)
-                    && i₄₁₁ < N₁₃
-                    && b₁₆[i₄₁₁] == b[-1 + i₄₁₁] + a₁₄[-1 + i₄₁₁]))
-        && (forall i₄₁₂: int ::
-                  0 <= i₄₁₂
-                  && i₄₁₂ < i₁₇
+                    && i₃₉₁ < N₁₃
+                    && b₁₆[i₃₉₁] == b[-1 + i₃₉₁] + a₁₄[-1 + i₃₉₁]))
+        && (forall i₃₉₂: int ::
+                  0 <= i₃₉₂
+                  && i₃₉₂ < i₁₇
                 ||   b₁₆[0] == b[0]
-                  && b₁₆[i₄₁₂] == b[i₄₁₂])
+                  && b₁₆[i₃₉₂] == b[i₃₉₂])
         && i₁₇ < N₁₃
         && i₁₇ == 0
          ==> i₈ < i₁₇ + 1
@@ -174,7 +167,6 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
 goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₅
@@ -191,22 +183,21 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   a₁₄[0] == a[0]
                   && a₁₄[i₅] == a[i₅])
         && 0 <= i₁₇
-        && i₁₇ <= N₁₃
-        && (forall i₄₅₉: int ::
-              (  0 <= i₄₅₉
-                && i₄₅₉ < i₁₇
-                 ==> i₄₅₉ == 0
-                    && i₄₅₉ < N₁₃
+        && (forall i₄₃₂: int ::
+              (  0 <= i₄₃₂
+                && i₄₃₂ < i₁₇
+                 ==> i₄₃₂ == 0
+                    && i₄₃₂ < N₁₃
                     && b₁₆[0] == 1
-                  ||   (i₄₅₉ == 0
+                  ||   (i₄₃₂ == 0
                        ==> false)
-                    && i₄₅₉ < N₁₃
-                    && b₁₆[i₄₅₉] == b[-1 + i₄₅₉] + a₁₄[-1 + i₄₅₉]))
-        && (forall i₄₆₀: int ::
-                  0 <= i₄₆₀
-                  && i₄₆₀ < i₁₇
+                    && i₄₃₂ < N₁₃
+                    && b₁₆[i₄₃₂] == b[-1 + i₄₃₂] + a₁₄[-1 + i₄₃₂]))
+        && (forall i₄₃₃: int ::
+                  0 <= i₄₃₃
+                  && i₄₃₃ < i₁₇
                 ||   b₁₆[0] == b[0]
-                  && b₁₆[i₄₆₀] == b[i₄₆₀])
+                  && b₁₆[i₄₃₃] == b[i₄₃₃])
         && i₁₇ < N₁₃
         && 0 <= i₈
         && i₈ < i₁₇ + 1
@@ -219,7 +210,6 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
 goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₁₈: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₅
@@ -236,7 +226,6 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   a₁₄[0] == a[0]
                   && a₁₄[i₅] == a[i₅])
         && 0 <= i₁₇
-        && i₁₇ <= N₁₃
         && (forall i₈: int ::
               (  0 <= i₈
                 && i₈ < i₁₇
@@ -253,7 +242,6 @@ goal (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅:
                 ||   b₁₆[0] == b[0]
                   && b₁₆[i₈] == b[i₈])
         && 0 <= i₁₈
-        && i₁₈ <= N₁₃
         && (forall i₁₁: int ::
               (  0 <= i₁₁
                 && i₁₁ < i₁₈

@@ -20,7 +20,6 @@ procedure mapavg(x: [int]int)
   while(i < 100)
     decreases 100 - i;
     invariant old(i) <= i
-      && i <= 100
       && (forall i₄: int ::
             (  old(i) <= i₄
               && i₄ < i
@@ -45,7 +44,6 @@ procedure main()
   while(i < 100)
     decreases 100 - i;
     invariant old(i) <= i
-      && i <= 100
       && (forall i₁₃: int ::
             (  old(i) <= i₁₃
               && i₁₃ < i
@@ -76,7 +74,6 @@ procedure main()
   while(i < 100 - 1)
     decreases 100 - 1 - i;
     invariant old(i) <= i
-      && i <= 99
       && (forall i₁₈: int ::
             (  old(i) <= i₁₈
               && i₁₈ < i

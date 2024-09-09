@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -27,20 +26,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₃₄₅: int ::
-              (  0 <= i₃₄₅
-                && i₃₄₅ < i₁₅
-                 ==> i₃₄₅ == 0
-                    && i₃₄₅ < N₁₁
+        && (forall i₃₂₅: int ::
+              (  0 <= i₃₂₅
+                && i₃₂₅ < i₁₅
+                 ==> i₃₂₅ == 0
+                    && i₃₂₅ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₃₄₅ == 0
+                  ||   (i₃₂₅ == 0
                        ==> false)
-                    && i₃₄₅ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₃₄₅] + sum[0]))
-        && (forall i₃₄₆: int ::
-                  0 <= i₃₄₆
-                  && i₃₄₆ < i₁₅
+                    && i₃₂₅ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₃₂₅] + sum[0]))
+        && (forall i₃₂₆: int ::
+                  0 <= i₃₂₆
+                  && i₃₂₆ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
         && i₁₅ == 0
@@ -52,7 +50,6 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -68,20 +65,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₃₅₅: int ::
-              (  0 <= i₃₅₅
-                && i₃₅₅ < i₁₅
-                 ==> i₃₅₅ == 0
-                    && i₃₅₅ < N₁₁
+        && (forall i₃₃₅: int ::
+              (  0 <= i₃₃₅
+                && i₃₃₅ < i₁₅
+                 ==> i₃₃₅ == 0
+                    && i₃₃₅ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₃₅₅ == 0
+                  ||   (i₃₃₅ == 0
                        ==> false)
-                    && i₃₅₅ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₃₅₅] + sum[0]))
-        && (forall i₃₅₆: int ::
-                  0 <= i₃₅₆
-                  && i₃₅₆ < i₁₅
+                    && i₃₃₅ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₃₃₅] + sum[0]))
+        && (forall i₃₃₆: int ::
+                  0 <= i₃₃₆
+                  && i₃₃₆ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
         && i₁₅ == 0
@@ -93,7 +89,6 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -109,20 +104,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₃₉₅: int ::
-              (  0 <= i₃₉₅
-                && i₃₉₅ < i₁₅
-                 ==> i₃₉₅ == 0
-                    && i₃₉₅ < N₁₁
+        && (forall i₃₆₈: int ::
+              (  0 <= i₃₆₈
+                && i₃₆₈ < i₁₅
+                 ==> i₃₆₈ == 0
+                    && i₃₆₈ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₃₉₅ == 0
+                  ||   (i₃₆₈ == 0
                        ==> false)
-                    && i₃₉₅ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₃₉₅] + sum[0]))
-        && (forall i₃₉₆: int ::
-                  0 <= i₃₉₆
-                  && i₃₉₆ < i₁₅
+                    && i₃₆₈ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₃₆₈] + sum[0]))
+        && (forall i₃₆₉: int ::
+                  0 <= i₃₆₉
+                  && i₃₆₉ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
         && 0 <= i₈
@@ -136,7 +130,6 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -152,20 +145,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₄₂₉: int ::
-              (  0 <= i₄₂₉
-                && i₄₂₉ < i₁₅
-                 ==> i₄₂₉ == 0
-                    && i₄₂₉ < N₁₁
+        && (forall i₄₀₂: int ::
+              (  0 <= i₄₀₂
+                && i₄₀₂ < i₁₅
+                 ==> i₄₀₂ == 0
+                    && i₄₀₂ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₄₂₉ == 0
+                  ||   (i₄₀₂ == 0
                        ==> false)
-                    && i₄₂₉ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₄₂₉] + sum[0]))
-        && (forall i₄₃₀: int ::
-                  0 <= i₄₃₀
-                  && i₄₃₀ < i₁₅
+                    && i₄₀₂ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₄₀₂] + sum[0]))
+        && (forall i₄₀₃: int ::
+                  0 <= i₄₀₃
+                  && i₄₀₃ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
         && 0 <= i₈
@@ -179,7 +171,6 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -195,20 +186,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₄₄₇: int ::
-              (  0 <= i₄₄₇
-                && i₄₄₇ < i₁₅
-                 ==> i₄₄₇ == 0
-                    && i₄₄₇ < N₁₁
+        && (forall i₄₂₀: int ::
+              (  0 <= i₄₂₀
+                && i₄₂₀ < i₁₅
+                 ==> i₄₂₀ == 0
+                    && i₄₂₀ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₄₄₇ == 0
+                  ||   (i₄₂₀ == 0
                        ==> false)
-                    && i₄₄₇ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₄₄₇] + sum[0]))
-        && (forall i₄₄₈: int ::
-                  0 <= i₄₄₈
-                  && i₄₄₈ < i₁₅
+                    && i₄₂₀ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₄₂₀] + sum[0]))
+        && (forall i₄₂₁: int ::
+                  0 <= i₄₂₁
+                  && i₄₂₁ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
         && 0 <= i₈
@@ -222,7 +212,6 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -238,20 +227,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₄₅₇: int ::
-              (  0 <= i₄₅₇
-                && i₄₅₇ < i₁₅
-                 ==> i₄₅₇ == 0
-                    && i₄₅₇ < N₁₁
+        && (forall i₄₃₀: int ::
+              (  0 <= i₄₃₀
+                && i₄₃₀ < i₁₅
+                 ==> i₄₃₀ == 0
+                    && i₄₃₀ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₄₅₇ == 0
+                  ||   (i₄₃₀ == 0
                        ==> false)
-                    && i₄₅₇ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₄₅₇] + sum[0]))
-        && (forall i₄₅₈: int ::
-                  0 <= i₄₅₈
-                  && i₄₅₈ < i₁₅
+                    && i₄₃₀ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₄₃₀] + sum[0]))
+        && (forall i₄₃₁: int ::
+                  0 <= i₄₃₁
+                  && i₄₃₁ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
          ==> 0 <= i₈
@@ -263,7 +251,6 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -279,20 +266,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₄₆₇: int ::
-              (  0 <= i₄₆₇
-                && i₄₆₇ < i₁₅
-                 ==> i₄₆₇ == 0
-                    && i₄₆₇ < N₁₁
+        && (forall i₄₄₀: int ::
+              (  0 <= i₄₄₀
+                && i₄₄₀ < i₁₅
+                 ==> i₄₄₀ == 0
+                    && i₄₄₀ < N₁₁
                     && sum₁₄[0] == 0
-                  ||   (i₄₆₇ == 0
+                  ||   (i₄₄₀ == 0
                        ==> false)
-                    && i₄₆₇ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₄₆₇] + sum[0]))
-        && (forall i₄₆₈: int ::
-                  0 <= i₄₆₈
-                  && i₄₆₈ < i₁₅
+                    && i₄₄₀ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₄₄₀] + sum[0]))
+        && (forall i₄₄₁: int ::
+                  0 <= i₄₄₁
+                  && i₄₄₁ < i₁₅
                 || sum₁₄[0] == sum[0])
         && i₁₅ < N₁₁
          ==> i₈ < i₁₅ + 1

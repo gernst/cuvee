@@ -29,7 +29,6 @@ procedure main()
   while(count < ARR_SIZE)
     decreases ARR_SIZE - count;
     invariant old(count) <= count
-      && count <= ARR_SIZE
       && (forall count₆: int ::
             (  old(count) <= count₆
               && count₆ < count
@@ -73,7 +72,6 @@ procedure main()
   while(count < ARR_SIZE)
     decreases ARR_SIZE - count;
     invariant old(count) <= count
-      && count <= ARR_SIZE
       && (forall count₁₉: int ::
             (  old(count) <= count₁₉
               && count₁₉ < count

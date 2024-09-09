@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int ::
       (  0 < ARR_SIZE₂₉
         && 0 <= count₃₂
-        && count₃₂ <= ARR_SIZE₂₉
         && (forall count₇: int ::
               (  0 <= count₇
                 && count₇ < count₃₂
@@ -53,7 +52,6 @@ goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃�
 goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₃: int ::
       (  0 < ARR_SIZE₂₉
         && 0 <= count₃₂
-        && count₃₂ <= ARR_SIZE₂₉
         && (forall count₇: int ::
               (  0 <= count₇
                 && count₇ < count₃₂
@@ -78,7 +76,6 @@ goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃�
 goal (forall ARR_SIZE₂₉: int, array1: [int]int, array2: [int]int, array1₃₀: [int]int, array2₃₁: [int]int, count₃₂: int, count₁₆: int, index1₁₁: int, index2₁₂: int, temp₁₄: int ::
       (  0 < ARR_SIZE₂₉
         && 0 <= count₃₂
-        && count₃₂ <= ARR_SIZE₂₉
         && (forall count₇: int ::
               (  0 <= count₇
                 && count₇ < count₃₂

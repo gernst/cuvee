@@ -19,7 +19,6 @@ procedure main()
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && i <= 100000
       && (forall i₃: int ::
             (  old(i) <= i₃
               && i₃ < i
@@ -38,7 +37,6 @@ procedure main()
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && i <= 100000
       && (forall i₆: int ::
             (  old(i) <= i₆
               && i₆ < i
@@ -57,7 +55,6 @@ procedure main()
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && i <= 100000
       && (forall i₉: int ::
             (  old(i) <= i₉
               && i₉ < i
@@ -76,7 +73,6 @@ procedure main()
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && i <= 100000
       && (forall i₁₂: int ::
             (  old(i) <= i₁₂
               && i₁₂ < i
@@ -96,7 +92,6 @@ procedure main()
   while(x < 100000)
     decreases 100000 - x;
     invariant old(x) <= x
-      && x <= 100000
       && (forall x₁₆: int ::
             (  old(x) <= x₁₆
               && x₁₆ < x

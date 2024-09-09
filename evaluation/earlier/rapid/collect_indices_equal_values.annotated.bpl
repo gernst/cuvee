@@ -41,9 +41,9 @@ procedure collect_indices_equal_values(a1: [int]int, a2: [int]int, alength: int)
     invariant 0 <= i
       && old(blength) <= blength
       && old(i) <= i
-      && i <= alength
       && (forall blength₁: int, i₂: int ::
-            (  old(blength) <= blength₁
+            (  0 <= i₂
+              && old(blength) <= blength₁
               && blength₁ < blength
               && old(i) <= i₂
               && i₂ < i
@@ -55,11 +55,12 @@ procedure collect_indices_equal_values(a1: [int]int, a2: [int]int, alength: int)
                   && i₂ < alength
                   && 0 <= i₂))
       && (forall blength₁: int, i₂: int ::
-            (!(  old(blength) <= blength₁
-              && blength₁ < blength
-              && old(i) <= i₂
-              && i₂ < i
-            )
+            (  0 <= i₂
+              && !(  old(blength) <= blength₁
+                && blength₁ < blength
+                && old(i) <= i₂
+                && i₂ < i
+              )
                ==> b[blength₁] == old(b)[blength₁]));
   {
     if(a1[i] == a2[i]) {

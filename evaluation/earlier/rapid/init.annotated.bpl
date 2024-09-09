@@ -14,17 +14,18 @@ procedure init(alength: int, v: int)
     decreases alength - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= alength
       && (forall i₁: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && old(i) <= i₁
               && i₁ < i
                ==> i₁ < alength
                 && 0 <= i₁
                 && a[i₁] == v))
       && (forall i₁: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-            )
+            (  0 <= i₁
+              && !(  old(i) <= i₁
+                && i₁ < i
+              )
                ==> a[i₁] == old(a)[i₁]));
   {
     a := a[i := v];

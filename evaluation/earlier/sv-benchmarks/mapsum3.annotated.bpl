@@ -20,7 +20,6 @@ procedure mapsum(x: [int]int)
   while(i < 10000)
     decreases 10000 - i;
     invariant old(i) <= i
-      && i <= 10000
       && (forall i₄: int ::
             (  old(i) <= i₄
               && i₄ < i
@@ -45,7 +44,6 @@ procedure main()
   while(i < 10000)
     decreases 10000 - i;
     invariant old(i) <= i
-      && i <= 10000
       && (forall i₁₃: int ::
             (  old(i) <= i₁₃
               && i₁₃ < i
@@ -76,7 +74,6 @@ procedure main()
   while(i < 10000 - 1)
     decreases 10000 - 1 - i;
     invariant old(i) <= i
-      && i <= 9999
       && (forall i₁₈: int ::
             (  old(i) <= i₁₈
               && i₁₈ < i

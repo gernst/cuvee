@@ -14,17 +14,18 @@ procedure vector_addition(a: [int]int, b: [int]int, length: int)
     decreases length - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= length
       && (forall i₁: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && old(i) <= i₁
               && i₁ < i
                ==> i₁ < length
                 && 0 <= i₁
                 && c[i₁] == a[i₁] + b[i₁]))
       && (forall i₁: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-            )
+            (  0 <= i₁
+              && !(  old(i) <= i₁
+                && i₁ < i
+              )
                ==> c[i₁] == old(c)[i₁]));
   {
     c := c[i := a[i] + b[i]];

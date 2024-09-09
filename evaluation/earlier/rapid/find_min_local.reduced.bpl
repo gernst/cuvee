@@ -3,28 +3,30 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
         && 0 <= i₁₁
         && 1 <= blength₉
         && 0 <= i₁₁
-        && i₁₁ <= alength
-        && (forall blength₂₁₁: int, m₂₁₂: int, i₂₁₃: int ::
-              (  1 <= blength₂₁₁
-                && blength₂₁₁ < blength₉
-                && 0 <= i₂₁₃
-                && i₂₁₃ < i₁₁
-                 ==> a[i₂₁₃] < a[m₂₁₂]
-                    && i₂₁₃ < alength
-                    && 0 <= i₂₁₃
-                    && b₈[i₂₁₃] == a[i₂₁₃]
-                  ||   (a[i₂₁₃] < a[m₂₁₂]
+        && (forall blength₂₀₃: int, m₂₀₄: int, i₂₀₅: int ::
+              (  0 <= i₂₀₅
+                && 1 <= blength₂₀₃
+                && blength₂₀₃ < blength₉
+                && 0 <= i₂₀₅
+                && i₂₀₅ < i₁₁
+                 ==> a[i₂₀₅] < a[m₂₀₄]
+                    && i₂₀₅ < alength
+                    && 0 <= i₂₀₅
+                    && b₈[i₂₀₅] == a[i₂₀₅]
+                  ||   (a[i₂₀₅] < a[m₂₀₄]
                        ==> false)
-                    && i₂₁₃ < alength
-                    && 0 <= i₂₁₃))
-        && (forall blength₂₁₄: int, i₂₁₅: int ::
-                  1 <= blength₂₁₄
-                  && blength₂₁₄ < blength₉
-                  && 0 <= i₂₁₅
-                  && i₂₁₅ < i₁₁
-                || b₈[i₂₁₅] == b[0 := a[0]][i₂₁₅])
+                    && i₂₀₅ < alength
+                    && 0 <= i₂₀₅))
+        && (forall blength₂₀₆: int, i₂₀₇: int ::
+              (0 <= i₂₀₇
+                 ==> 1 <= blength₂₀₆
+                    && blength₂₀₆ < blength₉
+                    && 0 <= i₂₀₇
+                    && i₂₀₇ < i₁₁
+                  || b₈[i₂₀₇] == b[0 := a[0]][i₂₀₇]))
         && i₁₁ < alength
         && a[i₁₁] < a[m₁₀]
+        && 0 <= i₃
         && 1 <= blength₁
         && blength₁ < blength₉ + 1
         && 0 <= i₃
@@ -37,28 +39,30 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
         && 0 <= i₁₁
         && 1 <= blength₉
         && 0 <= i₁₁
-        && i₁₁ <= alength
-        && (forall blength₂₄₃: int, m₂: int, i₂₄₄: int ::
-              (  1 <= blength₂₄₃
-                && blength₂₄₃ < blength₉
-                && 0 <= i₂₄₄
-                && i₂₄₄ < i₁₁
-                 ==> a[i₂₄₄] < a[m₂]
-                    && i₂₄₄ < alength
-                    && 0 <= i₂₄₄
-                    && b₈[i₂₄₄] == a[i₂₄₄]
-                  ||   (a[i₂₄₄] < a[m₂]
+        && (forall blength₂₃₅: int, m₂: int, i₂₃₆: int ::
+              (  0 <= i₂₃₆
+                && 1 <= blength₂₃₅
+                && blength₂₃₅ < blength₉
+                && 0 <= i₂₃₆
+                && i₂₃₆ < i₁₁
+                 ==> a[i₂₃₆] < a[m₂]
+                    && i₂₃₆ < alength
+                    && 0 <= i₂₃₆
+                    && b₈[i₂₃₆] == a[i₂₃₆]
+                  ||   (a[i₂₃₆] < a[m₂]
                        ==> false)
-                    && i₂₄₄ < alength
-                    && 0 <= i₂₄₄))
-        && (forall blength₂₄₅: int, i₂₄₆: int ::
-                  1 <= blength₂₄₅
-                  && blength₂₄₅ < blength₉
-                  && 0 <= i₂₄₆
-                  && i₂₄₆ < i₁₁
-                || b₈[i₂₄₆] == b[0 := a[0]][i₂₄₆])
+                    && i₂₃₆ < alength
+                    && 0 <= i₂₃₆))
+        && (forall blength₂₃₇: int, i₂₃₈: int ::
+              (0 <= i₂₃₈
+                 ==> 1 <= blength₂₃₇
+                    && blength₂₃₇ < blength₉
+                    && 0 <= i₂₃₈
+                    && i₂₃₈ < i₁₁
+                  || b₈[i₂₃₈] == b[0 := a[0]][i₂₃₈]))
         && i₁₁ < alength
         && a[i₁₁] < a[m₁₀]
+        && 0 <= i₃
          ==> 1 <= blength₁
           || b₈[i₁₁ := a[i₁₁]][i₃] == b[0 := a[0]][i₃]));
 
@@ -67,28 +71,30 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
         && 0 <= i₁₁
         && 1 <= blength₉
         && 0 <= i₁₁
-        && i₁₁ <= alength
-        && (forall blength₂₅₆: int, m₂: int, i₂₅₇: int ::
-              (  1 <= blength₂₅₆
-                && blength₂₅₆ < blength₉
-                && 0 <= i₂₅₇
-                && i₂₅₇ < i₁₁
-                 ==> a[i₂₅₇] < a[m₂]
-                    && i₂₅₇ < alength
-                    && 0 <= i₂₅₇
-                    && b₈[i₂₅₇] == a[i₂₅₇]
-                  ||   (a[i₂₅₇] < a[m₂]
+        && (forall blength₂₄₈: int, m₂: int, i₂₄₉: int ::
+              (  0 <= i₂₄₉
+                && 1 <= blength₂₄₈
+                && blength₂₄₈ < blength₉
+                && 0 <= i₂₄₉
+                && i₂₄₉ < i₁₁
+                 ==> a[i₂₄₉] < a[m₂]
+                    && i₂₄₉ < alength
+                    && 0 <= i₂₄₉
+                    && b₈[i₂₄₉] == a[i₂₄₉]
+                  ||   (a[i₂₄₉] < a[m₂]
                        ==> false)
-                    && i₂₅₇ < alength
-                    && 0 <= i₂₅₇))
-        && (forall blength₂₅₈: int, i₂₅₉: int ::
-                  1 <= blength₂₅₈
-                  && blength₂₅₈ < blength₉
-                  && 0 <= i₂₅₉
-                  && i₂₅₉ < i₁₁
-                || b₈[i₂₅₉] == b[0 := a[0]][i₂₅₉])
+                    && i₂₄₉ < alength
+                    && 0 <= i₂₄₉))
+        && (forall blength₂₅₀: int, i₂₅₁: int ::
+              (0 <= i₂₅₁
+                 ==> 1 <= blength₂₅₀
+                    && blength₂₅₀ < blength₉
+                    && 0 <= i₂₅₁
+                    && i₂₅₁ < i₁₁
+                  || b₈[i₂₅₁] == b[0 := a[0]][i₂₅₁]))
         && i₁₁ < alength
         && a[i₁₁] < a[m₁₀]
+        && 0 <= i₃
          ==> blength₁ < blength₉ + 1
           || b₈[i₁₁ := a[i₁₁]][i₃] == b[0 := a[0]][i₃]));
 
@@ -97,27 +103,29 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
         && 0 <= i₁₁
         && 1 <= blength₉
         && 0 <= i₁₁
-        && i₁₁ <= alength
-        && (forall blength₃₉₃: int, m₃₉₄: int, i₃₉₅: int ::
-              (  1 <= blength₃₉₃
-                && blength₃₉₃ < blength₉
-                && 0 <= i₃₉₅
-                && i₃₉₅ < i₁₁
-                 ==> a[i₃₉₅] < a[m₃₉₄]
-                    && i₃₉₅ < alength
-                    && 0 <= i₃₉₅
-                    && b₈[i₃₉₅] == a[i₃₉₅]
-                  ||   (a[i₃₉₅] < a[m₃₉₄]
+        && (forall blength₃₇₈: int, m₃₇₉: int, i₃₈₀: int ::
+              (  0 <= i₃₈₀
+                && 1 <= blength₃₇₈
+                && blength₃₇₈ < blength₉
+                && 0 <= i₃₈₀
+                && i₃₈₀ < i₁₁
+                 ==> a[i₃₈₀] < a[m₃₇₉]
+                    && i₃₈₀ < alength
+                    && 0 <= i₃₈₀
+                    && b₈[i₃₈₀] == a[i₃₈₀]
+                  ||   (a[i₃₈₀] < a[m₃₇₉]
                        ==> false)
-                    && i₃₉₅ < alength
-                    && 0 <= i₃₉₅))
-        && (forall blength₃₉₆: int, i₃₉₇: int ::
-                  1 <= blength₃₉₆
-                  && blength₃₉₆ < blength₉
-                  && 0 <= i₃₉₇
-                  && i₃₉₇ < i₁₁
-                || b₈[i₃₉₇] == b[0 := a[0]][i₃₉₇])
+                    && i₃₈₀ < alength
+                    && 0 <= i₃₈₀))
+        && (forall blength₃₈₁: int, i₃₈₂: int ::
+              (0 <= i₃₈₂
+                 ==> 1 <= blength₃₈₁
+                    && blength₃₈₁ < blength₉
+                    && 0 <= i₃₈₂
+                    && i₃₈₂ < i₁₁
+                  || b₈[i₃₈₂] == b[0 := a[0]][i₃₈₂]))
         && i₁₁ < alength
+        && 0 <= i₃
         && 1 <= blength₁
         && blength₁ < blength₉
         && 0 <= i₃
@@ -131,9 +139,9 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
         && 0 <= i₁₁
         && 1 <= blength₉
         && 0 <= i₁₁
-        && i₁₁ <= alength
         && (forall blength₁: int, m₂: int, i₃: int ::
-              (  1 <= blength₁
+              (  0 <= i₃
+                && 1 <= blength₁
                 && blength₁ < blength₉
                 && 0 <= i₃
                 && i₃ < i₁₁
@@ -146,11 +154,12 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
                     && i₃ < alength
                     && 0 <= i₃))
         && (forall blength₁: int, i₃: int ::
-                  1 <= blength₁
-                  && blength₁ < blength₉
-                  && 0 <= i₃
-                  && i₃ < i₁₁
-                || b₈[i₃] == b[0 := a[0]][i₃])
+              (0 <= i₃
+                 ==> 1 <= blength₁
+                    && blength₁ < blength₉
+                    && 0 <= i₃
+                    && i₃ < i₁₁
+                  || b₈[i₃] == b[0 := a[0]][i₃]))
          ==> i₁₁ < alength
           || (exists k: int ::
                 (  1 <= alength
@@ -165,9 +174,9 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
         && 0 <= i₁₁
         && 1 <= blength₉
         && 0 <= i₁₁
-        && i₁₁ <= alength
         && (forall blength₁: int, m₂: int, i₃: int ::
-              (  1 <= blength₁
+              (  0 <= i₃
+                && 1 <= blength₁
                 && blength₁ < blength₉
                 && 0 <= i₃
                 && i₃ < i₁₁
@@ -180,11 +189,12 @@ goal (forall a: [int]int, alength: int, b: [int]int, b₈: [int]int, blength₉:
                     && i₃ < alength
                     && 0 <= i₃))
         && (forall blength₁: int, i₃: int ::
-                  1 <= blength₁
-                  && blength₁ < blength₉
-                  && 0 <= i₃
-                  && i₃ < i₁₁
-                || b₈[i₃] == b[0 := a[0]][i₃])
+              (0 <= i₃
+                 ==> 1 <= blength₁
+                    && blength₁ < blength₉
+                    && 0 <= i₃
+                    && i₃ < i₁₁
+                  || b₈[i₃] == b[0 := a[0]][i₃]))
         && 1 <= alength
         && 0 <= j
         && 0 <= k

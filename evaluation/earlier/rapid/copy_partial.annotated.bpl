@@ -14,17 +14,18 @@ procedure copy_partial(blength: int, k: int, b: [int]int)
     decreases k - alength;
     invariant 0 <= alength
       && old(alength) <= alength
-      && alength <= k
       && (forall alength₁: int ::
-            (  old(alength) <= alength₁
+            (  0 <= alength₁
+              && old(alength) <= alength₁
               && alength₁ < alength
                ==> alength₁ < k
                 && 0 <= alength₁
                 && a[alength₁] == b[alength₁]))
       && (forall alength₁: int ::
-            (!(  old(alength) <= alength₁
-              && alength₁ < alength
-            )
+            (  0 <= alength₁
+              && !(  old(alength) <= alength₁
+                && alength₁ < alength
+              )
                ==> a[alength₁] == old(a)[alength₁]));
   {
     a := a[alength := b[alength]];

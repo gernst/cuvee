@@ -20,17 +20,18 @@ procedure increment_by_one(a: [int]int, alength: int)
     decreases alength - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= alength
       && (forall i₁: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && old(i) <= i₁
               && i₁ < i
                ==> i₁ < alength
                 && 0 <= i₁
                 && b[i₁] == 1 + a[i₁]))
       && (forall i₁: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-            )
+            (  0 <= i₁
+              && !(  old(i) <= i₁
+                && i₁ < i
+              )
                ==> b[i₁] == old(b)[i₁]));
   {
     b := b[i := a[i] + 1];

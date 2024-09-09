@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall SIZE₄₀: int, a: [int]int, a₄₂: [int]int, i₄₃: int, i₄₅: int, i₄₇: int, i₄₉: int, i₅₁: int, i₅₃: int, i₅₅: int, i₅₇: int, sum₅₈: int, i₅₉: int ::
       (  1 < SIZE₄₀
         && 0 <= i₄₃
-        && i₄₃ <= SIZE₄₀
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₄₃
@@ -23,49 +22,41 @@ goal (forall SIZE₄₀: int, a: [int]int, a₄₂: [int]int, i₄₃: int, i₄
                   && i₅ < i₄₃
                 || a₄₂[i₅] == a[i₅])
         && 0 <= i₄₅
-        && i₄₅ <= SIZE₄₀
         && (forall i₉: int ::
               (  0 <= i₉
                 && i₉ < i₄₅
                  ==> i₉ < SIZE₄₀))
         && 0 <= i₄₇
-        && i₄₇ <= SIZE₄₀
         && (forall i₁₃: int ::
               (  0 <= i₁₃
                 && i₁₃ < i₄₇
                  ==> i₁₃ < SIZE₄₀))
         && 0 <= i₄₉
-        && i₄₉ <= SIZE₄₀
         && (forall i₁₇: int ::
               (  0 <= i₁₇
                 && i₁₇ < i₄₉
                  ==> i₁₇ < SIZE₄₀))
         && 0 <= i₅₁
-        && i₅₁ <= SIZE₄₀
         && (forall i₂₁: int ::
               (  0 <= i₂₁
                 && i₂₁ < i₅₁
                  ==> i₂₁ < SIZE₄₀))
         && 0 <= i₅₃
-        && i₅₃ <= SIZE₄₀
         && (forall i₂₅: int ::
               (  0 <= i₂₅
                 && i₂₅ < i₅₃
                  ==> i₂₅ < SIZE₄₀))
         && 0 <= i₅₅
-        && i₅₅ <= SIZE₄₀
         && (forall i₂₉: int ::
               (  0 <= i₂₉
                 && i₂₉ < i₅₅
                  ==> i₂₉ < SIZE₄₀))
         && 0 <= i₅₇
-        && i₅₇ <= SIZE₄₀
         && (forall i₃₃: int ::
               (  0 <= i₃₃
                 && i₃₃ < i₅₇
                  ==> i₃₃ < SIZE₄₀))
         && 0 <= i₅₉
-        && i₅₉ <= SIZE₄₀
         && (forall i₃₇: int ::
               (  0 <= i₃₇
                 && i₃₇ < i₅₉

@@ -15,6 +15,3 @@ goal (forall i: int ::
       (i % 2 == 0
          ==> false));
 
-goal (forall __VERIFIER_nondet_int₁: int ::
-      0 <= __VERIFIER_nondet_int₁);
-

@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall ARR_SIZE₂₂: int, array1: [int]int, array2: [int]int, array1₂₃: [int]int, array2₂₄: [int]int, count₂₅: int, index₁₀: int, temp₁₁: int ::
       (  0 < ARR_SIZE₂₂
         && 0 <= count₂₅
-        && count₂₅ <= ARR_SIZE₂₂
         && (forall count₆: int ::
               (  0 <= count₆
                 && count₆ < count₂₅

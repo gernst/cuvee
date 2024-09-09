@@ -1,8 +1,25 @@
 procedure find_min_up_to(a: [int]int, alength: int)
   returns (b: [int]int)
   requires 0 <= alength
+    && true
+    && true
     && true;
   ensures true
+    && (forall j: int, k: int ::
+          (  0 <= alength
+            && 0 <= j
+            && 0 <= k
+            && j <= k
+            && k < alength
+             ==> b[k] <= a[j]))
+    && (0 <= alength
+       ==> (forall j: int ::
+            (exists k: int ::
+                  (  0 <= j
+                    && j < alength
+                     ==> 0 <= k
+                      && k < j
+                      && b[j] == a[k]))))
     && (forall j: int, k: int ::
           (  0 <= alength
             && 0 <= j
@@ -17,9 +34,9 @@ procedure find_min_up_to(a: [int]int, alength: int)
     decreases alength - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= alength
       && (forall m₁: int, i₂: int ::
-            (  old(i) <= i₂
+            (  0 <= i₂
+              && old(i) <= i₂
               && i₂ < i
                ==> a[i₂] < a[m₁]
                   && i₂ < alength
@@ -31,9 +48,10 @@ procedure find_min_up_to(a: [int]int, alength: int)
                   && 0 <= i₂
                   && b[i₂] == a[m₁]))
       && (forall i₂: int ::
-            (!(  old(i) <= i₂
-              && i₂ < i
-            )
+            (  0 <= i₂
+              && !(  old(i) <= i₂
+                && i₂ < i
+              )
                ==> b[i₂] == old(b)[i₂]));
   {
     if(a[i] < a[m]) {

@@ -21,7 +21,6 @@ procedure sep(x: [int]int)
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && i <= N
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
@@ -66,7 +65,6 @@ procedure main()
     while(i < N - 1)
       decreases N - 1 - i;
       invariant old(i) <= i
-        && i <= -1 + N
         && (forall i₁₇: int ::
               (  old(i) <= i₁₇
                 && i₁₇ < i

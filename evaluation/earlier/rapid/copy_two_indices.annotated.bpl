@@ -17,9 +17,10 @@ procedure copy_two_indices(b: [int]int, blength: int)
       && i == j
       && old(i) <= i
       && old(j) <= j
-      && i <= blength
       && (forall i₁: int, j₂: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && i₁ == j₂
+              && old(i) <= i₁
               && i₁ < i
               && old(j) <= j₂
               && j₂ < j
@@ -28,11 +29,13 @@ procedure copy_two_indices(b: [int]int, blength: int)
                 && i₁ == j₂
                 && a[i₁] == b[j₂]))
       && (forall i₁: int, j₂: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-              && old(j) <= j₂
-              && j₂ < j
-            )
+            (  0 <= i₁
+              && i₁ == j₂
+              && !(  old(i) <= i₁
+                && i₁ < i
+                && old(j) <= j₂
+                && j₂ < j
+              )
                ==> a[i₁] == old(a)[i₁]));
   {
     a := a[i := b[j]];

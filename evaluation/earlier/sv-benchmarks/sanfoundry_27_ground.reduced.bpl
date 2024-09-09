@@ -10,7 +10,6 @@ function c#bitor(x₀: int, x₁: int): int;
 
 goal (forall array: [int]int, array₁₄: [int]int, i₁₅: int, largest₁₆: int, i₁₇: int, x₁₈: int ::
       (  0 <= i₁₅
-        && i₁₅ <= 100000
         && (forall i₄: int ::
               (  0 <= i₄
                 && i₄ < i₁₅
@@ -22,7 +21,6 @@ goal (forall array: [int]int, array₁₄: [int]int, i₁₅: int, largest₁₆
                   && i₄ < i₁₅
                 || array₁₄[i₄] == array[i₄])
         && 1 <= i₁₇
-        && i₁₇ <= 100000
         && (forall largest₇: int, i₈: int ::
               (  1 <= i₈
                 && i₈ < i₁₇
@@ -32,7 +30,6 @@ goal (forall array: [int]int, array₁₄: [int]int, i₁₅: int, largest₁₆
                        ==> false)
                     && i₈ < 100000))
         && 0 <= x₁₈
-        && x₁₈ <= 100000
         && (forall x₁₂: int ::
               (  0 <= x₁₂
                 && x₁₂ < x₁₈

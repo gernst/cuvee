@@ -26,7 +26,6 @@ procedure main()
       while(i < SIZE)
         decreases SIZE - i;
         invariant old(i) <= i
-          && i <= SIZE
           && (forall i₅: int ::
                 (  old(i) <= i₅
                   && i₅ < i
@@ -48,7 +47,6 @@ procedure main()
     while(i < SIZE)
       decreases SIZE - i;
       invariant old(i) <= i
-        && i <= SIZE
         && (forall i₉: int ::
               (  old(i) <= i₉
                 && i₉ < i
@@ -61,7 +59,6 @@ procedure main()
     while(i < SIZE)
       decreases SIZE - i;
       invariant old(i) <= i
-        && i <= SIZE
         && (forall i₁₃: int ::
               (  old(i) <= i₁₃
                 && i₁₃ < i
@@ -74,7 +71,6 @@ procedure main()
     while(i < SIZE)
       decreases SIZE - i;
       invariant old(i) <= i
-        && i <= SIZE
         && (forall i₁₇: int ::
               (  old(i) <= i₁₇
                 && i₁₇ < i
@@ -87,7 +83,6 @@ procedure main()
     while(i < SIZE)
       decreases SIZE - i;
       invariant old(i) <= i
-        && i <= SIZE
         && (forall i₂₁: int ::
               (  old(i) <= i₂₁
                 && i₂₁ < i

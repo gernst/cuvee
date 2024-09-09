@@ -22,9 +22,9 @@ procedure init_conditionally(a: [int]int, b: [int]int, length: int)
     invariant 0 <= i
       && old(clength) <= clength
       && old(i) <= i
-      && i <= length
       && (forall clength₁: int, i₂: int ::
-            (  old(clength) <= clength₁
+            (  0 <= i₂
+              && old(clength) <= clength₁
               && clength₁ < clength
               && old(i) <= i₂
               && i₂ < i
@@ -36,11 +36,12 @@ procedure init_conditionally(a: [int]int, b: [int]int, length: int)
                   && i₂ < length
                   && 0 <= i₂))
       && (forall clength₁: int, i₂: int ::
-            (!(  old(clength) <= clength₁
-              && clength₁ < clength
-              && old(i) <= i₂
-              && i₂ < i
-            )
+            (  0 <= i₂
+              && !(  old(clength) <= clength₁
+                && clength₁ < clength
+                && old(i) <= i₂
+                && i₂ < i
+              )
                ==> c[clength₁] == old(c)[clength₁]));
   {
     if(a[i] == b[i]) {

@@ -20,7 +20,6 @@ procedure avg(x: [int]int)
   while(i < 40)
     decreases 40 - i;
     invariant old(i) <= i
-      && i <= 40
       && (forall i₄: int ::
             (  old(i) <= i₄
               && i₄ < i
@@ -45,7 +44,6 @@ procedure main()
   while(i < 40)
     decreases 40 - i;
     invariant old(i) <= i
-      && i <= 40
       && (forall i₁₃: int ::
             (  old(i) <= i₁₃
               && i₁₃ < i
@@ -76,7 +74,6 @@ procedure main()
   while(i < 40 - 1)
     decreases 40 - 1 - i;
     invariant old(i) <= i
-      && i <= 39
       && (forall i₁₈: int ::
             (  old(i) <= i₁₈
               && i₁₈ < i

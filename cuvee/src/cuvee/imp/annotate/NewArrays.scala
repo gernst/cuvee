@@ -66,6 +66,12 @@ case object NewArrays extends Annotate(ExecNoLoops) {
                     val no = Select(a, index_) === Select(Old(a), index_)
 
                     (yes, no)
+
+                  case rhs =>
+                    var x = Expr.fresh("x", dom)
+
+                    val no = True // TODO: think about how to define unmodified 
+                    ???
                 }
 
                 eq_
@@ -106,4 +112,27 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     case expr =>
       expr
   }
+
+    def assignmentEqualities(
+      mod: Set[Var],
+      counters: Map[Var, Counter],
+      re: Map[Var, Var],
+      a: Var,
+      x: Var,
+      rhs: Expr
+  ): Expr =
+    rhs match {
+      case `a` =>
+        False
+
+      case Store(rhs_, key, value) =>
+        val now = key rename re
+        val earlierThis = Accelerate.checkEarlierValueOf(counters, key, re)
+        val value_ = maybeOldOtherArrays(mod, value)
+        val earlierThat =
+          Accelerate.checkEarlierValueOf(counters, value_, re)
+        val here = Select(a, x) === (value_ rename re)
+        val there = assignmentEqualities(mod, counters, re, a, x, rhs_)
+        Ite(x === now, earlierThis && earlierThat && here, there)
+    }
 }

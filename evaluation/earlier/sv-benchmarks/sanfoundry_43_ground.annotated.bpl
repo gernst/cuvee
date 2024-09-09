@@ -18,7 +18,6 @@ procedure incrementArray(src: [int]int, dst: [int]int)
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && i <= 100000
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
@@ -44,7 +43,6 @@ procedure main()
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && i <= 100000
       && (forall i₈: int ::
             (  old(i) <= i₈
               && i₈ < i
@@ -68,7 +66,6 @@ procedure main()
   while(x < 100000)
     decreases 100000 - x;
     invariant old(x) <= x
-      && x <= 100000
       && (forall x₁₃: int ::
             (  old(x) <= x₁₃
               && x₁₃ < x

@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int, a₂₆: [int]int, i₂₇: int, b₂₈: [int]int, i₂₉: int, c₃₀: [int]int, i₃₁: int, sum₃₂: [int]int, i₃₃: int, i₁₆: int ::
       (  N₂₅ <= 2147483647 / 4
         && 0 <= i₂₇
-        && i₂₇ <= N₂₅
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₇
@@ -22,7 +21,6 @@ goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int,
                   && i₇ < i₂₇
                 || a₂₆[i₇] == a[i₇])
         && 0 <= i₂₉
-        && i₂₉ <= N₂₅
         && (forall i₁₀: int ::
               (  0 <= i₁₀
                 && i₁₀ < i₂₉
@@ -33,7 +31,6 @@ goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int,
                   && i₁₀ < i₂₉
                 || b₂₈[i₁₀] == b[i₁₀])
         && 0 <= i₃₁
-        && i₃₁ <= N₂₅
         && (forall i₁₃: int ::
               (  0 <= i₁₃
                 && i₁₃ < i₃₁
@@ -44,15 +41,14 @@ goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int,
                   && i₁₃ < i₃₁
                 || c₃₀[i₁₃] == c[i₁₃])
         && 0 <= i₃₃
-        && i₃₃ <= N₂₅
-        && (forall i₄₁₆: int ::
-              (  0 <= i₄₁₆
-                && i₄₁₆ < i₃₃
-                 ==> i₄₁₆ < N₂₅
-                  && sum₃₂[0] == a₂₆[i₄₁₆] + sum[0 := 0][0]))
-        && (forall i₄₁₇: int ::
-                  0 <= i₄₁₇
-                  && i₄₁₇ < i₃₃
+        && (forall i₃₆₀: int ::
+              (  0 <= i₃₆₀
+                && i₃₆₀ < i₃₃
+                 ==> i₃₆₀ < N₂₅
+                  && sum₃₂[0] == a₂₆[i₃₆₀] + sum[0 := 0][0]))
+        && (forall i₃₆₁: int ::
+                  0 <= i₃₆₁
+                  && i₃₆₁ < i₃₃
                 || sum₃₂[0] == sum[0 := 0][0])
         && i₃₃ < N₂₅
          ==> 0 <= i₁₆
@@ -65,7 +61,6 @@ goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int,
 goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int, a₂₆: [int]int, i₂₇: int, b₂₈: [int]int, i₂₉: int, c₃₀: [int]int, i₃₁: int, sum₃₂: [int]int, i₃₃: int, i₁₆: int ::
       (  N₂₅ <= 2147483647 / 4
         && 0 <= i₂₇
-        && i₂₇ <= N₂₅
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₇
@@ -76,7 +71,6 @@ goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int,
                   && i₇ < i₂₇
                 || a₂₆[i₇] == a[i₇])
         && 0 <= i₂₉
-        && i₂₉ <= N₂₅
         && (forall i₁₀: int ::
               (  0 <= i₁₀
                 && i₁₀ < i₂₉
@@ -87,7 +81,6 @@ goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int,
                   && i₁₀ < i₂₉
                 || b₂₈[i₁₀] == b[i₁₀])
         && 0 <= i₃₁
-        && i₃₁ <= N₂₅
         && (forall i₁₃: int ::
               (  0 <= i₁₃
                 && i₁₃ < i₃₁
@@ -98,15 +91,14 @@ goal (forall N₂₅: int, sum: [int]int, a: [int]int, b: [int]int, c: [int]int,
                   && i₁₃ < i₃₁
                 || c₃₀[i₁₃] == c[i₁₃])
         && 0 <= i₃₃
-        && i₃₃ <= N₂₅
-        && (forall i₄₃₂: int ::
-              (  0 <= i₄₃₂
-                && i₄₃₂ < i₃₃
-                 ==> i₄₃₂ < N₂₅
-                  && sum₃₂[0] == a₂₆[i₄₃₂] + sum[0 := 0][0]))
-        && (forall i₄₃₃: int ::
-                  0 <= i₄₃₃
-                  && i₄₃₃ < i₃₃
+        && (forall i₃₇₆: int ::
+              (  0 <= i₃₇₆
+                && i₃₇₆ < i₃₃
+                 ==> i₃₇₆ < N₂₅
+                  && sum₃₂[0] == a₂₆[i₃₇₆] + sum[0 := 0][0]))
+        && (forall i₃₇₇: int ::
+                  0 <= i₃₇₇
+                  && i₃₇₇ < i₃₃
                 || sum₃₂[0] == sum[0 := 0][0])
         && i₃₃ < N₂₅
          ==> i₁₆ < i₃₃ + 1

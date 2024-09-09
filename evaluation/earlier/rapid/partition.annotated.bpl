@@ -63,9 +63,9 @@ procedure partition(a: [int]int, alength: int)
       && old(clength) <= clength
       && old(i) <= i
       && old(blength) <= blength
-      && i <= alength
       && (forall clength₁: int, i₂: int, blength₃: int ::
-            (  old(clength) <= clength₁
+            (  0 <= i₂
+              && old(clength) <= clength₁
               && clength₁ < clength
               && old(i) <= i₂
               && i₂ < i
@@ -81,13 +81,14 @@ procedure partition(a: [int]int, alength: int)
                   && 0 <= i₂
                   && c[clength₁] == a[i₂]))
       && (forall clength₁: int, i₂: int, blength₃: int ::
-            (!(  old(clength) <= clength₁
-              && clength₁ < clength
-              && old(i) <= i₂
-              && i₂ < i
-              && old(blength) <= blength₃
-              && blength₃ < blength
-            )
+            (  0 <= i₂
+              && !(  old(clength) <= clength₁
+                && clength₁ < clength
+                && old(i) <= i₂
+                && i₂ < i
+                && old(blength) <= blength₃
+                && blength₃ < blength
+              )
                ==> b[blength₃] == old(b)[blength₃]
                 && c[clength₁] == old(c)[clength₁]));
   {

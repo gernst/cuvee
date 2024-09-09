@@ -23,7 +23,6 @@ procedure max(x: [int]int)
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && i <= N
       && (forall ret₄: int, i₅: int ::
             (  old(i) <= i₅
               && i₅ < i
@@ -71,7 +70,6 @@ procedure main()
     while(i < N - 1)
       decreases N - 1 - i;
       invariant old(i) <= i
-        && i <= -1 + N
         && (forall i₂₀: int ::
               (  old(i) <= i₂₀
                 && i₂₀ < i

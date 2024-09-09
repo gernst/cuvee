@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall SIZE₃₂: int, a: [int]int, a₃₄: [int]int, i₃₅: int, i₃₇: int, i₃₉: int, i₄₁: int, i₄₃: int, i₄₅: int, sum₄₆: int, i₄₇: int ::
       (  1 < SIZE₃₂
         && 0 <= i₃₅
-        && i₃₅ <= SIZE₃₂
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₃₅
@@ -23,37 +22,31 @@ goal (forall SIZE₃₂: int, a: [int]int, a₃₄: [int]int, i₃₅: int, i₃
                   && i₅ < i₃₅
                 || a₃₄[i₅] == a[i₅])
         && 0 <= i₃₇
-        && i₃₇ <= SIZE₃₂
         && (forall i₉: int ::
               (  0 <= i₉
                 && i₉ < i₃₇
                  ==> i₉ < SIZE₃₂))
         && 0 <= i₃₉
-        && i₃₉ <= SIZE₃₂
         && (forall i₁₃: int ::
               (  0 <= i₁₃
                 && i₁₃ < i₃₉
                  ==> i₁₃ < SIZE₃₂))
         && 0 <= i₄₁
-        && i₄₁ <= SIZE₃₂
         && (forall i₁₇: int ::
               (  0 <= i₁₇
                 && i₁₇ < i₄₁
                  ==> i₁₇ < SIZE₃₂))
         && 0 <= i₄₃
-        && i₄₃ <= SIZE₃₂
         && (forall i₂₁: int ::
               (  0 <= i₂₁
                 && i₂₁ < i₄₃
                  ==> i₂₁ < SIZE₃₂))
         && 0 <= i₄₅
-        && i₄₅ <= SIZE₃₂
         && (forall i₂₅: int ::
               (  0 <= i₂₅
                 && i₂₅ < i₄₅
                  ==> i₂₅ < SIZE₃₂))
         && 0 <= i₄₇
-        && i₄₇ <= SIZE₃₂
         && (forall i₂₉: int ::
               (  0 <= i₂₉
                 && i₂₉ < i₄₇

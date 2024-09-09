@@ -33,7 +33,6 @@ procedure main()
     while(i <= CELLCOUNT / 3)
       decreases CELLCOUNT / 3 + 1 - i;
       invariant old(i) <= i
-        && i <= 1 + CELLCOUNT / 3
         && (forall i₄: int ::
               (  old(i) <= i₄
                 && i₄ < i
@@ -63,7 +62,6 @@ procedure main()
     while(i <= CELLCOUNT / 3)
       decreases CELLCOUNT / 3 + 1 - i;
       invariant old(i) <= i
-        && i <= 1 + CELLCOUNT / 3
         && (forall i₇: int ::
               (  old(i) <= i₇
                 && i₇ < i
@@ -93,7 +91,6 @@ procedure main()
     while(i <= CELLCOUNT / 3)
       decreases CELLCOUNT / 3 + 1 - i;
       invariant old(i) <= i
-        && i <= 1 + CELLCOUNT / 3
         && (forall i₁₀: int ::
               (  old(i) <= i₁₀
                 && i₁₀ < i
@@ -123,7 +120,6 @@ procedure main()
     while(i < CELLCOUNT)
       decreases CELLCOUNT - i;
       invariant old(i) <= i
-        && i <= CELLCOUNT
         && (forall i₁₃: int ::
               (  old(i) <= i₁₃
                 && i₁₃ < i

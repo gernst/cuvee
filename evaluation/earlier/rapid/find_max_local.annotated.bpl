@@ -42,9 +42,9 @@ procedure find_max_local(a: [int]int, alength: int)
     invariant 0 <= i
       && old(blength) <= blength
       && old(i) <= i
-      && i <= alength
       && (forall blength₁: int, m₂: int, i₃: int ::
-            (  old(blength) <= blength₁
+            (  0 <= i₃
+              && old(blength) <= blength₁
               && blength₁ < blength
               && old(i) <= i₃
               && i₃ < i
@@ -57,11 +57,12 @@ procedure find_max_local(a: [int]int, alength: int)
                   && i₃ < alength
                   && 0 <= i₃))
       && (forall blength₁: int, i₃: int ::
-            (!(  old(blength) <= blength₁
-              && blength₁ < blength
-              && old(i) <= i₃
-              && i₃ < i
-            )
+            (  0 <= i₃
+              && !(  old(blength) <= blength₁
+                && blength₁ < blength
+                && old(i) <= i₃
+                && i₃ < i
+              )
                ==> b[i₃] == old(b)[i₃]));
   {
     if(a[i] > a[m]) {

@@ -14,17 +14,18 @@ procedure copy(blength: int, b: [int]int)
     decreases blength - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= blength
       && (forall i₁: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && old(i) <= i₁
               && i₁ < i
                ==> i₁ < blength
                 && 0 <= i₁
                 && a[i₁] == b[i₁]))
       && (forall i₁: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-            )
+            (  0 <= i₁
+              && !(  old(i) <= i₁
+                && i₁ < i
+              )
                ==> a[i₁] == old(a)[i₁]));
   {
     a := a[i := b[i]];

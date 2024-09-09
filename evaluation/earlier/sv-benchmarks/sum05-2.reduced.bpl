@@ -10,7 +10,6 @@ function c#bitor(x₀: int, x₁: int): int;
 
 goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃₃: int, ret₃₈: int, i₃₉: int, x₄₁: [int]int, i₄₂: int, i₄₈: int ::
       (  0 <= i₂₇
-        && i₂₇ <= 5
         && (forall i₁₃: int ::
               (  0 <= i₁₃
                 && i₁₃ < i₂₇
@@ -22,19 +21,16 @@ goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃�
                   && i₁₃ < i₂₇
                 || x₂₆[i₁₃] == x[i₁₃])
         && 0 <= i₃₃
-        && i₃₃ <= 5
         && (forall i₄: int ::
               (  0 <= i₄
                 && i₄ < i₃₃
                  ==> i₄ < 5))
         && 0 <= i₃₉
-        && i₃₉ <= 5
         && (forall i₄: int ::
               (  0 <= i₄
                 && i₄ < i₃₉
                  ==> i₄ < 5))
         && 0 <= i₄₂
-        && i₄₂ <= 4
         && (forall i₁₈: int ::
               (  0 <= i₁₈
                 && i₁₈ < i₄₂
@@ -45,7 +41,6 @@ goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃�
                   && i₁₈ < i₄₂
                 || x₄₁[i₁₈] == x₂₆[0 := x₂₆[1]][1 := x₂₆[0]][i₁₈])
         && 0 <= i₄₈
-        && i₄₈ <= 5
         && (forall i₄: int ::
               (  0 <= i₄
                 && i₄ < i₄₈
@@ -59,7 +54,6 @@ goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃�
 
 goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃₃: int, i₃₉: int, x₄₁: [int]int, i₄₂: int, ret₄₇: int, i₄₈: int ::
       (  0 <= i₂₇
-        && i₂₇ <= 5
         && (forall i₁₃: int ::
               (  0 <= i₁₃
                 && i₁₃ < i₂₇
@@ -71,19 +65,16 @@ goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃�
                   && i₁₃ < i₂₇
                 || x₂₆[i₁₃] == x[i₁₃])
         && 0 <= i₃₃
-        && i₃₃ <= 5
         && (forall i₄: int ::
               (  0 <= i₄
                 && i₄ < i₃₃
                  ==> i₄ < 5))
         && 0 <= i₃₉
-        && i₃₉ <= 5
         && (forall i₄: int ::
               (  0 <= i₄
                 && i₄ < i₃₉
                  ==> i₄ < 5))
         && 0 <= i₄₂
-        && i₄₂ <= 4
         && (forall i₁₈: int ::
               (  0 <= i₁₈
                 && i₁₈ < i₄₂
@@ -94,7 +85,6 @@ goal (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret₃₂: int, i₃�
                   && i₁₈ < i₄₂
                 || x₄₁[i₁₈] == x₂₆[0 := x₂₆[1]][1 := x₂₆[0]][i₁₈])
         && 0 <= i₄₈
-        && i₄₈ <= 5
         && (forall i₄: int ::
               (  0 <= i₄
                 && i₄ < i₄₈

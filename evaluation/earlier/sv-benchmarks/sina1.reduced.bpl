@@ -11,15 +11,14 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₁₃: int, sum: [int]int, sum₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall i₆₀: int ::
-              (  0 <= i₆₀
-                && i₆₀ < i₁₅
-                 ==> i₆₀ < N₁₃
+        && (forall i₅₅: int ::
+              (  0 <= i₅₅
+                && i₅₅ < i₁₅
+                 ==> i₅₅ < N₁₃
                   && sum₁₄[0] == 1 + sum[0 := 0][0]))
-        && (forall i₆₁: int ::
-                  0 <= i₆₁
-                  && i₆₁ < i₁₅
+        && (forall i₅₆: int ::
+                  0 <= i₅₆
+                  && i₅₆ < i₁₅
                 || sum₁₄[0] == sum[0 := 0][0])
         && i₁₅ < N₁₃
          ==> 0 <= i₅
@@ -29,15 +28,14 @@ goal (forall N₁₃: int, sum: [int]int, sum₁₄: [int]int, i₁₅: int, i�
 goal (forall N₁₃: int, sum: [int]int, sum₁₄: [int]int, i₁₅: int, i₅: int ::
       (  N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
-        && i₁₅ <= N₁₃
-        && (forall i₆₇: int ::
-              (  0 <= i₆₇
-                && i₆₇ < i₁₅
-                 ==> i₆₇ < N₁₃
+        && (forall i₆₂: int ::
+              (  0 <= i₆₂
+                && i₆₂ < i₁₅
+                 ==> i₆₂ < N₁₃
                   && sum₁₄[0] == 1 + sum[0 := 0][0]))
-        && (forall i₆₈: int ::
-                  0 <= i₆₈
-                  && i₆₈ < i₁₅
+        && (forall i₆₃: int ::
+                  0 <= i₆₃
+                  && i₆₃ < i₁₅
                 || sum₁₄[0] == sum[0 := 0][0])
         && i₁₅ < N₁₃
          ==> i₅ < i₁₅ + 1

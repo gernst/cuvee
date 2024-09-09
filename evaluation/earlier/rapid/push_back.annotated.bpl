@@ -13,28 +13,25 @@ procedure push_back(b: [int]int, blength: int)
   var i: int := 0;
   while(i < blength)
     decreases blength - i;
-    invariant 0 <= i
-      && i == alength
-      && alength <= blength
+    invariant alength == i
       && old(alength) <= alength
       && old(i) <= i
-      && i <= blength
       && (forall alength₁: int, i₂: int ::
-            (  old(alength) <= alength₁
+            (  alength₁ == i₂
+              && old(alength) <= alength₁
               && alength₁ < alength
               && old(i) <= i₂
               && i₂ < i
                ==> i₂ < blength
-                && 0 <= i₂
-                && i₂ == alength₁
-                && alength₁ <= blength
+                && alength₁ == i₂
                 && a[i₂] == b[i₂]))
       && (forall alength₁: int, i₂: int ::
-            (!(  old(alength) <= alength₁
-              && alength₁ < alength
-              && old(i) <= i₂
-              && i₂ < i
-            )
+            (  alength₁ == i₂
+              && !(  old(alength) <= alength₁
+                && alength₁ < alength
+                && old(i) <= i₂
+                && i₂ < i
+              )
                ==> a[i₂] == old(a)[i₂]));
   {
     a := a[i := b[i]];

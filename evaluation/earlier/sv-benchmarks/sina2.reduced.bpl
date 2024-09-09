@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₁₆: int, sum: [int]int, a: [int]int, a₁₇: [int]int, i₁₈: int, sum₁₉: [int]int, i₂₀: int, i₈: int ::
       (  N₁₆ <= 2147483647 / 4
         && 0 <= i₁₈
-        && i₁₈ <= N₁₆
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₈
@@ -22,15 +21,14 @@ goal (forall N₁₆: int, sum: [int]int, a: [int]int, a₁₇: [int]int, i₁�
                   && i₅ < i₁₈
                 || a₁₇[i₅] == a[i₅])
         && 0 <= i₂₀
-        && i₂₀ <= N₁₆
-        && (forall i₁₄₁: int ::
-              (  0 <= i₁₄₁
-                && i₁₄₁ < i₂₀
-                 ==> i₁₄₁ < N₁₆
-                  && sum₁₉[0] == a₁₇[i₁₄₁] + sum[0 := 0][0]))
-        && (forall i₁₄₂: int ::
-                  0 <= i₁₄₂
-                  && i₁₄₂ < i₂₀
+        && (forall i₁₂₅: int ::
+              (  0 <= i₁₂₅
+                && i₁₂₅ < i₂₀
+                 ==> i₁₂₅ < N₁₆
+                  && sum₁₉[0] == a₁₇[i₁₂₅] + sum[0 := 0][0]))
+        && (forall i₁₂₆: int ::
+                  0 <= i₁₂₆
+                  && i₁₂₆ < i₂₀
                 || sum₁₉[0] == sum[0 := 0][0])
         && i₂₀ < N₁₆
          ==> 0 <= i₈
@@ -41,7 +39,6 @@ goal (forall N₁₆: int, sum: [int]int, a: [int]int, a₁₇: [int]int, i₁�
 goal (forall N₁₆: int, sum: [int]int, a: [int]int, a₁₇: [int]int, i₁₈: int, sum₁₉: [int]int, i₂₀: int, i₈: int ::
       (  N₁₆ <= 2147483647 / 4
         && 0 <= i₁₈
-        && i₁₈ <= N₁₆
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₈
@@ -52,15 +49,14 @@ goal (forall N₁₆: int, sum: [int]int, a: [int]int, a₁₇: [int]int, i₁�
                   && i₅ < i₁₈
                 || a₁₇[i₅] == a[i₅])
         && 0 <= i₂₀
-        && i₂₀ <= N₁₆
-        && (forall i₁₅₁: int ::
-              (  0 <= i₁₅₁
-                && i₁₅₁ < i₂₀
-                 ==> i₁₅₁ < N₁₆
-                  && sum₁₉[0] == a₁₇[i₁₅₁] + sum[0 := 0][0]))
-        && (forall i₁₅₂: int ::
-                  0 <= i₁₅₂
-                  && i₁₅₂ < i₂₀
+        && (forall i₁₃₅: int ::
+              (  0 <= i₁₃₅
+                && i₁₃₅ < i₂₀
+                 ==> i₁₃₅ < N₁₆
+                  && sum₁₉[0] == a₁₇[i₁₃₅] + sum[0 := 0][0]))
+        && (forall i₁₃₆: int ::
+                  0 <= i₁₃₆
+                  && i₁₃₆ < i₂₀
                 || sum₁₉[0] == sum[0 := 0][0])
         && i₂₀ < N₁₆
          ==> i₈ < i₂₀ + 1

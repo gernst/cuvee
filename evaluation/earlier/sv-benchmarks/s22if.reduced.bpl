@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₁₄: int, a: [int]int, a₁₅: [int]int, i₁₆: int, a₁₇: [int]int, i₁₈: int, i₈: int ::
       (  N₁₄ <= 2147483647 / 4
         && 0 <= i₁₆
-        && i₁₆ <= N₁₄
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₆
@@ -22,21 +21,20 @@ goal (forall N₁₄: int, a: [int]int, a₁₅: [int]int, i₁₆: int, a₁₇
                   && i₅ < i₁₆
                 || a₁₅[i₅] == a[i₅])
         && 0 <= i₁₈
-        && i₁₈ <= N₁₄
-        && (forall i₁₆₈: int ::
-              (  0 <= i₁₆₈
-                && i₁₆₈ < i₁₈
-                 ==> a₁₇[i₁₆₈] == 1
-                    && i₁₆₈ < N₁₄
-                    && a₁₇[i₁₆₈] == 2 + a₁₅[i₁₆₈]
-                  ||   (a₁₇[i₁₆₈] == 1
+        && (forall i₁₅₃: int ::
+              (  0 <= i₁₅₃
+                && i₁₅₃ < i₁₈
+                 ==> a₁₇[i₁₅₃] == 1
+                    && i₁₅₃ < N₁₄
+                    && a₁₇[i₁₅₃] == 2 + a₁₅[i₁₅₃]
+                  ||   (a₁₇[i₁₅₃] == 1
                        ==> false)
-                    && i₁₆₈ < N₁₄
-                    && a₁₇[i₁₆₈] == -1 + a₁₅[i₁₆₈]))
-        && (forall i₁₆₉: int ::
-                  0 <= i₁₆₉
-                  && i₁₆₉ < i₁₈
-                || a₁₇[i₁₆₉] == a₁₅[i₁₆₉])
+                    && i₁₅₃ < N₁₄
+                    && a₁₇[i₁₅₃] == -1 + a₁₅[i₁₅₃]))
+        && (forall i₁₅₄: int ::
+                  0 <= i₁₅₄
+                  && i₁₅₄ < i₁₈
+                || a₁₇[i₁₅₄] == a₁₅[i₁₅₄])
         && i₁₈ < N₁₄
         && a₁₇[i₁₈] == 1
         && 0 <= i₈
@@ -49,7 +47,6 @@ goal (forall N₁₄: int, a: [int]int, a₁₅: [int]int, i₁₆: int, a₁₇
 goal (forall N₁₄: int, sum: [int]int, a: [int]int, a₁₅: [int]int, i₁₆: int, a₁₇: [int]int, i₁₈: int, sum₁₉: [int]int, i₂₀: int ::
       (  N₁₄ <= 2147483647 / 4
         && 0 <= i₁₆
-        && i₁₆ <= N₁₄
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₆
@@ -60,7 +57,6 @@ goal (forall N₁₄: int, sum: [int]int, a: [int]int, a₁₅: [int]int, i₁�
                   && i₅ < i₁₆
                 || a₁₅[i₅] == a[i₅])
         && 0 <= i₁₈
-        && i₁₈ <= N₁₄
         && (forall i₈: int ::
               (  0 <= i₈
                 && i₈ < i₁₈
@@ -76,7 +72,6 @@ goal (forall N₁₄: int, sum: [int]int, a: [int]int, a₁₅: [int]int, i₁�
                   && i₈ < i₁₈
                 || a₁₇[i₈] == a₁₅[i₈])
         && 0 <= i₂₀
-        && i₂₀ <= N₁₄
         && (forall i₁₁: int ::
               (  0 <= i₁₁
                 && i₁₁ < i₂₀

@@ -10,7 +10,6 @@ function c#bitor(x₀: int, x₁: int): int;
 
 goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, j₁₁: int, i₁₂: int ::
       (  0 <= i₂₃
-        && i₂₃ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
@@ -25,24 +24,23 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
                   && B₂₂[i₇] == B[i₇])
         && 0 <= j₂₅
         && 0 <= i₂₆
-        && i₂₆ <= 100000
-        && (forall j₂₆₃: int, i₂₆₄: int ::
-              (  0 <= j₂₆₃
-                && j₂₆₃ < j₂₅
-                && 0 <= i₂₆₄
-                && i₂₆₄ < i₂₆
-                 ==> A₂₁[i₂₆₄] == B₂₂[i₂₆₄]
-                    && i₂₆₄ < 100000
-                    && C₂₄[j₂₆₃] == i₂₆₄
-                  ||   (A₂₁[i₂₆₄] == B₂₂[i₂₆₄]
+        && (forall j₂₄₄: int, i₂₄₅: int ::
+              (  0 <= j₂₄₄
+                && j₂₄₄ < j₂₅
+                && 0 <= i₂₄₅
+                && i₂₄₅ < i₂₆
+                 ==> A₂₁[i₂₄₅] == B₂₂[i₂₄₅]
+                    && i₂₄₅ < 100000
+                    && C₂₄[j₂₄₄] == i₂₄₅
+                  ||   (A₂₁[i₂₄₅] == B₂₂[i₂₄₅]
                        ==> false)
-                    && i₂₆₄ < 100000))
-        && (forall j₂₆₅: int, i₂₆₆: int ::
-                  0 <= j₂₆₅
-                  && j₂₆₅ < j₂₅
-                  && 0 <= i₂₆₆
-                  && i₂₆₆ < i₂₆
-                || C₂₄[j₂₆₅] == C[j₂₆₅])
+                    && i₂₄₅ < 100000))
+        && (forall j₂₄₆: int, i₂₄₇: int ::
+                  0 <= j₂₄₆
+                  && j₂₄₆ < j₂₅
+                  && 0 <= i₂₄₇
+                  && i₂₄₇ < i₂₆
+                || C₂₄[j₂₄₆] == C[j₂₄₆])
         && i₂₆ < 100000
         && A₂₁[i₂₆] == B₂₂[i₂₆]
         && 0 <= j₁₁
@@ -55,7 +53,6 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
 
 goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, j₁₁: int, i₁₂: int ::
       (  0 <= i₂₃
-        && i₂₃ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
@@ -70,24 +67,23 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
                   && B₂₂[i₇] == B[i₇])
         && 0 <= j₂₅
         && 0 <= i₂₆
-        && i₂₆ <= 100000
-        && (forall j₃₀₉: int, i₃₁₀: int ::
-              (  0 <= j₃₀₉
-                && j₃₀₉ < j₂₅
-                && 0 <= i₃₁₀
-                && i₃₁₀ < i₂₆
-                 ==> A₂₁[i₃₁₀] == B₂₂[i₃₁₀]
-                    && i₃₁₀ < 100000
-                    && C₂₄[j₃₀₉] == i₃₁₀
-                  ||   (A₂₁[i₃₁₀] == B₂₂[i₃₁₀]
+        && (forall j₂₉₀: int, i₂₉₁: int ::
+              (  0 <= j₂₉₀
+                && j₂₉₀ < j₂₅
+                && 0 <= i₂₉₁
+                && i₂₉₁ < i₂₆
+                 ==> A₂₁[i₂₉₁] == B₂₂[i₂₉₁]
+                    && i₂₉₁ < 100000
+                    && C₂₄[j₂₉₀] == i₂₉₁
+                  ||   (A₂₁[i₂₉₁] == B₂₂[i₂₉₁]
                        ==> false)
-                    && i₃₁₀ < 100000))
-        && (forall j₃₁₁: int, i₃₁₂: int ::
-                  0 <= j₃₁₁
-                  && j₃₁₁ < j₂₅
-                  && 0 <= i₃₁₂
-                  && i₃₁₂ < i₂₆
-                || C₂₄[j₃₁₁] == C[j₃₁₁])
+                    && i₂₉₁ < 100000))
+        && (forall j₂₉₂: int, i₂₉₃: int ::
+                  0 <= j₂₉₂
+                  && j₂₉₂ < j₂₅
+                  && 0 <= i₂₉₃
+                  && i₂₉₃ < i₂₆
+                || C₂₄[j₂₉₂] == C[j₂₉₂])
         && i₂₆ < 100000
         && A₂₁[i₂₆] == B₂₂[i₂₆]
          ==> 0 <= i₁₂
@@ -96,7 +92,6 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
 
 goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, j₁₁: int, i₁₂: int ::
       (  0 <= i₂₃
-        && i₂₃ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
@@ -111,24 +106,23 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
                   && B₂₂[i₇] == B[i₇])
         && 0 <= j₂₅
         && 0 <= i₂₆
-        && i₂₆ <= 100000
-        && (forall j₃₂₄: int, i₃₂₅: int ::
-              (  0 <= j₃₂₄
-                && j₃₂₄ < j₂₅
-                && 0 <= i₃₂₅
-                && i₃₂₅ < i₂₆
-                 ==> A₂₁[i₃₂₅] == B₂₂[i₃₂₅]
-                    && i₃₂₅ < 100000
-                    && C₂₄[j₃₂₄] == i₃₂₅
-                  ||   (A₂₁[i₃₂₅] == B₂₂[i₃₂₅]
+        && (forall j₃₀₅: int, i₃₀₆: int ::
+              (  0 <= j₃₀₅
+                && j₃₀₅ < j₂₅
+                && 0 <= i₃₀₆
+                && i₃₀₆ < i₂₆
+                 ==> A₂₁[i₃₀₆] == B₂₂[i₃₀₆]
+                    && i₃₀₆ < 100000
+                    && C₂₄[j₃₀₅] == i₃₀₆
+                  ||   (A₂₁[i₃₀₆] == B₂₂[i₃₀₆]
                        ==> false)
-                    && i₃₂₅ < 100000))
-        && (forall j₃₂₆: int, i₃₂₇: int ::
-                  0 <= j₃₂₆
-                  && j₃₂₆ < j₂₅
-                  && 0 <= i₃₂₇
-                  && i₃₂₇ < i₂₆
-                || C₂₄[j₃₂₆] == C[j₃₂₆])
+                    && i₃₀₆ < 100000))
+        && (forall j₃₀₇: int, i₃₀₈: int ::
+                  0 <= j₃₀₇
+                  && j₃₀₇ < j₂₅
+                  && 0 <= i₃₀₈
+                  && i₃₀₈ < i₂₆
+                || C₂₄[j₃₀₇] == C[j₃₀₇])
         && i₂₆ < 100000
         && A₂₁[i₂₆] == B₂₂[i₂₆]
          ==> i₁₂ < i₂₆ + 1
@@ -137,7 +131,6 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
 
 goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, x₂₇: int ::
       (  0 <= i₂₃
-        && i₂₃ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
@@ -152,7 +145,6 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
                   && B₂₂[i₇] == B[i₇])
         && 0 <= j₂₅
         && 0 <= i₂₆
-        && i₂₆ <= 100000
         && (forall j₁₁: int, i₁₂: int ::
               (  0 <= j₁₁
                 && j₁₁ < j₂₅
@@ -171,7 +163,6 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
                   && i₁₂ < i₂₆
                 || C₂₄[j₁₁] == C[j₁₁])
         && 0 <= x₂₇
-        && x₂₇ <= j₂₅
         && (forall x₁₇: int ::
               (  0 <= x₁₇
                 && x₁₇ < x₂₇
@@ -183,7 +174,6 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
 
 goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: [int]int, i₂₃: int, C₂₄: [int]int, j₂₅: int, i₂₆: int, x₂₇: int, x₂₈: int ::
       (  0 <= i₂₃
-        && i₂₃ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
@@ -198,7 +188,6 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
                   && B₂₂[i₇] == B[i₇])
         && 0 <= j₂₅
         && 0 <= i₂₆
-        && i₂₆ <= 100000
         && (forall j₁₁: int, i₁₂: int ::
               (  0 <= j₁₁
                 && j₁₁ < j₂₅
@@ -217,13 +206,11 @@ goal (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [int]int, B₂₂: 
                   && i₁₂ < i₂₆
                 || C₂₄[j₁₁] == C[j₁₁])
         && 0 <= x₂₇
-        && x₂₇ <= j₂₅
         && (forall x₁₇: int ::
               (  0 <= x₁₇
                 && x₁₇ < x₂₇
                  ==> x₁₇ < j₂₅))
         && 0 <= x₂₈
-        && x₂₈ <= j₂₅
         && (forall x₁₉: int ::
               (  0 <= x₁₉
                 && x₁₉ < x₂₈

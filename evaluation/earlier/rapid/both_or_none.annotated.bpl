@@ -17,9 +17,9 @@ procedure both_or_none(a: [int]int, alength: int)
     decreases alength - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= alength
       && (forall i₁: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && old(i) <= i₁
               && i₁ < i
                ==> a[i₁] == 1
                   && i₁ < alength
@@ -30,9 +30,10 @@ procedure both_or_none(a: [int]int, alength: int)
                   && 0 <= i₁
                   && b[i₁] == 0))
       && (forall i₁: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-            )
+            (  0 <= i₁
+              && !(  old(i) <= i₁
+                && i₁ < i
+              )
                ==> b[i₁] == old(b)[i₁]));
   {
     if(a[i] == 1) {

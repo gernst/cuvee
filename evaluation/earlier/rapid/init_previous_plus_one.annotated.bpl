@@ -21,17 +21,18 @@ procedure init_previous_plus_one(alength: int, v: int)
     decreases alength - i + 1;
     invariant 0 <= i
       && old(i) <= i
-      && 1 + i <= alength
       && (forall i₁: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && old(i) <= i₁
               && i₁ < i
                ==> 1 + i₁ < alength
                 && 0 <= i₁
                 && a[1 + i₁] == 1 + old(a)[i₁]))
       && (forall i₁: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-            )
+            (  0 <= i₁
+              && !(  old(i) <= i₁
+                && i₁ < i
+              )
                ==> a[1 + i₁] == old(a)[1 + i₁]));
   {
     a := a[i + 1 := a[i] + 1];

@@ -23,9 +23,9 @@ procedure copy_nonzero(b: [int]int, blength: int)
     invariant 0 <= i
       && old(alength) <= alength
       && old(i) <= i
-      && i <= blength
       && (forall alength₁: int, i₂: int ::
-            (  old(alength) <= alength₁
+            (  0 <= i₂
+              && old(alength) <= alength₁
               && alength₁ < alength
               && old(i) <= i₂
               && i₂ < i
@@ -37,11 +37,12 @@ procedure copy_nonzero(b: [int]int, blength: int)
                   && i₂ < blength
                   && 0 <= i₂))
       && (forall alength₁: int, i₂: int ::
-            (!(  old(alength) <= alength₁
-              && alength₁ < alength
-              && old(i) <= i₂
-              && i₂ < i
-            )
+            (  0 <= i₂
+              && !(  old(alength) <= alength₁
+                && alength₁ < alength
+                && old(i) <= i₂
+                && i₂ < i
+              )
                ==> a[alength₁] == old(a)[alength₁]));
   {
     if(b[i] != 0) {

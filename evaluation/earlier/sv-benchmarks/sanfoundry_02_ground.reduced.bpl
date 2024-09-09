@@ -10,7 +10,6 @@ function c#bitor(x₀: int, x₁: int): int;
 
 goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₃₀: int, i₃₁: int, x₃₂: int ::
       (  0 <= i₂₈
-        && i₂₈ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
@@ -23,7 +22,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₃�
                 || array₂₇[i₇] == array[i₇])
         && array₂₇[0] < array₂₇[1]
         && 2 <= i₃₁
-        && i₃₁ <= 100000
         && (forall largest2₁₀: int, largest1₁₁: int, i₁₂: int ::
               (  2 <= i₁₂
                 && i₁₂ < i₃₁
@@ -39,7 +37,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₃�
                        ==> false)
                     && i₁₂ < 100000))
         && 0 <= x₃₂
-        && x₃₂ <= 100000
         && (forall x₂₁: int ::
               (  0 <= x₂₁
                 && x₂₁ < x₃₂
@@ -51,7 +48,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₃�
 
 goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₂₉: int, largest1₃₀: int, i₃₁: int, x₃₂: int, x₃₃: int ::
       (  0 <= i₂₈
-        && i₂₈ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
@@ -64,7 +60,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₂�
                 || array₂₇[i₇] == array[i₇])
         && array₂₇[0] < array₂₇[1]
         && 2 <= i₃₁
-        && i₃₁ <= 100000
         && (forall largest2₁₀: int, largest1₁₁: int, i₁₂: int ::
               (  2 <= i₁₂
                 && i₁₂ < i₃₁
@@ -80,13 +75,11 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₂�
                        ==> false)
                     && i₁₂ < 100000))
         && 0 <= x₃₂
-        && x₃₂ <= 100000
         && (forall x₂₁: int ::
               (  0 <= x₂₁
                 && x₂₁ < x₃₂
                  ==> x₂₁ < 100000))
         && 0 <= x₃₃
-        && x₃₃ <= 100000
         && (forall x₂₄: int ::
               (  0 <= x₂₄
                 && x₂₄ < x₃₃
@@ -100,7 +93,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₂�
 
 goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₄₆: int, i₄₇: int, x₄₈: int ::
       (  0 <= i₂₈
-        && i₂₈ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
@@ -112,7 +104,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₄�
                   && i₇ < i₂₈
                 || array₂₇[i₇] == array[i₇])
         && 2 <= i₄₇
-        && i₄₇ <= 100000
         && (forall largest2₁₀: int, largest1₁₁: int, i₁₂: int ::
               (  2 <= i₁₂
                 && i₁₂ < i₄₇
@@ -128,7 +119,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₄�
                        ==> false)
                     && i₁₂ < 100000))
         && 0 <= x₄₈
-        && x₄₈ <= 100000
         && (forall x₂₁: int ::
               (  0 <= x₂₁
                 && x₂₁ < x₄₈
@@ -141,7 +131,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest1₄�
 
 goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₄₅: int, largest1₄₆: int, i₄₇: int, x₄₈: int, x₄₉: int ::
       (  0 <= i₂₈
-        && i₂₈ <= 100000
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
@@ -153,7 +142,6 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₄�
                   && i₇ < i₂₈
                 || array₂₇[i₇] == array[i₇])
         && 2 <= i₄₇
-        && i₄₇ <= 100000
         && (forall largest2₁₀: int, largest1₁₁: int, i₁₂: int ::
               (  2 <= i₁₂
                 && i₁₂ < i₄₇
@@ -169,13 +157,11 @@ goal (forall array: [int]int, array₂₇: [int]int, i₂₈: int, largest2₄�
                        ==> false)
                     && i₁₂ < 100000))
         && 0 <= x₄₈
-        && x₄₈ <= 100000
         && (forall x₂₁: int ::
               (  0 <= x₂₁
                 && x₂₁ < x₄₈
                  ==> x₂₁ < 100000))
         && 0 <= x₄₉
-        && x₄₉ <= 100000
         && (forall x₂₄: int ::
               (  0 <= x₂₄
                 && x₂₄ < x₄₉

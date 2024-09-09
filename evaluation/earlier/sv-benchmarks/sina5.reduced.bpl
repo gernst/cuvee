@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₂₃: int, sum: [int]int, a: [int]int, b: [int]int, a₂₄: [int]int, i₂₅: int, b₂₆: [int]int, i₂₇: int, sum₂₈: [int]int, i₂₉: int, i₁₂: int ::
       (  N₂₃ <= 2147483647 / 4
         && 0 <= i₂₅
-        && i₂₅ <= N₂₃
         && (forall i₆: int ::
               (  0 <= i₆
                 && i₆ < i₂₅
@@ -22,7 +21,6 @@ goal (forall N₂₃: int, sum: [int]int, a: [int]int, b: [int]int, a₂₄: [in
                   && i₆ < i₂₅
                 || a₂₄[i₆] == a[i₆])
         && 0 <= i₂₇
-        && i₂₇ <= N₂₃
         && (forall i₉: int ::
               (  0 <= i₉
                 && i₉ < i₂₇
@@ -33,15 +31,14 @@ goal (forall N₂₃: int, sum: [int]int, a: [int]int, b: [int]int, a₂₄: [in
                   && i₉ < i₂₇
                 || b₂₆[i₉] == b[i₉])
         && 0 <= i₂₉
-        && i₂₉ <= N₂₃
-        && (forall i₂₆₆: int ::
-              (  0 <= i₂₆₆
-                && i₂₆₆ < i₂₉
-                 ==> i₂₆₆ < N₂₃
-                  && sum₂₈[0] == a₂₄[i₂₆₆] + sum[0 := 0][0]))
-        && (forall i₂₆₇: int ::
-                  0 <= i₂₆₇
-                  && i₂₆₇ < i₂₉
+        && (forall i₂₃₃: int ::
+              (  0 <= i₂₃₃
+                && i₂₃₃ < i₂₉
+                 ==> i₂₃₃ < N₂₃
+                  && sum₂₈[0] == a₂₄[i₂₃₃] + sum[0 := 0][0]))
+        && (forall i₂₃₄: int ::
+                  0 <= i₂₃₄
+                  && i₂₃₄ < i₂₉
                 || sum₂₈[0] == sum[0 := 0][0])
         && i₂₉ < N₂₃
          ==> 0 <= i₁₂
@@ -53,7 +50,6 @@ goal (forall N₂₃: int, sum: [int]int, a: [int]int, b: [int]int, a₂₄: [in
 goal (forall N₂₃: int, sum: [int]int, a: [int]int, b: [int]int, a₂₄: [int]int, i₂₅: int, b₂₆: [int]int, i₂₇: int, sum₂₈: [int]int, i₂₉: int, i₁₂: int ::
       (  N₂₃ <= 2147483647 / 4
         && 0 <= i₂₅
-        && i₂₅ <= N₂₃
         && (forall i₆: int ::
               (  0 <= i₆
                 && i₆ < i₂₅
@@ -64,7 +60,6 @@ goal (forall N₂₃: int, sum: [int]int, a: [int]int, b: [int]int, a₂₄: [in
                   && i₆ < i₂₅
                 || a₂₄[i₆] == a[i₆])
         && 0 <= i₂₇
-        && i₂₇ <= N₂₃
         && (forall i₉: int ::
               (  0 <= i₉
                 && i₉ < i₂₇
@@ -75,15 +70,14 @@ goal (forall N₂₃: int, sum: [int]int, a: [int]int, b: [int]int, a₂₄: [in
                   && i₉ < i₂₇
                 || b₂₆[i₉] == b[i₉])
         && 0 <= i₂₉
-        && i₂₉ <= N₂₃
-        && (forall i₂₇₉: int ::
-              (  0 <= i₂₇₉
-                && i₂₇₉ < i₂₉
-                 ==> i₂₇₉ < N₂₃
-                  && sum₂₈[0] == a₂₄[i₂₇₉] + sum[0 := 0][0]))
-        && (forall i₂₈₀: int ::
-                  0 <= i₂₈₀
-                  && i₂₈₀ < i₂₉
+        && (forall i₂₄₆: int ::
+              (  0 <= i₂₄₆
+                && i₂₄₆ < i₂₉
+                 ==> i₂₄₆ < N₂₃
+                  && sum₂₈[0] == a₂₄[i₂₄₆] + sum[0 := 0][0]))
+        && (forall i₂₄₇: int ::
+                  0 <= i₂₄₇
+                  && i₂₄₇ < i₂₉
                 || sum₂₈[0] == sum[0 := 0][0])
         && i₂₉ < N₂₃
          ==> i₁₂ < i₂₉ + 1

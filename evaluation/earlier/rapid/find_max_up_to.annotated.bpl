@@ -34,9 +34,9 @@ procedure find_max_up_to(a: [int]int, alength: int)
     decreases alength - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= alength
       && (forall m₁: int, i₂: int ::
-            (  old(i) <= i₂
+            (  0 <= i₂
+              && old(i) <= i₂
               && i₂ < i
                ==> a[i₂] > a[m₁]
                   && i₂ < alength
@@ -48,9 +48,10 @@ procedure find_max_up_to(a: [int]int, alength: int)
                   && 0 <= i₂
                   && b[i₂] == a[m₁]))
       && (forall i₂: int ::
-            (!(  old(i) <= i₂
-              && i₂ < i
-            )
+            (  0 <= i₂
+              && !(  old(i) <= i₂
+                && i₂ < i
+              )
                ==> b[i₂] == old(b)[i₂]));
   {
     if(a[i] > a[m]) {

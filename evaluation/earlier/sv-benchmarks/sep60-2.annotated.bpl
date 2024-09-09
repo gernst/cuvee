@@ -18,7 +18,6 @@ procedure sep(x: [int]int)
   while(i < 60)
     decreases 60 - i;
     invariant old(i) <= i
-      && i <= 60
       && (forall i₂: int ::
             (  old(i) <= i₂
               && i₂ < i
@@ -50,7 +49,6 @@ procedure main()
   while(i < 60)
     decreases 60 - i;
     invariant old(i) <= i
-      && i <= 60
       && (forall i₁₁: int ::
             (  old(i) <= i₁₁
               && i₁₁ < i
@@ -81,7 +79,6 @@ procedure main()
   while(i < 60 - 1)
     decreases 60 - 1 - i;
     invariant old(i) <= i
-      && i <= 59
       && (forall i₁₆: int ::
             (  old(i) <= i₁₆
               && i₁₆ < i

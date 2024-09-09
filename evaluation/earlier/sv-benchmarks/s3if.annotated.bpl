@@ -32,7 +32,6 @@ procedure main()
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && i <= N
       && (forall i₅: int ::
             (  old(i) <= i₅
               && i₅ < i
@@ -51,7 +50,6 @@ procedure main()
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && i <= N
       && (forall i₈: int ::
             (  old(i) <= i₈
               && i₈ < i

@@ -8,20 +8,12 @@ function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int ::
-      (  __VERIFIER_nondet_int₁ < 10000
-        && -10000 < __VERIFIER_nondet_int₁
-        && __VERIFIER_nondet_int₂ < 10000
-        && -10000 < __VERIFIER_nondet_int₂
-         ==> 0 <= __VERIFIER_nondet_int₂));
-
 goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [int]int, b: [int]int, j₁₉: int, i₂₀: int, b₂₁: [int]int, i₂₂: int, k₂₃: int, i₂₄: int ::
       (  __VERIFIER_nondet_int₁ < 10000
         && -10000 < __VERIFIER_nondet_int₁
         && __VERIFIER_nondet_int₂ < 10000
         && -10000 < __VERIFIER_nondet_int₂
         && 0 <= i₂₀
-        && i₂₀ <= __VERIFIER_nondet_int₂
         && (forall j₈: int, i₉: int ::
               (  0 <= i₉
                 && i₉ < i₂₀
@@ -35,7 +27,6 @@ goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [i
                     && -10000 < a[i₉]
                     && i₉ < __VERIFIER_nondet_int₂))
         && 0 <= i₂₂
-        && i₂₂ <= __VERIFIER_nondet_int₂
         && (forall i₁₂: int ::
               (  0 <= i₁₂
                 && i₁₂ < i₂₂
@@ -46,7 +37,6 @@ goal (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [i
                   && i₁₂ < i₂₂
                 || b₂₁[i₁₂] == b[i₁₂])
         && 0 <= i₂₄
-        && i₂₄ <= __VERIFIER_nondet_int₂
         && (forall i₁₆: int ::
               (  0 <= i₁₆
                 && i₁₆ < i₂₄

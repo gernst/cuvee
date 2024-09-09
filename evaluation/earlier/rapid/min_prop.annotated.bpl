@@ -21,9 +21,9 @@ procedure min_prop(b: [int]int, blength: int)
     decreases blength - i;
     invariant 0 <= i
       && old(i) <= i
-      && i <= blength
       && (forall i₁: int ::
-            (  old(i) <= i₁
+            (  0 <= i₁
+              && old(i) <= i₁
               && i₁ < i
                ==> b[i₁] < 0
                   && i₁ < blength
@@ -35,9 +35,10 @@ procedure min_prop(b: [int]int, blength: int)
                   && 0 <= i₁
                   && a[i₁] == 0))
       && (forall i₁: int ::
-            (!(  old(i) <= i₁
-              && i₁ < i
-            )
+            (  0 <= i₁
+              && !(  old(i) <= i₁
+                && i₁ < i
+              )
                ==> a[i₁] == old(a)[i₁]));
   {
     if(b[i] < 0) {

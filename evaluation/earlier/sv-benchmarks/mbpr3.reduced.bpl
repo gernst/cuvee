@@ -13,7 +13,6 @@ goal (forall CELLCOUNT₁₅: int, volArray: [int]int, volArray₁₆: [int]int,
         && CELLCOUNT₁₅ % 3 == 0
         && CELLCOUNT₁₅ % 3 == 0
         && 1 <= i₁₇
-        && i₁₇ <= 1 + CELLCOUNT₁₅ / 3
         && (forall i₄: int ::
               (  1 <= i₄
                 && i₄ < i₁₇
@@ -29,7 +28,6 @@ goal (forall CELLCOUNT₁₅: int, volArray: [int]int, volArray₁₆: [int]int,
                   && i₄ < i₁₇
                 || volArray₁₆[-3 + 3 * i₄] == volArray[-3 + 3 * i₄])
         && 1 <= i₁₉
-        && i₁₉ <= 1 + CELLCOUNT₁₅ / 3
         && (forall i₇: int ::
               (  1 <= i₇
                 && i₇ < i₁₉
@@ -45,7 +43,6 @@ goal (forall CELLCOUNT₁₅: int, volArray: [int]int, volArray₁₆: [int]int,
                   && i₇ < i₁₉
                 || volArray₁₈[-2 + 3 * i₇] == volArray₁₆[-2 + 3 * i₇])
         && 1 <= i₂₁
-        && i₂₁ <= 1 + CELLCOUNT₁₅ / 3
         && (forall i₁₀: int ::
               (  1 <= i₁₀
                 && i₁₀ < i₂₁
@@ -61,7 +58,6 @@ goal (forall CELLCOUNT₁₅: int, volArray: [int]int, volArray₁₆: [int]int,
                   && i₁₀ < i₂₁
                 || volArray₂₀[-1 + 3 * i₁₀] == volArray₁₈[-1 + 3 * i₁₀])
         && 0 <= i₂₂
-        && i₂₂ <= CELLCOUNT₁₅
         && (forall i₁₃: int ::
               (  0 <= i₁₃
                 && i₁₃ < i₂₂

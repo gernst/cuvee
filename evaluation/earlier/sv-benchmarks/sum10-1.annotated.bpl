@@ -20,7 +20,6 @@ procedure sum(x: [int]int)
   while(i < 10)
     decreases 10 - i;
     invariant old(i) <= i
-      && i <= 10
       && (forall i₄: int ::
             (  old(i) <= i₄
               && i₄ < i
@@ -45,7 +44,6 @@ procedure main()
   while(i < 10)
     decreases 10 - i;
     invariant old(i) <= i
-      && i <= 10
       && (forall i₁₃: int ::
             (  old(i) <= i₁₃
               && i₁₃ < i
@@ -76,7 +74,6 @@ procedure main()
   while(i < 10 - 1)
     decreases 10 - 1 - i;
     invariant old(i) <= i
-      && i <= 9
       && (forall i₁₈: int ::
             (  old(i) <= i₁₈
               && i₁₈ < i

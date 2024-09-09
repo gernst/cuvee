@@ -11,7 +11,6 @@ function c#bitor(x₀: int, x₁: int): int;
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -22,20 +21,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₂₂₇: int ::
-              (  0 <= i₂₂₇
-                && i₂₂₇ < i₁₅
-                 ==> a₁₂[i₂₂₇] == 2
-                    && i₂₂₇ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₂₂₇] + sum[0 := 0][0]
-                  ||   (a₁₂[i₂₂₇] == 2
+        && (forall i₂₁₁: int ::
+              (  0 <= i₂₁₁
+                && i₂₁₁ < i₁₅
+                 ==> a₁₂[i₂₁₁] == 2
+                    && i₂₁₁ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₂₁₁] + sum[0 := 0][0]
+                  ||   (a₁₂[i₂₁₁] == 2
                        ==> false)
-                    && i₂₂₇ < N₁₁
-                    && sum₁₄[0] == sum[0 := 0][0] * a₁₂[i₂₂₇]))
-        && (forall i₂₂₈: int ::
-                  0 <= i₂₂₈
-                  && i₂₂₈ < i₁₅
+                    && i₂₁₁ < N₁₁
+                    && sum₁₄[0] == sum[0 := 0][0] * a₁₂[i₂₁₁]))
+        && (forall i₂₁₂: int ::
+                  0 <= i₂₁₂
+                  && i₂₁₂ < i₁₅
                 || sum₁₄[0] == sum[0 := 0][0])
         && i₁₅ < N₁₁
         && a₁₂[i₁₅] == 2
@@ -47,7 +45,6 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
 goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
       (  N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
-        && i₁₃ <= N₁₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₁₃
@@ -58,20 +55,19 @@ goal (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁�
                   && i₅ < i₁₃
                 || a₁₂[i₅] == a[i₅])
         && 0 <= i₁₅
-        && i₁₅ <= N₁₁
-        && (forall i₂₃₇: int ::
-              (  0 <= i₂₃₇
-                && i₂₃₇ < i₁₅
-                 ==> a₁₂[i₂₃₇] == 2
-                    && i₂₃₇ < N₁₁
-                    && sum₁₄[0] == a₁₂[i₂₃₇] + sum[0 := 0][0]
-                  ||   (a₁₂[i₂₃₇] == 2
+        && (forall i₂₂₁: int ::
+              (  0 <= i₂₂₁
+                && i₂₂₁ < i₁₅
+                 ==> a₁₂[i₂₂₁] == 2
+                    && i₂₂₁ < N₁₁
+                    && sum₁₄[0] == a₁₂[i₂₂₁] + sum[0 := 0][0]
+                  ||   (a₁₂[i₂₂₁] == 2
                        ==> false)
-                    && i₂₃₇ < N₁₁
-                    && sum₁₄[0] == sum[0 := 0][0] * a₁₂[i₂₃₇]))
-        && (forall i₂₃₈: int ::
-                  0 <= i₂₃₈
-                  && i₂₃₈ < i₁₅
+                    && i₂₂₁ < N₁₁
+                    && sum₁₄[0] == sum[0 := 0][0] * a₁₂[i₂₂₁]))
+        && (forall i₂₂₂: int ::
+                  0 <= i₂₂₂
+                  && i₂₂₂ < i₁₅
                 || sum₁₄[0] == sum[0 := 0][0])
         && i₁₅ < N₁₁
         && a₁₂[i₁₅] == 2

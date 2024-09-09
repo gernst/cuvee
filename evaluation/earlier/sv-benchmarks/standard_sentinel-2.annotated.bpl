@@ -24,7 +24,6 @@ procedure main()
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && i <= 100000
       && (forall i₇: int ::
             (  old(i) <= i₇
               && i₇ < i

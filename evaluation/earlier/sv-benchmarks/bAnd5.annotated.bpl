@@ -23,7 +23,6 @@ procedure bAnd(x: [int]int)
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && i <= N
       && (forall i₄: int ::
             (  old(i) <= i₄
               && i₄ < i
@@ -51,7 +50,6 @@ procedure main()
     while(i < N)
       decreases N - i;
       invariant old(i) <= i
-        && i <= N
         && (forall i₁₄: int ::
               (  old(i) <= i₁₄
                 && i₁₄ < i
@@ -82,7 +80,6 @@ procedure main()
     while(i < N - 1)
       decreases N - 1 - i;
       invariant old(i) <= i
-        && i <= -1 + N
         && (forall i₂₃: int ::
               (  old(i) <= i₂₃
                 && i₂₃ < i
