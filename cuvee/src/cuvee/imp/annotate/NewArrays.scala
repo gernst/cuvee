@@ -59,20 +59,22 @@ case object NewArrays extends Annotate(ExecNoLoops) {
                 val rhs = Simplify.simplify(path lookup a, state)
 
                 val eq_ = rhs match {
-                  case Store(`a`, index, value) =>
-                    val index_ = index rename re
-                    val value_ = maybeOldOtherArrays(mod, value rename re)
-                    val yes = Select(a, index_) === value_
-                    val no = Select(a, index_) === Select(Old(a), index_)
+                  // Note: subsumed by the code below using assignmentEqualities,
+                  //       kept for reference and potentially for debugging
+                  
+                  // case Store(`a`, index, value) =>
+                  //   val index_ = index rename re
+                  //   val value_ = maybeOldOtherArrays(mod, value rename re)
+                  //   val yes = Select(a, index_) === value_
+                  //   val no = Select(a, index_) === Select(Old(a), index_)
 
-                    (yes, no)
+                  //   (yes, no)
 
                   case _ =>
-                    var x = Expr.fresh("x", dom)
-                    val yes = assignmentEqualities(mod, counters, re, a, x, rhs)
-                    val no = True // TODO: think about how to define unmodified
+                    val pairs = assignmentEqualities(mod, counters, re, a, Nil, rhs)
+                    val (yes, no) = pairs.unzip
 
-                    (Forall(List(x), yes), no)
+                    (And(yes), And(no))
                 }
 
                 eq_
@@ -114,26 +116,32 @@ case object NewArrays extends Annotate(ExecNoLoops) {
       expr
   }
 
-    def assignmentEqualities(
+  def assignmentEqualities(
       mod: Set[Var],
       counters: Map[Var, Counter],
       re: Map[Var, Var],
       a: Var,
-      x: Var,
+      overwritten: List[Expr],
       rhs: Expr
-  ): Expr =
+  ): List[(Expr, Expr)] =
     rhs match {
       case `a` =>
-        True
+        Nil
 
-      case Store(rhs_, key, value) =>
-        val now = key rename re
-        val earlierThis = Accelerate.checkEarlierValueOf(counters, key, re)
-        val value_ = maybeOldOtherArrays(mod, value)
-        val earlierThat =
-          Accelerate.checkEarlierValueOf(counters, value_, re)
-        val here = Select(a, x) === (value_ rename re)
-        val there = assignmentEqualities(mod, counters, re, a, x, rhs_)
-        Ite(x === now, earlierThis && earlierThat && here, there)
+      case Store(rhs_, index, value) =>
+        val index_ = index rename re
+        val value_ = maybeOldOtherArrays(mod, value rename re)
+
+        var yes = Select(a, index_) === value_
+        var no = Select(a, index_) === Select(Old(a), index_)
+
+        if (overwritten.nonEmpty) {
+          val prems = overwritten map (index_ !== _)
+          yes = And(prems) ==> yes
+        }
+
+        val there = assignmentEqualities(mod, counters, re, a, index_ :: overwritten, rhs_)
+
+        (yes, no) :: there
     }
 }

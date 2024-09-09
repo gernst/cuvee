@@ -69,6 +69,9 @@ object Simplify {
           simplify(value, rules, constrs)
         )
 
+      // case Distinct(exprs) => 
+      //   TODO
+
       case App(inst, args) =>
         app(expr, inst, simplify(args, rules, constrs), rules, constrs)
     }
