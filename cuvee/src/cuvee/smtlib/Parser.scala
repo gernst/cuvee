@@ -397,7 +397,7 @@ class Parser(init: State) {
           const(name)
 
         case App(Id("!"), from, rest @ _*) =>
-          note(expr(from, ctx, scope), rest.toList)
+          note(expr(from, ctx, scope), attrs(rest.toList))
 
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))
@@ -456,6 +456,18 @@ class Parser(init: State) {
 
         case _ =>
           error("invalid expression: " + from)
+      }
+
+    def attrs(from: List[Expr]): List[(Kw, Option[Expr])] =
+      from match {
+        case Nil =>
+          Nil
+
+        case (kw: Kw) :: (rest @ ((_: Kw) :: _)) =>
+          (kw -> None) :: attrs(rest)
+
+        case (kw: Kw) :: arg :: rest =>
+          (kw -> Some(arg)) :: attrs(rest)
       }
 
     def pat(

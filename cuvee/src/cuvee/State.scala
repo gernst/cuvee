@@ -310,7 +310,7 @@ class State(
       app("ite", List(test, left, right))
     }
 
-    def note(expr: Pre, attr: List[sexpr.Expr]) = {
+    def note(expr: Pre, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) = {
       Pre(Note(expr.expr, attr))
     }
 

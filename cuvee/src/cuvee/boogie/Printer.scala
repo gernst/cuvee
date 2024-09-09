@@ -7,6 +7,7 @@ import cuvee.smtlib
 import cuvee.smtlib._
 import cuvee.util
 import cuvee.prove._
+import cuvee.sexpr
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -497,7 +498,12 @@ object Printer extends cuvee.util.Printer {
       // TODO solution for cases in method
       "match " + line(expr) + cases.toString + btype(typ) + ";" // TODO: fix and test
     case Note(expr, attr) =>
-      "/* note" + line(expr) + attr.toString + "*/"
+      val attr_ = attr map {
+        case (kw, None) => kw.toString
+        case (kw, Some(sexpr.Id(text))) => kw.toString + " \"" + text + "\""
+      }
+
+      attr_.mkString("{", ", ", "} ") +  line(expr)
   }
 
   private def modality(how: Modality) = how match {
