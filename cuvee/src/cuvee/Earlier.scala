@@ -67,7 +67,7 @@ case class Earlier(mode: String) extends Main {
       return Map()
     }
 
-    val results = for (file <- dir.list() if (file endsWith typ) && !(file startsWith "pr") ) yield {
+    val results = for (file <- dir.list() if (file endsWith typ)) yield {
       val file_ = file.substring(0, file.lastIndexOf('.'))
 
       mode match {
