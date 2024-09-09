@@ -18,21 +18,17 @@ procedure swap(length: int)
   var i: int := 0;
   while(i < length)
     decreases length - i;
-    invariant 0 <= i
-      && old(i) <= i
+    invariant old(i) <= i
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
                ==> i₁ < length
-                && 0 <= i₁
                 && a[i₁] == old(b)[i₁]
                 && b[i₁] == old(a)[i₁]))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && !(  old(i) <= i₁
-                && i₁ < i
-              )
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
                ==> a[i₁] == old(a)[i₁]
                 && b[i₁] == old(b)[i₁]));
   {

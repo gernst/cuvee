@@ -8,8 +8,6 @@ procedure copy_absolute(blength: int, b: [int]int)
 {
 	var i: int := 0;
 	while(i < blength)
-    decreases blength - i;
-    invariant 0 <= i;
 	{
 		if(b[i] >= 0)
 		{

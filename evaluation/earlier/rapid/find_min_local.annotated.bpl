@@ -39,25 +39,23 @@ procedure find_max_local(a: [int]int, alength: int)
   var m: int := 0;
   while(i < alength)
     decreases alength - i;
-    invariant 0 <= i
+    invariant old(blength) + blength == i + old(i)
       && old(blength) <= blength
       && old(i) <= i
       && (forall blength₁: int, m₂: int, i₃: int ::
-            (  0 <= i₃
+            (  old(blength₁) + blength₁ == old(i₃) + i₃
               && old(blength) <= blength₁
               && blength₁ < blength
               && old(i) <= i₃
               && i₃ < i
                ==> a[i₃] < a[m₂]
                   && i₃ < alength
-                  && 0 <= i₃
                   && b[i₃] == a[i₃]
                 ||   !(a[i₃] < a[m₂]
                   )
-                  && i₃ < alength
-                  && 0 <= i₃))
+                  && i₃ < alength))
       && (forall blength₁: int, i₃: int ::
-            (  0 <= i₃
+            (  old(blength₁) + blength₁ == old(i₃) + i₃
               && !(  old(blength) <= blength₁
                 && blength₁ < blength
                 && old(i) <= i₃

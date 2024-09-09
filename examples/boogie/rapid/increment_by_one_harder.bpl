@@ -15,8 +15,6 @@ procedure increment_by_one_harder(alength: int)
 	var i: int := 0;
 
 	while (i < alength)
-    decreases alength - i;
-    invariant 0 <= i;
 	{
 		a := a[i := a[i] + 1];
 		i := i + 1;

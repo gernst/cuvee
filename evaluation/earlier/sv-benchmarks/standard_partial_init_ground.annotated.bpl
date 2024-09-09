@@ -45,10 +45,12 @@ procedure main()
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
-    invariant old(j) <= j
+    invariant j + old(j) == i + old(i)
+      && old(j) <= j
       && old(i) <= i
       && (forall j₁₁: int, i₁₂: int ::
-            (  old(j) <= j₁₁
+            (  old(j₁₁) + j₁₁ == old(i₁₂) + i₁₂
+              && old(j) <= j₁₁
               && j₁₁ < j
               && old(i) <= i₁₂
               && i₁₂ < i
@@ -58,11 +60,12 @@ procedure main()
                 ||   A[i₁₂] != B[i₁₂]
                   && i₁₂ < 100000))
       && (forall j₁₁: int, i₁₂: int ::
-            (!(  old(j) <= j₁₁
-              && j₁₁ < j
-              && old(i) <= i₁₂
-              && i₁₂ < i
-            )
+            (  old(j₁₁) + j₁₁ == old(i₁₂) + i₁₂
+              && !(  old(j) <= j₁₁
+                && j₁₁ < j
+                && old(i) <= i₁₂
+                && i₁₂ < i
+              )
                ==> C[j₁₁] == old(C)[j₁₁]));
   {
     if(A[i] == B[i]) {

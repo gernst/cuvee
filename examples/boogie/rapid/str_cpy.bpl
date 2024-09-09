@@ -11,8 +11,6 @@ procedure str_cpy(b: [int]int, length: int)
 {
 	i := 0;
 	while(i < length && b[i] != 0)
-    decreases length - i;
-    invariant 0 <= i;
 	{
 		a := a[i := b[i]];
 		i := i + 1;

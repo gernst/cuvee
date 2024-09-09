@@ -7,8 +7,6 @@ procedure init_partial(alength: int, k: int)
 {
 	var i: int := 0;
 	while (i < k)
-    decreases k - i;
-    invariant 0 <= i;
 	{
 		a := a[i := 0];
 		i := i + 1;

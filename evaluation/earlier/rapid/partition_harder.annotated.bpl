@@ -59,12 +59,14 @@ procedure partition_harder(a: [int]int, alength: int)
   var i: int := 0;
   while(i < alength)
     decreases alength - i;
-    invariant 0 <= i
+    invariant clength + old(clength) == i + old(i)
+      && clength + old(clength) == old(blength) + blength
       && old(clength) <= clength
       && old(i) <= i
       && old(blength) <= blength
       && (forall clength₁: int, i₂: int, blength₃: int ::
-            (  0 <= i₂
+            (  clength₁ + old(clength₁) == i₂ + old(i₂)
+              && clength₁ + old(clength₁) == blength₃ + old(blength₃)
               && old(clength) <= clength₁
               && clength₁ < clength
               && old(i) <= i₂
@@ -73,15 +75,14 @@ procedure partition_harder(a: [int]int, alength: int)
               && blength₃ < blength
                ==> a[i₂] >= 0
                   && i₂ < alength
-                  && 0 <= i₂
                   && b[blength₃] == a[i₂]
                 ||   !(a[i₂] >= 0
                   )
                   && i₂ < alength
-                  && 0 <= i₂
                   && c[clength₁] == a[i₂]))
       && (forall clength₁: int, i₂: int, blength₃: int ::
-            (  0 <= i₂
+            (  clength₁ + old(clength₁) == i₂ + old(i₂)
+              && clength₁ + old(clength₁) == blength₃ + old(blength₃)
               && !(  old(clength) <= clength₁
                 && clength₁ < clength
                 && old(i) <= i₂

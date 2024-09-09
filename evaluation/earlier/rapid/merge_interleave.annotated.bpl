@@ -26,17 +26,20 @@ procedure merge_interleave(a: [int]int, b: [int]int, alength: int)
   var i: int := 0;
   while(i < alength)
     decreases alength - i;
-    invariant 0 <= i
-      && old(i) <= i
+    invariant old(i) <= i
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
                ==> i₁ < alength
-                && 0 <= i₁
                 && c[1 + 2 * i₁] == b[i₁]
                 && (2 * i₁ != 1 + 2 * i₁
-                   ==> c[2 * i₁] == a[i₁])));
+                   ==> c[2 * i₁] == a[i₁])))
+      && (forall i₁: int ::
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
+               ==> c[1 + 2 * i₁] == old(c)[1 + 2 * i₁]
+                && c[2 * i₁] == old(c)[2 * i₁]));
   {
     c := c[i * 2 := a[i]];
     c := c[i * 2 + 1 := b[i]];

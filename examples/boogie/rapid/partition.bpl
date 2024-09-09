@@ -37,8 +37,6 @@ procedure partition(a: [int]int, alength: int)
 
 	var i: int := 0;
 	while(i < alength)
-    decreases alength - i;
-    invariant 0 <= i;
 	{
       if(a[i] >= 0)
       {

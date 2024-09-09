@@ -9,8 +9,6 @@ procedure init_conditionally(a: [int]int, b: [int]int, length: int)
 	var i: int := 0;
 	clength := 0;
 	while(i < length)
-    decreases length - i;
-    invariant 0 <= i;
 	{
 		if (a[i] == b[i])
 		{

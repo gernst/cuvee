@@ -12,20 +12,16 @@ procedure vector_subtraction(a: [int]int, b: [int]int, length: int)
   var i: int := 0;
   while(i < length)
     decreases length - i;
-    invariant 0 <= i
-      && old(i) <= i
+    invariant old(i) <= i
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
                ==> i₁ < length
-                && 0 <= i₁
                 && c[i₁] == a[i₁] + -b[i₁]))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && !(  old(i) <= i₁
-                && i₁ < i
-              )
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
                ==> c[i₁] == old(c)[i₁]));
   {
     c := c[i := a[i] - b[i]];

@@ -19,24 +19,22 @@ procedure init_conditionally(a: [int]int, b: [int]int, length: int)
   clength := 0;
   while(i < length)
     decreases length - i;
-    invariant 0 <= i
+    invariant clength + old(clength) == i + old(i)
       && old(clength) <= clength
       && old(i) <= i
       && (forall clength₁: int, i₂: int ::
-            (  0 <= i₂
+            (  clength₁ + old(clength₁) == i₂ + old(i₂)
               && old(clength) <= clength₁
               && clength₁ < clength
               && old(i) <= i₂
               && i₂ < i
                ==> a[i₂] == b[i₂]
                   && i₂ < length
-                  && 0 <= i₂
                   && c[clength₁] == i₂
                 ||   a[i₂] != b[i₂]
-                  && i₂ < length
-                  && 0 <= i₂))
+                  && i₂ < length))
       && (forall clength₁: int, i₂: int ::
-            (  0 <= i₂
+            (  clength₁ + old(clength₁) == i₂ + old(i₂)
               && !(  old(clength) <= clength₁
                 && clength₁ < clength
                 && old(i) <= i₂

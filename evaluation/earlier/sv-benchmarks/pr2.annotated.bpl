@@ -62,7 +62,13 @@ procedure main()
                     && i₅ <= CELLCOUNT / 2
                     && volArray[-1 + 2 * i₅] == 0
                     && (-2 + 2 * i₅ != -1 + 2 * i₅
-                       ==> volArray[-2 + 2 * i₅] == 0)));
+                       ==> volArray[-2 + 2 * i₅] == 0)))
+        && (forall i₅: int ::
+              (!(  old(i) <= i₅
+                && i₅ < i
+              )
+                 ==> volArray[-1 + 2 * i₅] == old(volArray)[-1 + 2 * i₅]
+                  && volArray[-2 + 2 * i₅] == old(volArray)[-2 + 2 * i₅]));
     {
       if(MINVAL <= CCCELVOL2) {
         volArray := volArray[i * 2 - 2 := CCCELVOL2];

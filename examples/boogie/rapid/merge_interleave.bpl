@@ -13,8 +13,6 @@ procedure merge_interleave(a: [int]int, b: [int]int, alength: int)
 {
 	var i: int := 0;
 	while(i < alength)
-    decreases alength - i;
-    invariant 0 <= i;
 	{
     c := c[i * 2 := a[i]];
     c := c[i * 2 + 1 := b[i]];

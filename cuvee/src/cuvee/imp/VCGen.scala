@@ -178,6 +178,10 @@ class VCGen(val state: State) {
   ): Expr = {
     val old = List(st)
 
+    // XXX remove me!
+    // println("XXX overriding postcondition with true")
+    // val post = True
+
     wp(
       how,
       List(prog),
@@ -239,6 +243,13 @@ class VCGen(val state: State) {
         val rhs_ = rhs subst st // don't use eval, old is specification-only
         val st_ = assign(st, xs, rhs_)
         wp(how, rest, cont, scope, st_, old, post, brk, ret)
+
+      // purely assert
+      // case Spec(Nil, phi, True) :: rest =>
+      //   val phi_ = eval(phi, scope, st, old)
+      //   val chi = wp(how, rest, cont, scope, st, old, post, brk, ret)
+      //   println("XXX: overriding assert with true")
+      //   /* phi_ && */ chi
 
       case Spec(xs, phi, psi) :: rest =>
         val (xs_, re) = havoc(xs)

@@ -20,25 +20,23 @@ procedure copy_positive(b: [int]int, blength: int)
   alength := 0;
   while(i < blength)
     decreases blength - i;
-    invariant 0 <= i
+    invariant old(alength) + alength == i + old(i)
       && old(alength) <= alength
       && old(i) <= i
       && (forall alength₁: int, i₂: int ::
-            (  0 <= i₂
+            (  alength₁ + old(alength₁) == i₂ + old(i₂)
               && old(alength) <= alength₁
               && alength₁ < alength
               && old(i) <= i₂
               && i₂ < i
                ==> b[i₂] >= 0
                   && i₂ < blength
-                  && 0 <= i₂
                   && a[alength₁] == b[i₂]
                 ||   !(b[i₂] >= 0
                   )
-                  && i₂ < blength
-                  && 0 <= i₂))
+                  && i₂ < blength))
       && (forall alength₁: int, i₂: int ::
-            (  0 <= i₂
+            (  alength₁ + old(alength₁) == i₂ + old(i₂)
               && !(  old(alength) <= alength₁
                 && alength₁ < alength
                 && old(i) <= i₂

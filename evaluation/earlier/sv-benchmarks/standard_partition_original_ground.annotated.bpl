@@ -41,11 +41,15 @@ procedure main()
   }
   while(a < 100000)
     decreases 100000 - a;
-    invariant old(c) <= c
+    invariant c + old(c) == old(a) + a
+      && c + old(c) == old(b) + b
+      && old(c) <= c
       && old(a) <= a
       && old(b) <= b
       && (forall c₈: int, a₉: int, b₁₀: int ::
-            (  old(c) <= c₈
+            (  old(c₈) + c₈ == a₉ + old(a₉)
+              && old(c₈) + c₈ == old(b₁₀) + b₁₀
+              && old(c) <= c₈
               && c₈ < c
               && old(a) <= a₉
               && a₉ < a
@@ -59,13 +63,15 @@ procedure main()
                   && a₉ < 100000
                   && cc[c₈] == aa[a₉]))
       && (forall c₈: int, a₉: int, b₁₀: int ::
-            (!(  old(c) <= c₈
-              && c₈ < c
-              && old(a) <= a₉
-              && a₉ < a
-              && old(b) <= b₁₀
-              && b₁₀ < b
-            )
+            (  old(c₈) + c₈ == a₉ + old(a₉)
+              && old(c₈) + c₈ == old(b₁₀) + b₁₀
+              && !(  old(c) <= c₈
+                && c₈ < c
+                && old(a) <= a₉
+                && a₉ < a
+                && old(b) <= b₁₀
+                && b₁₀ < b
+              )
                ==> bb[b₁₀] == old(bb)[b₁₀]
                 && cc[c₈] == old(cc)[c₈]));
   {

@@ -8,8 +8,6 @@ procedure reverse(b: [int]int, length: int)
 {
 	var i: int := 0;
 	while(i < length)
-    decreases length - i;
-    invariant 0 <= i;
 	{
 		a := a[i := b[length - 1 - i]];
 		i := i + 1;

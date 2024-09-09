@@ -38,24 +38,22 @@ procedure collect_indices_equal_values(a1: [int]int, a2: [int]int, alength: int)
   var i: int := 0;
   while(i < alength)
     decreases alength - i;
-    invariant 0 <= i
+    invariant old(blength) + blength == i + old(i)
       && old(blength) <= blength
       && old(i) <= i
       && (forall blength₁: int, i₂: int ::
-            (  0 <= i₂
+            (  old(blength₁) + blength₁ == i₂ + old(i₂)
               && old(blength) <= blength₁
               && blength₁ < blength
               && old(i) <= i₂
               && i₂ < i
                ==> a1[i₂] == a2[i₂]
                   && i₂ < alength
-                  && 0 <= i₂
                   && b[blength₁] == i₂
                 ||   a1[i₂] != a2[i₂]
-                  && i₂ < alength
-                  && 0 <= i₂))
+                  && i₂ < alength))
       && (forall blength₁: int, i₂: int ::
-            (  0 <= i₂
+            (  old(blength₁) + blength₁ == i₂ + old(i₂)
               && !(  old(blength) <= blength₁
                 && blength₁ < blength
                 && old(i) <= i₂

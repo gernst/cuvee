@@ -14,8 +14,6 @@ procedure increment_by_one(a: [int]int, alength: int)
 	var i: int := 0;
 
 	while (i < alength)
-    decreases alength - i;
-    invariant 0 <= i;
 	{
 		b := b[i := a[i] + 1];
 		i := i + 1;

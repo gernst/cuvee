@@ -39,21 +39,24 @@ procedure main()
   i := 0;
   while(i < 10000)
     decreases 10000 - i;
-    invariant old(i) <= i
+    invariant i + old(i) == j + old(j)
+      && old(i) <= i
       && old(j) <= j
       && (forall i₇: int, j₈: int ::
-            (  old(i) <= i₇
+            (  i₇ + old(i₇) == old(j₈) + j₈
+              && old(i) <= i₇
               && i₇ < i
               && old(j) <= j₈
               && j₈ < j
                ==> i₇ < 10000
                 && a[j₈] == b[i₇]))
       && (forall i₇: int, j₈: int ::
-            (!(  old(i) <= i₇
-              && i₇ < i
-              && old(j) <= j₈
-              && j₈ < j
-            )
+            (  i₇ + old(i₇) == old(j₈) + j₈
+              && !(  old(i) <= i₇
+                && i₇ < i
+                && old(j) <= j₈
+                && j₈ < j
+              )
                ==> a[j₈] == old(a)[j₈]));
   {
     a := a[j := b[i]];
@@ -64,10 +67,12 @@ procedure main()
   j := 0;
   while(i < 10000)
     decreases 10000 - i;
-    invariant old(i) <= i
+    invariant i + old(i) == j + old(j)
+      && old(i) <= i
       && old(j) <= j
       && (forall i₁₂: int, j₁₃: int ::
-            (  old(i) <= i₁₂
+            (  old(i₁₂) + i₁₂ == old(j₁₃) + j₁₃
+              && old(i) <= i₁₂
               && i₁₂ < i
               && old(j) <= j₁₃
               && j₁₃ < j

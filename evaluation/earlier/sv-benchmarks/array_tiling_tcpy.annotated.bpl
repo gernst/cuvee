@@ -31,7 +31,13 @@ procedure main()
                ==> i₆ < S
                 && acopy[i₆] == a[i₆]
                 && (1 + 2 * S + -i₆ != i₆
-                   ==> acopy[1 + 2 * S + -i₆] == a[1 + 2 * S + -i₆])));
+                   ==> acopy[1 + 2 * S + -i₆] == a[1 + 2 * S + -i₆])))
+      && (forall i₆: int ::
+            (!(  old(i) <= i₆
+              && i₆ < i
+            )
+               ==> acopy[i₆] == old(acopy)[i₆]
+                && acopy[1 + 2 * S + -i₆] == old(acopy)[1 + 2 * S + -i₆]));
   {
     acopy := acopy[2 * S - i + 1 := a[2 * S - i + 1]];
     acopy := acopy[i := a[i]];

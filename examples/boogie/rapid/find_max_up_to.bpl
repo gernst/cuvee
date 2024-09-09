@@ -15,8 +15,6 @@ procedure find_max_up_to(a: [int]int, alength: int)
 	var i: int := 0;
 	var m: int := 0;
 	while (i < alength)
-    decreases alength - i;
-    invariant 0 <= i;
 	{
 		if (a[i] > a[m])
 		{

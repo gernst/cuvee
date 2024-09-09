@@ -32,26 +32,21 @@ procedure find_max_up_to(a: [int]int, alength: int)
   var m: int := 0;
   while(i < alength)
     decreases alength - i;
-    invariant 0 <= i
-      && old(i) <= i
+    invariant old(i) <= i
       && (forall m₁: int, i₂: int ::
-            (  0 <= i₂
-              && old(i) <= i₂
+            (  old(i) <= i₂
               && i₂ < i
                ==> a[i₂] > a[m₁]
                   && i₂ < alength
-                  && 0 <= i₂
                   && b[i₂] == a[i₂]
                 ||   !(a[i₂] > a[m₁]
                   )
                   && i₂ < alength
-                  && 0 <= i₂
                   && b[i₂] == a[m₁]))
       && (forall i₂: int ::
-            (  0 <= i₂
-              && !(  old(i) <= i₂
-                && i₂ < i
-              )
+            (!(  old(i) <= i₂
+              && i₂ < i
+            )
                ==> b[i₂] == old(b)[i₂]));
   {
     if(a[i] > a[m]) {

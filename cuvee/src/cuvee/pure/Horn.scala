@@ -11,8 +11,8 @@ object Horn extends Stage {
     cmds flatMap {
       case Lemma(todo, None, flag) =>
         val goals = assert(List(todo), Nil, Nil, Nil)
-        for(expr <- goals.distinct)
-        yield Lemma(expr, None, flag)
+        for (expr <- goals.distinct)
+          yield Lemma(expr, None, flag)
 
       case cmd =>
         List(cmd)
@@ -129,5 +129,16 @@ object Horn extends Stage {
       case phi :: rest =>
         assume(rest, todo, xs, ant ++ List(phi), suc)
     }
+  }
+
+  def cases(expr: Expr): List[Expr] = expr match {
+    case App(inst, args) =>
+      args flatMap cases
+
+    case Select(Store(base, index, value), index_) =>
+      List(index === index_)
+
+    case _ =>
+      Nil
   }
 }

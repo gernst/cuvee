@@ -14,20 +14,16 @@ procedure init_partial(alength: int, k: int)
   var i: int := 0;
   while(i < k)
     decreases k - i;
-    invariant 0 <= i
-      && old(i) <= i
+    invariant old(i) <= i
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
                ==> i₁ < k
-                && 0 <= i₁
                 && a[i₁] == 0))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && !(  old(i) <= i₁
-                && i₁ < i
-              )
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
                ==> a[i₁] == old(a)[i₁]));
   {
     a := a[i := 0];

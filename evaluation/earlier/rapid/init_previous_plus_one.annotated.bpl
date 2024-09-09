@@ -19,20 +19,16 @@ procedure init_previous_plus_one(alength: int, v: int)
   a := a[0 := v];
   while(i + 1 < alength)
     decreases alength - i + 1;
-    invariant 0 <= i
-      && old(i) <= i
+    invariant old(i) <= i
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
                ==> 1 + i₁ < alength
-                && 0 <= i₁
                 && a[1 + i₁] == 1 + old(a)[i₁]))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && !(  old(i) <= i₁
-                && i₁ < i
-              )
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
                ==> a[1 + i₁] == old(a)[1 + i₁]));
   {
     a := a[i + 1 := a[i] + 1];

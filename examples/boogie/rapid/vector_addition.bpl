@@ -10,8 +10,6 @@ procedure vector_addition(a: [int]int, b: [int]int, length: int)
 {
 	var i: int := 0;
 	while(i < length)
-    decreases length - i;
-    invariant 0 <= i;
 	{
 		c := c[i := a[i] + b[i]];
 		i := i + 1;

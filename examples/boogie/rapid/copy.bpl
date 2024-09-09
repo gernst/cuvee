@@ -7,8 +7,6 @@ returns (a: [int]int)
 	var i: int := 0;
 
 	while(i < blength)
-    decreases blength - i;
-    invariant 0 <= i;
 	{
 		a := a[i := b[i]];
 		i := i + 1;

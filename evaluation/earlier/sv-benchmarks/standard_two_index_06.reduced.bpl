@@ -66,40 +66,6 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
          ==> i₁₇ < 10000
           || a₁₈[j₂₀ := b₁₆[i₁₉]][j₈] == b₁₆[i₇]));
 
-goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int ::
-      (  0 <= i₁₇
-        && (forall i₄: int ::
-              (  0 <= i₄
-                && i₄ < i₁₇
-                 ==> (exists __VERIFIER_nondet_int₁₃: int ::
-                        i₄ < 10000
-                        && b₁₆[i₄] == __VERIFIER_nondet_int₁₃)))
-        && (forall i₄: int ::
-                  0 <= i₄
-                  && i₄ < i₁₇
-                || b₁₆[i₄] == b[i₄])
-        && 1 <= i₁₉
-        && 0 <= j₂₀
-        && (forall i₇: int, j₈: int ::
-              (  0 <= j₈
-                && j₈ < j₂₀
-                 ==> i₇ < 10000
-                  && a₁₈[j₈] == b₁₆[i₇]))
-        && (forall j₈: int ::
-                  0 <= j₈
-                  && j₈ < j₂₀
-                || a₁₈[j₈] == a[j₈])
-        && 1 <= i₂₁
-        && 0 <= j₂₂
-        && (forall i₁₂: int, j₁₃: int ::
-              (  0 <= j₁₃
-                && j₁₃ < j₂₂
-                 ==> i₁₂ < 10000))
-        && i₂₁ < 10000
-         ==> i₁₉ < 10000
-          || i₁₇ < 10000
-          || a₁₈[j₂₂] == b₁₆[6 * j₂₂ + 1]));
-
 goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈: [int]int, i₁₉: int, j₂₀: int, i₂₁: int, j₂₂: int, i₁₂: int, j₁₃: int ::
       (  0 <= i₁₇
         && (forall i₄: int ::
@@ -125,10 +91,10 @@ goal (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁₇: int, a₁₈:
                 || a₁₈[j₈] == a[j₈])
         && 1 <= i₂₁
         && 0 <= j₂₂
-        && (forall i₁₉₆: int, j₁₉₇: int ::
-              (  0 <= j₁₉₇
-                && j₁₉₇ < j₂₂
-                 ==> i₁₉₆ < 10000))
+        && (forall i₁₈₇: int, j₁₈₈: int ::
+              (  0 <= j₁₈₈
+                && j₁₈₈ < j₂₂
+                 ==> i₁₈₇ < 10000))
         && i₂₁ < 10000
         && 0 <= j₁₃
         && j₁₃ < j₂₂ + 1

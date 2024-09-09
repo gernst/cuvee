@@ -13,24 +13,19 @@ procedure copy_two_indices(b: [int]int, blength: int)
   var j: int := 0;
   while(i < blength)
     decreases blength - i;
-    invariant 0 <= i
-      && i == j
+    invariant i + old(i) == j + old(j)
       && old(i) <= i
       && old(j) <= j
       && (forall i₁: int, j₂: int ::
-            (  0 <= i₁
-              && i₁ == j₂
+            (  old(i₁) + i₁ == j₂ + old(j₂)
               && old(i) <= i₁
               && i₁ < i
               && old(j) <= j₂
               && j₂ < j
                ==> i₁ < blength
-                && 0 <= i₁
-                && i₁ == j₂
                 && a[i₁] == b[j₂]))
       && (forall i₁: int, j₂: int ::
-            (  0 <= i₁
-              && i₁ == j₂
+            (  old(i₁) + i₁ == j₂ + old(j₂)
               && !(  old(i) <= i₁
                 && i₁ < i
                 && old(j) <= j₂

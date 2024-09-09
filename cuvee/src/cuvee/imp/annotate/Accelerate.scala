@@ -43,6 +43,19 @@ object Accelerate {
     lb.toList
   }
 
+  def lockstepCounters(counters: Map[Var, Counter]): List[Expr] = {
+    val groups = counters.groupBy { case (x, c) => c.step }
+
+    for ((_, group) <- groups.toList if group.size >= 2) yield {
+      val x :: ys = group.keys.toList
+      val phis =
+        for (y <- ys)
+          yield (Old(x) + x) === (Old(y) + y)
+
+      And(phis)
+    }
+  }
+
   def ubAndDecreaseFromTest(test: List[Expr]): (Expr, Expr) = test match {
     case Lt(left, right) :: next =>
       val ub = left <= right

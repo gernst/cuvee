@@ -10,8 +10,6 @@ procedure copy_positive(b: [int]int, blength: int)
 	var i: int := 0;
 	alength := 0;
 	while(i < blength)
-    decreases blength - i;
-    invariant 0 <= i;
 	{
 		if (b[i] >= 0)
 		{

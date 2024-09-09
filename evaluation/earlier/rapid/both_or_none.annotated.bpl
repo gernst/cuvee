@@ -15,25 +15,20 @@ procedure both_or_none(a: [int]int, alength: int)
   var i: int := 0;
   while(i < alength)
     decreases alength - i;
-    invariant 0 <= i
-      && old(i) <= i
+    invariant old(i) <= i
       && (forall i₁: int ::
-            (  0 <= i₁
-              && old(i) <= i₁
+            (  old(i) <= i₁
               && i₁ < i
                ==> a[i₁] == 1
                   && i₁ < alength
-                  && 0 <= i₁
                   && b[i₁] == 1
                 ||   a[i₁] != 1
                   && i₁ < alength
-                  && 0 <= i₁
                   && b[i₁] == 0))
       && (forall i₁: int ::
-            (  0 <= i₁
-              && !(  old(i) <= i₁
-                && i₁ < i
-              )
+            (!(  old(i) <= i₁
+              && i₁ < i
+            )
                ==> b[i₁] == old(b)[i₁]));
   {
     if(a[i] == 1) {

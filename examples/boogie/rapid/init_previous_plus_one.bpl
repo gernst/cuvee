@@ -12,8 +12,6 @@ procedure init_previous_plus_one(alength: int, v: int)
 	var i: int := 0;
   a := a[0 := v];
 	while((i+1) < alength)
-    decreases alength - (i + 1);
-    invariant 0 <= i;
 	{
 		a := a[i + 1 := a[i] + 1];
 		i := i + 1;

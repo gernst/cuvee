@@ -8,8 +8,6 @@ procedure min_prop(b: [int]int, blength: int)
 {
 	var i: int := 0;
 	while(i < blength)
-    decreases blength - i;
-    invariant 0 <= i;
 	{
     if(b[i] < 0)
     {

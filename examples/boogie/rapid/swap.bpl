@@ -8,8 +8,6 @@ procedure swap(length: int)
 {
 	var i: int := 0;
 	while(i < length)
-    decreases length - i;
-    invariant 0 <= i;
 	{
 		var current: int := a[i];
 		a := a[i := b[i]];

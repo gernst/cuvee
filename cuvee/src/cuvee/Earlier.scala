@@ -34,6 +34,12 @@ object evaluate
       "examples/boogie/sv-benchmarks"
     )
 
+object evaluate_maxpranq
+    extends Run(Earlier(mode = "evaluate"), "examples/chc/maxpranq/bench_precondn/c_serialized")
+object evaluate_rapid extends Run(Earlier(mode = "evaluate"), "examples/boogie/rapid")
+object evaluate_sv_benchmarks
+    extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks")
+
 case class Earlier(mode: String) extends Main {
   val dst = "evaluation/earlier/"
 

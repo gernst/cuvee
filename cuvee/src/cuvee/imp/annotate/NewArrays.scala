@@ -12,7 +12,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
       test: Expr,
       body: Prog,
       term: Expr,
-      inv: Expr,
+      inv0: Expr,
       sum: Expr,
       frames: List[Frame]
   ) = {
@@ -28,7 +28,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val xs = vars.toList
 
     val (before, after, body_) =
-      iter(state, paths, xs, test, body, term, inv, sum, frames)
+      iter(state, paths, xs, test, body, term, inv0, sum, frames)
 
     val counters = Accelerate.counters(paths.running, after.running, ys)
 
@@ -37,6 +37,9 @@ case object NewArrays extends Annotate(ExecNoLoops) {
 
     val lbs = Accelerate.lbsFromCounter(counters)
     val (ub, decreases) = Accelerate.ubAndDecreaseFromTest(And.flatten(test))
+
+    val lockstep = Accelerate.lockstepCounters(counters)
+    val inv = inv0 && And(lockstep)
 
     val prems = Accelerate.tryEarlierValuesOf(counters, ys, re)
 
@@ -95,7 +98,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
 
     // TODO: evaluation/earlier/sv-benchmarks/standard_vararg_ground.annotated.bpl
     //       does not have a loop test that involves counters so ub is wrong
-    val inv_ = inv && And(lbs) && /* ub && */ phi && psi && chi
+    val inv_ = inv && And(lockstep) && And(lbs) && /* ub && */ phi && psi && chi
     val inv__ = Simplify.simplify(inv_, state)
 
     // println("lb: " + lbs)

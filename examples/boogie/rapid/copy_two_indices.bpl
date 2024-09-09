@@ -7,8 +7,6 @@ procedure copy_two_indices(b: [int]int, blength: int)
 	var i: int := 0;
 	var j: int := 0;
 	while(i < blength)
-    decreases blength - i;
-    invariant 0 <= i && i == j;
 	{
 		a := a[i := b[j]];
 		i := i + 1;

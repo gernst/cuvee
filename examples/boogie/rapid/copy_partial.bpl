@@ -7,8 +7,6 @@ procedure copy_partial(blength: int, k: int, b: [int]int)
 	var alength: int := 0;
 
 	while(alength < k)
-    decreases k - alength;
-    invariant 0 <= alength;
 	{
 		a := a[alength := b[alength]];
 		alength := alength + 1;

@@ -5,7 +5,7 @@ zero_sum4.bpl, Unknown
 mapsum4.bpl, Unknown
 zero_sum_m4.bpl, Unknown
 pcomp.bpl, Unknown
-standard_two_index_01.bpl, Unknown
+standard_two_index_01.bpl, Success
 mapavg4.bpl, Unknown
 ms5.bpl, Unknown
 sqm-if.bpl, Unknown
@@ -135,7 +135,7 @@ ms2.bpl, Unknown
 avg20-2.bpl, Unknown
 avg05-1.bpl, Unknown
 nr4.bpl, Unsupported
-array_shadowinit.bpl, Unknown
+array_shadowinit.bpl, Success
 array_monotonic.bpl, Unknown
 eqn3.bpl, Unknown
 mods.bpl, Unknown

@@ -127,6 +127,9 @@ class Config {
     option("-prove:z3", "prove lemmas with tactics and Z3 as endgame solver") {
       prove = "z3"
     },
+    option("-prove:cvc5", "prove lemmas with tactics and CVC5 as endgame solver") {
+      prove = "cvc5"
+    },
     option("-prove:simplify", "use the internal simplifier to reduce lemmas") {
       prove = "simplify"
     },
@@ -340,6 +343,20 @@ object Config {
 
       case "z3" =>
         val solver = Solver.z3()
+        val prover = Prover.fromSolver(solver, config.induct)
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
+
+      case "cvc5" =>
+        val solver = Solver.cvc5()
         val prover = Prover.fromSolver(solver, config.induct)
         sink = new Incremental(
           new Prove(

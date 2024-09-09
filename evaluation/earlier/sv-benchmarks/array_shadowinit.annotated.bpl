@@ -25,21 +25,24 @@ procedure main()
     k := 0;
     while(i < N)
       decreases N - i;
-      invariant old(i) <= i
+      invariant i + old(i) == old(k) + k
+        && old(i) <= i
         && old(k) <= k
         && (forall i₅: int, k₆: int ::
-              (  old(i) <= i₅
+              (  i₅ + old(i₅) == k₆ + old(k₆)
+                && old(i) <= i₅
                 && i₅ < i
                 && old(k) <= k₆
                 && k₆ < k
                  ==> i₅ < N
                   && a[k₆] == k₆))
         && (forall i₅: int, k₆: int ::
-              (!(  old(i) <= i₅
-                && i₅ < i
-                && old(k) <= k₆
-                && k₆ < k
-              )
+              (  i₅ + old(i₅) == k₆ + old(k₆)
+                && !(  old(i) <= i₅
+                  && i₅ < i
+                  && old(k) <= k₆
+                  && k₆ < k
+                )
                  ==> a[k₆] == old(a)[k₆]));
     {
       a := a[k := k];

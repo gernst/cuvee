@@ -41,10 +41,12 @@ procedure main()
   }
   while(a < 100000)
     decreases 100000 - a;
-    invariant old(b) <= b
+    invariant old(b) + b == old(a) + a
+      && old(b) <= b
       && old(a) <= a
       && (forall b₈: int, a₉: int ::
-            (  old(b) <= b₈
+            (  b₈ + old(b₈) == a₉ + old(a₉)
+              && old(b) <= b₈
               && b₈ < b
               && old(a) <= a₉
               && a₉ < a
@@ -55,11 +57,12 @@ procedure main()
                   )
                   && a₉ < 100000))
       && (forall b₈: int, a₉: int ::
-            (!(  old(b) <= b₈
-              && b₈ < b
-              && old(a) <= a₉
-              && a₉ < a
-            )
+            (  b₈ + old(b₈) == a₉ + old(a₉)
+              && !(  old(b) <= b₈
+                && b₈ < b
+                && old(a) <= a₉
+                && a₉ < a
+              )
                ==> bb[b₈] == old(bb)[b₈]));
   {
     if(0 <= aa[a]) {
@@ -71,10 +74,12 @@ procedure main()
   a := 0;
   while(a < 100000)
     decreases 100000 - a;
-    invariant old(c) <= c
+    invariant c + old(c) == old(a) + a
+      && old(c) <= c
       && old(a) <= a
       && (forall c₁₃: int, a₁₄: int ::
-            (  old(c) <= c₁₃
+            (  c₁₃ + old(c₁₃) == old(a₁₄) + a₁₄
+              && old(c) <= c₁₃
               && c₁₃ < c
               && old(a) <= a₁₄
               && a₁₄ < a
@@ -85,11 +90,12 @@ procedure main()
                   )
                   && a₁₄ < 100000))
       && (forall c₁₃: int, a₁₄: int ::
-            (!(  old(c) <= c₁₃
-              && c₁₃ < c
-              && old(a) <= a₁₄
-              && a₁₄ < a
-            )
+            (  c₁₃ + old(c₁₃) == old(a₁₄) + a₁₄
+              && !(  old(c) <= c₁₃
+                && c₁₃ < c
+                && old(a) <= a₁₄
+                && a₁₄ < a
+              )
                ==> cc[c₁₃] == old(cc)[c₁₃]));
   {
     if(aa[a] < 0) {

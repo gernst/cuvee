@@ -127,7 +127,14 @@ procedure main()
                        ==> volArray[-2 + 3 * i₅] == 0)
                     && (  -3 + 3 * i₅ != -2 + 3 * i₅
                       && -3 + 3 * i₅ != -1 + 3 * i₅
-                       ==> volArray[-3 + 3 * i₅] == 0)));
+                       ==> volArray[-3 + 3 * i₅] == 0)))
+        && (forall i₅: int ::
+              (!(  old(i) <= i₅
+                && i₅ < i
+              )
+                 ==> volArray[-1 + 3 * i₅] == old(volArray)[-1 + 3 * i₅]
+                  && volArray[-2 + 3 * i₅] == old(volArray)[-2 + 3 * i₅]
+                  && volArray[-3 + 3 * i₅] == old(volArray)[-3 + 3 * i₅]));
     {
       if(MINVAL <= CCCELVOL3) {
         volArray := volArray[i * 3 - 3 := CCCELVOL3];
