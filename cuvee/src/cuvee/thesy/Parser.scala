@@ -48,7 +48,7 @@ class Parser(val st: State) {
 
     case App(Id("prove"), from) =>
       val phi = exprs.expr(from, Map())
-      Lemma(phi.resolve, None, Some(Goal))
+      Lemma(phi.resolve, None, Some(Goal), Nil)
 
     case _ =>
       error("invalid command: " + from)

@@ -26,13 +26,13 @@ trait Solver extends Sink {
     cmd match {
       case CheckSat =>
         check()
-      case Lemma(expr, tactic, None) =>
+      case Lemma(expr, tactic, None, _) =>
         println("warning: assuming non-free lemma: " + cmd)
         ???
         this.assert(expr)
-      case Lemma(expr, tactic, Some(Free)) =>
+      case Lemma(expr, tactic, Some(Free), _) =>
         this.assert(expr)
-      case Lemma(expr, tactic, Some(Goal)) =>
+      case Lemma(expr, tactic, Some(Goal), _) =>
         scoped {
           assert(!expr)
           require(check() == Unsat, "goal does not hold: " + expr)

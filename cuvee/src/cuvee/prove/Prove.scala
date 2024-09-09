@@ -35,17 +35,17 @@ class Prove(
     }
 
     cmds flatMap {
-      case cmd @ Lemma(expr, tactic, Some(Free)) =>
+      case cmd @ Lemma(expr, tactic, Some(Free), label) =>
         prover.exec(cmd, state)
         List(cmd)
 
-      case cmd @ Lemma(expr, tactic, mode) =>
+      case cmd @ Lemma(expr, tactic, mode, label) =>
         val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
           yield {
             val expr_ = goal_.toExpr
             crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
-            Lemma(expr_, None, mode)
+            Lemma(expr_, None, mode, label)
           }
 
       case cmd @ Assert(Not(App(Inst(fun, _), _)))

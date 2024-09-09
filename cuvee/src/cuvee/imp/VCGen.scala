@@ -15,8 +15,8 @@ class VCGenStage(partial: Boolean) extends Stage {
       case Assert(expr) =>
         List(Assert(eval.eval(expr)))
 
-      case Lemma(expr, tactic, mode) =>
-        List(Lemma(eval.eval(expr), tactic, mode))
+      case Lemma(expr, tactic, mode, label) =>
+        List(Lemma(eval.eval(expr), tactic, mode, label))
 
       case DefineFun(name, params, formals, res, body, rec) =>
         val scope = Expr.id(formals)
@@ -40,7 +40,7 @@ class VCGenStage(partial: Boolean) extends Stage {
 
         val phi = Forall(xs, eval.wp_proc(how, body, st, True))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
-        List(Lemma(phi, None, Some(Goal)))
+        List(Lemma(phi, None, Some(Goal), Nil))
 
       case DefineProc(name, params, in, out, Some(Spec(globals, pre, post)), body) =>
         val su = Expr.subst(in, Old(in))
@@ -55,7 +55,7 @@ class VCGenStage(partial: Boolean) extends Stage {
 
         val phi = Forall(xs, pre ==> eval.wp_proc(how, body, st, post_))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
-        List(Lemma(phi, None, Some(Goal)))
+        List(Lemma(phi, None, Some(Goal), Nil))
 
       case cmd =>
         List(cmd)
@@ -182,6 +182,11 @@ class VCGen(val state: State) {
     // println("XXX overriding postcondition with true")
     // val post = True
 
+    def done(st: Map[Var, Expr]) = {
+      val post_ = eval(post, Map(), st, old)
+      post_ named "ensures"
+    }
+
     wp(
       how,
       List(prog),
@@ -189,9 +194,9 @@ class VCGen(val state: State) {
       Map(),
       st,
       old,
-      eval(post, Map(), _, old),
+      done,
       no_brk,
-      eval(post, Map(), _, old)
+      done
     )
   }
 
@@ -255,7 +260,7 @@ class VCGen(val state: State) {
         val (xs_, re) = havoc(xs)
         val st_ = assign(st, xs, xs_)
 
-        val phi_ = eval(phi, scope, st, old)
+        val phi_ = eval(phi, scope, st, old) named "assert"
         val psi_ = eval(psi, scope, st_, st :: old)
         val chi = wp(how, rest, cont, scope, st_, old, post, brk, ret)
 
@@ -325,7 +330,7 @@ class VCGen(val state: State) {
         val st1 = assign(st, xs0, xs1)
 
         // invariant to show at loop head upon entry
-        val inv0 = eval(inv, scope, st0, st0 :: old)
+        val inv0 = eval(inv, scope, st0, st0 :: old) named "invariant entry"
 
         // test and invariant at loop head before some iteration
         val test1 = test subst st1
@@ -336,13 +341,13 @@ class VCGen(val state: State) {
 
         def post_(st2: Map[Var, Expr]) = {
           // invariant that needs to be preserved (from inv1)
-          val inv2 = eval(inv, scope, st2, st0 :: old)
+          val inv2 = eval(inv, scope, st2, st0 :: old) named "invariant forward"
 
           // propagate summary from st2 to st1 wrt. arbitrary state stk
           val (xsk, re) = havoc(xs0)
           val stk = assign(st2, xs0, xsk)
 
-          val sum1k = eval(sum, scope, stk, st1 :: old)
+          val sum1k = eval(sum, scope, stk, st1 :: old) named "summary backward"
           val sum2k = eval(sum, scope, stk, st2 :: old)
 
           // possibly add termination condition
@@ -352,7 +357,7 @@ class VCGen(val state: State) {
             val term2 = eval(term, scope, st2, st0 :: old)
 
             // Note: can assume test is positive otherwise loop terminates anyway
-            test2 ==> (Zero <= term2 && term2 < term1)
+            test2 ==> (Zero <= term2 && term2 < term1) named "decreases"
           } else {
             True
           }

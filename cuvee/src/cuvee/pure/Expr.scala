@@ -18,6 +18,20 @@ sealed trait Expr extends Expr.term with util.Syntax {
 
   def toStringTyped = toString + ": " + typ
 
+  def named(named: String) =
+    Note(this, List(sexpr.Kw("named") -> Some(sexpr.Id(named))))
+
+  def lookupNamed =
+    this match {
+      case Note(expr, attr) =>
+        attr collectFirst { case (sexpr.Kw("named"), Some(sexpr.Id(arg))) =>
+          arg
+        }
+
+      case _ =>
+        None
+    }
+
   def unary_+ = this
   def unary_- = UMinus(this)
   def unary_! = Not(this)
@@ -105,6 +119,13 @@ sealed trait Expr extends Expr.term with util.Syntax {
       false
     case App(inst, args) =>
       args exists (this subtermOf _)
+  }
+
+  def isAtomic = this match {
+    case Not(_) | And(_) | Or(_) | Imp(_, _) | Bind(_, _, _, _) =>
+      false
+    case _ =>
+      true
   }
 }
 
@@ -727,7 +748,7 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
     cuvee.undefined // need to fix let eqs, too
 }
 
-case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
+case class Note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Expr {
   def typ = expr.typ
 
   def free = expr.free

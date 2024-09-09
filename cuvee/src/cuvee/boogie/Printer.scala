@@ -7,6 +7,7 @@ import cuvee.smtlib
 import cuvee.smtlib._
 import cuvee.util
 import cuvee.prove._
+import cuvee.sexpr
 
 trait Syntax extends util.Syntax {
   def bexpr: List[Any]
@@ -73,15 +74,30 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     // Work in progress - print lemmas in cuvee format
-    case Lemma(expr, tactic, mode) =>
+    case Lemma(expr, tactic, mode, nameds) =>
       var result: List[String] = Nil
+
+      // TODO
+      // val label = maybeLabel match {
+      //   case Some(l) => s" {:$l}"
+      //   case None    => ""
+      // }
+      val named = for (attr <- nameds) yield {
+        attr match {
+          case (kw, None)                 => kw.toString
+          case (kw, Some(sexpr.Id(text))) => kw.toString + " \"" + text + "\""
+        }
+      }
+
+      val named_ = named.mkString("{", ", ", "}")
+
       mode match {
         case Some(Goal) =>
-          result = format("goal", expr)
+          result = format(s"goal $named_", expr)
         case Some(Free) =>
-          result = format("free lemma", expr)
+          result = format(s"free lemma $named_", expr)
         case None =>
-          result = format("lemma", expr)
+          result = format(s"lemma $named_", expr)
       }
 
       if (tactic.nonEmpty) {
@@ -280,14 +296,18 @@ object Printer extends cuvee.util.Printer {
     case Assign(xs, rhs) =>
       val exprs = for (e <- rhs) yield line(e)
       List(xs.mkString(", ") + " := " + exprs.mkString(", ") + ";")
-    case Spec(Nil, True, phi) => 
+    case Spec(Nil, True, phi) =>
       List("assume " + line(phi) + ";")
-    case Spec(Nil, phi, True) => 
+    case Spec(Nil, phi, True) =>
       List("assert " + line(phi) + ";")
-    case Spec(xs, True, True) => 
+    case Spec(xs, True, True) =>
       List("havoc " + xs.mkString(", ") + ";")
-    case Spec(xs, pre, post) => 
-      List("transition " + xs.mkString(", ") + " :: " + line(pre) + " | "  + line(post) + ";")
+    case Spec(xs, pre, post) =>
+      List(
+        "transition " + xs.mkString(", ") + " :: " + line(pre) + " | " + line(
+          post
+        ) + ";"
+      )
     case x @ If(test, left, right) => if_(x)
     case While(test, body, term, inv, sum, frames) =>
       val first = "while(" + line(test) + ")"
@@ -495,9 +515,16 @@ object Printer extends cuvee.util.Printer {
       "let " + lines(eqs) + lines(body) + ";" // TODO: fix and test
     case Match(expr, cases, typ) =>
       // TODO solution for cases in method
-      "match " + line(expr) + cases.toString + btype(typ) + ";" // TODO: fix and test
+      "match " + line(expr) + cases.toString + btype(
+        typ
+      ) + ";" // TODO: fix and test
     case Note(expr, attr) =>
-      "/* note" + line(expr) + attr.toString + "*/"
+      val attr_ = attr map {
+        case (kw, None)                 => kw.toString
+        case (kw, Some(sexpr.Id(text))) => kw.toString + " \"" + text + "\""
+      }
+
+      attr_.mkString("{", ", ", "} ") + line(expr)
   }
 
   private def modality(how: Modality) = how match {
@@ -525,7 +552,8 @@ object Printer extends cuvee.util.Printer {
     indent(result)
   }
 
-  /** Provides a tuple containing precedence and associativity for the given expression.
+  /** Provides a tuple containing precedence and associativity for the given
+    * expression.
     *
     * @param expr
     *   to get prec and assoc for

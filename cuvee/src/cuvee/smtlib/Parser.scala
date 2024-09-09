@@ -114,7 +114,7 @@ class Parser(init: State) {
       // these are extensions to SMT-LIB
       case App(Id("lemma"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, None)
+        Lemma(phi_, None, None, Nil)
 
       // case App(Id("free-lemma"), phi) =>
       //   val phi_ = expr_typed(phi, bool)
@@ -123,7 +123,7 @@ class Parser(init: State) {
       // prove is used in TIP https://github.com/tip-org/
       case App(Id("prove"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, Some(Goal))
+        Lemma(phi_, None, Some(Goal), Nil)
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
@@ -397,7 +397,7 @@ class Parser(init: State) {
           const(name)
 
         case App(Id("!"), from, rest @ _*) =>
-          note(expr(from, ctx, scope), rest.toList)
+          note(expr(from, ctx, scope), attrs(rest.toList))
 
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))
@@ -456,6 +456,18 @@ class Parser(init: State) {
 
         case _ =>
           error("invalid expression: " + from)
+      }
+
+    def attrs(from: List[Expr]): List[(Kw, Option[Expr])] =
+      from match {
+        case Nil =>
+          Nil
+
+        case (kw: Kw) :: (rest @ ((_: Kw) :: _)) =>
+          (kw -> None) :: attrs(rest)
+
+        case (kw: Kw) :: arg :: rest =>
+          (kw -> Some(arg)) :: attrs(rest)
       }
 
     def pat(

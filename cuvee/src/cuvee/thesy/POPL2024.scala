@@ -29,7 +29,7 @@ object POPL2024 {
               solver.exec(cmd, null)
           }
 
-          val ours = cmds collect { case Lemma(expr, _, _) =>
+          val ours = cmds collect { case Lemma(expr, _, _, _) =>
             expr
           }
 

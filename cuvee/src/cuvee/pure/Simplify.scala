@@ -5,6 +5,7 @@ import cuvee.pure.True
 import cuvee.Intersect
 import cuvee.ai.AInt.one
 import cuvee.State
+import cuvee.sexpr
 
 object Simplify {
   def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
@@ -69,11 +70,14 @@ object Simplify {
           simplify(value, rules, constrs)
         )
 
-      // case Distinct(exprs) => 
+      // case Distinct(exprs) =>
       //   TODO
 
       case App(inst, args) =>
         app(expr, inst, simplify(args, rules, constrs), rules, constrs)
+
+      case Note(expr, attr) =>
+        note(simplify(expr, rules, constrs), attr)
     }
 
   def app(
@@ -239,6 +243,12 @@ object Simplify {
     for (prop <- props)
       yield simplify(prop, rules, constrs)
   }
+
+  def note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) =
+    expr match {
+      case True | False => expr
+      case _            => Note(expr, attr)
+    }
 
   def at(where: Loc, arg: Expr) = {
     if (arg.free.isEmpty)

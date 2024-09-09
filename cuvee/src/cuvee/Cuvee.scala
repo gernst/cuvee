@@ -20,6 +20,8 @@ import cuvee.pure.Horn
 import cuvee.imp.annotate
 import cuvee.util.Main
 import cuvee.pure.Expr
+import cuvee.smtlib.{Cmd, Res}
+import cuvee.smtlib.Success
 
 class Config {
   var file: Option[String] = None
@@ -475,6 +477,26 @@ object Cuvee extends Main {
     val (file, source, sink, report) = Config(args)
     Pipe.run(source, sink, report)
   }
+
+  def collect(args: Array[String]) = {
+    Expr.resetIndex()
+    val (file, source, primary, report) = Config(args)
+
+    object secondary extends Sink {
+      var rcmds: List[Cmd] = Nil
+
+      override def exec(cmd: Cmd, state: State): Res = {
+        rcmds = cmd :: rcmds
+        Success
+      }
+
+      override def done(state: State): Unit = {}
+    }
+
+    Pipe.run(source, new Sink.tee(primary, secondary), report)
+
+    secondary.rcmds.reverse
+  }
 }
 
 object CompareTheories {
@@ -520,7 +542,7 @@ object CompareTheories {
         cuvee.thesy.storedLemmas(file, st)
       } else {
         val (cmds, _) = parse(file)
-        cmds collect { case Lemma(phi, _, _) => phi }
+        cmds collect { case Lemma(phi, _, _, _) => phi }
       }
 
       import util.TheoryComparison
