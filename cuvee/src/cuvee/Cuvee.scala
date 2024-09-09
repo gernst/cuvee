@@ -20,6 +20,8 @@ import cuvee.pure.Horn
 import cuvee.imp.annotate
 import cuvee.util.Main
 import cuvee.pure.Expr
+import cuvee.smtlib.{Cmd, Res}
+import cuvee.smtlib.Success
 
 class Config {
   var file: Option[String] = None
@@ -474,6 +476,26 @@ object Cuvee extends Main {
     Expr.resetIndex()
     val (file, source, sink, report) = Config(args)
     Pipe.run(source, sink, report)
+  }
+
+  def collect(args: Array[String]) = {
+    Expr.resetIndex()
+    val (file, source, primary, report) = Config(args)
+
+    object secondary extends Sink {
+      var rcmds: List[Cmd] = Nil
+
+      override def exec(cmd: Cmd, state: State): Res = {
+        rcmds = cmd :: rcmds
+        Success
+      }
+
+      override def done(state: State): Unit = {}
+    }
+
+    Pipe.run(source, new Sink.tee(primary, secondary), report)
+
+    secondary.rcmds.reverse
   }
 }
 
