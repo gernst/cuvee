@@ -106,6 +106,9 @@ object Prop {
       case True :: rest =>
         Atom.t
 
+      case Note(phi, attr) :: rest if phi.isAtomic =>
+        from(rest, xs, assms, concls ++ List(Conj(Nil, List(Atom(Note(phi, attr))))))
+
       case Note(phi, _) :: rest =>
         from(phi :: rest, xs, assms, concls)
 

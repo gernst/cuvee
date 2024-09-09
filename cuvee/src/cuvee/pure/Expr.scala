@@ -109,6 +109,13 @@ sealed trait Expr extends Expr.term with util.Syntax {
     case App(inst, args) =>
       args exists (this subtermOf _)
   }
+
+  def isAtomic = this match {
+    case Not(_) | And(_) | Or(_) | Imp(_, _) | Bind(_, _, _, _) =>
+      false
+    case _ =>
+      true
+  }
 }
 
 object Expr extends Alpha[Expr, Var] {

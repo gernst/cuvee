@@ -330,7 +330,7 @@ class VCGen(val state: State) {
         val st1 = assign(st, xs0, xs1)
 
         // invariant to show at loop head upon entry
-        val inv0 = eval(inv, scope, st0, st0 :: old)
+        val inv0 = eval(inv, scope, st0, st0 :: old) named "invariant entry"
 
         // test and invariant at loop head before some iteration
         val test1 = test subst st1
