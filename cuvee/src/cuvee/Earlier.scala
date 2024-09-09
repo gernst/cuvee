@@ -50,7 +50,7 @@ case class Earlier(mode: String) extends Main {
     }
   }
 
-  def eval(path: String): Map[String, Res] = {
+  def eval(path: String): Array[(String, Res)] = {
     val dir = new File(path)
     var (dst_, typ) = (dst, "")
     val path_ = path.split("/")
@@ -64,10 +64,10 @@ case class Earlier(mode: String) extends Main {
       dst_ += "maxpranq/"
       typ = ".c"
     } else {
-      return Map()
+      return Array()
     }
 
-    val results = for (file <- dir.list() if (file endsWith typ)) yield {
+    val results = for (file <- dir.list().sorted if (file endsWith typ)) yield {
       val file_ = file.substring(0, file.lastIndexOf('.'))
 
       mode match {
@@ -108,7 +108,7 @@ case class Earlier(mode: String) extends Main {
           file -> eval(args.toArray)
       }
     }
-    results.toMap
+    results
   }
 
   def eval(task: Array[String]): Res = {
@@ -131,7 +131,7 @@ case class Earlier(mode: String) extends Main {
     }
   }
 
-  def record(path: String, results: Map[String, Res]) {
+  def record(path: String, results: Array[(String, Res)]) {
     val file = path.replace("/", "_")
     val csv = new PrintStream(new FileOutputStream(dst + file + ".csv"))
     csv.println("Name, Result")
@@ -139,11 +139,11 @@ case class Earlier(mode: String) extends Main {
     csv.close()
 
     val tex = new PrintStream(new FileOutputStream(dst + file + ".tex"))
-    val success = results.values.count(x => x == Success)
+    val success = results.count(x => x._2 == Success)
     tex.println("\\newcommand{\\Success}{" + success + "}")
-    val unknown = results.values.count(x => x == Unknown)
+    val unknown = results.count(x => x._2 == Unknown)
     tex.println("\\newcommand{\\Unknown}{" + unknown + "}")
-    val unsupported = results.values.count(x => x == Unsupported)
+    val unsupported = results.count(x => x._2 == Unsupported)
     tex.println("\\newcommand{\\Unsupported}{" + unsupported + "}")
     tex.close()
   }
