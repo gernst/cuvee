@@ -34,7 +34,6 @@ object evaluate
       "examples/boogie/sv-benchmarks"
     )
 
-    
 object evaluate_maxpranq
     extends Run(
       Earlier(mode = "evaluate"),
@@ -45,11 +44,15 @@ object evaluate_rapid
 object evaluate_sv_benchmarks
     extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks")
 
+object table_rapid
+    extends Run(Earlier(mode = "table"), "evaluation/earlier/rapid")
+
 case class Earlier(mode: String) extends Main {
   val dst = "evaluation/earlier/"
 
   def main(args: Array[String]) {
     for (path <- args) {
+      if (mode == "table") table(path)
       val results = eval(path)
       if (mode == "evaluate") record(path, results)
     }
@@ -57,20 +60,8 @@ case class Earlier(mode: String) extends Main {
 
   def eval(path: String): Array[(String, Res)] = {
     val dir = new File(path)
-    var (dst_, typ) = (dst, "")
-    val path_ = path.split("/")
-    if (path_.contains("sv-benchmarks")) {
-      dst_ += "sv-benchmarks/"
-      typ = ".bpl"
-    } else if (path_.contains("rapid")) {
-      dst_ += "rapid/"
-      typ = ".bpl"
-    } else if (path_.contains("maxpranq")) {
-      dst_ += "maxpranq/"
-      typ = ".c"
-    } else {
-      return Array()
-    }
+    var (dst_, typ) = destinations(path, dir)
+    if (typ == "") return Array()
 
     val results =
       for (
@@ -120,6 +111,10 @@ case class Earlier(mode: String) extends Main {
     results
   }
 
+  def table(path: String) {
+    ???
+  }
+
   def eval(task: Array[String]): Res = {
     println(task.mkString("./Cuvee.sh ", " ", ""))
     try {
@@ -155,5 +150,22 @@ case class Earlier(mode: String) extends Main {
     val unsupported = results.count(x => x._2 == Unsupported)
     tex.println("\\newcommand{\\Unsupported}{" + unsupported + "}")
     tex.close()
+  }
+
+  def destinations(path: String, dir: File) = {
+    var dst_ = dst
+    path.split("/") match {
+      case p if p.contains("sv-benchmarks") =>
+        (dst_ + "sv-benchmarks/", ".bpl")
+
+      case p if p.contains("rapid") =>
+        (dst_ + "rapid/", ".bpl")
+
+      case p if p.contains("maxpranq") =>
+        (dst_ + "maxpranq/", ".c")
+
+      case _ =>
+        ("", "")
+    }
   }
 }
