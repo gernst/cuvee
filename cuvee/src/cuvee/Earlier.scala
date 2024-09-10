@@ -10,6 +10,7 @@ import java.io.File
 import java.io.PrintStream
 import java.io.FileOutputStream
 import cuvee.smtlib.Cmd
+import cuvee.smtlib.Lemma
 
 object annotate
     extends Run(
@@ -156,7 +157,35 @@ case class Earlier(mode: String) extends Main {
 
         file -> collect(args)
       }
-    for (e <- results) println(e)
+
+    val file = path.replace("/", "_")
+    val csv = new PrintStream(new FileOutputStream(dst + file + ".table.csv"))
+    csv.println(
+      "name, result, ensures/assert, " +
+        "invariant entry, invariant forward, summary backward, decreases"
+    )
+
+    for ((name, result) <- results) {
+      var (ens, ien, ifo, sba, dec) = (0, 0, 0, 0, 0)
+      for (cmd <- result) {
+        cmd match {
+          case Lemma(_, _, _, List((_, Some(sexpr.Id(named))))) =>
+            if (named == "ensures" || named == "assert")
+              ens += 1
+            if (named == "invariant entry")
+              ien += 1
+            if (named == "invariant forward")
+              ifo += 1
+            if (named == "summary backward")
+              sba += 1
+            if (named == "decreases")
+              dec += 1
+          case _ =>
+        }
+      }
+      val res = if (result.isEmpty) Success else Unknown
+      csv.println(s"${name}, ${res}, ${ens}, ${ien}, ${ifo}, ${sba}, ${dec}")
+    }
   }
 
   def collect(task: Array[String]) = {
