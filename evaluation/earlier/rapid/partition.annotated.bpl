@@ -35,7 +35,7 @@ procedure partition(a: [int]int, alength: int)
           (  0 <= alength
             && 0 <= pos
             && pos < alength
-            && a[pos] < 0
+            && 0 <= a[pos]
              ==> (exists pos2: int ::
                   b[pos2] == a[pos])))
     && (forall pos: int ::

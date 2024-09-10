@@ -201,47 +201,6 @@ goal {:named "invariant forward"} (forall a: [int]int, alength: int, b: [int]int
         && 0 <= clength₉
         && 0 <= i₁₀
         && 0 <= blength₁₂
-        && (forall clength₄₆₁: int, i₄₆₀: int, blength₄₅₉: int ::
-              (  clength₄₆₁ + clength₄₆₁ == i₄₆₀ + i₄₆₀
-                && clength₄₆₁ + clength₄₆₁ == blength₄₅₉ + blength₄₅₉
-                && 0 <= clength₄₆₁
-                && clength₄₆₁ < clength₉
-                && 0 <= i₄₆₀
-                && i₄₆₀ < i₁₀
-                && 0 <= blength₄₅₉
-                && blength₄₅₉ < blength₁₂
-                 ==> a[i₄₆₀] >= 0
-                    && i₄₆₀ < alength
-                    && b₁₁[blength₄₅₉] == a[i₄₆₀]
-                  ||   (a[i₄₆₀] >= 0
-                       ==> false)
-                    && i₄₆₀ < alength
-                    && c₁₃[clength₄₆₁] == a[i₄₆₀]))
-        && (forall clength₄₆₄: int, i₄₆₃: int, blength₄₆₂: int ::
-              (  clength₄₆₄ + clength₄₆₄ == i₄₆₃ + i₄₆₃
-                && clength₄₆₄ + clength₄₆₄ == blength₄₆₂ + blength₄₆₂
-                 ==> 0 <= clength₄₆₄
-                    && clength₄₆₄ < clength₉
-                    && 0 <= i₄₆₃
-                    && i₄₆₃ < i₁₀
-                    && 0 <= blength₄₆₂
-                    && blength₄₆₂ < blength₁₂
-                  ||   b₁₁[blength₄₆₂] == b[blength₄₆₂]
-                    && c₁₃[clength₄₆₄] == c[clength₄₆₄]))
-        && i₁₀ < alength
-        && clength₁ + clength₁ == i₂ + i₂
-        && clength₁ + clength₁ == blength₃ + blength₃
-         ==> i₂ < i₁₀ + 1
-          || a[i₁₀] >= 0
-          || c₁₃[clength₉ := a[i₁₀]][clength₁] == c[clength₁]));
-
-goal {:named "invariant forward"} (forall a: [int]int, alength: int, b: [int]int, c: [int]int, clength₉: int, i₁₀: int, b₁₁: [int]int, blength₁₂: int, c₁₃: [int]int, clength₁: int, i₂: int, blength₃: int ::
-      (  0 <= alength
-        && clength₉ + 0 == i₁₀ + 0
-        && clength₉ + 0 == 0 + blength₁₂
-        && 0 <= clength₉
-        && 0 <= i₁₀
-        && 0 <= blength₁₂
         && (forall clength₅₁₅: int, i₅₁₄: int, blength₅₁₃: int ::
               (  clength₅₁₅ + clength₅₁₅ == i₅₁₄ + i₅₁₄
                 && clength₅₁₅ + clength₅₁₅ == blength₅₁₃ + blength₅₁₃
@@ -361,48 +320,4 @@ goal {:named "ensures"} (forall a: [int]int, alength: int, b: [int]int, c: [int]
                   0 <= pos2
                   && pos2 < alength
                   && c₁₃[pos] == a[pos2])));
-
-goal {:named "ensures"} (forall a: [int]int, alength: int, b: [int]int, c: [int]int, clength₉: int, i₁₀: int, b₁₁: [int]int, blength₁₂: int, c₁₃: [int]int, pos: int ::
-      (  0 <= alength
-        && clength₉ + 0 == i₁₀ + 0
-        && clength₉ + 0 == 0 + blength₁₂
-        && 0 <= clength₉
-        && 0 <= i₁₀
-        && 0 <= blength₁₂
-        && (forall clength₁: int, i₂: int, blength₃: int ::
-              (  clength₁ + clength₁ == i₂ + i₂
-                && clength₁ + clength₁ == blength₃ + blength₃
-                && 0 <= clength₁
-                && clength₁ < clength₉
-                && 0 <= i₂
-                && i₂ < i₁₀
-                && 0 <= blength₃
-                && blength₃ < blength₁₂
-                 ==> a[i₂] >= 0
-                    && i₂ < alength
-                    && b₁₁[blength₃] == a[i₂]
-                  ||   (a[i₂] >= 0
-                       ==> false)
-                    && i₂ < alength
-                    && c₁₃[clength₁] == a[i₂]))
-        && (forall clength₁: int, i₂: int, blength₃: int ::
-              (  clength₁ + clength₁ == i₂ + i₂
-                && clength₁ + clength₁ == blength₃ + blength₃
-                 ==> 0 <= clength₁
-                    && clength₁ < clength₉
-                    && 0 <= i₂
-                    && i₂ < i₁₀
-                    && 0 <= blength₃
-                    && blength₃ < blength₁₂
-                  ||   b₁₁[blength₃] == b[blength₃]
-                    && c₁₃[clength₁] == c[clength₁]))
-        && 0 <= alength
-        && 0 <= pos
-        && pos < alength
-        && 0 < a[pos]
-         ==> i₁₀ < alength
-          || (exists pos2: int ::
-                  0 <= pos2
-                  && pos2 < clength₉
-                  && c₁₃[pos2] == a[pos])));
 

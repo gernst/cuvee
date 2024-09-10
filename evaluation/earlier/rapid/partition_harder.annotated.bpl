@@ -36,7 +36,7 @@ procedure partition_harder(a: [int]int, alength: int)
           (  0 <= alength
             && 0 <= pos
             && pos < alength
-            && 0 < a[pos]
+            && a[pos] < 0
              ==> (exists pos2: int ::
                     0 <= pos2
                     && pos2 < clength

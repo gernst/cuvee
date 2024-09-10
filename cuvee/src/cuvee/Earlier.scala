@@ -14,7 +14,7 @@ object annotate
     extends Run(
       Earlier(mode = "annotate"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
-      "examples/boogie/rapid",
+      "evaluation/earlier/rapid",
       "examples/boogie/sv-benchmarks"
     )
 
@@ -22,7 +22,7 @@ object reduce
     extends Run(
       Earlier(mode = "reduce"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
-      "examples/boogie/rapid",
+      "evaluation/earlier/rapid",
       "examples/boogie/sv-benchmarks"
     )
 
@@ -30,14 +30,18 @@ object evaluate
     extends Run(
       Earlier(mode = "evaluate"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
-      "examples/boogie/rapid",
+      "evaluation/earlier/rapid",
       "examples/boogie/sv-benchmarks"
     )
 
     
 object evaluate_maxpranq
-    extends Run(Earlier(mode = "evaluate"), "examples/chc/maxpranq/bench_precondn/c_serialized")
-object evaluate_rapid extends Run(Earlier(mode = "evaluate"), "examples/boogie/rapid")
+    extends Run(
+      Earlier(mode = "evaluate"),
+      "examples/chc/maxpranq/bench_precondn/c_serialized"
+    )
+object evaluate_rapid
+    extends Run(Earlier(mode = "evaluate"), "evaluation/earlier/rapid")
 object evaluate_sv_benchmarks
     extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks")
 
@@ -68,47 +72,51 @@ case class Earlier(mode: String) extends Main {
       return Array()
     }
 
-    val results = for (file <- dir.list().sorted if (file endsWith typ)) yield {
-      val file_ = file.substring(0, file.lastIndexOf('.'))
+    val results =
+      for (
+        file <- dir.list().sorted if (file endsWith typ)
+          && !(file contains ".annotated.") && !(file contains ".reduced.")
+      ) yield {
+        val file_ = file.substring(0, file.lastIndexOf('.'))
 
-      mode match {
-        case "annotate" =>
-          var args = List(
-            path + "/" + file,
-            "-annotate:new-arrays",
-            // "-vcgen:partial", DO NOT VCGEN THIS
-            "-o",
-            dst_ + file_ + ".annotated.bpl"
-          )
+        mode match {
+          case "annotate" =>
+            var args = List(
+              path + "/" + file,
+              "-annotate:new-arrays",
+              // "-vcgen:partial", DO NOT VCGEN THIS
+              "-o",
+              dst_ + file_ + ".annotated.bpl"
+            )
 
-          file -> eval(args.toArray)
+            file -> eval(args.toArray)
 
-        case "reduce" =>
-          var args = List(
-            path + "/" + file,
-            "-annotate:new-arrays",
-            "-vcgen:partial",
-            "-prove:simple",
-            "-split",
-            "-o",
-            dst_ + file_ + ".reduced.bpl"
-          )
+          case "reduce" =>
+            var args = List(
+              path + "/" + file,
+              "-annotate:new-arrays",
+              "-vcgen:partial",
+              "-prove:simple",
+              "-split",
+              "-o",
+              dst_ + file_ + ".reduced.bpl"
+            )
 
-          file -> eval(args.toArray)
+            file -> eval(args.toArray)
 
-        case "evaluate" =>
-          var args = List(
-            path + "/" + file,
-            "-annotate:new-arrays",
-            "-vcgen:partial",
-            "-prove:simple",
-            "-prove:crosscheck",
-            "-prove:strict"
-          )
+          case "evaluate" =>
+            var args = List(
+              path + "/" + file,
+              "-annotate:new-arrays",
+              "-vcgen:partial",
+              "-prove:simple",
+              "-prove:crosscheck",
+              "-prove:strict"
+            )
 
-          file -> eval(args.toArray)
+            file -> eval(args.toArray)
+        }
       }
-    }
     results
   }
 
