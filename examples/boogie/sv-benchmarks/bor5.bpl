@@ -47,25 +47,25 @@ procedure main()
     while(i < N) {
       var nondet_int₂: int;
       assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-      x := x[i := nondet_int₂];
+      x[i] := nondet_int₂;
       i := i + 1;
     }
     var bor₄: int;
     bor₄ := call bor(x);
     ret := bor₄;
     temp := x[0];
-    x := x[0 := x[1]];
-    x := x[1 := temp];
+    x[0] := x[1];
+    x[1] := temp;
     var bor₅: int;
     bor₅ := call bor(x);
     ret2 := bor₅;
     temp := x[0];
     var i: int := 0;
     while(i < N - 1) {
-      x := x[i := x[i + 1]];
+      x[i] := x[i + 1];
       i := i + 1;
     }
-    x := x[N - 1 := temp];
+    x[(N - 1)] := temp;
     var bor₇: int;
     bor₇ := call bor(x);
     ret5 := bor₇;

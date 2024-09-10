@@ -44,7 +44,6 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     )
       (init, phi) match {
         // bounded loops can be verified with BMC
-        // so we should make a mental note
 
         // case (_: Lit, Le(`x`, _: Lit)) if step > 0 =>
         //   cuvee.error("bounded loop: " + phi)
@@ -131,7 +130,6 @@ case object NewArrays extends Annotate(ExecNoLoops) {
         }
 
     val (updated, frame) = cases.unzip
-
     val prems_ = (inv rename re) :: prems
 
     val phi = Forall(ys_, And(prems_) ==> Or(updated))

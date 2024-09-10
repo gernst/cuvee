@@ -19,17 +19,17 @@ procedure main()
   var b: [int]int;
   var i: int := 0;
   while(i < 100000) {
-    a := a[i := 42];
+    a[i] := 42;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    b := b[i := a[i]];
+    b[i] := a[i];
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    b := b[i := b[i] + i];
+    b[i] := b[i] + i;
     i := i + 1;
   }
   var x: int;

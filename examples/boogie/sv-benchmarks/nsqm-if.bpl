@@ -34,18 +34,18 @@ procedure main()
   i := 0;
   while(i < N) {
     if(i == 0) {
-      b := b[0 := 1];
+      b[0] := 1;
     } else {
-      b := b[i := b[i - 1] + 2];
+      b[i] := b[i - 1] + 2;
     }
     i := i + 1;
   }
   i := 0;
   while(i < N) {
     if(i == 0) {
-      a := a[0 := N + 1];
+      a[0] := N + 1;
     } else {
-      a := a[i := a[i - 1] + b[i - 1] + 2];
+      a[i] := a[i - 1] + b[i - 1] + 2;
     }
     i := i + 1;
   }

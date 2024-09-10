@@ -24,7 +24,7 @@ procedure main()
   while(i < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    array := array[i := nondet_int₁];
+    array[i] := nondet_int₁;
     i := i + 1;
   }
   largest1 := array[0];

@@ -33,12 +33,12 @@ procedure main()
     column := 0;
     while(column < ARR_SIZE) {
       if(column < row) {
-        array := array[row := array[row][column := row + column]];
+        array[row][column] := row + column;
       } else {
         if(row < column) {
-          array := array[row := array[row][column := num * (row + column)]];
+          array[row][column] := num * (row + column);
         } else {
-          array := array[row := array[row][column := 0]];
+          array[row][column] := 0;
         }
       }
       column := column + 1;

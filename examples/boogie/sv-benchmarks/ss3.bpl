@@ -31,30 +31,30 @@ procedure main()
   var i: int;
   var sum: [int]int;
   var a: [int]int;
-  sum := sum[0 := 0];
+  sum[0] := 0;
   i := 0;
   while(i < N) {
-    a := a[i := 1];
+    a[i] := 1;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    sum := sum[0 := sum[0] + a[i]];
+    sum[0] := sum[0] + a[i];
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    a := a[i := 0];
+    a[i] := 0;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    a := a[i := a[i] + sum[0]];
+    a[i] := a[i] + sum[0];
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    sum := sum[0 := sum[0] + a[i]];
+    sum[0] := sum[0] + a[i];
     i := i + 1;
   }
   assert sum[0] == N * (N + 1);

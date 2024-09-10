@@ -21,7 +21,7 @@ procedure main()
   while(j < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    a := a[j := nondet_int₁];
+    a[j] := nondet_int₁;
     j := j + 1;
   }
   var i: int := 0;

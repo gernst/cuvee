@@ -39,25 +39,25 @@ procedure main()
   while(i < 40) {
     var nondet_int₂: int;
     assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-    x := x[i := nondet_int₂];
+    x[i] := nondet_int₂;
     i := i + 1;
   }
   var avg₄: int;
   avg₄ := call avg(x);
   ret := avg₄;
   temp := x[0];
-  x := x[0 := x[1]];
-  x := x[1 := temp];
+  x[0] := x[1];
+  x[1] := temp;
   var avg₅: int;
   avg₅ := call avg(x);
   ret2 := avg₅;
   temp := x[0];
   var i: int := 0;
   while(i < 40 - 1) {
-    x := x[i := x[i + 1]];
+    x[i] := x[i + 1];
     i := i + 1;
   }
-  x := x[40 - 1 := temp];
+  x[(40 - 1)] := temp;
   var avg₇: int;
   avg₇ := call avg(x);
   ret5 := avg₇;

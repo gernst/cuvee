@@ -34,7 +34,7 @@ procedure main()
     while(i < SIZE) {
       var nondet_int₁: int;
       assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-      a := a[i := nondet_int₁];
+      a[i] := nondet_int₁;
       i := i + 1;
     }
     if(SIZE % 2 != 0) {
@@ -44,8 +44,8 @@ procedure main()
     assume SIZE % 2 == 0;
     i := 0;
     while(i < SIZE / 2) {
-      acopy := acopy[SIZE - i - 1 := a[SIZE - i - 1]];
-      acopy := acopy[i := a[i]];
+      acopy[((SIZE - i) - 1)] := a[SIZE - i - 1];
+      acopy[i] := a[i];
       i := i + 1;
     }
     i := 0;

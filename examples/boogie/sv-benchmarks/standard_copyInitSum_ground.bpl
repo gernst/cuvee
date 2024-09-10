@@ -21,17 +21,17 @@ procedure main()
   assume -2147483648 <= incr && incr < 2147483648;
   var i: int := 0;
   while(i < 100000) {
-    a := a[i := 42];
+    a[i] := 42;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    b := b[i := a[i]];
+    b[i] := a[i];
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    b := b[i := b[i] + incr];
+    b[i] := b[i] + incr;
     i := i + 1;
   }
   var x: int;

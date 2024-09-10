@@ -32,9 +32,9 @@ procedure main()
     column := 0;
     while(column < ARR_SIZE) {
       if(row == column) {
-        array := array[row := array[row][row := 0]];
+        array[row][row] := 0;
       } else {
-        array := array[row := array[row][column := row]];
+        array[row][column] := row;
       }
       column := column + 1;
     }

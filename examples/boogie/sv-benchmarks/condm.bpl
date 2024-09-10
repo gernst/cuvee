@@ -32,15 +32,15 @@ procedure main()
   var a: [int]int;
   i := 0;
   while(i < N) {
-    a := a[i := 0];
+    a[i] := 0;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
     if(N % 2 == 0) {
-      a := a[i := a[i] + 2];
+      a[i] := a[i] + 2;
     } else {
-      a := a[i := a[i] + 1];
+      a[i] := a[i] + 1;
     }
     i := i + 1;
   }

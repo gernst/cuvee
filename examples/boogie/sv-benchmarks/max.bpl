@@ -53,18 +53,18 @@ procedure main()
     max₃ := call max(x);
     ret := max₃;
     temp := x[0];
-    x := x[0 := x[1]];
-    x := x[1 := temp];
+    x[0] := x[1];
+    x[1] := temp;
     var max₄: int;
     max₄ := call max(x);
     ret2 := max₄;
     temp := x[0];
     var i: int := 0;
     while(i < N - 1) {
-      x := x[i := x[i + 1]];
+      x[i] := x[i + 1];
       i := i + 1;
     }
-    x := x[N - 1 := temp];
+    x[(N - 1)] := temp;
     var max₆: int;
     max₆ := call max(x);
     ret5 := max₆;

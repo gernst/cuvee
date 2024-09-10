@@ -35,21 +35,21 @@ procedure main()
     i := 1;
     while(i <= CELLCOUNT / 2) {
       if(MINVAL <= CCCELVOL2) {
-        volArray := volArray[i * 2 - 2 := CCCELVOL2];
+        volArray[((i * 2) - 2)] := CCCELVOL2;
       } else {
-        volArray := volArray[i * 2 - 2 := 0];
+        volArray[((i * 2) - 2)] := 0;
       }
-      volArray := volArray[i * 2 - 1 := volArray[i * 2 - 1]];
+      volArray[((i * 2) - 1)] := volArray[i * 2 - 1];
       i := i + 1;
     }
     i := 1;
     while(i <= CELLCOUNT / 2) {
       if(MINVAL <= CCCELVOL1) {
-        volArray := volArray[i * 2 - 1 := CCCELVOL1];
+        volArray[((i * 2) - 1)] := CCCELVOL1;
       } else {
-        volArray := volArray[i * 2 - 1 := 0];
+        volArray[((i * 2) - 1)] := 0;
       }
-      volArray := volArray[i * 2 - 2 := volArray[i * 2 - 2]];
+      volArray[((i * 2) - 2)] := volArray[i * 2 - 2];
       i := i + 1;
     }
     i := 0;

@@ -32,7 +32,7 @@ procedure main()
       while(k < n) {
         var nondet_int₁: int;
         assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-        B := B[i := B[i][j := B[i][j][k := nondet_int₁]]];
+        B[i][j][k] := nondet_int₁;
         k := k + 1;
       }
       j := j + 1;
@@ -48,7 +48,7 @@ procedure main()
     while(j < n) {
       k := 0;
       while(k < n) {
-        A := A[i := A[i][j := A[i][j][k := B[n - i - 1][n - j - 1][n - k - 1]]]];
+        A[i][j][k] := B[n - i - 1][n - j - 1][n - k - 1];
         k := k + 1;
       }
       j := j + 1;

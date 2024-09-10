@@ -25,28 +25,28 @@ procedure main()
   while(i < 200000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    a1 := a1[i := nondet_int₁];
+    a1[i] := nondet_int₁;
     var nondet_int₂: int;
     assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-    a2 := a2[i := nondet_int₂];
+    a2[i] := nondet_int₂;
     var nondet_int₃: int;
     assume -2147483648 <= nondet_int₃ && nondet_int₃ < 2147483648;
-    a3 := a3[i := nondet_int₃];
+    a3[i] := nondet_int₃;
     i := i + 1;
   }
   i := 0;
   while(i < 200000) {
     if(i != z) {
-      a2 := a2[i := a1[i]];
+      a2[i] := a1[i];
     }
     i := i + 1;
   }
   i := 0;
   while(i < 200000) {
     if(i != z) {
-      a3 := a3[i := a2[i]];
+      a3[i] := a2[i];
     } else {
-      a3 := a3[i := a1[i]];
+      a3[i] := a1[i];
     }
     i := i + 1;
   }

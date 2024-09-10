@@ -35,27 +35,27 @@ procedure main()
   i := 0;
   while(i < N) {
     if(i == 0) {
-      a := a[0 := 6];
+      a[0] := 6;
     } else {
-      a := a[i := a[i - 1] + 6];
+      a[i] := a[i - 1] + 6;
     }
     i := i + 1;
   }
   i := 0;
   while(i < N) {
     if(i == 0) {
-      b := b[0 := 1];
+      b[0] := 1;
     } else {
-      b := b[i := b[i - 1] + a[i - 1]];
+      b[i] := b[i - 1] + a[i - 1];
     }
     i := i + 1;
   }
   i := 0;
   while(i < N) {
     if(i == 0) {
-      c := c[0 := 0];
+      c[0] := 0;
     } else {
-      c := c[i := c[i - 1] + b[i - 1]];
+      c[i] := c[i - 1] + b[i - 1];
     }
     i := i + 1;
   }

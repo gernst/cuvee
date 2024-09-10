@@ -32,7 +32,7 @@ procedure main()
     var sum: int := 0;
     i := 0;
     while(i < SIZE) {
-      a := a[i := 1];
+      a[i] := 1;
       i := i + 1;
     }
     i := 0;

@@ -24,16 +24,16 @@ procedure main()
   while(i < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    A := A[i := nondet_int₁];
+    A[i] := nondet_int₁;
     var nondet_int₂: int;
     assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-    B := B[i := nondet_int₂];
+    B[i] := nondet_int₂;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
     if(A[i] == B[i]) {
-      C := C[j := i];
+      C[j] := i;
       j := j + 1;
     }
     i := i + 1;

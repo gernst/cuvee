@@ -35,9 +35,9 @@ procedure main()
     i := SIZE - 2;
     while(-1 <= i) {
       if(0 <= i) {
-        a := a[i := val1];
+        a[i] := val1;
       }
-      a := a[i + 1 := val2];
+      a[(i + 1)] := val2;
       i := i - 1;
     }
     i := 0;

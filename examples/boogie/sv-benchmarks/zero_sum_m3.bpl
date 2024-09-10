@@ -30,7 +30,7 @@ procedure main()
       while(i < SIZE) {
         var nondet_short₁: int;
         assume -32768 <= nondet_short₁ && nondet_short₁ < 32768;
-        a := a[i := nondet_short₁];
+        a[i] := nondet_short₁;
         i := i + 1;
       }
     }

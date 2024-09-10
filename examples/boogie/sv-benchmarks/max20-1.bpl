@@ -45,25 +45,25 @@ procedure main()
   while(i < 20) {
     var nondet_int₃: int;
     assume -2147483648 <= nondet_int₃ && nondet_int₃ < 2147483648;
-    x := x[i := nondet_int₃];
+    x[i] := nondet_int₃;
     i := i + 1;
   }
   var max₅: int;
   max₅ := call max(x);
   ret := max₅;
   temp := x[0];
-  x := x[0 := x[1]];
-  x := x[1 := temp];
+  x[0] := x[1];
+  x[1] := temp;
   var max₆: int;
   max₆ := call max(x);
   ret2 := max₆;
   temp := x[0];
   var i: int := 0;
   while(i < 20 - 1) {
-    x := x[i := x[i + 1]];
+    x[i] := x[i + 1];
     i := i + 1;
   }
-  x := x[20 - 1 := temp];
+  x[(20 - 1)] := temp;
   var max₈: int;
   max₈ := call max(x);
   ret5 := max₈;

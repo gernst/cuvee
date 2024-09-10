@@ -37,30 +37,30 @@ procedure main()
     while(i < SIZE) {
       var nondet_int₁: int;
       assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-      a_copy := a_copy[i := nondet_int₁];
+      a_copy[i] := nondet_int₁;
       var nondet_int₂: int;
       assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-      b_copy := b_copy[i := nondet_int₂];
+      b_copy[i] := nondet_int₂;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
-      a := a[i := a_copy[SIZE - i - 1]];
-      b := b[i := b_copy[SIZE - i - 1]];
-      i := i + 1;
-    }
-    i := 0;
-    while(i < SIZE) {
-      tmp := a[i];
-      a := a[i := b[i]];
-      b := b[i := tmp];
+      a[i] := a_copy[SIZE - i - 1];
+      b[i] := b_copy[SIZE - i - 1];
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
       tmp := a[i];
-      a := a[i := b[i]];
-      b := b[i := tmp];
+      a[i] := b[i];
+      b[i] := tmp;
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE) {
+      tmp := a[i];
+      a[i] := b[i];
+      b[i] := tmp;
       i := i + 1;
     }
     i := 0;

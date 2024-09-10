@@ -36,19 +36,19 @@ procedure main()
     i := 1;
     while(i <= CELLCOUNT / 3) {
       if(MINVAL <= CCCELVOL3) {
-        volArray := volArray[i * 3 - 3 := CCCELVOL3];
+        volArray[((i * 3) - 3)] := CCCELVOL3;
       } else {
-        volArray := volArray[i * 3 - 3 := 0];
+        volArray[((i * 3) - 3)] := 0;
       }
       if(MINVAL <= CCCELVOL2) {
-        volArray := volArray[i * 3 - 2 := CCCELVOL2];
+        volArray[((i * 3) - 2)] := CCCELVOL2;
       } else {
-        volArray := volArray[i * 3 - 2 := 0];
+        volArray[((i * 3) - 2)] := 0;
       }
       if(MINVAL <= CCCELVOL1) {
-        volArray := volArray[i * 3 - 1 := CCCELVOL1];
+        volArray[((i * 3) - 1)] := CCCELVOL1;
       } else {
-        volArray := volArray[i * 3 - 1 := 0];
+        volArray[((i * 3) - 1)] := 0;
       }
       i := i + 1;
     }

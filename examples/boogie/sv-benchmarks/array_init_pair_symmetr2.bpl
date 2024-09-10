@@ -32,13 +32,13 @@ procedure main()
     assume y < 100000 && -100000 < y;
     assume x < 100000 && -100000 < x;
     assume y < x;
-    a := a[i := x];
-    b := b[i := y];
+    a[i] := x;
+    b[i] := y;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    c := c[i := a[i] - b[i]];
+    c[i] := a[i] - b[i];
     i := i + 1;
   }
   i := 1;

@@ -31,16 +31,16 @@ procedure main()
               && i₅ < i
                ==> i₅ < S
                 && acopy[i₅] == a[i₅]
-                && (1 + -i₅ + 2 * S != i₅
-                   ==> acopy[1 + -i₅ + 2 * S] == a[1 + -i₅ + 2 * S])))
+                && (-1 + -i₅ + 2 * S != i₅
+                   ==> acopy[-1 + -i₅ + 2 * S] == a[1 + -i₅ + 2 * S])))
       && (forall i₅: int ::
             (!(  old(i) <= i₅
               && i₅ < i
             )
                ==> acopy[i₅] == old(acopy)[i₅]
-                && acopy[1 + -i₅ + 2 * S] == old(acopy)[1 + -i₅ + 2 * S]));
+                && acopy[-1 + -i₅ + 2 * S] == old(acopy)[-1 + -i₅ + 2 * S]));
   {
-    acopy[(((2 * S) - i) + 1)] := a[2 * S - i + 1];
+    acopy[((2 * S) - (i + 1))] := a[2 * S - i + 1];
     acopy[i] := a[i];
     i := i + 1;
   }

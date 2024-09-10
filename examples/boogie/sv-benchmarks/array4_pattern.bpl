@@ -32,8 +32,8 @@ procedure main()
   var index2: int;
   count := 0;
   while(count < ARR_SIZE) {
-    array1 := array1[count := 0];
-    array2 := array2[count := 0];
+    array1[count] := 0;
+    array2[count] := 0;
     count := count + 1;
   }
   count := 1;
@@ -46,8 +46,8 @@ procedure main()
     assume 0 <= index2 && index2 < ARR_SIZE;
     assume array1[index1] == 0;
     assume array2[index2] == 0;
-    array1 := array1[index1 := num * num * count];
-    array2 := array2[index2 := num * count];
+    array1[index1] := num * num * count;
+    array2[index2] := num * count;
     if(count == 200) {
       count := 0;
     }

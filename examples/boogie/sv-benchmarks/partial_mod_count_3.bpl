@@ -25,9 +25,9 @@ procedure main()
   var R: int := 3;
   i := 0;
   while(i < N) {
-    a := a[i := i + 1];
+    a[i] := i + 1;
     if(N / 2 < i) {
-      a := a[i := i % R];
+      a[i] := i % R;
     }
     i := i + 1;
   }

@@ -31,8 +31,8 @@ procedure main()
     var a: [int]int;
     i := SIZE - 2;
     while(0 <= i) {
-      a := a[i := i];
-      a := a[i + 1 := i + 1];
+      a[i] := i;
+      a[(i + 1)] := i + 1;
       i := i - 1;
     }
     i := 0;

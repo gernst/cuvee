@@ -32,25 +32,25 @@ procedure main()
   var sum: [int]int;
   var a: [int]int;
   var b: [int]int;
-  sum := sum[0 := 0];
+  sum[0] := 0;
   i := 0;
   while(i < N) {
-    a := a[i := 1];
+    a[i] := 1;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    sum := sum[0 := sum[0] + a[i]];
+    sum[0] := sum[0] + a[i];
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    a := a[i := a[i] + sum[0]];
+    a[i] := a[i] + sum[0];
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    b := b[i := a[i] + 1];
+    b[i] := a[i] + 1;
     i := i + 1;
   }
   i := 0;

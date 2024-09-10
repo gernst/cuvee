@@ -20,8 +20,8 @@ procedure main()
   var a: [int]int;
   i := 0;
   while(i <= N) {
-    a := a[2 * i := 0];
-    a := a[2 * i + 1 := 0];
+    a[(2 * i)] := 0;
+    a[((2 * i) + 1)] := 0;
     i := i + 1;
   }
   i := 0;

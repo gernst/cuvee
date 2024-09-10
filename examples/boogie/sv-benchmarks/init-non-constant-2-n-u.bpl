@@ -35,7 +35,7 @@ procedure main()
   while(i < q) {
     j := 0;
     while(j < s) {
-      A := A[i := A[i][j := i + j + C]];
+      A[i][j] := i + j + C;
       j := j + 1;
     }
     i := i + 1;

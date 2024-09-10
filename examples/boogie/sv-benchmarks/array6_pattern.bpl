@@ -32,16 +32,16 @@ procedure main()
   var index: int;
   count := 0;
   while(count < ARR_SIZE) {
-    array1 := array1[count := num * num * count];
-    array2 := array2[count := num * count];
+    array1[count] := num * num * count;
+    array2[count] := num * count;
     count := count + 1;
   }
   while(1 != 0) {
     havoc index;
     assume -32768 <= index && index < 32768;
     assume 0 < index && index < ARR_SIZE - 1;
-    array1 := array1[index := array1[index - 1] + array1[index + 1]];
-    array2 := array2[index := array2[index - 1] + array2[index + 1]];
+    array1[index] := array1[index - 1] + array1[index + 1];
+    array2[index] := array2[index - 1] + array2[index + 1];
     havoc temp;
     assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {

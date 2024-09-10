@@ -32,8 +32,8 @@ procedure main()
   var index: int;
   count := 0;
   while(count < ARR_SIZE) {
-    array1 := array1[count := 0];
-    array2 := array2[count := 0];
+    array1[count] := 0;
+    array2[count] := 0;
     count := count + 1;
   }
   while(1 != 0) {
@@ -41,14 +41,14 @@ procedure main()
     assume -32768 <= nondet_short₃ && nondet_short₃ < 32768;
     index := nondet_short₃;
     assume 0 <= index && index < ARR_SIZE;
-    array1 := array1[index := num * num * num * num * index];
+    array1[index] := num * num * num * num * index;
     var x₄: int;
     if(index == ARR_SIZE - 1) {
       x₄ := index;
     } else {
       x₄ := num * index;
     }
-    array2 := array2[index := x₄];
+    array2[index] := x₄;
     havoc temp;
     assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {

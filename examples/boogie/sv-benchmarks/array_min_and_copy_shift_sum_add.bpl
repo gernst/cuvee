@@ -35,7 +35,7 @@ procedure main()
   }
   i := 0;
   while(i < N) {
-    b := b[i := a[i] - j];
+    b[i] := a[i] - j;
     i := i + 1;
   }
   i := 0;

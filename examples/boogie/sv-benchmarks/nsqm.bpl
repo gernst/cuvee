@@ -31,16 +31,16 @@ procedure main()
   var i: int;
   var a: [int]int;
   var b: [int]int;
-  b := b[0 := 1];
-  a := a[0 := N + 1];
+  b[0] := 1;
+  a[0] := N + 1;
   i := 1;
   while(i < N) {
-    b := b[i := b[i - 1] + 2];
+    b[i] := b[i - 1] + 2;
     i := i + 1;
   }
   i := 1;
   while(i < N) {
-    a := a[i := a[i - 1] + b[i - 1] + 2];
+    a[i] := a[i - 1] + b[i - 1] + 2;
     i := i + 1;
   }
   i := 0;

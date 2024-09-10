@@ -31,7 +31,7 @@ procedure main()
     var a: [int]int;
     i := 0;
     while(i < SIZE) {
-      a := a[i := i * i];
+      a[i] := i * i;
       i := i + 1;
     }
     i := 0;

@@ -22,11 +22,11 @@ procedure main()
   while(j < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    src := src[j := nondet_int₁];
+    src[j] := nondet_int₁;
     j := j + 1;
   }
   while(i < 100000 && src[i] != 0) {
-    dst := dst[i := src[i]];
+    dst[i] := src[i];
     i := i + 1;
   }
   i := 0;

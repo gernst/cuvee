@@ -22,15 +22,15 @@ procedure main()
   while(i < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    a := a[i := nondet_int₁];
+    a[i] := nondet_int₁;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
     if(0 <= a[i]) {
-      b := b[i := 1];
+      b[i] := 1;
     } else {
-      b := b[i := 0];
+      b[i] := 0;
     }
     i := i + 1;
   }

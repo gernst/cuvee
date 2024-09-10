@@ -46,7 +46,7 @@ procedure main()
     while(column < ARR_SIZE) {
       var diff₂: int;
       diff₂ := call diff(row, column);
-      array := array[row := array[row][column := diff₂]];
+      array[row][column] := diff₂;
       column := column + 1;
     }
     row := row + 1;

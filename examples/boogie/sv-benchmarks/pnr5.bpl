@@ -52,41 +52,41 @@ procedure main()
       ReadFromPort₁ := call ReadFromPort();
       value := ReadFromPort₁;
       if(value != DEFAULTVAL) {
-        a := a[i * 5 - 5 := value];
+        a[((i * 5) - 5)] := value;
       } else {
-        a := a[i * 5 - 5 := FIXEDVAL];
+        a[((i * 5) - 5)] := FIXEDVAL;
       }
       var ReadFromPort₂: int;
       ReadFromPort₂ := call ReadFromPort();
       value := ReadFromPort₂;
       if(value != DEFAULTVAL) {
-        a := a[i * 5 - 4 := value];
+        a[((i * 5) - 4)] := value;
       } else {
-        a := a[i * 5 - 4 := FIXEDVAL];
+        a[((i * 5) - 4)] := FIXEDVAL;
       }
       var ReadFromPort₃: int;
       ReadFromPort₃ := call ReadFromPort();
       value := ReadFromPort₃;
       if(value != DEFAULTVAL) {
-        a := a[i * 5 - 3 := value];
+        a[((i * 5) - 3)] := value;
       } else {
-        a := a[i * 5 - 3 := FIXEDVAL];
+        a[((i * 5) - 3)] := FIXEDVAL;
       }
       var ReadFromPort₄: int;
       ReadFromPort₄ := call ReadFromPort();
       value := ReadFromPort₄;
       if(value != DEFAULTVAL) {
-        a := a[i * 5 - 2 := value];
+        a[((i * 5) - 2)] := value;
       } else {
-        a := a[i * 5 - 2 := FIXEDVAL];
+        a[((i * 5) - 2)] := FIXEDVAL;
       }
       var ReadFromPort₅: int;
       ReadFromPort₅ := call ReadFromPort();
       value := ReadFromPort₅;
       if(value != DEFAULTVAL) {
-        a := a[i * 5 - 1 := value];
+        a[((i * 5) - 1)] := value;
       } else {
-        a := a[i * 5 - 1 := FIXEDVAL];
+        a[((i * 5) - 1)] := FIXEDVAL;
       }
       i := i + 1;
     }

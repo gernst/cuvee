@@ -21,8 +21,8 @@ procedure main()
   var i: int;
   i := 0;
   while(i < 100000) {
-    a := a[i := i];
-    b := b[i := i];
+    a[i] := i;
+    b[i] := i;
     i := i + 1;
   }
   i := 0;
@@ -32,8 +32,8 @@ procedure main()
     if(nondet_short₂ != 0) {
       havoc k;
       assume -32768 <= k && k < 32768;
-      a := a[i := k];
-      b := b[i := k * k];
+      a[i] := k;
+      b[i] := k * k;
     }
     i := i + 1;
   }

@@ -18,7 +18,7 @@ procedure incrementArray(src: [int]int, dst: [int]int)
   var i: int;
   i := 0;
   while(i < 100000) {
-    dst := dst[i := src[i] + 1];
+    dst[i] := src[i] + 1;
     i := i + 1;
   }
 }
@@ -32,7 +32,7 @@ procedure main()
   while(i < 100000) {
     var nondet_int₂: int;
     assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-    src := src[i := nondet_int₂];
+    src[i] := nondet_int₂;
     i := i + 1;
   }
   var incrementArray₄: c#void;
@@ -40,7 +40,7 @@ procedure main()
   var x: int;
   x := 0;
   while(x < 100000) {
-    src := src[x := dst[x] - 1];
+    src[x] := dst[x] - 1;
     x := x + 1;
   }
   c#result := 0;

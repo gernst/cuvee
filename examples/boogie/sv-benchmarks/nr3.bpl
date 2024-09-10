@@ -36,9 +36,9 @@ procedure main()
       j := 3;
       while(1 <= j) {
         if(MINVAL <= j) {
-          volArray := volArray[i * 3 - j := j];
+          volArray[((i * 3) - j)] := j;
         } else {
-          volArray := volArray[i * 3 - j := 0];
+          volArray[((i * 3) - j)] := 0;
         }
         j := j - 1;
       }

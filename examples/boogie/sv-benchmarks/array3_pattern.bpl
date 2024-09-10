@@ -41,16 +41,16 @@ procedure main()
   var index: int;
   count := 0;
   while(count < ARR_SIZE) {
-    array1 := array1[count := 0];
-    array2 := array2[count := 0];
+    array1[count] := 0;
+    array2[count] := 0;
     count := count + 1;
   }
   while(1 != 0) {
     havoc index;
     assume -32768 <= index && index < 32768;
     assume 0 <= index && index < ARR_SIZE;
-    array1 := array1[index := array1[index] + num * num * index];
-    array2 := array2[ARR_SIZE - 1 - index := array2[ARR_SIZE - 1 - index] + num * index];
+    array1[index] := array1[index] + num * num * index;
+    array2[((ARR_SIZE - 1) - index)] := array2[ARR_SIZE - 1 - index] + num * index;
     havoc temp;
     assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {

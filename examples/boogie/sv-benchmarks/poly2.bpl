@@ -31,12 +31,12 @@ procedure main()
     var a: [int]int;
     i := 0;
     while(i < SIZE) {
-      a := a[i := i * i + 2];
+      a[i] := i * i + 2;
       i := i + 1;
     }
     i := 0;
     while(i < SIZE) {
-      a := a[i := a[i] - 2];
+      a[i] := a[i] - 2;
       i := i + 1;
     }
     i := 0;

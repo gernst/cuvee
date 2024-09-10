@@ -28,7 +28,7 @@ procedure main()
     var k: int;
     assume -2147483648 <= k && k < 2147483648;
     assume 0 < k && k < 10000;
-    a := a[i := i + j + k];
+    a[i] := i + j + k;
     i := i + 1;
   }
   i := 1;

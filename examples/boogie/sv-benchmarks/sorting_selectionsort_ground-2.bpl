@@ -24,7 +24,7 @@ procedure main()
     while(i < 100000) {
       var nondet_int₁: int;
       assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-      a := a[i := nondet_int₁];
+      a[i] := nondet_int₁;
       i := i + 1;
     }
   }
@@ -40,8 +40,8 @@ procedure main()
     }
     if(s != i) {
       var tmp: int := a[s];
-      a := a[s := a[i]];
-      a := a[i := tmp];
+      a[s] := a[i];
+      a[i] := tmp;
     }
     x := 0;
     while(x < i) {

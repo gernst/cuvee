@@ -28,13 +28,13 @@ procedure main()
     var x: int;
     assume -2147483648 <= x && x < 2147483648;
     assume -100000 < x && x < 100000;
-    a := a[i := x];
-    b := b[i := -x];
+    a[i] := x;
+    b[i] := -x;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    c := c[i := a[i] + b[i]];
+    c[i] := a[i] + b[i];
     i := i + 1;
   }
   i := 1;

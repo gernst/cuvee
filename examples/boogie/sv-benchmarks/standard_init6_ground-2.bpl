@@ -18,32 +18,32 @@ procedure main()
   var a: [int]int;
   var i: int := 0;
   while(i < 100000) {
-    a := a[i := 42];
+    a[i] := 42;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    a := a[i := 43];
+    a[i] := 43;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    a := a[i := 44];
+    a[i] := 44;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    a := a[i := 45];
+    a[i] := 45;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    a := a[i := 46];
+    a[i] := 46;
     i := i + 1;
   }
   i := 0;
   while(i < 100000) {
-    a := a[i := 47];
+    a[i] := 47;
     i := i + 1;
   }
   var x: int;

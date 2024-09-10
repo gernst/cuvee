@@ -38,29 +38,29 @@ procedure main()
     i := 1;
     while(i <= CELLCOUNT / 5) {
       if(MINVAL <= CCCELVOL5) {
-        volArray := volArray[i * 5 - 5 := CCCELVOL5];
+        volArray[((i * 5) - 5)] := CCCELVOL5;
       } else {
-        volArray := volArray[i * 5 - 5 := 0];
+        volArray[((i * 5) - 5)] := 0;
       }
       if(MINVAL <= CCCELVOL4) {
-        volArray := volArray[i * 5 - 4 := CCCELVOL4];
+        volArray[((i * 5) - 4)] := CCCELVOL4;
       } else {
-        volArray := volArray[i * 5 - 4 := 0];
+        volArray[((i * 5) - 4)] := 0;
       }
       if(MINVAL <= CCCELVOL3) {
-        volArray := volArray[i * 5 - 3 := CCCELVOL3];
+        volArray[((i * 5) - 3)] := CCCELVOL3;
       } else {
-        volArray := volArray[i * 5 - 3 := 0];
+        volArray[((i * 5) - 3)] := 0;
       }
       if(MINVAL <= CCCELVOL2) {
-        volArray := volArray[i * 5 - 2 := CCCELVOL2];
+        volArray[((i * 5) - 2)] := CCCELVOL2;
       } else {
-        volArray := volArray[i * 5 - 2 := 0];
+        volArray[((i * 5) - 2)] := 0;
       }
       if(MINVAL <= CCCELVOL1) {
-        volArray := volArray[i * 5 - 1 := CCCELVOL1];
+        volArray[((i * 5) - 1)] := CCCELVOL1;
       } else {
-        volArray := volArray[i * 5 - 1 := 0];
+        volArray[((i * 5) - 1)] := 0;
       }
       i := i + 1;
     }

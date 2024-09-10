@@ -33,7 +33,7 @@ procedure main()
     while(i < SIZE) {
       var nondet_int₁: int;
       assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-      a := a[i := nondet_int₁];
+      a[i] := nondet_int₁;
       i := i + 1;
     }
     if(SIZE % 2 != 0) {
@@ -44,10 +44,10 @@ procedure main()
     i := 1;
     while(i <= SIZE / 2) {
       if(2 * i - 2 < a[2 * i - 2]) {
-        a := a[2 * i - 2 := 2 * i - 2];
+        a[((2 * i) - 2)] := 2 * i - 2;
       }
       if(2 * i - 1 < a[2 * i - 1]) {
-        a := a[2 * i - 1 := 2 * i - 1];
+        a[((2 * i) - 1)] := 2 * i - 1;
       }
       i := i + 1;
     }

@@ -22,13 +22,13 @@ procedure main()
   var c: [int]int;
   i := 0;
   while(i < N) {
-    a := a[i := 1];
-    b := b[i := 2];
+    a[i] := 1;
+    b[i] := 2;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    c := c[i := a[i] + b[i]];
+    c[i] := a[i] + b[i];
     i := i + 1;
   }
   i := 1;

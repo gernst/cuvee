@@ -24,17 +24,17 @@ procedure main()
   while(j < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    a := a[j := nondet_int₁];
+    a[j] := nondet_int₁;
     var nondet_int₂: int;
     assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-    b := b[j := nondet_int₂];
+    b[j] := nondet_int₂;
     j := j + 1;
   }
   while(i < 100000) {
     if(a[i] != b[i]) {
       rv := 0;
     }
-    c := c[i := a[i]];
+    c[i] := a[i];
     i := i + 1;
   }
   var x: int;

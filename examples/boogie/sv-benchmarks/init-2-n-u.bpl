@@ -27,7 +27,7 @@ procedure main()
   while(i < m) {
     j := 0;
     while(j < n) {
-      A := A[i := A[i][j := C]];
+      A[i][j] := C;
       j := j + 1;
     }
     i := i + 1;

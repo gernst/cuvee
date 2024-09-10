@@ -18,7 +18,7 @@ procedure main()
   var a: [int]int;
   var i: int := 0;
   while(i < 100000) {
-    a := a[i := 42];
+    a[i] := 42;
     i := i + 1;
   }
   var x: int;

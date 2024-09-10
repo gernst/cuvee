@@ -40,7 +40,7 @@ procedure main()
       while(k < p) {
         l := 0;
         while(l < q) {
-          A := A[i := A[i][j := A[i][j][k := A[i][j][k][l := C]]]];
+          A[i][j][k][l] := C;
           l := l + 1;
         }
         k := k + 1;

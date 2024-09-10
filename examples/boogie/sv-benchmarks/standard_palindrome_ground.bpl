@@ -21,12 +21,12 @@ procedure main()
   while(i < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    A := A[i := nondet_int₁];
+    A[i] := nondet_int₁;
     i := i + 1;
   }
   i := 0;
   while(i < 100000 / 2) {
-    A := A[i := A[100000 - i - 1]];
+    A[i] := A[100000 - i - 1];
     i := i + 1;
   }
   var x: int;

@@ -39,25 +39,25 @@ procedure main()
   while(i < 10000) {
     var nondet_int₂: int;
     assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
-    x := x[i := nondet_int₂];
+    x[i] := nondet_int₂;
     i := i + 1;
   }
   var mapavg₄: int;
   mapavg₄ := call mapavg(x);
   ret := mapavg₄;
   temp := x[0];
-  x := x[0 := x[1]];
-  x := x[1 := temp];
+  x[0] := x[1];
+  x[1] := temp;
   var mapavg₅: int;
   mapavg₅ := call mapavg(x);
   ret2 := mapavg₅;
   temp := x[0];
   var i: int := 0;
   while(i < 10000 - 1) {
-    x := x[i := x[i + 1]];
+    x[i] := x[i + 1];
     i := i + 1;
   }
-  x := x[10000 - 1 := temp];
+  x[(10000 - 1)] := temp;
   var mapavg₇: int;
   mapavg₇ := call mapavg(x);
   ret5 := mapavg₇;

@@ -28,7 +28,7 @@ procedure main()
     while(j < n) {
       var nondet_int₁: int;
       assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-      A := A[i := A[i][j := nondet_int₁]];
+      A[i][j] := nondet_int₁;
       j := j + 1;
     }
     i := i + 1;

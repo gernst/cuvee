@@ -22,9 +22,9 @@ procedure main()
   while(i < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    a := a[i := nondet_int₁];
+    a[i] := nondet_int₁;
     if(a[i] == 10) {
-      b := b[i := 20];
+      b[i] := 20;
     }
     i := i + 2;
   }

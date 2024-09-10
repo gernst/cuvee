@@ -22,13 +22,13 @@ procedure main()
   while(a < 100000) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    a1 := a1[a := nondet_int₁];
+    a1[a] := nondet_int₁;
     a := a + 1;
   }
   var i: int;
   i := 0;
   while(i < 100000) {
-    a2 := a2[i := a1[i]];
+    a2[i] := a1[i];
     i := i + 1;
   }
   var x: int;

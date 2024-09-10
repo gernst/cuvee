@@ -24,8 +24,8 @@ procedure main()
   var acopy: [int]int;
   i := 0;
   while(i < S) {
-    acopy := acopy[2 * S - i + 1 := a[2 * S - i + 1]];
-    acopy := acopy[i := a[i]];
+    acopy[((2 * S) - (i + 1))] := a[2 * S - i + 1];
+    acopy[i] := a[i];
     i := i + 1;
   }
   i := 0;

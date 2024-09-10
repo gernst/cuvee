@@ -33,8 +33,8 @@ procedure main()
   var pivot: int;
   count := 0;
   while(count < ARR_SIZE) {
-    array1 := array1[count := num * num * count];
-    array2 := array2[count := num * count];
+    array1[count] := num * num * count;
+    array2[count] := num * count;
     count := count + 1;
   }
   while(1 != 0) {
@@ -46,8 +46,8 @@ procedure main()
     pivot := nondet_short₄;
     assume 0 < pivot;
     assume pivot <= index && index < ARR_SIZE - pivot;
-    array1 := array1[index := array1[index - pivot] + array1[index + pivot]];
-    array2 := array2[index := array2[index - pivot] + array2[index + pivot]];
+    array1[index] := array1[index - pivot] + array1[index + pivot];
+    array2[index] := array2[index - pivot] + array2[index + pivot];
     havoc temp;
     assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {

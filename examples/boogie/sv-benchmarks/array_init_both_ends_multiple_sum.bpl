@@ -25,12 +25,12 @@ procedure main()
   var sum: int := 0;
   i := 0;
   while(i < N) {
-    a := a[i := i];
+    a[i] := i;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
-    b := b[N - i - 1 := i];
+    b[((N - i) - 1)] := i;
     i := i + 1;
   }
   i := 0;

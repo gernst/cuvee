@@ -26,7 +26,7 @@ procedure main()
   while(i < n) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    vectorx := vectorx[i := nondet_int₁];
+    vectorx[i] := nondet_int₁;
     i := i + 1;
   }
   i := 0;
@@ -40,7 +40,7 @@ procedure main()
   if(found != 0) {
     i := pos;
     while(i < n - 1) {
-      vectorx := vectorx[i := vectorx[i + 1]];
+      vectorx[i] := vectorx[i + 1];
       i := i + 1;
     }
   }

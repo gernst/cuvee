@@ -166,6 +166,168 @@ goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]i
           || i₂₂ < 100000
           || bb₂₇[b₂₆ := aa₂₁[a₂₅]][b₁₀] == bb[b₁₀]));
 
+goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, c₂₃: int, cc₂₄: [int]int, a₂₅: int, b₂₆: int, bb₂₇: [int]int, c₈: int, a₉: int, b₁₀: int ::
+      (  0 <= i₂₂
+        && (forall i₅: int ::
+              (  0 <= i₅
+                && i₅ < i₂₂
+                 ==> (exists nondet_int₁₄: int ::
+                        -2147483648 <= nondet_int₁₄
+                        && nondet_int₁₄ < 2147483648
+                        && i₅ < 100000
+                        && aa₂₁[i₅] == nondet_int₁₄)))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₂₂
+                || aa₂₁[i₅] == aa[i₅])
+        && c₂₃ + 0 == 0 + a₂₅
+        && c₂₃ + 0 == 0 + b₂₆
+        && 0 <= c₂₃
+        && 0 <= a₂₅
+        && 0 <= b₂₆
+        && (forall c₃₀₂: int, a₃₀₁: int, b₃₀₃: int ::
+              (  c₃₀₂ + c₃₀₂ == a₃₀₁ + a₃₀₁
+                && c₃₀₂ + c₃₀₂ == b₃₀₃ + b₃₀₃
+                && 0 <= c₃₀₂
+                && c₃₀₂ < c₂₃
+                && 0 <= a₃₀₁
+                && a₃₀₁ < a₂₅
+                && 0 <= b₃₀₃
+                && b₃₀₃ < b₂₆
+                 ==> 0 <= aa₂₁[a₃₀₁]
+                    && a₃₀₁ < 100000
+                    && bb₂₇[b₃₀₃] == aa₂₁[a₃₀₁]
+                  ||   (0 <= aa₂₁[a₃₀₁]
+                       ==> false)
+                    && a₃₀₁ < 100000
+                    && cc₂₄[c₃₀₂] == aa₂₁[a₃₀₁]))
+        && (forall c₃₀₅: int, a₃₀₄: int, b₃₀₆: int ::
+              (  c₃₀₅ + c₃₀₅ == a₃₀₄ + a₃₀₄
+                && c₃₀₅ + c₃₀₅ == b₃₀₆ + b₃₀₆
+                 ==> 0 <= c₃₀₅
+                    && c₃₀₅ < c₂₃
+                    && 0 <= a₃₀₄
+                    && a₃₀₄ < a₂₅
+                    && 0 <= b₃₀₆
+                    && b₃₀₆ < b₂₆
+                  ||   bb₂₇[b₃₀₆] == bb[b₃₀₆]
+                    && cc₂₄[c₃₀₅] == cc[c₃₀₅]))
+        && a₂₅ < 100000
+        && 0 <= aa₂₁[a₂₅]
+        && c₈ + c₈ == a₉ + a₉
+        && c₈ + c₈ == b₁₀ + b₁₀
+         ==> 0 <= a₉
+          || i₂₂ < 100000
+          || bb₂₇[b₂₆ := aa₂₁[a₂₅]][b₁₀] == bb[b₁₀]));
+
+goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, c₂₃: int, cc₂₄: [int]int, a₂₅: int, b₂₆: int, bb₂₇: [int]int, c₈: int, a₉: int, b₁₀: int ::
+      (  0 <= i₂₂
+        && (forall i₅: int ::
+              (  0 <= i₅
+                && i₅ < i₂₂
+                 ==> (exists nondet_int₁₄: int ::
+                        -2147483648 <= nondet_int₁₄
+                        && nondet_int₁₄ < 2147483648
+                        && i₅ < 100000
+                        && aa₂₁[i₅] == nondet_int₁₄)))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₂₂
+                || aa₂₁[i₅] == aa[i₅])
+        && c₂₃ + 0 == 0 + a₂₅
+        && c₂₃ + 0 == 0 + b₂₆
+        && 0 <= c₂₃
+        && 0 <= a₂₅
+        && 0 <= b₂₆
+        && (forall c₃₃₄: int, a₃₃₃: int, b₃₃₅: int ::
+              (  c₃₃₄ + c₃₃₄ == a₃₃₃ + a₃₃₃
+                && c₃₃₄ + c₃₃₄ == b₃₃₅ + b₃₃₅
+                && 0 <= c₃₃₄
+                && c₃₃₄ < c₂₃
+                && 0 <= a₃₃₃
+                && a₃₃₃ < a₂₅
+                && 0 <= b₃₃₅
+                && b₃₃₅ < b₂₆
+                 ==> 0 <= aa₂₁[a₃₃₃]
+                    && a₃₃₃ < 100000
+                    && bb₂₇[b₃₃₅] == aa₂₁[a₃₃₃]
+                  ||   (0 <= aa₂₁[a₃₃₃]
+                       ==> false)
+                    && a₃₃₃ < 100000
+                    && cc₂₄[c₃₃₄] == aa₂₁[a₃₃₃]))
+        && (forall c₃₃₇: int, a₃₃₆: int, b₃₃₈: int ::
+              (  c₃₃₇ + c₃₃₇ == a₃₃₆ + a₃₃₆
+                && c₃₃₇ + c₃₃₇ == b₃₃₈ + b₃₃₈
+                 ==> 0 <= c₃₃₇
+                    && c₃₃₇ < c₂₃
+                    && 0 <= a₃₃₆
+                    && a₃₃₆ < a₂₅
+                    && 0 <= b₃₃₈
+                    && b₃₃₈ < b₂₆
+                  ||   bb₂₇[b₃₃₈] == bb[b₃₃₈]
+                    && cc₂₄[c₃₃₇] == cc[c₃₃₇]))
+        && a₂₅ < 100000
+        && 0 <= aa₂₁[a₂₅]
+        && c₈ + c₈ == a₉ + a₉
+        && c₈ + c₈ == b₁₀ + b₁₀
+         ==> a₉ < a₂₅ + 1
+          || i₂₂ < 100000
+          || bb₂₇[b₂₆ := aa₂₁[a₂₅]][b₁₀] == bb[b₁₀]));
+
+goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, c₂₃: int, cc₂₄: [int]int, a₂₅: int, b₂₆: int, bb₂₇: [int]int, c₈: int, a₉: int, b₁₀: int ::
+      (  0 <= i₂₂
+        && (forall i₅: int ::
+              (  0 <= i₅
+                && i₅ < i₂₂
+                 ==> (exists nondet_int₁₄: int ::
+                        -2147483648 <= nondet_int₁₄
+                        && nondet_int₁₄ < 2147483648
+                        && i₅ < 100000
+                        && aa₂₁[i₅] == nondet_int₁₄)))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₂₂
+                || aa₂₁[i₅] == aa[i₅])
+        && c₂₃ + 0 == 0 + a₂₅
+        && c₂₃ + 0 == 0 + b₂₆
+        && 0 <= c₂₃
+        && 0 <= a₂₅
+        && 0 <= b₂₆
+        && (forall c₃₉₂: int, a₃₉₁: int, b₃₉₃: int ::
+              (  c₃₉₂ + c₃₉₂ == a₃₉₁ + a₃₉₁
+                && c₃₉₂ + c₃₉₂ == b₃₉₃ + b₃₉₃
+                && 0 <= c₃₉₂
+                && c₃₉₂ < c₂₃
+                && 0 <= a₃₉₁
+                && a₃₉₁ < a₂₅
+                && 0 <= b₃₉₃
+                && b₃₉₃ < b₂₆
+                 ==> 0 <= aa₂₁[a₃₉₁]
+                    && a₃₉₁ < 100000
+                    && bb₂₇[b₃₉₃] == aa₂₁[a₃₉₁]
+                  ||   (0 <= aa₂₁[a₃₉₁]
+                       ==> false)
+                    && a₃₉₁ < 100000
+                    && cc₂₄[c₃₉₂] == aa₂₁[a₃₉₁]))
+        && (forall c₃₉₅: int, a₃₉₄: int, b₃₉₆: int ::
+              (  c₃₉₅ + c₃₉₅ == a₃₉₄ + a₃₉₄
+                && c₃₉₅ + c₃₉₅ == b₃₉₆ + b₃₉₆
+                 ==> 0 <= c₃₉₅
+                    && c₃₉₅ < c₂₃
+                    && 0 <= a₃₉₄
+                    && a₃₉₄ < a₂₅
+                    && 0 <= b₃₉₆
+                    && b₃₉₆ < b₂₆
+                  ||   bb₂₇[b₃₉₆] == bb[b₃₉₆]
+                    && cc₂₄[c₃₉₅] == cc[c₃₉₅]))
+        && a₂₅ < 100000
+        && 0 <= aa₂₁[a₂₅]
+        && c₈ + c₈ == a₉ + a₉
+        && c₈ + c₈ == b₁₀ + b₁₀
+         ==> b₁₀ < b₂₆ + 1
+          || i₂₂ < 100000
+          || bb₂₇[b₂₆ := aa₂₁[a₂₅]][b₁₀] == bb[b₁₀]));
+
 goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂₁: [int]int, i₂₂: int, c₂₃: int, cc₂₄: [int]int, a₂₅: int, b₂₆: int, bb₂₇: [int]int ::
       (  0 <= i₂₂
         && (forall i₅: int ::
@@ -236,33 +398,33 @@ goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]i
         && 0 <= c₂₃
         && 0 <= a₂₅
         && 0 <= b₂₆
-        && (forall c₅₆₀: int, a₅₅₉: int, b₅₆₁: int ::
-              (  c₅₆₀ + c₅₆₀ == a₅₅₉ + a₅₅₉
-                && c₅₆₀ + c₅₆₀ == b₅₆₁ + b₅₆₁
-                && 0 <= c₅₆₀
-                && c₅₆₀ < c₂₃
-                && 0 <= a₅₅₉
-                && a₅₅₉ < a₂₅
-                && 0 <= b₅₆₁
-                && b₅₆₁ < b₂₆
-                 ==> 0 <= aa₂₁[a₅₅₉]
-                    && a₅₅₉ < 100000
-                    && bb₂₇[b₅₆₁] == aa₂₁[a₅₅₉]
-                  ||   (0 <= aa₂₁[a₅₅₉]
+        && (forall c₅₇₈: int, a₅₇₇: int, b₅₇₉: int ::
+              (  c₅₇₈ + c₅₇₈ == a₅₇₇ + a₅₇₇
+                && c₅₇₈ + c₅₇₈ == b₅₇₉ + b₅₇₉
+                && 0 <= c₅₇₈
+                && c₅₇₈ < c₂₃
+                && 0 <= a₅₇₇
+                && a₅₇₇ < a₂₅
+                && 0 <= b₅₇₉
+                && b₅₇₉ < b₂₆
+                 ==> 0 <= aa₂₁[a₅₇₇]
+                    && a₅₇₇ < 100000
+                    && bb₂₇[b₅₇₉] == aa₂₁[a₅₇₇]
+                  ||   (0 <= aa₂₁[a₅₇₇]
                        ==> false)
-                    && a₅₅₉ < 100000
-                    && cc₂₄[c₅₆₀] == aa₂₁[a₅₅₉]))
-        && (forall c₅₆₃: int, a₅₆₂: int, b₅₆₄: int ::
-              (  c₅₆₃ + c₅₆₃ == a₅₆₂ + a₅₆₂
-                && c₅₆₃ + c₅₆₃ == b₅₆₄ + b₅₆₄
-                 ==> 0 <= c₅₆₃
-                    && c₅₆₃ < c₂₃
-                    && 0 <= a₅₆₂
-                    && a₅₆₂ < a₂₅
-                    && 0 <= b₅₆₄
-                    && b₅₆₄ < b₂₆
-                  ||   bb₂₇[b₅₆₄] == bb[b₅₆₄]
-                    && cc₂₄[c₅₆₃] == cc[c₅₆₃]))
+                    && a₅₇₇ < 100000
+                    && cc₂₄[c₅₇₈] == aa₂₁[a₅₇₇]))
+        && (forall c₅₈₁: int, a₅₈₀: int, b₅₈₂: int ::
+              (  c₅₈₁ + c₅₈₁ == a₅₈₀ + a₅₈₀
+                && c₅₈₁ + c₅₈₁ == b₅₈₂ + b₅₈₂
+                 ==> 0 <= c₅₈₁
+                    && c₅₈₁ < c₂₃
+                    && 0 <= a₅₈₀
+                    && a₅₈₀ < a₂₅
+                    && 0 <= b₅₈₂
+                    && b₅₈₂ < b₂₆
+                  ||   bb₂₇[b₅₈₂] == bb[b₅₈₂]
+                    && cc₂₄[c₅₈₁] == cc[c₅₈₁]))
         && a₂₅ < 100000
         && c₈ + c₈ == a₉ + a₉
         && c₈ + c₈ == b₁₀ + b₁₀
@@ -290,33 +452,33 @@ goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]i
         && 0 <= c₂₃
         && 0 <= a₂₅
         && 0 <= b₂₆
-        && (forall c₆₁₈: int, a₆₁₇: int, b₆₁₉: int ::
-              (  c₆₁₈ + c₆₁₈ == a₆₁₇ + a₆₁₇
-                && c₆₁₈ + c₆₁₈ == b₆₁₉ + b₆₁₉
-                && 0 <= c₆₁₈
-                && c₆₁₈ < c₂₃
-                && 0 <= a₆₁₇
-                && a₆₁₇ < a₂₅
-                && 0 <= b₆₁₉
-                && b₆₁₉ < b₂₆
-                 ==> 0 <= aa₂₁[a₆₁₇]
-                    && a₆₁₇ < 100000
-                    && bb₂₇[b₆₁₉] == aa₂₁[a₆₁₇]
-                  ||   (0 <= aa₂₁[a₆₁₇]
+        && (forall c₆₃₆: int, a₆₃₅: int, b₆₃₇: int ::
+              (  c₆₃₆ + c₆₃₆ == a₆₃₅ + a₆₃₅
+                && c₆₃₆ + c₆₃₆ == b₆₃₇ + b₆₃₇
+                && 0 <= c₆₃₆
+                && c₆₃₆ < c₂₃
+                && 0 <= a₆₃₅
+                && a₆₃₅ < a₂₅
+                && 0 <= b₆₃₇
+                && b₆₃₇ < b₂₆
+                 ==> 0 <= aa₂₁[a₆₃₅]
+                    && a₆₃₅ < 100000
+                    && bb₂₇[b₆₃₇] == aa₂₁[a₆₃₅]
+                  ||   (0 <= aa₂₁[a₆₃₅]
                        ==> false)
-                    && a₆₁₇ < 100000
-                    && cc₂₄[c₆₁₈] == aa₂₁[a₆₁₇]))
-        && (forall c₆₂₁: int, a₆₂₀: int, b₆₂₂: int ::
-              (  c₆₂₁ + c₆₂₁ == a₆₂₀ + a₆₂₀
-                && c₆₂₁ + c₆₂₁ == b₆₂₂ + b₆₂₂
-                 ==> 0 <= c₆₂₁
-                    && c₆₂₁ < c₂₃
-                    && 0 <= a₆₂₀
-                    && a₆₂₀ < a₂₅
-                    && 0 <= b₆₂₂
-                    && b₆₂₂ < b₂₆
-                  ||   bb₂₇[b₆₂₂] == bb[b₆₂₂]
-                    && cc₂₄[c₆₂₁] == cc[c₆₂₁]))
+                    && a₆₃₅ < 100000
+                    && cc₂₄[c₆₃₆] == aa₂₁[a₆₃₅]))
+        && (forall c₆₃₉: int, a₆₃₈: int, b₆₄₀: int ::
+              (  c₆₃₉ + c₆₃₉ == a₆₃₈ + a₆₃₈
+                && c₆₃₉ + c₆₃₉ == b₆₄₀ + b₆₄₀
+                 ==> 0 <= c₆₃₉
+                    && c₆₃₉ < c₂₃
+                    && 0 <= a₆₃₈
+                    && a₆₃₈ < a₂₅
+                    && 0 <= b₆₄₀
+                    && b₆₄₀ < b₂₆
+                  ||   bb₂₇[b₆₄₀] == bb[b₆₄₀]
+                    && cc₂₄[c₆₃₉] == cc[c₆₃₉]))
         && a₂₅ < 100000
         && c₈ + c₈ == a₉ + a₉
         && c₈ + c₈ == b₁₀ + b₁₀

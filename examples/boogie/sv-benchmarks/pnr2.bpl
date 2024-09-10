@@ -52,17 +52,17 @@ procedure main()
       ReadFromPort₁ := call ReadFromPort();
       value := ReadFromPort₁;
       if(value != DEFAULTVAL) {
-        a := a[i * 2 - 2 := value];
+        a[((i * 2) - 2)] := value;
       } else {
-        a := a[i * 2 - 2 := FIXEDVAL];
+        a[((i * 2) - 2)] := FIXEDVAL;
       }
       var ReadFromPort₂: int;
       ReadFromPort₂ := call ReadFromPort();
       value := ReadFromPort₂;
       if(value != DEFAULTVAL) {
-        a := a[i * 2 - 1 := value];
+        a[((i * 2) - 1)] := value;
       } else {
-        a := a[i * 2 - 1 := FIXEDVAL];
+        a[((i * 2) - 1)] := FIXEDVAL;
       }
       i := i + 1;
     }

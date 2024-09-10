@@ -30,7 +30,7 @@ procedure main()
     if(x != 0) {
       break;
     }
-    a := a[i := j];
+    a[i] := j;
     j := j + i;
     k := k - i;
     i := i + 1;

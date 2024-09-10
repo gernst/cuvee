@@ -32,22 +32,22 @@ procedure main()
   var a: [int]int;
   var b: [int]int;
   var c: [int]int;
-  a := a[0 := 6];
-  b := b[0 := 1];
-  c := c[0 := N];
+  a[0] := 6;
+  b[0] := 1;
+  c[0] := N;
   i := 1;
   while(i < N) {
-    a := a[i := a[i - 1] + 6];
+    a[i] := a[i - 1] + 6;
     i := i + 1;
   }
   i := 1;
   while(i < N) {
-    b := b[i := b[i - 1] + a[i - 1]];
+    b[i] := b[i - 1] + a[i - 1];
     i := i + 1;
   }
   i := 1;
   while(i < N) {
-    c := c[i := c[i - 1] + b[i - 1]];
+    c[i] := c[i - 1] + b[i - 1];
     i := i + 1;
   }
   i := 0;

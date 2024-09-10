@@ -31,9 +31,9 @@ procedure main()
   assume 0 < lim && lim < N / R;
   i := 0;
   while(i < N) {
-    a := a[i := i + 1];
+    a[i] := i + 1;
     if(N / R < i && k < lim) {
-      a := a[i := i % R];
+      a[i] := i % R;
     }
     if(a[i] == 0) {
       k := k + 1;

@@ -34,15 +34,15 @@ procedure main()
   while(i < N) {
     var nondet_int₁: int;
     assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
-    a := a[i := nondet_int₁];
+    a[i] := nondet_int₁;
     i := i + 1;
   }
   i := 0;
   while(i < N) {
     if(a[i] < N) {
-      a := a[i := a[i]];
+      a[i] := a[i];
     } else {
-      a := a[i := N];
+      a[i] := N;
     }
     i := i + 1;
   }

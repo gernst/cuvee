@@ -35,7 +35,7 @@ procedure main()
   while(row < ARR_SIZE) {
     column := 0;
     while(column < ARR_SIZE) {
-      array := array[row := array[row][column := 0]];
+      array[row][column] := 0;
       column := column + 1;
     }
     row := row + 1;
@@ -55,7 +55,7 @@ procedure main()
     } else {
       x₆ := array[index1][index2];
     }
-    array := array[index1 := array[index1][index2 := x₆]];
+    array[index1][index2] := x₆;
     havoc temp;
     assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {

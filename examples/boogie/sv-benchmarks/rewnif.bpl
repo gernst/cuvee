@@ -32,9 +32,9 @@ procedure main()
     i := 0;
     while(i < SIZE) {
       if(i + 1 < SIZE) {
-        a := a[i + 1 := i];
+        a[(i + 1)] := i;
       }
-      a := a[i := i];
+      a[i] := i;
       i := i + 1;
     }
     i := 0;

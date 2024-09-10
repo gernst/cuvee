@@ -18,9 +18,9 @@ procedure main()
   var a: [int]int;
   var i: int;
   i := 1;
-  a := a[0 := 7];
+  a[0] := 7;
   while(i < 100000) {
-    a := a[i := a[i - 1] + 1];
+    a[i] := a[i - 1] + 1;
     i := i + 1;
   }
   var x: int;
