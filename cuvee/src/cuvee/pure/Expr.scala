@@ -397,9 +397,20 @@ object Eq extends Sugar.binary(Fun.eq_) {
 object Ite extends Sugar.ternary(Fun.ite)
 
 object Const extends Sugar.unary(Fun.const)
-object Select extends Sugar.binary(Fun.select)
+
+object Select extends Sugar.binary(Fun.select) {
+  def apply(base: Expr, indices: List[Expr]) = {
+    indices.foldLeft(base)(this)
+  }
+}
 
 object Store extends Sugar.ternary(Fun.store) {
+  def apply(base: Expr, indices: List[Expr], value: Expr) = {
+    import cuvee.imp.Assign
+    Assign.nested(Select(base, indices), value)
+  }
+
+  // Note: most significant update first
   def flatten(expr: Expr): (Expr, List[(Expr, Expr)]) =
     expr match {
       case Store(inner, index, value) =>
@@ -522,7 +533,8 @@ object App extends ((Inst, List[Expr]) => App) {
     // println(inst.ty)
     // println(inst.args, args.types, inst.ty)
     val su = trace(
-      "typing failed: " + fun + " " + args.mkString(", ") + ": " + args.types.mkString(", ")
+      "typing failed for " + fun + " applied to " + args.mkString(", ") + ": " + args.types
+        .mkString(", ")
     ) {
       Type.binds(inst.args, args.types)
     }

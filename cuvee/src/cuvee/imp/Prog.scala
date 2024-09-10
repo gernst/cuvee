@@ -187,22 +187,67 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
 }
 
 object Assign extends ((List[Var], List[Expr]) => Assign) {
-  def flat(l: Expr, r: Expr): (Var, Expr) = l match {
+  def main(args: Array[String]): Unit = {
+    val i = Var("i", Sort.int)
+    val j = Var("j", Sort.int)
+    val k = Var("k", Sort.int)
+
+    val v = Var("v", Sort.int)
+
+    val a = Var("a", Sort.array(Sort.int, Sort.int))
+    val b = Var("b", Sort.array(Sort.int, Sort.array(Sort.int, Sort.int)))
+    val c = Var("c", Sort.array(Sort.int, Sort.array(Sort.int, Sort.array(Sort.int, Sort.int))))
+
+    val (l1, r1) = nested(Select(a, List(i)), v)
+    val (l2, r2) = nested(Select(b, List(i, j)), v)
+    val (l3, r3) = nested(Select(c, List(i, j, k)), v)
+
+    println(l1 + " := " +r1)
+    println(l2 + " := " +r2)
+    println(l3 + " := " +r3)
+
+    val (l1_, r1_) = flatten(l1, r1)
+    val (l2_, r2_) = flatten(l2, r2)
+    val (l3_, r3_) = flatten(l3, r3)
+
+    println(l1_ + " := " +r1_)
+    println(l2_ + " := " +r2_)
+    println(l3_ + " := " +r3_)
+  }
+
+  def nested(l: Expr, r: Expr): (Var, Expr) = l match {
     case x: Var =>
       (x, r)
     case Select(a, i) =>
-      flat(a, Store(a, i, r))
+      nested(a, Store(a, i, r))
   }
 
+  def flatten(l: Expr, r: Expr): (Expr, Expr) = r match {
+    case Store(`l`, i, r_) =>
+      flatten(Select(l, i), r_)
+
+    case _ =>
+      (l, r)
+  }
+
+  // x[i] := v
+  // x := x[i:=v]
+
+  // x[i][j] := v
+  // x := x[i:=x[i][j:=v]]
+
+  // x[i][j][k] := v
+  // x := x[i:=x[i][j:=x[i][j][k:=v]]]
+
   def from: ((Expr, Expr) => Assign) = { case (l, r) =>
-    val (l_, r_) = flat(l, r)
+    val (l_, r_) = nested(l, r)
     Assign(List(l_), List(r_))
   }
 
   def froms: ((List[Expr], List[Expr]) => Assign) = { case (lhs, rhs) =>
     val asgs =
       for ((l, r) <- lhs zip rhs)
-        yield flat(l, r)
+        yield nested(l, r)
     val (lhs_, rhs_) = asgs.unzip
     Assign(lhs_, rhs_)
   }

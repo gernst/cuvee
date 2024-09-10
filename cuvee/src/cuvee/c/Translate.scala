@@ -20,6 +20,7 @@ class Translate(state: State) {
   // val heap = state.vars("c#heap")
   val bitand = state.funs("c#bitand", 2)
   val bitor = state.funs("c#bitor", 2)
+  val bitxor = state.funs("c#bitxor", 2)
 
   def ptr(typ: Type) =
     state.sort("c#ptr", List(resolve(typ)))
@@ -28,22 +29,81 @@ class Translate(state: State) {
     pure.Var("c#result", resolve(typ))
 
   var vars: Map[String, pure.Var] = Map()
+  var funs: Map[String, (List[Formal], Type)] = Map()
+
+  def default(typ: Type) = typ match {
+    case _: Signed | _: Unsigned =>
+      List(pure.Zero)
+    case Type._Bool =>
+      List(pure.False)
+    case _ =>
+      List()
+  }
+
+  def bounds(x: pure.Var, typ: Type) = typ match {
+    case Type._Bool =>
+      pure.True
+
+    case Type._float | Type._double =>
+      pure.True
+
+    case Signed(name, bytes) =>
+      val exp = BigInt(1) << (bytes * 8 - 1)
+      val min = pure.Lit(-exp, pure.Sort.int)
+      val max = pure.Lit(exp, pure.Sort.int)
+      (min <= x) && (x < max)
+
+    case Unsigned(name, bytes) =>
+      val exp = BigInt(1) << (bytes * 8)
+      val min = pure.Zero
+      val max = pure.Lit(exp, pure.Sort.int)
+      (min <= x) && (x < max)
+
+    case _ =>
+      ???
+  }
+
+  def init(stmts: List[Stmt], scope: Map[String, pure.Var]): List[imp.Prog] =
+    for (
+      stmt <- stmts;
+      prog <- init(stmt, scope)
+    )
+      yield prog
+
+  def init(stmt: Stmt, scope: Map[String, pure.Var]): List[imp.Prog] = stmt match {
+    case VarDef(Formal(typ, name), None) =>
+      val x = scope(name)
+      val asg_ = imp.Assign(List(x), default(typ))
+      List(asg_)
+
+    case VarDef(Formal(typ, name), Some(expr)) =>
+      val x = scope(name)
+      val (rhs_, progs) = eval(expr, scope)
+      val asg_ = imp.Assign(List(x), List(rhs_))
+      progs ++ List(asg_)
+
+    case Group(stmts) =>
+      init(stmts, scope)
+
+    case _ =>
+      Nil
+  }
 
   def globals(stmts: List[Stmt]): List[smtlib.Cmd] =
     for (
       stmt <- stmts;
-      prog <- global(stmt)
+      prog <- global(stmt, stmts)
     )
       yield prog
 
-  def global(stmt: Stmt): List[smtlib.Cmd] = stmt match {
+  def global(stmt: Stmt, all: List[Stmt]): List[smtlib.Cmd] = stmt match {
     case TypeDef(typ, name) =>
       val typ_ = resolve(typ)
       state.con(name, 0)
       state.condef(name, Nil, typ_)
       List(smtlib.DefineSort(name, Nil, typ_))
 
-    case VarDef(Formal(typ, name), None) =>
+    case VarDef(Formal(typ, name), _) =>
       val typ_ = resolve(typ)
       val x = state.global(name, typ_)
       vars = vars + (name -> x)
@@ -56,13 +116,17 @@ class Translate(state: State) {
     case FunDecl(ret, "__VERIFIER_error", formals)     => Nil
     case FunDecl(ret, "__VERIFIER_assume", formals)    => Nil
 
-    case FunDecl(ret, name, formals) if name startsWith "__VERIFIER_nondet" => Nil
+    case FunDecl(ret, name, formals) if name startsWith "__VERIFIER_nondet" =>
+      funs += (name -> (formals, ret))
+      Nil
 
     case FunDef(ret, "reach_error", formals, body)         => Nil
     case FunDef(ret, "__VERIFIER_assert", formals, body)   => Nil
     case FunDef(ret, "assume_abort_if_not", formals, body) => Nil
 
     case FunDecl(ret, name, formals) =>
+      funs += (name -> (formals, ret))
+
       val in_ = vars(formals)
       val out_ = List(result(ret))
       val mod_ = vars.values filterNot in_.contains
@@ -76,13 +140,24 @@ class Translate(state: State) {
       }
 
     case FunDef(ret, name, formals, body) =>
+      funs += (name -> (formals, ret))
+
       val in_ = vars(formals)
       val ret_ = result(ret)
       val out_ = List(ret_)
       val scope = vars ++ Map(in_.asSimpleScope: _*)
       val mod_ = vars.values filterNot in_.contains
       val spec_ = imp.Spec( /* heap :: */ mod_.toList, pure.True, pure.True)
-      val body_ = block(locals(List(body), scope, Nil, ret_))
+
+      val prelude = if (name == "main") {
+        init(all, scope)
+      } else {
+        Nil
+      }
+
+      val progs = locals(List(body), scope, Nil, ret_)
+
+      val body_ = block(prelude ++ progs)
 
       state.proc(name, Nil, in_, out_, None)
       state.procdef(name, in_, out_, body_)
@@ -170,9 +245,20 @@ class Translate(state: State) {
 
       case Atomic(Some(BinOp("=", Id(lhs), FunCall(name, args)))) :: rest
           if name startsWith "__VERIFIER_nondet" =>
+        val (formals, ret) = funs(name)
         val x = scope(lhs)
-        val havoc_ = List(imp.Spec.havoc(List(x)))
-        havoc_ ++ locals(rest, scope, cont, result)
+        val havoc_ = imp.Spec.havoc(List(x))
+        val bounds_ = imp.Spec.assume(bounds(x, ret))
+        List(havoc_, bounds_) ++ locals(rest, scope, cont, result)
+
+      case (stmt @ VarDef(Formal(typ, lhs), Some(FunCall(name, args)))) :: rest
+          if name startsWith "__VERIFIER_nondet" =>
+        val (formals, ret) = funs(name)
+        val typ_ = resolve(typ)
+        val x = pure.Var(lhs, typ_)
+        val havoc_ = imp.Local(List(x), List())
+        val bounds_ = imp.Spec.assume(bounds(x, ret))
+        List(havoc_, bounds_) ++ locals(rest, scope + (lhs -> x), cont, result)
 
       case Atomic(Some(expr)) :: rest =>
         val (_, progs) = eval(expr, scope)
@@ -338,8 +424,37 @@ class Translate(state: State) {
       case Index(Id(name), index1) =>
         val (index1_, progs1) = eval(index1, scope)
         val x = scope(name)
-        val asg_ = imp.Assign(List(x), List(pure.Store(x, index1_, rhs_)))
+        val lhs_ = pure.Select(x, index1_)
+        val asg_ = imp.Assign.from(lhs_, rhs_)
         (x, progs1 ++ List(asg_))
+
+      case Index(Index(Id(name), index1), index2) =>
+        val (index1_, progs1) = eval(index1, scope)
+        val (index2_, progs2) = eval(index2, scope)
+        val x = scope(name)
+        val lhs_ = pure.Select(pure.Select(x, index1_), index2_)
+        val asg_ = imp.Assign.from(lhs_, rhs_)
+        (x, progs1 ++ progs2 ++ List(asg_))
+
+      case Index(Index(Index(Id(name), index1), index2), index3) =>
+        val (index1_, progs1) = eval(index1, scope)
+        val (index2_, progs2) = eval(index2, scope)
+        val (index3_, progs3) = eval(index3, scope)
+        val x = scope(name)
+        val lhs_ = pure.Select(pure.Select(pure.Select(x, index1_), index2_), index3_)
+        val asg_ = imp.Assign.from(lhs_, rhs_)
+        (x, progs1 ++ progs2 ++ progs3 ++ List(asg_))
+
+      case Index(Index(Index(Index(Id(name), index1), index2), index3), index4) =>
+        val (index1_, progs1) = eval(index1, scope)
+        val (index2_, progs2) = eval(index2, scope)
+        val (index3_, progs3) = eval(index3, scope)
+        val (index4_, progs4) = eval(index4, scope)
+        val x = scope(name)
+        val lhs_ =
+          pure.Select(pure.Select(pure.Select(pure.Select(x, index1_), index2_), index3_), index4_)
+        val asg_ = imp.Assign.from(lhs_, rhs_)
+        (x, progs1 ++ progs2 ++ progs3 ++ progs4 ++ List(asg_))
     }
 
   def evals(
@@ -508,10 +623,14 @@ class Translate(state: State) {
           (void, Nil)
 
       case FunCall(name, args) if name startsWith "__VERIFIER_nondet" =>
+        val (formals, ret) = funs(name)
+        val name_ = name drop "__VERIFIER_".length
+
         val typ_ = pure.Sort.int
-        val res_ = pure.Expr.fresh(name, typ_)
+        val res_ = pure.Expr.fresh(name_, typ_)
         val asg_ = imp.Local(List(res_), Nil)
-        (res_, List(asg_))
+        val bounds_ = imp.Spec.assume(bounds(res_, ret))
+        (res_, List(asg_, bounds_))
 
       case FunCall(fun, args) =>
         val name = cuvee.util.Name(fun)
@@ -526,6 +645,10 @@ class Translate(state: State) {
       case SizeOfType(typ) =>
         (pure.Lit(BigInt(Type.sizeof(typ)), pure.Sort.int), Nil)
 
+      case Cast(typ, inner) =>
+        // XXX: some kind of hack
+        eval(inner, scope)
+
       case _ =>
         cuvee.error("unsupported expression: " + expr)
 
@@ -534,10 +657,6 @@ class Translate(state: State) {
       // case SizeOfExpr(expr) =>
       //   ???
       // case Arrow(expr, field) =>
-      //   ???
-
-      // case Cast(typ, inner) =>
-      //   println(expr)
       //   ???
     }
 
@@ -556,6 +675,7 @@ class Translate(state: State) {
       case "/"  => arg1 / arg2
       case "%"  => arg1 % arg2
       case "&"  => bitand(arg1, arg2)
+      case "^"  => bitxor(arg1, arg2)
       case "|"  => bitor(arg1, arg2)
       case "<"  => bool(arg1 < arg2)
       case "<=" => bool(arg1 <= arg2)

@@ -294,8 +294,10 @@ object Printer extends cuvee.util.Printer {
       val exprs = for (e <- rhs) yield line(e)
       List("var " + vartypes(xs) + " := " + exprs.mkString(", ") + ";")
     case Assign(xs, rhs) =>
-      val exprs = for (e <- rhs) yield line(e)
-      List(xs.mkString(", ") + " := " + exprs.mkString(", ") + ";")
+      val pairs = for ((l, r) <- xs zip rhs) yield Assign.flatten(l, r)
+      val (lhs_, rhs_) = pairs.unzip
+      val exprs = for (e <- rhs_) yield line(e)
+      List(lhs_.mkString(", ") + " := " + exprs.mkString(", ") + ";")
     case Spec(Nil, True, phi) =>
       List("assume " + line(phi) + ";")
     case Spec(Nil, phi, True) =>
@@ -552,8 +554,7 @@ object Printer extends cuvee.util.Printer {
     indent(result)
   }
 
-  /** Provides a tuple containing precedence and associativity for the given
-    * expression.
+  /** Provides a tuple containing precedence and associativity for the given expression.
     *
     * @param expr
     *   to get prec and assoc for

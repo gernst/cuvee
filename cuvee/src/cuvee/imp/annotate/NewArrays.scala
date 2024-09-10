@@ -38,6 +38,25 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val lbs = Accelerate.lbsFromCounter(counters)
     val (ub, decreases) = Accelerate.ubAndDecreaseFromTest(And.flatten(test))
 
+    for (
+      (x, Counter(init, step)) <- counters;
+      phi <- And.flatten(test)
+    )
+      (init, phi) match {
+        // bounded loops can be verified with BMC
+        // so we should make a mental note
+
+        // case (_: Lit, Le(`x`, _: Lit)) if step > 0 =>
+        //   cuvee.error("bounded loop: " + phi)
+        // case (_: Lit, Lt(`x`, _: Lit)) if step > 0 =>
+        //   cuvee.error("bounded loop: " + phi)
+        // case (_: Lit, Ge(`x`, _: Lit)) if step < 0 =>
+        //   cuvee.error("bounded loop: " + phi)
+        // case (_: Lit, Gt(`x`, _: Lit)) if step < 0 =>
+        //   cuvee.error("bounded loop: " + phi)
+        case _ =>
+      }
+
     val lockstep = Accelerate.lockstepCounters(counters)
     val inv = inv0 && And(lockstep)
 
@@ -55,16 +74,18 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val cases =
       for (path @ Path(fresh, constraints, stack, old) <- after.running)
         yield {
+          // println(path)
           val pairs =
             for (a @ Var(name, Sort(Con.array, List(dom, ran))) <- as if (path lookup a) != a)
               yield {
                 // XXX: collapses multiple stores to the same location (for array_init_increm_twice.c)
                 val rhs = Simplify.simplify(path lookup a, state)
+                val rhs_ = rhs rename re
 
                 val eq_ = rhs match {
                   // Note: subsumed by the code below using assignmentEqualities,
                   //       kept for reference and potentially for debugging
-                  
+
                   // case Store(`a`, index, value) =>
                   //   val index_ = index rename re
                   //   val value_ = maybeOldOtherArrays(mod, value rename re)
@@ -74,7 +95,19 @@ case object NewArrays extends Annotate(ExecNoLoops) {
                   //   (yes, no)
 
                   case _ =>
-                    val pairs = assignmentEqualities(mod, counters, re, a, Nil, rhs)
+                    // println("trying assignment: " + rhs)
+                    def untangle(index: Expr, value: Expr): (List[Expr], Expr) = value match {
+                      case Store(_, index_, value_) => // note: can ignore base and index in this context
+                        val (indices, result) = untangle(index_, value_)
+                        (index :: indices, result)
+                      case _ =>
+                        (List(index), value)
+                    }
+
+                    val (base: Var, updates) = Store.flatten(rhs_)
+                    val todo = for((i, v) <- updates) yield untangle(i, v)
+                    val pairs = assignmentEqualities(mod, counters, base, Nil, todo)
+                    // val pairs = assignmentEqualities(mod, counters, re, a, Nil, rhs)
                     val (yes, no) = pairs.unzip
 
                     (And(yes), And(no))
@@ -146,5 +179,38 @@ case object NewArrays extends Annotate(ExecNoLoops) {
         val there = assignmentEqualities(mod, counters, re, a, index_ :: overwritten, rhs_)
 
         (yes, no) :: there
+
+      case other =>
+        println(other)
+        ???
     }
+
+  // this one works on renamed done/todo already
+  def assignmentEqualities(
+      mod: Set[Var],
+      counters: Map[Var, Counter],
+      base: Var,
+      done: List[List[Expr]],
+      todo: List[(List[Expr], Expr)]
+  ): List[(Expr, Expr)] = todo match {
+    case Nil =>
+      Nil
+
+    case (indices, value) :: rest =>
+      var yes = Select(base, indices) === value
+      val no = Select(base, indices) === Select(Old(base), indices)
+
+      if (done.nonEmpty) {
+        val prems =
+          for (
+            indices_ <- done;
+            (i, i_) <- indices zip indices_
+          )
+            yield i !== i_
+        yes = And(prems) ==> yes
+      }
+
+      val there = assignmentEqualities(mod, counters, base, indices :: done, rest)
+      (yes, no) :: there
+  }
 }
