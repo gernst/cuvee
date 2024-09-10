@@ -9,6 +9,7 @@ import cuvee.smtlib.Unsupported
 import java.io.File
 import java.io.PrintStream
 import java.io.FileOutputStream
+import cuvee.smtlib.Cmd
 
 object annotate
     extends Run(
@@ -52,9 +53,12 @@ case class Earlier(mode: String) extends Main {
 
   def main(args: Array[String]) {
     for (path <- args) {
-      if (mode == "table") table(path)
-      val results = eval(path)
-      if (mode == "evaluate") record(path, results)
+      if (mode == "table") {
+        table(path)
+      } else {
+        val results = eval(path)
+        if (mode == "evaluate") record(path, results)
+      }
     }
   }
 
@@ -111,10 +115,6 @@ case class Earlier(mode: String) extends Main {
     results
   }
 
-  def table(path: String) {
-    ???
-  }
-
   def eval(task: Array[String]): Res = {
     println(task.mkString("./Cuvee.sh ", " ", ""))
     try {
@@ -132,6 +132,44 @@ case class Earlier(mode: String) extends Main {
       case e: Exception =>
         println("failed: " + e.getMessage())
         Unsupported
+    }
+  }
+
+  def table(path: String) {
+    val dir = new File(path)
+    var (dst_, typ) = destinations(path, dir)
+
+    val results =
+      for (
+        file <- dir.list().sorted if (file endsWith typ)
+          && !(file contains ".annotated.") && !(file contains ".reduced.")
+      ) yield {
+        val file_ = file.substring(0, file.lastIndexOf('.'))
+
+        var args = Array(
+          path + "/" + file,
+          "-annotate:new-arrays",
+          "-vcgen:partial",
+          "-prove:simple",
+          "-split"
+        )
+
+        file -> collect(args)
+      }
+    for (e <- results) println(e)
+  }
+
+  def collect(task: Array[String]) = {
+    println(task.mkString("./Cuvee.sh ", " ", ""))
+    try {
+      Cuvee.collect(task)
+    } catch {
+      case e: IllegalArgumentException =>
+        println(e.getMessage())
+        List()
+      case e: Exception =>
+        println("failed: " + e.getMessage())
+        List()
     }
   }
 
