@@ -301,7 +301,7 @@ class Config {
 }
 
 object Config {
-  def apply(args: Array[String]) = {
+  def apply(args: Array[String], secondary: Array[Sink] = Array()) = {
     val config = new Config()
     config.configure(args.toList)
     val file = config.file
@@ -309,6 +309,9 @@ object Config {
 
     var sink: Sink = null
     sink = config.sink(config.printer)
+
+    if (secondary.nonEmpty)
+      sink = new Sink.tee(sink, secondary: _*)
 
     config.prove match {
       case "auto" =>
@@ -480,22 +483,12 @@ object Cuvee extends Main {
 
   def collect(args: Array[String]) = {
     Expr.resetIndex()
-    val (file, source, primary, report) = Config(args)
 
-    object secondary extends Sink {
-      var rcmds: List[Cmd] = Nil
+    val capture = new Sink.capture
+    val (file, source, sink, report) = Config(args, Array(capture))
+    Pipe.run(source, sink, report)
 
-      override def exec(cmd: Cmd, state: State): Res = {
-        rcmds = cmd :: rcmds
-        Success
-      }
-
-      override def done(state: State): Unit = {}
-    }
-
-    Pipe.run(source, new Sink.tee(primary, secondary), report)
-
-    secondary.rcmds.reverse
+    capture.rcmds.reverse
   }
 }
 
