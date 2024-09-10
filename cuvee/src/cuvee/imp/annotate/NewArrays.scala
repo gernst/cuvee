@@ -95,25 +95,31 @@ case object NewArrays extends Annotate(ExecNoLoops) {
                   //   (yes, no)
 
                   case _ =>
-                    val pairs = assignmentEqualities(mod, counters, re, a, Nil, rhs)
-                    val (yes, no) = pairs.unzip
+                    // val pairs1 = assignmentEqualities(mod, counters, re, a, Nil, rhs)
+
+                    def untangle(index: Expr, value: Expr): (List[Expr], Expr) = value match {
+                      case Store(
+                            _,
+                            index_,
+                            value_
+                          ) => // note: can ignore base and index in this context
+                        val (indices, result) = untangle(index_, value_)
+                        (index :: indices, result)
+                      case _ =>
+                        (List(index), value)
+                    }
+
+                    val (base: Var, updates) = Store.flatten(rhs_)
+                    val todo = for ((i, v) <- updates) yield untangle(i, v)
+                    val pairs2 = assignmentEqualities(mod, counters, base, Nil, todo)
+
+                    // println(pairs1)
+                    // println(pairs2)
+
+                    // assert(pairs1 == pairs2)
+
+                    val (yes, no) = pairs2.unzip
                     (And(yes), And(no))
-
-                  // case _ =>
-                  //   def untangle(index: Expr, value: Expr): (List[Expr], Expr) = value match {
-                  //     case Store(_, index_, value_) => // note: can ignore base and index in this context
-                  //       val (indices, result) = untangle(index_, value_)
-                  //       (index :: indices, result)
-                  //     case _ =>
-                  //       (List(index), value)
-                  //   }
-
-                  //   val (base: Var, updates) = Store.flatten(rhs_)
-                  //   val todo = for((i, v) <- updates) yield untangle(i, v)
-                  //   val pairs = assignmentEqualities(mod, counters, base, Nil, todo)
-                  //   val (yes, no) = pairs.unzip
-
-                  //   (And(yes), And(no))
                 }
 
                 eq_
@@ -199,7 +205,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
       Nil
 
     case (indices, value) :: rest =>
-      var yes = Select(base, indices) === value
+      var yes = Select(base, indices) === maybeOldOtherArrays(mod, value)
       val no = Select(base, indices) === Select(Old(base), indices)
 
       if (done.nonEmpty) {
