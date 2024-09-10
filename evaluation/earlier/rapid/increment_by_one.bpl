@@ -19,29 +19,3 @@ procedure increment_by_one(a: [int]int, alength: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 alength)
-//				(<= 0 pos)
-//				(< pos alength)
-//			)
-//			(= (a pos) (- (b main_end pos) 1))
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 alength)
-//				(<= 0 pos)
-//				(< pos alength)
-//			)
-//			(= (b main_end pos) (+ (a pos) 1))
-//		)
-//	)
-//)

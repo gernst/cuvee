@@ -22,31 +22,3 @@ procedure copy_positive(b: [int]int, blength: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((k Int))
-//		(=>
-//			(and
-//				(<= 0 k)
-//				(< k (alength main_end))
-//				(<= 0 blength)
-//			)
-//			(<= 0 (a main_end k))
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(forall ((k Int))
-//		(exists ((l Int))
-//			(=>
-//				(and
-//					(<= 0 k)
-//					(< k (alength main_end))
-//					(<= 0 blength)
-//				)
-//				(= (a main_end k) (b l))
-//			)
-//		)
-//	)
-//)

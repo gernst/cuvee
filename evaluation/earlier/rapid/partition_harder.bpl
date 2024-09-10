@@ -9,18 +9,18 @@ procedure partition_harder(a: [int]int, alength: int)
   returns (b: [int]int, c: [int]int, blength: int , clength: int)
   requires 0 <= alength;
   ensures forall pos: int :: 0 <= alength && 0 <= pos && pos < blength ==>
-    exists pos2: int :: 0 <= pos2 && pos2 < alength && b[pos] == a[pos2];
+    (exists pos2: int :: 0 <= pos2 && pos2 < alength && b[pos] == a[pos2]);
   ensures forall pos: int :: 0 <= alength && 0 <= pos && pos < clength ==>
-    exists pos2: int :: 0 <= pos2 && pos2 < alength && c[pos] == a[pos2];
+    (exists pos2: int :: 0 <= pos2 && pos2 < alength && c[pos] == a[pos2]);
   ensures forall pos: int :: 
     0 <= alength && 0 <= pos && pos < alength && 0 <= a[pos] ==>
-      exists pos2: int :: 0 <= pos2 && pos2 < blength && b[pos2] == a[pos];
+      (exists pos2: int :: 0 <= pos2 && pos2 < blength && b[pos2] == a[pos]);
   ensures forall pos: int :: 
-    0 <= alength && 0 <= pos && pos < alength && 0 < a[pos] ==>
-      exists pos2: int :: 0 <= pos2 && pos2 < clength && c[pos2] == a[pos];
-  ensures forall pos: int :: 0 <= alength && 0 <= pos && pos < alength ==>
-      (exists pos2: int :: 0 <= pos2 && pos2 < blength && b[pos2] == a[pos]) ||
+    0 <= alength && 0 <= pos && pos < alength && a[pos] < 0 ==>
       (exists pos2: int :: 0 <= pos2 && pos2 < clength && c[pos2] == a[pos]);
+  ensures forall pos: int :: 0 <= alength && 0 <= pos && pos < alength ==>
+    ((exists pos2: int :: 0 <= pos2 && pos2 < blength && b[pos2] == a[pos]) ||
+      (exists pos2: int :: 0 <= pos2 && pos2 < clength && c[pos2] == a[pos]));
 {
   blength := 0;
   clength := 0;
@@ -41,126 +41,3 @@ procedure partition_harder(a: [int]int, alength: int)
       i := i + 1;
 	}
 }
-
-//(axiom
-//  (forall ((it Nat))
-//    (<= 
-//      (blength (l19 it))
-//      (i (l19 it)) 
-//    )
-//  )
-//)
-//(axiom
-//  (forall ((it Nat))
-//    (<= 
-//      (clength (l19 it))
-//      (i (l19 it)) 
-//    )
-//  )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos (blength main_end))
-//      )
-//      (exists ((pos2 Int))
-//        (and
-//          (<= 0 pos2)
-//          (< pos2 alength)
-//          (= (b main_end pos) (a pos2))
-//        )
-//      )
-//    )
-//  )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos (clength main_end))
-//      )
-//      (exists ((pos2 Int))
-//        (and
-//          (<= 0 pos2)
-//          (< pos2 alength)
-//          (= (c main_end pos) (a pos2))
-//        )
-//      )
-//    )
-//  )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos alength)
-//        (<= 0 (a pos))
-//      )
-//      (exists ((pos2 Int))
-//        (and
-//          (<= 0 pos2)
-//          (< pos2 (blength main_end))
-//          (= (b main_end pos2) (a pos))
-//        )
-//      )
-//    )
-//  )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos alength)
-//        (< (a pos) 0)
-//      )
-//      (exists ((pos2 Int))
-//        (and
-//          (<= 0 pos2)
-//          (< pos2 (clength main_end))
-//          (= (c main_end pos2) (a pos))
-//        )
-//      )
-//    )
-//  )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos alength)
-//      )
-//      (or
-//        (exists ((pos2 Int))
-//          (and
-//            (<= 0 pos2)
-//            (< pos2 (blength main_end))
-//            (= (b main_end pos2) (a pos))
-//          )
-//        )
-//        (exists ((pos2 Int))
-//          (and
-//            (<= 0 pos2)
-//            (< pos2 (clength main_end))
-//            (= (c main_end pos2) (a pos))
-//          )
-//        )
-//      )
-//    )
-//  )
-//)

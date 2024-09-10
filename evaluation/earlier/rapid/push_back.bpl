@@ -14,22 +14,3 @@ procedure push_back(b: [int]int, blength: int)
 		i := i + 1;
 	}
 }
-
-//(axiom
-//	(forall ((it Nat))
-//		(<= (alength (l11 it)) (i (l11 it)))
-//	)
-//)
-//
-//(conjecture
-//	(forall ((j Int))
-//		(=>
-//			(and
-//				(<= 0 blength)
-//				(<= 0 j)
-//				(< j (alength main_end))
-//			)
-//			(= (a main_end j) (b j))
-//		)
-//	)
-//)

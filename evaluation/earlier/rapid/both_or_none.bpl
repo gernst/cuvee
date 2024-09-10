@@ -24,25 +24,3 @@ procedure both_or_none(a: [int]int, alength: int)
     i := i + 1;
   }
 }
-
-//(conjecture
-//  (forall ((j Int))
-//    (=>
-//      (and
-//        (<= 0 j)
-//        (< j alength)
-//        (<= 0 alength)
-//      )
-//      (or
-//        (and
-//          (= (a j) 1)
-//          (= (b main_end j) 1)
-//        )
-//        (and
-//          (not (= (a j) 1) )
-//          (= (b main_end j) 0)
-//        )
-//      )
-//    )
-//  )
-//)

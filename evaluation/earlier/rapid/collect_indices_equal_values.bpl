@@ -8,7 +8,7 @@
 procedure collect_indices_equal_values(a1: [int]int, a2: [int]int, alength: int)
   returns (b: [int]int, blength: int)
   requires 0 <= alength;
-  ensures forall pos: int ::  0 <= alength && 0 <= pos && pos < blength ==>
+  ensures forall pos: int :: 0 <= alength && 0 <= pos && pos < blength ==>
     0 <= b[pos] && b[pos] < alength;
   ensures forall pos: int :: 0 <= alength && 0 <= pos && pos < blength ==>
     a1[b[pos]] == a2[b[pos]];
@@ -35,70 +35,3 @@ procedure collect_indices_equal_values(a1: [int]int, a2: [int]int, alength: int)
     i := i + 1;
 	}
 }
-
-//(conjecture
-//   (forall ((pos Int))
-//      (=>
-//        (and
-//          (<= 0 alength)
-//          (<= 0 pos)
-//          (< pos (blength main_end))
-//        )
-//        (and
-//          (<= 0 (b main_end pos))
-//          (< (b main_end pos) alength)
-//        )
-//      )
-//   )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos (blength main_end))
-//      )
-//      (= (a1 (b main_end pos)) (a2 (b main_end pos)))
-//    )
-//  )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos alength)
-//        (= (a1 pos) (a2 pos))
-//      )
-//      (exists ((pos2 Int))
-//        (and
-//          (= (b main_end pos2) pos)
-//        )
-//      )
-//    )
-//  )
-//)
-//
-//(conjecture
-//  (forall ((pos Int))
-//    (=>
-//      (and
-//        (<= 0 alength)
-//        (<= 0 pos)
-//        (< pos alength)
-//        (= (a1 pos) (a2 pos))
-//      )
-//      (exists ((pos2 Int))
-//        (and
-//          (<= 0 pos2)
-//          (< pos2 (blength main_end))
-//          (= (b main_end pos2) pos)
-//        )
-//      )
-//    )
-//  )
-//)

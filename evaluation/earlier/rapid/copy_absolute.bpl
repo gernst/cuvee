@@ -20,30 +20,3 @@ procedure copy_absolute(blength: int, b: [int]int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((k Int))
-//		(=>
-//			(and
-//				(<= 0 k)
-//				(< k blength)
-//			)
-//			(or
-//				(= (a main_end k) (b k) )
-//				(= (a main_end k) (- 0 (b k)) )
-//			)
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(forall ((k Int))
-//		(=>
-//			(and
-//				(<= 0 k)
-//				(< k blength)
-//			)
-//				(<= 0 (a main_end k))
-//		)
-//	)
-//)

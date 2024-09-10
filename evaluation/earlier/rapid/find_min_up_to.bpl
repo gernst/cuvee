@@ -5,8 +5,8 @@ procedure find_min_up_to(a: [int]int, alength: int)
     0 <= alength && 0 <= j && 0 <= k && j <= k && k < alength ==>
       b[k] <= a[j];
   ensures 0 <= alength ==>
-    forall j: int :: exists k: int :: 0 <= j && j < alength ==>
-      0 <= k && k < j && b[j] == a[k];
+    (forall j: int :: exists k: int :: 0 <= j && j < alength ==>
+      0 <= k && k < j && b[j] == a[k]);
   ensures forall j: int, k: int ::
     0 <= alength && 0 <= j && 0 <= k && k <= j && j < alength ==>
       b[j] <= b[k];
@@ -27,54 +27,3 @@ procedure find_min_up_to(a: [int]int, alength: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((j Int)(k Int))
-//		(=>
-//			(and
-//				(<= 0 alength)
-//				(<= 0 j)
-//				(<= 0 k)
-//				(<= j k)
-//				(< k alength)
-//			)
-//			(<= (b main_end k) (a j))
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(=>
-//		(<= 0 alength)
-//		(forall ((j Int))
-//			(exists ((k Int))
-//				(=>
-//					(and
-//						(<= 0 j)
-//						(< j alength)
-//					)
-//					(and
-//						(<= 0 k)
-//						(<= k j)
-//						(= (b main_end j) (a k))
-//					)
-//				)
-//			)
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(forall ((j Int)(k Int))
-//		(=>
-//			(and
-//				(<= 0 alength)
-//				(<= 0 j)
-//				(<= 0 k)
-//				(<= k j)
-//				(< j alength)
-//			)
-//			(<= (b main_end j) (b main_end k))
-//		)
-//	)
-//)

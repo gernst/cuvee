@@ -4,10 +4,10 @@
 procedure init_previous_plus_one_alternative(alength: int, v: int)
   returns (a: [int]int)
   requires 0 <= alength;
-  ensures forall pos: int :: 0 <= pos && (pos + 1) < alength && 0 <= alength ==>
-    a[pos] <= a[pos + 1];
-  ensures forall pos: int :: 0 <= pos && (pos + 1) < alength && 0 <= alength ==>
-    a[pos] < a[pos + 1];
+  ensures forall pos: int ::
+    0 <= pos && (pos + 1) < alength && 0 <= alength ==> a[pos] <= a[pos + 1];
+  ensures forall pos: int ::
+    0 <= pos && (pos + 1) < alength && 0 <= alength ==> a[pos] < a[pos + 1];
 {
   a := a[0 := v];
   var i: int := 1;
@@ -17,29 +17,3 @@ procedure init_previous_plus_one_alternative(alength: int, v: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//   (forall ((pos Int))
-//      (=>
-//         (and
-//            (<= 0 pos)
-//            (< (+ pos 1) alength)
-//            (<= 0 alength)
-//         )
-//         (<= (a main_end pos) (a main_end (+ pos 1)))
-//      )
-//   )
-//)
-//
-//(conjecture
-//   (forall ((pos Int))
-//      (=>
-//         (and
-//            (<= 0 pos)
-//            (< (+ pos 1) alength)
-//            (<= 0 alength)
-//         )
-//         (< (a main_end pos) (a main_end (+ pos 1)))
-//      )
-//   )
-//)

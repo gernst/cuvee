@@ -21,38 +21,3 @@ procedure init_conditionally(a: [int]int, b: [int]int, length: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 pos)
-//				(< pos (clength main_end))
-//				(<= 0 length)
-//			)
-//			(=
-//				(a (c main_end pos))
-//				(b (c main_end pos))
-//			)
-//		)
-//	)
-//)
-//
-//(axiom
-//	(forall ((it Nat))
-//		(<= (clength (l11 it)) (i (l11 it)))
-//	)
-//)
-//
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 pos)
-//				(< pos (clength main_end))
-//				(<= 0 length)
-//			)
-//			(<= pos (c main_end pos))
-//		)
-//	)
-//)

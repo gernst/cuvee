@@ -12,16 +12,3 @@ returns (a: [int]int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((j Int))
-//		(=>
-//			(and
-//				(<= 0 blength)
-//				(<= 0 j)
-//				(< j blength)
-//			)
-//			(= (a main_end j) (b j))
-//		)
-//	)
-//)

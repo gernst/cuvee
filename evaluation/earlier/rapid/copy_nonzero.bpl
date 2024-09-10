@@ -22,31 +22,3 @@ procedure copy_nonzero(b: [int]int, blength: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((k Int))
-//		(=>
-//			(and
-//				(<= 0 blength)
-//				(<= 0 k)
-//				(< k (alength main_end))
-//			)
-//			(not (= (a main_end k) 0))
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(forall ((k Int))
-//		(exists ((l Int))
-//			(=>
-//				(and
-//					(<= 0 k)
-//					(<= 0 blength)
-//					(< k (alength main_end))
-//				)
-//				(= (a main_end k) (b l))
-//			)
-//		)
-//	)
-//)

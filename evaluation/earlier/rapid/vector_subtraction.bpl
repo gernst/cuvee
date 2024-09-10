@@ -15,16 +15,3 @@ procedure vector_subtraction(a: [int]int, b: [int]int, length: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((j Int))
-//		(=>
-//			(and
-//				(<= 0 j)
-//				(< j length)
-//				(<= 0 length)
-//			)
-//			(= (c main_end j) (- (a j) (b j)) )
-//		)
-//	)
-//)

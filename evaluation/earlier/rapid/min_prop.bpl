@@ -20,32 +20,3 @@ procedure min_prop(b: [int]int, blength: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//   (forall ((pos Int))
-//      (=>
-//         (and
-//            (<= 0 pos)
-//            (< pos blength)
-//            (<= 0 blength)
-//         )
-//         (<= (a main_end pos) 0)
-//      )
-//   )
-//)
-//
-//(conjecture
-//   (forall ((pos Int))
-//      (=>
-//         (and
-//            (<= 0 pos)
-//            (< pos blength)
-//            (<= 0 blength)
-//         )
-//         (or
-//            (= (a main_end pos) 0)
-//            (= (a main_end pos) (b pos))
-//         )
-//      )
-//   )
-//)

@@ -15,29 +15,3 @@ procedure swap(length: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 length)
-//				(<= 0 pos)
-//				(< pos length)
-//			)
-//			(= (a main_end pos) (b l8 pos))
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 length)
-//				(<= 0 pos)
-//				(< pos length)
-//			)
-//			(= (b main_end pos) (a l8 pos))
-//		)
-//	)
-//)

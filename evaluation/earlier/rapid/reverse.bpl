@@ -13,16 +13,3 @@ procedure reverse(b: [int]int, length: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((j Int))
-//		(=>
-//			(and
-//				(<= 0 length)
-//				(<= 0 j)
-//				(< j length)
-//			)
-//			(= (a main_end j) (b (- (- length 1) j)) )
-//		)
-//	)
-//)

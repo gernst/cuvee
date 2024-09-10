@@ -20,29 +20,3 @@ procedure increment_by_one_harder(alength: int)
 		i := i + 1;
 	}
 }
-
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 alength)
-//				(<= 0 pos)
-//				(< pos alength)
-//			)
-//			(= (a l12 pos) (- (a main_end pos) 1))
-//		)
-//	)
-//)
-//
-//(conjecture
-//	(forall ((pos Int))
-//		(=>
-//			(and
-//				(<= 0 alength)
-//				(<= 0 pos)
-//				(< pos alength)
-//			)
-//			(= (a main_end pos) (+ (a l12 pos) 1))
-//		)
-//	)
-//)

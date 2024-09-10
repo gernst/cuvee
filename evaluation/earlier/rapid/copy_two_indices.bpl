@@ -13,22 +13,3 @@ procedure copy_two_indices(b: [int]int, blength: int)
 		j := j + 1;
 	}
 }
-
-//(axiom
-//	(forall ((it Nat))
-//		(= (i (l9 it)) (j (l9 it)))
-//	)
-//)
-//
-//(conjecture
-//	(forall ((k Int))
-//		(=>
-//			(and
-//				(<= 0 blength)
-//				(<= 0 k)
-//				(< k blength)
-//			)
-//			(= (a main_end k) (b k))
-//		)
-//	)
-//)
