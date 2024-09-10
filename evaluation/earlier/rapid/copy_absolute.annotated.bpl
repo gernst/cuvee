@@ -35,9 +35,9 @@ procedure copy_absolute(blength: int, b: [int]int)
                ==> a[i₁] == old(a)[i₁]));
   {
     if(b[i] >= 0) {
-      a := a[i := b[i]];
+      a[i] := b[i];
     } else {
-      a := a[i := 0 - b[i]];
+      a[i] := 0 - b[i];
     }
     i := i + 1;
   }

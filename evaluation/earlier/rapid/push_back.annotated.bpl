@@ -33,7 +33,7 @@ procedure push_back(b: [int]int, blength: int)
               )
                ==> a[i₂] == old(a)[i₂]));
   {
-    a := a[i := b[i]];
+    a[i] := b[i];
     alength := alength + 1;
     i := i + 1;
   }

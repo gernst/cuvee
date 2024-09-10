@@ -43,7 +43,7 @@ procedure init_conditionally(a: [int]int, b: [int]int, length: int)
                ==> c[clength₁] == old(c)[clength₁]));
   {
     if(a[i] == b[i]) {
-      c := c[clength := i];
+      c[clength] := i;
       clength := clength + 1;
     }
     i := i + 1;

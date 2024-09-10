@@ -19,6 +19,7 @@ procedure main()
   modifies a, i;
 {
   i := 0;
+  i := 0;
   while(i < 10000000) {
     a := a[i := 0];
     i := i + 1;

@@ -33,7 +33,7 @@ procedure copy_two_indices(b: [int]int, blength: int)
               )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := b[j]];
+    a[i] := b[j];
     i := i + 1;
     j := j + 1;
   }

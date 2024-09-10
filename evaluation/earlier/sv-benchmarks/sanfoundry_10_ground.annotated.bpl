@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -16,44 +18,46 @@ procedure main()
   var i: int;
   var n: int := 100000;
   var pos: int;
-  var __VERIFIER_nondet_int₁: int;
   var element: int;
-  element := __VERIFIER_nondet_int₁;
+  assume -2147483648 <= element && element < 2147483648;
   var found: int := 0;
   var vectorx: [int]int;
   i := 0;
   while(i < n)
     decreases n - i;
     invariant old(i) <= i
-      && (forall i₇: int ::
-            (  old(i) <= i₇
-              && i₇ < i
-               ==> (exists __VERIFIER_nondet_int₂₆: int ::
-                      i₇ < n
-                      && vectorx[i₇] == __VERIFIER_nondet_int₂₆)))
-      && (forall i₇: int ::
-            (!(  old(i) <= i₇
-              && i₇ < i
+      && (forall i₆: int ::
+            (  old(i) <= i₆
+              && i₆ < i
+               ==> (exists nondet_int₁₅: int ::
+                      -2147483648 <= nondet_int₁₅
+                      && nondet_int₁₅ < 2147483648
+                      && i₆ < n
+                      && vectorx[i₆] == nondet_int₁₅)))
+      && (forall i₆: int ::
+            (!(  old(i) <= i₆
+              && i₆ < i
             )
-               ==> vectorx[i₇] == old(vectorx)[i₇]));
+               ==> vectorx[i₆] == old(vectorx)[i₆]));
   {
-    var __VERIFIER_nondet_int₂: int;
-    vectorx := vectorx[i := __VERIFIER_nondet_int₂];
+    var nondet_int₁: int;
+    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
+    vectorx[i] := nondet_int₁;
     i := i + 1;
   }
   i := 0;
   while(i < n && !(found != 0))
     decreases n - i;
     invariant old(i) <= i
-      && (forall found₁₀: int, i₁₂: int ::
-            (  old(i) <= i₁₂
-              && i₁₂ < i
-               ==> vectorx[i₁₂] == element
-                  && i₁₂ < n
-                  && found₁₀ == 0
-                ||   vectorx[i₁₂] != element
-                  && i₁₂ < n
-                  && found₁₀ == 0));
+      && (forall found₉: int, i₁₁: int ::
+            (  old(i) <= i₁₁
+              && i₁₁ < i
+               ==> vectorx[i₁₁] == element
+                  && i₁₁ < n
+                  && found₉ == 0
+                ||   vectorx[i₁₁] != element
+                  && i₁₁ < n
+                  && found₉ == 0));
   {
     if(vectorx[i] == element) {
       found := 1;
@@ -66,18 +70,18 @@ procedure main()
     while(i < n - 1)
       decreases n - 1 - i;
       invariant old(i) <= i
-        && (forall i₁₆: int ::
-              (  old(i) <= i₁₆
-                && i₁₆ < i
-                 ==> i₁₆ < -1 + n
-                  && vectorx[i₁₆] == old(vectorx)[1 + i₁₆]))
-        && (forall i₁₆: int ::
-              (!(  old(i) <= i₁₆
-                && i₁₆ < i
+        && (forall i₁₅: int ::
+              (  old(i) <= i₁₅
+                && i₁₅ < i
+                 ==> i₁₅ < -1 + n
+                  && vectorx[i₁₅] == old(vectorx)[1 + i₁₅]))
+        && (forall i₁₅: int ::
+              (!(  old(i) <= i₁₅
+                && i₁₅ < i
               )
-                 ==> vectorx[i₁₆] == old(vectorx)[i₁₆]));
+                 ==> vectorx[i₁₅] == old(vectorx)[i₁₅]));
     {
-      vectorx := vectorx[i := vectorx[i + 1]];
+      vectorx[i] := vectorx[i + 1];
       i := i + 1;
     }
   }
@@ -87,10 +91,10 @@ procedure main()
     while(x < pos)
       decreases pos - x;
       invariant old(x) <= x
-        && (forall x₂₁: int ::
-              (  old(x) <= x₂₁
-                && x₂₁ < x
-                 ==> x₂₁ < pos));
+        && (forall x₂₀: int ::
+              (  old(x) <= x₂₀
+                && x₂₀ < x
+                 ==> x₂₀ < pos));
     {
       assert vectorx[x] != element;
       x := x + 1;

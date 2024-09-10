@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -16,7 +18,9 @@ procedure main()
   returns (c#result: int)
   modifies CELLCOUNT;
 {
+  CELLCOUNT := 0;
   havoc CELLCOUNT;
+  assume -2147483648 <= CELLCOUNT && CELLCOUNT < 2147483648;
   if(1 < CELLCOUNT) {
     var MINVAL: int := 2;
     var i: int;
@@ -52,14 +56,14 @@ procedure main()
                  ==> volArray[-5 + 5 * i₄] == old(volArray)[-5 + 5 * i₄]));
     {
       if(MINVAL <= CCCELVOL5) {
-        volArray := volArray[i * 5 - 5 := CCCELVOL5];
+        volArray[((i * 5) - 5)] := CCCELVOL5;
       } else {
-        volArray := volArray[i * 5 - 5 := 0];
+        volArray[((i * 5) - 5)] := 0;
       }
-      volArray := volArray[i * 5 - 4 := volArray[i * 5 - 4]];
-      volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
-      volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
-      volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
+      volArray[((i * 5) - 4)] := volArray[i * 5 - 4];
+      volArray[((i * 5) - 3)] := volArray[i * 5 - 3];
+      volArray[((i * 5) - 2)] := volArray[i * 5 - 2];
+      volArray[((i * 5) - 1)] := volArray[i * 5 - 1];
       i := i + 1;
     }
     i := 1;
@@ -83,14 +87,14 @@ procedure main()
                  ==> volArray[-4 + 5 * i₇] == old(volArray)[-4 + 5 * i₇]));
     {
       if(MINVAL <= CCCELVOL4) {
-        volArray := volArray[i * 5 - 4 := CCCELVOL4];
+        volArray[((i * 5) - 4)] := CCCELVOL4;
       } else {
-        volArray := volArray[i * 5 - 4 := 0];
+        volArray[((i * 5) - 4)] := 0;
       }
-      volArray := volArray[i * 5 - 5 := volArray[i * 5 - 5]];
-      volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
-      volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
-      volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
+      volArray[((i * 5) - 5)] := volArray[i * 5 - 5];
+      volArray[((i * 5) - 3)] := volArray[i * 5 - 3];
+      volArray[((i * 5) - 2)] := volArray[i * 5 - 2];
+      volArray[((i * 5) - 1)] := volArray[i * 5 - 1];
       i := i + 1;
     }
     i := 1;
@@ -114,14 +118,14 @@ procedure main()
                  ==> volArray[-3 + 5 * i₁₀] == old(volArray)[-3 + 5 * i₁₀]));
     {
       if(MINVAL <= CCCELVOL3) {
-        volArray := volArray[i * 5 - 3 := CCCELVOL3];
+        volArray[((i * 5) - 3)] := CCCELVOL3;
       } else {
-        volArray := volArray[i * 5 - 3 := 0];
+        volArray[((i * 5) - 3)] := 0;
       }
-      volArray := volArray[i * 5 - 5 := volArray[i * 5 - 5]];
-      volArray := volArray[i * 5 - 4 := volArray[i * 5 - 4]];
-      volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
-      volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
+      volArray[((i * 5) - 5)] := volArray[i * 5 - 5];
+      volArray[((i * 5) - 4)] := volArray[i * 5 - 4];
+      volArray[((i * 5) - 2)] := volArray[i * 5 - 2];
+      volArray[((i * 5) - 1)] := volArray[i * 5 - 1];
       i := i + 1;
     }
     i := 1;
@@ -145,14 +149,14 @@ procedure main()
                  ==> volArray[-2 + 5 * i₁₃] == old(volArray)[-2 + 5 * i₁₃]));
     {
       if(MINVAL <= CCCELVOL2) {
-        volArray := volArray[i * 5 - 2 := CCCELVOL2];
+        volArray[((i * 5) - 2)] := CCCELVOL2;
       } else {
-        volArray := volArray[i * 5 - 2 := 0];
+        volArray[((i * 5) - 2)] := 0;
       }
-      volArray := volArray[i * 5 - 5 := volArray[i * 5 - 5]];
-      volArray := volArray[i * 5 - 4 := volArray[i * 5 - 4]];
-      volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
-      volArray := volArray[i * 5 - 1 := volArray[i * 5 - 1]];
+      volArray[((i * 5) - 5)] := volArray[i * 5 - 5];
+      volArray[((i * 5) - 4)] := volArray[i * 5 - 4];
+      volArray[((i * 5) - 3)] := volArray[i * 5 - 3];
+      volArray[((i * 5) - 1)] := volArray[i * 5 - 1];
       i := i + 1;
     }
     i := 1;
@@ -176,14 +180,14 @@ procedure main()
                  ==> volArray[-1 + 5 * i₁₆] == old(volArray)[-1 + 5 * i₁₆]));
     {
       if(MINVAL <= CCCELVOL1) {
-        volArray := volArray[i * 5 - 1 := CCCELVOL1];
+        volArray[((i * 5) - 1)] := CCCELVOL1;
       } else {
-        volArray := volArray[i * 5 - 1 := 0];
+        volArray[((i * 5) - 1)] := 0;
       }
-      volArray := volArray[i * 5 - 5 := volArray[i * 5 - 5]];
-      volArray := volArray[i * 5 - 4 := volArray[i * 5 - 4]];
-      volArray := volArray[i * 5 - 3 := volArray[i * 5 - 3]];
-      volArray := volArray[i * 5 - 2 := volArray[i * 5 - 2]];
+      volArray[((i * 5) - 5)] := volArray[i * 5 - 5];
+      volArray[((i * 5) - 4)] := volArray[i * 5 - 4];
+      volArray[((i * 5) - 3)] := volArray[i * 5 - 3];
+      volArray[((i * 5) - 2)] := volArray[i * 5 - 2];
       i := i + 1;
     }
     i := 0;

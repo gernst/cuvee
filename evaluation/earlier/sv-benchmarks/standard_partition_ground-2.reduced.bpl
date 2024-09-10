@@ -4,6 +4,8 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -13,9 +15,11 @@ goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, aa₂₁: 
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₂₂
-                 ==> (exists __VERIFIER_nondet_int₁₄: int ::
-                        i₅ < 100000
-                        && aa₂₁[i₅] == __VERIFIER_nondet_int₁₄)))
+                 ==> (exists nondet_int₁₄: int ::
+                        -2147483648 <= nondet_int₁₄
+                        && nondet_int₁₄ < 2147483648
+                        && i₅ < 100000
+                        && aa₂₁[i₅] == nondet_int₁₄)))
         && (forall i₅: int ::
                   0 <= i₅
                   && i₅ < i₂₂
@@ -52,9 +56,11 @@ goal {:named "invariant forward"} (forall aa: [int]int, bb: [int]int, cc: [int]i
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₂₂
-                 ==> (exists __VERIFIER_nondet_int₁₄: int ::
-                        i₅ < 100000
-                        && aa₂₁[i₅] == __VERIFIER_nondet_int₁₄)))
+                 ==> (exists nondet_int₁₄: int ::
+                        -2147483648 <= nondet_int₁₄
+                        && nondet_int₁₄ < 2147483648
+                        && i₅ < 100000
+                        && aa₂₁[i₅] == nondet_int₁₄)))
         && (forall i₅: int ::
                   0 <= i₅
                   && i₅ < i₂₂
@@ -114,9 +120,11 @@ goal {:named "assert"} (forall aa: [int]int, bb: [int]int, cc: [int]int, aa₂�
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₂₂
-                 ==> (exists __VERIFIER_nondet_int₁₄: int ::
-                        i₅ < 100000
-                        && aa₂₁[i₅] == __VERIFIER_nondet_int₁₄)))
+                 ==> (exists nondet_int₁₄: int ::
+                        -2147483648 <= nondet_int₁₄
+                        && nondet_int₁₄ < 2147483648
+                        && i₅ < 100000
+                        && aa₂₁[i₅] == nondet_int₁₄)))
         && (forall i₅: int ::
                   0 <= i₅
                   && i₅ < i₂₂

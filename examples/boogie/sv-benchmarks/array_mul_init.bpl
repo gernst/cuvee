@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -25,9 +27,11 @@ procedure main()
   }
   i := 0;
   while(i < 100000) {
-    var __VERIFIER_nondet_short₂: int;
-    if(__VERIFIER_nondet_short₂ != 0) {
+    var nondet_short₂: int;
+    assume -32768 <= nondet_short₂ && nondet_short₂ < 32768;
+    if(nondet_short₂ != 0) {
       havoc k;
+      assume -32768 <= k && k < 32768;
       a := a[i := k];
       b := b[i := k * k];
     }

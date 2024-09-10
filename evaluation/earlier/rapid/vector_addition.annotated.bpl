@@ -24,7 +24,7 @@ procedure vector_addition(a: [int]int, b: [int]int, length: int)
             )
                ==> c[i₁] == old(c)[i₁]));
   {
-    c := c[i := a[i] + b[i]];
+    c[i] := a[i] + b[i];
     i := i + 1;
   }
 }

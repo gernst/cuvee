@@ -41,8 +41,8 @@ procedure merge_interleave(a: [int]int, b: [int]int, alength: int)
                ==> c[1 + 2 * i₁] == old(c)[1 + 2 * i₁]
                 && c[2 * i₁] == old(c)[2 * i₁]));
   {
-    c := c[i * 2 := a[i]];
-    c := c[i * 2 + 1 := b[i]];
+    c[(i * 2)] := a[i];
+    c[((i * 2) + 1)] := b[i];
     i := i + 1;
   }
 }

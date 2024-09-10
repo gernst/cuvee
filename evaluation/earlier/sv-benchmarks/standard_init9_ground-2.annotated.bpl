@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -29,7 +31,7 @@ procedure main()
             )
                ==> a[i₂] == old(a)[i₂]));
   {
-    a := a[i := 42];
+    a[i] := 42;
     i := i + 1;
   }
   i := 0;
@@ -47,7 +49,7 @@ procedure main()
             )
                ==> a[i₅] == old(a)[i₅]));
   {
-    a := a[i := 43];
+    a[i] := 43;
     i := i + 1;
   }
   i := 0;
@@ -65,7 +67,7 @@ procedure main()
             )
                ==> a[i₈] == old(a)[i₈]));
   {
-    a := a[i := 44];
+    a[i] := 44;
     i := i + 1;
   }
   i := 0;
@@ -83,7 +85,7 @@ procedure main()
             )
                ==> a[i₁₁] == old(a)[i₁₁]));
   {
-    a := a[i := 45];
+    a[i] := 45;
     i := i + 1;
   }
   i := 0;
@@ -101,7 +103,7 @@ procedure main()
             )
                ==> a[i₁₄] == old(a)[i₁₄]));
   {
-    a := a[i := 46];
+    a[i] := 46;
     i := i + 1;
   }
   i := 0;
@@ -119,7 +121,7 @@ procedure main()
             )
                ==> a[i₁₇] == old(a)[i₁₇]));
   {
-    a := a[i := 47];
+    a[i] := 47;
     i := i + 1;
   }
   i := 0;
@@ -137,7 +139,7 @@ procedure main()
             )
                ==> a[i₂₀] == old(a)[i₂₀]));
   {
-    a := a[i := 48];
+    a[i] := 48;
     i := i + 1;
   }
   i := 0;
@@ -155,7 +157,7 @@ procedure main()
             )
                ==> a[i₂₃] == old(a)[i₂₃]));
   {
-    a := a[i := 49];
+    a[i] := 49;
     i := i + 1;
   }
   i := 0;
@@ -173,7 +175,7 @@ procedure main()
             )
                ==> a[i₂₆] == old(a)[i₂₆]));
   {
-    a := a[i := 50];
+    a[i] := 50;
     i := i + 1;
   }
   var x: int;

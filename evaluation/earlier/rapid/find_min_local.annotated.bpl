@@ -33,7 +33,7 @@ procedure find_max_local(a: [int]int, alength: int)
             && k < blength
              ==> b[k] <= b[j]));
 {
-  b := b[0 := a[0]];
+  b[0] := a[0];
   blength := 1;
   var i: int := 0;
   var m: int := 0;
@@ -64,7 +64,7 @@ procedure find_max_local(a: [int]int, alength: int)
                ==> b[i₃] == old(b)[i₃]));
   {
     if(a[i] < a[m]) {
-      b := b[i := a[i]];
+      b[i] := a[i];
       blength := blength + 1;
       m := i;
     }

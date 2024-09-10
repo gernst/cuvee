@@ -29,7 +29,7 @@ procedure in_place_max(alength: int)
                ==> a[i₁] == old(a)[i₁]));
   {
     if(a[i] < 0) {
-      a := a[i := 0];
+      a[i] := 0;
     }
     i := i + 1;
   }

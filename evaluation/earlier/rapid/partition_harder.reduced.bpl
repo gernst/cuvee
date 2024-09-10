@@ -160,33 +160,74 @@ goal {:named "invariant forward"} (forall a: [int]int, alength: int, b: [int]int
         && 0 <= clength₉
         && 0 <= i₁₀
         && 0 <= blength₁₂
-        && (forall clength₄₅₅: int, i₄₅₄: int, blength₄₅₃: int ::
-              (  clength₄₅₅ + clength₄₅₅ == i₄₅₄ + i₄₅₄
-                && clength₄₅₅ + clength₄₅₅ == blength₄₅₃ + blength₄₅₃
-                && 0 <= clength₄₅₅
-                && clength₄₅₅ < clength₉
-                && 0 <= i₄₅₄
-                && i₄₅₄ < i₁₀
-                && 0 <= blength₄₅₃
-                && blength₄₅₃ < blength₁₂
-                 ==> a[i₄₅₄] >= 0
-                    && i₄₅₄ < alength
-                    && b₁₁[blength₄₅₃] == a[i₄₅₄]
-                  ||   (a[i₄₅₄] >= 0
+        && (forall clength₄₀₇: int, i₄₀₆: int, blength₄₀₅: int ::
+              (  clength₄₀₇ + clength₄₀₇ == i₄₀₆ + i₄₀₆
+                && clength₄₀₇ + clength₄₀₇ == blength₄₀₅ + blength₄₀₅
+                && 0 <= clength₄₀₇
+                && clength₄₀₇ < clength₉
+                && 0 <= i₄₀₆
+                && i₄₀₆ < i₁₀
+                && 0 <= blength₄₀₅
+                && blength₄₀₅ < blength₁₂
+                 ==> a[i₄₀₆] >= 0
+                    && i₄₀₆ < alength
+                    && b₁₁[blength₄₀₅] == a[i₄₀₆]
+                  ||   (a[i₄₀₆] >= 0
                        ==> false)
-                    && i₄₅₄ < alength
-                    && c₁₃[clength₄₅₅] == a[i₄₅₄]))
-        && (forall clength₄₅₈: int, i₄₅₇: int, blength₄₅₆: int ::
-              (  clength₄₅₈ + clength₄₅₈ == i₄₅₇ + i₄₅₇
-                && clength₄₅₈ + clength₄₅₈ == blength₄₅₆ + blength₄₅₆
-                 ==> 0 <= clength₄₅₈
-                    && clength₄₅₈ < clength₉
-                    && 0 <= i₄₅₇
-                    && i₄₅₇ < i₁₀
-                    && 0 <= blength₄₅₆
-                    && blength₄₅₆ < blength₁₂
-                  ||   b₁₁[blength₄₅₆] == b[blength₄₅₆]
-                    && c₁₃[clength₄₅₈] == c[clength₄₅₈]))
+                    && i₄₀₆ < alength
+                    && c₁₃[clength₄₀₇] == a[i₄₀₆]))
+        && (forall clength₄₁₀: int, i₄₀₉: int, blength₄₀₈: int ::
+              (  clength₄₁₀ + clength₄₁₀ == i₄₀₉ + i₄₀₉
+                && clength₄₁₀ + clength₄₁₀ == blength₄₀₈ + blength₄₀₈
+                 ==> 0 <= clength₄₁₀
+                    && clength₄₁₀ < clength₉
+                    && 0 <= i₄₀₉
+                    && i₄₀₉ < i₁₀
+                    && 0 <= blength₄₀₈
+                    && blength₄₀₈ < blength₁₂
+                  ||   b₁₁[blength₄₀₈] == b[blength₄₀₈]
+                    && c₁₃[clength₄₁₀] == c[clength₄₁₀]))
+        && i₁₀ < alength
+        && clength₁ + clength₁ == i₂ + i₂
+        && clength₁ + clength₁ == blength₃ + blength₃
+         ==> clength₁ < clength₉ + 1
+          || a[i₁₀] >= 0
+          || c₁₃[clength₉ := a[i₁₀]][clength₁] == c[clength₁]));
+
+goal {:named "invariant forward"} (forall a: [int]int, alength: int, b: [int]int, c: [int]int, clength₉: int, i₁₀: int, b₁₁: [int]int, blength₁₂: int, c₁₃: [int]int, clength₁: int, i₂: int, blength₃: int ::
+      (  0 <= alength
+        && clength₉ + 0 == i₁₀ + 0
+        && clength₉ + 0 == 0 + blength₁₂
+        && 0 <= clength₉
+        && 0 <= i₁₀
+        && 0 <= blength₁₂
+        && (forall clength₄₆₁: int, i₄₆₀: int, blength₄₅₉: int ::
+              (  clength₄₆₁ + clength₄₆₁ == i₄₆₀ + i₄₆₀
+                && clength₄₆₁ + clength₄₆₁ == blength₄₅₉ + blength₄₅₉
+                && 0 <= clength₄₆₁
+                && clength₄₆₁ < clength₉
+                && 0 <= i₄₆₀
+                && i₄₆₀ < i₁₀
+                && 0 <= blength₄₅₉
+                && blength₄₅₉ < blength₁₂
+                 ==> a[i₄₆₀] >= 0
+                    && i₄₆₀ < alength
+                    && b₁₁[blength₄₅₉] == a[i₄₆₀]
+                  ||   (a[i₄₆₀] >= 0
+                       ==> false)
+                    && i₄₆₀ < alength
+                    && c₁₃[clength₄₆₁] == a[i₄₆₀]))
+        && (forall clength₄₆₄: int, i₄₆₃: int, blength₄₆₂: int ::
+              (  clength₄₆₄ + clength₄₆₄ == i₄₆₃ + i₄₆₃
+                && clength₄₆₄ + clength₄₆₄ == blength₄₆₂ + blength₄₆₂
+                 ==> 0 <= clength₄₆₄
+                    && clength₄₆₄ < clength₉
+                    && 0 <= i₄₆₃
+                    && i₄₆₃ < i₁₀
+                    && 0 <= blength₄₆₂
+                    && blength₄₆₂ < blength₁₂
+                  ||   b₁₁[blength₄₆₂] == b[blength₄₆₂]
+                    && c₁₃[clength₄₆₄] == c[clength₄₆₄]))
         && i₁₀ < alength
         && clength₁ + clength₁ == i₂ + i₂
         && clength₁ + clength₁ == blength₃ + blength₃
@@ -201,33 +242,33 @@ goal {:named "invariant forward"} (forall a: [int]int, alength: int, b: [int]int
         && 0 <= clength₉
         && 0 <= i₁₀
         && 0 <= blength₁₂
-        && (forall clength₅₀₉: int, i₅₀₈: int, blength₅₀₇: int ::
-              (  clength₅₀₉ + clength₅₀₉ == i₅₀₈ + i₅₀₈
-                && clength₅₀₉ + clength₅₀₉ == blength₅₀₇ + blength₅₀₇
-                && 0 <= clength₅₀₉
-                && clength₅₀₉ < clength₉
-                && 0 <= i₅₀₈
-                && i₅₀₈ < i₁₀
-                && 0 <= blength₅₀₇
-                && blength₅₀₇ < blength₁₂
-                 ==> a[i₅₀₈] >= 0
-                    && i₅₀₈ < alength
-                    && b₁₁[blength₅₀₇] == a[i₅₀₈]
-                  ||   (a[i₅₀₈] >= 0
+        && (forall clength₅₁₅: int, i₅₁₄: int, blength₅₁₃: int ::
+              (  clength₅₁₅ + clength₅₁₅ == i₅₁₄ + i₅₁₄
+                && clength₅₁₅ + clength₅₁₅ == blength₅₁₃ + blength₅₁₃
+                && 0 <= clength₅₁₅
+                && clength₅₁₅ < clength₉
+                && 0 <= i₅₁₄
+                && i₅₁₄ < i₁₀
+                && 0 <= blength₅₁₃
+                && blength₅₁₃ < blength₁₂
+                 ==> a[i₅₁₄] >= 0
+                    && i₅₁₄ < alength
+                    && b₁₁[blength₅₁₃] == a[i₅₁₄]
+                  ||   (a[i₅₁₄] >= 0
                        ==> false)
-                    && i₅₀₈ < alength
-                    && c₁₃[clength₅₀₉] == a[i₅₀₈]))
-        && (forall clength₅₁₂: int, i₅₁₁: int, blength₅₁₀: int ::
-              (  clength₅₁₂ + clength₅₁₂ == i₅₁₁ + i₅₁₁
-                && clength₅₁₂ + clength₅₁₂ == blength₅₁₀ + blength₅₁₀
-                 ==> 0 <= clength₅₁₂
-                    && clength₅₁₂ < clength₉
-                    && 0 <= i₅₁₁
-                    && i₅₁₁ < i₁₀
-                    && 0 <= blength₅₁₀
-                    && blength₅₁₀ < blength₁₂
-                  ||   b₁₁[blength₅₁₀] == b[blength₅₁₀]
-                    && c₁₃[clength₅₁₂] == c[clength₅₁₂]))
+                    && i₅₁₄ < alength
+                    && c₁₃[clength₅₁₅] == a[i₅₁₄]))
+        && (forall clength₅₁₈: int, i₅₁₇: int, blength₅₁₆: int ::
+              (  clength₅₁₈ + clength₅₁₈ == i₅₁₇ + i₅₁₇
+                && clength₅₁₈ + clength₅₁₈ == blength₅₁₆ + blength₅₁₆
+                 ==> 0 <= clength₅₁₈
+                    && clength₅₁₈ < clength₉
+                    && 0 <= i₅₁₇
+                    && i₅₁₇ < i₁₀
+                    && 0 <= blength₅₁₆
+                    && blength₅₁₆ < blength₁₂
+                  ||   b₁₁[blength₅₁₆] == b[blength₅₁₆]
+                    && c₁₃[clength₅₁₈] == c[clength₅₁₈]))
         && i₁₀ < alength
         && clength₁ + clength₁ == i₂ + i₂
         && clength₁ + clength₁ == blength₃ + blength₃

@@ -24,7 +24,7 @@ procedure copy(blength: int, b: [int]int)
             )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := b[i]];
+    a[i] := b[i];
     i := i + 1;
   }
 }

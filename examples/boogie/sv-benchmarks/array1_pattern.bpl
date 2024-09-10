@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -16,7 +18,9 @@ procedure main()
   returns (c#result: int)
   modifies ARR_SIZE;
 {
+  ARR_SIZE := 0;
   havoc ARR_SIZE;
+  assume -32768 <= ARR_SIZE && ARR_SIZE < 32768;
   assume 0 < ARR_SIZE;
   var array1: [int]int;
   var array2: [int]int;
@@ -33,10 +37,12 @@ procedure main()
   }
   while(1 != 0) {
     havoc index;
+    assume -32768 <= index && index < 32768;
     assume 0 <= index && index < ARR_SIZE;
     array1 := array1[index := num * num * index];
     array2 := array2[ARR_SIZE - 1 - index := num * index];
     havoc temp;
+    assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {
       break;
     }

@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -13,9 +15,8 @@ function c#bitor(x₀: int, x₁: int): int;
 procedure main()
   returns (c#result: int)
 {
-  var __VERIFIER_nondet_int₁: int;
   var S: int;
-  S := __VERIFIER_nondet_int₁;
+  assume -2147483648 <= S && S < 2147483648;
   assume 1 < S;
   var i: int;
   var a: [int]int;
@@ -23,46 +24,46 @@ procedure main()
   while(i < S)
     decreases S - i;
     invariant old(i) <= i
-      && (forall i₅: int ::
-            (  old(i) <= i₅
-              && i₅ < i
-               ==> i₅ < S
-                && a[i₅] == -1 + i₅ * i₅))
-      && (forall i₅: int ::
-            (!(  old(i) <= i₅
-              && i₅ < i
+      && (forall i₄: int ::
+            (  old(i) <= i₄
+              && i₄ < i
+               ==> i₄ < S
+                && a[i₄] == -1 + i₄ * i₄))
+      && (forall i₄: int ::
+            (!(  old(i) <= i₄
+              && i₄ < i
             )
-               ==> a[i₅] == old(a)[i₅]));
+               ==> a[i₄] == old(a)[i₄]));
   {
-    a := a[i := (i - 1) * (i + 1)];
+    a[i] := (i - 1) * (i + 1);
     i := i + 1;
   }
   i := 0;
   while(i < S)
     decreases S - i;
     invariant old(i) <= i
-      && (forall i₈: int ::
-            (  old(i) <= i₈
-              && i₈ < i
-               ==> i₈ < S
-                && a[i₈] == -(i₈ * i₈) + old(a)[i₈]))
-      && (forall i₈: int ::
-            (!(  old(i) <= i₈
-              && i₈ < i
+      && (forall i₇: int ::
+            (  old(i) <= i₇
+              && i₇ < i
+               ==> i₇ < S
+                && a[i₇] == old(a)[i₇] + -(i₇ * i₇)))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
             )
-               ==> a[i₈] == old(a)[i₈]));
+               ==> a[i₇] == old(a)[i₇]));
   {
-    a := a[i := a[i] - i * i];
+    a[i] := a[i] - i * i;
     i := i + 1;
   }
   i := 0;
   while(i < S)
     decreases S - i;
     invariant old(i) <= i
-      && (forall i₁₁: int ::
-            (  old(i) <= i₁₁
-              && i₁₁ < i
-               ==> i₁₁ < S));
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < S));
   {
     assert a[i] == -1;
     i := i + 1;

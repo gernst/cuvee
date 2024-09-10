@@ -4,6 +4,8 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -13,9 +15,11 @@ goal {:named "assert"} (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret
         && (forall i₁₁: int ::
               (  0 <= i₁₁
                 && i₁₁ < i₂₇
-                 ==> (exists __VERIFIER_nondet_int₄₁₀: int ::
-                        i₁₁ < 60
-                        && x₂₆[i₁₁] == __VERIFIER_nondet_int₄₁₀)))
+                 ==> (exists nondet_int₄₁₀: int ::
+                        -2147483648 <= nondet_int₄₁₀
+                        && nondet_int₄₁₀ < 2147483648
+                        && i₁₁ < 60
+                        && x₂₆[i₁₁] == nondet_int₄₁₀)))
         && (forall i₁₁: int ::
                   0 <= i₁₁
                   && i₁₁ < i₂₇
@@ -69,9 +73,11 @@ goal {:named "assert"} (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret
         && (forall i₁₁: int ::
               (  0 <= i₁₁
                 && i₁₁ < i₂₇
-                 ==> (exists __VERIFIER_nondet_int₄₁₀: int ::
-                        i₁₁ < 60
-                        && x₂₆[i₁₁] == __VERIFIER_nondet_int₄₁₀)))
+                 ==> (exists nondet_int₄₁₀: int ::
+                        -2147483648 <= nondet_int₄₁₀
+                        && nondet_int₄₁₀ < 2147483648
+                        && i₁₁ < 60
+                        && x₂₆[i₁₁] == nondet_int₄₁₀)))
         && (forall i₁₁: int ::
                   0 <= i₁₁
                   && i₁₁ < i₂₇

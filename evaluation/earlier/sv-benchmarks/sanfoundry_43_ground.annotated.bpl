@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -29,7 +31,7 @@ procedure incrementArray(src: [int]int, dst: [int]int)
             )
                ==> dst[i₂] == old(dst)[i₂]));
   {
-    dst := dst[i := src[i] + 1];
+    dst[i] := src[i] + 1;
     i := i + 1;
   }
 }
@@ -46,17 +48,20 @@ procedure main()
       && (forall i₈: int ::
             (  old(i) <= i₈
               && i₈ < i
-               ==> (exists __VERIFIER_nondet_int₂₇: int ::
-                      i₈ < 100000
-                      && src[i₈] == __VERIFIER_nondet_int₂₇)))
+               ==> (exists nondet_int₂₇: int ::
+                      -2147483648 <= nondet_int₂₇
+                      && nondet_int₂₇ < 2147483648
+                      && i₈ < 100000
+                      && src[i₈] == nondet_int₂₇)))
       && (forall i₈: int ::
             (!(  old(i) <= i₈
               && i₈ < i
             )
                ==> src[i₈] == old(src)[i₈]));
   {
-    var __VERIFIER_nondet_int₂: int;
-    src := src[i := __VERIFIER_nondet_int₂];
+    var nondet_int₂: int;
+    assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
+    src[i] := nondet_int₂;
     i := i + 1;
   }
   var incrementArray₄: c#void;
@@ -77,7 +82,7 @@ procedure main()
             )
                ==> src[x₁₃] == old(src)[x₁₃]));
   {
-    src := src[x := dst[x] - 1];
+    src[x] := dst[x] - 1;
     x := x + 1;
   }
   c#result := 0;

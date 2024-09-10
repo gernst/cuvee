@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -52,25 +54,28 @@ procedure main()
       && (forall i₁₁: int ::
             (  old(i) <= i₁₁
               && i₁₁ < i
-               ==> (exists __VERIFIER_nondet_int₄₁₀: int ::
-                      i₁₁ < 20
-                      && x[i₁₁] == __VERIFIER_nondet_int₄₁₀)))
+               ==> (exists nondet_int₄₁₀: int ::
+                      -2147483648 <= nondet_int₄₁₀
+                      && nondet_int₄₁₀ < 2147483648
+                      && i₁₁ < 20
+                      && x[i₁₁] == nondet_int₄₁₀)))
       && (forall i₁₁: int ::
             (!(  old(i) <= i₁₁
               && i₁₁ < i
             )
                ==> x[i₁₁] == old(x)[i₁₁]));
   {
-    var __VERIFIER_nondet_int₄: int;
-    x := x[i := __VERIFIER_nondet_int₄];
+    var nondet_int₄: int;
+    assume -2147483648 <= nondet_int₄ && nondet_int₄ < 2147483648;
+    x[i] := nondet_int₄;
     i := i + 1;
   }
   var sep₆: int;
   sep₆ := call sep(x);
   ret := sep₆;
   temp := x[0];
-  x := x[0 := x[1]];
-  x := x[1 := temp];
+  x[0] := x[1];
+  x[1] := temp;
   var sep₇: int;
   sep₇ := call sep(x);
   ret2 := sep₇;
@@ -90,10 +95,10 @@ procedure main()
             )
                ==> x[i₁₆] == old(x)[i₁₆]));
   {
-    x := x[i := x[i + 1]];
+    x[i] := x[i + 1];
     i := i + 1;
   }
-  x := x[20 - 1 := temp];
+  x[(20 - 1)] := temp;
   var sep₉: int;
   sep₉ := call sep(x);
   ret5 := sep₉;

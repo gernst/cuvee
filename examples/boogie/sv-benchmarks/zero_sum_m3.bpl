@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -16,7 +18,9 @@ procedure main()
   returns (c#result: int)
   modifies SIZE;
 {
+  SIZE := 0;
   havoc SIZE;
+  assume -32768 <= SIZE && SIZE < 32768;
   if(1 < SIZE) {
     var i: int;
     var a: [int]int;
@@ -24,8 +28,9 @@ procedure main()
     {
       var i: int := 0;
       while(i < SIZE) {
-        var __VERIFIER_nondet_short₁: int;
-        a := a[i := __VERIFIER_nondet_short₁];
+        var nondet_short₁: int;
+        assume -32768 <= nondet_short₁ && nondet_short₁ < 32768;
+        a := a[i := nondet_short₁];
         i := i + 1;
       }
     }

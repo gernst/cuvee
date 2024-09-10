@@ -4,19 +4,25 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "assert"} (forall SIZE₄₈: int, a: [int]int, a₅₀: [int]int, i₅₁: int, i₅₃: int, i₅₅: int, i₅₇: int, i₅₉: int, i₆₁: int, i₆₃: int, i₆₅: int, i₆₇: int, i₆₉: int, sum₇₀: int, i₇₁: int ::
-      (  1 < SIZE₄₈
+      (  -32768 <= SIZE₄₈
+        && SIZE₄₈ < 32768
+        && 1 < SIZE₄₈
         && 0 <= i₅₁
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₅₁
-                 ==> (exists __VERIFIER_nondet_short₁₄: int ::
-                        i₅ < SIZE₄₈
-                        && a₅₀[i₅] == __VERIFIER_nondet_short₁₄)))
+                 ==> (exists nondet_short₁₄: int ::
+                        -32768 <= nondet_short₁₄
+                        && nondet_short₁₄ < 32768
+                        && i₅ < SIZE₄₈
+                        && a₅₀[i₅] == nondet_short₁₄)))
         && (forall i₅: int ::
                   0 <= i₅
                   && i₅ < i₅₁

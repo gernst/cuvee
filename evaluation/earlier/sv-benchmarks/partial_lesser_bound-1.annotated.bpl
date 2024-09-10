@@ -19,6 +19,7 @@ procedure main()
   modifies a, i;
 {
   i := 0;
+  i := 0;
   while(i < 10000000)
     decreases 10000000 - i;
     invariant old(i) <= i
@@ -33,7 +34,7 @@ procedure main()
             )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := 0];
+    a[i] := 0;
     i := i + 1;
   }
   i := 0;
@@ -51,7 +52,7 @@ procedure main()
             )
                ==> a[i₄] == old(a)[i₄]));
   {
-    a := a[i := 10];
+    a[i] := 10;
     i := i + 1;
   }
   i := 0;

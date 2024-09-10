@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -18,7 +20,9 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
+  N := 0;
   havoc N;
+  assume -2147483648 <= N && N < 2147483648;
   if(N <= 0) {
     c#result := 1;
     return;
@@ -33,17 +37,20 @@ procedure main()
       && (forall i₅: int ::
             (  old(i) <= i₅
               && i₅ < i
-               ==> (exists __VERIFIER_nondet_int₁₄: int ::
-                      i₅ < N
-                      && a[i₅] == __VERIFIER_nondet_int₁₄)))
+               ==> (exists nondet_int₁₄: int ::
+                      -2147483648 <= nondet_int₁₄
+                      && nondet_int₁₄ < 2147483648
+                      && i₅ < N
+                      && a[i₅] == nondet_int₁₄)))
       && (forall i₅: int ::
             (!(  old(i) <= i₅
               && i₅ < i
             )
                ==> a[i₅] == old(a)[i₅]));
   {
-    var __VERIFIER_nondet_int₁: int;
-    a := a[i := __VERIFIER_nondet_int₁];
+    var nondet_int₁: int;
+    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
+    a[i] := nondet_int₁;
     i := i + 1;
   }
   i := 0;
@@ -66,9 +73,9 @@ procedure main()
                ==> a[i₈] == old(a)[i₈]));
   {
     if(a[i] < N) {
-      a := a[i := a[i]];
+      a[i] := a[i];
     } else {
-      a := a[i := N];
+      a[i] := N;
     }
     i := i + 1;
   }

@@ -26,7 +26,7 @@ procedure init_partial(alength: int, k: int)
             )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := 0];
+    a[i] := 0;
     i := i + 1;
   }
 }

@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -32,7 +34,9 @@ procedure main()
   returns (c#result: int)
   modifies N;
 {
+  N := 0;
   havoc N;
+  assume -2147483648 <= N && N < 2147483648;
   if(1 < N) {
     var x: [int]int;
     var temp: int;
@@ -41,8 +45,9 @@ procedure main()
     var ret5: int;
     var i: int := 0;
     while(i < N) {
-      var __VERIFIER_nondet_int₂: int;
-      x := x[i := __VERIFIER_nondet_int₂];
+      var nondet_int₂: int;
+      assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
+      x := x[i := nondet_int₂];
       i := i + 1;
     }
     var mapavg₄: int;

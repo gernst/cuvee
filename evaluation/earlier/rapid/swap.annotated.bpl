@@ -33,8 +33,8 @@ procedure swap(length: int)
                 && b[i₁] == old(b)[i₁]));
   {
     var current: int := a[i];
-    a := a[i := b[i]];
-    b := b[i := current];
+    a[i] := b[i];
+    b[i] := current;
     i := i + 1;
   }
 }

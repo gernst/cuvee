@@ -45,7 +45,7 @@ procedure init_non_constant_easy(alength: int, v: int)
             )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := i + v];
+    a[i] := i + v;
     i := i + 1;
   }
 }

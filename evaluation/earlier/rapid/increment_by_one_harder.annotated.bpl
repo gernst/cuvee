@@ -30,7 +30,7 @@ procedure increment_by_one_harder(alength: int)
             )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := a[i] + 1];
+    a[i] := a[i] + 1;
     i := i + 1;
   }
 }

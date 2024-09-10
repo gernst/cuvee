@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -16,7 +18,9 @@ procedure main()
   returns (c#result: int)
   modifies ARR_SIZE;
 {
+  ARR_SIZE := 0;
   havoc ARR_SIZE;
+  assume -32768 <= ARR_SIZE && ARR_SIZE < 32768;
   assume 0 < ARR_SIZE;
   var array1: [int]int;
   var array2: [int]int;
@@ -43,8 +47,8 @@ procedure main()
                ==> array1[count₇] == old(array1)[count₇]
                 && array2[count₇] == old(array2)[count₇]));
   {
-    array1 := array1[count := 0];
-    array2 := array2[count := 0];
+    array1[count] := 0;
+    array2[count] := 0;
     count := count + 1;
   }
   count := 1;
@@ -52,6 +56,8 @@ procedure main()
     invariant (forall count₁₆: int ::
               (exists index1₁₁: int, index2₁₂: int, temp₁₃: int ::
                       temp₁₃ != 0
+                      && -2147483648 <= temp₁₃
+                      && temp₁₃ < 2147483648
                       && count₁₆ == 200
                       && array2[index2₁₂] == 0
                       && array1[index1₁₁] == 0
@@ -59,10 +65,16 @@ procedure main()
                       && index2₁₂ < ARR_SIZE
                       && 0 <= index1₁₁
                       && index1₁₁ < ARR_SIZE
+                      && -32768 <= index2₁₂
+                      && index2₁₂ < 32768
+                      && -32768 <= index1₁₁
+                      && index1₁₁ < 32768
                       && array2[index2₁₂] == num * count₁₆
                       && array1[index1₁₁] == num * num * count₁₆)
               || (exists index1₁₁: int, index2₁₂: int, temp₁₄: int ::
                       temp₁₄ != 0
+                      && -2147483648 <= temp₁₄
+                      && temp₁₄ < 2147483648
                       && count₁₆ != 200
                       && array2[index2₁₂] == 0
                       && array1[index1₁₁] == 0
@@ -70,43 +82,62 @@ procedure main()
                       && index2₁₂ < ARR_SIZE
                       && 0 <= index1₁₁
                       && index1₁₁ < ARR_SIZE
+                      && -32768 <= index2₁₂
+                      && index2₁₂ < 32768
+                      && -32768 <= index1₁₁
+                      && index1₁₁ < 32768
                       && array2[index2₁₂] == num * count₁₆
                       && array1[index1₁₁] == num * num * count₁₆))
       && (forall count₁₆: int ::
               !((exists index1₁₁: int, index2₁₂: int, temp₁₃: int ::
                       temp₁₃ == 0
+                      && -2147483648 <= temp₁₃
+                      && temp₁₃ < 2147483648
                       && count₁₆ == 200
                       && array2[index2₁₂] == 0
                       && array1[index1₁₁] == 0
                       && 0 <= index2₁₂
                       && index2₁₂ < ARR_SIZE
                       && 0 <= index1₁₁
-                      && index1₁₁ < ARR_SIZE)
+                      && index1₁₁ < ARR_SIZE
+                      && -32768 <= index2₁₂
+                      && index2₁₂ < 32768
+                      && -32768 <= index1₁₁
+                      && index1₁₁ < 32768)
               )
               && !((exists index1₁₁: int, index2₁₂: int, temp₁₄: int ::
                       temp₁₄ == 0
+                      && -2147483648 <= temp₁₄
+                      && temp₁₄ < 2147483648
                       && count₁₆ != 200
                       && array2[index2₁₂] == 0
                       && array1[index1₁₁] == 0
                       && 0 <= index2₁₂
                       && index2₁₂ < ARR_SIZE
                       && 0 <= index1₁₁
-                      && index1₁₁ < ARR_SIZE)
+                      && index1₁₁ < ARR_SIZE
+                      && -32768 <= index2₁₂
+                      && index2₁₂ < 32768
+                      && -32768 <= index1₁₁
+                      && index1₁₁ < 32768)
               ));
   {
     havoc index1;
+    assume -32768 <= index1 && index1 < 32768;
     havoc index2;
+    assume -32768 <= index2 && index2 < 32768;
     assume 0 <= index1 && index1 < ARR_SIZE;
     assume 0 <= index2 && index2 < ARR_SIZE;
     assume array1[index1] == 0;
     assume array2[index2] == 0;
-    array1 := array1[index1 := num * num * count];
-    array2 := array2[index2 := num * count];
+    array1[index1] := num * num * count;
+    array2[index2] := num * count;
     if(count == 200) {
       count := 0;
     }
     count := count + 1;
     havoc temp;
+    assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {
       break;
     }

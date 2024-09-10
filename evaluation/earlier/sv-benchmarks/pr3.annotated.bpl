@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -16,7 +18,9 @@ procedure main()
   returns (c#result: int)
   modifies CELLCOUNT;
 {
+  CELLCOUNT := 0;
   havoc CELLCOUNT;
+  assume -2147483648 <= CELLCOUNT && CELLCOUNT < 2147483648;
   if(1 < CELLCOUNT) {
     var MINVAL: int;
     var i: int;
@@ -137,19 +141,19 @@ procedure main()
                   && volArray[-3 + 3 * i₅] == old(volArray)[-3 + 3 * i₅]));
     {
       if(MINVAL <= CCCELVOL3) {
-        volArray := volArray[i * 3 - 3 := CCCELVOL3];
+        volArray[((i * 3) - 3)] := CCCELVOL3;
       } else {
-        volArray := volArray[i * 3 - 3 := 0];
+        volArray[((i * 3) - 3)] := 0;
       }
       if(MINVAL <= CCCELVOL2) {
-        volArray := volArray[i * 3 - 2 := CCCELVOL2];
+        volArray[((i * 3) - 2)] := CCCELVOL2;
       } else {
-        volArray := volArray[i * 3 - 2 := 0];
+        volArray[((i * 3) - 2)] := 0;
       }
       if(MINVAL <= CCCELVOL1) {
-        volArray := volArray[i * 3 - 1 := CCCELVOL1];
+        volArray[((i * 3) - 1)] := CCCELVOL1;
       } else {
-        volArray := volArray[i * 3 - 1 := 0];
+        volArray[((i * 3) - 1)] := 0;
       }
       i := i + 1;
     }

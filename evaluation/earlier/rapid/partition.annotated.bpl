@@ -94,10 +94,10 @@ procedure partition(a: [int]int, alength: int)
                 && c[clength₁] == old(c)[clength₁]));
   {
     if(a[i] >= 0) {
-      b := b[blength := a[i]];
+      b[blength] := a[i];
       blength := blength + 1;
     } else {
-      c := c[clength := a[i]];
+      c[clength] := a[i];
       clength := clength + 1;
     }
     i := i + 1;

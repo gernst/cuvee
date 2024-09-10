@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -47,25 +49,28 @@ procedure main()
       && (forall i₁₃: int ::
             (  old(i) <= i₁₃
               && i₁₃ < i
-               ==> (exists __VERIFIER_nondet_int₂₁₂: int ::
-                      i₁₃ < 10
-                      && x[i₁₃] == __VERIFIER_nondet_int₂₁₂)))
+               ==> (exists nondet_int₂₁₂: int ::
+                      -2147483648 <= nondet_int₂₁₂
+                      && nondet_int₂₁₂ < 2147483648
+                      && i₁₃ < 10
+                      && x[i₁₃] == nondet_int₂₁₂)))
       && (forall i₁₃: int ::
             (!(  old(i) <= i₁₃
               && i₁₃ < i
             )
                ==> x[i₁₃] == old(x)[i₁₃]));
   {
-    var __VERIFIER_nondet_int₂: int;
-    x := x[i := __VERIFIER_nondet_int₂];
+    var nondet_int₂: int;
+    assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
+    x[i] := nondet_int₂;
     i := i + 1;
   }
   var avg₄: int;
   avg₄ := call avg(x);
   ret := avg₄;
   temp := x[0];
-  x := x[0 := x[1]];
-  x := x[1 := temp];
+  x[0] := x[1];
+  x[1] := temp;
   var avg₅: int;
   avg₅ := call avg(x);
   ret2 := avg₅;
@@ -85,10 +90,10 @@ procedure main()
             )
                ==> x[i₁₈] == old(x)[i₁₈]));
   {
-    x := x[i := x[i + 1]];
+    x[i] := x[i + 1];
     i := i + 1;
   }
-  x := x[10 - 1 := temp];
+  x[(10 - 1)] := temp;
   var avg₇: int;
   avg₇ := call avg(x);
   ret5 := avg₇;

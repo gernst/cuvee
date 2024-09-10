@@ -4,12 +4,16 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅₈: int ::
               (  0 <= i₅₈
@@ -33,7 +37,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [i
           || a₁₄[0 := 6][0] == a[0]));
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₇₀: int ::
               (  0 <= i₇₀
@@ -57,7 +63,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [i
           || a₁₄[0 := 6][0] == a[0]));
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₈₆: int ::
               (  0 <= i₈₆
@@ -88,7 +96,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [i
             && a₁₄[i₁₅ := a₁₄[i₁₅ - 1] + 6][i₅] == 6 + a[-1 + i₅]));
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::
               (  0 <= i₅
@@ -129,7 +139,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int
           || b₁₆[0 := 1][0] == b[0]));
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::
               (  0 <= i₅
@@ -170,7 +182,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int
           || b₁₆[0 := 1][0] == b[0]));
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::
               (  0 <= i₅
@@ -218,7 +232,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int
             && b₁₆[i₁₇ := b₁₆[i₁₇ - 1] + a₁₄[i₁₇ - 1]][i₈] == b[-1 + i₈] + a₁₄[-1 + i₈]));
 
 goal {:named "assert"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₁₈: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 0 <= i₁₅
         && (forall i₅: int ::
               (  0 <= i₅

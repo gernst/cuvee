@@ -32,9 +32,9 @@ procedure both_or_none(a: [int]int, alength: int)
                ==> b[i₁] == old(b)[i₁]));
   {
     if(a[i] == 1) {
-      b := b[i := 1];
+      b[i] := 1;
     } else {
-      b := b[i := 0];
+      b[i] := 0;
     }
     i := i + 1;
   }

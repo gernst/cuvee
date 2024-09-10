@@ -45,7 +45,7 @@ procedure copy_positive(b: [int]int, blength: int)
                ==> a[alength₁] == old(a)[alength₁]));
   {
     if(b[i] >= 0) {
-      a := a[alength := b[i]];
+      a[alength] := b[i];
       alength := alength + 1;
     }
     i := i + 1;

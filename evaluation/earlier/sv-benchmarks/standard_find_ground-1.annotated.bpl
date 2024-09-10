@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -14,39 +16,41 @@ procedure main()
   returns (c#result: int)
 {
   var a: [int]int;
-  var __VERIFIER_nondet_int₁: int;
   var e: int;
-  e := __VERIFIER_nondet_int₁;
+  assume -2147483648 <= e && e < 2147483648;
   var i: int := 0;
   var j: int;
   j := 0;
   while(j < 100000)
     decreases 100000 - j;
     invariant old(j) <= j
-      && (forall j₆: int ::
-            (  old(j) <= j₆
-              && j₆ < j
-               ==> (exists __VERIFIER_nondet_int₂₅: int ::
-                      j₆ < 100000
-                      && a[j₆] == __VERIFIER_nondet_int₂₅)))
-      && (forall j₆: int ::
-            (!(  old(j) <= j₆
-              && j₆ < j
+      && (forall j₅: int ::
+            (  old(j) <= j₅
+              && j₅ < j
+               ==> (exists nondet_int₁₄: int ::
+                      -2147483648 <= nondet_int₁₄
+                      && nondet_int₁₄ < 2147483648
+                      && j₅ < 100000
+                      && a[j₅] == nondet_int₁₄)))
+      && (forall j₅: int ::
+            (!(  old(j) <= j₅
+              && j₅ < j
             )
-               ==> a[j₆] == old(a)[j₆]));
+               ==> a[j₅] == old(a)[j₅]));
   {
-    var __VERIFIER_nondet_int₂: int;
-    a := a[j := __VERIFIER_nondet_int₂];
+    var nondet_int₁: int;
+    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
+    a[j] := nondet_int₁;
     j := j + 1;
   }
   while(i < 100000 && a[i] != e)
     decreases 100000 - i;
     invariant old(i) <= i
-      && (forall i₉: int ::
-            (  old(i) <= i₉
-              && i₉ < i
-               ==> i₉ < 100000
-                && a[i₉] != e));
+      && (forall i₈: int ::
+            (  old(i) <= i₈
+              && i₈ < i
+               ==> i₈ < 100000
+                && a[i₈] != e));
   {
     i := i + 1;
   }
@@ -55,10 +59,10 @@ procedure main()
   while(x < i)
     decreases i - x;
     invariant old(x) <= x
-      && (forall x₁₂: int ::
-            (  old(x) <= x₁₂
-              && x₁₂ < x
-               ==> x₁₂ < i));
+      && (forall x₁₁: int ::
+            (  old(x) <= x₁₁
+              && x₁₁ < x
+               ==> x₁₁ < i));
   {
     assert a[x] != e;
     x := x + 1;

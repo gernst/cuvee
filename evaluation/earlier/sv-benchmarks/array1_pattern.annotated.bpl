@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -16,7 +18,9 @@ procedure main()
   returns (c#result: int)
   modifies ARR_SIZE;
 {
+  ARR_SIZE := 0;
   havoc ARR_SIZE;
+  assume -32768 <= ARR_SIZE && ARR_SIZE < 32768;
   assume 0 < ARR_SIZE;
   var array1: [int]int;
   var array2: [int]int;
@@ -42,28 +46,38 @@ procedure main()
                ==> array1[count₆] == old(array1)[count₆]
                 && array2[count₆] == old(array2)[count₆]));
   {
-    array1 := array1[count := 0];
-    array2 := array2[count := 0];
+    array1[count] := 0;
+    array2[count] := 0;
     count := count + 1;
   }
   while(1 != 0)
     invariant (exists index₁₀: int, temp₁₁: int ::
               temp₁₁ != 0
+              && -2147483648 <= temp₁₁
+              && temp₁₁ < 2147483648
               && 0 <= index₁₀
               && index₁₀ < ARR_SIZE
+              && -32768 <= index₁₀
+              && index₁₀ < 32768
               && array1[index₁₀] == num * num * index₁₀
               && array2[-1 + -index₁₀ + ARR_SIZE] == num * index₁₀)
       && !((exists index₁₀: int, temp₁₁: int ::
               temp₁₁ == 0
+              && -2147483648 <= temp₁₁
+              && temp₁₁ < 2147483648
               && 0 <= index₁₀
-              && index₁₀ < ARR_SIZE)
+              && index₁₀ < ARR_SIZE
+              && -32768 <= index₁₀
+              && index₁₀ < 32768)
       );
   {
     havoc index;
+    assume -32768 <= index && index < 32768;
     assume 0 <= index && index < ARR_SIZE;
-    array1 := array1[index := num * num * index];
-    array2 := array2[ARR_SIZE - 1 - index := num * index];
+    array1[index] := num * num * index;
+    array2[((ARR_SIZE - 1) - index)] := num * index;
     havoc temp;
+    assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {
       break;
     }

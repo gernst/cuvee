@@ -4,12 +4,16 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [int]int, i₁₉: int, i₆: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆₈: int ::
               (  0 <= i₆₈
@@ -33,7 +37,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [i
           || a₁₈[0 := 6][0] == a[0]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [int]int, i₁₉: int, i₆: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₈₀: int ::
               (  0 <= i₈₀
@@ -57,7 +63,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [i
           || a₁₈[0 := 6][0] == a[0]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [int]int, i₁₉: int, i₆: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₉₆: int ::
               (  0 <= i₉₆
@@ -88,7 +96,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [i
             && a₁₈[i₁₉ := a₁₈[i₁₉ - 1] + 6][i₆] == 6 + a[-1 + i₆]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, i₉: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆: int ::
               (  0 <= i₆
@@ -129,7 +139,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
           || b₂₀[0 := 1][0] == b[0]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, i₉: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆: int ::
               (  0 <= i₆
@@ -170,7 +182,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
           || b₂₀[0 := 1][0] == b[0]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, i₉: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆: int ::
               (  0 <= i₆
@@ -218,7 +232,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
             && b₂₀[i₂₁ := b₂₀[i₂₁ - 1] + a₁₈[i₂₁ - 1]][i₉] == b[-1 + i₉] + a₁₈[-1 + i₉]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, c: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, c₂₂: [int]int, i₂₃: int, i₁₂: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆: int ::
               (  0 <= i₆
@@ -276,7 +292,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
           || c₂₂[0 := 0][0] == c[0]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, c: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, c₂₂: [int]int, i₂₃: int, i₁₂: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆: int ::
               (  0 <= i₆
@@ -334,7 +352,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
           || c₂₂[0 := 0][0] == c[0]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, c: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, c₂₂: [int]int, i₂₃: int, i₁₂: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆: int ::
               (  0 <= i₆
@@ -399,7 +419,9 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
             && c₂₂[i₂₃ := c₂₂[i₂₃ - 1] + b₂₀[i₂₃ - 1]][i₁₂] == c[-1 + i₁₂] + b₂₀[-1 + i₁₂]));
 
 goal {:named "assert"} (forall N₁₇: int, a: [int]int, b: [int]int, c: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, c₂₂: [int]int, i₂₃: int, i₂₄: int ::
-      (  N₁₇ <= 2147483647 / 4
+      (  -2147483648 <= N₁₇
+        && N₁₇ < 2147483648
+        && N₁₇ <= 2147483647 / 4
         && 0 <= i₁₉
         && (forall i₆: int ::
               (  0 <= i₆

@@ -4,12 +4,16 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [int]int, i₁₅: int, i₅: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 1 <= i₁₅
         && (forall i₅₀: int ::
               (  1 <= i₅₀
@@ -27,7 +31,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, a₁₄: [i
           || a₁₄[i₁₅ := a₁₄[i₁₅ - 1] + 8][i₅] == 8 + a[0 := 8][-1 + i₅]));
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₈: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 1 <= i₁₅
         && (forall i₅: int ::
               (  1 <= i₅
@@ -56,7 +62,9 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int
           || b₁₆[i₁₇ := b₁₆[i₁₇ - 1] + a₁₄[i₁₇ - 1]][i₈] == b[0 := 1][-1 + i₈] + a₁₄[-1 + i₈]));
 
 goal {:named "assert"} (forall N₁₃: int, a: [int]int, b: [int]int, a₁₄: [int]int, i₁₅: int, b₁₆: [int]int, i₁₇: int, i₁₈: int ::
-      (  N₁₃ <= 2147483647 / 4
+      (  -2147483648 <= N₁₃
+        && N₁₃ < 2147483648
+        && N₁₃ <= 2147483647 / 4
         && 1 <= i₁₅
         && (forall i₅: int ::
               (  1 <= i₅

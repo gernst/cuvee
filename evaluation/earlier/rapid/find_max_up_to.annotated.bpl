@@ -50,10 +50,10 @@ procedure find_max_up_to(a: [int]int, alength: int)
                ==> b[i₂] == old(b)[i₂]));
   {
     if(a[i] > a[m]) {
-      b := b[i := a[i]];
+      b[i] := a[i];
       m := i;
     } else {
-      b := b[i := a[m]];
+      b[i] := a[m];
     }
     i := i + 1;
   }

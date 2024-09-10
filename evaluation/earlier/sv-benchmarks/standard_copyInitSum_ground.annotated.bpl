@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -15,61 +17,60 @@ procedure main()
 {
   var a: [int]int;
   var b: [int]int;
-  var __VERIFIER_nondet_int₁: int;
   var incr: int;
-  incr := __VERIFIER_nondet_int₁;
+  assume -2147483648 <= incr && incr < 2147483648;
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && (forall i₅: int ::
-            (  old(i) <= i₅
-              && i₅ < i
-               ==> i₅ < 100000
-                && a[i₅] == 42))
-      && (forall i₅: int ::
-            (!(  old(i) <= i₅
-              && i₅ < i
+      && (forall i₄: int ::
+            (  old(i) <= i₄
+              && i₄ < i
+               ==> i₄ < 100000
+                && a[i₄] == 42))
+      && (forall i₄: int ::
+            (!(  old(i) <= i₄
+              && i₄ < i
             )
-               ==> a[i₅] == old(a)[i₅]));
+               ==> a[i₄] == old(a)[i₄]));
   {
-    a := a[i := 42];
+    a[i] := 42;
     i := i + 1;
   }
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && (forall i₈: int ::
-            (  old(i) <= i₈
-              && i₈ < i
-               ==> i₈ < 100000
-                && b[i₈] == a[i₈]))
-      && (forall i₈: int ::
-            (!(  old(i) <= i₈
-              && i₈ < i
+      && (forall i₇: int ::
+            (  old(i) <= i₇
+              && i₇ < i
+               ==> i₇ < 100000
+                && b[i₇] == a[i₇]))
+      && (forall i₇: int ::
+            (!(  old(i) <= i₇
+              && i₇ < i
             )
-               ==> b[i₈] == old(b)[i₈]));
+               ==> b[i₇] == old(b)[i₇]));
   {
-    b := b[i := a[i]];
+    b[i] := a[i];
     i := i + 1;
   }
   i := 0;
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && (forall i₁₁: int ::
-            (  old(i) <= i₁₁
-              && i₁₁ < i
-               ==> i₁₁ < 100000
-                && b[i₁₁] == old(b)[i₁₁] + incr))
-      && (forall i₁₁: int ::
-            (!(  old(i) <= i₁₁
-              && i₁₁ < i
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < 100000
+                && b[i₁₀] == incr + old(b)[i₁₀]))
+      && (forall i₁₀: int ::
+            (!(  old(i) <= i₁₀
+              && i₁₀ < i
             )
-               ==> b[i₁₁] == old(b)[i₁₁]));
+               ==> b[i₁₀] == old(b)[i₁₀]));
   {
-    b := b[i := b[i] + incr];
+    b[i] := b[i] + incr;
     i := i + 1;
   }
   var x: int;
@@ -77,10 +78,10 @@ procedure main()
   while(x < 100000)
     decreases 100000 - x;
     invariant old(x) <= x
-      && (forall x₁₅: int ::
-            (  old(x) <= x₁₅
-              && x₁₅ < x
-               ==> x₁₅ < 100000));
+      && (forall x₁₄: int ::
+            (  old(x) <= x₁₄
+              && x₁₄ < x
+               ==> x₁₄ < 100000));
   {
     assert b[x] == 42 + incr;
     x := x + 1;

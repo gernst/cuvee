@@ -4,6 +4,8 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -13,9 +15,11 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
-                 ==> (exists __VERIFIER_nondet_int₁₆: int ::
-                        i₇ < 100000
-                        && array₂₇[i₇] == __VERIFIER_nondet_int₁₆)))
+                 ==> (exists nondet_int₁₆: int ::
+                        -2147483648 <= nondet_int₁₆
+                        && nondet_int₁₆ < 2147483648
+                        && i₇ < 100000
+                        && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇
                   && i₇ < i₂₈
@@ -51,9 +55,11 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
-                 ==> (exists __VERIFIER_nondet_int₁₆: int ::
-                        i₇ < 100000
-                        && array₂₇[i₇] == __VERIFIER_nondet_int₁₆)))
+                 ==> (exists nondet_int₁₆: int ::
+                        -2147483648 <= nondet_int₁₆
+                        && nondet_int₁₆ < 2147483648
+                        && i₇ < 100000
+                        && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇
                   && i₇ < i₂₈
@@ -96,9 +102,11 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
-                 ==> (exists __VERIFIER_nondet_int₁₆: int ::
-                        i₇ < 100000
-                        && array₂₇[i₇] == __VERIFIER_nondet_int₁₆)))
+                 ==> (exists nondet_int₁₆: int ::
+                        -2147483648 <= nondet_int₁₆
+                        && nondet_int₁₆ < 2147483648
+                        && i₇ < 100000
+                        && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇
                   && i₇ < i₂₈
@@ -134,9 +142,11 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₈
-                 ==> (exists __VERIFIER_nondet_int₁₆: int ::
-                        i₇ < 100000
-                        && array₂₇[i₇] == __VERIFIER_nondet_int₁₆)))
+                 ==> (exists nondet_int₁₆: int ::
+                        -2147483648 <= nondet_int₁₆
+                        && nondet_int₁₆ < 2147483648
+                        && i₇ < 100000
+                        && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇
                   && i₇ < i₂₈

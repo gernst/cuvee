@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -37,8 +39,9 @@ procedure main()
   var ret5: int;
   var i: int := 0;
   while(i < 10) {
-    var __VERIFIER_nondet_int₄: int;
-    x := x[i := __VERIFIER_nondet_int₄];
+    var nondet_int₄: int;
+    assume -2147483648 <= nondet_int₄ && nondet_int₄ < 2147483648;
+    x := x[i := nondet_int₄];
     i := i + 1;
   }
   var sep₆: int;

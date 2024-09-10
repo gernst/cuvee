@@ -24,7 +24,7 @@ procedure copy_partial(blength: int, k: int, b: [int]int)
             )
                ==> a[alength₁] == old(a)[alength₁]));
   {
-    a := a[alength := b[alength]];
+    a[alength] := b[alength];
     alength := alength + 1;
   }
 }

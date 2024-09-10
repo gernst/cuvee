@@ -4,45 +4,51 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal {:named "assert"} (forall __VERIFIER_nondet_int₁: int, __VERIFIER_nondet_int₂: int, a: [int]int, b: [int]int, j₁₉: int, i₂₀: int, b₂₁: [int]int, i₂₂: int, k₂₃: int, i₂₄: int ::
-      (  __VERIFIER_nondet_int₁ < 10000
-        && -10000 < __VERIFIER_nondet_int₁
-        && __VERIFIER_nondet_int₂ < 10000
-        && -10000 < __VERIFIER_nondet_int₂
-        && 0 <= i₂₀
-        && (forall j₈: int, i₉: int ::
-              (  0 <= i₉
-                && i₉ < i₂₀
-                 ==> a[i₉] < j₈
-                    && a[i₉] < 10000
-                    && -10000 < a[i₉]
-                    && i₉ < __VERIFIER_nondet_int₂
-                  ||   (a[i₉] < j₈
+goal {:named "assert"} (forall j: int, N: int, a: [int]int, b: [int]int, j₁₇: int, i₁₈: int, b₁₉: [int]int, i₂₀: int, k₂₁: int, i₂₂: int ::
+      (  -2147483648 <= j
+        && j < 2147483648
+        && j < 10000
+        && -10000 < j
+        && -2147483648 <= N
+        && N < 2147483648
+        && N < 10000
+        && -10000 < N
+        && 0 <= i₁₈
+        && (forall j₆: int, i₇: int ::
+              (  0 <= i₇
+                && i₇ < i₁₈
+                 ==> a[i₇] < j₆
+                    && a[i₇] < 10000
+                    && -10000 < a[i₇]
+                    && i₇ < N
+                  ||   (a[i₇] < j₆
                        ==> false)
-                    && a[i₉] < 10000
-                    && -10000 < a[i₉]
-                    && i₉ < __VERIFIER_nondet_int₂))
+                    && a[i₇] < 10000
+                    && -10000 < a[i₇]
+                    && i₇ < N))
+        && 0 <= i₂₀
+        && (forall i₁₀: int ::
+              (  0 <= i₁₀
+                && i₁₀ < i₂₀
+                 ==> i₁₀ < N
+                  && b₁₉[i₁₀] == -j₁₇ + a[i₁₀]))
+        && (forall i₁₀: int ::
+                  0 <= i₁₀
+                  && i₁₀ < i₂₀
+                || b₁₉[i₁₀] == b[i₁₀])
         && 0 <= i₂₂
-        && (forall i₁₂: int ::
-              (  0 <= i₁₂
-                && i₁₂ < i₂₂
-                 ==> i₁₂ < __VERIFIER_nondet_int₂
-                  && b₂₁[i₁₂] == a[i₁₂] + -j₁₉))
-        && (forall i₁₂: int ::
-                  0 <= i₁₂
-                  && i₁₂ < i₂₂
-                || b₂₁[i₁₂] == b[i₁₂])
-        && 0 <= i₂₄
-        && (forall i₁₆: int ::
-              (  0 <= i₁₆
-                && i₁₆ < i₂₄
-                 ==> i₁₆ < __VERIFIER_nondet_int₂))
-         ==> i₂₄ < __VERIFIER_nondet_int₂
-          || i₂₂ < __VERIFIER_nondet_int₂
-          || i₂₀ < __VERIFIER_nondet_int₂
-          || 0 <= k₂₃));
+        && (forall i₁₄: int ::
+              (  0 <= i₁₄
+                && i₁₄ < i₂₂
+                 ==> i₁₄ < N))
+         ==> i₂₂ < N
+          || i₂₀ < N
+          || i₁₈ < N
+          || 0 <= k₂₁));
 

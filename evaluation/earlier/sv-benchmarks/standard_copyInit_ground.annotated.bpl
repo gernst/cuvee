@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -30,7 +32,7 @@ procedure main()
             )
                ==> a[i₃] == old(a)[i₃]));
   {
-    a := a[i := 42];
+    a[i] := 42;
     i := i + 1;
   }
   i := 0;
@@ -48,7 +50,7 @@ procedure main()
             )
                ==> b[i₆] == old(b)[i₆]));
   {
-    b := b[i := a[i]];
+    b[i] := a[i];
     i := i + 1;
   }
   var x: int;

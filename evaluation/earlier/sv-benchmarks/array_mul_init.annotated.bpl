@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -34,8 +36,8 @@ procedure main()
                ==> a[i₅] == old(a)[i₅]
                 && b[i₅] == old(b)[i₅]));
   {
-    a := a[i := i];
-    b := b[i := i];
+    a[i] := i;
+    b[i] := i;
     i := i + 1;
   }
   i := 0;
@@ -45,13 +47,19 @@ procedure main()
       && (forall i₁₂: int ::
             (  old(i) <= i₁₂
               && i₁₂ < i
-               ==> (exists __VERIFIER_nondet_short₂₉: int, k₁₀: int ::
-                        __VERIFIER_nondet_short₂₉ != 0
+               ==> (exists nondet_short₂₉: int, k₁₀: int ::
+                        -32768 <= k₁₀
+                        && k₁₀ < 32768
+                        && nondet_short₂₉ != 0
+                        && -32768 <= nondet_short₂₉
+                        && nondet_short₂₉ < 32768
                         && i₁₂ < 100000
                         && a[i₁₂] == k₁₀
                         && b[i₁₂] == k₁₀ * k₁₀)
-                || (exists __VERIFIER_nondet_short₂₉: int ::
-                        __VERIFIER_nondet_short₂₉ == 0
+                || (exists nondet_short₂₉: int ::
+                        nondet_short₂₉ == 0
+                        && -32768 <= nondet_short₂₉
+                        && nondet_short₂₉ < 32768
                         && i₁₂ < 100000)))
       && (forall i₁₂: int ::
             (!(  old(i) <= i₁₂
@@ -60,11 +68,13 @@ procedure main()
                ==> a[i₁₂] == old(a)[i₁₂]
                 && b[i₁₂] == old(b)[i₁₂]));
   {
-    var __VERIFIER_nondet_short₂: int;
-    if(__VERIFIER_nondet_short₂ != 0) {
+    var nondet_short₂: int;
+    assume -32768 <= nondet_short₂ && nondet_short₂ < 32768;
+    if(nondet_short₂ != 0) {
       havoc k;
-      a := a[i := k];
-      b := b[i := k * k];
+      assume -32768 <= k && k < 32768;
+      a[i] := k;
+      b[i] := k * k;
     }
     i := i + 1;
   }

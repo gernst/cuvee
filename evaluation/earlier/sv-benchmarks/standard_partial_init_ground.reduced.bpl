@@ -4,6 +4,8 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -13,10 +15,14 @@ goal {:named "invariant forward"} (forall A: [int]int, B: [int]int, C: [int]int,
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
-                 ==> (exists __VERIFIER_nondet_int₁₅: int, __VERIFIER_nondet_int₂₆: int ::
-                        i₇ < 100000
-                        && A₂₁[i₇] == __VERIFIER_nondet_int₁₅
-                        && B₂₂[i₇] == __VERIFIER_nondet_int₂₆)))
+                 ==> (exists nondet_int₁₅: int, nondet_int₂₆: int ::
+                        -2147483648 <= nondet_int₂₆
+                        && nondet_int₂₆ < 2147483648
+                        && -2147483648 <= nondet_int₁₅
+                        && nondet_int₁₅ < 2147483648
+                        && i₇ < 100000
+                        && A₂₁[i₇] == nondet_int₁₅
+                        && B₂₂[i₇] == nondet_int₂₆)))
         && (forall i₇: int ::
                   0 <= i₇
                   && i₇ < i₂₃
@@ -54,10 +60,14 @@ goal {:named "assert"} (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
-                 ==> (exists __VERIFIER_nondet_int₁₅: int, __VERIFIER_nondet_int₂₆: int ::
-                        i₇ < 100000
-                        && A₂₁[i₇] == __VERIFIER_nondet_int₁₅
-                        && B₂₂[i₇] == __VERIFIER_nondet_int₂₆)))
+                 ==> (exists nondet_int₁₅: int, nondet_int₂₆: int ::
+                        -2147483648 <= nondet_int₂₆
+                        && nondet_int₂₆ < 2147483648
+                        && -2147483648 <= nondet_int₁₅
+                        && nondet_int₁₅ < 2147483648
+                        && i₇ < 100000
+                        && A₂₁[i₇] == nondet_int₁₅
+                        && B₂₂[i₇] == nondet_int₂₆)))
         && (forall i₇: int ::
                   0 <= i₇
                   && i₇ < i₂₃
@@ -100,10 +110,14 @@ goal {:named "assert"} (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [
         && (forall i₇: int ::
               (  0 <= i₇
                 && i₇ < i₂₃
-                 ==> (exists __VERIFIER_nondet_int₁₅: int, __VERIFIER_nondet_int₂₆: int ::
-                        i₇ < 100000
-                        && A₂₁[i₇] == __VERIFIER_nondet_int₁₅
-                        && B₂₂[i₇] == __VERIFIER_nondet_int₂₆)))
+                 ==> (exists nondet_int₁₅: int, nondet_int₂₆: int ::
+                        -2147483648 <= nondet_int₂₆
+                        && nondet_int₂₆ < 2147483648
+                        && -2147483648 <= nondet_int₁₅
+                        && nondet_int₁₅ < 2147483648
+                        && i₇ < 100000
+                        && A₂₁[i₇] == nondet_int₁₅
+                        && B₂₂[i₇] == nondet_int₂₆)))
         && (forall i₇: int ::
                   0 <= i₇
                   && i₇ < i₂₃

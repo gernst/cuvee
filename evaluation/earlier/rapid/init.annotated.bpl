@@ -24,7 +24,7 @@ procedure init(alength: int, v: int)
             )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := v];
+    a[i] := v;
     i := i + 1;
   }
 }

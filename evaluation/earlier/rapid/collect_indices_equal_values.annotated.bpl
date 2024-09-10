@@ -62,7 +62,7 @@ procedure collect_indices_equal_values(a1: [int]int, a2: [int]int, alength: int)
                ==> b[blength₁] == old(b)[blength₁]));
   {
     if(a1[i] == a2[i]) {
-      b := b[blength := i];
+      b[blength] := i;
       blength := blength + 1;
     }
     i := i + 1;

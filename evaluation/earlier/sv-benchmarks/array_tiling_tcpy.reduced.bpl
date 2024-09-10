@@ -4,72 +4,80 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal {:named "invariant forward"} (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₆: int ::
-      (  1 < __VERIFIER_nondet_int₁
-        && __VERIFIER_nondet_int₁ < 1073741823
-        && 0 <= i₁₂
+goal {:named "invariant forward"} (forall S: int, a: [int]int, acopy: [int]int, acopy₁₀: [int]int, i₁₁: int, i₅: int ::
+      (  -2147483648 <= S
+        && S < 2147483648
+        && 1 < S
+        && S < 1073741823
+        && 0 <= i₁₁
+        && (forall i₈₀: int ::
+              (  0 <= i₈₀
+                && i₈₀ < i₁₁
+                 ==> i₈₀ < S
+                  && acopy₁₀[i₈₀] == a[i₈₀]
+                  &&   1 + -i₈₀ + 2 * S == i₈₀
+                    || acopy₁₀[1 + -i₈₀ + 2 * S] == a[1 + -i₈₀ + 2 * S]))
         && (forall i₈₁: int ::
-              (  0 <= i₈₁
-                && i₈₁ < i₁₂
-                 ==> i₈₁ < __VERIFIER_nondet_int₁
-                  && acopy₁₁[i₈₁] == a[i₈₁]
-                  &&   1 + 2 * __VERIFIER_nondet_int₁ + -i₈₁ == i₈₁
-                    || acopy₁₁[1 + 2 * __VERIFIER_nondet_int₁ + -i₈₁] == a[1 + 2 * __VERIFIER_nondet_int₁ + -i₈₁]))
-        && (forall i₈₂: int ::
-                  0 <= i₈₂
-                  && i₈₂ < i₁₂
-                ||   acopy₁₁[i₈₂] == acopy[i₈₂]
-                  && acopy₁₁[1 + 2 * __VERIFIER_nondet_int₁ + -i₈₂] == acopy[1 + 2 * __VERIFIER_nondet_int₁ + -i₈₂])
-        && i₁₂ < __VERIFIER_nondet_int₁
-         ==> i₆ < i₁₂ + 1
-          || acopy₁₁[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1 := a[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1]][i₁₂ := a[i₁₂]][i₆] == acopy[i₆]));
+                  0 <= i₈₁
+                  && i₈₁ < i₁₁
+                ||   acopy₁₀[i₈₁] == acopy[i₈₁]
+                  && acopy₁₀[1 + -i₈₁ + 2 * S] == acopy[1 + -i₈₁ + 2 * S])
+        && i₁₁ < S
+         ==> i₅ < i₁₁ + 1
+          || acopy₁₀[2 * S - i₁₁ + 1 := a[2 * S - i₁₁ + 1]][i₁₁ := a[i₁₁]][i₅] == acopy[i₅]));
 
-goal {:named "invariant forward"} (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₆: int ::
-      (  1 < __VERIFIER_nondet_int₁
-        && __VERIFIER_nondet_int₁ < 1073741823
-        && 0 <= i₁₂
+goal {:named "invariant forward"} (forall S: int, a: [int]int, acopy: [int]int, acopy₁₀: [int]int, i₁₁: int, i₅: int ::
+      (  -2147483648 <= S
+        && S < 2147483648
+        && 1 < S
+        && S < 1073741823
+        && 0 <= i₁₁
+        && (forall i₈₈: int ::
+              (  0 <= i₈₈
+                && i₈₈ < i₁₁
+                 ==> i₈₈ < S
+                  && acopy₁₀[i₈₈] == a[i₈₈]
+                  &&   1 + -i₈₈ + 2 * S == i₈₈
+                    || acopy₁₀[1 + -i₈₈ + 2 * S] == a[1 + -i₈₈ + 2 * S]))
         && (forall i₈₉: int ::
-              (  0 <= i₈₉
-                && i₈₉ < i₁₂
-                 ==> i₈₉ < __VERIFIER_nondet_int₁
-                  && acopy₁₁[i₈₉] == a[i₈₉]
-                  &&   1 + 2 * __VERIFIER_nondet_int₁ + -i₈₉ == i₈₉
-                    || acopy₁₁[1 + 2 * __VERIFIER_nondet_int₁ + -i₈₉] == a[1 + 2 * __VERIFIER_nondet_int₁ + -i₈₉]))
-        && (forall i₉₀: int ::
-                  0 <= i₉₀
-                  && i₉₀ < i₁₂
-                ||   acopy₁₁[i₉₀] == acopy[i₉₀]
-                  && acopy₁₁[1 + 2 * __VERIFIER_nondet_int₁ + -i₉₀] == acopy[1 + 2 * __VERIFIER_nondet_int₁ + -i₉₀])
-        && i₁₂ < __VERIFIER_nondet_int₁
-         ==> i₆ < i₁₂ + 1
-          || acopy₁₁[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1 := a[2 * __VERIFIER_nondet_int₁ - i₁₂ + 1]][i₁₂ := a[i₁₂]][1 + 2 * __VERIFIER_nondet_int₁ + -i₆] == acopy[1 + 2 * __VERIFIER_nondet_int₁ + -i₆]));
+                  0 <= i₈₉
+                  && i₈₉ < i₁₁
+                ||   acopy₁₀[i₈₉] == acopy[i₈₉]
+                  && acopy₁₀[1 + -i₈₉ + 2 * S] == acopy[1 + -i₈₉ + 2 * S])
+        && i₁₁ < S
+         ==> i₅ < i₁₁ + 1
+          || acopy₁₀[2 * S - i₁₁ + 1 := a[2 * S - i₁₁ + 1]][i₁₁ := a[i₁₁]][1 + -i₅ + 2 * S] == acopy[1 + -i₅ + 2 * S]));
 
-goal {:named "assert"} (forall __VERIFIER_nondet_int₁: int, a: [int]int, acopy: [int]int, acopy₁₁: [int]int, i₁₂: int, i₁₃: int ::
-      (  1 < __VERIFIER_nondet_int₁
-        && __VERIFIER_nondet_int₁ < 1073741823
+goal {:named "assert"} (forall S: int, a: [int]int, acopy: [int]int, acopy₁₀: [int]int, i₁₁: int, i₁₂: int ::
+      (  -2147483648 <= S
+        && S < 2147483648
+        && 1 < S
+        && S < 1073741823
+        && 0 <= i₁₁
+        && (forall i₅: int ::
+              (  0 <= i₅
+                && i₅ < i₁₁
+                 ==> i₅ < S
+                  && acopy₁₀[i₅] == a[i₅]
+                  &&   1 + -i₅ + 2 * S == i₅
+                    || acopy₁₀[1 + -i₅ + 2 * S] == a[1 + -i₅ + 2 * S]))
+        && (forall i₅: int ::
+                  0 <= i₅
+                  && i₅ < i₁₁
+                ||   acopy₁₀[i₅] == acopy[i₅]
+                  && acopy₁₀[1 + -i₅ + 2 * S] == acopy[1 + -i₅ + 2 * S])
         && 0 <= i₁₂
-        && (forall i₆: int ::
-              (  0 <= i₆
-                && i₆ < i₁₂
-                 ==> i₆ < __VERIFIER_nondet_int₁
-                  && acopy₁₁[i₆] == a[i₆]
-                  &&   1 + 2 * __VERIFIER_nondet_int₁ + -i₆ == i₆
-                    || acopy₁₁[1 + 2 * __VERIFIER_nondet_int₁ + -i₆] == a[1 + 2 * __VERIFIER_nondet_int₁ + -i₆]))
-        && (forall i₆: int ::
-                  0 <= i₆
-                  && i₆ < i₁₂
-                ||   acopy₁₁[i₆] == acopy[i₆]
-                  && acopy₁₁[1 + 2 * __VERIFIER_nondet_int₁ + -i₆] == acopy[1 + 2 * __VERIFIER_nondet_int₁ + -i₆])
-        && 0 <= i₁₃
-        && (forall i₉: int ::
-              (  0 <= i₉
-                && i₉ < i₁₃
-                 ==> i₉ < 2 * __VERIFIER_nondet_int₁))
-        && i₁₃ < 2 * __VERIFIER_nondet_int₁
-         ==> i₁₂ < __VERIFIER_nondet_int₁
-          || acopy₁₁[i₁₃] == a[i₁₃]));
+        && (forall i₈: int ::
+              (  0 <= i₈
+                && i₈ < i₁₂
+                 ==> i₈ < 2 * S))
+        && i₁₂ < 2 * S
+         ==> i₁₁ < S
+          || acopy₁₀[i₁₂] == a[i₁₂]));
 

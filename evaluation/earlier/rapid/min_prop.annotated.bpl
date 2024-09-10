@@ -37,9 +37,9 @@ procedure min_prop(b: [int]int, blength: int)
                ==> a[i₁] == old(a)[i₁]));
   {
     if(b[i] < 0) {
-      a := a[i := b[i]];
+      a[i] := b[i];
     } else {
-      a := a[i := 0];
+      a[i] := 0;
     }
     i := i + 1;
   }

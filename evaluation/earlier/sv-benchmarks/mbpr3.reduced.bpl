@@ -4,12 +4,16 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "assert"} (forall CELLCOUNT₁₅: int, volArray: [int]int, volArray₁₆: [int]int, i₁₇: int, volArray₁₈: [int]int, i₁₉: int, volArray₂₀: [int]int, i₂₁: int, i₂₂: int ::
-      (  1 < CELLCOUNT₁₅
+      (  -2147483648 <= CELLCOUNT₁₅
+        && CELLCOUNT₁₅ < 2147483648
+        && 1 < CELLCOUNT₁₅
         && CELLCOUNT₁₅ % 3 == 0
         && CELLCOUNT₁₅ % 3 == 0
         && 1 <= i₁₇

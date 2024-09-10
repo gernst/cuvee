@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -30,17 +32,20 @@ procedure main()
       && (forall a₁₂: int ::
             (  old(a) <= a₁₂
               && a₁₂ < a
-               ==> (exists __VERIFIER_nondet_int₁₁₁: int ::
-                      a₁₂ < 100000
-                      && a1[a₁₂] == __VERIFIER_nondet_int₁₁₁)))
+               ==> (exists nondet_int₁₁₁: int ::
+                      -2147483648 <= nondet_int₁₁₁
+                      && nondet_int₁₁₁ < 2147483648
+                      && a₁₂ < 100000
+                      && a1[a₁₂] == nondet_int₁₁₁)))
       && (forall a₁₂: int ::
             (!(  old(a) <= a₁₂
               && a₁₂ < a
             )
                ==> a1[a₁₂] == old(a1)[a₁₂]));
   {
-    var __VERIFIER_nondet_int₁: int;
-    a1 := a1[a := __VERIFIER_nondet_int₁];
+    var nondet_int₁: int;
+    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
+    a1[a] := nondet_int₁;
     a := a + 1;
   }
   var i: int;
@@ -59,7 +64,7 @@ procedure main()
             )
                ==> a2[i₁₆] == old(a2)[i₁₆]));
   {
-    a2 := a2[i := a1[i]];
+    a2[i] := a1[i];
     i := i + 1;
   }
   i := 0;
@@ -77,7 +82,7 @@ procedure main()
             )
                ==> a3[i₁₉] == old(a3)[i₁₉]));
   {
-    a3 := a3[i := a2[i]];
+    a3[i] := a2[i];
     i := i + 1;
   }
   i := 0;
@@ -95,7 +100,7 @@ procedure main()
             )
                ==> a4[i₂₂] == old(a4)[i₂₂]));
   {
-    a4 := a4[i := a3[i]];
+    a4[i] := a3[i];
     i := i + 1;
   }
   i := 0;
@@ -113,7 +118,7 @@ procedure main()
             )
                ==> a5[i₂₅] == old(a5)[i₂₅]));
   {
-    a5 := a5[i := a4[i]];
+    a5[i] := a4[i];
     i := i + 1;
   }
   i := 0;
@@ -131,7 +136,7 @@ procedure main()
             )
                ==> a6[i₂₈] == old(a6)[i₂₈]));
   {
-    a6 := a6[i := a5[i]];
+    a6[i] := a5[i];
     i := i + 1;
   }
   i := 0;
@@ -149,7 +154,7 @@ procedure main()
             )
                ==> a7[i₃₁] == old(a7)[i₃₁]));
   {
-    a7 := a7[i := a6[i]];
+    a7[i] := a6[i];
     i := i + 1;
   }
   i := 0;
@@ -167,7 +172,7 @@ procedure main()
             )
                ==> a8[i₃₄] == old(a8)[i₃₄]));
   {
-    a8 := a8[i := a7[i]];
+    a8[i] := a7[i];
     i := i + 1;
   }
   i := 0;
@@ -185,7 +190,7 @@ procedure main()
             )
                ==> a9[i₃₇] == old(a9)[i₃₇]));
   {
-    a9 := a9[i := a8[i]];
+    a9[i] := a8[i];
     i := i + 1;
   }
   var x: int;

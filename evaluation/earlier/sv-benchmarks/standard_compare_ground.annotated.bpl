@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -22,10 +24,14 @@ procedure main()
       && (forall j₅: int ::
             (  old(j) <= j₅
               && j₅ < j
-               ==> (exists __VERIFIER_nondet_int₁₃: int, __VERIFIER_nondet_int₂₄: int ::
-                      j₅ < 100000
-                      && a[j₅] == __VERIFIER_nondet_int₁₃
-                      && b[j₅] == __VERIFIER_nondet_int₂₄)))
+               ==> (exists nondet_int₁₃: int, nondet_int₂₄: int ::
+                      -2147483648 <= nondet_int₂₄
+                      && nondet_int₂₄ < 2147483648
+                      && -2147483648 <= nondet_int₁₃
+                      && nondet_int₁₃ < 2147483648
+                      && j₅ < 100000
+                      && a[j₅] == nondet_int₁₃
+                      && b[j₅] == nondet_int₂₄)))
       && (forall j₅: int ::
             (!(  old(j) <= j₅
               && j₅ < j
@@ -33,10 +39,12 @@ procedure main()
                ==> a[j₅] == old(a)[j₅]
                 && b[j₅] == old(b)[j₅]));
   {
-    var __VERIFIER_nondet_int₁: int;
-    a := a[j := __VERIFIER_nondet_int₁];
-    var __VERIFIER_nondet_int₂: int;
-    b := b[j := __VERIFIER_nondet_int₂];
+    var nondet_int₁: int;
+    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
+    a[j] := nondet_int₁;
+    var nondet_int₂: int;
+    assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
+    b[j] := nondet_int₂;
     j := j + 1;
   }
   var i: int := 0;

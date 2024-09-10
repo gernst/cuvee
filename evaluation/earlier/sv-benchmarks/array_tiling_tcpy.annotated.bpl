@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -13,9 +15,8 @@ function c#bitor(x₀: int, x₁: int): int;
 procedure main()
   returns (c#result: int)
 {
-  var __VERIFIER_nondet_int₁: int;
   var S: int;
-  S := __VERIFIER_nondet_int₁;
+  assume -2147483648 <= S && S < 2147483648;
   assume 1 < S;
   assume S < 1073741823;
   var i: int;
@@ -25,32 +26,32 @@ procedure main()
   while(i < S)
     decreases S - i;
     invariant old(i) <= i
-      && (forall i₆: int ::
-            (  old(i) <= i₆
-              && i₆ < i
-               ==> i₆ < S
-                && acopy[i₆] == a[i₆]
-                && (1 + 2 * S + -i₆ != i₆
-                   ==> acopy[1 + 2 * S + -i₆] == a[1 + 2 * S + -i₆])))
-      && (forall i₆: int ::
-            (!(  old(i) <= i₆
-              && i₆ < i
+      && (forall i₅: int ::
+            (  old(i) <= i₅
+              && i₅ < i
+               ==> i₅ < S
+                && acopy[i₅] == a[i₅]
+                && (1 + -i₅ + 2 * S != i₅
+                   ==> acopy[1 + -i₅ + 2 * S] == a[1 + -i₅ + 2 * S])))
+      && (forall i₅: int ::
+            (!(  old(i) <= i₅
+              && i₅ < i
             )
-               ==> acopy[i₆] == old(acopy)[i₆]
-                && acopy[1 + 2 * S + -i₆] == old(acopy)[1 + 2 * S + -i₆]));
+               ==> acopy[i₅] == old(acopy)[i₅]
+                && acopy[1 + -i₅ + 2 * S] == old(acopy)[1 + -i₅ + 2 * S]));
   {
-    acopy := acopy[2 * S - i + 1 := a[2 * S - i + 1]];
-    acopy := acopy[i := a[i]];
+    acopy[(((2 * S) - i) + 1)] := a[2 * S - i + 1];
+    acopy[i] := a[i];
     i := i + 1;
   }
   i := 0;
   while(i < 2 * S)
     decreases 2 * S - i;
     invariant old(i) <= i
-      && (forall i₉: int ::
-            (  old(i) <= i₉
-              && i₉ < i
-               ==> i₉ < 2 * S));
+      && (forall i₈: int ::
+            (  old(i) <= i₈
+              && i₈ < i
+               ==> i₈ < 2 * S));
   {
     assert acopy[i] == a[i];
     i := i + 1;

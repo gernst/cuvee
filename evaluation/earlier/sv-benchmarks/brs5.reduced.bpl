@@ -4,12 +4,16 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
-      (  N₁₁ <= 2147483647 / 4
+      (  -2147483648 <= N₁₁
+        && N₁₁ < 2147483648
+        && N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
         && (forall i₅: int ::
               (  0 <= i₅
@@ -48,7 +52,9 @@ goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]i
           || sum₁₄[0 := 0][0] == sum[0]));
 
 goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
-      (  N₁₁ <= 2147483647 / 4
+      (  -2147483648 <= N₁₁
+        && N₁₁ < 2147483648
+        && N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
         && (forall i₅: int ::
               (  0 <= i₅
@@ -87,7 +93,9 @@ goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]i
           || sum₁₄[0 := 0][0] == sum[0]));
 
 goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
-      (  N₁₁ <= 2147483647 / 4
+      (  -2147483648 <= N₁₁
+        && N₁₁ < 2147483648
+        && N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
         && (forall i₅: int ::
               (  0 <= i₅
@@ -133,7 +141,9 @@ goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]i
             && sum₁₄[0 := sum₁₄[0] + a₁₂[i₁₅]][0] == a₁₂[i₈] + sum[0]));
 
 goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
-      (  N₁₁ <= 2147483647 / 4
+      (  -2147483648 <= N₁₁
+        && N₁₁ < 2147483648
+        && N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
         && (forall i₅: int ::
               (  0 <= i₅
@@ -172,7 +182,9 @@ goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]i
           || sum₁₄[0 := sum₁₄[0] + a₁₂[i₁₅]][0] == sum[0]));
 
 goal {:named "invariant forward"} (forall N₁₁: int, sum: [int]int, a: [int]int, a₁₂: [int]int, i₁₃: int, sum₁₄: [int]int, i₁₅: int, i₈: int ::
-      (  N₁₁ <= 2147483647 / 4
+      (  -2147483648 <= N₁₁
+        && N₁₁ < 2147483648
+        && N₁₁ <= 2147483647 / 4
         && 0 <= i₁₃
         && (forall i₅: int ::
               (  0 <= i₅

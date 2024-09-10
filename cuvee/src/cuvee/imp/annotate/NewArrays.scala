@@ -95,22 +95,25 @@ case object NewArrays extends Annotate(ExecNoLoops) {
                   //   (yes, no)
 
                   case _ =>
-                    // println("trying assignment: " + rhs)
-                    def untangle(index: Expr, value: Expr): (List[Expr], Expr) = value match {
-                      case Store(_, index_, value_) => // note: can ignore base and index in this context
-                        val (indices, result) = untangle(index_, value_)
-                        (index :: indices, result)
-                      case _ =>
-                        (List(index), value)
-                    }
-
-                    val (base: Var, updates) = Store.flatten(rhs_)
-                    val todo = for((i, v) <- updates) yield untangle(i, v)
-                    val pairs = assignmentEqualities(mod, counters, base, Nil, todo)
-                    // val pairs = assignmentEqualities(mod, counters, re, a, Nil, rhs)
+                    val pairs = assignmentEqualities(mod, counters, re, a, Nil, rhs)
                     val (yes, no) = pairs.unzip
-
                     (And(yes), And(no))
+
+                  // case _ =>
+                  //   def untangle(index: Expr, value: Expr): (List[Expr], Expr) = value match {
+                  //     case Store(_, index_, value_) => // note: can ignore base and index in this context
+                  //       val (indices, result) = untangle(index_, value_)
+                  //       (index :: indices, result)
+                  //     case _ =>
+                  //       (List(index), value)
+                  //   }
+
+                  //   val (base: Var, updates) = Store.flatten(rhs_)
+                  //   val todo = for((i, v) <- updates) yield untangle(i, v)
+                  //   val pairs = assignmentEqualities(mod, counters, base, Nil, todo)
+                  //   val (yes, no) = pairs.unzip
+
+                  //   (And(yes), And(no))
                 }
 
                 eq_
@@ -181,8 +184,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
         (yes, no) :: there
 
       case other =>
-        println(other)
-        ???
+        cuvee.error("multidimensional arrays are not supported")
     }
 
   // this one works on renamed done/todo already

@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -14,14 +16,12 @@ procedure main()
   returns (c#result: int)
 {
   var i: int;
-  var __VERIFIER_nondet_int₁: int;
   var j: int;
-  j := __VERIFIER_nondet_int₁;
+  assume -2147483648 <= j && j < 2147483648;
   assume j < 10000 && -10000 < j;
   var k: int := 0;
-  var __VERIFIER_nondet_int₂: int;
   var N: int;
-  N := __VERIFIER_nondet_int₂;
+  assume -2147483648 <= N && N < 2147483648;
   assume N < 10000 && -10000 < N;
   var a: [int]int;
   var b: [int]int;
@@ -29,18 +29,18 @@ procedure main()
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && (forall j₈: int, i₉: int ::
-            (  old(i) <= i₉
-              && i₉ < i
-               ==> a[i₉] < j₈
-                  && a[i₉] < 10000
-                  && -10000 < a[i₉]
-                  && i₉ < N
-                ||   !(a[i₉] < j₈
+      && (forall j₆: int, i₇: int ::
+            (  old(i) <= i₇
+              && i₇ < i
+               ==> a[i₇] < j₆
+                  && a[i₇] < 10000
+                  && -10000 < a[i₇]
+                  && i₇ < N
+                ||   !(a[i₇] < j₆
                   )
-                  && a[i₉] < 10000
-                  && -10000 < a[i₉]
-                  && i₉ < N));
+                  && a[i₇] < 10000
+                  && -10000 < a[i₇]
+                  && i₇ < N));
   {
     assume a[i] < 10000 && -10000 < a[i];
     if(a[i] < j) {
@@ -52,28 +52,28 @@ procedure main()
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && (forall i₁₂: int ::
-            (  old(i) <= i₁₂
-              && i₁₂ < i
-               ==> i₁₂ < N
-                && b[i₁₂] == a[i₁₂] + -j))
-      && (forall i₁₂: int ::
-            (!(  old(i) <= i₁₂
-              && i₁₂ < i
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> i₁₀ < N
+                && b[i₁₀] == -j + a[i₁₀]))
+      && (forall i₁₀: int ::
+            (!(  old(i) <= i₁₀
+              && i₁₀ < i
             )
-               ==> b[i₁₂] == old(b)[i₁₂]));
+               ==> b[i₁₀] == old(b)[i₁₀]));
   {
-    b := b[i := a[i] - j];
+    b[i] := a[i] - j;
     i := i + 1;
   }
   i := 0;
   while(i < N)
     decreases N - i;
     invariant old(i) <= i
-      && (forall i₁₆: int ::
-            (  old(i) <= i₁₆
-              && i₁₆ < i
-               ==> i₁₆ < N));
+      && (forall i₁₄: int ::
+            (  old(i) <= i₁₄
+              && i₁₄ < i
+               ==> i₁₄ < N));
   {
     k := k + b[i] + i;
     i := i + 1;

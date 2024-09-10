@@ -4,127 +4,141 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
-goal {:named "invariant forward"} (forall __VERIFIER_nondet_int₁: int, vectorx: [int]int, vectorx₂₄: [int]int, i₂₅: int, found₂₆: int, i₂₈: int, found₁₀: int, i₁₂: int ::
-      (  0 <= i₂₅
-        && (forall i₇: int ::
-              (  0 <= i₇
-                && i₇ < i₂₅
-                 ==> (exists __VERIFIER_nondet_int₂₆: int ::
-                        i₇ < 100000
-                        && vectorx₂₄[i₇] == __VERIFIER_nondet_int₂₆)))
-        && (forall i₇: int ::
-                  0 <= i₇
-                  && i₇ < i₂₅
-                || vectorx₂₄[i₇] == vectorx[i₇])
-        && 0 <= i₂₈
-        && (forall found₉₂: int, i₉₃: int ::
-              (  0 <= i₉₃
-                && i₉₃ < i₂₈
-                 ==> vectorx₂₄[i₉₃] == __VERIFIER_nondet_int₁
-                    && i₉₃ < 100000
-                    && found₉₂ == 0
-                  ||   (vectorx₂₄[i₉₃] == __VERIFIER_nondet_int₁
+goal {:named "invariant forward"} (forall element: int, vectorx: [int]int, vectorx₂₃: [int]int, i₂₄: int, found₂₅: int, i₂₇: int, found₉: int, i₁₁: int ::
+      (  -2147483648 <= element
+        && element < 2147483648
+        && 0 <= i₂₄
+        && (forall i₆: int ::
+              (  0 <= i₆
+                && i₆ < i₂₄
+                 ==> (exists nondet_int₁₅: int ::
+                        -2147483648 <= nondet_int₁₅
+                        && nondet_int₁₅ < 2147483648
+                        && i₆ < 100000
+                        && vectorx₂₃[i₆] == nondet_int₁₅)))
+        && (forall i₆: int ::
+                  0 <= i₆
+                  && i₆ < i₂₄
+                || vectorx₂₃[i₆] == vectorx[i₆])
+        && 0 <= i₂₇
+        && (forall found₁₀₁: int, i₁₀₂: int ::
+              (  0 <= i₁₀₂
+                && i₁₀₂ < i₂₇
+                 ==> vectorx₂₃[i₁₀₂] == element
+                    && i₁₀₂ < 100000
+                    && found₁₀₁ == 0
+                  ||   (vectorx₂₃[i₁₀₂] == element
                        ==> false)
-                    && i₉₃ < 100000
-                    && found₉₂ == 0))
-        && i₂₈ < 100000
-        && found₂₆ == 0
-        && vectorx₂₄[i₂₈] == __VERIFIER_nondet_int₁
-        && 0 <= i₁₂
-        && i₁₂ < i₂₈ + 1
-         ==> i₂₅ < 100000
-          ||   vectorx₂₄[i₁₂] == __VERIFIER_nondet_int₁
-            && i₁₂ < 100000
-            && found₁₀ == 0
-          ||   (vectorx₂₄[i₁₂] == __VERIFIER_nondet_int₁
+                    && i₁₀₂ < 100000
+                    && found₁₀₁ == 0))
+        && i₂₇ < 100000
+        && found₂₅ == 0
+        && vectorx₂₃[i₂₇] == element
+        && 0 <= i₁₁
+        && i₁₁ < i₂₇ + 1
+         ==> i₂₄ < 100000
+          ||   vectorx₂₃[i₁₁] == element
+            && i₁₁ < 100000
+            && found₉ == 0
+          ||   (vectorx₂₃[i₁₁] == element
                ==> false)
-            && i₁₂ < 100000
-            && found₁₀ == 0));
+            && i₁₁ < 100000
+            && found₉ == 0));
 
-goal {:named "invariant forward"} (forall __VERIFIER_nondet_int₁: int, vectorx: [int]int, vectorx₂₄: [int]int, i₂₅: int, found₂₆: int, i₂₈: int, found₁₀: int, i₁₂: int ::
-      (  0 <= i₂₅
-        && (forall i₇: int ::
-              (  0 <= i₇
-                && i₇ < i₂₅
-                 ==> (exists __VERIFIER_nondet_int₂₆: int ::
-                        i₇ < 100000
-                        && vectorx₂₄[i₇] == __VERIFIER_nondet_int₂₆)))
-        && (forall i₇: int ::
-                  0 <= i₇
-                  && i₇ < i₂₅
-                || vectorx₂₄[i₇] == vectorx[i₇])
-        && 0 <= i₂₈
-        && (forall found₁₀₈: int, i₁₀₉: int ::
-              (  0 <= i₁₀₉
-                && i₁₀₉ < i₂₈
-                 ==> vectorx₂₄[i₁₀₉] == __VERIFIER_nondet_int₁
-                    && i₁₀₉ < 100000
-                    && found₁₀₈ == 0
-                  ||   (vectorx₂₄[i₁₀₉] == __VERIFIER_nondet_int₁
+goal {:named "invariant forward"} (forall element: int, vectorx: [int]int, vectorx₂₃: [int]int, i₂₄: int, found₂₅: int, i₂₇: int, found₉: int, i₁₁: int ::
+      (  -2147483648 <= element
+        && element < 2147483648
+        && 0 <= i₂₄
+        && (forall i₆: int ::
+              (  0 <= i₆
+                && i₆ < i₂₄
+                 ==> (exists nondet_int₁₅: int ::
+                        -2147483648 <= nondet_int₁₅
+                        && nondet_int₁₅ < 2147483648
+                        && i₆ < 100000
+                        && vectorx₂₃[i₆] == nondet_int₁₅)))
+        && (forall i₆: int ::
+                  0 <= i₆
+                  && i₆ < i₂₄
+                || vectorx₂₃[i₆] == vectorx[i₆])
+        && 0 <= i₂₇
+        && (forall found₁₁₇: int, i₁₁₈: int ::
+              (  0 <= i₁₁₈
+                && i₁₁₈ < i₂₇
+                 ==> vectorx₂₃[i₁₁₈] == element
+                    && i₁₁₈ < 100000
+                    && found₁₁₇ == 0
+                  ||   (vectorx₂₃[i₁₁₈] == element
                        ==> false)
-                    && i₁₀₉ < 100000
-                    && found₁₀₈ == 0))
-        && i₂₈ < 100000
-        && found₂₆ == 0
-        && 0 <= i₁₂
-        && i₁₂ < i₂₈ + 1
-         ==> vectorx₂₄[i₂₈] == __VERIFIER_nondet_int₁
-          || i₂₅ < 100000
-          ||   vectorx₂₄[i₁₂] == __VERIFIER_nondet_int₁
-            && i₁₂ < 100000
-            && found₁₀ == 0
-          ||   (vectorx₂₄[i₁₂] == __VERIFIER_nondet_int₁
+                    && i₁₁₈ < 100000
+                    && found₁₁₇ == 0))
+        && i₂₇ < 100000
+        && found₂₅ == 0
+        && 0 <= i₁₁
+        && i₁₁ < i₂₇ + 1
+         ==> vectorx₂₃[i₂₇] == element
+          || i₂₄ < 100000
+          ||   vectorx₂₃[i₁₁] == element
+            && i₁₁ < 100000
+            && found₉ == 0
+          ||   (vectorx₂₃[i₁₁] == element
                ==> false)
-            && i₁₂ < 100000
-            && found₁₀ == 0));
+            && i₁₁ < 100000
+            && found₉ == 0));
 
-goal {:named "assert"} (forall __VERIFIER_nondet_int₁: int, vectorx: [int]int, vectorx₂₄: [int]int, i₂₅: int, found₂₆: int, pos₂₇: int, i₂₈: int, vectorx₂₉: [int]int, i₃₀: int, x₃₁: int ::
-      (  0 <= i₂₅
-        && (forall i₇: int ::
-              (  0 <= i₇
-                && i₇ < i₂₅
-                 ==> (exists __VERIFIER_nondet_int₂₆: int ::
-                        i₇ < 100000
-                        && vectorx₂₄[i₇] == __VERIFIER_nondet_int₂₆)))
-        && (forall i₇: int ::
-                  0 <= i₇
-                  && i₇ < i₂₅
-                || vectorx₂₄[i₇] == vectorx[i₇])
-        && 0 <= i₂₈
-        && (forall found₁₀: int, i₁₂: int ::
-              (  0 <= i₁₂
-                && i₁₂ < i₂₈
-                 ==> vectorx₂₄[i₁₂] == __VERIFIER_nondet_int₁
-                    && i₁₂ < 100000
-                    && found₁₀ == 0
-                  ||   (vectorx₂₄[i₁₂] == __VERIFIER_nondet_int₁
+goal {:named "assert"} (forall element: int, vectorx: [int]int, vectorx₂₃: [int]int, i₂₄: int, found₂₅: int, pos₂₆: int, i₂₇: int, vectorx₂₈: [int]int, i₂₉: int, x₃₀: int ::
+      (  -2147483648 <= element
+        && element < 2147483648
+        && 0 <= i₂₄
+        && (forall i₆: int ::
+              (  0 <= i₆
+                && i₆ < i₂₄
+                 ==> (exists nondet_int₁₅: int ::
+                        -2147483648 <= nondet_int₁₅
+                        && nondet_int₁₅ < 2147483648
+                        && i₆ < 100000
+                        && vectorx₂₃[i₆] == nondet_int₁₅)))
+        && (forall i₆: int ::
+                  0 <= i₆
+                  && i₆ < i₂₄
+                || vectorx₂₃[i₆] == vectorx[i₆])
+        && 0 <= i₂₇
+        && (forall found₉: int, i₁₁: int ::
+              (  0 <= i₁₁
+                && i₁₁ < i₂₇
+                 ==> vectorx₂₃[i₁₁] == element
+                    && i₁₁ < 100000
+                    && found₉ == 0
+                  ||   (vectorx₂₃[i₁₁] == element
                        ==> false)
-                    && i₁₂ < 100000
-                    && found₁₀ == 0))
-        && pos₂₇ <= i₃₀
-        && (forall i₁₆: int ::
-              (  pos₂₇ <= i₁₆
-                && i₁₆ < i₃₀
-                 ==> i₁₆ < -1 + 100000
-                  && vectorx₂₉[i₁₆] == vectorx₂₄[1 + i₁₆]))
-        && (forall i₁₆: int ::
-                  pos₂₇ <= i₁₆
-                  && i₁₆ < i₃₀
-                || vectorx₂₉[i₁₆] == vectorx₂₄[i₁₆])
-        && 0 <= x₃₁
-        && (forall x₂₁: int ::
-              (  0 <= x₂₁
-                && x₂₁ < x₃₁
-                 ==> x₂₁ < pos₂₇))
-        && x₃₁ < pos₂₇
-        && vectorx₂₉[x₃₁] == __VERIFIER_nondet_int₁
-         ==> found₂₆ == 0
-          || i₃₀ < 100000 - 1
-          || found₂₆ == 0
-          || found₂₆ == 0
-          || i₂₅ < 100000));
+                    && i₁₁ < 100000
+                    && found₉ == 0))
+        && pos₂₆ <= i₂₉
+        && (forall i₁₅: int ::
+              (  pos₂₆ <= i₁₅
+                && i₁₅ < i₂₉
+                 ==> i₁₅ < -1 + 100000
+                  && vectorx₂₈[i₁₅] == vectorx₂₃[1 + i₁₅]))
+        && (forall i₁₅: int ::
+                  pos₂₆ <= i₁₅
+                  && i₁₅ < i₂₉
+                || vectorx₂₈[i₁₅] == vectorx₂₃[i₁₅])
+        && 0 <= x₃₀
+        && (forall x₂₀: int ::
+              (  0 <= x₂₀
+                && x₂₀ < x₃₀
+                 ==> x₂₀ < pos₂₆))
+        && x₃₀ < pos₂₆
+        && vectorx₂₈[x₃₀] == element
+         ==> found₂₅ == 0
+          || i₂₉ < 100000 - 1
+          || found₂₅ == 0
+          || found₂₅ == 0
+          || i₂₄ < 100000));
 

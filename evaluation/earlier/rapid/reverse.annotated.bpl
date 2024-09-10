@@ -24,7 +24,7 @@ procedure reverse(b: [int]int, length: int)
             )
                ==> a[i₁] == old(a)[i₁]));
   {
-    a := a[i := b[length - 1 - i]];
+    a[i] := b[length - 1 - i];
     i := i + 1;
   }
 }

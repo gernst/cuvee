@@ -4,12 +4,16 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "assert"} (forall N₃₂: int, x: [int]int, ret₃₆: int, i₃₇: int, ret₄₂: int, i₄₃: int, x₄₅: [int]int, i₄₆: int, i₅₂: int ::
-      (  1 < N₃₂
+      (  -2147483648 <= N₃₂
+        && N₃₂ < 2147483648
+        && 1 < N₃₂
         && 0 <= i₃₇
         && (forall ret₄: int, i₅: int ::
               (  0 <= i₅
@@ -54,7 +58,9 @@ goal {:named "assert"} (forall N₃₂: int, x: [int]int, ret₃₆: int, i₃�
           || i₃₇ < N₃₂));
 
 goal {:named "assert"} (forall N₃₂: int, x: [int]int, ret₃₆: int, i₃₇: int, i₄₃: int, x₄₅: [int]int, i₄₆: int, ret₅₁: int, i₅₂: int ::
-      (  1 < N₃₂
+      (  -2147483648 <= N₃₂
+        && N₃₂ < 2147483648
+        && 1 < N₃₂
         && 0 <= i₃₇
         && (forall ret₄: int, i₅: int ::
               (  0 <= i₅

@@ -6,6 +6,8 @@ type c#heap;
 
 var c#heap: c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
@@ -14,41 +16,42 @@ procedure main()
   returns (c#result: int)
 {
   var a: [int]int;
-  var __VERIFIER_nondet_int₁: int;
   var marker: int;
-  marker := __VERIFIER_nondet_int₁;
-  var __VERIFIER_nondet_int₂: int;
+  assume -2147483648 <= marker && marker < 2147483648;
   var pos: int;
-  pos := __VERIFIER_nondet_int₂;
+  assume -2147483648 <= pos && pos < 2147483648;
   var i: int := 0;
   while(i < 100000)
     decreases 100000 - i;
     invariant old(i) <= i
-      && (forall i₇: int ::
-            (  old(i) <= i₇
-              && i₇ < i
-               ==> (exists __VERIFIER_nondet_int₃₆: int ::
-                      i₇ < 100000
-                      && a[i₇] == __VERIFIER_nondet_int₃₆)))
-      && (forall i₇: int ::
-            (!(  old(i) <= i₇
-              && i₇ < i
+      && (forall i₅: int ::
+            (  old(i) <= i₅
+              && i₅ < i
+               ==> (exists nondet_int₁₄: int ::
+                      -2147483648 <= nondet_int₁₄
+                      && nondet_int₁₄ < 2147483648
+                      && i₅ < 100000
+                      && a[i₅] == nondet_int₁₄)))
+      && (forall i₅: int ::
+            (!(  old(i) <= i₅
+              && i₅ < i
             )
-               ==> a[i₇] == old(a)[i₇]));
+               ==> a[i₅] == old(a)[i₅]));
   {
-    var __VERIFIER_nondet_int₃: int;
-    a := a[i := __VERIFIER_nondet_int₃];
+    var nondet_int₁: int;
+    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
+    a[i] := nondet_int₁;
     i := i + 1;
   }
   if(0 <= pos && pos < 100000) {
-    a := a[pos := marker];
+    a[pos] := marker;
     var i: int := 0;
     while(a[i] != marker)
       invariant old(i) <= i
-        && (forall i₁₀: int ::
-              (  old(i) <= i₁₀
-                && i₁₀ < i
-                 ==> a[i₁₀] != marker));
+        && (forall i₈: int ::
+              (  old(i) <= i₈
+                && i₈ < i
+                 ==> a[i₈] != marker));
     {
       i := i + 1;
     }

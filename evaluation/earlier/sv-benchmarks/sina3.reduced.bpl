@@ -4,12 +4,16 @@ type c#ptr<a₀>;
 
 type c#heap;
 
+function c#bitxor(x₀: int, x₁: int): int;
+
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall N₂₀: int, sum: [int]int, a: [int]int, b: [int]int, a₂₁: [int]int, i₂₂: int, b₂₃: [int]int, i₂₄: int, sum₂₅: [int]int, i₂₆: int, i₁₂: int ::
-      (  N₂₀ <= 2147483647 / 4
+      (  -2147483648 <= N₂₀
+        && N₂₀ < 2147483648
+        && N₂₀ <= 2147483647 / 4
         && 0 <= i₂₂
         && (forall i₆: int ::
               (  0 <= i₆
@@ -48,7 +52,9 @@ goal {:named "invariant forward"} (forall N₂₀: int, sum: [int]int, a: [int]i
           || sum₂₅[0 := sum₂₅[0] + a₂₁[i₂₆]][0] == sum[0 := 0][0]));
 
 goal {:named "invariant forward"} (forall N₂₀: int, sum: [int]int, a: [int]int, b: [int]int, a₂₁: [int]int, i₂₂: int, b₂₃: [int]int, i₂₄: int, sum₂₅: [int]int, i₂₆: int, i₁₂: int ::
-      (  N₂₀ <= 2147483647 / 4
+      (  -2147483648 <= N₂₀
+        && N₂₀ < 2147483648
+        && N₂₀ <= 2147483647 / 4
         && 0 <= i₂₂
         && (forall i₆: int ::
               (  0 <= i₆
