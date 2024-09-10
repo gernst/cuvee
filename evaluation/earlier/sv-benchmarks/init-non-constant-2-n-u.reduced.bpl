@@ -11,32 +11,26 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall C: int, q₂₃: int, s₂₄: int, A₂₆: [int][int]int, i₂₇: int, A₃₄: [int][int]int, j₃₅: int, i₁₃: int ::
-      (  0 <= C
-        && C < 4294967296
-        && -2147483648 <= q₂₃
-        && q₂₃ < 2147483648
-        && -2147483648 <= s₂₄
-        && s₂₄ < 2147483648
-        && q₂₃ < 1000
+      (  q₂₃ < 1000
         && s₂₄ < 1500
         && 0 <= i₂₇
-        && (forall i₁₃₂: int ::
-              (  0 <= i₁₃₂
-                && i₁₃₂ < i₂₇
+        && (forall i₁₃₁: int ::
+              (  0 <= i₁₃₁
+                && i₁₃₁ < i₂₇
                  ==> (exists A₁₀: [int][int]int, j₁₁: int ::
                         0 <= j₁₁
                         && (forall j₉: int ::
                               (  0 <= j₉
                                 && j₉ < j₁₁
                                  ==> j₉ < s₂₄
-                                  && A₁₀[i₁₃₂][j₉] == i₁₃₂ + j₉ + C))
+                                  && A₁₀[i₁₃₁][j₉] == i₁₃₁ + j₉ + C))
                         && (forall j₉: int ::
                                   0 <= j₉
                                   && j₉ < j₁₁
-                                || A₁₀[i₁₃₂][j₉] == A₂₆[i₁₃₂][j₉])
+                                || A₁₀[i₁₃₁][j₉] == A₂₆[i₁₃₁][j₉])
                         && (j₁₁ < s₂₄
                            ==> false)
-                        && i₁₃₂ < q₂₃)))
+                        && i₁₃₁ < q₂₃)))
         && i₂₇ < q₂₃
         && 0 <= j₃₅
         && (forall j₉: int ::
@@ -67,13 +61,7 @@ goal {:named "invariant forward"} (forall C: int, q₂₃: int, s₂₄: int, A�
                   && i₁₃ < q₂₃)));
 
 goal {:named "assert"} (forall C: int, q₂₃: int, s₂₄: int, A₂₆: [int][int]int, i₂₇: int, i₂₉: int, j₃₀: int ::
-      (  0 <= C
-        && C < 4294967296
-        && -2147483648 <= q₂₃
-        && q₂₃ < 2147483648
-        && -2147483648 <= s₂₄
-        && s₂₄ < 2147483648
-        && q₂₃ < 1000
+      (  q₂₃ < 1000
         && s₂₄ < 1500
         && 0 <= i₂₇
         && (forall i₁₃: int ::

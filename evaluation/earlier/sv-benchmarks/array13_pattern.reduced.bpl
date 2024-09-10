@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₃₇: [int][int]int, row₃₈: int, array₈₅: [int][int]int, column₈₆: int, row₁₀: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 0 < nondet_short₁
+      (  0 < nondet_short₁
         && 0 <= row₃₈
         && (forall row₁₅₅: int ::
               (  0 <= row₁₅₅
@@ -62,9 +60,7 @@ goal {:named "invariant forward"} (forall nondet_short₁: int, array₃₇: [in
                   && row₁₀ < nondet_short₁)));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₃₇: [int][int]int, row₃₈: int, index1₁₄: int, index2₁₅: int, temp₁₇: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 0 < nondet_short₁
+      (  0 < nondet_short₁
         && 0 <= row₃₈
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -84,23 +80,15 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₃₇: [int]
                            ==> false)
                         && row₁₀ < nondet_short₁)))
         && temp₁₇ == 0
-        && -2147483648 <= temp₁₇
-        && temp₁₇ < 2147483648
         && index2₁₅ < index1₁₄
         && 0 <= index2₁₅
         && index2₁₅ < nondet_short₁
         && 0 <= index1₁₄
         && index1₁₄ < nondet_short₁
-        && -32768 <= index2₁₅
-        && index2₁₅ < 32768
-        && -32768 <= index1₁₄
-        && index1₁₄ < 32768
          ==> row₃₈ < nondet_short₁));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₃₇: [int][int]int, row₃₈: int, index1₁₄: int, index2₁₅: int, temp₁₈: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 0 < nondet_short₁
+      (  0 < nondet_short₁
         && 0 <= row₃₈
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -120,16 +108,10 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₃₇: [int]
                            ==> false)
                         && row₁₀ < nondet_short₁)))
         && temp₁₈ == 0
-        && -2147483648 <= temp₁₈
-        && temp₁₈ < 2147483648
         && 0 <= index2₁₅
         && index2₁₅ < nondet_short₁
         && 0 <= index1₁₄
         && index1₁₄ < nondet_short₁
-        && -32768 <= index2₁₅
-        && index2₁₅ < 32768
-        && -32768 <= index1₁₄
-        && index1₁₄ < 32768
          ==> row₃₈ < nondet_short₁
           || index2₁₅ < index1₁₄));
 

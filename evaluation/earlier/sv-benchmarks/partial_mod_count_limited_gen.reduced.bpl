@@ -11,11 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄: [int]int, k₁₅: int, i₁₆: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 <= R
-        && R < 4294967296
-        && 1 < R
+      (  1 < R
         && R < 6
         && 0 < lim
         && lim < 1000 / R
@@ -65,11 +61,7 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄
           || 0 + k₁₅ == i₁₆ + 1 + 0));
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄: [int]int, k₁₅: int, i₁₆: int, k₅: int, i₆: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 <= R
-        && R < 4294967296
-        && 1 < R
+      (  1 < R
         && R < 6
         && 0 < lim
         && lim < 1000 / R
@@ -120,12 +112,60 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄
           || 1000 / R < i₁₆
           || a₁₄[i₁₆ := i₁₆ + 1][i₆] == a[i₆]));
 
+goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄: [int]int, k₁₅: int, i₁₆: int, k₅: int, i₆: int ::
+      (  1 < R
+        && R < 6
+        && 0 < lim
+        && lim < 1000 / R
+        && 0 + k₁₅ == i₁₆ + 0
+        && 0 <= k₁₅
+        && 0 <= i₁₆
+        && (forall k₂₉₂: int, i₂₉₃: int ::
+              (  k₂₉₂ + k₂₉₂ == i₂₉₃ + i₂₉₃
+                && 0 <= k₂₉₂
+                && k₂₉₂ < k₁₅
+                && 0 <= i₂₉₃
+                && i₂₉₃ < i₁₆
+                 ==> i₂₉₃ % R == 0
+                    && 1000 / R < i₂₉₃
+                    && k₂₉₂ < lim
+                    && i₂₉₃ < 1000
+                    && a₁₄[i₂₉₃] == i₂₉₃ % R
+                  ||   1 + i₂₉₃ == 0
+                    && (  1000 / R < i₂₉₃
+                      && k₂₉₂ < lim
+                       ==> false)
+                    && i₂₉₃ < 1000
+                    && a₁₄[i₂₉₃] == 1 + i₂₉₃
+                  ||   (i₂₉₃ % R == 0
+                       ==> false)
+                    && 1000 / R < i₂₉₃
+                    && k₂₉₂ < lim
+                    && i₂₉₃ < 1000
+                    && a₁₄[i₂₉₃] == i₂₉₃ % R
+                  ||   (1 + i₂₉₃ == 0
+                       ==> false)
+                    && (  1000 / R < i₂₉₃
+                      && k₂₉₂ < lim
+                       ==> false)
+                    && i₂₉₃ < 1000
+                    && a₁₄[i₂₉₃] == 1 + i₂₉₃))
+        && (forall k₂₉₄: int, i₂₉₅: int ::
+              (k₂₉₄ + k₂₉₄ == i₂₉₅ + i₂₉₅
+                 ==> 0 <= k₂₉₄
+                    && k₂₉₄ < k₁₅
+                    && 0 <= i₂₉₅
+                    && i₂₉₅ < i₁₆
+                  || a₁₄[i₂₉₅] == a[i₂₉₅]))
+        && i₁₆ < 1000
+        && k₅ + k₅ == i₆ + i₆
+         ==> 0 <= i₆
+          || a₁₄[i₁₆ := i₁₆ + 1][i₁₆] == 0
+          || 1000 / R < i₁₆
+          || a₁₄[i₁₆ := i₁₆ + 1][i₆] == a[i₆]));
+
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄: [int]int, k₁₅: int, i₁₆: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 <= R
-        && R < 4294967296
-        && 1 < R
+      (  1 < R
         && R < 6
         && 0 < lim
         && lim < 1000 / R
@@ -175,54 +215,50 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄
           || 0 + k₁₅ == i₁₆ + 1 + 0));
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄: [int]int, k₁₅: int, i₁₆: int, k₅: int, i₆: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 <= R
-        && R < 4294967296
-        && 1 < R
+      (  1 < R
         && R < 6
         && 0 < lim
         && lim < 1000 / R
         && 0 + k₁₅ == i₁₆ + 0
         && 0 <= k₁₅
         && 0 <= i₁₆
-        && (forall k₄₀₀: int, i₄₀₁: int ::
-              (  k₄₀₀ + k₄₀₀ == i₄₀₁ + i₄₀₁
-                && 0 <= k₄₀₀
-                && k₄₀₀ < k₁₅
-                && 0 <= i₄₀₁
-                && i₄₀₁ < i₁₆
-                 ==> i₄₀₁ % R == 0
-                    && 1000 / R < i₄₀₁
-                    && k₄₀₀ < lim
-                    && i₄₀₁ < 1000
-                    && a₁₄[i₄₀₁] == i₄₀₁ % R
-                  ||   1 + i₄₀₁ == 0
-                    && (  1000 / R < i₄₀₁
-                      && k₄₀₀ < lim
+        && (forall k₄₀₄: int, i₄₀₅: int ::
+              (  k₄₀₄ + k₄₀₄ == i₄₀₅ + i₄₀₅
+                && 0 <= k₄₀₄
+                && k₄₀₄ < k₁₅
+                && 0 <= i₄₀₅
+                && i₄₀₅ < i₁₆
+                 ==> i₄₀₅ % R == 0
+                    && 1000 / R < i₄₀₅
+                    && k₄₀₄ < lim
+                    && i₄₀₅ < 1000
+                    && a₁₄[i₄₀₅] == i₄₀₅ % R
+                  ||   1 + i₄₀₅ == 0
+                    && (  1000 / R < i₄₀₅
+                      && k₄₀₄ < lim
                        ==> false)
-                    && i₄₀₁ < 1000
-                    && a₁₄[i₄₀₁] == 1 + i₄₀₁
-                  ||   (i₄₀₁ % R == 0
+                    && i₄₀₅ < 1000
+                    && a₁₄[i₄₀₅] == 1 + i₄₀₅
+                  ||   (i₄₀₅ % R == 0
                        ==> false)
-                    && 1000 / R < i₄₀₁
-                    && k₄₀₀ < lim
-                    && i₄₀₁ < 1000
-                    && a₁₄[i₄₀₁] == i₄₀₁ % R
-                  ||   (1 + i₄₀₁ == 0
+                    && 1000 / R < i₄₀₅
+                    && k₄₀₄ < lim
+                    && i₄₀₅ < 1000
+                    && a₁₄[i₄₀₅] == i₄₀₅ % R
+                  ||   (1 + i₄₀₅ == 0
                        ==> false)
-                    && (  1000 / R < i₄₀₁
-                      && k₄₀₀ < lim
+                    && (  1000 / R < i₄₀₅
+                      && k₄₀₄ < lim
                        ==> false)
-                    && i₄₀₁ < 1000
-                    && a₁₄[i₄₀₁] == 1 + i₄₀₁))
-        && (forall k₄₀₂: int, i₄₀₃: int ::
-              (k₄₀₂ + k₄₀₂ == i₄₀₃ + i₄₀₃
-                 ==> 0 <= k₄₀₂
-                    && k₄₀₂ < k₁₅
-                    && 0 <= i₄₀₃
-                    && i₄₀₃ < i₁₆
-                  || a₁₄[i₄₀₃] == a[i₄₀₃]))
+                    && i₄₀₅ < 1000
+                    && a₁₄[i₄₀₅] == 1 + i₄₀₅))
+        && (forall k₄₀₆: int, i₄₀₇: int ::
+              (k₄₀₆ + k₄₀₆ == i₄₀₇ + i₄₀₇
+                 ==> 0 <= k₄₀₆
+                    && k₄₀₆ < k₁₅
+                    && 0 <= i₄₀₇
+                    && i₄₀₇ < i₁₆
+                  || a₁₄[i₄₀₇] == a[i₄₀₇]))
         && i₁₆ < 1000
         && k₅ + k₅ == i₆ + i₆
          ==> k₅ < k₁₅
@@ -231,11 +267,7 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄
           || a₁₄[i₁₆ := i₁₆ + 1][i₆] == a[i₆]));
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, R: int, a₁₄: [int]int, k₁₅: int, i₁₆: int, j₁₇: int, i₁₈: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 <= R
-        && R < 4294967296
-        && 1 < R
+      (  1 < R
         && R < 6
         && 0 < lim
         && lim < 1000 / R

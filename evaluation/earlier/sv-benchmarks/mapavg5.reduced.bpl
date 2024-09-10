@@ -11,17 +11,13 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "assert"} (forall N₃₃: int, x: [int]int, x₃₄: [int]int, i₃₅: int, ret₄₀: int, i₄₁: int, ret₄₆: int, i₄₇: int, x₄₉: [int]int, i₅₀: int, i₅₆: int ::
-      (  -2147483648 <= N₃₃
-        && N₃₃ < 2147483648
-        && 1 < N₃₃
+      (  1 < N₃₃
         && 0 <= i₃₅
         && (forall i₁₄: int ::
               (  0 <= i₁₄
                 && i₁₄ < i₃₅
                  ==> (exists nondet_int₂₁₃: int ::
-                        -2147483648 <= nondet_int₂₁₃
-                        && nondet_int₂₁₃ < 2147483648
-                        && i₁₄ < N₃₃
+                        i₁₄ < N₃₃
                         && x₃₄[i₁₄] == nondet_int₂₁₃)))
         && (forall i₁₄: int ::
                   0 <= i₁₄
@@ -60,17 +56,13 @@ goal {:named "assert"} (forall N₃₃: int, x: [int]int, x₃₄: [int]int, i�
           || i₃₅ < N₃₃));
 
 goal {:named "assert"} (forall N₃₃: int, x: [int]int, x₃₄: [int]int, i₃₅: int, ret₄₀: int, i₄₁: int, i₄₇: int, x₄₉: [int]int, i₅₀: int, ret₅₅: int, i₅₆: int ::
-      (  -2147483648 <= N₃₃
-        && N₃₃ < 2147483648
-        && 1 < N₃₃
+      (  1 < N₃₃
         && 0 <= i₃₅
         && (forall i₁₄: int ::
               (  0 <= i₁₄
                 && i₁₄ < i₃₅
                  ==> (exists nondet_int₂₁₃: int ::
-                        -2147483648 <= nondet_int₂₁₃
-                        && nondet_int₂₁₃ < 2147483648
-                        && i₁₄ < N₃₃
+                        i₁₄ < N₃₃
                         && x₃₄[i₁₄] == nondet_int₂₁₃)))
         && (forall i₁₄: int ::
                   0 <= i₁₄

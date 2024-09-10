@@ -16,11 +16,7 @@ goal {:named "assert"} (forall a: [int]int, b: [int]int, a₁₆: [int]int, b₁
               (  0 <= j₅
                 && j₅ < j₁₈
                  ==> (exists nondet_int₁₃: int, nondet_int₂₄: int ::
-                        -2147483648 <= nondet_int₂₄
-                        && nondet_int₂₄ < 2147483648
-                        && -2147483648 <= nondet_int₁₃
-                        && nondet_int₁₃ < 2147483648
-                        && j₅ < 100000
+                        j₅ < 100000
                         && a₁₆[j₅] == nondet_int₁₃
                         && b₁₇[j₅] == nondet_int₂₄)))
         && (forall j₅: int ::

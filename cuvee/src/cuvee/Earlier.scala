@@ -43,24 +43,20 @@ object evaluate_maxpranq
     )
 object evaluate_rapid
     extends Run(Earlier(mode = "evaluate"), "evaluation/earlier/rapid")
-
 object evaluate_sv_benchmarks_array
     extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks")
 object evaluate_sv_benchmarks_loop
-    extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks/loop")
-
-object table_rapid
-    extends Run(Earlier(mode = "table"), "evaluation/earlier/rapid")
-
-object table_sv_benchmarks
-    extends Run(Earlier(mode = "table"), "examples/boogie/sv-benchmarks")
+    extends Run(
+      Earlier(mode = "evaluate"),
+      "examples/boogie/sv-benchmarks/loop"
+    )
 
 case class Earlier(mode: String) extends Main {
   val dst = "evaluation/earlier/"
 
   def main(args: Array[String]) {
     for (path <- args) {
-      if (mode == "table") {
+      if (mode == "reduce") {
         table(path)
       } else {
         val results = eval(path)
@@ -83,7 +79,7 @@ case class Earlier(mode: String) extends Main {
 
         mode match {
           case "annotate" =>
-            var args = List(
+            var args = Array(
               path + "/" + file,
               "-annotate:new-arrays",
               // "-vcgen:partial", DO NOT VCGEN THIS
@@ -91,23 +87,10 @@ case class Earlier(mode: String) extends Main {
               dst_ + file_ + ".annotated.bpl"
             )
 
-            file -> eval(args.toArray)
-
-          case "reduce" =>
-            var args = List(
-              path + "/" + file,
-              "-annotate:new-arrays",
-              "-vcgen:partial",
-              "-prove:simple",
-              "-split",
-              "-o",
-              dst_ + file_ + ".reduced.bpl"
-            )
-
-            file -> eval(args.toArray)
+            file -> eval(args)
 
           case "evaluate" =>
-            var args = List(
+            var args = Array(
               path + "/" + file,
               "-annotate:new-arrays",
               "-vcgen:partial",
@@ -116,7 +99,7 @@ case class Earlier(mode: String) extends Main {
               "-prove:strict"
             )
 
-            file -> eval(args.toArray)
+            file -> eval(args)
         }
       }
     results
@@ -158,7 +141,9 @@ case class Earlier(mode: String) extends Main {
           "-annotate:new-arrays",
           "-vcgen:partial",
           "-prove:simple",
-          "-split"
+          "-split",
+          "-o",
+          dst_ + file_ + ".reduced.bpl"
         )
 
         file -> collect(args)
@@ -185,7 +170,7 @@ case class Earlier(mode: String) extends Main {
               sba += 1
             if (named == "decreases")
               dec += 1
-          
+
           case _: Lemma =>
             lem += 1
 
@@ -195,7 +180,9 @@ case class Earlier(mode: String) extends Main {
 
       val bad = ens + ien + ifo + sba + dec + lem
       val res = if (bad == 0) Success else Unknown
-      csv.println(s"${name}, ${res}, ${ens}, ${ien}, ${ifo}, ${sba}, ${dec}, ${lem}")
+      csv.println(
+        s"${name}, ${res}, ${ens}, ${ien}, ${ifo}, ${sba}, ${dec}, ${lem}"
+      )
     }
   }
 

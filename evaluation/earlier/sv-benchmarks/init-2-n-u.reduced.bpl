@@ -11,26 +11,24 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall C: int, A₂₀: [int][int]int, i₂₁: int, A₂₈: [int][int]int, j₂₉: int, i₉: int ::
-      (  -2147483648 <= C
-        && C < 2147483648
-        && 0 <= i₂₁
-        && (forall i₉₈: int ::
-              (  0 <= i₉₈
-                && i₉₈ < i₂₁
+      (  0 <= i₂₁
+        && (forall i₉₇: int ::
+              (  0 <= i₉₇
+                && i₉₇ < i₂₁
                  ==> (exists A₆: [int][int]int, j₇: int ::
                         0 <= j₇
                         && (forall j₅: int ::
                               (  0 <= j₅
                                 && j₅ < j₇
                                  ==> j₅ < 1500
-                                  && A₆[i₉₈][j₅] == C))
+                                  && A₆[i₉₇][j₅] == C))
                         && (forall j₅: int ::
                                   0 <= j₅
                                   && j₅ < j₇
-                                || A₆[i₉₈][j₅] == A₂₀[i₉₈][j₅])
+                                || A₆[i₉₇][j₅] == A₂₀[i₉₇][j₅])
                         && (j₇ < 1500
                            ==> false)
-                        && i₉₈ < 1000)))
+                        && i₉₇ < 1000)))
         && i₂₁ < 1000
         && 0 <= j₂₉
         && (forall j₅: int ::
@@ -61,9 +59,7 @@ goal {:named "invariant forward"} (forall C: int, A₂₀: [int][int]int, i₂�
                   && i₉ < 1000)));
 
 goal {:named "assert"} (forall C: int, A₂₀: [int][int]int, i₂₁: int, i₂₃: int, j₂₄: int ::
-      (  -2147483648 <= C
-        && C < 2147483648
-        && 0 <= i₂₁
+      (  0 <= i₂₁
         && (forall i₉: int ::
               (  0 <= i₉
                 && i₉ < i₂₁

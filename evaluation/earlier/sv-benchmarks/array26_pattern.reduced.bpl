@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₆: [int][int]int, row₂₈: int, array₃₉: [int][int]int, value₄₀: int, column₄₁: int, value₃: int, column₄: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₂₈
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -103,9 +101,7 @@ goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₆: [in
             && array₃₉[row₂₈ := array₃₉[row₂₈][column₄₁ := value₄₀]][row₂₈][column₄] == 0));
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₆: [int][int]int, row₂₈: int, array₃₉: [int][int]int, column₄₁: int, row₁₀: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₂₈
         && (forall row₂₆₉: int ::
               (  0 <= row₂₆₉

@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [int]int, i₁₉: int, i₆: int ::
-      (  -2147483648 <= N₁₇
-        && N₁₇ < 2147483648
-        && N₁₇ <= 2147483647 / 4
+      (  N₁₇ <= 2147483647 / 4
         && 1 <= i₁₉
         && (forall i₅₈: int ::
               (  1 <= i₅₈
@@ -31,9 +29,7 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, a₁₈: [i
           || a₁₈[i₁₉ := a₁₈[i₁₉ - 1] + 6][i₆] == 6 + a[0 := 6][-1 + i₆]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, i₉: int ::
-      (  -2147483648 <= N₁₇
-        && N₁₇ < 2147483648
-        && N₁₇ <= 2147483647 / 4
+      (  N₁₇ <= 2147483647 / 4
         && 1 <= i₁₉
         && (forall i₆: int ::
               (  1 <= i₆
@@ -62,9 +58,7 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
           || b₂₀[i₂₁ := b₂₀[i₂₁ - 1] + a₁₈[i₂₁ - 1]][i₉] == b[0 := 1][-1 + i₉] + a₁₈[-1 + i₉]));
 
 goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int, c: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, c₂₂: [int]int, i₂₃: int, i₁₂: int ::
-      (  -2147483648 <= N₁₇
-        && N₁₇ < 2147483648
-        && N₁₇ <= 2147483647 / 4
+      (  N₁₇ <= 2147483647 / 4
         && 1 <= i₁₉
         && (forall i₆: int ::
               (  1 <= i₆
@@ -104,9 +98,7 @@ goal {:named "invariant forward"} (forall N₁₇: int, a: [int]int, b: [int]int
           || c₂₂[i₂₃ := c₂₂[i₂₃ - 1] + b₂₀[i₂₃ - 1]][i₁₂] == c[0 := 0][-1 + i₁₂] + b₂₀[-1 + i₁₂]));
 
 goal {:named "assert"} (forall N₁₇: int, a: [int]int, b: [int]int, c: [int]int, a₁₈: [int]int, i₁₉: int, b₂₀: [int]int, i₂₁: int, c₂₂: [int]int, i₂₃: int, i₂₄: int ::
-      (  -2147483648 <= N₁₇
-        && N₁₇ < 2147483648
-        && N₁₇ <= 2147483647 / 4
+      (  N₁₇ <= 2147483647 / 4
         && 1 <= i₁₉
         && (forall i₆: int ::
               (  1 <= i₆

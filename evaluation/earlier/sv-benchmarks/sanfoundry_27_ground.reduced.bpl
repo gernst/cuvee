@@ -16,9 +16,7 @@ goal {:named "assert"} (forall array: [int]int, array₁₄: [int]int, i₁₅: 
               (  0 <= i₄
                 && i₄ < i₁₅
                  ==> (exists nondet_int₁₃: int ::
-                        -2147483648 <= nondet_int₁₃
-                        && nondet_int₁₃ < 2147483648
-                        && i₄ < 100000
+                        i₄ < 100000
                         && array₁₄[i₄] == nondet_int₁₃)))
         && (forall i₄: int ::
                   0 <= i₄

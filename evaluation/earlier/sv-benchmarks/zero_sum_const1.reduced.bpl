@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "assert"} (forall SIZE₁₅: int, a: [int]int, a₁₆: [int]int, i₁₇: int, i₁₉: int, sum₂₀: int, i₂₁: int ::
-      (  -2147483648 <= SIZE₁₅
-        && SIZE₁₅ < 2147483648
-        && 1 < SIZE₁₅
+      (  1 < SIZE₁₅
         && SIZE₁₅ < 100000
         && 0 <= i₁₇
         && (forall i₄: int ::

@@ -13,16 +13,12 @@ function c#bitor(x₀: int, x₁: int): int;
 goal {:named "invariant entry"} (forall a: [int]int, b: [int]int, i₅: int ::
         (exists nondet_int₁₄: int ::
                 nondet_int₁₄ == 10
-                && -2147483648 <= nondet_int₁₄
-                && nondet_int₁₄ < 2147483648
                 && i₅ < 100000
                 && a[i₅] == nondet_int₁₄
                 && b[i₅] == 20)
         || (exists nondet_int₁₄: int ::
                 (nondet_int₁₄ == 10
                    ==> false)
-                && -2147483648 <= nondet_int₁₄
-                && nondet_int₁₄ < 2147483648
                 && i₅ < 100000
                 && a[i₅] == nondet_int₁₄));
 

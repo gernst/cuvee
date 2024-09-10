@@ -18,60 +18,54 @@ goal {:named "invariant forward"} (forall i₆₇: int, B₁₁₇: [int][int][i
                 && i₁₇ < i₆₇
                  ==> (exists B₁₃: [int][int][int]int, j₁₄: int ::
                         0 <= j₁₄
-                        && (forall j₁₈₈: int ::
-                              (  0 <= j₁₈₈
-                                && j₁₈₈ < j₁₄
+                        && (forall j₁₈₇: int ::
+                              (  0 <= j₁₈₇
+                                && j₁₈₇ < j₁₄
                                  ==> (exists B₈: [int][int][int]int, k₉: int ::
                                         0 <= k₉
                                         && (forall k₇: int ::
                                               (  0 <= k₇
                                                 && k₇ < k₉
                                                  ==> (exists nondet_int₁₆: int ::
-                                                        -2147483648 <= nondet_int₁₆
-                                                        && nondet_int₁₆ < 2147483648
-                                                        && k₇ < 1000
-                                                        && B₈[i₁₇][j₁₈₈][k₇] == nondet_int₁₆)))
+                                                        k₇ < 1000
+                                                        && B₈[i₁₇][j₁₈₇][k₇] == nondet_int₁₆)))
                                         && (forall k₇: int ::
                                                   0 <= k₇
                                                   && k₇ < k₉
-                                                || B₈[i₁₇][j₁₈₈][k₇] == B₁₃[i₁₇][j₁₈₈][k₇])
+                                                || B₈[i₁₇][j₁₈₇][k₇] == B₁₃[i₁₇][j₁₈₇][k₇])
                                         && (k₉ < 1000
                                            ==> false)
-                                        && j₁₈₈ < 1000)))
+                                        && j₁₈₇ < 1000)))
                         && (j₁₄ < 1000
                            ==> false)
                         && i₁₇ < 1000)))
         && i₆₇ < 1000
         && 0 <= j₁₁₈
-        && (forall j₁₈₉: int ::
-              (  0 <= j₁₈₉
-                && j₁₈₉ < j₁₁₈
+        && (forall j₁₈₈: int ::
+              (  0 <= j₁₈₈
+                && j₁₈₈ < j₁₁₈
                  ==> (exists B₈: [int][int][int]int, k₉: int ::
                         0 <= k₉
                         && (forall k₇: int ::
                               (  0 <= k₇
                                 && k₇ < k₉
                                  ==> (exists nondet_int₁₆: int ::
-                                        -2147483648 <= nondet_int₁₆
-                                        && nondet_int₁₆ < 2147483648
-                                        && k₇ < 1000
-                                        && B₈[i₆₇][j₁₈₉][k₇] == nondet_int₁₆)))
+                                        k₇ < 1000
+                                        && B₈[i₆₇][j₁₈₈][k₇] == nondet_int₁₆)))
                         && (forall k₇: int ::
                                   0 <= k₇
                                   && k₇ < k₉
-                                || B₈[i₆₇][j₁₈₉][k₇] == B₁₁₇[i₆₇][j₁₈₉][k₇])
+                                || B₈[i₆₇][j₁₈₈][k₇] == B₁₁₇[i₆₇][j₁₈₈][k₇])
                         && (k₉ < 1000
                            ==> false)
-                        && j₁₈₉ < 1000)))
+                        && j₁₈₈ < 1000)))
         && j₁₁₈ < 1000
         && 0 <= k₁₂₄
         && (forall k₇: int ::
               (  0 <= k₇
                 && k₇ < k₁₂₄
                  ==> (exists nondet_int₁₆: int ::
-                        -2147483648 <= nondet_int₁₆
-                        && nondet_int₁₆ < 2147483648
-                        && k₇ < 1000
+                        k₇ < 1000
                         && B₁₂₃[i₆₇][j₁₁₈][k₇] == nondet_int₁₆)))
         && (forall k₇: int ::
                   0 <= k₇
@@ -86,9 +80,7 @@ goal {:named "invariant forward"} (forall i₆₇: int, B₁₁₇: [int][int][i
                         (  0 <= k₇
                           && k₇ < k₉
                            ==> (exists nondet_int₁₆: int ::
-                                  -2147483648 <= nondet_int₁₆
-                                  && nondet_int₁₆ < 2147483648
-                                  && k₇ < 1000
+                                  k₇ < 1000
                                   && B₈[i₆₇][j₁₁][k₇] == nondet_int₁₆)))
                   && (forall k₇: int ::
                             0 <= k₇
@@ -101,9 +93,9 @@ goal {:named "invariant forward"} (forall i₆₇: int, B₁₁₇: [int][int][i
 goal {:named "invariant forward"} (forall i₆₇: int, B₁₁₇: [int][int][int]int, j₁₁₈: int, i₁₇: int ::
       (  500 < 1000
         && 0 <= i₆₇
-        && (forall i₁₉₇: int ::
-              (  0 <= i₁₉₇
-                && i₁₉₇ < i₆₇
+        && (forall i₁₉₆: int ::
+              (  0 <= i₁₉₆
+                && i₁₉₆ < i₆₇
                  ==> (exists B₁₃: [int][int][int]int, j₁₄: int ::
                         0 <= j₁₄
                         && (forall j₁₁: int ::
@@ -115,20 +107,18 @@ goal {:named "invariant forward"} (forall i₆₇: int, B₁₁₇: [int][int][i
                                               (  0 <= k₇
                                                 && k₇ < k₉
                                                  ==> (exists nondet_int₁₆: int ::
-                                                        -2147483648 <= nondet_int₁₆
-                                                        && nondet_int₁₆ < 2147483648
-                                                        && k₇ < 1000
-                                                        && B₈[i₁₉₇][j₁₁][k₇] == nondet_int₁₆)))
+                                                        k₇ < 1000
+                                                        && B₈[i₁₉₆][j₁₁][k₇] == nondet_int₁₆)))
                                         && (forall k₇: int ::
                                                   0 <= k₇
                                                   && k₇ < k₉
-                                                || B₈[i₁₉₇][j₁₁][k₇] == B₁₃[i₁₉₇][j₁₁][k₇])
+                                                || B₈[i₁₉₆][j₁₁][k₇] == B₁₃[i₁₉₆][j₁₁][k₇])
                                         && (k₉ < 1000
                                            ==> false)
                                         && j₁₁ < 1000)))
                         && (j₁₄ < 1000
                            ==> false)
-                        && i₁₉₇ < 1000)))
+                        && i₁₉₆ < 1000)))
         && i₆₇ < 1000
         && 0 <= j₁₁₈
         && (forall j₁₁: int ::
@@ -140,9 +130,7 @@ goal {:named "invariant forward"} (forall i₆₇: int, B₁₁₇: [int][int][i
                               (  0 <= k₇
                                 && k₇ < k₉
                                  ==> (exists nondet_int₁₆: int ::
-                                        -2147483648 <= nondet_int₁₆
-                                        && nondet_int₁₆ < 2147483648
-                                        && k₇ < 1000
+                                        k₇ < 1000
                                         && B₈[i₆₇][j₁₁][k₇] == nondet_int₁₆)))
                         && (forall k₇: int ::
                                   0 <= k₇
@@ -165,9 +153,7 @@ goal {:named "invariant forward"} (forall i₆₇: int, B₁₁₇: [int][int][i
                                         (  0 <= k₇
                                           && k₇ < k₉
                                            ==> (exists nondet_int₁₆: int ::
-                                                  -2147483648 <= nondet_int₁₆
-                                                  && nondet_int₁₆ < 2147483648
-                                                  && k₇ < 1000
+                                                  k₇ < 1000
                                                   && B₈[i₁₇][j₁₁][k₇] == nondet_int₁₆)))
                                   && (forall k₇: int ::
                                             0 <= k₇
@@ -197,9 +183,7 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                                               (  0 <= k₇
                                                 && k₇ < k₉
                                                  ==> (exists nondet_int₁₆: int ::
-                                                        -2147483648 <= nondet_int₁₆
-                                                        && nondet_int₁₆ < 2147483648
-                                                        && k₇ < 1000
+                                                        k₇ < 1000
                                                         && B₈[i₁₇][j₁₁][k₇] == nondet_int₁₆)))
                                         && (forall k₇: int ::
                                                   0 <= k₇
@@ -217,45 +201,45 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                 && i₃₂ < i₇₁
                  ==> (exists A₂₈: [int][int][int]int, j₂₉: int ::
                         0 <= j₂₉
-                        && (forall j₂₉₃: int ::
-                              (  0 <= j₂₉₃
-                                && j₂₉₃ < j₂₉
+                        && (forall j₂₉₂: int ::
+                              (  0 <= j₂₉₂
+                                && j₂₉₂ < j₂₉
                                  ==> (exists A₂₃: [int][int][int]int, k₂₄: int ::
                                         0 <= k₂₄
                                         && (forall k₂₂: int ::
                                               (  0 <= k₂₂
                                                 && k₂₂ < k₂₄
                                                  ==> k₂₂ < 500
-                                                  && A₂₃[i₃₂][j₂₉₃][k₂₂] == B₆₆[i₃₂][j₂₉₃][k₂₂]))
+                                                  && A₂₃[i₃₂][j₂₉₂][k₂₂] == B₆₆[i₃₂][j₂₉₂][k₂₂]))
                                         && (forall k₂₂: int ::
                                                   0 <= k₂₂
                                                   && k₂₂ < k₂₄
-                                                || A₂₃[i₃₂][j₂₉₃][k₂₂] == A₂₈[i₃₂][j₂₉₃][k₂₂])
+                                                || A₂₃[i₃₂][j₂₉₂][k₂₂] == A₂₈[i₃₂][j₂₉₂][k₂₂])
                                         && (k₂₄ < 500
                                            ==> false)
-                                        && j₂₉₃ < 500)))
+                                        && j₂₉₂ < 500)))
                         && (j₂₉ < 500
                            ==> false)
                         && i₃₂ < 500)))
         && i₇₁ < 500
         && 0 <= j₁₀₄
-        && (forall j₂₉₄: int ::
-              (  0 <= j₂₉₄
-                && j₂₉₄ < j₁₀₄
+        && (forall j₂₉₃: int ::
+              (  0 <= j₂₉₃
+                && j₂₉₃ < j₁₀₄
                  ==> (exists A₂₃: [int][int][int]int, k₂₄: int ::
                         0 <= k₂₄
                         && (forall k₂₂: int ::
                               (  0 <= k₂₂
                                 && k₂₂ < k₂₄
                                  ==> k₂₂ < 500
-                                  && A₂₃[i₇₁][j₂₉₄][k₂₂] == B₆₆[i₇₁][j₂₉₄][k₂₂]))
+                                  && A₂₃[i₇₁][j₂₉₃][k₂₂] == B₆₆[i₇₁][j₂₉₃][k₂₂]))
                         && (forall k₂₂: int ::
                                   0 <= k₂₂
                                   && k₂₂ < k₂₄
-                                || A₂₃[i₇₁][j₂₉₄][k₂₂] == A₁₀₃[i₇₁][j₂₉₄][k₂₂])
+                                || A₂₃[i₇₁][j₂₉₃][k₂₂] == A₁₀₃[i₇₁][j₂₉₃][k₂₂])
                         && (k₂₄ < 500
                            ==> false)
-                        && j₂₉₄ < 500)))
+                        && j₂₉₃ < 500)))
         && j₁₀₄ < 500
         && 0 <= k₁₁₀
         && (forall k₂₂: int ::
@@ -303,9 +287,7 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                                               (  0 <= k₇
                                                 && k₇ < k₉
                                                  ==> (exists nondet_int₁₆: int ::
-                                                        -2147483648 <= nondet_int₁₆
-                                                        && nondet_int₁₆ < 2147483648
-                                                        && k₇ < 1000
+                                                        k₇ < 1000
                                                         && B₈[i₁₇][j₁₁][k₇] == nondet_int₁₆)))
                                         && (forall k₇: int ::
                                                   0 <= k₇
@@ -318,9 +300,9 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                            ==> false)
                         && i₁₇ < 1000)))
         && 0 <= i₇₁
-        && (forall i₃₀₆: int ::
-              (  0 <= i₃₀₆
-                && i₃₀₆ < i₇₁
+        && (forall i₃₀₅: int ::
+              (  0 <= i₃₀₅
+                && i₃₀₅ < i₇₁
                  ==> (exists A₂₈: [int][int][int]int, j₂₉: int ::
                         0 <= j₂₉
                         && (forall j₂₆: int ::
@@ -332,17 +314,17 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                                               (  0 <= k₂₂
                                                 && k₂₂ < k₂₄
                                                  ==> k₂₂ < 500
-                                                  && A₂₃[i₃₀₆][j₂₆][k₂₂] == B₆₆[i₃₀₆][j₂₆][k₂₂]))
+                                                  && A₂₃[i₃₀₅][j₂₆][k₂₂] == B₆₆[i₃₀₅][j₂₆][k₂₂]))
                                         && (forall k₂₂: int ::
                                                   0 <= k₂₂
                                                   && k₂₂ < k₂₄
-                                                || A₂₃[i₃₀₆][j₂₆][k₂₂] == A₂₈[i₃₀₆][j₂₆][k₂₂])
+                                                || A₂₃[i₃₀₅][j₂₆][k₂₂] == A₂₈[i₃₀₅][j₂₆][k₂₂])
                                         && (k₂₄ < 500
                                            ==> false)
                                         && j₂₆ < 500)))
                         && (j₂₉ < 500
                            ==> false)
-                        && i₃₀₆ < 500)))
+                        && i₃₀₅ < 500)))
         && i₇₁ < 500
         && 0 <= j₁₀₄
         && (forall j₂₆: int ::
@@ -406,9 +388,7 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                                               (  0 <= k₇
                                                 && k₇ < k₉
                                                  ==> (exists nondet_int₁₆: int ::
-                                                        -2147483648 <= nondet_int₁₆
-                                                        && nondet_int₁₆ < 2147483648
-                                                        && k₇ < 1000
+                                                        k₇ < 1000
                                                         && B₈[i₁₇][j₁₁][k₇] == nondet_int₁₆)))
                                         && (forall k₇: int ::
                                                   0 <= k₇
@@ -452,45 +432,45 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                 && i₄₇ < i₇₅
                  ==> (exists A₄₃: [int][int][int]int, j₄₄: int ::
                         500 <= j₄₄
-                        && (forall j₄₁₉: int ::
-                              (  500 <= j₄₁₉
-                                && j₄₁₉ < j₄₄
+                        && (forall j₄₁₈: int ::
+                              (  500 <= j₄₁₈
+                                && j₄₁₈ < j₄₄
                                  ==> (exists A₃₈: [int][int][int]int, k₃₉: int ::
                                         500 <= k₃₉
                                         && (forall k₃₇: int ::
                                               (  500 <= k₃₇
                                                 && k₃₇ < k₃₉
                                                  ==> k₃₇ < 1000
-                                                  && A₃₈[i₄₇][j₄₁₉][k₃₇] == B₆₆[i₄₇][j₄₁₉][k₃₇]))
+                                                  && A₃₈[i₄₇][j₄₁₈][k₃₇] == B₆₆[i₄₇][j₄₁₈][k₃₇]))
                                         && (forall k₃₇: int ::
                                                   500 <= k₃₇
                                                   && k₃₇ < k₃₉
-                                                || A₃₈[i₄₇][j₄₁₉][k₃₇] == A₄₃[i₄₇][j₄₁₉][k₃₇])
+                                                || A₃₈[i₄₇][j₄₁₈][k₃₇] == A₄₃[i₄₇][j₄₁₈][k₃₇])
                                         && (k₃₉ < 1000
                                            ==> false)
-                                        && j₄₁₉ < 1000)))
+                                        && j₄₁₈ < 1000)))
                         && (j₄₄ < 1000
                            ==> false)
                         && i₄₇ < 1000)))
         && i₇₅ < 1000
         && 500 <= j₉₀
-        && (forall j₄₂₀: int ::
-              (  500 <= j₄₂₀
-                && j₄₂₀ < j₉₀
+        && (forall j₄₁₉: int ::
+              (  500 <= j₄₁₉
+                && j₄₁₉ < j₉₀
                  ==> (exists A₃₈: [int][int][int]int, k₃₉: int ::
                         500 <= k₃₉
                         && (forall k₃₇: int ::
                               (  500 <= k₃₇
                                 && k₃₇ < k₃₉
                                  ==> k₃₇ < 1000
-                                  && A₃₈[i₇₅][j₄₂₀][k₃₇] == B₆₆[i₇₅][j₄₂₀][k₃₇]))
+                                  && A₃₈[i₇₅][j₄₁₉][k₃₇] == B₆₆[i₇₅][j₄₁₉][k₃₇]))
                         && (forall k₃₇: int ::
                                   500 <= k₃₇
                                   && k₃₇ < k₃₉
-                                || A₃₈[i₇₅][j₄₂₀][k₃₇] == A₈₉[i₇₅][j₄₂₀][k₃₇])
+                                || A₃₈[i₇₅][j₄₁₉][k₃₇] == A₈₉[i₇₅][j₄₁₉][k₃₇])
                         && (k₃₉ < 1000
                            ==> false)
-                        && j₄₂₀ < 1000)))
+                        && j₄₁₉ < 1000)))
         && j₉₀ < 1000
         && 500 <= k₉₆
         && (forall k₃₇: int ::
@@ -539,9 +519,7 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                                               (  0 <= k₇
                                                 && k₇ < k₉
                                                  ==> (exists nondet_int₁₆: int ::
-                                                        -2147483648 <= nondet_int₁₆
-                                                        && nondet_int₁₆ < 2147483648
-                                                        && k₇ < 1000
+                                                        k₇ < 1000
                                                         && B₈[i₁₇][j₁₁][k₇] == nondet_int₁₆)))
                                         && (forall k₇: int ::
                                                   0 <= k₇
@@ -580,9 +558,9 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                            ==> false)
                         && i₃₂ < 500)))
         && 500 <= i₇₅
-        && (forall i₄₃₄: int ::
-              (  500 <= i₄₃₄
-                && i₄₃₄ < i₇₅
+        && (forall i₄₃₃: int ::
+              (  500 <= i₄₃₃
+                && i₄₃₃ < i₇₅
                  ==> (exists A₄₃: [int][int][int]int, j₄₄: int ::
                         500 <= j₄₄
                         && (forall j₄₁: int ::
@@ -594,17 +572,17 @@ goal {:named "invariant forward"} (forall B₆₆: [int][int][int]int, i₆₇: 
                                               (  500 <= k₃₇
                                                 && k₃₇ < k₃₉
                                                  ==> k₃₇ < 1000
-                                                  && A₃₈[i₄₃₄][j₄₁][k₃₇] == B₆₆[i₄₃₄][j₄₁][k₃₇]))
+                                                  && A₃₈[i₄₃₃][j₄₁][k₃₇] == B₆₆[i₄₃₃][j₄₁][k₃₇]))
                                         && (forall k₃₇: int ::
                                                   500 <= k₃₇
                                                   && k₃₇ < k₃₉
-                                                || A₃₈[i₄₃₄][j₄₁][k₃₇] == A₄₃[i₄₃₄][j₄₁][k₃₇])
+                                                || A₃₈[i₄₃₃][j₄₁][k₃₇] == A₄₃[i₄₃₃][j₄₁][k₃₇])
                                         && (k₃₉ < 1000
                                            ==> false)
                                         && j₄₁ < 1000)))
                         && (j₄₄ < 1000
                            ==> false)
-                        && i₄₃₄ < 1000)))
+                        && i₄₃₃ < 1000)))
         && i₇₅ < 1000
         && 500 <= j₉₀
         && (forall j₄₁: int ::
@@ -669,9 +647,7 @@ goal {:named "assert"} (forall B₆₆: [int][int][int]int, i₆₇: int, i₇�
                                               (  0 <= k₇
                                                 && k₇ < k₉
                                                  ==> (exists nondet_int₁₆: int ::
-                                                        -2147483648 <= nondet_int₁₆
-                                                        && nondet_int₁₆ < 2147483648
-                                                        && k₇ < 1000
+                                                        k₇ < 1000
                                                         && B₈[i₁₇][j₁₁][k₇] == nondet_int₁₆)))
                                         && (forall k₇: int ::
                                                   0 <= k₇

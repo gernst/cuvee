@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₄₆: [int][int]int, row₄₇: int, array₂₄₉: [int][int]int, column₂₅₀: int, row₁₀: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₄₇
         && (forall row₃₁₉: int ::
               (  0 <= row₃₁₉
@@ -62,9 +60,7 @@ goal {:named "invariant forward"} (forall nondet_short₁: int, array₄₆: [in
                   && row₁₀ < nondet_short₁)));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₆: [int][int]int, row₄₇: int, index1₁₄: int, index2₁₅: int, outerBoundaryPatternCheck₄₁₈: int, outerBoundaryPatternCheck₅₂₁: int, temp₂₄: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₄₇
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -84,24 +80,16 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₆: [int]
                            ==> false)
                         && row₁₀ < nondet_short₁)))
         && temp₂₄ == 0
-        && -2147483648 <= temp₂₄
-        && temp₂₄ < 2147483648
         && outerBoundaryPatternCheck₄₁₈ == 0
         && 0 <= index2₁₅
         && index2₁₅ < nondet_short₁
         && 0 <= index1₁₄
         && index1₁₄ < nondet_short₁
-        && -32768 <= index2₁₅
-        && index2₁₅ < 32768
-        && -32768 <= index1₁₄
-        && index1₁₄ < 32768
          ==> row₄₇ < nondet_short₁
           || outerBoundaryPatternCheck₅₂₁ == 0));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₆: [int][int]int, row₄₇: int, index1₁₄: int, index2₁₅: int, outerBoundaryPatternCheck₄₁₈: int, temp₂₅: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₄₇
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -121,23 +109,15 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₆: [int]
                            ==> false)
                         && row₁₀ < nondet_short₁)))
         && temp₂₅ == 0
-        && -2147483648 <= temp₂₅
-        && temp₂₅ < 2147483648
         && 0 <= index2₁₅
         && index2₁₅ < nondet_short₁
         && 0 <= index1₁₄
         && index1₁₄ < nondet_short₁
-        && -32768 <= index2₁₅
-        && index2₁₅ < 32768
-        && -32768 <= index1₁₄
-        && index1₁₄ < 32768
          ==> row₄₇ < nondet_short₁
           || outerBoundaryPatternCheck₄₁₈ == 0));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₆: [int][int]int, row₄₇: int, index1₁₄: int, index2₁₅: int, outerBoundaryPatternCheck₄₁₈: int, outerBoundaryPatternCheck₅₂₁: int, temp₂₆: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₄₇
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -157,17 +137,11 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₆: [int]
                            ==> false)
                         && row₁₀ < nondet_short₁)))
         && temp₂₆ == 0
-        && -2147483648 <= temp₂₆
-        && temp₂₆ < 2147483648
         && outerBoundaryPatternCheck₅₂₁ == 0
         && outerBoundaryPatternCheck₄₁₈ == 0
         && 0 <= index2₁₅
         && index2₁₅ < nondet_short₁
         && 0 <= index1₁₄
         && index1₁₄ < nondet_short₁
-        && -32768 <= index2₁₅
-        && index2₁₅ < 32768
-        && -32768 <= index1₁₄
-        && index1₁₄ < 32768
          ==> row₄₇ < nondet_short₁));
 

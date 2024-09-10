@@ -16,9 +16,7 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
               (  0 <= i₇
                 && i₇ < i₂₈
                  ==> (exists nondet_int₁₆: int ::
-                        -2147483648 <= nondet_int₁₆
-                        && nondet_int₁₆ < 2147483648
-                        && i₇ < 100000
+                        i₇ < 100000
                         && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇
@@ -56,9 +54,7 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
               (  0 <= i₇
                 && i₇ < i₂₈
                  ==> (exists nondet_int₁₆: int ::
-                        -2147483648 <= nondet_int₁₆
-                        && nondet_int₁₆ < 2147483648
-                        && i₇ < 100000
+                        i₇ < 100000
                         && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇
@@ -103,9 +99,7 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
               (  0 <= i₇
                 && i₇ < i₂₈
                  ==> (exists nondet_int₁₆: int ::
-                        -2147483648 <= nondet_int₁₆
-                        && nondet_int₁₆ < 2147483648
-                        && i₇ < 100000
+                        i₇ < 100000
                         && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇
@@ -143,9 +137,7 @@ goal {:named "assert"} (forall array: [int]int, array₂₇: [int]int, i₂₈: 
               (  0 <= i₇
                 && i₇ < i₂₈
                  ==> (exists nondet_int₁₆: int ::
-                        -2147483648 <= nondet_int₁₆
-                        && nondet_int₁₆ < 2147483648
-                        && i₇ < 100000
+                        i₇ < 100000
                         && array₂₇[i₇] == nondet_int₁₆)))
         && (forall i₇: int ::
                   0 <= i₇

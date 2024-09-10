@@ -24,8 +24,8 @@ init_previous_plus_one_alternative.bpl, Unknown, 2, 0, 1, 0, 0, 0
 max_prop.bpl, Success, 0, 0, 0, 0, 0, 0
 merge_interleave.bpl, Unknown, 1, 0, 0, 0, 0, 0
 min_prop.bpl, Success, 0, 0, 0, 0, 0, 0
-partition.bpl, Unknown, 4, 0, 5, 0, 0, 0
-partition_harder.bpl, Unknown, 2, 0, 9, 0, 0, 0
+partition.bpl, Unknown, 4, 0, 7, 0, 0, 0
+partition_harder.bpl, Unknown, 2, 0, 7, 0, 0, 0
 push_back.bpl, Success, 0, 0, 0, 0, 0, 0
 reverse.bpl, Success, 0, 0, 0, 0, 0, 0
 str_cpy.bpl, Success, 0, 0, 0, 0, 0, 0

@@ -16,9 +16,7 @@ goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [in
               (  0 <= i₄
                 && i₄ < i₁₇
                  ==> (exists nondet_int₁₃: int ::
-                        -2147483648 <= nondet_int₁₃
-                        && nondet_int₁₃ < 2147483648
-                        && i₄ < 100000
+                        i₄ < 100000
                         && b₁₆[i₄] == nondet_int₁₃)))
         && (forall i₄: int ::
                   0 <= i₄
@@ -26,15 +24,15 @@ goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [in
                 || b₁₆[i₄] == b[i₄])
         && 1 <= i₁₉
         && 0 <= j₂₀
-        && (forall i₁₀₅: int, j₁₀₆: int ::
-              (  0 <= j₁₀₆
-                && j₁₀₆ < j₂₀
-                 ==> i₁₀₅ < 100000
-                  && a₁₈[j₁₀₆] == b₁₆[i₁₀₅]))
-        && (forall j₁₀₇: int ::
-                  0 <= j₁₀₇
-                  && j₁₀₇ < j₂₀
-                || a₁₈[j₁₀₇] == a[j₁₀₇])
+        && (forall i₁₀₄: int, j₁₀₅: int ::
+              (  0 <= j₁₀₅
+                && j₁₀₅ < j₂₀
+                 ==> i₁₀₄ < 100000
+                  && a₁₈[j₁₀₅] == b₁₆[i₁₀₄]))
+        && (forall j₁₀₆: int ::
+                  0 <= j₁₀₆
+                  && j₁₀₆ < j₂₀
+                || a₁₈[j₁₀₆] == a[j₁₀₆])
         && i₁₉ < 100000
         && 0 <= j₈
         && j₈ < j₂₀ + 1
@@ -47,9 +45,7 @@ goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [in
               (  0 <= i₄
                 && i₄ < i₁₇
                  ==> (exists nondet_int₁₃: int ::
-                        -2147483648 <= nondet_int₁₃
-                        && nondet_int₁₃ < 2147483648
-                        && i₄ < 100000
+                        i₄ < 100000
                         && b₁₆[i₄] == nondet_int₁₃)))
         && (forall i₄: int ::
                   0 <= i₄
@@ -57,15 +53,15 @@ goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [in
                 || b₁₆[i₄] == b[i₄])
         && 1 <= i₁₉
         && 0 <= j₂₀
-        && (forall i₁₁₇: int, j₁₁₈: int ::
-              (  0 <= j₁₁₈
-                && j₁₁₈ < j₂₀
-                 ==> i₁₁₇ < 100000
-                  && a₁₈[j₁₁₈] == b₁₆[i₁₁₇]))
-        && (forall j₁₁₉: int ::
-                  0 <= j₁₁₉
-                  && j₁₁₉ < j₂₀
-                || a₁₈[j₁₁₉] == a[j₁₁₉])
+        && (forall i₁₁₆: int, j₁₁₇: int ::
+              (  0 <= j₁₁₇
+                && j₁₁₇ < j₂₀
+                 ==> i₁₁₆ < 100000
+                  && a₁₈[j₁₁₇] == b₁₆[i₁₁₆]))
+        && (forall j₁₁₈: int ::
+                  0 <= j₁₁₈
+                  && j₁₁₈ < j₂₀
+                || a₁₈[j₁₁₈] == a[j₁₁₈])
         && i₁₉ < 100000
         && 0 <= j₈
         && j₈ < j₂₀ + 1
@@ -78,9 +74,7 @@ goal {:named "assert"} (forall a: [int]int, b: [int]int, b₁₆: [int]int, i₁
               (  0 <= i₄
                 && i₄ < i₁₇
                  ==> (exists nondet_int₁₃: int ::
-                        -2147483648 <= nondet_int₁₃
-                        && nondet_int₁₃ < 2147483648
-                        && i₄ < 100000
+                        i₄ < 100000
                         && b₁₆[i₄] == nondet_int₁₃)))
         && (forall i₄: int ::
                   0 <= i₄
@@ -114,9 +108,7 @@ goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [in
               (  0 <= i₄
                 && i₄ < i₁₇
                  ==> (exists nondet_int₁₃: int ::
-                        -2147483648 <= nondet_int₁₃
-                        && nondet_int₁₃ < 2147483648
-                        && i₄ < 100000
+                        i₄ < 100000
                         && b₁₆[i₄] == nondet_int₁₃)))
         && (forall i₄: int ::
                   0 <= i₄
@@ -135,10 +127,10 @@ goal {:named "invariant forward"} (forall a: [int]int, b: [int]int, b₁₆: [in
                 || a₁₈[j₈] == a[j₈])
         && 1 <= i₂₁
         && 0 <= j₂₂
-        && (forall i₁₉₇: int, j₁₉₈: int ::
-              (  0 <= j₁₉₈
-                && j₁₉₈ < j₂₂
-                 ==> i₁₉₇ < 100000))
+        && (forall i₁₉₆: int, j₁₉₇: int ::
+              (  0 <= j₁₉₇
+                && j₁₉₇ < j₂₂
+                 ==> i₁₉₆ < 100000))
         && i₂₁ < 100000
         && 0 <= j₁₃
         && j₁₃ < j₂₂ + 1

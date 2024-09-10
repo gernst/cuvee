@@ -16,11 +16,7 @@ goal {:named "invariant forward"} (forall A: [int]int, B: [int]int, C: [int]int,
               (  0 <= i₇
                 && i₇ < i₂₃
                  ==> (exists nondet_int₁₅: int, nondet_int₂₆: int ::
-                        -2147483648 <= nondet_int₂₆
-                        && nondet_int₂₆ < 2147483648
-                        && -2147483648 <= nondet_int₁₅
-                        && nondet_int₁₅ < 2147483648
-                        && i₇ < 100000
+                        i₇ < 100000
                         && A₂₁[i₇] == nondet_int₁₅
                         && B₂₂[i₇] == nondet_int₂₆)))
         && (forall i₇: int ::
@@ -61,11 +57,7 @@ goal {:named "assert"} (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [
               (  0 <= i₇
                 && i₇ < i₂₃
                  ==> (exists nondet_int₁₅: int, nondet_int₂₆: int ::
-                        -2147483648 <= nondet_int₂₆
-                        && nondet_int₂₆ < 2147483648
-                        && -2147483648 <= nondet_int₁₅
-                        && nondet_int₁₅ < 2147483648
-                        && i₇ < 100000
+                        i₇ < 100000
                         && A₂₁[i₇] == nondet_int₁₅
                         && B₂₂[i₇] == nondet_int₂₆)))
         && (forall i₇: int ::
@@ -111,11 +103,7 @@ goal {:named "assert"} (forall A: [int]int, B: [int]int, C: [int]int, A₂₁: [
               (  0 <= i₇
                 && i₇ < i₂₃
                  ==> (exists nondet_int₁₅: int, nondet_int₂₆: int ::
-                        -2147483648 <= nondet_int₂₆
-                        && nondet_int₂₆ < 2147483648
-                        && -2147483648 <= nondet_int₁₅
-                        && nondet_int₁₅ < 2147483648
-                        && i₇ < 100000
+                        i₇ < 100000
                         && A₂₁[i₇] == nondet_int₁₅
                         && B₂₂[i₇] == nondet_int₂₆)))
         && (forall i₇: int ::

@@ -11,32 +11,28 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall element: int, vectorx: [int]int, vectorx₂₃: [int]int, i₂₄: int, found₂₅: int, i₂₇: int, found₉: int, i₁₁: int ::
-      (  -2147483648 <= element
-        && element < 2147483648
-        && 0 <= i₂₄
+      (  0 <= i₂₄
         && (forall i₆: int ::
               (  0 <= i₆
                 && i₆ < i₂₄
                  ==> (exists nondet_int₁₅: int ::
-                        -2147483648 <= nondet_int₁₅
-                        && nondet_int₁₅ < 2147483648
-                        && i₆ < 100000
+                        i₆ < 100000
                         && vectorx₂₃[i₆] == nondet_int₁₅)))
         && (forall i₆: int ::
                   0 <= i₆
                   && i₆ < i₂₄
                 || vectorx₂₃[i₆] == vectorx[i₆])
         && 0 <= i₂₇
-        && (forall found₁₀₁: int, i₁₀₂: int ::
-              (  0 <= i₁₀₂
-                && i₁₀₂ < i₂₇
-                 ==> vectorx₂₃[i₁₀₂] == element
-                    && i₁₀₂ < 100000
-                    && found₁₀₁ == 0
-                  ||   (vectorx₂₃[i₁₀₂] == element
+        && (forall found₉₁: int, i₉₂: int ::
+              (  0 <= i₉₂
+                && i₉₂ < i₂₇
+                 ==> vectorx₂₃[i₉₂] == element
+                    && i₉₂ < 100000
+                    && found₉₁ == 0
+                  ||   (vectorx₂₃[i₉₂] == element
                        ==> false)
-                    && i₁₀₂ < 100000
-                    && found₁₀₁ == 0))
+                    && i₉₂ < 100000
+                    && found₉₁ == 0))
         && i₂₇ < 100000
         && found₂₅ == 0
         && vectorx₂₃[i₂₇] == element
@@ -52,32 +48,28 @@ goal {:named "invariant forward"} (forall element: int, vectorx: [int]int, vecto
             && found₉ == 0));
 
 goal {:named "invariant forward"} (forall element: int, vectorx: [int]int, vectorx₂₃: [int]int, i₂₄: int, found₂₅: int, i₂₇: int, found₉: int, i₁₁: int ::
-      (  -2147483648 <= element
-        && element < 2147483648
-        && 0 <= i₂₄
+      (  0 <= i₂₄
         && (forall i₆: int ::
               (  0 <= i₆
                 && i₆ < i₂₄
                  ==> (exists nondet_int₁₅: int ::
-                        -2147483648 <= nondet_int₁₅
-                        && nondet_int₁₅ < 2147483648
-                        && i₆ < 100000
+                        i₆ < 100000
                         && vectorx₂₃[i₆] == nondet_int₁₅)))
         && (forall i₆: int ::
                   0 <= i₆
                   && i₆ < i₂₄
                 || vectorx₂₃[i₆] == vectorx[i₆])
         && 0 <= i₂₇
-        && (forall found₁₁₇: int, i₁₁₈: int ::
-              (  0 <= i₁₁₈
-                && i₁₁₈ < i₂₇
-                 ==> vectorx₂₃[i₁₁₈] == element
-                    && i₁₁₈ < 100000
-                    && found₁₁₇ == 0
-                  ||   (vectorx₂₃[i₁₁₈] == element
+        && (forall found₁₀₇: int, i₁₀₈: int ::
+              (  0 <= i₁₀₈
+                && i₁₀₈ < i₂₇
+                 ==> vectorx₂₃[i₁₀₈] == element
+                    && i₁₀₈ < 100000
+                    && found₁₀₇ == 0
+                  ||   (vectorx₂₃[i₁₀₈] == element
                        ==> false)
-                    && i₁₁₈ < 100000
-                    && found₁₁₇ == 0))
+                    && i₁₀₈ < 100000
+                    && found₁₀₇ == 0))
         && i₂₇ < 100000
         && found₂₅ == 0
         && 0 <= i₁₁
@@ -93,16 +85,12 @@ goal {:named "invariant forward"} (forall element: int, vectorx: [int]int, vecto
             && found₉ == 0));
 
 goal {:named "assert"} (forall element: int, vectorx: [int]int, vectorx₂₃: [int]int, i₂₄: int, found₂₅: int, pos₂₆: int, i₂₇: int, vectorx₂₈: [int]int, i₂₉: int, x₃₀: int ::
-      (  -2147483648 <= element
-        && element < 2147483648
-        && 0 <= i₂₄
+      (  0 <= i₂₄
         && (forall i₆: int ::
               (  0 <= i₆
                 && i₆ < i₂₄
                  ==> (exists nondet_int₁₅: int ::
-                        -2147483648 <= nondet_int₁₅
-                        && nondet_int₁₅ < 2147483648
-                        && i₆ < 100000
+                        i₆ < 100000
                         && vectorx₂₃[i₆] == nondet_int₁₅)))
         && (forall i₆: int ::
                   0 <= i₆

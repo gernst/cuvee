@@ -16,9 +16,7 @@ goal {:named "invariant entry"} (forall a: [int]int, a₂₂: [int]int, j₂₃:
               (  0 <= j₃
                 && j₃ < j₂₃
                  ==> (exists nondet_int₁₂: int ::
-                        -2147483648 <= nondet_int₁₂
-                        && nondet_int₁₂ < 2147483648
-                        && j₃ < 100000
+                        j₃ < 100000
                         && a₂₂[j₃] == nondet_int₁₂)))
         && (forall j₃: int ::
                   0 <= j₃

@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall S: int, a: [int]int, acopy: [int]int, acopy₁₀: [int]int, i₁₁: int, i₅: int ::
-      (  -2147483648 <= S
-        && S < 2147483648
-        && 1 < S
+      (  1 < S
         && S < 1073741823
         && 0 <= i₁₁
         && (forall i₈₀: int ::
@@ -33,9 +31,7 @@ goal {:named "invariant forward"} (forall S: int, a: [int]int, acopy: [int]int, 
           || acopy₁₀[2 * S - i₁₁ + 1 := a[2 * S - i₁₁ + 1]][i₁₁ := a[i₁₁]][i₅] == acopy[i₅]));
 
 goal {:named "invariant forward"} (forall S: int, a: [int]int, acopy: [int]int, acopy₁₀: [int]int, i₁₁: int, i₅: int ::
-      (  -2147483648 <= S
-        && S < 2147483648
-        && 1 < S
+      (  1 < S
         && S < 1073741823
         && 0 <= i₁₁
         && (forall i₈₈: int ::
@@ -55,9 +51,7 @@ goal {:named "invariant forward"} (forall S: int, a: [int]int, acopy: [int]int, 
           || acopy₁₀[2 * S - i₁₁ + 1 := a[2 * S - i₁₁ + 1]][i₁₁ := a[i₁₁]][-1 + -i₅ + 2 * S] == acopy[-1 + -i₅ + 2 * S]));
 
 goal {:named "assert"} (forall S: int, a: [int]int, acopy: [int]int, acopy₁₀: [int]int, i₁₁: int, i₁₂: int ::
-      (  -2147483648 <= S
-        && S < 2147483648
-        && 1 < S
+      (  1 < S
         && S < 1073741823
         && 0 <= i₁₁
         && (forall i₅: int ::

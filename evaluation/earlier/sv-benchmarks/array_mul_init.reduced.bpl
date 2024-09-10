@@ -28,19 +28,13 @@ goal {:named "assert"} (forall a: [int]int, b: [int]int, a₁₉: [int]int, b₂
               (  0 <= i₁₂
                 && i₁₂ < i₂₅
                  ==> (exists nondet_short₂₉: int, k₁₀: int ::
-                          -32768 <= k₁₀
-                          && k₁₀ < 32768
-                          && (nondet_short₂₉ == 0
+                          (nondet_short₂₉ == 0
                              ==> false)
-                          && -32768 <= nondet_short₂₉
-                          && nondet_short₂₉ < 32768
                           && i₁₂ < 100000
                           && a₂₃[i₁₂] == k₁₀
                           && b₂₄[i₁₂] == k₁₀ * k₁₀)
                   || (exists nondet_short₂₉: int ::
                           nondet_short₂₉ == 0
-                          && -32768 <= nondet_short₂₉
-                          && nondet_short₂₉ < 32768
                           && i₁₂ < 100000)))
         && (forall i₁₂: int ::
                   0 <= i₁₂
