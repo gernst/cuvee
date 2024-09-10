@@ -28,10 +28,8 @@ procedure main()
     j := 0;
     while(j < n) {
       var nondet_uint₁: int;
-      assume 0 <= nondet_uint₁ && nondet_uint₁ < 4294967296;
       A[i][j] := nondet_uint₁;
       var nondet_uint₂: int;
-      assume 0 <= nondet_uint₂ && nondet_uint₂ < 4294967296;
       B[i][j] := nondet_uint₂;
       j := j + 1;
     }
@@ -43,10 +41,8 @@ procedure main()
     j := 0;
     while(j < n) {
       var nondet_uint₃: int;
-      assume 0 <= nondet_uint₃ && nondet_uint₃ < 4294967296;
       A[i][j] := nondet_uint₃;
       var nondet_uint₄: int;
-      assume 0 <= nondet_uint₄ && nondet_uint₄ < 4294967296;
       B[i][j] := nondet_uint₄;
       j := j + 1;
     }

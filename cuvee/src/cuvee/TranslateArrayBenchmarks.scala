@@ -9,9 +9,28 @@ import cuvee.util.Main
 import java.io.File
 import cuvee.util.Run
 
+object loops
+    extends Run(
+      TranslateArrayBenchmarks("examples/boogie/sv-benchmarks/loop"),
+      "../sv-benchmarks/c/loops",
+      "../sv-benchmarks/c/loop-acceleration",
+      "../sv-benchmarks/c/loop-crafted",
+      "../sv-benchmarks/c/loop-invgen",
+      "../sv-benchmarks/c/loop-lit",
+      "../sv-benchmarks/c/loop-new",
+      "../sv-benchmarks/c/loop-industry-pattern",
+      "../sv-benchmarks/c/loops-crafted-1",
+      "../sv-benchmarks/c/loop-invariants",
+      "../sv-benchmarks/c/loop-simple",
+      "../sv-benchmarks/c/loop-zilu",
+      "../sv-benchmarks/c/verifythis",
+      "../sv-benchmarks/c/nla-digbench",
+      "../sv-benchmarks/c/nla-digbench-scaling"
+    )
+
 object arrays
     extends Run(
-      TranslateArrayBenchmarks,
+      TranslateArrayBenchmarks("examples/boogie/sv-benchmarks/array"),
       "../sv-benchmarks/c/array-examples",
       "../sv-benchmarks/c/array-industry-pattern",
       "../sv-benchmarks/c/reducercommutativity",
@@ -25,9 +44,9 @@ object arrays
       "../sv-benchmarks/c/array-fpi"
     )
 
-object TranslateArrayBenchmarks extends Main {
+case class TranslateArrayBenchmarks(dest: String) extends Main {
   cuvee.c.yml.onlySafe = true
-  
+
   def main(args: Array[String]) {
     for (path <- args)
       translate(path)
@@ -36,7 +55,7 @@ object TranslateArrayBenchmarks extends Main {
   def translate(path: String) {
     val dir = new File(path)
     for (file <- dir.list() if file endsWith ".yml") {
-      val dst = "examples/boogie/sv-benchmarks/" + file.dropRight(4) + ".bpl"
+      val dst = dest + "/" + file.dropRight(4) + ".bpl"
       val args = Array(path + "/" + file, "-o", dst)
       println(args.mkString("./Cuvee.sh ", " ", ""))
 

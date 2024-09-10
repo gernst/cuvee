@@ -36,7 +36,6 @@ procedure main()
 {
   N := 0;
   havoc N;
-  assume -2147483648 <= N && N < 2147483648;
   if(1 < N) {
     var x: [int]int;
     var temp: int;
@@ -46,7 +45,6 @@ procedure main()
     var i: int := 0;
     while(i < N) {
       var nondet_int₂: int;
-      assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
       x[i] := nondet_int₂;
       i := i + 1;
     }

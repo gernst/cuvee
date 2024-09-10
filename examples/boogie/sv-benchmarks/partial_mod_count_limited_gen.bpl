@@ -24,9 +24,7 @@ procedure main()
   var k: int := 0;
   var a: [int]int;
   var lim: int;
-  assume -2147483648 <= lim && lim < 2147483648;
   var R: int;
-  assume 0 <= R && R < 4294967296;
   assume 1 < R && R < 6;
   assume 0 < lim && lim < N / R;
   i := 0;

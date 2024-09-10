@@ -25,14 +25,12 @@ procedure main()
   SIZE := 0;
   MAX := 100000;
   havoc SIZE;
-  assume -2147483648 <= SIZE && SIZE < 2147483648;
   if(1 < SIZE && SIZE < MAX) {
     var i: int;
     var a: [int]int;
     i := 0;
     while(i < SIZE) {
       var nondet_int₁: int;
-      assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
       a[i] := nondet_int₁;
       i := i + 1;
     }

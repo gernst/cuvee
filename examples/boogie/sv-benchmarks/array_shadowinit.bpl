@@ -20,7 +20,6 @@ procedure main()
 {
   N := 0;
   havoc N;
-  assume -2147483648 <= N && N < 2147483648;
   if(0 < N) {
     var i: int;
     var k: int;

@@ -28,10 +28,8 @@ procedure main()
   i := 0;
   while(i < 100000) {
     var nondet_short₂: int;
-    assume -32768 <= nondet_short₂ && nondet_short₂ < 32768;
     if(nondet_short₂ != 0) {
       havoc k;
-      assume -32768 <= k && k < 32768;
       a[i] := k;
       b[i] := k * k;
     }

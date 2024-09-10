@@ -25,7 +25,6 @@ procedure main()
   SIZE := 0;
   MAX := 100000;
   havoc SIZE;
-  assume -2147483648 <= SIZE && SIZE < 2147483648;
   var i: int;
   if(1 < SIZE && SIZE < MAX) {
     var a: [int]int;

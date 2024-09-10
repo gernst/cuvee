@@ -17,11 +17,9 @@ procedure main()
 {
   var i: int;
   var j: int;
-  assume -2147483648 <= j && j < 2147483648;
   assume j < 10000 && -10000 < j;
   var k: int := 0;
   var N: int;
-  assume -2147483648 <= N && N < 2147483648;
   assume N < 10000 && -10000 < N;
   var a: [int]int;
   var b: [int]int;

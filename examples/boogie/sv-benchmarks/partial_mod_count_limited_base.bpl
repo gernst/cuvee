@@ -24,7 +24,6 @@ procedure main()
   var k: int := 0;
   var a: [int]int;
   var R: int;
-  assume -2147483648 <= R && R < 2147483648;
   assume 0 < R;
   i := 0;
   while(i < N) {

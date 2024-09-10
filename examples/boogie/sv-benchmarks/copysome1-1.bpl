@@ -23,10 +23,8 @@ procedure main()
   i := 0;
   while(i < 200000) {
     var nondet_int₁: int;
-    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
     a1[i] := nondet_int₁;
     var nondet_int₂: int;
-    assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
     a2[i] := nondet_int₂;
     i := i + 1;
   }

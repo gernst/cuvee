@@ -16,7 +16,6 @@ procedure main()
   returns (c#result: int)
 {
   var S: int;
-  assume -2147483648 <= S && S < 2147483648;
   assume 1 < S;
   assume S < 1073741823;
   var i: int;

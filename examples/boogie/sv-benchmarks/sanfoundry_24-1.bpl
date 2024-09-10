@@ -30,11 +30,9 @@ procedure main()
   var array: [int]int;
   var i: int;
   var num: int;
-  assume -2147483648 <= num && num < 2147483648;
   i := 0;
   while(i < num) {
     var nondet_int₁: int;
-    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
     array[i] := nondet_int₁;
     i := i + 1;
   }

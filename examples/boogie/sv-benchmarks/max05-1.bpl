@@ -44,7 +44,6 @@ procedure main()
   var i: int := 0;
   while(i < 5) {
     var nondet_int₃: int;
-    assume -2147483648 <= nondet_int₃ && nondet_int₃ < 2147483648;
     x[i] := nondet_int₃;
     i := i + 1;
   }

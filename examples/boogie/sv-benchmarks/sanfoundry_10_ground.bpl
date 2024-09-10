@@ -19,13 +19,11 @@ procedure main()
   var n: int := 100000;
   var pos: int;
   var element: int;
-  assume -2147483648 <= element && element < 2147483648;
   var found: int := 0;
   var vectorx: [int]int;
   i := 0;
   while(i < n) {
     var nondet_int₁: int;
-    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
     vectorx[i] := nondet_int₁;
     i := i + 1;
   }

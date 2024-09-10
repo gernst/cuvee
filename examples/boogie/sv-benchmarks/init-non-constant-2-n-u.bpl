@@ -23,11 +23,8 @@ procedure main()
   var s: int;
   var A: [int][int]int;
   var C: int;
-  assume 0 <= C && C < 4294967296;
   havoc q;
-  assume -2147483648 <= q && q < 2147483648;
   havoc s;
-  assume -2147483648 <= s && s < 2147483648;
   i := 0;
   j := 0;
   assume q < m;

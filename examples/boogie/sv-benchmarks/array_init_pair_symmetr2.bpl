@@ -26,9 +26,7 @@ procedure main()
   i := 0;
   while(i < N) {
     var x: int;
-    assume -2147483648 <= x && x < 2147483648;
     var y: int;
-    assume -2147483648 <= y && y < 2147483648;
     assume y < 100000 && -100000 < y;
     assume x < 100000 && -100000 < x;
     assume y < x;

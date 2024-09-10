@@ -17,13 +17,11 @@ procedure main()
 {
   var a: [int]int;
   var e: int;
-  assume -2147483648 <= e && e < 2147483648;
   var i: int := 0;
   var j: int;
   j := 0;
   while(j < 100000) {
     var nondet_int₁: int;
-    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
     a[j] := nondet_int₁;
     j := j + 1;
   }

@@ -26,7 +26,6 @@ procedure main()
   i := 0;
   while(i < N) {
     var x: int;
-    assume -2147483648 <= x && x < 2147483648;
     assume -100000 < x && x < 100000;
     a[i] := x;
     b[i] := -x;

@@ -17,16 +17,13 @@ procedure main()
 {
   var i: int;
   var j: int;
-  assume -2147483648 <= j && j < 2147483648;
   var n: int;
-  assume -2147483648 <= n && n < 2147483648;
   assume n < 100000;
   var a: [int]int;
   assume 0 < j && j < 10000;
   i := 1;
   while(i < n) {
     var k: int;
-    assume -2147483648 <= k && k < 2147483648;
     assume 0 < k && k < 10000;
     a[i] := i + j + k;
     i := i + 1;

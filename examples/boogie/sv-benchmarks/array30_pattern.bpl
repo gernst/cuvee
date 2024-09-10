@@ -33,7 +33,6 @@ procedure main()
 {
   ARR_SIZE := 0;
   var nondet_short₁: int;
-  assume -32768 <= nondet_short₁ && nondet_short₁ < 32768;
   ARR_SIZE := nondet_short₁;
   assume 0 < ARR_SIZE;
   var array: [int][int]int;

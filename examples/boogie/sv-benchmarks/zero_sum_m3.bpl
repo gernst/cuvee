@@ -20,7 +20,6 @@ procedure main()
 {
   SIZE := 0;
   havoc SIZE;
-  assume -32768 <= SIZE && SIZE < 32768;
   if(1 < SIZE) {
     var i: int;
     var a: [int]int;
@@ -29,7 +28,6 @@ procedure main()
       var i: int := 0;
       while(i < SIZE) {
         var nondet_short₁: int;
-        assume -32768 <= nondet_short₁ && nondet_short₁ < 32768;
         a[i] := nondet_short₁;
         i := i + 1;
       }

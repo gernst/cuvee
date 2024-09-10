@@ -38,7 +38,6 @@ procedure main()
 {
   N := 0;
   havoc N;
-  assume -2147483648 <= N && N < 2147483648;
   if(1 < N) {
     var x: [int]int;
     var temp: int;

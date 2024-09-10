@@ -22,7 +22,6 @@ procedure main()
 {
   N := 0;
   havoc N;
-  assume -2147483648 <= N && N < 2147483648;
   if(N <= 0) {
     c#result := 1;
     return;
@@ -33,7 +32,6 @@ procedure main()
   i := 0;
   while(i < N) {
     var nondet_int₁: int;
-    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
     a[i] := nondet_int₁;
     i := i + 1;
   }

@@ -18,7 +18,6 @@ procedure ReadFromPort()
   returns (c#result: int)
 {
   var x: int;
-  assume -2147483648 <= x && x < 2147483648;
   c#result := x;
   return;
 }
@@ -34,7 +33,6 @@ procedure main()
   SIZE := 0;
   MAX := 100000;
   havoc SIZE;
-  assume -2147483648 <= SIZE && SIZE < 2147483648;
   if(1 < SIZE && SIZE < MAX) {
     var i: int;
     var value: int;

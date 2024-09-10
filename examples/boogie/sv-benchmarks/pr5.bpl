@@ -20,7 +20,6 @@ procedure main()
 {
   CELLCOUNT := 0;
   havoc CELLCOUNT;
-  assume -2147483648 <= CELLCOUNT && CELLCOUNT < 2147483648;
   if(1 < CELLCOUNT) {
     var MINVAL: int;
     var i: int;

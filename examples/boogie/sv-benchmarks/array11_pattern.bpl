@@ -20,7 +20,6 @@ procedure main()
 {
   ARR_SIZE := 0;
   var nondet_short₁: int;
-  assume -32768 <= nondet_short₁ && nondet_short₁ < 32768;
   ARR_SIZE := nondet_short₁;
   assume 0 < ARR_SIZE;
   var array1: [int]int;
@@ -38,7 +37,6 @@ procedure main()
   }
   while(1 != 0) {
     var nondet_short₃: int;
-    assume -32768 <= nondet_short₃ && nondet_short₃ < 32768;
     index := nondet_short₃;
     assume 0 <= index && index < ARR_SIZE;
     array1[index] := num * num * num * num * index;
@@ -50,7 +48,6 @@ procedure main()
     }
     array2[index] := x₄;
     havoc temp;
-    assume -2147483648 <= temp && temp < 2147483648;
     if(temp == 0) {
       break;
     }

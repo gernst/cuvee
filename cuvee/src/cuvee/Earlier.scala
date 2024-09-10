@@ -43,11 +43,17 @@ object evaluate_maxpranq
     )
 object evaluate_rapid
     extends Run(Earlier(mode = "evaluate"), "evaluation/earlier/rapid")
-object evaluate_sv_benchmarks
+
+object evaluate_sv_benchmarks_array
     extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks")
+object evaluate_sv_benchmarks_loop
+    extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks/loop")
 
 object table_rapid
     extends Run(Earlier(mode = "table"), "evaluation/earlier/rapid")
+
+object table_sv_benchmarks
+    extends Run(Earlier(mode = "table"), "examples/boogie/sv-benchmarks")
 
 case class Earlier(mode: String) extends Main {
   val dst = "evaluation/earlier/"
@@ -161,12 +167,11 @@ case class Earlier(mode: String) extends Main {
     val file = path.replace("/", "_")
     val csv = new PrintStream(new FileOutputStream(dst + file + ".table.csv"))
     csv.println(
-      "name, result, ensures/assert, " +
-        "invariant entry, invariant forward, summary backward, decreases"
+      "name, result, ensures/assert, invariant entry, invariant forward, summary backward, decreases, other lemmas"
     )
 
     for ((name, result) <- results) {
-      var (ens, ien, ifo, sba, dec) = (0, 0, 0, 0, 0)
+      var (ens, ien, ifo, sba, dec, lem) = (0, 0, 0, 0, 0, 0)
       for (cmd <- result) {
         cmd match {
           case Lemma(_, _, _, List((_, Some(sexpr.Id(named))))) =>
@@ -180,11 +185,17 @@ case class Earlier(mode: String) extends Main {
               sba += 1
             if (named == "decreases")
               dec += 1
+          
+          case _: Lemma =>
+            lem += 1
+
           case _ =>
         }
       }
-      val res = if (result.isEmpty) Success else Unknown
-      csv.println(s"${name}, ${res}, ${ens}, ${ien}, ${ifo}, ${sba}, ${dec}")
+
+      val bad = ens + ien + ifo + sba + dec + lem
+      val res = if (bad == 0) Success else Unknown
+      csv.println(s"${name}, ${res}, ${ens}, ${ien}, ${ifo}, ${sba}, ${dec}, ${lem}")
     }
   }
 

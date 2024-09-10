@@ -21,7 +21,6 @@ procedure main()
   var n: int := 1000;
   var A: [int][int][int]int;
   var C: int;
-  assume -2147483648 <= C && C < 2147483648;
   i := 0;
   j := 0;
   k := 0;

@@ -18,7 +18,6 @@ procedure main()
   var a: [int]int;
   var b: [int]int;
   var incr: int;
-  assume -2147483648 <= incr && incr < 2147483648;
   var i: int := 0;
   while(i < 100000) {
     a[i] := 42;

@@ -28,7 +28,6 @@ procedure main()
   a := 0;
   while(a < 100000) {
     var nondet_int₁: int;
-    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
     a1[a] := nondet_int₁;
     a := a + 1;
   }

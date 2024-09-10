@@ -11,6 +11,7 @@ import cuvee.pure.Sort
 object Translate {
   var split = false
   var translateAsserts = true
+  var assumeBounds = false
   val (prelude, state) = cuvee.boogie.parse("cuvee/src/cuvee/c/c.bpl")
 }
 
@@ -248,8 +249,13 @@ class Translate(state: State) {
         val (formals, ret) = funs(name)
         val x = scope(lhs)
         val havoc_ = imp.Spec.havoc(List(x))
-        val bounds_ = imp.Spec.assume(bounds(x, ret))
-        List(havoc_, bounds_) ++ locals(rest, scope, cont, result)
+
+        if (!Translate.assumeBounds) {
+          List(havoc_) ++ locals(rest, scope, cont, result)
+        } else {
+          val bounds_ = imp.Spec.assume(bounds(x, ret))
+          List(havoc_, bounds_) ++ locals(rest, scope, cont, result)
+        }
 
       case (stmt @ VarDef(Formal(typ, lhs), Some(FunCall(name, args)))) :: rest
           if name startsWith "__VERIFIER_nondet" =>
@@ -257,8 +263,13 @@ class Translate(state: State) {
         val typ_ = resolve(typ)
         val x = pure.Var(lhs, typ_)
         val havoc_ = imp.Local(List(x), List())
-        val bounds_ = imp.Spec.assume(bounds(x, ret))
-        List(havoc_, bounds_) ++ locals(rest, scope + (lhs -> x), cont, result)
+
+        if (!Translate.assumeBounds) {
+          List(havoc_) ++ locals(rest, scope + (lhs -> x), cont, result)
+        } else {
+          val bounds_ = imp.Spec.assume(bounds(x, ret))
+          List(havoc_, bounds_) ++ locals(rest, scope + (lhs -> x), cont, result)
+        }
 
       case Atomic(Some(expr)) :: rest =>
         val (_, progs) = eval(expr, scope)
@@ -629,8 +640,13 @@ class Translate(state: State) {
         val typ_ = pure.Sort.int
         val res_ = pure.Expr.fresh(name_, typ_)
         val asg_ = imp.Local(List(res_), Nil)
-        val bounds_ = imp.Spec.assume(bounds(res_, ret))
-        (res_, List(asg_, bounds_))
+
+        if (!Translate.assumeBounds) {
+          (res_, List(asg_))
+        } else {
+          val bounds_ = imp.Spec.assume(bounds(res_, ret))
+          (res_, List(asg_, bounds_))
+        }
 
       case FunCall(fun, args) =>
         val name = cuvee.util.Name(fun)
