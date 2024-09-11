@@ -211,9 +211,9 @@ object Atom {
 }
 
 // represents
-//   forall xs. /\ {ant} ==> \/ {suc}
+//   forall xs. /\ {assms} ==> \/ {concls}
 // or written equivalently as a big disjunction
-//   forall xs. \/ {not ant}  \/  \/ {suc}
+//   forall xs. \/ {not assms}  \/  \/ {concls}
 case class Disj(xs: List[Var], assms: List[Prop], concls: List[Conj])
     extends Prop
     with Expr.bind[Disj] {

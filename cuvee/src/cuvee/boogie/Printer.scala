@@ -89,15 +89,18 @@ object Printer extends cuvee.util.Printer {
         }
       }
 
-      val named_ = named.mkString("{", ", ", "}")
+      val named_ = if(named.nonEmpty)
+        named.mkString(" {", ", ", "}")
+      else
+        ""
 
       mode match {
         case Some(Goal) =>
-          result = format(s"goal $named_", expr)
+          result = format(s"goal$named_", expr)
         case Some(Free) =>
-          result = format(s"free lemma $named_", expr)
+          result = format(s"free lemma$named_", expr)
         case None =>
-          result = format(s"lemma $named_", expr)
+          result = format(s"lemma$named_", expr)
       }
 
       if (tactic.nonEmpty) {
@@ -397,7 +400,7 @@ object Printer extends cuvee.util.Printer {
     // case _ => List()
   }
 
-  private def lines(prop: Prop): List[String] = prop match {
+  def lines(prop: Prop): List[String] = prop match {
     case Disj(xs, assms, concls) =>
       var result: List[String] = Nil
       val bound =
@@ -430,7 +433,7 @@ object Printer extends cuvee.util.Printer {
     case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
   }
 
-  private def lines(conj: Conj): List[String] = {
+  def lines(conj: Conj): List[String] = {
     val Conj(xs, props) = conj
     var result: List[String] = Nil
 

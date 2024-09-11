@@ -389,8 +389,8 @@ object Config {
         )
 
       case "dummy" =>
-        val solver = Solver.dummy
-        val prover = Prover.fromSolver(solver, config.induct)
+        // val solver = Solver.dummy
+        val prover = Prover.dummy // fromSolver(solver, config.induct)
         sink = new Incremental(
           new Prove(
             prover,

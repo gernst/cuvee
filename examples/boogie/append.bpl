@@ -11,6 +11,10 @@ axiom forall x: elem, xs: list<elem>, ys: list<elem> ::
   append(cons(x,xs), ys)
     == cons(x, append(xs, ys));
 
-lemma forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
+goal forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
   append(append(xs, ys), zs)
-    == append(xs, append(ys, zs));
+    == append(xs, append(ys, zs))
+proof induction xs {
+  case nil => sorry
+  case cons(h, t) => sorry
+};
