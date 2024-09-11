@@ -151,7 +151,7 @@ partial_mod_count_limited_3.bpl, Unknown, 0, 0, 5, 0, 0, 0
 partial_mod_count_limited_4.bpl, Unknown, 0, 0, 5, 0, 0, 0
 partial_mod_count_limited_5.bpl, Unknown, 0, 0, 5, 0, 0, 0
 partial_mod_count_limited_base.bpl, Unknown, 1, 0, 5, 0, 0, 0
-partial_mod_count_limited_gen.bpl, Unknown, 0, 0, 5, 0, 0, 0
+partial_mod_count_limited_gen.bpl, Unknown, 0, 0, 6, 0, 0, 0
 pcomp.bpl, Unknown, 1, 0, 3, 0, 0, 0
 pnr2.bpl, Success, 0, 0, 0, 0, 0, 0
 pnr3.bpl, Success, 0, 0, 0, 0, 0, 0
@@ -208,7 +208,7 @@ sina4.bpl, Unknown, 0, 0, 2, 0, 0, 0
 sina5.bpl, Unknown, 0, 0, 2, 0, 0, 0
 skipped.bpl, Unknown, 1, 0, 0, 0, 0, 0
 sorting_bubblesort_ground-1.bpl, Unknown, 0, 1, 0, 0, 0, 0
-sorting_selectionsort_ground-2.bpl, Unknown, 5, 0, 4, 0, 0, 0
+sorting_selectionsort_ground-2.bpl, Unknown, 5, 0, 5, 0, 0, 0
 sqm-if.bpl, Unknown, 1, 0, 6, 0, 0, 0
 sqm.bpl, Unknown, 1, 0, 2, 0, 0, 0
 ss1.bpl, Unknown, 0, 0, 2, 0, 0, 0
@@ -246,7 +246,7 @@ standard_minInArray_ground-2.bpl, Unknown, 1, 0, 0, 0, 0, 0
 standard_palindrome_ground.bpl, Success, 0, 0, 0, 0, 0, 0
 standard_partial_init_ground.bpl, Unknown, 2, 0, 1, 0, 0, 0
 standard_partition_ground-2.bpl, Unknown, 1, 0, 2, 0, 0, 0
-standard_partition_original_ground.bpl, Unknown, 2, 0, 7, 0, 0, 0
+standard_partition_original_ground.bpl, Unknown, 2, 0, 5, 0, 0, 0
 standard_password_ground.bpl, Unknown, 1, 0, 0, 0, 0, 0
 standard_reverse_ground.bpl, Success, 0, 0, 0, 0, 0, 0
 standard_running-2.bpl, Unknown, 1, 0, 0, 0, 0, 0

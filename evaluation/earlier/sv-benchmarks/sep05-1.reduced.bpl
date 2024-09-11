@@ -16,9 +16,7 @@ goal {:named "assert"} (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret
               (  0 <= i₁₁
                 && i₁₁ < i₂₇
                  ==> (exists nondet_int₄₁₀: int ::
-                        -2147483648 <= nondet_int₄₁₀
-                        && nondet_int₄₁₀ < 2147483648
-                        && i₁₁ < 5
+                        i₁₁ < 5
                         && x₂₆[i₁₁] == nondet_int₄₁₀)))
         && (forall i₁₁: int ::
                   0 <= i₁₁
@@ -74,9 +72,7 @@ goal {:named "assert"} (forall x: [int]int, x₂₆: [int]int, i₂₇: int, ret
               (  0 <= i₁₁
                 && i₁₁ < i₂₇
                  ==> (exists nondet_int₄₁₀: int ::
-                        -2147483648 <= nondet_int₄₁₀
-                        && nondet_int₄₁₀ < 2147483648
-                        && i₁₁ < 5
+                        i₁₁ < 5
                         && x₂₆[i₁₁] == nondet_int₄₁₀)))
         && (forall i₁₁: int ::
                   0 <= i₁₁

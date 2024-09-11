@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int, k₁₄: int, i₁₅: int ::
-      (  -2147483648 <= R
-        && R < 2147483648
-        && 0 < R
+      (  0 < R
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
         && 0 <= i₁₅
@@ -60,9 +58,7 @@ goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int
           || 0 + k₁₄ == i₁₅ + 1 + 0));
 
 goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int, k₁₄: int, i₁₅: int, k₄: int, i₅: int ::
-      (  -2147483648 <= R
-        && R < 2147483648
-        && 0 < R
+      (  0 < R
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
         && 0 <= i₁₅
@@ -111,9 +107,7 @@ goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int
           || a₁₃[i₁₅ := i₁₅ + 1][i₅] == a[i₅]));
 
 goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int, k₁₄: int, i₁₅: int ::
-      (  -2147483648 <= R
-        && R < 2147483648
-        && 0 < R
+      (  0 < R
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
         && 0 <= i₁₅
@@ -160,9 +154,7 @@ goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int
           || 0 + k₁₄ == i₁₅ + 1 + 0));
 
 goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int, k₁₄: int, i₁₅: int, k₄: int, i₅: int ::
-      (  -2147483648 <= R
-        && R < 2147483648
-        && 0 < R
+      (  0 < R
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
         && 0 <= i₁₅
@@ -211,9 +203,7 @@ goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int
           || a₁₃[i₁₅ := i₁₅ + 1][i₅] == a[i₅]));
 
 goal {:named "assert"} (forall a: [int]int, R: int, a₁₃: [int]int, k₁₄: int, i₁₅: int, j₁₆: int, i₁₇: int ::
-      (  -2147483648 <= R
-        && R < 2147483648
-        && 0 < R
+      (  0 < R
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
         && 0 <= i₁₅
@@ -274,9 +264,7 @@ goal {:named "assert"} (forall a: [int]int, R: int, a₁₃: [int]int, k₁₄: 
           || j₁₆ < 2));
 
 goal {:named "invariant forward"} (forall a: [int]int, R: int, a₁₃: [int]int, k₁₄: int, i₁₅: int, j₁₆: int, i₁₇: int ::
-      (  -2147483648 <= R
-        && R < 2147483648
-        && 0 < R
+      (  0 < R
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
         && 0 <= i₁₅

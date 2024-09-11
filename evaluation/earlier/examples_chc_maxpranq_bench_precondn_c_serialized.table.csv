@@ -1,0 +1,18 @@
+name, result, ensures/assert, invariant entry, invariant forward, summary backward, decreases, other lemmas
+array_init_addvar.c, Success, 0, 0, 0, 0, 0, 0
+array_init_addvar2.c, Success, 0, 0, 0, 0, 0, 0
+array_init_and_copy_const.c, Success, 0, 0, 0, 0, 0, 0
+array_init_doubl.c, Success, 0, 0, 0, 0, 0, 0
+array_init_increm.c, Success, 0, 0, 0, 0, 0, 0
+array_init_increm_twice.c, Success, 0, 0, 0, 0, 0, 0
+array_init_increm_two_arrs.c, Success, 0, 0, 0, 0, 0, 0
+array_init_nondet_vars_plus_ind.c, Success, 0, 0, 0, 0, 0, 0
+array_init_pair_sum.c, Success, 0, 0, 0, 0, 0, 0
+array_init_pair_symmetr.c, Success, 0, 0, 0, 0, 0, 0
+array_init_pair_symmetr2.c, Success, 0, 0, 0, 0, 0, 0
+array_init_pair_symmetr3.c, Success, 0, 0, 0, 0, 0, 0
+array_init_pair_symmetr4.c, Success, 0, 0, 0, 0, 0, 0
+array_init_reverse_mult.c, Success, 0, 0, 0, 0, 0, 0
+array_init_symmetr_swap.c, Success, 0, 0, 0, 0, 0, 0
+array_min_and_copy.c, Success, 0, 0, 0, 0, 0, 0
+array_min_and_copy_shift.c, Success, 0, 0, 0, 0, 0, 0

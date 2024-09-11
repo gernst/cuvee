@@ -17,8 +17,6 @@ goal {:named "invariant forward"} (forall a: [int]int, a₁₃: [int]int, j₁�
                 && i₇₂ < i₁₆
                  ==> (exists x₃: int ::
                         x₃ == 0
-                        && -2147483648 <= x₃
-                        && x₃ < 2147483648
                         && i₇₂ < 100000
                         && a₁₃[i₇₂] == j₇₁)))
         && (forall i₇₃: int ::
@@ -28,20 +26,14 @@ goal {:named "invariant forward"} (forall a: [int]int, a₁₃: [int]int, j₁�
         && (forall i₇₄: int, x₃: int ::
               (  0 <= i₇₄
                 && i₇₄ < i₁₆
-                && -2147483648 <= x₃
-                && x₃ < 2147483648
                 && i₇₄ < 100000
                  ==> x₃ == 0))
         && i₁₆ < 100000
-        && -2147483648 <= x
-        && x < 2147483648
         && x == 0
         && 0 <= i₆
         && i₆ < i₁₆ + 1
          ==> (exists x₃: int ::
                 x₃ == 0
-                && -2147483648 <= x₃
-                && x₃ < 2147483648
                 && i₆ < 100000
                 && a₁₃[i₁₆ := j₁₄][i₆] == j₄)));
 
@@ -52,8 +44,6 @@ goal {:named "invariant forward"} (forall a: [int]int, a₁₃: [int]int, i₁�
                 && i₉₃ < i₁₆
                  ==> (exists x₉₄: int ::
                         x₉₄ == 0
-                        && -2147483648 <= x₉₄
-                        && x₉₄ < 2147483648
                         && i₉₃ < 100000
                         && a₁₃[i₉₃] == j₄)))
         && (forall i₉₅: int ::
@@ -63,18 +53,12 @@ goal {:named "invariant forward"} (forall a: [int]int, a₁₃: [int]int, i₁�
         && (forall i₉₇: int, x₉₆: int ::
               (  0 <= i₉₇
                 && i₉₇ < i₁₆
-                && -2147483648 <= x₉₆
-                && x₉₆ < 2147483648
                 && i₉₇ < 100000
                  ==> x₉₆ == 0))
         && i₁₆ < 100000
-        && -2147483648 <= x
-        && x < 2147483648
         && x == 0
         && 0 <= i₆
         && i₆ < i₁₆ + 1
-        && -2147483648 <= x₃
-        && x₃ < 2147483648
         && i₆ < 100000
          ==> x₃ == 0));
 

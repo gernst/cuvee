@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall CELLCOUNT₁₅: int, volArray₁₇: [int]int, i₁₈: int, volArray₂₁: [int]int, j₂₂: int, i₉: int ::
-      (  -2147483648 <= CELLCOUNT₁₅
-        && CELLCOUNT₁₅ < 2147483648
-        && 1 < CELLCOUNT₁₅
+      (  1 < CELLCOUNT₁₅
         && CELLCOUNT₁₅ % 3 == 0
         && CELLCOUNT₁₅ % 3 == 0
         && 1 <= i₁₈
@@ -79,9 +77,7 @@ goal {:named "invariant forward"} (forall CELLCOUNT₁₅: int, volArray₁₇: 
                   && i₉ <= CELLCOUNT₁₅ / 3)));
 
 goal {:named "assert"} (forall CELLCOUNT₁₅: int, volArray₁₇: [int]int, i₁₈: int, i₁₉: int ::
-      (  -2147483648 <= CELLCOUNT₁₅
-        && CELLCOUNT₁₅ < 2147483648
-        && 1 < CELLCOUNT₁₅
+      (  1 < CELLCOUNT₁₅
         && CELLCOUNT₁₅ % 3 == 0
         && CELLCOUNT₁₅ % 3 == 0
         && 1 <= i₁₈

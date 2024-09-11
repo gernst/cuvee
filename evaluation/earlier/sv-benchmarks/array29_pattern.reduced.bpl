@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₂: [int][int]int, row₂₃: int, array₃₄: [int][int]int, column₃₅: int, column₃: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₂₃
         && (forall row₇: int ::
               (  0 <= row₇
@@ -61,9 +59,7 @@ goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₂: [in
           || array₃₄[row₂₃ := array₃₄[row₂₃][row₂₃ := 0]][row₂₃][row₂₃] == array₂₂[row₂₃][row₂₃]));
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₂: [int][int]int, row₂₃: int, array₃₄: [int][int]int, column₃₅: int, column₃: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₂₃
         && (forall row₇: int ::
               (  0 <= row₇
@@ -111,9 +107,7 @@ goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₂: [in
           || array₃₄[row₂₃ := array₃₄[row₂₃][row₂₃ := 0]][row₂₃][row₂₃] == array₂₂[row₂₃][row₂₃]));
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₂: [int][int]int, row₂₃: int, array₃₄: [int][int]int, column₃₅: int, row₇: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₂₃
         && (forall row₁₅₉: int ::
               (  0 <= row₁₅₉
@@ -180,9 +174,7 @@ goal {:named "invariant forward"} (forall nondet_short₁: int, array₂₂: [in
                   && row₇ < nondet_short₁)));
 
 goal {:named "assert"} (forall nondet_short₁: int, array₂₂: [int][int]int, row₂₃: int, sum₂₅: int, row₂₆: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 1 < nondet_short₁
+      (  1 < nondet_short₁
         && 0 <= row₂₃
         && (forall row₇: int ::
               (  0 <= row₇

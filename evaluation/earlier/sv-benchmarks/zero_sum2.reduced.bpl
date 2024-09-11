@@ -11,17 +11,13 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "assert"} (forall SIZE₂₄: int, a: [int]int, a₂₆: [int]int, i₂₇: int, i₂₉: int, i₃₁: int, i₃₃: int, sum₃₄: int, i₃₅: int ::
-      (  -32768 <= SIZE₂₄
-        && SIZE₂₄ < 32768
-        && 1 < SIZE₂₄
+      (  1 < SIZE₂₄
         && 0 <= i₂₇
         && (forall i₅: int ::
               (  0 <= i₅
                 && i₅ < i₂₇
                  ==> (exists nondet_short₁₄: int ::
-                        -32768 <= nondet_short₁₄
-                        && nondet_short₁₄ < 32768
-                        && i₅ < SIZE₂₄
+                        i₅ < SIZE₂₄
                         && a₂₆[i₅] == nondet_short₁₄)))
         && (forall i₅: int ::
                   0 <= i₅

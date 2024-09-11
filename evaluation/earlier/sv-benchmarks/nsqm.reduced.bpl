@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall N₁₃: int, b: [int]int, b₁₄: [int]int, i₁₅: int, i₅: int ::
-      (  -2147483648 <= N₁₃
-        && N₁₃ < 2147483648
-        && N₁₃ <= 2147483647 / 4
+      (  N₁₃ <= 2147483647 / 4
         && 1 <= i₁₅
         && (forall i₅₀: int ::
               (  1 <= i₅₀
@@ -31,9 +29,7 @@ goal {:named "invariant forward"} (forall N₁₃: int, b: [int]int, b₁₄: [i
           || b₁₄[i₁₅ := b₁₄[i₁₅ - 1] + 2][i₅] == 2 + b[0 := 1][-1 + i₅]));
 
 goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int, b₁₄: [int]int, i₁₅: int, a₁₆: [int]int, i₁₇: int, i₈: int ::
-      (  -2147483648 <= N₁₃
-        && N₁₃ < 2147483648
-        && N₁₃ <= 2147483647 / 4
+      (  N₁₃ <= 2147483647 / 4
         && 1 <= i₁₅
         && (forall i₅: int ::
               (  1 <= i₅
@@ -62,9 +58,7 @@ goal {:named "invariant forward"} (forall N₁₃: int, a: [int]int, b: [int]int
           || a₁₆[i₁₇ := a₁₆[i₁₇ - 1] + b₁₄[i₁₇ - 1] + 2][i₈] == 2 + a[0 := N₁₃ + 1][-1 + i₈] + b₁₄[-1 + i₈]));
 
 goal {:named "assert"} (forall N₁₃: int, a: [int]int, b: [int]int, b₁₄: [int]int, i₁₅: int, a₁₆: [int]int, i₁₇: int, i₁₈: int ::
-      (  -2147483648 <= N₁₃
-        && N₁₃ < 2147483648
-        && N₁₃ <= 2147483647 / 4
+      (  N₁₃ <= 2147483647 / 4
         && 1 <= i₁₅
         && (forall i₅: int ::
               (  1 <= i₅

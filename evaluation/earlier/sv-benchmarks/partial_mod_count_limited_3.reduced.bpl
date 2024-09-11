@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]int, k₁₄: int, i₁₅: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 < lim
+      (  0 < lim
         && lim < 1000 / 3
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
@@ -61,9 +59,7 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]i
           || 0 + k₁₄ == i₁₅ + 1 + 0));
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]int, k₁₄: int, i₁₅: int, k₄: int, i₅: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 < lim
+      (  0 < lim
         && lim < 1000 / 3
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
@@ -113,9 +109,7 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]i
           || a₁₃[i₁₅ := i₁₅ + 1][i₅] == a[i₅]));
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]int, k₁₄: int, i₁₅: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 < lim
+      (  0 < lim
         && lim < 1000 / 3
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
@@ -163,9 +157,7 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]i
           || 0 + k₁₄ == i₁₅ + 1 + 0));
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]int, k₁₄: int, i₁₅: int, k₄: int, i₅: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 < lim
+      (  0 < lim
         && lim < 1000 / 3
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄
@@ -215,9 +207,7 @@ goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]i
           || a₁₃[i₁₅ := i₁₅ + 1][i₅] == a[i₅]));
 
 goal {:named "invariant forward"} (forall a: [int]int, lim: int, a₁₃: [int]int, k₁₄: int, i₁₅: int, j₁₆: int, i₁₇: int ::
-      (  -2147483648 <= lim
-        && lim < 2147483648
-        && 0 < lim
+      (  0 < lim
         && lim < 1000 / 3
         && 0 + k₁₄ == i₁₅ + 0
         && 0 <= k₁₄

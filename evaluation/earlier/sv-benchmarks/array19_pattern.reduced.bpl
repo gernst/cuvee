@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall nondet_short₁: int, array₄₁: [int][int]int, row₄₂: int, array₁₁₇: [int][int]int, column₁₁₈: int, row₁₀: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 0 < nondet_short₁
+      (  0 < nondet_short₁
         && 0 <= row₄₂
         && (forall row₁₈₇: int ::
               (  0 <= row₁₈₇
@@ -62,9 +60,7 @@ goal {:named "invariant forward"} (forall nondet_short₁: int, array₄₁: [in
                   && row₁₀ < nondet_short₁)));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int][int]int, row₄₂: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 0 < nondet_short₁
+      (  0 < nondet_short₁
         && 0 <= row₄₂
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -87,23 +83,15 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int]
           || (exists nondet_short₄₁₄: int, nondet_short₅₁₅: int, temp₁₉: int ::
                   (temp₁₉ == 0
                      ==> false)
-                  && -2147483648 <= temp₁₉
-                  && temp₁₉ < 2147483648
                   && nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁
                   && 0 <= nondet_short₅₁₅
                   && nondet_short₅₁₅ < nondet_short₁
                   && 0 <= nondet_short₄₁₄
                   && nondet_short₄₁₄ < nondet_short₁
-                  && -32768 <= nondet_short₅₁₅
-                  && nondet_short₅₁₅ < 32768
-                  && -32768 <= nondet_short₄₁₄
-                  && nondet_short₄₁₄ < 32768
                   && array₄₁[nondet_short₄₁₄][-1 + -nondet_short₅₁₅ + nondet_short₁] == (-1) * (-1) * (-1) * (-1))
           || (exists nondet_short₄₁₄: int, nondet_short₅₁₅: int, temp₂₀: int ::
                   (temp₂₀ == 0
                      ==> false)
-                  && -2147483648 <= temp₂₀
-                  && temp₂₀ < 2147483648
                   && nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁
                   && (nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁
                      ==> false)
@@ -111,16 +99,10 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int]
                   && nondet_short₅₁₅ < nondet_short₁
                   && 0 <= nondet_short₄₁₄
                   && nondet_short₄₁₄ < nondet_short₁
-                  && -32768 <= nondet_short₅₁₅
-                  && nondet_short₅₁₅ < 32768
-                  && -32768 <= nondet_short₄₁₄
-                  && nondet_short₄₁₄ < 32768
                   && array₄₁[nondet_short₄₁₄][-1 + -nondet_short₅₁₅ + nondet_short₁] == (-1) * (-1) * (-1) * (-1))
           || (exists nondet_short₄₁₄: int, nondet_short₅₁₅: int, temp₂₁: int ::
                   (temp₂₁ == 0
                      ==> false)
-                  && -2147483648 <= temp₂₁
-                  && temp₂₁ < 2147483648
                   && (nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁
                      ==> false)
                   && nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁
@@ -128,31 +110,19 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int]
                   && nondet_short₅₁₅ < nondet_short₁
                   && 0 <= nondet_short₄₁₄
                   && nondet_short₄₁₄ < nondet_short₁
-                  && -32768 <= nondet_short₅₁₅
-                  && nondet_short₅₁₅ < 32768
-                  && -32768 <= nondet_short₄₁₄
-                  && nondet_short₄₁₄ < 32768
                   && array₄₁[nondet_short₄₁₄][nondet_short₅₁₅] == -1)
           || (exists nondet_short₄₁₄: int, nondet_short₅₁₅: int, temp₂₂: int ::
                   (temp₂₂ == 0
                      ==> false)
-                  && -2147483648 <= temp₂₂
-                  && temp₂₂ < 2147483648
                   && (nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁
                      ==> false)
                   && 0 <= nondet_short₅₁₅
                   && nondet_short₅₁₅ < nondet_short₁
                   && 0 <= nondet_short₄₁₄
-                  && nondet_short₄₁₄ < nondet_short₁
-                  && -32768 <= nondet_short₅₁₅
-                  && nondet_short₅₁₅ < 32768
-                  && -32768 <= nondet_short₄₁₄
-                  && nondet_short₄₁₄ < 32768)));
+                  && nondet_short₄₁₄ < nondet_short₁)));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int][int]int, row₄₂: int, nondet_short₄₁₄: int, nondet_short₅₁₅: int, temp₁₉: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 0 < nondet_short₁
+      (  0 < nondet_short₁
         && 0 <= row₄₂
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -172,23 +142,15 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int]
                            ==> false)
                         && row₁₀ < nondet_short₁)))
         && temp₁₉ == 0
-        && -2147483648 <= temp₁₉
-        && temp₁₉ < 2147483648
         && nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁
         && 0 <= nondet_short₅₁₅
         && nondet_short₅₁₅ < nondet_short₁
         && 0 <= nondet_short₄₁₄
         && nondet_short₄₁₄ < nondet_short₁
-        && -32768 <= nondet_short₅₁₅
-        && nondet_short₅₁₅ < 32768
-        && -32768 <= nondet_short₄₁₄
-        && nondet_short₄₁₄ < 32768
          ==> row₄₂ < nondet_short₁));
 
 goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int][int]int, row₄₂: int, nondet_short₄₁₄: int, nondet_short₅₁₅: int, temp₂₂: int ::
-      (  -32768 <= nondet_short₁
-        && nondet_short₁ < 32768
-        && 0 < nondet_short₁
+      (  0 < nondet_short₁
         && 0 <= row₄₂
         && (forall row₁₀: int ::
               (  0 <= row₁₀
@@ -208,16 +170,10 @@ goal {:named "invariant entry"} (forall nondet_short₁: int, array₄₁: [int]
                            ==> false)
                         && row₁₀ < nondet_short₁)))
         && temp₂₂ == 0
-        && -2147483648 <= temp₂₂
-        && temp₂₂ < 2147483648
         && 0 <= nondet_short₅₁₅
         && nondet_short₅₁₅ < nondet_short₁
         && 0 <= nondet_short₄₁₄
         && nondet_short₄₁₄ < nondet_short₁
-        && -32768 <= nondet_short₅₁₅
-        && nondet_short₅₁₅ < 32768
-        && -32768 <= nondet_short₄₁₄
-        && nondet_short₄₁₄ < 32768
          ==> row₄₂ < nondet_short₁
           || nondet_short₄₁₄ + nondet_short₅₁₅ == -1 + nondet_short₁));
 

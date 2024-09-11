@@ -12,35 +12,31 @@ function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall A₃₀: [int][int]int, i₃₁: int, A₄₈: [int][int]int, j₄₉: int, i₁₁: int ::
       (  0 <= i₃₁
-        && (forall i₁₀₀: int ::
-              (  0 <= i₁₀₀
-                && i₁₀₀ < i₃₁
+        && (forall i₉₉: int ::
+              (  0 <= i₉₉
+                && i₉₉ < i₃₁
                  ==> (exists A₈: [int][int]int, j₉: int ::
                         0 <= j₉
                         && (forall j₇: int ::
                               (  0 <= j₇
                                 && j₇ < j₉
                                  ==> (exists nondet_int₁₆: int ::
-                                        -2147483648 <= nondet_int₁₆
-                                        && nondet_int₁₆ < 2147483648
-                                        && j₇ < 1000
-                                        && A₈[i₁₀₀][j₇] == nondet_int₁₆)))
+                                        j₇ < 1000
+                                        && A₈[i₉₉][j₇] == nondet_int₁₆)))
                         && (forall j₇: int ::
                                   0 <= j₇
                                   && j₇ < j₉
-                                || A₈[i₁₀₀][j₇] == A₃₀[i₁₀₀][j₇])
+                                || A₈[i₉₉][j₇] == A₃₀[i₉₉][j₇])
                         && (j₉ < 1000
                            ==> false)
-                        && i₁₀₀ < 1000)))
+                        && i₉₉ < 1000)))
         && i₃₁ < 1000
         && 0 <= j₄₉
         && (forall j₇: int ::
               (  0 <= j₇
                 && j₇ < j₄₉
                  ==> (exists nondet_int₁₆: int ::
-                        -2147483648 <= nondet_int₁₆
-                        && nondet_int₁₆ < 2147483648
-                        && j₇ < 1000
+                        j₇ < 1000
                         && A₄₈[i₃₁][j₇] == nondet_int₁₆)))
         && (forall j₇: int ::
                   0 <= j₇
@@ -55,9 +51,7 @@ goal {:named "invariant forward"} (forall A₃₀: [int][int]int, i₃₁: int, 
                         (  0 <= j₇
                           && j₇ < j₉
                            ==> (exists nondet_int₁₆: int ::
-                                  -2147483648 <= nondet_int₁₆
-                                  && nondet_int₁₆ < 2147483648
-                                  && j₇ < 1000
+                                  j₇ < 1000
                                   && A₈[i₁₁][j₇] == nondet_int₁₆)))
                   && (forall j₇: int ::
                             0 <= j₇
@@ -78,9 +72,7 @@ goal {:named "invariant forward"} (forall A₃₀: [int][int]int, i₃₁: int, 
                               (  0 <= j₇
                                 && j₇ < j₉
                                  ==> (exists nondet_int₁₆: int ::
-                                        -2147483648 <= nondet_int₁₆
-                                        && nondet_int₁₆ < 2147483648
-                                        && j₇ < 1000
+                                        j₇ < 1000
                                         && A₈[i₁₁][j₇] == nondet_int₁₆)))
                         && (forall j₇: int ::
                                   0 <= j₇
@@ -90,23 +82,23 @@ goal {:named "invariant forward"} (forall A₃₀: [int][int]int, i₃₁: int, 
                            ==> false)
                         && i₁₁ < 1000)))
         && 0 <= i₃₄
-        && (forall i₁₇₈: int ::
-              (  0 <= i₁₇₈
-                && i₁₇₈ < i₃₄
+        && (forall i₁₇₇: int ::
+              (  0 <= i₁₇₇
+                && i₁₇₇ < i₃₄
                  ==> (exists C₁₆: [int][int]int, j₁₇: int ::
                         0 <= j₁₇
                         && (forall j₁₅: int ::
                               (  0 <= j₁₅
                                 && j₁₅ < j₁₇
                                  ==> j₁₅ < 1000
-                                  && C₁₆[j₁₅][i₁₇₈] == A₃₀[i₁₇₈][j₁₅]))
+                                  && C₁₆[j₁₅][i₁₇₇] == A₃₀[i₁₇₇][j₁₅]))
                         && (forall j₁₅: int ::
                                   0 <= j₁₅
                                   && j₁₅ < j₁₇
-                                || C₁₆[j₁₅][i₁₇₈] == C₃₃[j₁₅][i₁₇₈])
+                                || C₁₆[j₁₅][i₁₇₇] == C₃₃[j₁₅][i₁₇₇])
                         && (j₁₇ < 1000
                            ==> false)
-                        && i₁₇₈ < 1000)))
+                        && i₁₇₇ < 1000)))
         && i₃₄ < 1000
         && 0 <= j₄₂
         && (forall j₁₅: int ::
@@ -148,9 +140,7 @@ goal {:named "assert"} (forall A₃₀: [int][int]int, i₃₁: int, C₃₃: [i
                               (  0 <= j₇
                                 && j₇ < j₉
                                  ==> (exists nondet_int₁₆: int ::
-                                        -2147483648 <= nondet_int₁₆
-                                        && nondet_int₁₆ < 2147483648
-                                        && j₇ < 1000
+                                        j₇ < 1000
                                         && A₈[i₁₁][j₇] == nondet_int₁₆)))
                         && (forall j₇: int ::
                                   0 <= j₇

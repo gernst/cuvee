@@ -11,9 +11,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 goal {:named "invariant forward"} (forall SIZE₉: int, a: [int]int, a₁₀: [int]int, i₁₁: int, i₄: int ::
-      (  -2147483648 <= SIZE₉
-        && SIZE₉ < 2147483648
-        && 1 < SIZE₉
+      (  1 < SIZE₉
         && SIZE₉ < 100000
         && i₁₁ <= SIZE₉ - 2
         && (forall i₆₁: int ::
@@ -33,9 +31,7 @@ goal {:named "invariant forward"} (forall SIZE₉: int, a: [int]int, a₁₀: [i
           || a₁₀[i₁₁ := i₁₁][i₁₁ + 1 := i₁₁ + 1][1 + i₄] == a[1 + i₄]));
 
 goal {:named "invariant forward"} (forall SIZE₉: int, a: [int]int, a₁₀: [int]int, i₁₁: int, i₄: int ::
-      (  -2147483648 <= SIZE₉
-        && SIZE₉ < 2147483648
-        && 1 < SIZE₉
+      (  1 < SIZE₉
         && SIZE₉ < 100000
         && i₁₁ <= SIZE₉ - 2
         && (forall i₇₈: int ::
