@@ -12,6 +12,7 @@ import cuvee.smtlib.Solver
 import cuvee.smtlib.Free
 import cuvee.smtlib.DeclareVar
 import cuvee.smtlib.DeclareSort
+import cuvee.smtlib.Goal
 
 class Prove(
     prover: Prover,
@@ -39,13 +40,23 @@ class Prove(
         prover.exec(cmd, state)
         List(cmd)
 
-      case cmd @ Lemma(expr, tactic, mode, label) =>
+      case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
         val goal = Prop.from(expr)
         for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
           yield {
             val expr_ = goal_.toExpr
             crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
-            Lemma(expr_, None, mode, label)
+            Lemma(expr_, None, Some(Goal), label)
+          }
+
+      case cmd @ Lemma(expr, tactic, None, label) =>
+        val goal = Prop.from(expr)
+        for (goal_ <- reduce(goal, tactic, rws, state))
+          yield {
+            val expr_ = goal_.toExpr
+            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
+            val mode_ = if (expr_ == True) Some(Free) else None
+            Lemma(expr, None, mode_, label)
           }
 
       case cmd @ Assert(Not(App(Inst(fun, _), _)))

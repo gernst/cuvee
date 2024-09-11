@@ -27,8 +27,10 @@ trait Solver extends Sink {
       case CheckSat =>
         check()
       case Lemma(expr, tactic, None, _) =>
-        println("warning: assuming non-free lemma: " + cmd)
-        ???
+        scoped {
+          assert(!expr)
+          require(check() == Unsat, "goal does not hold: " + expr)
+        }
         this.assert(expr)
       case Lemma(expr, tactic, Some(Free), _) =>
         this.assert(expr)
