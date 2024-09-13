@@ -132,7 +132,12 @@ object Printer extends cuvee.util.Printer {
       )
 
     // pure.Expr
-    case Lit(a, _)             => just(a)
+    case Lit(i: BigInt, _) =>
+      if (i >= 0) just(i) else just("(- " + (-i) + ")")
+
+    case Lit(s: String, _) =>
+      just("\"" + s + "\"")
+
     case Var(name, _)          => lines(name)
     case Is(arg, fun)          => parens(args("_", "is", fun.name), arg)
     case Case(pat, expr)       => parens(pat, expr)
