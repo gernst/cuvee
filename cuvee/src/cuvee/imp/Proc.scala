@@ -2,6 +2,7 @@ package cuvee.imp
 
 import cuvee.util.Name
 import cuvee.pure._
+import cuvee.State
 
 case class Proc(
     name: Name,

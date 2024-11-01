@@ -7,7 +7,7 @@ import cuvee.prove.Prove
 import cuvee.prove.SimpleProver
 import cuvee.prove.Prover
 import cuvee.lemmas.Lemmas
-import cuvee.imp.Eval
+import cuvee.imp.VCGenStage
 import cuvee.imp.Annotate
 import cuvee.prove.PositiveProver
 import cuvee.lemmas.Enumerate
@@ -17,23 +17,30 @@ import cuvee.smtlib.Lemma
 import cuvee.pure.Rewrite
 import cuvee.ai.Abstract
 import cuvee.pure.Horn
+import cuvee.imp.annotate
+import cuvee.util.Main
+import cuvee.pure.Expr
+import cuvee.smtlib.{Cmd, Res}
+import cuvee.smtlib.Success
 
 class Config {
   var file: Option[String] = None
   var printer: Printer = smtlib.printer
+  var overridePrinter = false
 
   var source: Source = smtlib.source()
   var sink: (Printer => Sink) = Sink.stdout(_)
   var report: (Printer => Report) = Report.stderr(_)
 
-  var eval = false
-  var annotate = false
+  var vcgen = false
+  var vcgen_partial = false
+
   var lemmas = "none"
   var lemmasRounds = 3
   var conditionalLemmas = false
   var lemmasWithSyntheticFunctions = false
 
-  var annotationsAbstractInterpreter = false
+  var annotate: Set[String] = Set()
 
   var simplify = false
   var rewrite = false
@@ -66,33 +73,51 @@ class Config {
 
   val options = Map(
     option("-help", "show this help text") { help() },
-    option("-log:info", "print some informative output to stderr, such as progress") {
+    option(
+      "-log:info",
+      "print some informative output to stderr, such as progress"
+    ) {
       printer = cuvee.smtlib.printer
     },
-    option("-log:debug", "print lots of internals to stderr, includes -log:info") {
+    option(
+      "-log:debug",
+      "print lots of internals to stderr, includes -log:info"
+    ) {
       printer = cuvee.smtlib.printer
     },
     option("-debug:solver", "show interaction SMT-LIB backends") {
       Solver.debug = true
     },
+    option("-prove:strict", "throw an exception if goals are left") {
+      Solver.fail = true
+    },
     option("-z3", "process final output via Z3") {
       sink = _ => Solver.z3()
       report = Report.stdout(_)
     },
-    option("-prove:quickcheck", "quick check lemmas for counterexamples (default)") {
+    option(
+      "-prove:quickcheck",
+      "quick check lemmas for counterexamples (default)"
+    ) {
       quickcheck = true
     },
-    option("-prove:no-quickcheck", "do not make a quick check for counterexamples for lemmas") {
+    option(
+      "-prove:no-quickcheck",
+      "do not make a quick check for counterexamples for lemmas"
+    ) {
       quickcheck = false
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
+      overridePrinter = true
     },
     option("-print:boogie", "force output to Boogie format") {
       printer = cuvee.boogie.printer
+      overridePrinter = true
     },
     option("-print:thesy", "force output to TheSy format") {
       printer = cuvee.thesy.printer
+      overridePrinter = true
     },
     option("-parse:contractlib", "make Contract-LIB theories available") {
       useContractlib = true
@@ -100,11 +125,17 @@ class Config {
     // option("-print:none", "suppress output") {
     //   printer = Printer.dummy
     // },
-    option("-prove:auto", "prove lemmas with tactics and structural simplification using Z3") {
+    option(
+      "-prove:auto",
+      "prove lemmas with tactics and structural simplification using Z3"
+    ) {
       prove = "auto"
     },
     option("-prove:z3", "prove lemmas with tactics and Z3 as endgame solver") {
       prove = "z3"
+    },
+    option("-prove:cvc5", "prove lemmas with tactics and CVC5 as endgame solver") {
+      prove = "cvc5"
     },
     option("-prove:simplify", "use the internal simplifier to reduce lemmas") {
       prove = "simplify"
@@ -117,6 +148,9 @@ class Config {
       "cross-check simplifications of prover by Z3 (may fail due to incompleteness)"
     ) {
       crosscheckProver = true
+    },
+    option("-prove:simple", "simple recursive prover") {
+      prove = "simple"
     },
     option("-prove:dummy", "just apply tactics to lemmas") {
       prove = "dummy"
@@ -153,14 +187,51 @@ class Config {
       simplify = true
       rewrite = true
     },
-    option("-eval", "evaluate correctness of programs to expressions") {
-      eval = true
+    option(
+      "-vcgen",
+      "generate verification conditions for procedures and wp operators"
+    ) {
+      vcgen = true
     },
-    option("-abstract", "infer loop annotations with abstract interpretation") {
-      annotationsAbstractInterpreter = true
+    option(
+      "-vcgen:partial",
+      "generate verification conditions without termination"
+    ) {
+      vcgen = true
+      vcgen_partial = true
     },
-    option("-annotate", "infer loop annotations") {
-      annotate = true
+    option("-eval", "obsolete flag, may change meaning in the future") {
+      cuvee.error("the -eval flag has been superseded by the -vcgen flag")
+    },
+    option(
+      "-annotate:polyhedra",
+      "infer loop annotations (polyhedra abstract domain)"
+    ) {
+      annotate += "polyhedra"
+    },
+    option("-annotate:new-arrays", "infer loop annotations (array acceleration)") {
+      annotate += "new-arrays"
+    },
+    option("-annotate:arrays", "infer loop annotations (array acceleration)") {
+      annotate += "arrays"
+    },
+    option(
+      "-annotate:arrays+frame",
+      "infer loop annotations (array acceleration)"
+    ) {
+      annotate ++= Set("arrays", "frame")
+    },
+    option(
+      "-annotate:arrays+guard",
+      "infer loop annotations (array acceleration)"
+    ) {
+      annotate ++= Set("arrays", "guard")
+    },
+    option(
+      "-annotate:arrays+frame+guard",
+      "infer loop annotations (array acceleration)"
+    ) {
+      annotate ++= Set("arrays", "frame", "guard")
     },
     option("-prove:induct", "prove by trying automatic induction") {
       induct = true
@@ -182,6 +253,10 @@ class Config {
       lemmasRounds = arg.toInt
       configure(rest)
 
+    case "-o" :: path :: rest if path endsWith ".java" =>
+      sink = cuvee.util.JavaBenchmarkWriter.sink(path)
+      configure(rest)
+
     case "-o" :: path :: rest =>
       sink = Sink.file(path)(_)
       report = Report.stdout(_)
@@ -199,21 +274,30 @@ class Config {
       error("not an option: " + first)
 
     case path :: rest =>
-      require(file.isEmpty, "only a single file is allowed, already given: " + file.get)
+      require(
+        file.isEmpty,
+        "only a single file is allowed, already given: " + file.get
+      )
       file = Some(path)
 
       if (path endsWith ".bpl") {
-        printer = boogie.printer
+        if (!overridePrinter) printer = boogie.printer
         source = boogie.source(path)
       } else if (path endsWith ".smt2") {
-        printer = smtlib.printer
+        if (!overridePrinter) printer = smtlib.printer
         source = smtlib.source(path)
         if (useContractlib)
           source.state.withContractLib
       } else if (path endsWith ".py") {
         source = python.source(path)
+      } else if (path endsWith ".c") {
+        printer = boogie.printer
+        source = c.source(path)
+      } else if (path endsWith ".yml") {
+        printer = boogie.printer
+        source = c.yml.source(path)
       } else if (path endsWith ".th") {
-        printer = thesy.printer
+        if (!overridePrinter) printer = thesy.printer
         source = thesy.source(path)
       } else {
         error("unknown file format: " + path)
@@ -224,7 +308,7 @@ class Config {
 }
 
 object Config {
-  def apply(args: Array[String]) = {
+  def apply(args: Array[String], secondary: Array[Sink] = Array()) = {
     val config = new Config()
     config.configure(args.toList)
     val file = config.file
@@ -233,10 +317,29 @@ object Config {
     var sink: Sink = null
     sink = config.sink(config.printer)
 
+    if (secondary.nonEmpty)
+      sink = new Sink.tee(sink, secondary: _*)
+
     config.prove match {
       case "auto" =>
         val solver = Solver.z3()
         val prover = new PositiveProver(solver)
+        if (config.induct)
+          error("induction not supported by auto prover")
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
+
+      case "simple" =>
+        val solver = Solver.z3()
+        val prover = new SimpleProver(solver)
         if (config.induct)
           error("induction not supported by auto prover")
         sink = new Incremental(
@@ -264,6 +367,20 @@ object Config {
           sink
         )
 
+      case "cvc5" =>
+        val solver = Solver.cvc5()
+        val prover = Prover.fromSolver(solver, config.induct)
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
+
       case "simplify" =>
         val solver = Solver.z3()
         val prover = Prover.fromSimplifier
@@ -279,8 +396,8 @@ object Config {
         )
 
       case "dummy" =>
-        val solver = Solver.dummy
-        val prover = Prover.fromSolver(solver, config.induct)
+        // val solver = Solver.dummy
+        val prover = Prover.dummy // fromSolver(solver, config.induct)
         sink = new Incremental(
           new Prove(
             prover,
@@ -335,16 +452,26 @@ object Config {
       sink = new Incremental(Horn, sink)
     }
 
-    if (config.eval) {
-      sink = new Incremental(Eval, sink)
+    if (config.vcgen) {
+      sink = new Incremental(new VCGenStage(config.vcgen_partial), sink)
     }
 
-    if (config.annotationsAbstractInterpreter) {
+    if (config.annotate contains "polyhedra") {
       sink = new Incremental(Abstract, sink)
     }
 
-    if (config.annotate) {
-      sink = new Incremental(Annotate, sink)
+    if (config.annotate contains "new-arrays") {
+      sink = new Incremental(annotate.NewArrays, sink)
+    }
+
+    if (config.annotate contains "arrays") {
+      sink = new Incremental(
+        annotate.Arrays(
+          config.annotate contains "frame",
+          config.annotate contains "guard"
+        ),
+        sink
+      )
     }
 
     // println("pipeline: " + sink)
@@ -354,10 +481,21 @@ object Config {
   }
 }
 
-object Cuvee {
+object Cuvee extends Main {
   def main(args: Array[String]) {
+    Expr.resetIndex()
     val (file, source, sink, report) = Config(args)
     Pipe.run(source, sink, report)
+  }
+
+  def collect(args: Array[String]) = {
+    Expr.resetIndex()
+
+    val capture = new Sink.capture
+    val (file, source, sink, report) = Config(args, Array(capture))
+    Pipe.run(source, sink, report)
+
+    capture.rcmds.reverse
   }
 }
 
@@ -404,7 +542,7 @@ object CompareTheories {
         cuvee.thesy.storedLemmas(file, st)
       } else {
         val (cmds, _) = parse(file)
-        cmds collect { case Lemma(phi, _, _) => phi }
+        cmds collect { case Lemma(phi, _, _, _) => phi }
       }
 
       import util.TheoryComparison

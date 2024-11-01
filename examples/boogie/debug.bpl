@@ -1,6 +1,7 @@
-const A: bool;
-const B: bool;
-
-goal
-  !(A && !B)
-    ==> !A || B;
+procedure main()
+{
+  var i: int;
+  while(i < 42) {
+    i := i + 1;
+  }
+}

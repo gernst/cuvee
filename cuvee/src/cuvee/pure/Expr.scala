@@ -18,11 +18,28 @@ sealed trait Expr extends Expr.term with util.Syntax {
 
   def toStringTyped = toString + ": " + typ
 
+  def named(named: String) =
+    Note(this, List(sexpr.Kw("named") -> Some(sexpr.Id(named))))
+
+  def lookupNamed =
+    this match {
+      case Note(expr, attr) =>
+        attr collectFirst { case (sexpr.Kw("named"), Some(sexpr.Id(arg))) =>
+          arg
+        }
+
+      case _ =>
+        None
+    }
+
+  def unary_+ = this
   def unary_- = UMinus(this)
   def unary_! = Not(this)
   def +(that: Expr) = Plus(this, that)
   def -(that: Expr) = Minus(this, that)
   def *(that: Expr) = Times(this, that)
+  def /(that: Expr) = DivBy(this, that)
+  def %(that: Expr) = Mod(this, that)
 
   def <=(that: Expr) = Le(this, that)
   def <(that: Expr) = Lt(this, that)
@@ -60,6 +77,8 @@ sealed trait Expr extends Expr.term with util.Syntax {
         g(Note(expr.map(f, g), attr))
       case Is(arg, fun) =>
         g(Is(arg map (f, g), fun))
+      case At(where, arg) =>
+        g(At(where, arg map (f, g)))
       case App(inst, args) =>
         g(App(inst, args map (_.map(f, g))))
       case Distinct(exprs) =>
@@ -100,6 +119,13 @@ sealed trait Expr extends Expr.term with util.Syntax {
       false
     case App(inst, args) =>
       args exists (this subtermOf _)
+  }
+
+  def isAtomic = this match {
+    case Not(_) | And(_) | Or(_) | Imp(_, _) | Bind(_, _, _, _) =>
+      false
+    case _ =>
+      true
   }
 }
 
@@ -149,7 +175,9 @@ object Expr extends Alpha[Expr, Var] {
   def liftIte(expr: Expr): Expr = {
     expr match {
       case App(inst, args) =>
-        liftIte(App(inst, _), Nil, args)
+        val args_ = args map liftIte
+        liftIte(App(inst, _), Nil, args_)
+
       // TODO: add more cases!
       case _ =>
         expr
@@ -285,6 +313,7 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
       case _: Lit           => false
       case Distinct(exprs)  => this in exprs
       case Is(arg, fun)     => this in arg
+      case At(where, arg)   => false
       case Note(expr, attr) => this in expr
       case self @ Let(eqs, body) =>
         val bound = self.bound
@@ -323,6 +352,7 @@ class VarList(vars: List[Var]) extends Expr.xs(vars) {
   def pairs = vars map { case Var(name, typ) => name -> typ }
   def asFormals = vars map { case x => x -> x.typ }
   def asScope = vars map { case x @ Var(name, typ) => name -> x }
+  def asSimpleScope = vars map { case x @ Var(Name(name, None), typ) => name -> x }
 
   def toStringTyped = vars.map(_.toStringTyped).mkString(", ")
 }
@@ -367,12 +397,31 @@ object Eq extends Sugar.binary(Fun.eq_) {
 
 object Ite extends Sugar.ternary(Fun.ite)
 
-object Old extends Sugar.pointwise(Fun.old)
-object Final extends Sugar.pointwise(Fun.fin)
-
 object Const extends Sugar.unary(Fun.const)
-object Select extends Sugar.binary(Fun.select)
-object Store extends Sugar.ternary(Fun.store)
+
+object Select extends Sugar.binary(Fun.select) {
+  def apply(base: Expr, indices: List[Expr]) = {
+    indices.foldLeft(base)(this)
+  }
+}
+
+object Store extends Sugar.ternary(Fun.store) {
+  def apply(base: Expr, indices: List[Expr], value: Expr) = {
+    import cuvee.imp.Assign
+    Assign.nested(Select(base, indices), value)
+  }
+
+  // Note: most significant update first
+  def flatten(expr: Expr): (Expr, List[(Expr, Expr)]) =
+    expr match {
+      case Store(inner, index, value) =>
+        val (base, pairs) = flatten(inner)
+        (base, (index, value) :: pairs)
+
+      case _ =>
+        (expr, Nil)
+    }
+}
 
 object Not extends Sugar.unary(Fun.not) {
   def apply(args: List[Expr]) =
@@ -429,6 +478,41 @@ case class Is(arg: Expr, fun: Fun) extends Expr {
   }
 }
 
+// cannot model as plain functions because substitution should not propagate
+// object Old extends Sugar.pointwise(Fun.old)
+// object Final extends Sugar.pointwise(Fun.fin)
+
+case class Loc(name: String) {
+  override def toString = name
+}
+
+object Loc {
+  val old = Loc("old")
+  val earlier = Loc("earlier")
+  val final_ = Loc("final")
+}
+
+object Old extends Sugar.at(Loc.old)
+object Earlier extends Sugar.at(Loc.earlier)
+object Final extends Sugar.at(Loc.final_)
+
+case class At(where: Loc, arg: Expr) extends Expr {
+  def typ = arg.typ
+  def funs = arg.funs
+  def free = Set()
+  def rename(re: Map[Var, Var]) =
+    At(where, arg rename re)
+  def subst(su: Map[Var, Expr]) =
+    At(where, arg)
+  def inst(su: Map[Param, Type]) =
+    At(where, arg inst su)
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    cuvee.undefined // not sure whether this makes sense at all
+
+  override def toString =
+    where + "(" + arg + ")"
+}
+
 object App extends ((Inst, List[Expr]) => App) {
   def apply(inst: Inst, args: List[Expr]): App = {
     require(
@@ -450,7 +534,8 @@ object App extends ((Inst, List[Expr]) => App) {
     // println(inst.ty)
     // println(inst.args, args.types, inst.ty)
     val su = trace(
-      "typing failed: " + fun + " " + args.mkString(", ") + ": " + args.types.mkString(", ")
+      "typing failed for " + fun + " applied to " + args.mkString(", ") + ": " + args.types
+        .mkString(", ")
     ) {
       Type.binds(inst.args, args.types)
     }
@@ -676,7 +761,7 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
     cuvee.undefined // need to fix let eqs, too
 }
 
-case class Note(expr: Expr, attr: List[sexpr.Expr]) extends Expr {
+case class Note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Expr {
   def typ = expr.typ
 
   def free = expr.free
@@ -706,4 +791,20 @@ case class Distinct(exprs: List[Expr]) extends Expr {
     Distinct(exprs inst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
     Distinct(exprs inst (ty, su))
+}
+
+case class Post(how: cuvee.imp.Modality, prog: cuvee.imp.Prog, post: Expr) extends Expr {
+  def typ = Sort.bool
+  def funs = prog.funs ++ post.funs
+  def free = prog.read ++ post.free // XXX: overapproximation
+  def hasModalities = true
+  def rename(re: Map[Var, Var]) = Post(how, prog replace re, post rename re)
+  def subst(su: Map[Var, Expr]) =
+    cuvee.undefined
+
+  def inst(su: Map[Param, Type]) =
+    this
+
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    cuvee.undefined
 }

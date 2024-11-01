@@ -115,10 +115,6 @@ object Fun {
 
   val nil = Fun("nil", List(a), Nil, list_a)
   val cons = Fun("cons", List(a), List(a, list_a), list_a)
-  // val append = Fun("append", List(a), List(list_a, list_a), list_a)
-
-  val old = Fun("old", List(a), List(a), a)
-  val fin = Fun("final", List(a), List(a), a)
 
   val true_ = Fun("true", Nil, Nil, bool)
   val false_ = Fun("false", Nil, Nil, bool)

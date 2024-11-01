@@ -18,4 +18,5 @@ package object pure {
 
   val Zero = Lit(BigInt(0), Sort.int)
   val One = Lit(BigInt(1), Sort.int)
+  val Two = Lit(BigInt(2), Sort.int)
 }

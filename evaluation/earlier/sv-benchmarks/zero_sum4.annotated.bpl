@@ -1,0 +1,154 @@
+data c#void = c#void;
+
+type c#ptr<a₀>;
+
+type c#heap;
+
+var c#heap: c#heap;
+
+function c#bitxor(x₀: int, x₁: int): int;
+
+function c#bitand(x₀: int, x₁: int): int;
+
+function c#bitor(x₀: int, x₁: int): int;
+
+var SIZE: int;
+
+procedure main()
+  returns (c#result: int)
+  modifies SIZE;
+{
+  SIZE := 0;
+  havoc SIZE;
+  assume -32768 <= SIZE && SIZE < 32768;
+  if(1 < SIZE) {
+    var i: int;
+    var a: [int]int;
+    var sum: int := 0;
+    {
+      var i: int := 0;
+      while(i < SIZE)
+        decreases SIZE - i;
+        invariant old(i) <= i
+          && (forall i₅: int ::
+                (  old(i) <= i₅
+                  && i₅ < i
+                   ==> (exists nondet_short₁₄: int ::
+                          -32768 <= nondet_short₁₄
+                          && nondet_short₁₄ < 32768
+                          && i₅ < SIZE
+                          && a[i₅] == nondet_short₁₄)))
+          && (forall i₅: int ::
+                (!(  old(i) <= i₅
+                  && i₅ < i
+                )
+                   ==> a[i₅] == old(a)[i₅]));
+      {
+        var nondet_short₁: int;
+        assume -32768 <= nondet_short₁ && nondet_short₁ < 32768;
+        a[i] := nondet_short₁;
+        i := i + 1;
+      }
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₉: int ::
+              (  old(i) <= i₉
+                && i₉ < i
+                 ==> i₉ < SIZE));
+    {
+      sum := sum + a[i];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₁₃: int ::
+              (  old(i) <= i₁₃
+                && i₁₃ < i
+                 ==> i₁₃ < SIZE));
+    {
+      sum := sum - a[i];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₁₇: int ::
+              (  old(i) <= i₁₇
+                && i₁₇ < i
+                 ==> i₁₇ < SIZE));
+    {
+      sum := sum + a[i];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₂₁: int ::
+              (  old(i) <= i₂₁
+                && i₂₁ < i
+                 ==> i₂₁ < SIZE));
+    {
+      sum := sum - a[i];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₂₅: int ::
+              (  old(i) <= i₂₅
+                && i₂₅ < i
+                 ==> i₂₅ < SIZE));
+    {
+      sum := sum + a[i];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₂₉: int ::
+              (  old(i) <= i₂₉
+                && i₂₉ < i
+                 ==> i₂₉ < SIZE));
+    {
+      sum := sum - a[i];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₃₃: int ::
+              (  old(i) <= i₃₃
+                && i₃₃ < i
+                 ==> i₃₃ < SIZE));
+    {
+      sum := sum + a[i];
+      i := i + 1;
+    }
+    i := 0;
+    while(i < SIZE)
+      decreases SIZE - i;
+      invariant old(i) <= i
+        && (forall i₃₇: int ::
+              (  old(i) <= i₃₇
+                && i₃₇ < i
+                 ==> i₃₇ < SIZE));
+    {
+      sum := sum - a[i];
+      i := i + 1;
+    }
+    assert sum == 0;
+  }
+  c#result := 1;
+  return;
+}
+

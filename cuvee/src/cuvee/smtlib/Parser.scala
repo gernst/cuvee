@@ -114,7 +114,7 @@ class Parser(init: State) {
       // these are extensions to SMT-LIB
       case App(Id("lemma"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, None)
+        Lemma(phi_, None, None, Nil)
 
       // case App(Id("free-lemma"), phi) =>
       //   val phi_ = expr_typed(phi, bool)
@@ -123,7 +123,7 @@ class Parser(init: State) {
       // prove is used in TIP https://github.com/tip-org/
       case App(Id("prove"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, Some(Goal))
+        Lemma(phi_, None, Some(Goal), Nil)
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
@@ -341,6 +341,27 @@ class Parser(init: State) {
   def cmds(from: List[Expr]): List[Cmd] =
     from map cmd
 
+  def goals(from: Expr, ctx: Iterable[Name] = Set(), scope: Iterable[(Name, Type)] = Map()) =
+    from match {
+      case App(Id("goals"), args @ _*) =>
+        val inner = exprs(st)
+
+        args.toList flatMap {
+          case App(Id("goal"), Kw(_), rest @ _*) =>
+            Nil
+
+          case App(Id("goal"), from, rest @ _*) =>
+            val pre = inner.expr(from, ctx.toSet, scope.toMap)
+            List(pre.resolve)
+
+          case _ =>
+            error("unexpected format in goal response: " + from)
+        }
+
+      case _ =>
+        error("unexpected format in goals response: " + from)
+    }
+
   def model(from: Expr): List[DefineFun] =
     from match {
       case App(defs @ _*) =>
@@ -352,7 +373,7 @@ class Parser(init: State) {
         }
 
       case _ =>
-        error("unexpected format in model response")
+        error("unexpected format in model response: " + from)
     }
 
   def formals(from: List[Expr], ctx: Set[Name] = Set()): List[Var] =
@@ -443,10 +464,16 @@ class Parser(init: State) {
           const(name)
 
         case App(Id("!"), from, rest @ _*) =>
-          note(expr(from, ctx, scope), rest.toList)
+          note(expr(from, ctx, scope), attrs(rest.toList))
 
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))
+
+        case App(Id("+"), rest @ _*) =>
+          commutative("+", lit(BigInt(0), Sort.int), exprs(rest.toList, ctx, scope))
+
+        case App(Id("*"), rest @ _*) =>
+          commutative("*", lit(BigInt(1), Sort.int), exprs(rest.toList, ctx, scope))
 
         case App(Id("and"), rest @ _*) =>
           commutative("and", const("true"), exprs(rest.toList, ctx, scope))
@@ -496,6 +523,18 @@ class Parser(init: State) {
 
         case _ =>
           error("invalid expression: " + from)
+      }
+
+    def attrs(from: List[Expr]): List[(Kw, Option[Expr])] =
+      from match {
+        case Nil =>
+          Nil
+
+        case (kw: Kw) :: (rest @ ((_: Kw) :: _)) =>
+          (kw -> None) :: attrs(rest)
+
+        case (kw: Kw) :: arg :: rest =>
+          (kw -> Some(arg)) :: attrs(rest)
       }
 
     def pat(

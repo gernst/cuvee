@@ -9,6 +9,7 @@ import cuvee.imp.Prog
 import cuvee.util.Name
 import cuvee.util
 import cuvee.imp.Spec
+import cuvee.sexpr
 
 sealed trait Res extends util.Syntax {}
 
@@ -38,9 +39,10 @@ case object Unknown extends IsSat
 
 case class Model(defs: List[DefineFun]) extends Res {
   def rename(re: Map[Var, Var]): Model = {
-    val defs_ = defs map { case DefineFun(name, params, formals, res, body, rec) =>
-      val name_ = re get (Var(name, res)) map (_.name) getOrElse name
-      DefineFun(name_, params, formals rename re, res, body rename re, rec)
+    val defs_ = defs map {
+      case DefineFun(name, params, formals, res, body, rec) =>
+        val name_ = re get (Var(name, res)) map (_.name) getOrElse name
+        DefineFun(name_, params, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
@@ -73,6 +75,8 @@ case class Pop(depth: Int) extends Ctrl
 
 case object GetModel extends Cmd
 
+case class Apply(tactic: cuvee.sexpr.Expr) extends Cmd
+
 case object Exit extends Ctrl
 
 case object Reset extends Ctrl
@@ -85,7 +89,12 @@ case object Free extends Mode
 case object Goal extends Mode
 
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
-case class Lemma(expr: Expr, tactic: Option[Tactic], mode: Option[Mode]) extends Cmd {
+case class Lemma(
+    expr: Expr,
+    tactic: Option[Tactic],
+    mode: Option[Mode],
+    named: List[(sexpr.Kw, Option[sexpr.Expr])]
+) extends Cmd {
   def isGoal = mode match {
     case Some(Goal) => true
     case _          => false
@@ -135,8 +144,9 @@ case class DeclareDatatypes(
     arities: List[(Name, Int)],
     datatypes: List[Datatype]
 ) extends Decl {
-  def sorts = arities zip datatypes map { case ((name, arity), Datatype(params, constrs)) =>
-    Sort(Con(name, arity), params)
+  def sorts = arities zip datatypes map {
+    case ((name, arity), Datatype(params, constrs)) =>
+      Sort(Con(name, arity), params)
   }
 }
 

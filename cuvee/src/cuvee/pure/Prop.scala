@@ -106,6 +106,9 @@ object Prop {
       case True :: rest =>
         Atom.t
 
+      case Note(phi, attr) :: rest if phi.isAtomic =>
+        from(rest, xs, assms, concls ++ List(Conj(Nil, List(Atom(Note(phi, attr))))))
+
       case Note(phi, _) :: rest =>
         from(phi :: rest, xs, assms, concls)
 
@@ -208,9 +211,9 @@ object Atom {
 }
 
 // represents
-//   forall xs. /\ {ant} ==> \/ {suc}
+//   forall xs. /\ {assms} ==> \/ {concls}
 // or written equivalently as a big disjunction
-//   forall xs. \/ {not ant}  \/  \/ {suc}
+//   forall xs. \/ {not assms}  \/  \/ {concls}
 case class Disj(xs: List[Var], assms: List[Prop], concls: List[Conj])
     extends Prop
     with Expr.bind[Disj] {
@@ -419,7 +422,7 @@ object Conj {
             from(rest, xs, props)
 
           case prop =>
-            from(rest, xs, props ++ List(prop))
+            from(rest, pos, xs, props ++ List(prop))
         }
 
       // case phi :: rest =>

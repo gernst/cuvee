@@ -14,15 +14,20 @@ import cuvee.smtlib.CheckSat
 import cuvee.pure.Simplify
 import cuvee.pure.Rewrite
 
-trait Prover {
+trait Prover extends Tactic {
   def exec(cmd: Cmd, state: State)
   def reduce(prop: Prop, state: State): Prop
+  def apply(state: State, prop: Prop) = List((prop, None))
 }
 
 object Prover {
   object dummy extends Prover {
     def exec(cmd: Cmd, state: State) {}
-    def reduce(prop: Prop, state: State) = prop
+    def reduce(prop: Prop, state: State) = {
+      println(prop)
+      ???
+      prop
+    }
   }
 
   val fromSimplifier = new Prover {

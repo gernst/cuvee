@@ -35,7 +35,7 @@ package object cuvee {
       cuvee.boogie.parse(file)
     } else if (file endsWith ".th") {
       cuvee.thesy.parse(file)
-    }  else {
+    } else {
       error("unsupported file type: " + file)
     }
 
@@ -106,10 +106,28 @@ package object cuvee {
     def --(that: List[A]) =
       self filterNot that.contains
 
-
     def subsetOf(that: List[A]) =
       self forall that.contains
+
+    def zipWithFirstLast = {
+      var len = self.length
+      for ((a, i) <- self.zipWithIndex)
+        yield (a, i == 0, i == len - 1)
     }
+
+    def duplicates = {
+      val result = scala.collection.mutable.ListBuffer[A]()
+      val seen = scala.collection.mutable.Set[A]()
+
+      for (a <- self) {
+        if (seen contains a)
+          result += a
+        seen += a
+      }
+
+      result.toList
+    }
+  }
 
   implicit class ListMapOps[A, B](self: List[Map[A, B]]) {
     def merged = {

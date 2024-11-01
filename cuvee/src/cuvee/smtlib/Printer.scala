@@ -52,49 +52,60 @@ object Printer extends cuvee.util.Printer {
     case n: Name => List(cuvee.sexpr.mangle(n.toLabel))
 
     // smtlib.Cmd
-    case Success                    => just("success")
-    case Unsupported                => just("unsupported")
-    case Info(arg)                  => lines(arg)
-    case Labels(labels)             => parens2("labels")(labels)
-    case Error(info)                => parens2("error")(info)
-    case Sat                        => just("sat")
-    case Unsat                      => just("unsat")
-    case Unknown                    => just("unknown")
-    case Model(defs)                => parens2("model")(defs)
-    case Labels                     => parens("labels")
-    case SetLogic(logic)            => parens("set-logic", logic)
-    case SetOption(attr, arg)       => parens("set-option", ":" + attr, arg)
-    case GetInfo(attr)              => parens("get-info", ":" + attr)
-    case Push(depth)                => parens("push", depth)
-    case Pop(depth)                 => parens("pop", depth)
-    case GetModel                   => parens("get-model")
-    case Exit                       => parens("exit")
-    case Reset                      => parens("reset")
-    case Assert(expr)               => parens("assert", expr)
-    case CheckSat                   => parens("check-sat")
-    case Lemma(expr, _, Some(Goal)) => parens("goal", expr)
-    case Lemma(expr, _, Some(Free)) => parens("free lemma", expr)
-    case Lemma(expr, _, _)          => parens("lemma", expr)
-    case SetInfo(attr, None)        => parens("set-info", ":" + attr)
-    case SetInfo(attr, Some(arg))   => parens("set-info", ":" + attr, arg)
+    case Success              => just("success")
+    case Unsupported          => just("unsupported")
+    case Info(arg)            => lines(arg)
+    case Labels(labels)       => parens2("labels")(labels)
+    case Error(info)          => parens2("error")(info)
+    case Sat                  => just("sat")
+    case Unsat                => just("unsat")
+    case Unknown              => just("unknown")
+    case Model(defs)          => parens2("model")(defs)
+    case Labels               => parens("labels")
+    case SetLogic(logic)      => parens("set-logic", logic)
+    case SetOption(attr, arg) => parens("set-option", ":" + attr, arg)
+    case GetInfo(attr)        => parens("get-info", ":" + attr)
+    case Push(depth)          => parens("push", depth)
+    case Pop(depth)           => parens("pop", depth)
+    case GetModel             => parens("get-model")
+    case Apply(tactic)        => parens("apply", tactic)
+    case Exit                 => parens("exit")
+    case Reset                => parens("reset")
+    case Assert(expr)         => parens("assert", expr)
+    case CheckSat             => parens("check-sat")
+    // TODO
+    case Lemma(expr, _, Some(Goal), _) => parens("goal", expr)
+    case Lemma(expr, _, Some(Free), _) => parens("free lemma", expr)
+    case Lemma(expr, _, _, _)          => parens("lemma", expr)
+    case SetInfo(attr, None)           => parens("set-info", ":" + attr)
+    case SetInfo(attr, Some(arg))      => parens("set-info", ":" + attr, arg)
 
     case DeclareSort(name, arity) =>
       parens("declare-sort", name, arity)
+
     case DefineSort(name, params, body) =>
       parens("define-sort", name, params, body)
-    case DeclareFun(name, params, args, res) =>
+
+    case DeclareVar(name, typ) => // not in SMT-LIB
+      parens("declare-var", name, typ)
+
+    // XXX: no params supported below yet
+    case DeclareFun(name, Nil, args, res) =>
       parens("declare-fun", name, args, res)
-    case DefineFun(name, params, formals, res, body, rec) if rec =>
+
+    case DefineFun(name, Nil, formals, res, body, true) =>
       parens("define-fun-rec", name, formals.asFormals, res, body)
-    case DefineFun(name, params, formals, res, body, _) =>
+
+    case DefineFun(name, Nil, formals, res, body, false) =>
       parens("define-fun", name, formals.asFormals, res, body)
+
     case DeclareDatatypes(arities, datatypes) =>
       parens("declare-datatypes", arities, datatypes)
 
-    case DeclareProc(name, params, in, out, None) =>
+    case DeclareProc(name, Nil, in, out, None) =>
       parens("declare-proc", in.asFormals, out.asFormals)
 
-    case DeclareProc(name, params, in, out, Some(Spec(mod, pre, post))) =>
+    case DeclareProc(name, Nil, in, out, Some(Spec(mod, pre, post))) =>
       parens(
         "declare-proc",
         name,
@@ -135,15 +146,30 @@ object Printer extends cuvee.util.Printer {
       )
 
     // pure.Expr
-    case Lit(a, _)             => just(a)
+    case Lit(i: BigInt, _) =>
+      if (i >= 0) just(i) else just("(- " + (-i) + ")")
+
+    case Lit(s: String, _) =>
+      just("\"" + s + "\"")
+
     case Var(name, _)          => lines(name)
     case Is(arg, fun)          => parens(args("_", "is", fun.name), arg)
     case Case(pat, expr)       => parens(pat, expr)
     case Match(expr, cases, _) => parens("match", expr, cases)
     case LetEq(x, e)           => parens(x, e)
     case Let(eqs, body)        => parens("let", eqs, body)
-    case Note(expr, attr)      => parens2("!", expr)(attr)
     case Distinct(exprs)       => parens2("distinct")(exprs)
+
+    case Note(expr, attr) if expr.free.isEmpty =>
+      val attr_ = attr flatMap {
+        case (kw, None)       => List(kw)
+        case (kw, Some(attr)) => List(kw, attr)
+      }
+
+      parens2("!", expr)(attr_)
+
+    case Note(expr, attr) =>
+      lines(expr)
 
     case Bind(quant, formals, body, _) =>
       parens(quant.name, formals.asFormals, body)

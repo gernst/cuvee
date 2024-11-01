@@ -22,9 +22,11 @@ object QuickCheck extends Stage {
     val qc = new QuickCheck(rws.groupBy(_.fun), state)
 
     cmds map {
-      case cmd @ Lemma(expr, tactic, assert) =>
+      case cmd @ Lemma(expr, tactic, assert, label) =>
         if (qc.hasSimpleCounterexample(expr, depth))
-          cuvee.error("simple counterexample to lemma found: " + expr)
+          cuvee.error(
+            "simple counterexample to lemma " + label + " found: " + expr
+          )
         else
           cmd
       case cmd =>
@@ -37,7 +39,10 @@ class QuickCheck(rws: Map[Fun, List[Rule]], state: State) {
   val constrs = state.constrs
 
   val anon =
-    for ((name, con) <- state.cons.toList if !(state.datatypes contains name) && con.arity == 0)
+    for (
+      (name, con) <- state.cons.toList
+      if !(state.datatypes contains name) && con.arity == 0
+    )
       yield state.sort(name) // assumes anonymous sorts have no params
 
   def hasSimpleCounterexample(phi: Expr, depth: Int): Boolean = {
@@ -53,7 +58,8 @@ class QuickCheck(rws: Map[Fun, List[Rule]], state: State) {
             yield Fun(sort.toString + index, Nil, Nil, sort)
 
         val base = Map(consts map { c => (App(c, c.res): Expr) -> repeat }: _*)
-        val candidates = Enumerate.enumerate(xs.types, constrs.toList, base, depth)
+        val candidates =
+          Enumerate.enumerate(xs.types, constrs.toList, base, depth)
 
         candidates exists { case (es, _) =>
           val su = Expr.subst(xs, es)

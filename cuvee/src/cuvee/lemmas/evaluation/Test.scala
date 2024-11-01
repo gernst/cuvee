@@ -32,8 +32,11 @@ object poly extends Run(Test, "examples/boogie/poly.bpl")
 object assoc extends Run(Test, "examples/boogie/assoc.bpl")
 object length extends Run(Test, "examples/boogie/length.bpl")
 object zip extends Run(Test, "examples/boogie/zip.bpl")
+object rtq extends Run(Test, "examples/boogie/rtq.bpl")
+object rtq2 extends Run(Test, "examples/boogie/rtq2.bpl")
 object layout extends Run(Test, "examples/boogie/layout.bpl")
 object sum extends Run(Test, "examples/boogie/sum.bpl")
+object debruijn extends Run(Test, "evaluation/lemmas/tree/debruijn.bpl")
 object length_nat extends Run(Test, "-use:AdtInd", "examples/smtlib/length-nat.smt2")
 object length_ extends Run(Test, "-use:AdtInd", "-no:Internal", "examples/smtlib/length.smt2")
 object reverse
@@ -54,17 +57,22 @@ object bdd extends Run(Test, "examples/boogie/bdd-test.bpl")
 object insort extends Run(Test, "examples/boogie/insort.bpl")
 object rope extends Run(Test, "examples/boogie/rope.bpl")
 
+object rope1 extends Run(Test, "-rounds", "2", "examples/boogie/rope_lemma1.bpl")
+
 object append extends Run(Test, "examples/lemmas/append.bpl")
 object remove extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/remove.bpl")
 object maaap extends Run(Test, "evaluation/lemmas/list/map.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
 object filter extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/filter.bpl")
 
+object set extends Run(Test, "examples/boogie/set.bpl")
+
 object bool extends Run(Test, "evaluation/lemmas/bool.bpl")
 object nat extends Run(Test, "evaluation/lemmas/nat.bpl")
 object list extends Run(Test, "-use:shortcut", "evaluation/lemmas/list.bpl")
 object tree extends Run(Test, "evaluation/lemmas/tree.bpl")
 object prop extends Run(Test, "evaluation/lemmas/tree/prop.bpl")
+object simplify extends Run(Test, "examples/boogie/simplifier.bpl")
 
 object runlength extends Run(Test, "examples/lemmas/runlength.bpl")
 object runlength_other extends Run(Test, "examples/lemmas/runlength_other.bpl")
@@ -98,7 +106,7 @@ object Test extends Main {
     lemmas.useConditional = true
 
     for (
-      Lemma(phi, _, _) <- cmds;
+      Lemma(phi, _, _, _) <- cmds;
       Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
     ) {
       lemmas.addLemma("provided", lhs, rhs, cond)

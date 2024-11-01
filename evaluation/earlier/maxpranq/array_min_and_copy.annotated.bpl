@@ -1,0 +1,77 @@
+data c#void = c#void;
+
+type c#ptr<a₀>;
+
+type c#heap;
+
+var c#heap: c#heap;
+
+function c#bitxor(x₀: int, x₁: int): int;
+
+function c#bitand(x₀: int, x₁: int): int;
+
+function c#bitor(x₀: int, x₁: int): int;
+
+procedure main()
+  returns (c#result: int)
+{
+  var i: int;
+  var j: int;
+  var N: int;
+  var a: [int]int;
+  var b: [int]int;
+  assume 0 < N;
+  i := 1;
+  while(i < N)
+    decreases N - i;
+    invariant old(i) <= i
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> (exists k₉: int ::
+                      j <= k₉
+                      && i₁₀ < N
+                      && a[i₁₀] == k₉)))
+      && (forall i₁₀: int ::
+            (!(  old(i) <= i₁₀
+              && i₁₀ < i
+            )
+               ==> a[i₁₀] == old(a)[i₁₀]));
+  {
+    var k: int;
+    assume j <= k;
+    a[i] := k;
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N)
+    decreases N - i;
+    invariant old(i) <= i
+      && (forall i₁₃: int ::
+            (  old(i) <= i₁₃
+              && i₁₃ < i
+               ==> i₁₃ < N
+                && b[i₁₃] == a[i₁₃]))
+      && (forall i₁₃: int ::
+            (!(  old(i) <= i₁₃
+              && i₁₃ < i
+            )
+               ==> b[i₁₃] == old(b)[i₁₃]));
+  {
+    b[i] := a[i];
+    i := i + 1;
+  }
+  i := 1;
+  while(i < N)
+    decreases N - i;
+    invariant old(i) <= i
+      && (forall i₁₆: int ::
+            (  old(i) <= i₁₆
+              && i₁₆ < i
+               ==> i₁₆ < N));
+  {
+    assert j <= b[i];
+    i := i + 1;
+  }
+}
+

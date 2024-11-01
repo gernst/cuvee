@@ -89,6 +89,20 @@ class State(
     require(cons contains name, "type constructor not declared: " + name)
     if (datatypes contains name)
       require(datatypes(name) == dt, "datatype already defined: " + name)
+
+    for ((constr, sels) <- dt.constrs) {
+      require(
+        funs contains (constr.name, constr.arity),
+        "constructor not previously declared: " + constr.name
+      )
+
+      for (sel <- sels)
+        require(
+          funs contains (sel.name, sel.arity),
+          "selector not previously declared: " + sel.name + " of constructor " + constr.name
+        )
+    }
+
     datatypes += (name -> dt)
   }
 
@@ -261,7 +275,7 @@ class State(
       app("ite", List(test, left, right))
     }
 
-    def note(expr: Pre, attr: List[sexpr.Expr]) = {
+    def note(expr: Pre, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) = {
       Pre(Note(expr.expr, attr))
     }
 
@@ -339,6 +353,7 @@ class State(
 
     case DeclareFun(name, params, args, res) =>
       fun(name, params, args, res)
+
     case DefineFun(name, params, formals, res, body, rec) =>
       fun(name, params, formals.types, res)
       fundef(name, formals, body)
@@ -346,8 +361,20 @@ class State(
     case DeclareDatatypes(arities, dts) =>
       for ((name, arity) <- arities)
         con(name, arity)
-      for (((name, _), dt) <- arities zip dts)
+
+      for (((name, _), dt) <- arities zip dts) {
+        for ((constr, sels) <- dt.constrs) {
+          val Fun(name, params, args, res) = constr
+          fun(name, params, args, res)
+
+          for (sel <- sels) {
+            val Fun(name, params, args, res) = sel
+            fun(name, params, args, res)
+          }
+        }
+
         datatype(name, dt)
+      }
 
     case DeclareProc(name, params, in, out, spec) =>
       proc(name, params, in, out, spec)

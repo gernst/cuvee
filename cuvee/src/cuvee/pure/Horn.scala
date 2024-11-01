@@ -7,18 +7,33 @@ import cuvee.smtlib.Lemma
 
 object Horn extends Stage {
 
-  override def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, in: State): List[Cmd] = {
+  override def exec(
+      prefix: List[Cmd],
+      cmds: List[Cmd],
+      last: Cmd,
+      in: State
+  ): List[Cmd] = {
     cmds flatMap {
-      case Lemma(todo, None, flag) =>
-        for(expr <- assert(List(todo), Nil, Nil, Nil))
-        yield Lemma(expr, None, flag)
+      case Lemma(todo, None, flag, named) =>
+        val goals = assert(List(todo), Nil, Nil, Nil)
+        goals.distinct map {
+          case Clause(xs, ant, Note(expr, attr)) =>
+            Lemma(Clause(xs, ant, expr), None, flag, named ++ attr)
+          case expr =>
+            Lemma(expr, None, flag, named)
+        }
 
       case cmd =>
         List(cmd)
     }
   }
 
-  def assert(todo: List[Expr], xs: List[Var], ant: List[Expr], suc: List[Expr]): List[Expr] = {
+  def assert(
+      todo: List[Expr],
+      xs: List[Var],
+      ant: List[Expr],
+      suc: List[Expr]
+  ): List[Expr] = {
     todo match {
       case Nil =>
         List(Clause(xs, ant, Or(suc)))
@@ -35,6 +50,9 @@ object Horn extends Stage {
       case Imp(phi, psi) :: rest =>
         assume(List(phi), psi :: rest, xs, ant, suc)
 
+      case Note(Imp(phi, psi), attr) :: rest =>
+        assume(List(phi), Note(psi, attr) :: rest, xs, ant, suc)
+
       case Or(exprs) :: rest =>
         assert(exprs ++ rest, xs, ant, suc)
 
@@ -45,9 +63,20 @@ object Horn extends Stage {
         )
           yield clause
 
+      case Note(And(exprs), attr) :: rest =>
+        for (
+          expr <- exprs;
+          clause <- assert(Note(expr, attr) :: rest, xs, ant, suc)
+        )
+          yield clause
+
       case (expr @ Forall(_, _)) :: rest =>
         val Forall(bound, body) = expr refresh xs
         assert(body :: rest, xs ++ bound, ant, suc)
+
+      case Note(expr @ Forall(_, _), attr) :: rest =>
+        val Forall(bound, body) = expr refresh xs
+        assert(Note(body, attr) :: rest, xs ++ bound, ant, suc)
 
       case phi :: rest =>
         assert(rest, xs, ant, suc ++ List(phi))
@@ -128,5 +157,16 @@ object Horn extends Stage {
       case phi :: rest =>
         assume(rest, todo, xs, ant ++ List(phi), suc)
     }
+  }
+
+  def cases(expr: Expr): List[Expr] = expr match {
+    case App(inst, args) =>
+      args flatMap cases
+
+    case Select(Store(base, index, value), index_) =>
+      List(index === index_)
+
+    case _ =>
+      Nil
   }
 }

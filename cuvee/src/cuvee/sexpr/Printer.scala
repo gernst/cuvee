@@ -9,9 +9,9 @@ object Printer extends cuvee.util.Printer {
     case true  => List("true")
     case false => List("false")
     // Numbers
-    case i: Int    => List(i.toString)
-    case i: BigInt => List(i.toString)
-    case f: Float  => List(f.toString)
+    case i: Int      => List(i.toString)
+    case i: BigInt   => if(i >= 0) List(i.toString) else List("(-" + i.toString + ")")
+    case f: Float    => List(f.toString)
     // Name
     case n: Name   => List(cuvee.sexpr.mangle(n.toLabel))
     case s: String => List(s)

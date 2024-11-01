@@ -40,11 +40,11 @@ class PositiveProver(solver: Solver) extends Prover {
     val status = solver.check()
 
     status match {
-      case Sat =>
-        Atom(phi, Some(solver.model(state)))
+      // case Sat =>
+      //   Atom(phi, Some(solver.model(state)))
       case Unsat =>
         Atom.t
-      case Unknown =>
+      case Unknown | Sat =>
         Atom(phi)
     }
   }

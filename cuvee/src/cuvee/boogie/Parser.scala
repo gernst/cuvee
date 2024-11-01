@@ -27,10 +27,6 @@ class Parser(val state: State = State.default) {
     implicit val ctx: Map[Name, Param] = Map()
   }
 
-  val a = Param("a")
-  val old = state.fun("old", List(a), List(a), a)
-  val fin = state.fun("final", List(a), List(a), a)
-
   object typing extends Scope[Param, Type] {
     def unify(typ1: Type, typ2: Type) = {
       value = Type.unify(typ1, typ2, value)
@@ -56,13 +52,18 @@ class Parser(val state: State = State.default) {
       new App(inst, args)
     }
 
+    def at(name: String, arg: Expr) = {
+      val loc = Loc(name)
+      new At(loc, arg)
+    }
+
     def bind(
-        name: Name,
+        name: String,
         bound: List[Var],
         body: Expr,
         typ: Type
     ) = {
-      val quant = Quant(name.name)
+      val quant = Quant(name)
       unify(body.typ, typ)
       Bind(quant, bound, body, typ)
     }
@@ -85,6 +86,10 @@ class Parser(val state: State = State.default) {
       ctx(name)
     case (name, args) if state.cons contains name =>
       Sort(state.cons(name), args)
+    case (name, Nil) =>
+      cuvee.error("unknown sort: " + name)
+    case (name, args) =>
+      cuvee.error("unknown sort: " + args.mkString("<", ",", ">"))
   }
 
   def make_op: ((String, List[Expr]) => Expr) = {
@@ -103,7 +108,7 @@ class Parser(val state: State = State.default) {
     arg => typing.resolved(arg)
 
   def make_typed_expr(typ: Type): (Expr => Expr) =
-    (arg) => typing.checked(arg, typ)
+    arg => typing.checked(arg, typ)
 
   val make_formula: (Expr => Expr) =
     arg => typing.checked(arg, Sort.bool)
@@ -152,6 +157,10 @@ class Parser(val state: State = State.default) {
     typing.bind(name, bound, body, Sort.bool)
   }
 
+  def make_at: (((String, Expr)) => Expr) = { case (loc, arg) =>
+    typing.at(loc, arg)
+  }
+
   def make_not =
     (arg: Expr) => typing.app("not", List(arg))
   def make_eq =
@@ -176,10 +185,9 @@ class Parser(val state: State = State.default) {
       DefineSort(name, params, typ)
   }
 
-  val declare_var: ((Name ~ Type) => Cmd) = {
-    case (name ~ typ) =>
-      state global (name, typ)
-      DeclareVar(name, typ)
+  val declare_var: ((Name ~ Type) => Cmd) = { case (name ~ typ) =>
+    state global (name, typ)
+    DeclareVar(name, typ)
   }
 
   val define_fun: ((Name ~ List[Param] ~ (List[Var] ~ Type ~ Option[Expr])) => Cmd) = {
@@ -193,8 +201,12 @@ class Parser(val state: State = State.default) {
       DefineFun(name, params, args, typ, body, body.funs exists (_.name == name))
   }
 
-  val define_proc
-      : ((Name ~ List[Param], ((List[Var] ~ List[Var] ~ List[Var]), (Option[Spec], Option[Prog]))) => Cmd) = {
+  val define_proc: (
+      (
+          Name ~ List[Param],
+          ((List[Var] ~ List[Var] ~ List[Var]), (Option[Spec], Option[Prog]))
+      ) => Cmd
+  ) = {
     case (name ~ params, (in ~ out ~ mod, (spec, None))) =>
       state.proc(name, Nil, in, out, spec)
       DeclareProc(name, Nil, in, out, spec)
@@ -219,6 +231,10 @@ class Parser(val state: State = State.default) {
       }
 
       (fun, sels)
+  }
+
+  def make_call: (((List[Var], Name), List[Expr])) => Call = { case ((out, name), in) =>
+    Call(name, in, out)
   }
 
   def make_datatype: (((Name, List[Param]), List[(Fun, List[Fun])]) => Cmd) = {
@@ -253,7 +269,7 @@ class Parser(val state: State = State.default) {
   }
 
   def maybe_merge(mod: List[Var]) = (specs: List[Spec]) => {
-    if (specs.isEmpty) {
+    if (mod.isEmpty && specs.isEmpty) {
       None
     } else {
       val xs = specs flatMap (_.xs)
@@ -263,6 +279,29 @@ class Parser(val state: State = State.default) {
       Some(spec)
     }
   }
+}
+
+object Parser {
+  def kw(name: String) = KW(name)
+  val eof = new Token {}
+  val id = V[String]
+  val op = V[String]
+  val number = V[String]
+  val string = V[String]
+  val quant = V[String]
+  val loc = V[String]
+
+  val translate = Map(
+    "<==>" -> "=",
+    "==>" -> "=>",
+    "&&" -> "and",
+    "||" -> "or",
+    "==" -> "=",
+    // "!=" -> "distinct",
+    "/" -> "div",
+    "%" -> "mod",
+    "!" -> "not"
+  )
 
   val final_to_old: (Expr => Expr) =
     (expr: Expr) => final_to_old_(expr, Set())
@@ -281,26 +320,22 @@ class Parser(val state: State = State.default) {
     case Bind(quant, formals, body, typ) =>
       Bind(quant, formals, final_to_old_(body, bound ++ formals), typ)
   }
-}
 
-object Parser {
-  def kw(name: String) = KW(name)
-  val eof = new Token {}
-  val id = V[String]
-  val op = V[String]
-  val number = V[String]
-  val string = V[String]
-  val quant = V[String]
+  val old_to_final: (Expr => Expr) =
+    (expr: Expr) => old_to_final_(expr, Set())
 
-  val translate = Map(
-    "<==>" -> "=",
-    "==>" -> "=>",
-    "&&" -> "and",
-    "||" -> "or",
-    "==" -> "=",
-    // "!=" -> "distinct",
-    "/" -> "div",
-    "%" -> "mod",
-    "!" -> "not"
-  )
+  def old_to_final_(expr: Expr, bound: Set[Var]): Expr = expr match {
+    case l: Lit =>
+      l
+    case x: Var if !(bound contains x) =>
+      Final(x)
+    case x: Var =>
+      x
+    case Old(expr) =>
+      expr
+    case App(inst, args) =>
+      App(inst, args map (old_to_final_(_, bound)))
+    case Bind(quant, formals, body, typ) =>
+      Bind(quant, formals, old_to_final_(body, bound ++ formals), typ)
+  }
 }

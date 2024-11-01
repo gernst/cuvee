@@ -4,6 +4,8 @@ import cuvee.smtlib.Model
 import cuvee.pure.True
 import cuvee.Intersect
 import cuvee.ai.AInt.one
+import cuvee.State
+import cuvee.sexpr
 
 object Simplify {
   def simplify(rule: Rule, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Rule = {
@@ -16,7 +18,8 @@ object Simplify {
   }
 
   def simplify(expr: Expr, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Expr =
-    Expr.liftIte(expr) match {
+    // Expr.liftIte(expr) // don't recursive with liftIte -> may lead to endless loops with nested ites
+    expr match {
       case x: Var =>
         x
 
@@ -35,7 +38,7 @@ object Simplify {
       case Imp(phi, psi) =>
         imp(simplify(phi, rules, constrs), simplify(psi, rules, constrs))
 
-      case Ite(test, left, right) =>
+      case expr @ Ite(test, left, right) =>
         ite(
           simplify(test, rules, constrs),
           simplify(left, rules, constrs),
@@ -43,7 +46,10 @@ object Simplify {
         )
 
       case Is(arg, fun) =>
-        is(arg, fun)
+        is(simplify(arg, rules, constrs), fun)
+
+      case At(where, arg) =>
+        at(where, simplify(arg, rules, constrs))
 
       case Eq(left, right) if left.typ == Sort.bool =>
         eqv(simplify(left, rules, constrs), simplify(right, rules, constrs))
@@ -57,8 +63,21 @@ object Simplify {
       case Select(base, index) =>
         select(simplify(base, rules, constrs), simplify(index, rules, constrs))
 
+      case Store(base, index, value) =>
+        store(
+          simplify(base, rules, constrs),
+          simplify(index, rules, constrs),
+          simplify(value, rules, constrs)
+        )
+
+      // case Distinct(exprs) =>
+      //   TODO
+
       case App(inst, args) =>
         app(expr, inst, simplify(args, rules, constrs), rules, constrs)
+
+      case Note(expr, attr) =>
+        note(simplify(expr, rules, constrs), attr)
     }
 
   def app(
@@ -113,6 +132,10 @@ object Simplify {
         val (rest_, su_) = onePoint(rest, su)
         (assm :: rest_, su_)
     }
+  }
+
+  def simplify(expr: Expr, state: State): Expr = {
+    simplify(expr, Map(), state.constrs)
   }
 
   def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
@@ -201,12 +224,37 @@ object Simplify {
 
   def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
     case Conj(xs, props) =>
+      var eqs = props collect {
+        case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
+        case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
+      }
+
+      // println(eqs)
+
       Conj.reduce(xs, props map (simplify(_, rules, constrs)))
   }
 
   def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Expr] = {
     for (expr <- exprs)
       yield simplify(expr, rules, constrs)
+  }
+
+  def simplify_(props: List[Prop], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Prop] = {
+    for (prop <- props)
+      yield simplify(prop, rules, constrs)
+  }
+
+  def note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) =
+    expr match {
+      case True | False => expr
+      case _            => Note(expr, attr)
+    }
+
+  def at(where: Loc, arg: Expr) = {
+    if (arg.free.isEmpty)
+      arg
+    else
+      At(where, arg)
   }
 
   def is(arg: Expr, fun: Fun): Expr = if (false) {
@@ -222,16 +270,16 @@ object Simplify {
 
   def select(base: Expr, index: Expr) = {
     base match {
-      case Store(`base`, `index`, value) => value
-      case _                             => Select(base, index)
+      case Store(_, `index`, value) => value
+      case _                        => Select(base, index)
     }
   }
 
   def store(base: Expr, index: Expr, value: Expr): Expr = {
     (base, value) match {
-      case (_, Select(`base`, `index`))   => base
-      case (Store(`base`, `index`, _), _) => store(base, index, value)
-      case _                              => Store(base, index, value)
+      case (_, Select(`base`, `index`)) => base
+      case (Store(base, `index`, _), _) => store(base, index, value)
+      case _                            => Store(base, index, value)
     }
   }
 

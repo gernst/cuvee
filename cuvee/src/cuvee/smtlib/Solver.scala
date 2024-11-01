@@ -26,15 +26,19 @@ trait Solver extends Sink {
     cmd match {
       case CheckSat =>
         check()
-      case Lemma(expr, tactic, None) =>
-        println("warning: assuming non-free lemma: " + cmd)
-        ???
+      case Lemma(expr, tactic, None, _) =>
+        scoped {
+          assert(!expr)
+          require(check() == Unsat, "goal does not hold: " + expr)
+        }
         this.assert(expr)
-      case Lemma(expr, tactic, Some(Free)) =>
+      case Lemma(expr, tactic, Some(Free), _) =>
         this.assert(expr)
-      case Lemma(expr, tactic, Some(Goal)) =>
-        println("warning: ignoring goal: " + cmd)
-        ???
+      case Lemma(expr, tactic, Some(Goal), _) =>
+        scoped {
+          assert(!expr)
+          require(check() == Unsat, "goal does not hold: " + expr)
+        }
         Success
       case GetModel =>
         model(state)
@@ -101,6 +105,7 @@ trait Solver extends Sink {
 
 object Solver {
   var debug = false
+  var fail = false
 
   object dummy extends Solver {
     def done(state: State) {}
@@ -158,6 +163,8 @@ object Solver {
       out.flush()
     }
 
+    def tmp() {}
+
     def read() = {
       val line = res.next()
       if (debug)
@@ -177,7 +184,10 @@ object Solver {
 
     def check(): IsSat = {
       write(CheckSat)
-      Parser.issat(read())
+      val isSat = Parser.issat(read())
+      if (fail && isSat != Unsat)
+        cuvee.error("Could not prove all goals.")
+      isSat
     }
 
     def labels(): Labels = {
@@ -190,6 +200,14 @@ object Solver {
       val parser = new Parser(state)
       Model(parser.model(read()))
     }
+
+    def apply(state: State, tactic: String): List[Expr] = {
+      val cmd = Apply(cuvee.sexpr.Id(tactic))
+      write(cmd)
+      val parser = new Parser(state)
+      parser.goals(read())
+    }
   }
+
   implicit class ProcessWithPid(process: java.lang.Process) { def pid = 0 }
 }

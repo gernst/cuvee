@@ -55,7 +55,7 @@ function nnf(p: prop): prop;
 axiom nnf(T) == T;
 axiom nnf(F) == F;
 axiom nnf(Not(T)) == F;
-axiom nnf(Not(F)) == F;
+axiom nnf(Not(F)) == T;
 
 axiom forall i: nat ::
     nnf(Not(Atom(i))) == Not(Atom(i));
@@ -77,9 +77,24 @@ axiom forall p: prop, q: prop ::
 //     eval(v, neg(p)) == (not_eval(v, p))
 // proof induction p;
 
-lemma forall v: [nat]bool, p: prop ::
-    eval(v, nnf(p)) == eval(v, p)
-proof induction p {
-    case Not(phi) =>
-        induction phi
-};
+axiom forall v: [nat]bool, p: prop ::
+    eval(v, neg(p)) == not_(eval(v, p));
+
+
+function simplify(p: prop): prop;
+
+axiom forall p: prop ::
+    simplify(Not(p)) = snot(simplify(p));
+
+axiom forall p: prop, q: prop ::
+    simplify(And(p, q)) = And(p, q);
+
+
+function snot(p: prop): prop;
+
+axiom
+    snot(T) = F;
+axiom forall p: prop ::
+    snot(Not(p)) = p;
+axiom forall p: prop, q: prop ::
+    snot(And(p, q)) = Not(And(p, q));

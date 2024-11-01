@@ -1,0 +1,86 @@
+data c#void = c#void;
+
+type c#ptr<a₀>;
+
+type c#heap;
+
+var c#heap: c#heap;
+
+function c#bitxor(x₀: int, x₁: int): int;
+
+function c#bitand(x₀: int, x₁: int): int;
+
+function c#bitor(x₀: int, x₁: int): int;
+
+procedure main()
+  returns (c#result: int)
+{
+  var a: [int]int;
+  var b: [int]int;
+  var j: int := 0;
+  while(j < 100000)
+    decreases 100000 - j;
+    invariant old(j) <= j
+      && (forall j₅: int ::
+            (  old(j) <= j₅
+              && j₅ < j
+               ==> (exists nondet_int₁₃: int, nondet_int₂₄: int ::
+                      -2147483648 <= nondet_int₂₄
+                      && nondet_int₂₄ < 2147483648
+                      && -2147483648 <= nondet_int₁₃
+                      && nondet_int₁₃ < 2147483648
+                      && j₅ < 100000
+                      && a[j₅] == nondet_int₁₃
+                      && b[j₅] == nondet_int₂₄)))
+      && (forall j₅: int ::
+            (!(  old(j) <= j₅
+              && j₅ < j
+            )
+               ==> a[j₅] == old(a)[j₅]
+                && b[j₅] == old(b)[j₅]));
+  {
+    var nondet_int₁: int;
+    assume -2147483648 <= nondet_int₁ && nondet_int₁ < 2147483648;
+    a[j] := nondet_int₁;
+    var nondet_int₂: int;
+    assume -2147483648 <= nondet_int₂ && nondet_int₂ < 2147483648;
+    b[j] := nondet_int₂;
+    j := j + 1;
+  }
+  var i: int := 0;
+  var rv: int := 1;
+  while(i < 100000)
+    decreases 100000 - i;
+    invariant old(i) <= i
+      && (forall i₁₀: int ::
+            (  old(i) <= i₁₀
+              && i₁₀ < i
+               ==> a[i₁₀] != b[i₁₀]
+                  && i₁₀ < 100000
+                ||   a[i₁₀] == b[i₁₀]
+                  && i₁₀ < 100000));
+  {
+    if(a[i] != b[i]) {
+      rv := 0;
+    }
+    i := i + 1;
+  }
+  if(rv != 0) {
+    var x: int;
+    x := 0;
+    while(x < 100000)
+      decreases 100000 - x;
+      invariant old(x) <= x
+        && (forall x₁₄: int ::
+              (  old(x) <= x₁₄
+                && x₁₄ < x
+                 ==> x₁₄ < 100000));
+    {
+      assert a[x] == b[x];
+      x := x + 1;
+    }
+  }
+  c#result := 0;
+  return;
+}
+

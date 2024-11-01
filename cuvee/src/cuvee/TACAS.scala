@@ -23,7 +23,7 @@ object TACAS {
       cuvee.thesy.storedLemmas(file, st)
     } else {
       val (cmds, _) = parse(file)
-      cmds collect { case Lemma(phi, _, _) => phi }
+      cmds collect { case Lemma(phi, _, _, _) => phi }
     }
 
     case class Stats(name: String, lemmas: List[Expr]) {

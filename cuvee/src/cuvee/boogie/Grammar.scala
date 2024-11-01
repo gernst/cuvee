@@ -85,16 +85,20 @@ class Grammar(parser: cuvee.boogie.Parser) {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | ite | bind | map)
+      P(parens(expr) | num | wp | ite | bind | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~+ ",") | ret(Nil))
+
+    def map(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(zip((at | app) ~ access.*))
 
     def app(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_app(scope)(name ~ args))
 
     def update(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(":=" ~ expr)
+
     def access(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(brackets(expr ~ update.?))
 
@@ -107,10 +111,15 @@ class Grammar(parser: cuvee.boogie.Parser) {
         zip(make_store(base, index, value), rest)
     }
 
-    def map(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(zip(app ~ access.*))
     def ite(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
+
+    def wp(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(
+        WP(braces(block_) ~ formula) | Box(brackets(block_) ~ formula) | Dia(
+          angle(block_) ~ formula
+        )
+      )
 
     def scoped_expr(
         bound: List[Var]
@@ -119,6 +128,9 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
     def bind(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_bind(quant ~ (formals ~ "::" ~@ scoped_expr)))
+
+    def at(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(make_at(loc ~ "(" ~ expr ~ ")"))
   }
 
   def expr(typ: Type)(implicit
@@ -146,7 +158,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Prog, Token] =
-    P(spec | ctrl | if_ | while_ | assign)
+    P(spec | ctrl | if_ | while_ | call | block | assign)
 
   val ctrl =
     Break("break" ~ ";") | Return("return" ~ ";")
@@ -202,28 +214,27 @@ class Grammar(parser: cuvee.boogie.Parser) {
   //   P(Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
 
-
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Assign.flats((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
+    P(Assign.froms((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
+
+  def call(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(make_call((var_ ~+ ",") ?~ ":=" ?~ "call" ~ name ~ "(" ~ (expr ~+ ",") ~ ")" ~ ";"))
 
   def local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
 
-  val block_end =
-    "}" ~ ret(Nil)
-
   def block_local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    (local ::@ (prog => block_(scope ++ prog.xs.asScope, ctx)))
+    (local ::@ { case Local(xs, init) => block_(scope ++ xs.asScope, ctx) })
 
   def block_(implicit
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[List[Prog], Token] =
-    P(block_end | block_local | (prog :: block_))
+    P(block_local | (prog :: block_) | ret(Nil))
 
   def block(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Block("{" ~ block_))
+    P(Block(braces(block_)))
 
   def scoped_body(implicit ctx: Map[Name, Param]) =
     (sig: (List[Var] ~ List[Var] ~ List[Var])) => {
@@ -425,13 +436,13 @@ class Grammar(parser: cuvee.boogie.Parser) {
   }
 
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None)))
+    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None) ~ ret(Nil)))
 
   def free_lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("free lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Free))))
+    P(Lemma("free lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Free)) ~ ret(Nil)))
 
   def goal(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("goal" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Goal))))
+    P(Lemma("goal" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Goal)) ~ ret(Nil)))
 
   def datadef_(kw: String, declare: Boolean) =
     (kw ?~ name ?~ gens ?~ "=") ~@ constrs(declare)
@@ -452,7 +463,10 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(make_datatypes("data" ~ ((name ~ gens) ~+ ",") ~>@ datadefs_ ~ ";"))
 
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(sortdef | datadef | datadefs | constdef | vardecl | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser.Fail())
+    P(
+      sortdef | datadef | datadefs | constdef | vardecl | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser
+        .Fail()
+    )
 
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(cmd.*)

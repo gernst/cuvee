@@ -6,25 +6,23 @@ import cuvee.util.Name
 
 object Skip extends Block(Nil)
 
-sealed trait Modality /* extends ((Prog, Expr) => Expr) */ {
+sealed trait Modality extends ((List[Prog], Expr) => Expr) {
   def spec(xs: List[Var], pre: Expr, post: Expr): Expr
   def split(cond: Expr, left: Expr, right: Expr): Expr
 
-  // def apply(prog: Prog, post: Expr) = {
-  //   Post(this, prog, post)
-  // }
+  def apply(progs: List[Prog], post: Expr) = {
+    Post(this, Block(progs), post)
+  }
 
-  // def apply(body: Body, post: Expr) = {
-  //   quant(body.locals, Post(this, body.prog, post))
-  // }
-
-  // def unapply(expr: Post) =
-  //   expr match {
-  //     case Post(how, prog, post) if how == this =>
-  //       Some((prog, post))
-  //     case _ =>
-  //       None
-  //   }
+  def unapply(expr: Post) =
+    expr match {
+      case Post(how, prog, post) if how == this =>
+        Some((prog, post))
+      case Post(how, prog, post) if how == this =>
+        Some((prog, post))
+      case _ =>
+        None
+    }
 }
 
 case object Box extends Modality {
@@ -60,41 +58,82 @@ case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
 } */
 
 sealed trait Prog extends util.Syntax {
+  def vars: Set[Var]
   def mod: Set[Var]
   def read: Set[Var]
   def local: Set[Var]
+  def funs: Set[Fun]
   def breaks: Boolean
   def replace(re: Map[Var, Var]): Prog
 }
 
 class ProgList(progs: List[Prog]) {
-  def mod = Set(progs flatMap (_.mod): _*)
-  def read = Set(progs flatMap (_.read): _*)
+  def mod: Set[Var] = progs match {
+    case Nil =>
+      Set()
+    case prog :: rest =>
+      prog.mod ++ (rest.mod -- prog.local)
+  }
+
+  def read: Set[Var] = progs match {
+    case Nil =>
+      Set()
+    case prog :: rest =>
+      prog.read ++ (rest.read -- (prog.local ++ prog.mod))
+  }
+
+  def vars: Set[Var] = {
+    Set(progs flatMap (_.vars): _*)
+  }
+
+  def local: Set[Var] = {
+    Set(progs flatMap (_.local): _*)
+  }
+
+  def funs: Set[Fun] = {
+    Set(progs flatMap (_.funs): _*)
+  }
+
   def breaks = progs exists (_.breaks)
-  def local = Set(progs flatMap (_.local): _*)
   def replace(re: Map[Var, Var]) = progs map (_ replace re)
 }
 
 case class Block(progs: List[Prog]) extends Prog {
+  def vars = progs.vars
   def mod = progs.mod
   def read = progs.read
   def local = Set() // no *exposed* locals
+  def funs = progs.funs
   def breaks = progs.breaks
   def replace(re: Map[Var, Var]) = Block(progs replace re)
 }
 
 case object Break extends Prog {
+  def vars = Set()
   def mod = Set()
   def read = Set()
   def local = Set()
+  def funs = Set()
+  def breaks = true
+  def replace(re: Map[Var, Var]) = this
+}
+
+case object Continue extends Prog {
+  def vars = Set()
+  def mod = Set()
+  def read = Set()
+  def local = Set()
+  def funs = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
 }
 
 case object Return extends Prog {
+  def vars = Set()
   def mod = Set()
   def read = Set()
   def local = Set()
+  def funs = Set()
   def breaks = true
   def replace(re: Map[Var, Var]) = this
 }
@@ -109,13 +148,14 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
     )
 
     for ((x, e) <- (xs zip rhs)) {
-      require(x.typ == e.typ, "ill-typed declaration")
+      require(x.typ == e.typ, "ill-typed declaration: " + x + " := " + e)
     }
   }
-
+  def vars = rhs.free
   def mod = Set() // Note: all new!
   def read = rhs.free
   def local = xs.toSet
+  def funs = rhs.funs
   def breaks = false
   def replace(re: Map[Var, Var]) = Local(xs rename re, rhs rename re)
 }
@@ -134,28 +174,80 @@ case class Assign(xs: List[Var], rhs: List[Expr]) extends Prog {
   )
 
   for ((x, e) <- (xs zip rhs)) {
-    require(x.typ == e.typ, "ill-typed declaration")
+    require(x.typ == e.typ, "ill-typed assignment: " + x + " := " + e)
   }
 
+  def vars = rhs.free ++ xs
   def mod = Set(xs: _*)
   def read = rhs.free
   def local = Set()
+  def funs = rhs.funs
   def breaks = false
   def replace(re: Map[Var, Var]) = Assign(xs rename re, rhs rename re)
 }
 
 object Assign extends ((List[Var], List[Expr]) => Assign) {
-  def flat(l: Expr, r: Expr): (Var, Expr) = l match {
+  def main(args: Array[String]): Unit = {
+    val i = Var("i", Sort.int)
+    val j = Var("j", Sort.int)
+    val k = Var("k", Sort.int)
+
+    val v = Var("v", Sort.int)
+
+    val a = Var("a", Sort.array(Sort.int, Sort.int))
+    val b = Var("b", Sort.array(Sort.int, Sort.array(Sort.int, Sort.int)))
+    val c = Var("c", Sort.array(Sort.int, Sort.array(Sort.int, Sort.array(Sort.int, Sort.int))))
+
+    val (l1, r1) = nested(Select(a, List(i)), v)
+    val (l2, r2) = nested(Select(b, List(i, j)), v)
+    val (l3, r3) = nested(Select(c, List(i, j, k)), v)
+
+    println(l1 + " := " +r1)
+    println(l2 + " := " +r2)
+    println(l3 + " := " +r3)
+
+    val (l1_, r1_) = flatten(l1, r1)
+    val (l2_, r2_) = flatten(l2, r2)
+    val (l3_, r3_) = flatten(l3, r3)
+
+    println(l1_ + " := " +r1_)
+    println(l2_ + " := " +r2_)
+    println(l3_ + " := " +r3_)
+  }
+
+  def nested(l: Expr, r: Expr): (Var, Expr) = l match {
     case x: Var =>
       (x, r)
     case Select(a, i) =>
-      flat(a, Store(a, i, r))
+      nested(a, Store(a, i, r))
   }
 
-  def flats: ((List[Expr], List[Expr]) => Assign) = { case (lhs, rhs) =>
+  def flatten(l: Expr, r: Expr): (Expr, Expr) = r match {
+    case Store(`l`, i, r_) =>
+      flatten(Select(l, i), r_)
+
+    case _ =>
+      (l, r)
+  }
+
+  // x[i] := v
+  // x := x[i:=v]
+
+  // x[i][j] := v
+  // x := x[i:=x[i][j:=v]]
+
+  // x[i][j][k] := v
+  // x := x[i:=x[i][j:=x[i][j][k:=v]]]
+
+  def from: ((Expr, Expr) => Assign) = { case (l, r) =>
+    val (l_, r_) = nested(l, r)
+    Assign(List(l_), List(r_))
+  }
+
+  def froms: ((List[Expr], List[Expr]) => Assign) = { case (lhs, rhs) =>
     val asgs =
       for ((l, r) <- lhs zip rhs)
-        yield flat(l, r)
+        yield nested(l, r)
     val (lhs_, rhs_) = asgs.unzip
     Assign(lhs_, rhs_)
   }
@@ -173,15 +265,16 @@ object Assign extends ((List[Var], List[Expr]) => Assign) {
 case class Spec(xs: List[Var], pre: Expr, post: Expr) extends Prog {
   require(
     pre.typ == Sort.bool,
-    "non-boolean precondition in specification statement"
+    "non-boolean precondition in specification statement: " + pre
   )
   require(
     post.typ == Sort.bool,
-    "non-boolean postcondition in specification statement"
+    "non-boolean postcondition in specification statement: " + post
   )
-
+  def vars = pre.free ++ post.free ++ xs
   def mod = xs.toSet
-  def read = pre.free ++ (post.free -- mod)
+  def read = pre.free ++ (post.free -- xs)
+  def funs = pre.funs ++ post.funs
   def local = Set()
   def breaks = false
 
@@ -201,8 +294,10 @@ case class If(test: Expr, left: Prog, right: Prog) extends Prog {
     "non-boolean test in if statement"
   )
 
+  def vars = test.free ++ left.vars ++ right.vars
   def mod = left.mod ++ right.mod
   def read = test.free ++ left.read ++ right.read
+  def funs = test.funs ++ left.funs ++ right.funs
   def local = left.local ++ right.local
   def breaks = left.breaks || right.breaks
   def replace(re: Map[Var, Var]) =
@@ -210,6 +305,11 @@ case class If(test: Expr, left: Prog, right: Prog) extends Prog {
 }
 
 object If extends ((Expr, Prog, Option[Prog]) => If) {
+
+  def apply(test: Expr, left: Prog): If = {
+    If(test, left, Skip)
+  }
+
   def apply(test: Expr, left: Prog, right: Option[Prog]): If = {
     right match {
       case None        => If(test, left, Skip)
@@ -251,8 +351,10 @@ case class While(
     "non-boolean summary in while statement"
   )
 
+  def vars = test.free ++ body.vars
   def mod = body.mod
   def read = test.free ++ term.free ++ inv.free ++ sum.free ++ body.read
+  def funs = test.funs ++ term.funs ++ inv.funs ++ sum.funs ++ body.funs
   def local = body.local
   def breaks = false
   def replace(re: Map[Var, Var]) =
@@ -275,6 +377,11 @@ object While
             Prog
         ) => While
     ) {
+
+  def apply(test: Expr, body: Prog): While = {
+    While(test, body, Zero, True, True, Nil)
+  }
+
   def apply(
       test: Expr,
       term_ : Option[Expr],
@@ -290,10 +397,12 @@ object While
 
 case class Call(name: Name, in: List[Expr], out: List[Var]) extends Prog {
   def dup = out.groupBy(identity).filter(_._2.size > 1)
-  require(dup.nonEmpty, "procedure call " + name + " has duplicate outputs " + dup)
+  require(dup.isEmpty, "procedure call " + name + " has duplicate outputs " + dup)
 
+  def vars = in.free ++ out.free
   def mod = out.toSet
   def read = in.free
+  def funs = in.funs
   def local = Set()
   def breaks = false
   def replace(re: Map[Var, Var]) =

@@ -32,12 +32,13 @@ package object python {
   }
 
   def source(path: String): Source = new Source {
+    val state = python.state.copy()
     val source = scala.io.Source.fromFile(path)
     val lines = source.mkString
 
     val py = parse(lines)
 
-    val sig = new Signature(python.state.copy())
+    val sig = new Signature(state)
     val exprs = new Exprs(sig)
     val stmts = new Stmts(exprs)
 
@@ -50,7 +51,6 @@ package object python {
 
     val it = prelude.iterator ++ cmds
 
-    def state = python.state
     def next() = it.next()
     def hasNext = it.hasNext
   }

@@ -25,16 +25,17 @@ number  = [1-9][0-9]* | 0
 kw = "function" | "axiom" | "const" | "lemma" | "data" | "type" | "procedure" | "where"
    | "(" | ")" | "[" | "]" | "::" | [;,:{}] | ":="
    | "bool" | "int" | "real" | "=" | "|"
-   | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
+   | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "havoc" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
    | "while" | "if" | "else" | "break" | "return"
    | "proof" | "sorry" | "show" | "then" | "case" | "free lemma" | "goal"
    | "induction" | "unfold" | "at" | "=>" | "end" | "auto" | "noauto"
 
-id = [a-zA-Z_][a-zA-Z0-9⁰-⁹₀-₉_]*
+id = [a-zA-Z_][a-zA-Z0-9⁰-⁹₀-₉_~#$.?]*
 op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"
    | "==" | "!=" | "<=" | "<" | ">" | ">="
 
 quant = "forall" | "exists"
+loc = "old" | "final" | "earlier"
 
 %%
 
@@ -46,6 +47,7 @@ quant = "forall" | "exists"
 {kw}        { return Parser.kw(yytext()); }
 \" ~ \"     { return Parser.string().apply(yytext(+1,-1)); }
 {quant}     { return Parser.quant().apply(yytext()); }
+{loc}       { return Parser.loc().apply(yytext()); }
 {number}    { return Parser.number().apply(yytext()); }
 {id}        { return Parser.id().apply(yytext()); }
 {op}        { return Parser.op().apply(yytext()); }

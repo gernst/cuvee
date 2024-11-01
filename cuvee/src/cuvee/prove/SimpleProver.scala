@@ -18,6 +18,13 @@ class SimpleProver(solver: Solver) extends Prover {
     case And(phis) =>
       Simplify.and(phis map reduce)
 
+    case Or(List(phi, psi)) =>
+      solver.scoped {
+        solver.assert(!phi)
+        val psi_ = reduce(psi)
+        Simplify.or(List(phi, psi_))
+      }
+
     case Imp(phi, psi) =>
       solver.scoped {
         solver.assert(phi)
@@ -42,6 +49,10 @@ class SimpleProver(solver: Solver) extends Prover {
 
         Forall(xs, body__ rename re_)
       }
+
+    case Note(expr, attr) =>
+      val expr_ = reduce(expr)
+      Simplify.note(expr_, attr)
 
     case _ if solver.isTrue(expr) =>
       True

@@ -31,6 +31,17 @@ object Sink {
   def file(name: String)(implicit printer: Printer) =
     new print(new PrintStream(new FileOutputStream(name)))
 
+  class capture extends Sink {
+    var rcmds: List[Cmd] = Nil
+
+    override def exec(cmd: Cmd, state: State): Res = {
+      rcmds = cmd :: rcmds
+      Success
+    }
+
+    override def done(state: State): Unit = {}
+  }
+
   class print(stream: PrintStream)(implicit printer: Printer) extends Sink {
     def done(state: State) {}
 

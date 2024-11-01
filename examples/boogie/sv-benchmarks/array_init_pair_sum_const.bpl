@@ -1,0 +1,42 @@
+data c#void = c#void;
+
+type c#ptr<a₀>;
+
+type c#heap;
+
+var c#heap: c#heap;
+
+function c#bitxor(x₀: int, x₁: int): int;
+
+function c#bitand(x₀: int, x₁: int): int;
+
+function c#bitor(x₀: int, x₁: int): int;
+
+procedure main()
+  returns (c#result: int)
+{
+  var i: int;
+  var N: int := 100000;
+  var a: [int]int;
+  var b: [int]int;
+  var c: [int]int;
+  i := 0;
+  while(i < N) {
+    a[i] := 1;
+    b[i] := 2;
+    i := i + 1;
+  }
+  i := 0;
+  while(i < N) {
+    c[i] := a[i] + b[i];
+    i := i + 1;
+  }
+  i := 1;
+  while(i < N) {
+    assert 3 <= c[i];
+    i := i + 1;
+  }
+  c#result := 0;
+  return;
+}
+
