@@ -129,6 +129,18 @@ sealed trait Expr extends Expr.term with util.Syntax {
   }
 }
 
+object Foo {
+  def main(args: Array[String]) {
+    val a = Var("a", Sort.bool)
+    val b = Var("b", Sort.bool)
+    val c = Var("c", Sort.int)
+    val d = Var("d", Sort.int)
+
+    val expr = And(b, Eq(a, Ite(b, Eq(c, Ite(a, d, c)), Eq(c, d + One))))
+    println(Expr.liftIte(expr))
+  }
+}
+
 object Expr extends Alpha[Expr, Var] {
   case class CannotUnify(reason: String) extends Exception {
     override def toString = reason
