@@ -175,7 +175,8 @@ object Expr extends Alpha[Expr, Var] {
   def liftIte(expr: Expr): Expr = {
     expr match {
       case App(inst, args) =>
-        liftIte(App(inst, _), Nil, args)
+        val args_ = args map liftIte
+        liftIte(App(inst, _), Nil, args_)
 
       // TODO: add more cases!
       case _ =>
