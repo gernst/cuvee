@@ -12,6 +12,9 @@ import cuvee.smtlib.Lemma
 import cuvee.smtlib.Cmd
 import cuvee.smtlib.Free
 import cuvee.smtlib.Goal
+import cuvee.imp.Mode.In
+import cuvee.imp.Mode.Out
+import cuvee.imp.Mode.InOut
 
 class Grammar(parser: cuvee.boogie.Parser) {
   import easyparse.implicits._
@@ -73,6 +76,15 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
   def formals(implicit ctx: Map[Name, Param]) =
     P(formal ~* ",")
+
+  def mode: Parser[Mode, Token] =
+    P(In("in") | Out("out") | InOut("inout"))
+
+  def formalWithMode(implicit ctx: Map[Name, Param]) =
+    P(name ~ ":" ~ mode ~ typ map { case (n ~ m ~ t) => (m, Var(n, t)) })
+
+  def formalsWithMode(implicit ctx: Map[Name, Param]) =
+    P(formalWithMode ~* ",")
 
   object unresolved {
     def expr(implicit
@@ -249,6 +261,19 @@ class Grammar(parser: cuvee.boogie.Parser) {
       maybe_merge(mod)(proc_spec.*) ~ body
     }
 
+  def scoped_behaviors(implicit ctx: Map[Name, Param]) =
+    (sig: List[(Mode, Var)]) => {
+      val (modes, bound) = sig.unzip
+      implicit val scope = toplevel.scope ++ bound.asScope
+
+      val pre = P("requires" ~ formula ~ ";")
+      val post = P("ensures" ~ formula ~ ";")
+
+      val pair = P(And(pre.*) ~ And(post.+))
+
+      pair ~* "also"
+    }
+
   def maybe_returns(implicit ctx: Map[Name, Param]) =
     ("returns" ~ parens(formals)) | ret(Nil)
 
@@ -258,6 +283,11 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def proc(implicit ctx: Map[Name, Param]) = {
     implicit val scope = state.vars
     P(((parens(formals) ~ maybe_returns ~ maybe_modifies) ~@ scoped_body))
+  }
+
+  def contract(implicit ctx: Map[Name, Param]) = {
+    implicit val scope = state.vars
+    P((parens(formalsWithMode) ~@ scoped_behaviors))
   }
 
   def rhs(name: Name, params: List[Param])(implicit ctx: Map[Name, Param]) =
@@ -306,6 +336,13 @@ class Grammar(parser: cuvee.boogie.Parser) {
       proc(ctx)
     }
 
+  def gen_contract[A] =
+    (from: (Name ~ List[Param])) => {
+      val (name ~ params) = from
+      implicit val ctx = Map(params.asContext: _*)
+      contract(ctx)
+    }
+
   val vardecl = {
     import toplevel.ctx
     P(declare_var("var" ~ name ~ ":" ~ typ ~ ";"))
@@ -313,6 +350,9 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
   val procdef =
     P(define_proc("procedure" ~ name ~ gens ~@ gen_proc))
+
+  val contractdef =
+    P(define_contract("contract" ~ name ~ gens ~@ gen_contract))
 
   def sortdef(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(define_sort("type" ~ name ~ gens ~ ("=" ~ typ).? ~ ";"))
@@ -450,6 +490,9 @@ class Grammar(parser: cuvee.boogie.Parser) {
   val datadef =
     P(make_datatype(datadef_("data", declare = true) ~ ";"))
 
+  val abstraction =
+    P(make_abstraction(datadef_("abstractions", declare = true) ~ ";"))
+
   def datadefs_(sorts: List[(Name, List[Param])]) = {
     for ((dt, params) <- sorts) {
       val arity = params.length
@@ -462,10 +505,15 @@ class Grammar(parser: cuvee.boogie.Parser) {
   val datadefs =
     P(make_datatypes("data" ~ ((name ~ gens) ~+ ",") ~>@ datadefs_ ~ ";"))
 
+  val abstractions =
+    P(make_abstractions("abstractions" ~ ((name ~ gens) ~+ ",") ~>@ datadefs_ ~ ";"))
+
+  val fail =
+    easyparse.Parser.Fail[Token](hard = true)
+
   def cmd(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(
-      sortdef | datadef | datadefs | constdef | vardecl | fundef | procdef | axiom | lemma | free_lemma | goal | easyparse.Parser
-        .Fail()
+      sortdef | datadef | datadefs | abstraction | abstractions | constdef | vardecl | fundef | procdef | contractdef | axiom | lemma | free_lemma | goal | fail
     )
 
   def cmds(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =

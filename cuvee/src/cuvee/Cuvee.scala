@@ -286,8 +286,6 @@ class Config {
       } else if (path endsWith ".smt2") {
         if (!overridePrinter) printer = smtlib.printer
         source = smtlib.source(path)
-        if (useContractlib)
-          source.state.withContractLib
       } else if (path endsWith ".py") {
         source = python.source(path)
       } else if (path endsWith ".c") {
@@ -302,6 +300,10 @@ class Config {
       } else {
         error("unknown file format: " + path)
       }
+
+
+      if (useContractlib)
+        source.state.withContractLib
 
       configure(rest)
   }

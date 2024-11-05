@@ -183,7 +183,7 @@ object Printer extends cuvee.util.Printer {
               }
               constr.name + as.mkString("(", ", ", ")")
           }
-          "abstraction " + name + cs.mkString(" = ", " | ", ";")
+          "abstractions " + name + cs.mkString(" = ", " | ", ";")
 
         case ((name, arity), Datatype(params, constrs)) =>
           val cs = constrs map {
@@ -195,7 +195,7 @@ object Printer extends cuvee.util.Printer {
               }
               constr.name + as.mkString("(", ", ", ")")
           }
-          "abstraction " + name +
+          "abstractions " + name +
             params.mkString("<", ", ", ">") +
             cs.mkString(" = ", " | ", ";")
       }

@@ -20,6 +20,8 @@ import cuvee.smtlib.DeclareDatatypes
 import cuvee.smtlib.DeclareProc
 import cuvee.smtlib.DefineProc
 import cuvee.smtlib.DeclareVar
+import cuvee.smtlib.DeclareAbstractions
+import cuvee.smtlib.DeclareContracts
 
 class Parser(val state: State = State.default) {
   object toplevel {
@@ -89,7 +91,8 @@ class Parser(val state: State = State.default) {
     case (name, Nil) =>
       cuvee.error("unknown sort: " + name)
     case (name, args) =>
-      cuvee.error("unknown sort: " + args.mkString("<", ",", ">"))
+      println(state.cons)
+      cuvee.error("unknown sort: " + name + args.mkString("<", ",", ">"))
   }
 
   def make_op: ((String, List[Expr]) => Expr) = {
@@ -217,6 +220,12 @@ class Parser(val state: State = State.default) {
       DefineProc(name, Nil, in, out, spec, body)
   }
 
+  val define_contract: (Name ~ List[Param], List[(Mode, Var)] ~ List[(Expr, Expr)]) => Cmd = {
+    case (name ~ params, (formals, pairs)) =>
+      state.contract(name, params, formals, pairs)
+      DeclareContracts(name, params, formals, pairs)
+  }
+
   def make_constr: ((Name, List[Param], List[Fun], Type) => (Fun, List[Fun])) = {
     case (name, params, sels, res) =>
       // declare the constructor
@@ -255,6 +264,27 @@ class Parser(val state: State = State.default) {
 
     val (arities, dts) = stuff.unzip
     DeclareDatatypes(arities, dts)
+  }
+
+  def make_abstraction: (((Name, List[Param]), List[(Fun, List[Fun])]) => Cmd) = {
+    case ((name, params), constrs) =>
+      val arity = params.length
+      val dt = Datatype(params, constrs)
+      state.abstraction(name, dt)
+      DeclareAbstractions(List((name, arity)), List(dt))
+  }
+
+  def make_abstractions: (List[((Name, List[Param]), List[(Fun, List[Fun])])] => Cmd) = {
+    case descr =>
+      val stuff = for (((name, params), constrs) <- descr) yield {
+        val arity = params.length
+        val dt = Datatype(params, constrs)
+        state.abstraction(name, dt)
+        (name, arity) -> dt
+      }
+
+      val (arities, dts) = stuff.unzip
+      DeclareAbstractions(arities, dts)
   }
 
   val make_script: (List[Cmd] => (List[Cmd], State)) = { case cmds =>
