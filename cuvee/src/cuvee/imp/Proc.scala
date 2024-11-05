@@ -14,9 +14,9 @@ case class Proc(
 
 sealed trait Mode
 object Mode {
-  case object In extends Mode
-  case object Out extends Mode
-  case object InOut extends Mode
+  case object In extends Mode { override def toString = "in" }
+  case object Out extends Mode { override def toString = "out" }
+  case object InOut extends Mode { override def toString = "inout" }
 }
 
 case class Contracts(

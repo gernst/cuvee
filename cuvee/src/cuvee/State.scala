@@ -16,6 +16,7 @@ object State {
       Map.empty,
       Map.empty,
       Map.empty,
+      Map.empty,
       Map.empty
     )
 
@@ -37,6 +38,7 @@ class State(
     var fundefs: Map[(Name, Int), (List[Var], Expr)],
     var procs: Map[Name, Proc],
     var procdefs: Map[Name, (List[Var], List[Var], Prog)],
+    var abstractions: Map[Name, Datatype],
     var contracts: Map[Name, Contracts]
 ) {
   def constr(name: Name) =
@@ -60,7 +62,18 @@ class State(
       procdefs: Map[Name, (List[Var], List[Var], Prog)] = procdefs,
       contracts: Map[Name, Contracts] = contracts
   ) = {
-    new State(cons, condefs, datatypes, vars, funs, fundefs, procs, procdefs, contracts)
+    new State(
+      cons,
+      condefs,
+      datatypes,
+      vars,
+      funs,
+      fundefs,
+      procs,
+      procdefs,
+      abstractions,
+      contracts
+    )
   }
 
   def param(name: Name): Param = {
@@ -104,6 +117,27 @@ class State(
     }
 
     datatypes += (name -> dt)
+  }
+
+  def abstraction(name: Name, dt: Datatype): Unit = {
+    require(cons contains name, "type constructor not declared: " + name)
+    if (abstractions contains name)
+      require(abstractions(name) == dt, "abstraction already defined: " + name)
+
+    for ((constr, sels) <- dt.constrs) {
+      require(
+        funs contains (constr.name, constr.arity),
+        "constructor not previously declared: " + constr.name
+      )
+
+      for (sel <- sels)
+        require(
+          funs contains (sel.name, sel.arity),
+          "selector not previously declared: " + sel.name + " of constructor " + constr.name
+        )
+    }
+
+    abstractions += (name -> dt)
   }
 
   def fun(

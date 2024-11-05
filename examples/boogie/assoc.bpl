@@ -11,5 +11,3 @@ axiom forall a: key ::
 axiom forall a: key, b: key, v: value, xs: alist ::
   contains(a, acons(b, v, xs)) == (a == b || contains (a, xs));
 
-axiom forall a: key, b: key, v: value, xs: alist ::
-  get(a, acons(b, v, xs)) == if a == b then v else get(a, xs);

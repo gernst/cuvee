@@ -89,10 +89,11 @@ object Printer extends cuvee.util.Printer {
         }
       }
 
-      val named_ = if(named.nonEmpty)
-        named.mkString(" {", ", ", "}")
-      else
-        ""
+      val named_ =
+        if (named.nonEmpty)
+          named.mkString(" {", ", ", "}")
+        else
+          ""
 
       mode match {
         case Some(Goal) =>
@@ -139,6 +140,7 @@ object Printer extends cuvee.util.Printer {
         "  " + line(body),
         "}"
       )
+
     case DeclareDatatypes(arities, datatypes) =>
       arities zip datatypes map {
         case ((name, arity), Datatype(Nil, constrs)) =>
@@ -167,6 +169,37 @@ object Printer extends cuvee.util.Printer {
             params.mkString("<", ", ", ">") +
             cs.mkString(" = ", " | ", ";")
       }
+      
+    // XXX: refactor with prior case
+    case DeclareAbstractions(arities, datatypes) =>
+      arities zip datatypes map {
+        case ((name, arity), Datatype(Nil, constrs)) =>
+          val cs = constrs map {
+            case (constr, Nil) =>
+              constr.name
+            case (constr, sels) =>
+              val as = sels map { case Fun(name, _, _, res) =>
+                name + ": " + btype(res)
+              }
+              constr.name + as.mkString("(", ", ", ")")
+          }
+          "abstraction " + name + cs.mkString(" = ", " | ", ";")
+
+        case ((name, arity), Datatype(params, constrs)) =>
+          val cs = constrs map {
+            case (constr, Nil) =>
+              constr.name
+            case (constr, sels) =>
+              val as = sels map { case Fun(name, _, _, res) =>
+                name + ": " + btype(res)
+              }
+              constr.name + as.mkString("(", ", ", ")")
+          }
+          "abstraction " + name +
+            params.mkString("<", ", ", ">") +
+            cs.mkString(" = ", " | ", ";")
+      }
+
     case DeclareProc(name, params, in, out, spec) =>
       var header: String = "procedure " + name
       if (params.nonEmpty) {
@@ -185,6 +218,19 @@ object Printer extends cuvee.util.Printer {
         header +: bspecs(spec.orNull)
       else
         List(header)
+
+    case DeclareContracts(name, params, formals, contracts) =>
+      var header: String = "contract " + name
+
+      if (params.nonEmpty) {
+        val btypes = params map btype
+        header += btypes.mkString("<", ", ", ">")
+      }
+      if (formals.nonEmpty) header += "(" + varmodetypes(formals) + ")"
+      else header += "()"
+
+      header :: bcontracts(contracts)
+
     case DefineProc(name, params, in, out, spec, body) =>
       var header: String = "procedure " + name
       if (params.nonEmpty) {
@@ -552,9 +598,29 @@ object Printer extends cuvee.util.Printer {
     if (!pre.equals(Nil) && pre != True)
       result ++= format("requires", pre)
     if (!post.equals(Nil) && post != True)
-      result ++= format("ensures", post)
+      result ++= format("ensures ", post)
 
     indent(result)
+  }
+
+  private def bcontracts(contracts: List[(Expr, Expr)]): List[String] = contracts match {
+    case Nil =>
+      Nil
+
+    case (pre, post) :: rest =>
+      val pres = And.flattenStrong(pre)
+      val posts = And.flattenStrong(post)
+
+      val pre_ = pres flatMap (format("requires", _))
+      val post_ = posts flatMap (format("ensures ", _))
+
+      val here = indent(pre_ ++ post_)
+      val there = bcontracts(rest)
+
+      if (rest.isEmpty)
+        here
+      else
+        here ++ List("also") ++ there
   }
 
   /** Provides a tuple containing precedence and associativity for the given expression.
@@ -647,6 +713,11 @@ object Printer extends cuvee.util.Printer {
 
   private def vartypes(vars: List[Var]): String = {
     val vars_ = for (v <- vars) yield v + ": " + btype(v.typ)
+    vars_.mkString(", ")
+  }
+
+  private def varmodetypes(vars: List[(cuvee.imp.Mode, Var)]): String = {
+    val vars_ = for ((m, v) <- vars) yield v + ": " + m + " " + btype(v.typ)
     vars_.mkString(", ")
   }
 

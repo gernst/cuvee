@@ -173,3 +173,13 @@ case class DeclareContracts(
     formals: List[(cuvee.imp.Mode, Var)],
     contracts: List[(Expr, Expr)]
 ) extends Decl
+
+case class DeclareAbstractions(
+    arities: List[(Name, Int)],
+    datatypes: List[Datatype]
+) extends Decl {
+  def sorts = arities zip datatypes map {
+    case ((name, arity), Datatype(params, constrs)) =>
+      Sort(Con(name, arity), params)
+  }
+}

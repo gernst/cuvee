@@ -213,6 +213,12 @@ class Parser(init: State) {
         val dts = datatypes(decls, froms.toList)
         DeclareDatatypes(decls, dts)
 
+      case App(Id("declare-abstractions"), App(names @ _*), App(froms @ _*)) =>
+        val decls = arities(names.toList)
+        require(decls.length == froms.length, "invalid datatype specification: " + from)
+        val dts = datatypes(decls, froms.toList)
+        DeclareAbstractions(decls, dts)
+
       case App(Id("declare-contract"), Id(name), App(formals @ _*), App(contracts @ _*)) =>
         // once we know we parse contracts, add some stuff to the state
         val params_ : List[Param] = Nil
@@ -240,6 +246,21 @@ class Parser(init: State) {
       yield {
         val dt = datatype(name, arity, from)
         st.datatype(name, dt)
+        dt
+      }
+  }
+
+  def abstractions(
+      decls: List[(Name, Int)],
+      froms: List[Expr]
+  ): List[Datatype] = {
+    for (((name, arity), from) <- decls zip froms)
+      st.con(name, arity)
+
+    for (((name, arity), from) <- decls zip froms)
+      yield {
+        val dt = datatype(name, arity, from)
+        st.abstraction(name, dt)
         dt
       }
   }
