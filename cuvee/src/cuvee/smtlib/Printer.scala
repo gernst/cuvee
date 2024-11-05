@@ -48,6 +48,8 @@ object Printer extends cuvee.util.Printer {
     case Mode.Out   => just("out")
     case Mode.InOut => just("inout")
 
+    case Loc(name) => just(name)
+
     // Name
     case n: Name => List(cuvee.sexpr.mangle(n.toLabel))
 
@@ -102,6 +104,9 @@ object Printer extends cuvee.util.Printer {
     case DeclareDatatypes(arities, datatypes) =>
       parens("declare-datatypes", arities, datatypes)
 
+    case DeclareAbstractions(arities, datatypes) =>
+      parens("declare-abstractions", arities, datatypes)
+
     case DeclareProc(name, Nil, in, out, None) =>
       parens("declare-proc", in.asFormals, out.asFormals)
 
@@ -153,6 +158,7 @@ object Printer extends cuvee.util.Printer {
       just("\"" + s + "\"")
 
     case Var(name, _)          => lines(name)
+    case At(loc, expr)         => parens(loc, expr)
     case Is(arg, fun)          => parens(args("_", "is", fun.name), arg)
     case Case(pat, expr)       => parens(pat, expr)
     case Match(expr, cases, _) => parens("match", expr, cases)
