@@ -90,7 +90,7 @@ object Enumerate {
   val builtin = State.default.funs.values.toSet
 }
 
-class Enumerate(rounds: Int) extends Stage {
+class Enumerate(rounds: Int, showAll: Boolean) extends Stage {
   import Enumerate._
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) =
@@ -118,17 +118,17 @@ class Enumerate(rounds: Int) extends Stage {
       }
 
       // add some functions with known neutral elements
-      val extra =
-        List(state.funs("+", 2), state.funs("not", 1), state.funs("and", 2), state.funs("or", 2))
+      // val extra =
+      //   List(state.funs("+", 2), state.funs("not", 1), state.funs("and", 2), state.funs("or", 2))
+      val extra = Nil
 
-      val funs = List(nonconstfuns: _*)
+      val funs = List(nonconstfuns ++ extra: _*)
 
       val consts: List[Expr] =
         List(Zero, One) ++ (constfuns map { fun => new App(Inst(fun, Map()), Nil) })
 
       val repeat = 2 // at least 2 needed for e.g. for map:append
       val depth = 3 // at least 3 needed for distributive laws
-      val rounds = 3
 
       // compute a set of candidates for each left-hand side
       var candidates = Set[Expr]()
@@ -139,10 +139,12 @@ class Enumerate(rounds: Int) extends Stage {
         case _: Exception => Nil
       }
 
+      val omit = Set("true_", "false_", "ite_bool", "ite_value", "eq_key")
+
       val init =
         for (
-          f <- nonconstfuns if f.params.isEmpty && !(constrs contains f);
-          g <- nonconstfuns;
+          f <- nonconstfuns if f.params.isEmpty && !(constrs contains f) && !(omit contains f.name.toString);
+          g <- nonconstfuns if !(omit contains f.name.toString);
           (typ, pos) <- f.args.zipWithIndex;
           ty <- list(Type.bind(g.res, typ)) // instantiate g, was if typ == g.res
         ) yield {
@@ -216,6 +218,12 @@ class Enumerate(rounds: Int) extends Stage {
 
               case Unsat =>
                 if (debug) println(" unsat") // trivial
+
+                if(showAll) {
+                  solver.assert(goal)
+                  reinit += Assert(goal)
+                  lemmas = Lemma(goal, None, Some(Free), Nil) :: lemmas
+                }
 
               case Unknown =>
                 val goals = InductiveProver.inductions(goal, state.datatypes)

@@ -443,7 +443,7 @@ object Config {
     }
 
     if (config.lemmas == "enumerate") {
-      sink = new Incremental(new Enumerate(config.lemmasRounds), sink)
+      sink = new Incremental(new Enumerate(config.lemmasRounds, config.lemmasWithSyntheticFunctions), sink)
     }
 
     if (config.lemmas == "neutral") {
