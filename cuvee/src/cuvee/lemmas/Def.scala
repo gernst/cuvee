@@ -91,6 +91,8 @@ case class C(args: List[Expr], guard: List[Expr], body: Expr) extends Expr.bind[
 }
 
 case class Def(fun: Fun, cases: List[C]) {
+  require(cases.nonEmpty, "definition without cases (?)")
+  
   for (cs <- cases) {
     require(
       fun.args == cs.args.types,

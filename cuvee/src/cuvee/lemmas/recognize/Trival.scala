@@ -30,7 +30,7 @@ object Trivial {
     }
 
     if (ok) {
-      assert(args.length == 1)
+      require(args.length == 1)
       List(args(0))
     } else {
       List()
