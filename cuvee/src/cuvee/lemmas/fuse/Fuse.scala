@@ -125,12 +125,15 @@ object Fuse {
     // body_: ((0 + 0) + 1)
     val body__ = Simplify.simplify(body_, rules, constrs)
 
-    // println("gbody:  " + gbody)
-    // println("gbody_:  " + gbody_)
-    // println("body:  " + body)
-    // println("body__: " + body__)
-    // println("args:  " + args)
-    // println()
+    if(debug) {
+    println("fusing cases of " + f + " with arguments")
+    println("gbody:  " + gbody)
+    println("gbody_:  " + gbody_)
+    println("body:  " + body)
+    println("body__: " + body__)
+    println("args:  " + args)
+    println()
+    }
 
     if (isFused(f, g, body__)) {
       val args = xs patch (pos, gargs, 1)
@@ -152,11 +155,15 @@ object Fuse {
 
       for (
         C(fargs, fguard, fbody) <- fcases_;
-        (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody_, constrs, rules);
-        args = fargs patch (pos, gargs_, 1);
-        guard = (fguard ++ gguard) subst su;
-        body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
+        (gargs_, su) <- expose(f, g, fg, fargs(pos), gargs, gbody_, constrs, rules)
       ) yield {
+        val args = fargs patch (pos, gargs_, 1);
+        val guard = (fguard ++ gguard) subst su;
+        println("recursing: ")
+        println("args   " + args)
+        println("fargs: " + fargs + " with [" + pos + "] = " + gbody_)
+        println("fbody: " + fbody + " with su: " + su)
+        val body_ = recurse(f, g, fg, pos, fbody, su, constrs, rules) // fbody subst su
         C(args, guard, body_)
       }
     }
@@ -404,6 +411,8 @@ object Fuse {
         l
       case App(Inst(`f`, _), args) =>
         val args_ = args map (recurse(f, g, fg, pos, _, su, constrs, rules))
+        println(args + " instantiated to " + args_)
+
         args_(pos) match {
           case App(Inst(`g`, _), args) =>
             val res = App(fg, args_ patch (pos, args subst su, 1))
@@ -424,6 +433,7 @@ object Fuse {
               expr_
             } else {
               // if (debug)
+              println("subst: " + su)
                 println("not in fused form for " + fg + ": " + expr_)
               throw CannotFuse
             }

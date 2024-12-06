@@ -23,6 +23,7 @@ object tip2015_mod_same
       "/home/ernst/Projects/refinement/tip/benchmarks/benchmarks-smtlib/tip2015/mod_same.smt2"
     )
 object isaplanner_prop52 extends Run(Test, "examples/smtlib/prop_52.smt2")
+object subst extends Run(Test, "examples/boogie/subst.bpl")
 
 object giesl extends Run(Test, "evaluation/lemmas/list/giesl.bpl")
 object just_append extends Run(Test, "examples/boogie/append.bpl")
@@ -65,6 +66,7 @@ object remove extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/remove.
 object maaap extends Run(Test, "evaluation/lemmas/list/map.bpl")
 object take_drop extends Run(Test, "examples/lemmas/take_drop.bpl")
 object filter extends Run(Test, "-use:shortcut", "evaluation/lemmas/list/filter.bpl")
+object list2 extends Run(Test, "-use:shortcut", "examples/boogie/list.bpl")
 
 object set extends Run(Test, "examples/boogie/set.bpl")
 

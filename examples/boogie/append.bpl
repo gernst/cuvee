@@ -11,10 +11,13 @@ axiom forall x: elem, xs: list<elem>, ys: list<elem> ::
   append(cons(x,xs), ys)
     == cons(x, append(xs, ys));
 
-goal forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
-  append(append(xs, ys), zs)
-    == append(xs, append(ys, zs))
-proof induction xs {
-  case nil => sorry
-  case cons(h, t) => sorry
-};
+function eq_append(xs: list<elem>, ys: list<elem>, zs: list<elem>): bool;
+
+axiom forall ys: list<elem>, zs: list<elem> ::
+  eq_append(nil, ys, zs) == (ys == zs);
+
+axiom forall x: elem, xs: list<elem>, ys: list<elem> ::
+  eq_append(cons(x, xs), ys, nil) == false;
+
+axiom forall x: elem, xs: list<elem>, ys: list<elem>, z: elem, zs: list<elem> ::
+  eq_append(cons(x, xs), ys, cons(z, zs)) == (x == z && eq_append(xs, ys, zs));

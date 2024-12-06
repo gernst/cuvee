@@ -3,6 +3,16 @@ data list<a> = nil | cons(head: a, tail: list<a>);
 
 // Declarations of functions
 
+function eq(xs: list<elem>, ys: list<elem>): bool;
+axiom
+  eq(nil, nil) == true;
+axiom forall y: elem, ys: list<elem> ::
+  eq(nil, cons(y, ys)) == false;
+axiom forall x: elem, xs: list<elem> ::
+  eq(cons(x, xs), nil) == false;
+axiom forall x: elem, xs: list<elem>, y: elem, ys: list<elem> ::
+  eq(cons(x, xs), cons(y, ys)) == (x == y && eq(xs, ys));
+
 function length(xs: list<elem>): int;
 function map (f: [elem]elem, xs: list<elem>): list<elem>;
 function all(p: [elem]bool, xs: list<elem>): bool;
