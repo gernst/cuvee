@@ -163,6 +163,8 @@ object Simplify {
       // println("su = " + su)
       // println("assms1 = " + assms1)
 
+      assert(su.isEmpty, "onePoint rule is broken (does not chain, discards unbound vars)")
+
       val concls1 = concls0 map (_ subst su)
       // println("concls1 = " + concls1)
 
