@@ -71,20 +71,30 @@ class Config {
     System.exit(0)
   }
 
+  def version() {
+    println(cuvee.version)
+    System.exit(0)
+  }
+
   val options = Map(
-    option("-help", "show this help text") { help() },
-    option(
-      "-log:info",
-      "print some informative output to stderr, such as progress"
-    ) {
-      printer = cuvee.smtlib.printer
+    option("-help", "show this help text") {
+      help()
     },
-    option(
-      "-log:debug",
-      "print lots of internals to stderr, includes -log:info"
-    ) {
-      printer = cuvee.smtlib.printer
+    option("-version", "print version number") {
+      version()
     },
+    // option(
+    //   "-log:info",
+    //   "print some informative output to stderr, such as progress"
+    // ) {
+    //   printer = cuvee.smtlib.printer
+    // },
+    // option(
+    //   "-log:debug",
+    //   "print lots of internals to stderr, includes -log:info"
+    // ) {
+    //   printer = cuvee.smtlib.printer
+    // },
     option("-debug:solver", "show interaction SMT-LIB backends") {
       Solver.debug = true
     },
@@ -301,7 +311,6 @@ class Config {
         error("unknown file format: " + path)
       }
 
-
       if (useContractlib)
         source.state.withContractLib
 
@@ -443,7 +452,10 @@ object Config {
     }
 
     if (config.lemmas == "enumerate") {
-      sink = new Incremental(new Enumerate(config.lemmasRounds, config.lemmasWithSyntheticFunctions), sink)
+      sink = new Incremental(
+        new Enumerate(config.lemmasRounds, config.lemmasWithSyntheticFunctions),
+        sink
+      )
     }
 
     if (config.lemmas == "neutral") {

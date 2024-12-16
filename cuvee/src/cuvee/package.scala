@@ -2,7 +2,10 @@ import scala.annotation.tailrec
 import cuvee.smtlib.Lemma
 
 package object cuvee {
+  val version = "dev"
+
   var level = 0
+
   def info(msg: Any*) = log(1, msg)
   def debug(msg: Any*) = log(2, msg)
 

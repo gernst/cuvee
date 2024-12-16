@@ -5,4 +5,4 @@ const D: bool;
 const E: bool;
 
 goal
-    A && B ==> (D ==> E) && C;
+    A && B ==> (D ==> E) ==> C;

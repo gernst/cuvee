@@ -26,11 +26,9 @@ object cuvee extends ScalaModule {
     ivy"com.lihaoyi::pythonparse:3.0.2",
     ivy"org.yaml:snakeyaml:2.2"
   )
-}
 
-object tests extends ScalaModule {
-  def scalaVersion = cuvee.scalaVersion
-  def forkArgs = cuvee.forkArgs
-  def moduleDeps = Seq(cuvee)
-  def mainClass = Some("tests.Tests")
+  object test extends ScalaTests {
+    def ivyDeps = Agg(ivy"com.lihaoyi::utest:0.8.4")
+    def testFramework = "utest.runner.Framework"
+  }
 }
