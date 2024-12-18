@@ -97,7 +97,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | wp | ite | bind | map)
+      P(parens(expr) | num | wp | box | dia | ite | bind | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~+ ",") | ret(Nil))
@@ -127,11 +127,13 @@ class Grammar(parser: cuvee.boogie.Parser) {
       P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
 
     def wp(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(
-        WP(braces(block_) ~ formula) | Box(brackets(block_) ~ formula) | Dia(
-          angle(block_) ~ formula
-        )
-      )
+      P(WP(braces(block_) ~ formula))
+
+    def box(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(Box(brackets(block_) ~ formula))
+
+    def dia(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(Dia(angle(block_) ~ formula))
 
     def scoped_expr(
         bound: List[Var]
