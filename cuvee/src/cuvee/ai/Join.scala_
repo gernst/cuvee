@@ -1,0 +1,78 @@
+package cuvee.ai
+
+object Join {
+  def join(
+      a: ARef,
+      b: ARef,
+      arefs: Map[ARef, AVal],
+      brefs: Map[ARef, AVal],
+      crefs: Map[ARef, AVal],
+      cache: Map[(ARef, ARef), ARef]
+  ): (ARef, Map[ARef, AVal], Map[(ARef, ARef), ARef]) = {
+    if (cache contains ((a, b))) {
+      val c = cache((a, b))
+      (c, crefs, cache)
+    } else {
+      val c = ARef.fresh()
+      val (v, crefs_, cache_) = join(arefs(a), brefs(b), arefs, brefs, crefs, cache)
+      (c, crefs_ + (c -> v), cache_ + ((a, b) -> c))
+    }
+  }
+
+  def join(
+      a: AVal,
+      b: AVal,
+      arefs: Map[ARef, AVal],
+      brefs: Map[ARef, AVal],
+      crefs: Map[ARef, AVal],
+      cache: Map[(ARef, ARef), ARef]
+  ): (AVal, Map[ARef, AVal], Map[(ARef, ARef), ARef]) = {
+    (a, b) match {
+      case (a: ABool, b: ABool) =>
+        (a join b, crefs, cache)
+
+      case (a: AInt, b: AInt) =>
+        (a join b, crefs, cache)
+
+      case (ANil, ANil) =>
+        (ANil, crefs, cache)
+
+      case (ACons(x, xs), ACons(y, ys)) =>
+        val (z, crefs_, cache_) = join(x, y, arefs, brefs, crefs, cache)
+        val (zs, crefs__, cache__) = join(x, y, arefs, brefs, crefs_, cache_)
+        (ACons(z, zs), crefs__, cache__)
+
+      case (xs: AList, ys: AList) =>
+        // both guaranteed to be non-empty
+        val as = Merge.flatten(xs, arefs)
+        val bs = Merge.flatten(ys, brefs)
+
+        val (a, arefs_) = join(as, arefs)
+        val (b, brefs_) = join(bs, brefs)
+
+        // join(a, b, arefs_, brefs_, crefs, cache)
+        ???
+    }
+  }
+
+
+  def join(as: List[ARef], refs: Map[ARef, AVal]): (ARef, Map[ARef, AVal]) = ???
+
+  def join(a: ARef, b: ARef, refs: Map[ARef, AVal]): (ARef, Map[ARef, AVal]) = {
+    val c = ARef.fresh
+    val (v, refs_) = join(refs(a), refs(b), refs)
+    (c, refs_ + (c -> v))
+  }
+
+  def join(a: AVal, b: AVal, refs: Map[ARef, AVal]): (AVal, Map[ARef, AVal]) = {
+    (a, b) match {
+      case (a: ABool, b: ABool) =>
+        (a join b, refs)
+
+      case (a: AInt, b: AInt) =>
+        (a join b, refs)
+
+      // other cases are nested lists, not yet supported
+    }
+  }
+}
