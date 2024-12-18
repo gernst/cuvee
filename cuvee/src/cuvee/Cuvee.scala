@@ -254,7 +254,7 @@ class Config {
       configure(rest)
 
     case "-o" :: path :: rest if path endsWith ".java" =>
-      sink = cuvee.util.JavaBenchmarkWriter.sink(path)
+      sink = cuvee.java.JavaBenchmarkWriter.sink(path)
       configure(rest)
 
     case "-o" :: path :: rest =>

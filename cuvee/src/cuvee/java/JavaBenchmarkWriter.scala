@@ -1,4 +1,4 @@
-package cuvee.util
+package cuvee.java
 
 import scala.collection.mutable
 
@@ -10,6 +10,7 @@ import cuvee.imp._
 import java.io.PrintStream
 import java.io.FileOutputStream
 import java.io.File
+import cuvee.util.Name
 
 object JavaBenchmarkWriter {
   val Indent = "    "
@@ -53,7 +54,7 @@ object JavaBenchmarkWriter {
     call("program.block", call("List.of", progs))
   }
 
-  def sink(path: String) = (_: Printer) =>
+  def sink(path: String) = (_: cuvee.util.Printer) =>
     new Sink {
       var integers: Set[String] = Set()
       var arrays: Set[String] = Set()
