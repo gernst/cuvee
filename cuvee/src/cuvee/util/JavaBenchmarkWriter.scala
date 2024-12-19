@@ -1,4 +1,4 @@
-package cuvee.java
+package cuvee.util
 
 import scala.collection.mutable
 
@@ -7,10 +7,12 @@ import cuvee.State
 import cuvee.smtlib._
 import cuvee.pure._
 import cuvee.imp._
+import cuvee.util.Name
+
+
 import java.io.PrintStream
 import java.io.FileOutputStream
 import java.io.File
-import cuvee.util.Name
 
 object JavaBenchmarkWriter {
   val Indent = "    "
