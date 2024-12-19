@@ -1,4 +1,4 @@
-package cuvee.lemmas.evaluation
+package cuvee.lemmas
 
 import java.io.PrintStream
 import cuvee.smtlib._

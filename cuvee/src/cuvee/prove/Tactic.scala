@@ -8,7 +8,6 @@ import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.util.Name
 import cuvee.prove.Rating
-import cuvee.prove.Proving
 
 /** Represents an instance of a tactic, possibly with arguments.
   * 
@@ -235,7 +234,8 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)])
     val baseGoals = baseIndices map (goals(_))
 
     val success = baseGoals forall { case (goal, _) =>
-      Proving.proveAndSimplify(goal, prover, state) == Atom.t
+      ???
+      // Proving.proveAndSimplify(goal, prover, state) == Atom.t
     }
 
     success match {

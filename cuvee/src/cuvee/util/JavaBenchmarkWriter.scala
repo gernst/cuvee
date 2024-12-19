@@ -7,6 +7,9 @@ import cuvee.State
 import cuvee.smtlib._
 import cuvee.pure._
 import cuvee.imp._
+import cuvee.util.Name
+
+
 import java.io.PrintStream
 import java.io.FileOutputStream
 import java.io.File
@@ -53,7 +56,7 @@ object JavaBenchmarkWriter {
     call("program.block", call("List.of", progs))
   }
 
-  def sink(path: String) = (_: Printer) =>
+  def sink(path: String) = (_: cuvee.util.Printer) =>
     new Sink {
       var integers: Set[String] = Set()
       var arrays: Set[String] = Set()
