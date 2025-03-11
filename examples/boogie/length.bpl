@@ -19,3 +19,10 @@ axiom forall ys: list<elem> ::
   append(nil, ys) == ys;
 axiom forall x: elem, xs: list<elem>, ys: list<elem> ::
   append(cons(x,xs), ys) == cons(x, append(xs, ys));
+
+goal forall xs: list<elem> ::
+  length(xs) >= 0
+proof induction xs {
+  case nil => sorry
+  case cons(y, ys) => sorry
+};
