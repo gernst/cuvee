@@ -24,8 +24,6 @@ object Prover {
   object dummy extends Prover {
     def exec(cmd: Cmd, state: State) {}
     def reduce(prop: Prop, state: State) = {
-      println(prop)
-      ???
       prop
     }
   }

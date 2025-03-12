@@ -19,7 +19,7 @@ object Printer extends cuvee.util.Printer {
   import easyparse.Non
 
   import boogie.Grammar.syntax
-  import boogie.Parser.translate
+  import boogie.Grammar.translate
 
   // cuvee.name -> (boogie.name, prec, assoc)
   private val infix =
@@ -119,23 +119,21 @@ object Printer extends cuvee.util.Printer {
     case DeclareSort(name, 0) =>
       List("type " + name + ";")
     case DeclareSort(name, arity) =>
-      List(
-        "type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";"
-      )
+      List("type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";")
     case DefineSort(name, params, body) =>
-      List("type " + name + " = " + btype(body) + ";")
+      List("type " + name + params.mkString("<", ", ", ">") + " = " + btype(body) + ";")
     case DeclareVar(name, typ) =>
       List("var " + name + ": " + btype(typ) + ";")
-    case x @ DeclareFun(name, _, _, res) if x.formals.isEmpty =>
+    case x @ DeclareFun(name, Nil, Nil, res) =>
       List("const " + name + ": " + btype(res) + ";")
     case x @ DeclareFun(name, params, _, res) =>
       List(
-        "function " + name +
+        "function " + name + params.mkString("<", ", ", ">") +
           "(" + vartypes(x.formals) + "): " + btype(res) + ";"
       )
-    case DefineFun(name, _, formals, res, body, _) =>
+    case DefineFun(name, params, formals, res, body, _) =>
       List(
-        "function " + name +
+        "function " + name + params.mkString("<", ", ", ">") +
           "(" + vartypes(formals) + "): " + btype(res) + " {",
         "  " + line(body),
         "}"
@@ -169,7 +167,7 @@ object Printer extends cuvee.util.Printer {
             params.mkString("<", ", ", ">") +
             cs.mkString(" = ", " | ", ";")
       }
-      
+
     // XXX: refactor with prior case
     case DeclareAbstractions(arities, datatypes) =>
       arities zip datatypes map {

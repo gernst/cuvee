@@ -99,8 +99,8 @@ class Parser(val state: State = State.default) {
     case ("!=", List(arg1, arg2)) =>
       make_not(make_eq(arg1, arg2))
 
-    case (name, args) if Parser.translate contains name =>
-      val name_ = Parser.translate(name)
+    case (name, args) if Grammar.translate contains name =>
+      val name_ = Grammar.translate(name)
       typing.app(name_, args)
 
     case (name, args) =>
@@ -320,18 +320,6 @@ object Parser {
   val string = V[String]
   val quant = V[String]
   val loc = V[String]
-
-  val translate = Map(
-    "<==>" -> "=",
-    "==>" -> "=>",
-    "&&" -> "and",
-    "||" -> "or",
-    "==" -> "=",
-    // "!=" -> "distinct",
-    "/" -> "div",
-    "%" -> "mod",
-    "!" -> "not"
-  )
 
   val final_to_old: (Expr => Expr) =
     (expr: Expr) => final_to_old_(expr, Set())
