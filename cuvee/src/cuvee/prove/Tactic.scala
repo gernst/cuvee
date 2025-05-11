@@ -265,8 +265,10 @@ case class Show(
     val Clause(xs, ant, suc) = goal
 
     val goals = Horn.assume(List(expr), Nil, xs, ant, List(suc))
-    assert(goals.length == 1)
-    val goal_ = goals.head
+    val goal_ = 
+      if(goals.isEmpty) True 
+      else if(goals.length <= 1) goals.head 
+      else throw new TacticNotApplicableException(f"assume created more goals than expected: $goals")
 
     List(
       (expr, tactic), //TODO replace from?
