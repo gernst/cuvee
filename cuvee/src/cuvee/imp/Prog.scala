@@ -102,7 +102,7 @@ class ProgList(progs: List[Prog]) {
 object Prog {
 
   def liftLocals(
-    avoid: Set[Var],
+      avoid: Set[Var],
       prog: Prog
   ): (List[Var], Prog) = {
     liftLocals(avoid, List(prog), Nil) match {
@@ -134,14 +134,14 @@ object Prog {
         val (ys_, progs_) = liftLocals(avoid ++ xs_, rest_, cont)
         (xs_ ++ ys_, progs_)
 
-        case Local(xs, rhs) :: rest =>
-          val zs = avoid & xs.toSet
-          val re = Expr.fresh(zs)
-          val xs_ = xs rename re
-          val asg_ = Assign(xs_, rhs)
-          val rest_ = rest replace re
-          val (ys_, progs_) = liftLocals(avoid ++ xs_, rest_, cont)
-          (xs_ ++ ys_, asg_ :: progs_)
+      case Local(xs, rhs) :: rest =>
+        val zs = avoid & xs.toSet
+        val re = Expr.fresh(zs)
+        val xs_ = xs rename re
+        val asg_ = Assign(xs_, rhs)
+        val rest_ = rest replace re
+        val (ys_, progs_) = liftLocals(avoid ++ xs_, rest_, cont)
+        (xs_ ++ ys_, asg_ :: progs_)
 
       case Block(progs) :: rest =>
         liftLocals(avoid, progs, rest :: cont)
@@ -149,13 +149,15 @@ object Prog {
       case If(test, left, right) :: rest =>
         val (xs1, left_) = liftLocals(avoid, left)
         val (xs2, right_) = liftLocals(avoid, right)
+        val (ys_, progs_) = liftLocals(avoid ++ xs1 ++ xs2, rest, cont)
         val if_ = If(test, left_, right_)
-        (xs1 ++ xs2, List(if_))
+        (xs1 ++ xs2 ++ ys_, if_ :: progs_)
 
       case While(test, body, term, pre, post, frames) :: rest =>
         val (xs_, body_) = liftLocals(avoid, body)
+        val (ys_, progs_) = liftLocals(avoid ++ xs_, rest, cont)
         val while_ = While(test, body_, term, pre, post, frames)
-        (xs_, List(while_))
+        (xs_, while_ :: progs_)
 
       case prog :: rest =>
         val (xs_, progs_) = liftLocals(avoid, rest, cont)
