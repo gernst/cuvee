@@ -99,6 +99,71 @@ class ProgList(progs: List[Prog]) {
   def replace(re: Map[Var, Var]) = progs map (_ replace re)
 }
 
+object Prog {
+
+  def liftLocals(
+    avoid: Set[Var],
+      prog: Prog
+  ): (List[Var], Prog) = {
+    liftLocals(avoid, List(prog), Nil) match {
+      case (xs_, List(prog)) => (xs_, prog)
+      case (xs_, progs)      => (xs_, Block(progs))
+    }
+  }
+
+  def liftLocals(
+      avoid: Set[Var],
+      progs: List[Prog],
+      cont: List[List[Prog]]
+  ): (List[Var], List[Prog]) = {
+    progs match {
+      case Nil =>
+        cont match {
+          case Nil =>
+            (Nil, Nil)
+
+          case todo :: cont =>
+            liftLocals(avoid, todo, cont)
+        }
+
+      case Local(xs, Nil) :: rest =>
+        val zs = avoid & xs.toSet
+        val re = Expr.fresh(zs)
+        val xs_ = xs rename re
+        val rest_ = rest replace re
+        val (ys_, progs_) = liftLocals(avoid ++ xs_, rest_, cont)
+        (xs_ ++ ys_, progs_)
+
+        case Local(xs, rhs) :: rest =>
+          val zs = avoid & xs.toSet
+          val re = Expr.fresh(zs)
+          val xs_ = xs rename re
+          val asg_ = Assign(xs_, rhs)
+          val rest_ = rest replace re
+          val (ys_, progs_) = liftLocals(avoid ++ xs_, rest_, cont)
+          (xs_ ++ ys_, asg_ :: progs_)
+
+      case Block(progs) :: rest =>
+        liftLocals(avoid, progs, rest :: cont)
+
+      case If(test, left, right) :: rest =>
+        val (xs1, left_) = liftLocals(avoid, left)
+        val (xs2, right_) = liftLocals(avoid, right)
+        val if_ = If(test, left_, right_)
+        (xs1 ++ xs2, List(if_))
+
+      case While(test, body, term, pre, post, frames) :: rest =>
+        val (xs_, body_) = liftLocals(avoid, body)
+        val while_ = While(test, body_, term, pre, post, frames)
+        (xs_, List(while_))
+
+      case prog :: rest =>
+        val (xs_, progs_) = liftLocals(avoid, rest, cont)
+        (xs_, prog :: progs_)
+    }
+  }
+}
+
 case class Note(prog: Prog, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Prog {
   def flatAttr = attr flatMap {
     case (kw, None)        => List(kw)
