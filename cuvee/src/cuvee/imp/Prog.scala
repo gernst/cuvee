@@ -2,6 +2,7 @@ package cuvee.imp
 
 import cuvee.pure._
 import cuvee.util
+import cuvee.sexpr
 import cuvee.util.Name
 
 object Skip extends Block(Nil)
@@ -96,6 +97,23 @@ class ProgList(progs: List[Prog]) {
 
   def breaks = progs exists (_.breaks)
   def replace(re: Map[Var, Var]) = progs map (_ replace re)
+}
+
+case class Note(prog: Prog, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Prog {
+  def flatAttr = attr flatMap {
+    case (kw, None)        => List(kw)
+    case (kw, Some(sexpr)) => List(kw, sexpr)
+  }
+
+  def vars = prog.vars
+  def mod = prog.mod
+  def read = prog.read
+  def local = prog.local
+  def funs = prog.funs
+  def breaks = prog.breaks
+
+  def replace(re: Map[Var, Var]) =
+    Note(prog replace re, attr)
 }
 
 case class Block(progs: List[Prog]) extends Prog {
@@ -202,17 +220,17 @@ object Assign extends ((List[Var], List[Expr]) => Assign) {
     val (l2, r2) = nested(Select(b, List(i, j)), v)
     val (l3, r3) = nested(Select(c, List(i, j, k)), v)
 
-    println(l1 + " := " +r1)
-    println(l2 + " := " +r2)
-    println(l3 + " := " +r3)
+    println(l1 + " := " + r1)
+    println(l2 + " := " + r2)
+    println(l3 + " := " + r3)
 
     val (l1_, r1_) = flatten(l1, r1)
     val (l2_, r2_) = flatten(l2, r2)
     val (l3_, r3_) = flatten(l3, r3)
 
-    println(l1_ + " := " +r1_)
-    println(l2_ + " := " +r2_)
-    println(l3_ + " := " +r3_)
+    println(l1_ + " := " + r1_)
+    println(l2_ + " := " + r2_)
+    println(l3_ + " := " + r3_)
   }
 
   def nested(l: Expr, r: Expr): (Var, Expr) = l match {

@@ -762,6 +762,11 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
 }
 
 case class Note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Expr {
+  def flatAttr = attr flatMap {
+    case (kw, None)        => List(kw)
+    case (kw, Some(sexpr)) => List(kw, sexpr)
+  }
+
   def typ = expr.typ
 
   def free = expr.free

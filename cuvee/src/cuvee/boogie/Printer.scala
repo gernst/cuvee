@@ -567,13 +567,8 @@ object Printer extends cuvee.util.Printer {
       "match " + line(expr) + cases.toString + btype(
         typ
       ) + ";" // TODO: fix and test
-    case Note(expr, attr) =>
-      val attr_ = attr map {
-        case (kw, None)                 => kw.toString
-        case (kw, Some(sexpr.Id(text))) => kw.toString + " \"" + text + "\""
-      }
-
-      attr_.mkString("{", ", ", "} ") + line(expr)
+    case note@cuvee.pure.Note(expr, attr) =>
+      note.flatAttr.mkString("{", ", ", "} ") + line(expr)
   }
 
   private def modality(how: Modality) = how match {
