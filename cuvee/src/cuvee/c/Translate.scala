@@ -12,6 +12,7 @@ object Translate {
   var split = false
   var translateAsserts = true
   var assumeBounds = false
+  var liftLocals = true
   val (prelude, state) = cuvee.boogie.parse("cuvee/src/cuvee/c/c.bpl")
 }
 
@@ -224,6 +225,8 @@ class Translate(state: State) {
     progs match {
       case List(imp.Block(inner)) =>
         block(inner)
+      case List(prog) =>
+        prog
       case _ =>
         imp.Block(cleanup(progs))
     }

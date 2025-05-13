@@ -198,13 +198,22 @@ object Printer extends cuvee.util.Printer {
     case Sort(con, args) => parens2(con.name)(args)
 
     // imp.Prog
-    case Block(progs)        => parens2("block")(progs)
-    case Break               => parens("break")
-    case Return              => parens("return")
-    case Local(xs, rhs)      => parens("local", (xs.asFormals zip rhs))
-    case Assign(xs, rhs)     => parens("assign", xs zip rhs)
-    case Spec(xs, pre, post) => parens("spec", xs, pre, post)
+    case Block(progs)    => parens2("sequence")(progs)
+    case Break           => parens("break")
+    case Return          => parens("return")
+    case Local(xs, Nil)  => parens("local", xs.asFormals)
+    case Local(xs, rhs)  => parens("local", (xs.asFormals zip rhs))
+    case Assign(xs, rhs) => parens("assign", xs zip rhs)
+
+    case Spec(Nil, True, post) => parens("assume", post)
+    case Spec(Nil, pre, True)  => parens("assert", pre)
+    case Spec(xs, True, True)  => parens("havoc", xs)
+    case Spec(xs, pre, post)   => parens("spec", xs, pre, post)
+
     case Call(name, in, out) => parens("call", name, in, out)
+
+    case If(test, left, Skip) =>
+      parens("if", test, left)
 
     case If(test, left, right) =>
       parens("if", test, left, right)

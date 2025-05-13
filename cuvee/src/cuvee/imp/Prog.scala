@@ -175,7 +175,8 @@ case class Local(xs: List[Var], rhs: List[Expr]) extends Prog {
   def local = xs.toSet
   def funs = rhs.funs
   def breaks = false
-  def replace(re: Map[Var, Var]) = Local(xs rename re, rhs rename re)
+  def replace(re: Map[Var, Var]) =
+    Local(xs rename re, rhs rename re)
 }
 
 object Local extends ((List[Var], Option[List[Expr]]) => Local) {
@@ -386,15 +387,7 @@ case class While(
     )
 }
 
-object While
-    extends (
-        (
-            Expr,
-            Option[Expr],
-            Spec,
-            Prog
-        ) => While
-    ) {
+object While extends ((Expr, Option[Expr], Spec, Prog) => While) {
 
   def apply(test: Expr, body: Prog): While = {
     While(test, body, Zero, True, True, Nil)
