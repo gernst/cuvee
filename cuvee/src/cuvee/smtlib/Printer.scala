@@ -178,18 +178,6 @@ object Printer extends cuvee.util.Printer {
     case Inst(fun, ty) =>
       lines(fun.name)
 
-    // pure.Prop
-    case Atom(expr, _) =>
-      lines(expr)
-    case Conj(xs, neg) =>
-      parens2("exists", xs.asFormals, "or")(neg)
-    case Disj(xs, neg, pos) =>
-      parens(
-        "forall",
-        xs.asFormals,
-        args("=>", args2("and")(neg), args2("or")(pos))
-      )
-
     // pure.Type
     case Datatype(params, constrs) =>
       val constrs_ = for ((k, sels) <- constrs) yield {

@@ -1,10 +1,8 @@
 package cuvee.prove
 
 import cuvee.smtlib.Solver
-import cuvee.pure.Prop
 import cuvee.State
 import cuvee.smtlib.Cmd
-import cuvee.pure.Atom
 import cuvee.util.Counter
 import cuvee.pipe.Sink
 import java.io.PrintStream
@@ -13,18 +11,20 @@ import cuvee.smtlib.Assert
 import cuvee.smtlib.CheckSat
 import cuvee.pure.Simplify
 import cuvee.pure.Rewrite
+import cuvee.pure.Expr
+import cuvee.pure.True
 
 trait Prover extends Tactic {
   def exec(cmd: Cmd, state: State)
-  def reduce(prop: Prop, state: State): Prop
-  def apply(state: State, prop: Prop) = List((prop, None))
+  def reduce(expr: Expr, state: State): Expr
+  def apply(state: State, expr: Expr) = List((expr, None))
 }
 
 object Prover {
   object dummy extends Prover {
     def exec(cmd: Cmd, state: State) {}
-    def reduce(prop: Prop, state: State) = {
-      prop
+    def reduce(expr: Expr, state: State) = {
+      expr
     }
   }
 
@@ -35,14 +35,14 @@ object Prover {
       cmds = cmd :: cmds
     }
 
-    def reduce(prop: Prop, state: State) = {
+    def reduce(expr: Expr, state: State) = {
       val constrs = state.constrs
       val rules = Rewrite.from(cmds, state) // add some new rewrite rules
       // println("safe rules:")
       // for (rule <- rules)
       //   println("  " + rule)
       val rws = rules.groupBy(_.fun)
-      val prop_ = Simplify.simplify(prop, rws, constrs)
+      val prop_ = Simplify.simplify(expr, rws, constrs)
       prop_
     }
   }
@@ -52,17 +52,17 @@ object Prover {
       solver.exec(cmd, state)
     }
 
-    def reduce(prop: Prop, state: State) = {
-      val phi = prop.toExpr
+    def reduce(expr: Expr, state: State) = {
+      val phi = expr
       // print("proving " + phi.toString)
       if (solver.isTrue(phi)) {
         // println("success!")
-        Atom.t
+        True
       } else if (useInduction && InductiveProver.holdsByInduction(solver, phi, state.datatypes)) {
-        Atom.t
+        True
       } else {
         // println("unknown.")
-        prop
+        expr
       }
     }
   }
@@ -77,7 +77,7 @@ object Prover {
       prelude += cmd
     }
 
-    def reduce(prop: Prop, state: State) = {
+    def reduce(prop: Expr, state: State) = {
       val file = prefix + next + ".smt2"
       val stream = new PrintStream(new FileOutputStream(file))
       val sink = new Sink.print(stream)
@@ -85,7 +85,7 @@ object Prover {
       for (cmd <- prelude)
         sink.exec(cmd, null)
 
-      val goal = !prop.toExpr
+      val goal = !prop
       sink.exec(Assert(goal), null)
       sink.exec(CheckSat, null)
 

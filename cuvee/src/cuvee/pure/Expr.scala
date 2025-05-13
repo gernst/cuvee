@@ -322,21 +322,6 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
         (this in body) && !(formals contains this)
     }
 
-  def in(that: Prop): Boolean =
-    that match {
-      case Atom(expr, cex) =>
-        this in expr
-
-      case Disj(xs, assms, concls) =>
-        (assms exists (this in _)) || (concls exists (this in _))
-    }
-
-  def in(that: Conj): Boolean =
-    that match {
-      case Conj(xs, props) =>
-        (props exists (this in _))
-    }
-
   def in(that: List[Expr]): Boolean =
     that exists (this in _)
 

@@ -41,19 +41,19 @@ class Prove(
         List(cmd)
 
       case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
-        val goal = Prop.from(expr)
-        for (goal_ <- reduce(goal, tactic, rws, state) if !goal_.isTrue)
+        val goal = expr
+        for (goal_ <- reduce(goal, tactic, rws, state) if !(goal_ == True))
           yield {
-            val expr_ = goal_.toExpr
+            val expr_ = goal_
             crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             Lemma(expr_, None, Some(Goal), label)
           }
 
       case cmd @ Lemma(expr, tactic, None, label) =>
-        val goal = Prop.from(expr)
+        val goal = expr
         for (goal_ <- reduce(goal, tactic, rws, state))
           yield {
-            val expr_ = goal_.toExpr
+            val expr_ = goal_
             crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             val mode_ = if (expr_ == True) Some(Free) else None
             Lemma(expr, None, mode_, label)
@@ -66,12 +66,12 @@ class Prove(
         List(cmd)
 
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
-        val goal = Prop.from(expr)
+        val goal = expr
         // println("proving " + goal)
         // println(rws)
         for (goal_ <- reduce(goal, None, rws, state))
           yield {
-            val expr_ = goal_.toExpr
+            val expr_ = goal_
             crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             Assert(Simplify.not(expr_))
           }
@@ -87,8 +87,8 @@ class Prove(
 
   def crosscheck(
       expr: Expr,
-      goal: Prop,
-      goal_ : Prop,
+      goal: Expr,
+      goal_ : Expr,
       expr_ : Expr,
       ctx: List[Cmd],
       state: State
@@ -107,14 +107,13 @@ class Prove(
         // ???
       }
 
-      if (!solver.isTrue(expr === goal.toExpr)) {
+      if (!solver.isTrue(expr === goal)) {
         println(expr)
-        println(goal.toExpr)
         println(goal)
         assert(false, "conversion to prop did not produce original formula!")
       }
 
-      if (!solver.isTrue(expr_ === goal_.toExpr)) {
+      if (!solver.isTrue(expr_ === goal_)) {
         // println(expr)
         assert(false, "conversion to prop did not produce reduced formula!")
       }
@@ -127,7 +126,7 @@ class Prove(
 
   }
 
-  def auto(goal: Prop, rws: Map[Fun, List[Rule]], state: State) = if (simplify) {
+  def auto(goal: Expr, rws: Map[Fun, List[Rule]], state: State) = if (simplify) {
     val goal_ = Simplify.simplify(goal, rws, state.constrs)
     prover.reduce(goal_, state)
   } else {
@@ -136,11 +135,11 @@ class Prove(
   }
 
   def reduce(
-      goal: Prop,
+      goal: Expr,
       tactic: Option[Tactic],
       rws: Map[Fun, List[Rule]],
       state: State
-  ): List[Prop] = tactic match {
+  ): List[Expr] = tactic match {
     case None =>
       List(auto(goal, rws, state))
 
@@ -148,7 +147,7 @@ class Prove(
       reduce(goal, tactic, rws, state)
   }
 
-  def reduce(goal: Prop, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Prop] =
+  def reduce(goal: Expr, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Expr] =
     tactic match {
       case NoAuto(tactic) =>
         noauto(goal, tactic, rws, state)
@@ -166,7 +165,7 @@ class Prove(
         noauto(auto(goal, rws, state), tactic, rws, state)
     }
 
-  def noauto(goal: Prop, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Prop] =
+  def noauto(goal: Expr, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Expr] =
     tactic match {
       case NoAuto(tactic) =>
         noauto(goal, tactic, rws, state) // yeah, you can write noauto twice

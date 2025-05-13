@@ -118,7 +118,8 @@ object Simplify {
       expr
   }
 
-  def onePoint(assms: List[Prop], su: Map[Var, Expr]): (List[Prop], Map[Var, Expr]) = {
+  /*
+  def onePoint(assms: List[Expr], su: Map[Var, Expr]): (List[Expr], Map[Var, Expr]) = {
     assms match {
       case Nil =>
         (assms, su)
@@ -133,117 +134,15 @@ object Simplify {
         (assm :: rest_, su_)
     }
   }
+  */
 
   def simplify(expr: Expr, state: State): Expr = {
     simplify(expr, Map(), state.constrs)
   }
 
-  def simplify(prop: Prop, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Prop = prop match {
-    case Atom(expr, None) =>
-      val expr_ = simplify(expr, rules, constrs)
-      val prop_ = Prop.from(expr_)
-      // println(prop)
-      // println(prop_)
-      if (prop != prop_)
-        simplify(prop_, rules, constrs)
-      else
-        prop
-
-    case Atom(expr, model) =>
-      Atom(simplify(expr, rules, constrs), model)
-
-    case Disj(xs0, assms0, concls0) =>
-      // TODO:
-      // - substitute equations
-      // - omit unused variables
-      // - pull common antecedents out (A ==> B) /\ (A ==> C) ~~> A ==> (B /\ C)
-      // - shift negations around?
-
-      val (assms1, su) = onePoint(assms0, Map())
-      // println("su = " + su)
-      // println("assms1 = " + assms1)
-
-      assert(su.isEmpty, "onePoint rule is broken (does not chain, discards unbound vars)")
-
-      val concls1 = concls0 map (_ subst su)
-      // println("concls1 = " + concls1)
-
-      var defs = assms1 collect {
-        case Atom(Eq(x @ App(Inst(f, _), Nil), e), _) if !(f in e) => Rule(x, e)
-        case Atom(Eq(e, x @ App(Inst(f, _), Nil)), _) if !(f in e) => Rule(x, e)
-      }
-
-      val more = defs.groupBy(_.fun)
-
-      val assms2 = assms1 map (simplify(_, rules ++ more, constrs))
-      val concls2 = concls1 map (simplify(_, rules ++ more, constrs))
-      // println("assms2 = " + assms2)
-      // println("concls2 = " + concls2)
-
-      val all = concls2 flatMap { case Conj(xs, props) =>
-        props map {
-          case _: Atom =>
-            Set[Prop]()
-          case Disj(xs, assms, concls) =>
-            Set(assms: _*)
-        }
-      }
-
-      val (assms3, concls3) =
-        if (all.nonEmpty) {
-          val common = Intersect(all)
-
-          val concls3 = concls2 map { case Conj(xs, props) =>
-            Conj(
-              xs,
-              props map {
-                case atom: Atom =>
-                  atom
-                case Disj(xs, assms, concls) =>
-                  Disj(xs, assms filterNot common, concls)
-              }
-            )
-          }
-
-          val assms3 = assms2 ++ common
-
-          (assms3, concls3)
-        } else {
-          (assms2, concls2)
-        }
-
-      val xs3 = xs0 filter { case x =>
-        (assms3 exists x.in) || (concls3 exists x.in)
-      }
-
-      // println(assms3)
-      val prop_ = Disj.reduce(xs3, assms3, concls3)
-      if (prop != prop_)
-        simplify(prop_, rules, constrs)
-      else
-        prop_
-  }
-
-  def simplify(conj: Conj, rules: Map[Fun, List[Rule]], constrs: Set[Fun]): Conj = conj match {
-    case Conj(xs, props) =>
-      var eqs = props collect {
-        case Atom(Eq(x: Var, e), _) if !(x in e) => (x, e)
-        case Atom(Eq(e, x: Var), _) if !(x in e) => (x, e)
-      }
-
-      // println(eqs)
-
-      Conj.reduce(xs, props map (simplify(_, rules, constrs)))
-  }
-
   def simplify(exprs: List[Expr], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Expr] = {
     for (expr <- exprs)
       yield simplify(expr, rules, constrs)
-  }
-
-  def simplify_(props: List[Prop], rules: Map[Fun, List[Rule]], constrs: Set[Fun]): List[Prop] = {
-    for (prop <- props)
-      yield simplify(prop, rules, constrs)
   }
 
   def note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) =
