@@ -111,6 +111,7 @@ object Printer extends cuvee.util.Printer {
       parens("declare-proc", in.asFormals, out.asFormals)
 
     case DeclareProc(name, Nil, in, out, Some(Spec(mod, pre, post))) =>
+      // XXX: not K3
       parens(
         "declare-proc",
         name,
@@ -125,30 +126,14 @@ object Printer extends cuvee.util.Printer {
       )
 
     case DeclareContracts(name, params, formals, contracts) =>
-      parens(
-        "declare-contract",
-        name,
-        formals,
-        contracts
-      )
+      parens("declare-contract", name, formals, contracts)
 
     case DefineProc(name, Nil, in, out, None, body) =>
       parens("define-proc", in.asFormals, out.asFormals, body)
 
     case DefineProc(name, Nil, in, out, Some(Spec(mod, pre, post)), body) =>
-      parens(
-        "define-proc",
-        name,
-        in.asFormals,
-        out.asFormals,
-        ":modifies",
-        mod,
-        ":precondition",
-        pre,
-        ":postcondition",
-        post,
-        body
-      )
+      val attr = List(":modifies", mod, ":requires", pre, ":ensures", post)
+      parens("define-proc", name, in.asFormals, out.asFormals, parens2("!", body)(attr))
 
     // pure.Expr
     case Lit(i: BigInt, _) =>
@@ -166,16 +151,11 @@ object Printer extends cuvee.util.Printer {
     case Let(eqs, body)        => parens("let", eqs, body)
     case Distinct(exprs)       => parens2("distinct")(exprs)
 
-    case Note(expr, attr) if expr.free.isEmpty =>
-      val attr_ = attr flatMap {
-        case (kw, None)       => List(kw)
-        case (kw, Some(attr)) => List(kw, attr)
-      }
+    case note @ cuvee.imp.Note(prog, attr) =>
+      parens2("!", prog)(note.flatAttr)
 
-      parens2("!", expr)(attr_)
-
-    case Note(expr, attr) =>
-      lines(expr)
+    case note @ cuvee.pure.Note(expr, attr) =>
+      parens2("!", expr)(note.flatAttr)
 
     case Bind(quant, formals, body, _) =>
       parens(quant.name, formals.asFormals, body)
@@ -198,18 +178,6 @@ object Printer extends cuvee.util.Printer {
     case Inst(fun, ty) =>
       lines(fun.name)
 
-    // pure.Prop
-    case Atom(expr, _) =>
-      lines(expr)
-    case Conj(xs, neg) =>
-      parens2("exists", xs.asFormals, "or")(neg)
-    case Disj(xs, neg, pos) =>
-      parens(
-        "forall",
-        xs.asFormals,
-        args("=>", args2("and")(neg), args2("or")(pos))
-      )
-
     // pure.Type
     case Datatype(params, constrs) =>
       val constrs_ = for ((k, sels) <- constrs) yield {
@@ -230,19 +198,36 @@ object Printer extends cuvee.util.Printer {
     case Sort(con, args) => parens2(con.name)(args)
 
     // imp.Prog
-    case Block(progs)        => parens2("block")(progs)
-    case Break               => parens("break")
-    case Return              => parens("return")
-    case Local(xs, rhs)      => parens("local", (xs.asFormals zip rhs))
-    case Assign(xs, rhs)     => parens("assign", xs zip rhs)
-    case Spec(xs, pre, post) => parens("spec", xs, pre, post)
+    case Block(progs)    => parens2("sequence")(progs)
+    case Break           => parens("break")
+    case Return          => parens("return")
+    case Local(xs, Nil)  => parens("local", xs.asFormals)
+    case Local(xs, rhs)  => parens("local", (xs.asFormals zip rhs))
+    case Assign(xs, rhs) => parens("assign", xs zip rhs)
+
+    case Spec(Nil, True, post) => parens("assume", post)
+    case Spec(Nil, pre, True)  => parens("assert", pre)
+    case Spec(xs, True, True)  => parens("havoc", xs)
+    case Spec(xs, pre, post)   => parens("spec", xs, pre, post)
+
     case Call(name, in, out) => parens("call", name, in, out)
+
+    case If(test, left, Skip) =>
+      parens("if", test, left)
 
     case If(test, left, right) =>
       parens("if", test, left, right)
 
-    case While(test, body, _, inv, sum, _) =>
-      parens("while", test, body, ":invariant", inv, ":summary", sum)
+    case While(test, body, Zero, True, True, Nil) =>
+      parens("while", test, body)
+
+    case While(test, body, term, inv, True, Nil) =>
+      val attr = List(":decreases", term, ":invariant", inv)
+      parens2("!", parens("while", test, body))(attr)
+
+    case While(test, body, term, inv, sum, Nil) =>
+      val attr = List(":decreases", term, ":requires", inv, ":ensures", sum)
+      parens2("!", parens("while", test, body))(attr)
 
     // sexpr.Expr
     case lit: sexpr.Lit       => just(lit)

@@ -35,6 +35,17 @@ object Test extends Main {
       println(res)
     }
   }
+
+
+  trait Tactic[A]
+  case object Split extends Tactic[Int]
+  case class Proof[A, B](tactic: Tactic[A], sel: List[A])
+
+  def foo(proof: Proof[_, _]) = proof match {
+    case Proof(Split, sel) =>
+      val x = sel(0)
+      x.toFloat
+  }
 }
 
 object r1 extends Run(Test, "examples/1.smt2")

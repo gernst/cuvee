@@ -322,21 +322,6 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
         (this in body) && !(formals contains this)
     }
 
-  def in(that: Prop): Boolean =
-    that match {
-      case Atom(expr, cex) =>
-        this in expr
-
-      case Disj(xs, assms, concls) =>
-        (assms exists (this in _)) || (concls exists (this in _))
-    }
-
-  def in(that: Conj): Boolean =
-    that match {
-      case Conj(xs, props) =>
-        (props exists (this in _))
-    }
-
   def in(that: List[Expr]): Boolean =
     that exists (this in _)
 
@@ -762,6 +747,11 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
 }
 
 case class Note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Expr {
+  def flatAttr = attr flatMap {
+    case (kw, None)        => List(kw)
+    case (kw, Some(sexpr)) => List(kw, sexpr)
+  }
+
   def typ = expr.typ
 
   def free = expr.free

@@ -444,58 +444,6 @@ object Printer extends cuvee.util.Printer {
     // case _ => List()
   }
 
-  def lines(prop: Prop): List[String] = prop match {
-    case Disj(xs, assms, concls) =>
-      var result: List[String] = Nil
-      val bound =
-        for (x <- xs)
-          yield x.name.toString + ": " + btype(x.typ)
-
-      val pre =
-        for (phi <- assms)
-          yield lines(phi)
-
-      val conclst =
-        for (phi <- concls)
-          yield lines(phi)
-
-      if (bound.nonEmpty)
-        result ++= "forall" +: indent(bound)
-
-      if (pre.nonEmpty)
-        result ++= "assume" +: indent(pre.flatten)
-
-      if (concls.isEmpty)
-        result ++= List("show contradiction")
-      else if (concls.size == 1)
-        result ++= conclst.flatten
-      else if (concls.size > 1)
-        result ++= "show one of" +: indent(conclst.flatten)
-
-      result
-    case Atom(phi, None)      => List(line(phi))
-    case Atom(phi, Some(cex)) => line(phi) :: lines(cex)
-  }
-
-  def lines(conj: Conj): List[String] = {
-    val Conj(xs, props) = conj
-    var result: List[String] = Nil
-
-    val bound = vartypes(xs)
-
-    val concls = (for (phi <- props) yield lines(phi)).flatten
-
-    if (bound.nonEmpty)
-      result ++= indent("exists" :: indent(List(bound)))
-
-    if (props.size == 1)
-      result ++= "show" :: indent(concls)
-    else if (props.size > 1)
-      result ++= "show all of" :: indent(concls)
-
-    result
-  }
-
   private def line(expr: Expr): String = expr match {
     case Lit(any, typ)  => any.toString
     case Var(name, typ) => name.toString
@@ -567,13 +515,8 @@ object Printer extends cuvee.util.Printer {
       "match " + line(expr) + cases.toString + btype(
         typ
       ) + ";" // TODO: fix and test
-    case Note(expr, attr) =>
-      val attr_ = attr map {
-        case (kw, None)                 => kw.toString
-        case (kw, Some(sexpr.Id(text))) => kw.toString + " \"" + text + "\""
-      }
-
-      attr_.mkString("{", ", ", "} ") + line(expr)
+    case note@cuvee.pure.Note(expr, attr) =>
+      note.flatAttr.mkString("{", ", ", "} ") + line(expr)
   }
 
   private def modality(how: Modality) = how match {

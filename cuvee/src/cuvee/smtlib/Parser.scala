@@ -11,6 +11,17 @@ import cuvee.pure.Var
 import cuvee.util.Name
 import cuvee.sexpr._
 import cuvee.pure.LetEq
+import cuvee.imp.Prog
+import cuvee.imp.Spec
+import cuvee.imp.Return
+import cuvee.imp.Break
+import cuvee.imp.Continue
+import cuvee.imp.While
+import cuvee.imp.If
+import cuvee.imp.Skip
+import cuvee.imp.Block
+import cuvee.imp.Local
+import cuvee.ai.domain.AInts.local
 
 object Parser {
   def ack(from: Expr): Ack =
@@ -139,6 +150,10 @@ class Parser(init: State) {
         st.condef(name, params_, res_)
         DefineSort(name, params_, res_)
 
+      case App(Id("declare-var"), Id(name), res) =>
+        val res_ = typ(res)
+        DeclareVar(name, res_)
+
       case App(Id("declare-const"), Id(name), res) =>
         val args_ = Nil
         val res_ = typ(res)
@@ -229,6 +244,38 @@ class Parser(init: State) {
 
         st.contract(name, params_, formals_, contracts_)
         DeclareContracts(name, params_, formals_, contracts_)
+
+      case App(Id("define-proc"), Id(name), App(in @ _*), App(out @ _*), App(locals @ _*), body) =>
+        val params_ : List[Param] = Nil
+        // val params_ = params(gen.toList)
+        val ctx = params_.names.toSet
+
+        val in_ = formals(in.toList, ctx)
+        val out_ = formals(out.toList, ctx)
+        val locals_ = formals(locals.toList, ctx)
+        val formals_ = in_ ++ out_ ++ locals_
+        val scope = formals_.pairs
+
+        val body_ = prog(body, ctx, scope.toMap)
+        val body_with_locals_ = Block(List(Local(locals_, Nil), body_))
+
+        st.proc(name, params_, in_, out_, None)
+        DefineProc(name, params_, in_, out_, None, body_with_locals_)
+
+      case App(Id("define-proc"), Id(name), App(in @ _*), App(out @ _*), body) =>
+        val params_ : List[Param] = Nil
+        // val params_ = params(gen.toList)
+        val ctx = params_.names.toSet
+
+        val in_ = formals(in.toList, ctx)
+        val out_ = formals(out.toList, ctx)
+        val formals_ = in_ ++ out_
+        val scope = formals_.pairs
+
+        val body_ = prog(body, ctx, scope.toMap)
+
+        st.proc(name, params_, in_, out_, None)
+        DefineProc(name, params_, in_, out_, None, body_)
 
       case _ =>
         error("invalid command: " + from)
@@ -469,6 +516,70 @@ class Parser(init: State) {
     pre.resolve
   }
 
+  def attrs(from: List[Expr]): List[(Kw, Option[Expr])] =
+    from match {
+      case Nil =>
+        Nil
+
+      case (kw: Kw) :: (rest @ ((_: Kw) :: _)) =>
+        (kw -> None) :: attrs(rest)
+
+      case (kw: Kw) :: arg :: rest =>
+        (kw -> Some(arg)) :: attrs(rest)
+
+      case _ =>
+        cuvee.error("invalid attributes: " + from)
+    }
+
+  def prog(
+      from: Expr,
+      ctx: Set[Name],
+      scope: Map[Name, Type]
+  ): Prog = from match {
+    case App(Id("return"))   => Return
+    case App(Id("break"))    => Break
+    case App(Id("continue")) => Continue
+
+    case App(Id("assume"), phi) =>
+      val phi_ = expr_typed(phi, bool, ctx, scope)
+      Spec.assume(phi_)
+
+    case App(Id("assert"), phi) =>
+      val phi_ = expr_typed(phi, bool, ctx, scope)
+      Spec.assert(phi_)
+
+    case App(Id("havoc"), App(xs @ _*)) =>
+      val xs_ = xs.toList map { case Id(name) => Var(name, scope(name)) }
+      Spec.havoc(xs_)
+
+    case App(Id("sequence"), progs @ _*) =>
+      val progs_ = progs.toList map (prog(_, ctx, scope))
+      Block(progs_)
+
+    case App(Id("if"), test, left) =>
+      val test_ = expr_typed(test, bool, ctx, scope)
+      val left_ = prog(left, ctx, scope)
+      val right_ = Skip
+      If(test_, left_, right_)
+
+    case App(Id("if"), test, left, right) =>
+      val test_ = expr_typed(test, bool, ctx, scope)
+      val left_ = prog(left, ctx, scope)
+      val right_ = prog(right, ctx, scope)
+      If(test_, left_, right_)
+
+    case App(Id("while"), test, body) =>
+      val test_ = expr_typed(test, bool, ctx, scope)
+      val body_ = prog(body, ctx, scope)
+      While(test_, body_)
+
+    case App(Id("!"), from, rest @ _*) =>
+      cuvee.imp.Note(prog(from, ctx, scope), attrs(rest.toList))
+
+    case _ =>
+      cuvee.error("unexpected program: " + from)
+  }
+
   def exprs(st: State) = new st.Exprs {
     def expr(from: Expr, ctx: Set[Name], scope: Map[Name, Type]): Pre =
       from match {
@@ -544,18 +655,6 @@ class Parser(init: State) {
 
         case _ =>
           error("invalid expression: " + from)
-      }
-
-    def attrs(from: List[Expr]): List[(Kw, Option[Expr])] =
-      from match {
-        case Nil =>
-          Nil
-
-        case (kw: Kw) :: (rest @ ((_: Kw) :: _)) =>
-          (kw -> None) :: attrs(rest)
-
-        case (kw: Kw) :: arg :: rest =>
-          (kw -> Some(arg)) :: attrs(rest)
       }
 
     def pat(

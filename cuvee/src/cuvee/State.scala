@@ -310,7 +310,7 @@ class State(
     }
 
     def note(expr: Pre, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) = {
-      Pre(Note(expr.expr, attr))
+      Pre(pure.Note(expr.expr, attr))
     }
 
     def commutative(fun: Name, neutral: Pre, args: List[Pre]): Pre = args match {

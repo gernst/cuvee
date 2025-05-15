@@ -12,6 +12,7 @@ object Translate {
   var split = false
   var translateAsserts = true
   var assumeBounds = false
+  var liftLocals = true
   val (prelude, state) = cuvee.boogie.parse("cuvee/src/cuvee/c/c.bpl")
 }
 
@@ -131,13 +132,14 @@ class Translate(state: State) {
       val in_ = vars(formals)
       val out_ = List(result(ret))
       val mod_ = vars.values filterNot in_.contains
-      val spec_ = imp.Spec( /*heap :: */ mod_.toList, pure.True, pure.True)
+      // val spec_ = Some(imp.Spec( /*heap :: */ mod_.toList, pure.True, pure.True))
+      val spec_ = None
 
       if (state.procs contains name) {
         Nil
       } else {
         state.proc(name, Nil, in_, out_, None)
-        List(smtlib.DeclareProc(name, Nil, in_, out_, Some(spec_)))
+        List(smtlib.DeclareProc(name, Nil, in_, out_, spec_))
       }
 
     case FunDef(ret, name, formals, body) =>
@@ -148,7 +150,8 @@ class Translate(state: State) {
       val out_ = List(ret_)
       val scope = vars ++ Map(in_.asSimpleScope: _*)
       val mod_ = vars.values filterNot in_.contains
-      val spec_ = imp.Spec( /* heap :: */ mod_.toList, pure.True, pure.True)
+      // val spec_ = Some(imp.Spec( /* heap :: */ mod_.toList, pure.True, pure.True))
+      val spec_ = None
 
       val prelude = if (name == "main") {
         init(all, scope)
@@ -162,7 +165,7 @@ class Translate(state: State) {
 
       state.proc(name, Nil, in_, out_, None)
       state.procdef(name, in_, out_, body_)
-      List(smtlib.DefineProc(name, Nil, in_, out_, Some(spec_), body_))
+      List(smtlib.DefineProc(name, Nil, in_, out_, spec_, body_))
 
     case Group(stmts) =>
       globals(stmts)
@@ -222,6 +225,8 @@ class Translate(state: State) {
     progs match {
       case List(imp.Block(inner)) =>
         block(inner)
+      case List(prog) =>
+        prog
       case _ =>
         imp.Block(cleanup(progs))
     }

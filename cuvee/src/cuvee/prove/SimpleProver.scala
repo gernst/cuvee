@@ -9,9 +9,9 @@ class SimpleProver(solver: Solver) extends Prover {
     solver.exec(cmd, state)
   }
 
-  def reduce(prop: Prop, state: State): Prop = {
-    val expr = prop.toExpr
-    Prop.from(reduce(expr))
+  def reduce(expr: Expr, state: State): Expr = {
+    //TODO removed Prop.from
+    reduce(expr)
   }
 
   def reduce(expr: Expr): Expr = expr match {
