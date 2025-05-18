@@ -24,10 +24,9 @@ object Verify extends TestSuite {
 
       for (file <- annotated.listFiles()) {
         val task = file.toString
-        val cmds = Array("-prove:auto", "-z3", task)
+        val cmds = Array("-vcgen:partial", "-split", "-z3", task)
 
         val result = eval(cmds)
-        println(eval(cmds))
 
         assert(result == Success)
       }
