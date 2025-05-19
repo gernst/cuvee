@@ -160,8 +160,6 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)]) extends Tactic 
     val Sort(con, args) = sort
     val Datatype(params, constrs) = dt
     val su: Map[Param, Type] = Type.subst(params, args)
-
-    val goal_ = Clause(xs.filterNot(_ == variable), ant, suc)
     
     val ind = 
       for ((constr, sels) <- constrs) yield {
@@ -191,7 +189,7 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)]) extends Tactic 
       }
 
       val su = Map(variable -> expr)
-      val new_goal = Clause(xs ++ args, prems ++ (ant subst su), suc subst su)
+      val new_goal = Clause(xs.filterNot(_ == variable) ++ args, prems ++ (ant subst su), suc subst su)
       
       (new_goal, con_tactics.get(constr) map (_._2))
     }
