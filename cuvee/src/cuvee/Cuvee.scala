@@ -22,6 +22,7 @@ import cuvee.util.Main
 import cuvee.pure.Expr
 import cuvee.smtlib.{Cmd, Res}
 import cuvee.smtlib.Success
+import cuvee.iprove.ProveTree
 
 class Config {
   var file: Option[String] = None
@@ -49,6 +50,9 @@ class Config {
   var induct = false
   var quickcheck = true
   var split = false
+  var auto = false
+  var debug = false
+  var session: Option[String] = None 
 
   var useContractlib = false
 
@@ -238,6 +242,12 @@ class Config {
     },
     option("-split", "split VCs as Horn clauses") {
       split = true
+    },
+    option("-debug", "start interactive session"){
+      debug = true
+    },
+    option("-default:auto", "applies tactic auto to each new subgoal in interactive mode"){
+      auto = true
     }
   )
 
@@ -328,13 +338,25 @@ object Config {
         if (config.induct)
           error("induction not supported by auto prover")
         sink = new Incremental(
-          new Prove(
-            prover,
-            config.simplify,
-            config.rewrite,
-            config.proveNegatedAsserts,
-            config.crosscheckProver
-          ),
+          (if(config.debug)
+            new ProveTree(
+              prover,
+              config.simplify,
+              config.rewrite,
+              config.proveNegatedAsserts,
+              config.crosscheckProver,
+              config.debug,
+              config.session,
+              config.auto
+            )
+          else 
+            new Prove(
+              prover,
+              config.simplify,
+              config.rewrite,
+              config.proveNegatedAsserts,
+              config.crosscheckProver
+          )),
           sink
         )
 
@@ -358,13 +380,25 @@ object Config {
         val solver = Solver.z3()
         val prover = Prover.fromSolver(solver, config.induct)
         sink = new Incremental(
-          new Prove(
-            prover,
-            config.simplify,
-            config.rewrite,
-            config.proveNegatedAsserts,
-            config.crosscheckProver
-          ),
+          if(config.debug)
+            new ProveTree(
+              prover,
+              config.simplify,
+              config.rewrite,
+              config.proveNegatedAsserts,
+              config.crosscheckProver,
+              config.debug,
+              config.session,
+              config.auto
+            )
+          else
+            new Prove(
+              prover,
+              config.simplify,
+              config.rewrite,
+              config.proveNegatedAsserts,
+              config.crosscheckProver
+            ),
           sink
         )
 
