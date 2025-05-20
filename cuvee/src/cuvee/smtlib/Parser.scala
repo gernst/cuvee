@@ -256,11 +256,18 @@ class Parser(init: State) {
         val formals_ = in_ ++ out_ ++ locals_
         val scope = formals_.pairs
 
-        val body_ = prog(body, ctx, scope.toMap)
-        val body_with_locals_ = Block(List(Local(locals_, Nil), body_))
-
         st.proc(name, params_, in_, out_, None)
-        DefineProc(name, params_, in_, out_, None, body_with_locals_)
+
+        val body_ = prog(body, ctx, scope.toMap)
+
+        if (locals_.isEmpty) {
+          st.procdef(name, params_, in_, out_, body_)
+          DefineProc(name, params_, in_, out_, None, body_)
+        } else {
+          val body_with_locals_ = Block(List(Local(locals_, Nil), body_))
+          st.procdef(name, params_, in_, out_, body_with_locals_)
+          DefineProc(name, params_, in_, out_, None, body_with_locals_)
+        }
 
       case App(Id("define-proc"), Id(name), App(in @ _*), App(out @ _*), body) =>
         val params_ : List[Param] = Nil
@@ -520,6 +527,9 @@ class Parser(init: State) {
     from match {
       case Nil =>
         Nil
+
+      case List(kw: Kw) =>
+        List(kw -> None)
 
       case (kw: Kw) :: (rest @ ((_: Kw) :: _)) =>
         (kw -> None) :: attrs(rest)

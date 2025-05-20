@@ -148,10 +148,14 @@ object Expr extends Alpha[Expr, Var] {
     Var(name.withIndex(nextIndex), typ)
   }
 
+  def fresh(name: Name, types: List[Type]): List[Var] = {
+    for(typ <- types)
+      yield fresh(name, typ)
+  }
+
   def fresh(names: List[Name], types: List[Type]): List[Var] = {
-    names zip types map { case (name, typ) =>
-      Var(name.withIndex(nextIndex), typ)
-    }
+    for((name, typ) <- (names zip types))
+      yield fresh(name, typ)
   }
 
   def vars(name: Name, types: List[Type]) = {

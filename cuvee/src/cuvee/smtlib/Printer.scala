@@ -131,7 +131,7 @@ object Printer extends cuvee.util.Printer {
     case DefineProc(name, Nil, in, out, None, body) =>
       val avoid = in ++ out
       val (local, body_) = Prog.liftLocals(avoid.toSet, body)
-      parens("define-proc", in.asFormals, out.asFormals, local.asFormals, body_)
+      parens("define-proc", name, in.asFormals, out.asFormals, local.asFormals, body_)
 
     case DefineProc(name, Nil, in, out, Some(Spec(mod, pre, post)), body) =>
       val avoid = in ++ out

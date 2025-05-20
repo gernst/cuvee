@@ -1,4 +1,4 @@
-data c#void = c#void;
+// data c#void = c#void;
 type c#ptr<a>;
 type c#heap;
 
