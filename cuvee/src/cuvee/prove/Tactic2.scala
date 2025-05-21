@@ -6,6 +6,10 @@ import cuvee.sub
 import cuvee.pure.True
 import cuvee.State
 import cuvee.util.Name
+import cuvee.smtlib._
+import cuvee.pipe.Stage
+import cuvee.iprove
+import scala.collection.DoubleStepper
 
 trait Sel{
   def matches(sel: Sel): Boolean
@@ -13,28 +17,23 @@ trait Sel{
 
 case class ConstructorSelector(constructor: (Fun, List[Fun]), variables: List[Var]) extends Sel{
   def matches(sel: Sel): Boolean = sel match{
-    case ConstructorSelector(cons, vars) => cons._1.name == constructor._1.name
+    case ConstructorSelector(cons, vars) => 
+      cons._1.name == constructor._1.name //TODO ib is constructor name unique enough? 
     case _ => false
   }
 }
 
 case object ProofSelector extends Sel{
-  def matches(sel: Sel): Boolean = sel match{
-    case ProofSelector => true
-    case _ => false
-  }
+  def matches(sel: Sel): Boolean = sel eq ProofSelector
 }
 
 case object ThenSelector extends Sel{
-    def matches(sel: Sel): Boolean = sel match{
-    case ThenSelector => true
-    case _ => false
-  }
+    def matches(sel: Sel): Boolean = sel eq ThenSelector
 }
 
 case class IndexSelector(index: Int) extends Sel{
   def matches(sel: Sel): Boolean = sel match{
-    case IndexSelector(index) => true
+    case IndexSelector(index_) => index_ == index 
     case _ => false
   }
 }
@@ -45,6 +44,8 @@ case class Show2(expression: Expr) extends Tactic2
 case class Unfold2(target: (Name, Int), places: Option[List[BigInt]]) extends Tactic2
 case object Auto2 extends Tactic2
 case object Sorry2 extends Tactic2
+case class Simplify2(rw: Map[Fun, List[Rule]]) extends Tactic2
+case object BreakPoint extends Tactic2
 
 // as written in input file
 case class Proof(tactic: Tactic2, subproofs: List[(Sel, Proof)])
@@ -52,9 +53,7 @@ case class Proof(tactic: Tactic2, subproofs: List[(Sel, Proof)])
 object ProofUtils{
   def match_subproof_to_subgoals(pat: Sel, subproof: Proof, subgoals: List[(Sel, Expr)]): ((Sel, Expr, Proof), List[(Sel, Expr)]) = {
     subgoals match {
-      case Nil => throw new MatchError("cannot apply subproof")
-        // cannot apply subproof
-
+      case Nil => ???
 
       case (sel, subgoal) :: restgoals =>
         // try match pat against sel, to get some mapping
@@ -72,12 +71,6 @@ object ProofUtils{
                   (variable, pat_var)
                 }).toMap
               
-              // possy instantiate subgoal with this mapping, e.g.
-              // pat = case cons(y, zs) =>
-              // sel = case cons(head_0, tail_1) =>
-              // subgoal = P(head_0, tail_1)
-              // then compute renaming re = Map(y -> head_0, zs -> tail_1)
-              // and subgoal_ = subgoal rename re
               val Clause(xs, ant, suc) = subgoal
               val subgoal_ : Expr = Clause(xs rename su, ant rename su, suc rename su)
               ((pat, subgoal_, subproof), restgoals)
@@ -132,7 +125,8 @@ object ProofUtils{
       val Sort(con, args) = sort
       val Datatype(params, constrs) = dt
       val su: Map[Param, Type] = Type.subst(params, args)
-  
+
+      //goal without induction variable in top level
       val goal_ = Clause(xs.filterNot(_ == variable), ant, suc)
       
       val ind = 
@@ -166,12 +160,7 @@ object ProofUtils{
         val new_goal = Clause(xs.filterNot(_ == variable) ++ args, prems ++ (ant subst su), suc subst su)
         
         (selector, new_goal)
-      }
-      //TODO ib
-      // generate cases etc with fresh variables
-      // List("nil" -> base_case, "cons(head_0, tail_1)" => recursive_case)
-      // ensures that all selectors are "disjoint", i.e., there are no two subgoals that can be matched by the same selector later
-    
+      }  
     case Show2(expr) => 
       goal match {
           case Clause(xs, _, _) => ()
@@ -190,9 +179,8 @@ object ProofUtils{
     
         List(
           (ProofSelector, expr), 
-          (ThenSelector, goal)
-        )
-        
+          (ThenSelector, goal_)
+        )        
     case Unfold2(target , places) => 
       var i = 0
 
@@ -212,11 +200,9 @@ object ProofUtils{
         e
       }
       List((IndexSelector(0), goal_))
-    
-    case Auto2 => List((IndexSelector(0), goal))
-
+    case Auto2 => List((IndexSelector(0), goal)) //TODO ib call prover
     case Sorry2 => Nil
-
+    case BreakPoint => List((IndexSelector(0), goal))
   }
 
 
@@ -224,31 +210,185 @@ object ProofUtils{
     case Proof(tactic, subproofs) =>
       val subgoals = apply(goal, tactic, state)
       val (found, rest) = match_subproofs_to_subgoals(subproofs, subgoals)
-      val prems_found = found map {case (sel, expr, proof) => (sel, Step(expr, -1, Nil))} //TODO what to do with proof
-      val prems_rest = rest map {case (sel, expr) => (sel, Step(expr, -1, Nil))}
-      Attempt(tactic, prems_found) //TODO rest
+      val prems_found = found map { 
+        case (sel, expr, proof) => 
+          val next = apply(expr, proof, state)
+          (sel, Step(expr, 0, List(next)))
+      }
+      val prems_rest = rest map { //no proof parsed 
+        //TODO auto / call prover
+        case (sel, expr) => (sel, Step(expr, -1, Nil))
+      }
+      Attempt(tactic, prems_found ++ prems_rest)
   }
 
-  def apply(path: List[Sel], tree: Step, attempt: Attempt): Step = path match {
-    case Nil => Step(tree.goal, 0, attempt :: tree.attempts)
+  def insertAttempt(path: List[Sel], tree: Step, attempt: Attempt): Step = path match {
+    case Nil => Step(tree.goal, 0, attempt :: tree.attempts) //insert 
     case head :: next => 
       tree.attempts match{
-        case Nil => ??? 
-          //Step(tree.goal, tree.current, tree.attempts)
+        case Nil => tree
         
         case _ :: _ => 
           val attempt_curr = tree.attempts(tree.current)
-          val updated_attempt = apply(path, attempt_curr, attempt)
+          val updated_attempt = insertAttempt(path, attempt_curr) 
           Step(tree.goal, tree.current, tree.attempts.updated(tree.current, updated_attempt))
       }
   }
 
-  def apply(path: List[Sel], attempt: Attempt, new_attempt: Attempt): Attempt = {
-    ???
+  def insertAttempt(path: List[Sel], attempt: Attempt): Attempt = path match{
+    case Nil =>  ??? //should not happen
+    case sel_curr :: sel_rest => 
+      val subgoals = attempt.prems
+      val updatedPrems = for((sel, step) <- subgoals) yield{
+        if(sel.matches(sel_curr)) (sel, insertAttempt(sel_rest, step, attempt))
+        else (sel, step)
+      }
+      Attempt(attempt.tactic, updatedPrems)
+  }
+
+  def redoAttempt(path: List[Sel], tree: Step, direction: Int): Step = path match {
+    case Nil => 
+      val curr_attempts = tree.attempts
+      if(curr_attempts.isEmpty) 
+        tree
+      else {
+        val len = curr_attempts.length
+        val nextIndex = (tree.current + direction) % len
+        val nextIndexPos = if(nextIndex >= 0) nextIndex else nextIndex + len
+        Step(tree.goal, nextIndexPos, tree.attempts)
+      }
+    
+    case head :: tail => 
+      if(tree.attempts.isEmpty) tree
+      else{
+        val attempt_curr = tree.attempts(tree.current)
+        val updated_attempt = redoAttempt(path, attempt_curr, direction) 
+        Step(tree.goal, tree.current, tree.attempts.updated(tree.current, updated_attempt))
+      }
+  }
+
+  def redoAttempt(path: List[Sel], attempt: Attempt, direction: Int): Attempt = path match{
+    case Nil =>  ??? //should not happen
+    case sel_curr :: sel_rest => 
+      val subgoals = attempt.prems
+      val updatedPrems = for((sel, step) <- subgoals) yield{
+        if(sel.matches(sel_curr)) (sel, redoAttempt(sel_rest, step, direction))
+        else (sel, step)
+      }
+      Attempt(attempt.tactic, updatedPrems)
   }
 }
 
-case class Step(goal: Expr, current: Int, attempts: List[Attempt])
+case class Step(goal: Expr, current: Int = -1, attempts: List[Attempt] = Nil){
+  def closed : Boolean = {
+    if(attempts.isEmpty) false
+    else attempts(current).closed
+  }
+}
 
-case class Attempt(tactic: Tactic2, prems: List[(Sel, Step)])
+case class Attempt(tactic: Tactic2, prems: List[(Sel, Step)]){
+  def closed : Boolean = {
+    if(prems.isEmpty) true
+    else(prems.forall(_._2.closed))
+  }
+}
 
+class Test(
+    prover: Prover,
+    simplify: Boolean,
+    rewrite: Boolean,
+    proveNegatedAsserts: Boolean,
+    crosscheckProver: Boolean
+) extends Stage {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
+    val results = exec(prefix, cmds, state)
+    prover.exec(last, state)
+    results
+  }
+
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+    val rws = if (rewrite) {
+      val rules = Rewrite.from(prefix ++ cmds, state) // add some new rewrite rules
+      rules.groupBy(_.fun) // update rule index
+    } else {
+      Map[Fun, List[Rule]]()
+    }
+
+    cmds flatMap {
+      case cmd @ Lemma(expr, tactic, Some(Free), label) =>
+        prover.exec(cmd, state)
+        List(cmd)
+
+      case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
+        val goal = expr
+        for (goal_ <- reduce(goal, tactic, rws, state) if !(goal_ == True))
+          yield {
+            println(goal_)
+            val expr_ = goal_
+            Lemma(expr_, None, Some(Goal), label)
+          }
+
+      case cmd @ Lemma(expr, tactic, None, label) =>
+        val goal = expr
+        for (goal_ <- reduce(goal, tactic, rws, state))
+          yield {
+            println(goal_)
+            val expr_ = goal_
+            val mode_ = if (expr_ == True) Some(Free) else None
+            Lemma(expr, None, mode_, label)
+          }
+
+      case cmd @ Assert(Not(App(Inst(fun, _), _)))
+          if proveNegatedAsserts && (rws contains fun) && rws(fun).nonEmpty =>
+        // println(rws(fun))
+        prover.exec(cmd, state)
+        List(cmd)
+
+      case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
+        val goal = expr
+        // println("proving " + goal)
+        // println(rws)
+        for (goal_ <- reduce(goal, None, rws, state))
+          yield {
+            println(goal_)
+            val expr_ = goal_
+            Assert(Simplify.not(expr_))
+          }
+
+      case cmd: DeclareVar =>
+        List(cmd)
+
+      case cmd =>
+        prover.exec(cmd, state)
+        List(cmd)
+    }
+  }
+
+  def reduce(
+    goal: Expr,
+    tactic: Option[Tactic],
+    rws: Map[Fun, List[Rule]],
+    state: State
+  ): List[Expr] = {
+    val tactic2: Tactic2 = tactic match{
+      case None => Auto2
+      case Some(Induction(variable, cont)) => Induction2(variable)
+      case Some(Show(expr, proof, cont)) => Show2(expr)
+      case Some(Auto) => Auto2 
+      case Some(Sorry) => Sorry2
+    }
+    
+    val proof_cont: List[(Sel, Proof)] = List((ThenSelector, Proof(Sorry2, Nil))) :+ (ProofSelector, Proof(Auto2, Nil))
+    val attempt = ProofUtils.apply(goal, Proof(tactic2, proof_cont ), state)
+    val tree = ProofUtils.insertAttempt(Nil, Step(goal, -1, Nil), attempt)
+    println(attempt)
+    /*
+    val attempt = ProofUtils.apply(goal, Proof(BreakPoint, Nil), state)
+    val tree = ProofUtils.apply(Nil, Step(goal, -1, Nil), attempt)
+    */
+    val tree2 = Step(goal, 0, List(Attempt(Sorry2, Nil)))
+    println(tree2 + "\n" + tree2.closed)
+    
+    attempt.prems.map{case (sel, step) => step.goal}
+  }
+}
