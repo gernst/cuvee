@@ -1,3 +1,3 @@
 (define-proc main () () ()
     (while true
-        (! (sequence) :live)))
+        (! (sequence) :tag yay :not-live)))

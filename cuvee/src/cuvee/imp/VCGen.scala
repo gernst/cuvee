@@ -6,6 +6,9 @@ import cuvee.State
 import cuvee.pipe.Stage
 import cuvee.smtlib._
 import cuvee.imp.transform.Inline
+import cuvee.sexpr.Id
+import cuvee.sexpr.Kw
+import cuvee.pure.Fun.not
 
 class VCGenStage(partial: Boolean) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
@@ -32,13 +35,13 @@ class VCGenStage(partial: Boolean) extends Stage {
         val su = Expr.subst(in, Old(in))
         val xs = in ++ out
 
-        val scope = Map()
+        val scope: Map[Var, Expr] = Map()
         val st = Expr.id(xs)
         val old = List(st)
 
         val how = if (partial) Box else WP
 
-        val phi = Forall(xs, eval.wp_proc(how, body, st, True))
+        val phi = Forall(xs, eval.wp_proc(how, body, scope, st, True))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
         List(Lemma(phi, None, Some(Goal), Nil))
 
@@ -47,13 +50,13 @@ class VCGenStage(partial: Boolean) extends Stage {
         val xs = in ++ out ++ globals
         val post_ = post subst su
 
-        val scope = Map()
+        val scope: Map[Var, Expr] = Map()
         val st = Expr.id(xs)
         val old = List(st)
 
         val how = if (partial) Box else WP
 
-        val phi = Forall(xs, pre ==> eval.wp_proc(how, body, st, post_))
+        val phi = Forall(xs, pre ==> eval.wp_proc(how, body, scope, st, post_))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
         List(Lemma(phi, None, Some(Goal), Nil))
 
@@ -141,13 +144,25 @@ class VCGen(val state: State) {
     st ++ (xs zip es)
   }
 
-  type Exit = Map[Var, Expr] => Expr
+  type Exit = (Map[Var, Expr], Set[Id], Set[Id]) => Expr
 
-  def no_brk(st: Any) =
+  def no_brk(st: Map[Var, Expr], live: Set[Id], not_live: Set[Id]) =
     cuvee.error("break not within while loop")
 
-  def no_ret(st: Any) =
+  def no_ret(st: Map[Var, Expr], live: Set[Id], not_live: Set[Id]) =
     cuvee.error("return not within procedure")
+
+  def done(
+      scope: Map[Var, Expr],
+      st: Map[Var, Expr],
+      live: Set[Id],
+      not_live: Set[Id],
+      post: Expr,
+      old: List[Map[Var, Expr]]
+  ) = {
+    val post_ = eval(post, scope, st, old)
+    post_ named "ensures"
+  }
 
   def wp(
       how: Modality,
@@ -164,39 +179,35 @@ class VCGen(val state: State) {
       scope,
       st,
       old,
-      eval(post, scope, _, old),
-      no_brk,
-      no_ret
+      Set(),
+      Set(),
+      done(scope, _, _, _, post, old),
+      no_brk(_, _, _),
+      no_ret(_, _, _)
     )
   }
 
   def wp_proc(
       how: Modality,
       prog: Prog,
+      scope: Map[Var, Expr],
       st: Map[Var, Expr],
       post: Expr
   ): Expr = {
     val old = List(st)
 
-    // XXX remove me!
-    // println("XXX overriding postcondition with true")
-    // val post = True
-
-    def done(st: Map[Var, Expr]) = {
-      val post_ = eval(post, Map(), st, old)
-      post_ named "ensures"
-    }
-
     wp(
       how,
       List(prog),
       Nil,
-      Map(),
+      scope,
       st,
       old,
-      done,
+      Set(),
+      Set(),
+      done(scope, _, _, _, post, old),
       no_brk,
-      done
+      done(scope, _, _, _, post, old),
     )
   }
 
@@ -207,6 +218,8 @@ class VCGen(val state: State) {
       scope: Map[Var, Expr],
       st: Map[Var, Expr],
       old: List[Map[Var, Expr]],
+      live: Set[Id],
+      not_live: Set[Id],
       post: Exit,
       brk: Exit,
       ret: Exit
@@ -215,21 +228,41 @@ class VCGen(val state: State) {
       case Nil =>
         cont match {
           case Nil =>
-            post(st)
+            post(st, live, not_live)
           case progs :: cont =>
             // Note: no need to cleanup locals from st,
             //       we rename them when we introduce them
-            wp(how, progs, cont, scope, st, old, post, brk, ret)
+            wp(how, progs, cont, scope, st, old, live, not_live, post, brk, ret)
         }
 
+      case cuvee.imp.Note(prog, attr) :: rest =>
+        // TODO: refactor attributes with proper accessors
+        val tag = attr collect { case (Kw("tag"), Some(tag: Id)) =>
+          tag
+        }
+
+        val live_ =
+          if (attr exists (_._1 == Kw("live")))
+            live -- tag // AARGH, loop head needs to add all live tags so that we can remove again here
+          else
+            live
+
+        val not_live_ =
+          if (attr exists (_._1 == Kw("not-live")))
+            not_live ++ tag
+          else
+            not_live
+
+        wp(how, rest, cont, scope, st, old, live_, not_live_, post, brk, ret)
+
       case Block(progs) :: rest =>
-        wp(how, progs, rest :: cont, scope, st, old, post, brk, ret)
+        wp(how, progs, rest :: cont, scope, st, old, live, not_live, post, brk, ret)
 
       case Break :: rest =>
-        brk(st)
+        brk(st, live, not_live)
 
       case Return :: rest =>
-        ret(st)
+        ret(st, live, not_live)
 
       case Local(xs, init) :: rest =>
         // Note: ensure we introduce fresh names for the locals
@@ -241,18 +274,18 @@ class VCGen(val state: State) {
         val init_ = if (init.isEmpty) xs_ else init subst st
         val st_ = assign(st, xs_, init_)
 
-        val phi = wp(how, rest_, cont, scope, st_, old, post, brk, ret)
+        val phi = wp(how, rest_, cont, scope, st_, old, live, not_live, post, brk, ret)
         Forall(xs_, phi)
 
       case Assign(xs, rhs) :: rest =>
         val rhs_ = rhs subst st // don't use eval, old is specification-only
         val st_ = assign(st, xs, rhs_)
-        wp(how, rest, cont, scope, st_, old, post, brk, ret)
+        wp(how, rest, cont, scope, st_, old, live, not_live, post, brk, ret)
 
       // purely assert
       // case Spec(Nil, phi, True) :: rest =>
       //   val phi_ = eval(phi, scope, st, old)
-      //   val chi = wp(how, rest, cont, scope, st, old, post, brk, ret)
+      //   val chi = wp(how, rest, cont, scope, st, old, live, not_live, post, brk, ret)
       //   println("XXX: overriding assert with true")
       //   /* phi_ && */ chi
 
@@ -262,7 +295,7 @@ class VCGen(val state: State) {
 
         val phi_ = eval(phi, scope, st, old) named "assert"
         val psi_ = eval(psi, scope, st_, st :: old)
-        val chi = wp(how, rest, cont, scope, st_, old, post, brk, ret)
+        val chi = wp(how, rest, cont, scope, st_, old, live, not_live, post, brk, ret)
 
         phi_ && how.spec(xs_, psi_, chi)
 
@@ -276,13 +309,13 @@ class VCGen(val state: State) {
             // intentionally mirrors variables xs, ys, as procdef may refer to different vars than procdecl
             val block = Inline.inline(state, name, in, out)
 
-            def cont_(st2: Map[Var, Expr]) = {
-              wp(how, rest, cont, scope, st2, old, post, brk, ret)
+            def cont_(st2: Map[Var, Expr], live: Set[Id], not_live: Set[Id]) = {
+              wp(how, rest, cont, scope, st2, old, live, not_live, post, brk, ret)
             }
 
             // inlined code should not have top-level breaks,
             // and should continue with rest program upon returns
-            wp(how, List(block), Nil, scope, st, old, cont_, no_brk, cont_)
+            wp(how, List(block), Nil, scope, st, old, live, not_live, cont_, no_brk, cont_)
 
           case None =>
             cuvee.error(
@@ -293,15 +326,15 @@ class VCGen(val state: State) {
             val su = Expr.subst(xs, in)
             val re = Expr.subst(zs, out)
             val spec_ = Spec(mod ++ out, phi subst su, psi rename re subst su)
-            wp(how, spec_ :: rest, cont, scope, st, old, post, brk, ret)
+            wp(how, spec_ :: rest, cont, scope, st, old, live, not_live, post, brk, ret)
         }
 
       case If(test, left, right) :: rest =>
         val test_ = test subst st
         val left_ =
-          wp(how, List(left), rest :: cont, scope, st, old, post, brk, ret)
+          wp(how, List(left), rest :: cont, scope, st, old, live, not_live, post, brk, ret)
         val right_ =
-          wp(how, List(right), rest :: cont, scope, st, old, post, brk, ret)
+          wp(how, List(right), rest :: cont, scope, st, old, live, not_live, post, brk, ret)
 
         how split (test_, left_, right_)
 
@@ -339,7 +372,7 @@ class VCGen(val state: State) {
         // below we adjust the three exit cases (termination, break, return)
         // for a single iteration of the loop body
 
-        def post_(st2: Map[Var, Expr]) = {
+        def post_(st2: Map[Var, Expr], live: Set[Id], not_live: Set[Id]) = {
           // invariant that needs to be preserved (from inv1)
           val inv2 = eval(inv, scope, st2, st0 :: old) named "invariant forward"
 
@@ -350,8 +383,11 @@ class VCGen(val state: State) {
           val sum1k = eval(sum, scope, stk, st1 :: old) named "summary backward"
           val sum2k = eval(sum, scope, stk, st2 :: old)
 
+          val needs_decreases =
+            how != Box || live.nonEmpty || not_live.nonEmpty
+
           // possibly add termination condition
-          val term2 = if (how == WP) {
+          val term2 = if (needs_decreases) {
             val test2 = test subst st2
             val term1 = eval(term, scope, st1, st0 :: old)
             val term2 = eval(term, scope, st2, st0 :: old)
@@ -366,25 +402,25 @@ class VCGen(val state: State) {
           inv2 && term2 && Forall(xsk, sum2k ==> sum1k)
         }
 
-        def brk_(st2: Map[Var, Expr]) = {
+        def brk_(st2: Map[Var, Expr], live: Set[Id], not_live: Set[Id]) = {
           // establish summary for last partial iteration
           val sum12 = eval(sum, scope, st2, st1 :: old)
 
           // how we continue after the loop, assuming the summary of the entire loop
           val sum02 = eval(sum, scope, st2, st0 :: old)
-          val exit2 = wp(how, rest, cont, scope, st2, old, post, brk, ret)
+          val exit2 = wp(how, rest, cont, scope, st2, old, live, not_live, post, brk, ret)
 
           // ensure this formula after a break
           (sum12 ==> sum02) ==> exit2
         }
 
-        def ret_(st2: Map[Var, Expr]) = {
+        def ret_(st2: Map[Var, Expr], live: Set[Id], not_live: Set[Id]) = {
           // analogously to break we extend the partial summary to a complete one
           val sum02 = eval(sum, scope, st2, st0 :: old)
           val sum12 = eval(sum, scope, st2, st1 :: old)
 
           // ensure whatever postcondition we had previously on return
-          (sum12 ==> sum02) ==> ret(st2)
+          (sum12 ==> sum02) ==> ret(st2, live, not_live)
         }
 
         // below, we define the base case and the step case
@@ -396,7 +432,7 @@ class VCGen(val state: State) {
 
           // how we continue after the loop, assuming the summary of the entire loop
           val sum01 = eval(sum, scope, st1, st0 :: old)
-          val exit1 = wp(how, rest, cont, scope, st1, old, post, brk, ret)
+          val exit1 = wp(how, rest, cont, scope, st1, old, live, not_live, post, brk, ret)
 
           // ensure this formula at regular loop exit
           sum11 && (sum01 ==> exit1)
@@ -404,7 +440,7 @@ class VCGen(val state: State) {
 
         val step1 = {
           // run the loop body, establishing the post/break/return conditions defined above
-          wp(how, List(body), Nil, scope, st1, st0 :: old, post_, brk_, ret_)
+          wp(how, List(body), Nil, scope, st1, st0 :: old, live, not_live, post_, brk_, ret_)
         }
 
         // ensure invariant now and base/step case at an arbitrary iteration
