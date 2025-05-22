@@ -155,11 +155,11 @@ object Printer extends cuvee.util.Printer {
     case Let(eqs, body)        => parens("let", eqs, body)
     case Distinct(exprs)       => parens2("distinct")(exprs)
 
-    case note @ cuvee.imp.Note(prog, attr) =>
-      parens2("!", prog)(note.flatAttr)
+    case note @ cuvee.imp.Note(prog, attrs) =>
+      parens2("!", prog)(attrs.flatten)
 
-    case note @ cuvee.pure.Note(expr, attr) =>
-      parens2("!", expr)(note.flatAttr)
+    case note @ cuvee.pure.Note(expr, attrs) =>
+      parens2("!", expr)(attrs.flatten)
 
     case Bind(quant, formals, body, _) =>
       parens(quant.name, formals.asFormals, body)

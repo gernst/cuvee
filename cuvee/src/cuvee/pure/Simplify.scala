@@ -145,10 +145,10 @@ object Simplify {
       yield simplify(expr, rules, constrs)
   }
 
-  def note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) =
+  def note(expr: Expr, attrs: sexpr.Attrs) =
     expr match {
       case True | False => expr
-      case _            => Note(expr, attr)
+      case _            => Note(expr, attrs)
     }
 
   def at(where: Loc, arg: Expr) = {

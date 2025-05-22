@@ -39,10 +39,9 @@ case object Unknown extends IsSat
 
 case class Model(defs: List[DefineFun]) extends Res {
   def rename(re: Map[Var, Var]): Model = {
-    val defs_ = defs map {
-      case DefineFun(name, params, formals, res, body, rec) =>
-        val name_ = re get (Var(name, res)) map (_.name) getOrElse name
-        DefineFun(name_, params, formals rename re, res, body rename re, rec)
+    val defs_ = defs map { case DefineFun(name, params, formals, res, body, rec) =>
+      val name_ = re get (Var(name, res)) map (_.name) getOrElse name
+      DefineFun(name_, params, formals rename re, res, body rename re, rec)
     }
     Model(defs_)
   }
@@ -84,7 +83,11 @@ case object Reset extends Ctrl
 // (Currently) corresponds to "axiom" in Boogie and "(assert )" in SMT-LIB
 case class Assert(expr: Expr) extends Cmd
 
-sealed trait Mode
+sealed trait Mode {
+  def apply(expr: Expr, tactic: Option[Tactic] = None, attrs: sexpr.Attrs = sexpr.Attrs(Nil)) =
+    Lemma(expr, tactic, Some(this), attrs)
+}
+
 case object Free extends Mode
 case object Goal extends Mode
 
@@ -93,7 +96,7 @@ case class Lemma(
     expr: Expr,
     tactic: Option[Tactic],
     mode: Option[Mode],
-    named: List[(sexpr.Kw, Option[sexpr.Expr])]
+    attrs: sexpr.Attrs
 ) extends Cmd {
   def isGoal = mode match {
     case Some(Goal) => true
@@ -103,6 +106,12 @@ case class Lemma(
   def isFree = mode match {
     case Some(Free) => true
     case _          => false
+  }
+}
+
+object Lemma extends ((Expr, Option[Tactic], Option[Mode]) => Lemma) {
+  def apply(expr: Expr, tactic: Option[Tactic] = None, mode: Option[Mode] = None): Lemma = {
+    Lemma(expr, tactic, mode, sexpr.Attrs(Nil))
   }
 }
 
@@ -144,9 +153,8 @@ case class DeclareDatatypes(
     arities: List[(Name, Int)],
     datatypes: List[Datatype]
 ) extends Decl {
-  def sorts = arities zip datatypes map {
-    case ((name, arity), Datatype(params, constrs)) =>
-      Sort(Con(name, arity), params)
+  def sorts = arities zip datatypes map { case ((name, arity), Datatype(params, constrs)) =>
+    Sort(Con(name, arity), params)
   }
 }
 
@@ -178,8 +186,7 @@ case class DeclareAbstractions(
     arities: List[(Name, Int)],
     datatypes: List[Datatype]
 ) extends Decl {
-  def sorts = arities zip datatypes map {
-    case ((name, arity), Datatype(params, constrs)) =>
-      Sort(Con(name, arity), params)
+  def sorts = arities zip datatypes map { case ((name, arity), Datatype(params, constrs)) =>
+    Sort(Con(name, arity), params)
   }
 }

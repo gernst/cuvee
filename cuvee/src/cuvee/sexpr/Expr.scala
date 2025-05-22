@@ -1,6 +1,7 @@
 package cuvee.sexpr
 
 import easyparse._
+import scala.reflect.ClassTag
 
 sealed trait Expr extends cuvee.util.Syntax {
   def apply(index: Int) =
@@ -70,4 +71,24 @@ case class App(args: Expr*) extends Expr {
     App(args map (_ replace re): _*)
   override def toString =
     args.mkString("(", " ", ")")
+}
+
+case class Attrs(attrs: List[(Kw, Option[Expr])]) {
+  def ++(that: Attrs) =
+    Attrs(this.attrs ++ that.attrs)
+
+  def contains(kw: String) =
+    attrs exists { case (Kw(kw_), _) => kw == kw_ }
+
+  def get(kw: String) =
+    attrs collect { case (Kw(`kw`), arg) => arg }
+
+  def values[T: ClassTag](kw: String) =
+    attrs collect { case (Kw(`kw`), Some(arg: T)) => arg }
+
+  def flatten =
+    attrs flatMap {
+      case (kw, None)        => List(kw)
+      case (kw, Some(sexpr)) => List(kw, sexpr)
+    }
 }

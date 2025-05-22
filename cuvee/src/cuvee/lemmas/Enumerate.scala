@@ -222,7 +222,7 @@ class Enumerate(rounds: Int, showAll: Boolean) extends Stage {
                 if(showAll) {
                   solver.assert(goal)
                   reinit += Assert(goal)
-                  lemmas = Lemma(goal, None, Some(Free), Nil) :: lemmas
+                  lemmas = Free(goal) :: lemmas
                 }
 
               case Unknown =>
@@ -233,7 +233,7 @@ class Enumerate(rounds: Int, showAll: Boolean) extends Stage {
                   if (debug) println(" proved")
                   solver.assert(goal)
                   reinit += Assert(goal)
-                  lemmas = Lemma(goal, None, Some(Free), Nil) :: lemmas
+                  lemmas = Free(goal) :: lemmas
                 } else {
                   if (debug) println(" unknown")
                   candidates += goal

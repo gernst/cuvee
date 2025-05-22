@@ -478,13 +478,13 @@ class Grammar(parser: cuvee.boogie.Parser) {
   }
 
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None) ~ ret(Nil)))
+    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None)))
 
   def free_lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("free lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Free)) ~ ret(Nil)))
+    P(Lemma("free lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Free))))
 
   def goal(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("goal" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Goal)) ~ ret(Nil)))
+    P(Lemma("goal" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Goal))))
 
   def datadef_(kw: String, declare: Boolean) =
     (kw ?~ name ?~ gens ?~ "=") ~@ constrs(declare)

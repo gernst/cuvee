@@ -43,7 +43,7 @@ class VCGenStage(partial: Boolean) extends Stage {
 
         val phi = Forall(xs, eval.wp_proc(how, body, scope, st, True))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
-        List(Lemma(phi, None, Some(Goal), Nil))
+        List(Goal(phi))
 
       case DefineProc(name, params, in, out, Some(Spec(globals, pre, post)), body) =>
         val su = Expr.subst(in, Old(in))
@@ -58,7 +58,7 @@ class VCGenStage(partial: Boolean) extends Stage {
 
         val phi = Forall(xs, pre ==> eval.wp_proc(how, body, scope, st, post_))
         // val phi_ = Simplify.simplify(phi, Map(), state.constrs)
-        List(Lemma(phi, None, Some(Goal), Nil))
+        List(Goal(phi))
 
       case cmd =>
         List(cmd)
@@ -207,7 +207,7 @@ class VCGen(val state: State) {
       Set(),
       done(scope, _, _, _, post, old),
       no_brk,
-      done(scope, _, _, _, post, old),
+      done(scope, _, _, _, post, old)
     )
   }
 
@@ -235,21 +235,19 @@ class VCGen(val state: State) {
             wp(how, progs, cont, scope, st, old, live, not_live, post, brk, ret)
         }
 
-      case cuvee.imp.Note(prog, attr) :: rest =>
+      case cuvee.imp.Note(prog, attrs) :: rest =>
         // TODO: refactor attributes with proper accessors
-        val tag = attr collect { case (Kw("tag"), Some(tag: Id)) =>
-          tag
-        }
+        val tags = attrs values [Id] "tag"
 
         val live_ =
-          if (attr exists (_._1 == Kw("live")))
-            live -- tag // AARGH, loop head needs to add all live tags so that we can remove again here
+          if (attrs contains "live")
+            live -- tags
           else
             live
 
         val not_live_ =
-          if (attr exists (_._1 == Kw("not-live")))
-            not_live ++ tag
+          if (attrs contains "not-live")
+            not_live ++ tags
           else
             not_live
 

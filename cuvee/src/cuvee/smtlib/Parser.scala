@@ -125,7 +125,7 @@ class Parser(init: State) {
       // these are extensions to SMT-LIB
       case App(Id("lemma"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, None, Nil)
+        Lemma(phi_)
 
       // case App(Id("free-lemma"), phi) =>
       //   val phi_ = expr_typed(phi, bool)
@@ -134,7 +134,7 @@ class Parser(init: State) {
       // prove is used in TIP https://github.com/tip-org/
       case App(Id("prove"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, Some(Goal), Nil)
+        Goal(phi_)
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
@@ -584,7 +584,7 @@ class Parser(init: State) {
       While(test_, body_)
 
     case App(Id("!"), from, rest @ _*) =>
-      cuvee.imp.Note(prog(from, ctx, scope), attrs(rest.toList))
+      cuvee.imp.Note(prog(from, ctx, scope), Attrs(attrs(rest.toList)))
 
     case _ =>
       cuvee.error("unexpected program: " + from)

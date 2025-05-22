@@ -83,20 +83,20 @@ class ProgList(progs: List[Prog]) {
       prog.read ++ (rest.read -- (prog.local ++ prog.mod))
   }
 
-  def vars: Set[Var] = {
+  def vars: Set[Var] =
     Set(progs flatMap (_.vars): _*)
-  }
 
-  def local: Set[Var] = {
+  def local: Set[Var] =
     Set(progs flatMap (_.local): _*)
-  }
 
-  def funs: Set[Fun] = {
+  def funs: Set[Fun] =
     Set(progs flatMap (_.funs): _*)
-  }
 
-  def breaks = progs exists (_.breaks)
-  def replace(re: Map[Var, Var]) = progs map (_ replace re)
+  def breaks =
+    progs exists (_.breaks)
+
+  def replace(re: Map[Var, Var]) =
+    progs map (_ replace re)
 }
 
 object Prog {
@@ -166,12 +166,7 @@ object Prog {
   }
 }
 
-case class Note(prog: Prog, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Prog {
-  def flatAttr = attr flatMap {
-    case (kw, None)        => List(kw)
-    case (kw, Some(sexpr)) => List(kw, sexpr)
-  }
-
+case class Note(prog: Prog, attrs: sexpr.Attrs) extends Prog {
   def vars = prog.vars
   def mod = prog.mod
   def read = prog.read
@@ -180,7 +175,7 @@ case class Note(prog: Prog, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends 
   def breaks = prog.breaks
 
   def replace(re: Map[Var, Var]) =
-    Note(prog replace re, attr)
+    Note(prog replace re, attrs)
 }
 
 case class Block(progs: List[Prog]) extends Prog {

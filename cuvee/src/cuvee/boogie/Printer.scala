@@ -74,7 +74,7 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     // Work in progress - print lemmas in cuvee format
-    case Lemma(expr, tactic, mode, nameds) =>
+    case Lemma(expr, tactic, mode, attrs) =>
       var result: List[String] = Nil
 
       // TODO
@@ -82,7 +82,7 @@ object Printer extends cuvee.util.Printer {
       //   case Some(l) => s" {:$l}"
       //   case None    => ""
       // }
-      val named = for (attr <- nameds) yield {
+      val named = for (attr <- attrs.attrs) yield {
         attr match {
           case (kw, None)                 => kw.toString
           case (kw, Some(sexpr.Id(text))) => kw.toString + " \"" + text + "\""
@@ -515,8 +515,8 @@ object Printer extends cuvee.util.Printer {
       "match " + line(expr) + cases.toString + btype(
         typ
       ) + ";" // TODO: fix and test
-    case note@cuvee.pure.Note(expr, attr) =>
-      note.flatAttr.mkString("{", ", ", "} ") + line(expr)
+    case note @ cuvee.pure.Note(expr, attrs) =>
+      attrs.flatten.mkString("{", ", ", "} ") + line(expr)
   }
 
   private def modality(how: Modality) = how match {
