@@ -9,7 +9,7 @@ object Inline {
   def inline(state: State, name: Name, in: List[Expr], out: List[Var]): Prog = {
     require(state.procdefs contains name, "cannot inline procedure without definition: " + name)
 
-    val (xs, zs, body) = state procdefs name
+    val (params, xs, zs, body) = state procdefs name
     val re = Expr.subst(zs, out)
     val body_ = body replace re
     val block = Block(List(Local(xs, in), Spec.havoc(out), body_))

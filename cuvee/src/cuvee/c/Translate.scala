@@ -17,8 +17,8 @@ object Translate {
 }
 
 class Translate(state: State) {
-  val Void = state.sort("c#void", Nil)
-  val void = state.funs("c#void", 0)()
+  // val Void = state.sort("c#void", Nil)
+  // val void = state.funs("c#void", 0)()
   // val heap = state.vars("c#heap")
   val bitand = state.funs("c#bitand", 2)
   val bitor = state.funs("c#bitor", 2)
@@ -27,8 +27,13 @@ class Translate(state: State) {
   def ptr(typ: Type) =
     state.sort("c#ptr", List(resolve(typ)))
 
-  def result(typ: Type) =
-    pure.Var("c#result", resolve(typ))
+  // def result(typ: Type) =
+  //   pure.Var("c#result", resolve(typ))
+
+  def maybe_result(typ: Type) = typ match {
+    case Type._void => Nil
+    case _ => List(pure.Var("c#result", resolve(typ)))
+  }
 
   var vars: Map[String, pure.Var] = Map()
   var funs: Map[String, (List[Formal], Type)] = Map()
@@ -80,7 +85,7 @@ class Translate(state: State) {
 
     case VarDef(Formal(typ, name), Some(expr)) =>
       val x = scope(name)
-      val (rhs_, progs) = eval(expr, scope)
+      val (Some(rhs_), progs) = eval(expr, scope)
       val asg_ = imp.Assign(List(x), List(rhs_))
       progs ++ List(asg_)
 
@@ -130,7 +135,7 @@ class Translate(state: State) {
       funs += (name -> (formals, ret))
 
       val in_ = vars(formals)
-      val out_ = List(result(ret))
+      val out_ = maybe_result(ret)
       val mod_ = vars.values filterNot in_.contains
       // val spec_ = Some(imp.Spec( /*heap :: */ mod_.toList, pure.True, pure.True))
       val spec_ = None
@@ -146,8 +151,8 @@ class Translate(state: State) {
       funs += (name -> (formals, ret))
 
       val in_ = vars(formals)
-      val ret_ = result(ret)
-      val out_ = List(ret_)
+      val out_ = maybe_result(ret)
+      val ret_ = out_.headOption
       val scope = vars ++ Map(in_.asSimpleScope: _*)
       val mod_ = vars.values filterNot in_.contains
       // val spec_ = Some(imp.Spec( /* heap :: */ mod_.toList, pure.True, pure.True))
@@ -159,12 +164,12 @@ class Translate(state: State) {
         Nil
       }
 
-      val progs = locals(List(body), scope, Nil, ret_)
+      val progs = locals(List(body), scope, Nil, out_)
 
       val body_ = block(prelude ++ progs)
 
       state.proc(name, Nil, in_, out_, None)
-      state.procdef(name, in_, out_, body_)
+      state.procdef(name, Nil, in_, out_, body_)
       List(smtlib.DefineProc(name, Nil, in_, out_, spec_, body_))
 
     case Group(stmts) =>
@@ -235,7 +240,7 @@ class Translate(state: State) {
       stmts: List[Stmt],
       scope: Map[String, pure.Var],
       cont: List[(List[Stmt], Map[String, pure.Var])],
-      result: pure.Var
+      result: List[pure.Var]
   ): List[imp.Prog] =
     stmts match {
       case Nil =>
@@ -305,8 +310,8 @@ class Translate(state: State) {
         List(imp.Return) // ignores rest!
 
       case Return(Some(expr)) :: rest =>
-        val (expr_, progs) = eval(expr, scope)
-        val asg_ = imp.Assign(List(result), List(expr_))
+        val (Some(expr_), progs) = eval(expr, scope)
+        val asg_ = imp.Assign(result, List(expr_))
         val ret_ = imp.Return
         progs ++ List(asg_, ret_) // ignores rest!
 
@@ -331,7 +336,7 @@ class Translate(state: State) {
       case (stmt @ VarDef(Formal(typ, name), Some(init))) :: rest =>
         val typ_ = resolve(typ)
         val x = pure.Var(name, typ_)
-        val (init_, progs) = eval(init, scope)
+        val (Some(init_), progs) = eval(init, scope)
 
         // Note, in C variable initialization refers to itself, but locals in Boogie don't
         val isSimple = progs.isEmpty && !(x in init_)
@@ -347,14 +352,14 @@ class Translate(state: State) {
         }
 
       case If(test, left, right) :: rest =>
-        val (test_, progs) = eval(test, scope)
+        val (Some(test_), progs) = eval(test, scope)
         val left_ = locals(List(left), scope, cont, result)
         val right_ = locals(List(right), scope, cont, result)
         val if_ = imp.If(truth(test_), block(left_), block(right_))
         progs ++ List(if_) ++ locals(rest, scope, cont, result)
 
       case While(test, body) :: rest =>
-        val (test_, progs) = eval(test, scope)
+        val (Some(test_), progs) = eval(test, scope)
         val body_ = locals(List(body), scope, cont, result)
         if (progs.isEmpty) {
           val while_ = imp.While(truth(test_), block(body_))
@@ -366,7 +371,7 @@ class Translate(state: State) {
         }
 
       case DoWhile(body, test) :: rest =>
-        val (test_, progs) = eval(test, scope)
+        val (Some(test_), progs) = eval(test, scope)
         val body_ = locals(List(body), scope, cont, result)
         val exit_ = imp.If(!truth(test_), imp.Break)
         val while_ = imp.While(pure.True, block(body_ ++ List(exit_)))
@@ -438,34 +443,34 @@ class Translate(state: State) {
         (x, List(asg_))
 
       case Index(Id(name), index1) =>
-        val (index1_, progs1) = eval(index1, scope)
+        val (Some(index1_), progs1) = eval(index1, scope)
         val x = scope(name)
         val lhs_ = pure.Select(x, index1_)
         val asg_ = imp.Assign.from(lhs_, rhs_)
         (x, progs1 ++ List(asg_))
 
       case Index(Index(Id(name), index1), index2) =>
-        val (index1_, progs1) = eval(index1, scope)
-        val (index2_, progs2) = eval(index2, scope)
+        val (Some(index1_), progs1) = eval(index1, scope)
+        val (Some(index2_), progs2) = eval(index2, scope)
         val x = scope(name)
         val lhs_ = pure.Select(pure.Select(x, index1_), index2_)
         val asg_ = imp.Assign.from(lhs_, rhs_)
         (x, progs1 ++ progs2 ++ List(asg_))
 
       case Index(Index(Index(Id(name), index1), index2), index3) =>
-        val (index1_, progs1) = eval(index1, scope)
-        val (index2_, progs2) = eval(index2, scope)
-        val (index3_, progs3) = eval(index3, scope)
+        val (Some(index1_), progs1) = eval(index1, scope)
+        val (Some(index2_), progs2) = eval(index2, scope)
+        val (Some(index3_), progs3) = eval(index3, scope)
         val x = scope(name)
         val lhs_ = pure.Select(pure.Select(pure.Select(x, index1_), index2_), index3_)
         val asg_ = imp.Assign.from(lhs_, rhs_)
         (x, progs1 ++ progs2 ++ progs3 ++ List(asg_))
 
       case Index(Index(Index(Index(Id(name), index1), index2), index3), index4) =>
-        val (index1_, progs1) = eval(index1, scope)
-        val (index2_, progs2) = eval(index2, scope)
-        val (index3_, progs3) = eval(index3, scope)
-        val (index4_, progs4) = eval(index4, scope)
+        val (Some(index1_), progs1) = eval(index1, scope)
+        val (Some(index2_), progs2) = eval(index2, scope)
+        val (Some(index3_), progs3) = eval(index3, scope)
+        val (Some(index4_), progs4) = eval(index4, scope)
         val x = scope(name)
         val lhs_ =
           pure.Select(pure.Select(pure.Select(pure.Select(x, index1_), index2_), index3_), index4_)
@@ -476,7 +481,7 @@ class Translate(state: State) {
   def evals(
       exprs: List[Expr],
       scope: Map[String, pure.Var]
-  ): (List[pure.Expr], List[imp.Prog]) =
+  ): (List[Option[pure.Expr]], List[imp.Prog]) =
     exprs match {
       case Nil =>
         (Nil, Nil)
@@ -489,23 +494,26 @@ class Translate(state: State) {
   def eval(
       expr: Expr,
       scope: Map[String, pure.Var]
-  ): (pure.Expr, List[imp.Prog]) =
+  ): (Option[pure.Expr], List[imp.Prog]) =
     expr match {
       case Lit(arg: java.lang.Long) =>
-        (pure.Lit(BigInt(arg), pure.Sort.int), Nil)
+        val lit = pure.Lit(BigInt(arg), pure.Sort.int)
+        (Some(lit), Nil)
 
       case Lit(arg: java.lang.Double) =>
-        (pure.Lit(arg, pure.Sort.real), Nil)
+        val lit = pure.Lit(arg, pure.Sort.real)
+        (Some(lit), Nil)
 
       case Lit(arg: java.lang.String) =>
-        (pure.Lit(arg, pure.Sort.string), Nil)
+        val lit = pure.Lit(arg, pure.Sort.string)
+        (Some(lit), Nil)
 
       case Id(name) =>
         require(
           scope contains name,
           "name unbound: " + name + " in " + scope.values.mkString(", ")
         )
-        (scope(name), Nil)
+        (Some(scope(name)), Nil)
 
       case PreOp("~", arg) =>
         ???
@@ -516,58 +524,58 @@ class Translate(state: State) {
         ???
 
       case PreOp("++", arg) =>
-        val (arg_, progs1) = eval(arg, scope)
+        val (Some(arg_), progs1) = eval(arg, scope)
         val (res, progs2) = assign(arg, arg_ + pure.One, scope)
-        (res, progs1 ++ progs2)
+        (Some(res), progs1 ++ progs2)
 
       case PreOp("--", arg) =>
-        val (arg_, progs1) = eval(arg, scope)
+        val (Some(arg_), progs1) = eval(arg, scope)
         val (res, progs2) = assign(arg, arg_ - pure.One, scope)
-        (res, progs1 ++ progs2)
+        (Some(res), progs1 ++ progs2)
 
       case PostOp("++", arg) =>
-        val (arg_, progs1) = eval(arg, scope)
+        val (Some(arg_), progs1) = eval(arg, scope)
         val x0 = pure.Expr.fresh("x", arg_.typ)
         val asg_ = imp.Local(List(x0), List(arg_))
         val (res, progs2) = assign(arg, arg_ + pure.One, scope)
-        (x0, progs1 ++ List(asg_) ++ progs2)
+        (Some(x0), progs1 ++ List(asg_) ++ progs2)
 
       case PostOp("--", arg) =>
-        val (arg_, progs1) = eval(arg, scope)
+        val (Some(arg_), progs1) = eval(arg, scope)
         val x0 = pure.Expr.fresh("x", arg_.typ)
         val asg_ = imp.Local(List(x0), List(arg_))
         val (res, progs2) = assign(arg, arg_ - pure.One, scope)
-        (x0, progs1 ++ List(asg_) ++ progs2)
+        (Some(x0), progs1 ++ List(asg_) ++ progs2)
 
       case BinOp("=", lhs, arg) =>
-        val (arg_, progs1) = eval(arg, scope)
+        val (Some(arg_), progs1) = eval(arg, scope)
         val (res_, progs2) = assign(lhs, arg_, scope)
-        (res_, progs1 ++ progs2)
+        (Some(res_), progs1 ++ progs2)
 
       case BinOp("&&", arg1, arg2)
           if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
-        val (arg1_, progs1) = eval(arg1, scope)
-        val (arg2_, progs2) = eval(arg2, scope)
+        val (Some(arg1_), progs1) = eval(arg1, scope)
+        val (Some(arg2_), progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
         val asg1_ = imp.Local(List(x0), List(truth(arg1_)))
         val asg2_ = imp.Assign(List(x0), List(truth(arg2_)))
         val if_ = imp.If(x0, block(progs2 ++ List(asg2_)))
-        (bool(x0), progs1 ++ List(asg1_, if_))
+        (Some(bool(x0)), progs1 ++ List(asg1_, if_))
 
       case BinOp("||", arg1, arg2)
           if Translate.split || Expr.hasEffects(arg1) || Expr.hasEffects(arg2) =>
-        val (arg1_, progs1) = eval(arg1, scope)
-        val (arg2_, progs2) = eval(arg2, scope)
+        val (Some(arg1_), progs1) = eval(arg1, scope)
+        val (Some(arg2_), progs2) = eval(arg2, scope)
         val x0 = pure.Expr.fresh("x", pure.Sort.bool)
         val asg1_ = imp.Local(List(x0), List(truth(arg1_)))
         val asg2_ = imp.Assign(List(x0), List(truth(arg2_)))
         val if_ = imp.If(!x0, block(progs2 ++ List(asg2_)))
-        (bool(x0), progs1 ++ List(asg1_, if_))
+        (Some(bool(x0)), progs1 ++ List(asg1_, if_))
 
       case Question(test, arg1, arg2) =>
-        val (test_, progs0) = eval(test, scope)
-        val (arg1_, progs1) = eval(arg1, scope)
-        val (arg2_, progs2) = eval(arg2, scope)
+        val (Some(test_), progs0) = eval(test, scope)
+        val (Some(arg1_), progs1) = eval(arg1, scope)
+        val (Some(arg2_), progs2) = eval(arg2, scope)
         require(arg1_.typ == arg2_.typ, "ill-typed ternary: " + expr)
         val x0 = pure.Expr.fresh("x", arg1_.typ)
         val asg0_ = imp.Local(List(x0), Nil)
@@ -578,65 +586,65 @@ class Translate(state: State) {
           block(progs1 ++ List(asg1_)),
           block(progs2 ++ List(asg2_))
         )
-        (x0, progs0 ++ List(asg0_, if_))
+        (Some(x0), progs0 ++ List(asg0_, if_))
 
       // generic ops below:
       case PreOp(op, arg) =>
-        val (arg_, progs) = eval(arg, scope)
-        (preop(op, arg_), progs)
+        val (Some(arg_), progs) = eval(arg, scope)
+        (Some(preop(op, arg_)), progs)
 
       case BinOp(op, arg1, arg2) =>
-        val (arg1_, progs1) = eval(arg1, scope)
-        val (arg2_, progs2) = eval(arg2, scope)
-        (binop(op, arg1_, arg2_), progs1 ++ progs2)
+        val (Some(arg1_), progs1) = eval(arg1, scope)
+        val (Some(arg2_), progs2) = eval(arg2, scope)
+        (Some(binop(op, arg1_, arg2_)), progs1 ++ progs2)
 
       case Index(base, index) =>
-        val (base_, progs1) = eval(base, scope)
-        val (index_, progs2) = eval(index, scope)
-        (pure.Select(base_, index_), progs1 ++ progs2)
+        val (Some(base_), progs1) = eval(base, scope)
+        val (Some(index_), progs2) = eval(index, scope)
+        (Some(pure.Select(base_, index_)), progs1 ++ progs2)
 
       case FunCall("assume", List(arg)) =>
-        val (arg_, progs) = eval(arg, scope)
+        val (Some(arg_), progs) = eval(arg, scope)
         val assm_ = imp.Spec.assume(truth(arg_))
-        (void, progs ++ List(assm_))
+        (None, progs ++ List(assm_))
 
       case FunCall("assume_abort_if_not", List(arg)) =>
-        val (arg_, progs) = eval(arg, scope)
+        val (Some(arg_), progs) = eval(arg, scope)
         val assm_ = imp.Spec.assume(truth(arg_))
-        (void, progs ++ List(assm_))
+        (None, progs ++ List(assm_))
 
       case FunCall("reach_error", List()) =>
         if (Translate.translateAsserts)
-          (void, List(imp.Spec.assert(pure.False)))
+          (None, List(imp.Spec.assert(pure.False)))
         else
-          (void, Nil)
+          (None, Nil)
 
       case FunCall("assert", List(arg)) =>
-        val (arg_, progs) = eval(arg, scope)
+        val (Some(arg_), progs) = eval(arg, scope)
         val assrt_ = imp.Spec.assert(truth(arg_))
         if (Translate.translateAsserts)
-          (void, progs ++ List(assrt_))
+          (None, progs ++ List(assrt_))
         else
-          (void, progs) // keep side-effects
+          (None, progs) // keep side-effects
 
       case FunCall("__VERIFIER_assume", List(arg)) =>
-        val (arg_, progs) = eval(arg, scope)
+        val (Some(arg_), progs) = eval(arg, scope)
         val assm_ = imp.Spec.assume(truth(arg_))
-        (void, progs ++ List(assm_))
+        (None, progs ++ List(assm_))
 
       case FunCall("__VERIFIER_assert", List(arg)) =>
-        val (arg_, progs) = eval(arg, scope)
+        val (Some(arg_), progs) = eval(arg, scope)
         val assrt_ = imp.Spec.assert(truth(arg_))
         if (Translate.translateAsserts)
-          (void, progs ++ List(assrt_))
+          (None, progs ++ List(assrt_))
         else
-          (void, progs) // keep side-effects
+          (None, progs) // keep side-effects
 
       case FunCall("__VERIFIER_error", List()) =>
         if (Translate.translateAsserts)
-          (void, List(imp.Spec.assert(pure.False)))
+          (None, List(imp.Spec.assert(pure.False)))
         else
-          (void, Nil)
+          (None, Nil)
 
       case FunCall(name, args) if name startsWith "__VERIFIER_nondet" =>
         val (formals, ret) = funs(name)
@@ -647,24 +655,27 @@ class Translate(state: State) {
         val asg_ = imp.Local(List(res_), Nil)
 
         if (!Translate.assumeBounds) {
-          (res_, List(asg_))
+          (Some(res_), List(asg_))
         } else {
           val bounds_ = imp.Spec.assume(bounds(res_, ret))
-          (res_, List(asg_, bounds_))
+          (Some(res_), List(asg_, bounds_))
         }
 
       case FunCall(fun, args) =>
         val name = cuvee.util.Name(fun)
         val (args_, progs) = evals(args, scope)
         val proc = state.procs(name)
-        val List(out_) = proc.out
-        val res_ = pure.Expr.fresh(name, out_.typ)
-        val asg_ = imp.Local(List(res_), Nil)
-        val call_ = imp.Call(name, args_, List(res_))
-        (res_, progs ++ List(asg_, call_))
+
+        val out_ = proc.out
+        assert(out_.length <= 1)
+        val res_ = pure.Expr.fresh(name, out_.types)
+        val asg_ = imp.Local(res_, Nil)
+        val call_ = imp.Call(name, args_ map (_.get), res_)
+        (res_.headOption, progs ++ List(asg_, call_))
 
       case SizeOfType(typ) =>
-        (pure.Lit(BigInt(Type.sizeof(typ)), pure.Sort.int), Nil)
+        val lit = pure.Lit(BigInt(Type.sizeof(typ)), pure.Sort.int)
+        (Some(lit), Nil)
 
       case Cast(typ, inner) =>
         // XXX: some kind of hack
@@ -733,8 +744,8 @@ class Translate(state: State) {
     case Type._double =>
       pure.Sort.real
 
-    case Type._void =>
-      Void
+    // case Type._void =>
+    //   Void
 
     case Unsigned(name, bytes) =>
       pure.Sort.int

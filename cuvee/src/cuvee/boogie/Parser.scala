@@ -211,13 +211,13 @@ class Parser(val state: State = State.default) {
       ) => Cmd
   ) = {
     case (name ~ params, (in ~ out ~ mod, (spec, None))) =>
-      state.proc(name, Nil, in, out, spec)
-      DeclareProc(name, Nil, in, out, spec)
+      state.proc(name, params, in, out, spec)
+      DeclareProc(name, params, in, out, spec)
 
     case (name ~ params, (in ~ out ~ mod, (spec, Some(body)))) =>
-      state.proc(name, Nil, in, out, spec)
-      state.procdef(name, in, out, body)
-      DefineProc(name, Nil, in, out, spec, body)
+      state.proc(name, params, in, out, spec)
+      state.procdef(name, params, in, out, body)
+      DefineProc(name, params, in, out, spec, body)
   }
 
   val define_contract: (Name ~ List[Param], List[(Mode, Var)] ~ List[(Expr, Expr)]) => Cmd = {

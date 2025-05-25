@@ -129,11 +129,15 @@ object Printer extends cuvee.util.Printer {
       parens("declare-contract", name, formals, contracts)
 
     case DefineProc(name, Nil, in, out, None, body) =>
-      parens("define-proc", in.asFormals, out.asFormals, body)
+      val avoid = in ++ out
+      val (local, body_) = Prog.liftLocals(avoid.toSet, body)
+      parens("define-proc", name, in.asFormals, out.asFormals, local.asFormals, body_)
 
     case DefineProc(name, Nil, in, out, Some(Spec(mod, pre, post)), body) =>
+      val avoid = in ++ out
+      val (local, body_) = Prog.liftLocals(avoid.toSet, body)
       val attr = List(":modifies", mod, ":requires", pre, ":ensures", post)
-      parens("define-proc", name, in.asFormals, out.asFormals, parens2("!", body)(attr))
+      parens("define-proc", name, in.asFormals, out.asFormals, local.asFormals, parens2("!", body_)(attr))
 
     // pure.Expr
     case Lit(i: BigInt, _) =>
@@ -151,11 +155,11 @@ object Printer extends cuvee.util.Printer {
     case Let(eqs, body)        => parens("let", eqs, body)
     case Distinct(exprs)       => parens2("distinct")(exprs)
 
-    case note @ cuvee.imp.Note(prog, attr) =>
-      parens2("!", prog)(note.flatAttr)
+    case note @ cuvee.imp.Note(prog, attrs) =>
+      parens2("!", prog)(attrs.flatten)
 
-    case note @ cuvee.pure.Note(expr, attr) =>
-      parens2("!", expr)(note.flatAttr)
+    case note @ cuvee.pure.Note(expr, attrs) =>
+      parens2("!", expr)(attrs.flatten)
 
     case Bind(quant, formals, body, _) =>
       parens(quant.name, formals.asFormals, body)

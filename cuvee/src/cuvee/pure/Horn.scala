@@ -17,8 +17,8 @@ object Horn extends Stage {
       case Lemma(todo, None, flag, named) =>
         val goals = assert(List(todo), Nil, Nil, Nil)
         goals.distinct map {
-          case Clause(xs, ant, Note(expr, attr)) =>
-            Lemma(Clause(xs, ant, expr), None, flag, named ++ attr)
+          case Clause(xs, ant, Note(expr, attrs)) =>
+            Lemma(Clause(xs, ant, expr), None, flag, named ++ attrs)
           case expr =>
             Lemma(expr, None, flag, named)
         }

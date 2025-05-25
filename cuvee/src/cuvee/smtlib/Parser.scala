@@ -125,7 +125,7 @@ class Parser(init: State) {
       // these are extensions to SMT-LIB
       case App(Id("lemma"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, None, Nil)
+        Lemma(phi_)
 
       // case App(Id("free-lemma"), phi) =>
       //   val phi_ = expr_typed(phi, bool)
@@ -134,7 +134,7 @@ class Parser(init: State) {
       // prove is used in TIP https://github.com/tip-org/
       case App(Id("prove"), phi) =>
         val phi_ = expr_typed(phi, bool)
-        Lemma(phi_, None, Some(Goal), Nil)
+        Goal(phi_)
 
       case App(Id("declare-sort"), Id(name), Lit.num(digits)) =>
         val n = digits.toInt
@@ -256,11 +256,18 @@ class Parser(init: State) {
         val formals_ = in_ ++ out_ ++ locals_
         val scope = formals_.pairs
 
-        val body_ = prog(body, ctx, scope.toMap)
-        val body_with_locals_ = Block(List(Local(locals_, Nil), body_))
-
         st.proc(name, params_, in_, out_, None)
-        DefineProc(name, params_, in_, out_, None, body_with_locals_)
+
+        val body_ = prog(body, ctx, scope.toMap)
+
+        if (locals_.isEmpty) {
+          st.procdef(name, params_, in_, out_, body_)
+          DefineProc(name, params_, in_, out_, None, body_)
+        } else {
+          val body_with_locals_ = Block(List(Local(locals_, Nil), body_))
+          st.procdef(name, params_, in_, out_, body_with_locals_)
+          DefineProc(name, params_, in_, out_, None, body_with_locals_)
+        }
 
       case App(Id("define-proc"), Id(name), App(in @ _*), App(out @ _*), body) =>
         val params_ : List[Param] = Nil
@@ -521,6 +528,9 @@ class Parser(init: State) {
       case Nil =>
         Nil
 
+      case List(kw: Kw) =>
+        List(kw -> None)
+
       case (kw: Kw) :: (rest @ ((_: Kw) :: _)) =>
         (kw -> None) :: attrs(rest)
 
@@ -574,7 +584,7 @@ class Parser(init: State) {
       While(test_, body_)
 
     case App(Id("!"), from, rest @ _*) =>
-      cuvee.imp.Note(prog(from, ctx, scope), attrs(rest.toList))
+      cuvee.imp.Note(prog(from, ctx, scope), Attrs(attrs(rest.toList)))
 
     case _ =>
       cuvee.error("unexpected program: " + from)

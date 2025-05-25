@@ -37,7 +37,7 @@ class State(
     var funs: Map[(Name, Int), Fun],
     var fundefs: Map[(Name, Int), (List[Var], Expr)],
     var procs: Map[Name, Proc],
-    var procdefs: Map[Name, (List[Var], List[Var], Prog)],
+    var procdefs: Map[Name, (List[Param], List[Var], List[Var], Prog)],
     var abstractions: Map[Name, Datatype],
     var contracts: Map[Name, Contracts]
 ) {
@@ -59,7 +59,7 @@ class State(
       funs: Map[(Name, Int), Fun] = funs,
       fundefs: Map[(Name, Int), (List[Var], Expr)] = fundefs,
       procs: Map[Name, Proc] = procs,
-      procdefs: Map[Name, (List[Var], List[Var], Prog)] = procdefs,
+      procdefs: Map[Name, (List[Param], List[Var], List[Var], Prog)] = procdefs,
       contracts: Map[Name, Contracts] = contracts
   ) = {
     new State(
@@ -178,12 +178,12 @@ class State(
     proc
   }
 
-  def procdef(name: Name, in: List[Var], out: List[Var], body: Prog): Unit = {
+  def procdef(name: Name, params: List[Param], in: List[Var], out: List[Var], body: Prog): Unit = {
     require(
       !(procdefs contains name),
       "procedure already defined: " + name
     )
-    procdefs += (name -> (in, out, body))
+    procdefs += (name -> (params, in, out, body))
   }
 
   def contract(
@@ -309,8 +309,8 @@ class State(
       app("ite", List(test, left, right))
     }
 
-    def note(expr: Pre, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) = {
-      Pre(pure.Note(expr.expr, attr))
+    def note(expr: Pre, attrs: List[(sexpr.Kw, Option[sexpr.Expr])]) = {
+      Pre(pure.Note(expr.expr, sexpr.Attrs(attrs)))
     }
 
     def commutative(fun: Name, neutral: Pre, args: List[Pre]): Pre = args match {
@@ -414,7 +414,7 @@ class State(
       proc(name, params, in, out, spec)
     case DefineProc(name, params, in, out, spec, body) =>
       proc(name, params, in, out, spec)
-      procdef(name, in, out, body)
+      procdef(name, params, in, out, body)
 
     case _ =>
   }

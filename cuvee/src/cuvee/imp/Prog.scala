@@ -83,28 +83,90 @@ class ProgList(progs: List[Prog]) {
       prog.read ++ (rest.read -- (prog.local ++ prog.mod))
   }
 
-  def vars: Set[Var] = {
+  def vars: Set[Var] =
     Set(progs flatMap (_.vars): _*)
-  }
 
-  def local: Set[Var] = {
+  def local: Set[Var] =
     Set(progs flatMap (_.local): _*)
-  }
 
-  def funs: Set[Fun] = {
+  def funs: Set[Fun] =
     Set(progs flatMap (_.funs): _*)
-  }
 
-  def breaks = progs exists (_.breaks)
-  def replace(re: Map[Var, Var]) = progs map (_ replace re)
+  def breaks =
+    progs exists (_.breaks)
+
+  def replace(re: Map[Var, Var]) =
+    progs map (_ replace re)
 }
 
-case class Note(prog: Prog, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Prog {
-  def flatAttr = attr flatMap {
-    case (kw, None)        => List(kw)
-    case (kw, Some(sexpr)) => List(kw, sexpr)
+object Prog {
+
+  def liftLocals(
+      avoid: Set[Var],
+      prog: Prog
+  ): (List[Var], Prog) = {
+    liftLocals(avoid, List(prog), Nil) match {
+      case (xs_, List(prog)) => (xs_, prog)
+      case (xs_, progs)      => (xs_, Block(progs))
+    }
   }
 
+  def liftLocals(
+      avoid: Set[Var],
+      progs: List[Prog],
+      cont: List[List[Prog]]
+  ): (List[Var], List[Prog]) = {
+    progs match {
+      case Nil =>
+        cont match {
+          case Nil =>
+            (Nil, Nil)
+
+          case todo :: cont =>
+            liftLocals(avoid, todo, cont)
+        }
+
+      case Local(xs, Nil) :: rest =>
+        val zs = avoid & xs.toSet
+        val re = Expr.fresh(zs)
+        val xs_ = xs rename re
+        val rest_ = rest replace re
+        val (ys_, progs_) = liftLocals(avoid ++ xs_, rest_, cont)
+        (xs_ ++ ys_, progs_)
+
+      case Local(xs, rhs) :: rest =>
+        val zs = avoid & xs.toSet
+        val re = Expr.fresh(zs)
+        val xs_ = xs rename re
+        val asg_ = Assign(xs_, rhs)
+        val rest_ = rest replace re
+        val (ys_, progs_) = liftLocals(avoid ++ xs_, rest_, cont)
+        (xs_ ++ ys_, asg_ :: progs_)
+
+      case Block(progs) :: rest =>
+        liftLocals(avoid, progs, rest :: cont)
+
+      case If(test, left, right) :: rest =>
+        val (xs1, left_) = liftLocals(avoid, left)
+        val (xs2, right_) = liftLocals(avoid, right)
+        val (ys_, progs_) = liftLocals(avoid ++ xs1 ++ xs2, rest, cont)
+        val if_ = If(test, left_, right_)
+        (xs1 ++ xs2 ++ ys_, if_ :: progs_)
+
+      case While(test, body, term, pre, post, frames) :: rest =>
+        val (xs_, body_) = liftLocals(avoid, body)
+        val (ys_, progs_) = liftLocals(avoid ++ xs_, rest, cont)
+        val while_ = While(test, body_, term, pre, post, frames)
+        (xs_, while_ :: progs_)
+
+      case prog :: rest =>
+        val (xs_, progs_) = liftLocals(avoid, rest, cont)
+        (xs_, prog :: progs_)
+    }
+  }
+}
+
+case class Note(prog: Prog, attrs: sexpr.Attrs) extends Prog {
   def vars = prog.vars
   def mod = prog.mod
   def read = prog.read
@@ -113,7 +175,7 @@ case class Note(prog: Prog, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends 
   def breaks = prog.breaks
 
   def replace(re: Map[Var, Var]) =
-    Note(prog replace re, attr)
+    Note(prog replace re, attrs)
 }
 
 case class Block(progs: List[Prog]) extends Prog {

@@ -34,7 +34,7 @@ class Stmts(val exprs: Exprs) {
       val (spec, prog) = body(stmts, in)
       val param = Nil
       state.proc(name.name, param, in, out, spec)
-      state.procdef(name.name, in, out, prog)
+      state.procdef(name.name, Nil, in, out, prog)
 
       val cmd = DefineProc(name.name, param, in, out, spec, prog)
 

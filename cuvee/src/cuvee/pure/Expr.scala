@@ -19,18 +19,7 @@ sealed trait Expr extends Expr.term with util.Syntax {
   def toStringTyped = toString + ": " + typ
 
   def named(named: String) =
-    Note(this, List(sexpr.Kw("named") -> Some(sexpr.Id(named))))
-
-  def lookupNamed =
-    this match {
-      case Note(expr, attr) =>
-        attr collectFirst { case (sexpr.Kw("named"), Some(sexpr.Id(arg))) =>
-          arg
-        }
-
-      case _ =>
-        None
-    }
+    Note(this, sexpr.Attrs(List(sexpr.Kw("named") -> Some(sexpr.Id(named)))))
 
   def unary_+ = this
   def unary_- = UMinus(this)
@@ -148,10 +137,14 @@ object Expr extends Alpha[Expr, Var] {
     Var(name.withIndex(nextIndex), typ)
   }
 
+  def fresh(name: Name, types: List[Type]): List[Var] = {
+    for(typ <- types)
+      yield fresh(name, typ)
+  }
+
   def fresh(names: List[Name], types: List[Type]): List[Var] = {
-    names zip types map { case (name, typ) =>
-      Var(name.withIndex(nextIndex), typ)
-    }
+    for((name, typ) <- (names zip types))
+      yield fresh(name, typ)
   }
 
   def vars(name: Name, types: List[Type]) = {
@@ -746,25 +739,20 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
     cuvee.undefined // need to fix let eqs, too
 }
 
-case class Note(expr: Expr, attr: List[(sexpr.Kw, Option[sexpr.Expr])]) extends Expr {
-  def flatAttr = attr flatMap {
-    case (kw, None)        => List(kw)
-    case (kw, Some(sexpr)) => List(kw, sexpr)
-  }
-
+case class Note(expr: Expr, attrs: sexpr.Attrs) extends Expr {
   def typ = expr.typ
 
   def free = expr.free
   def funs = expr.funs
 
   def rename(re: Map[Var, Var]) =
-    Note(expr rename re, attr)
+    Note(expr rename re, attrs)
   def subst(su: Map[Var, Expr]) =
-    Note(expr subst su, attr)
+    Note(expr subst su, attrs)
   def inst(su: Map[Param, Type]) =
-    Note(expr inst su, attr)
+    Note(expr inst su, attrs)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    Note(expr inst (ty, su), attr)
+    Note(expr inst (ty, su), attrs)
 }
 
 case class Distinct(exprs: List[Expr]) extends Expr {

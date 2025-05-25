@@ -187,7 +187,7 @@ object JavaBenchmarkWriter {
 
         // XXX: inlining of procedures with explicit returns is currently unsound
         case Call(name, in, out) =>
-          val (xs, zs, body) = state procdefs name
+          val (params, xs, zs, body) = state procdefs name
           val re = Expr.subst(zs, out)
           val body_ = body replace re
           val block = Block(List(Local(xs, Nil), Assign(xs, in), Spec.havoc(out), body_))
