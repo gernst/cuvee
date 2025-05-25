@@ -293,8 +293,8 @@ class Parser(val state: State = State.default) {
 
   val merge = (specs: List[Spec]) => {
     val xs = specs flatMap (_.xs)
-    val pre = And(specs map (_.pre))
-    val post = And(specs map (_.post))
+    val pre = And(specs flatMap (s => And.flattenStrong(s.pre)))
+    val post = And(specs flatMap (s => And.flattenStrong(s.post)))
     Spec(xs, pre, post)
   }
 
@@ -303,8 +303,8 @@ class Parser(val state: State = State.default) {
       None
     } else {
       val xs = specs flatMap (_.xs)
-      val pre = And(specs map (_.pre))
-      val post = And(specs map (_.post))
+      val pre = And(specs flatMap (s => And.flattenStrong(s.pre)))
+      val post = And(specs flatMap (s => And.flattenStrong(s.post)))
       val spec = Spec(mod ++ xs, pre, post)
       Some(spec)
     }
