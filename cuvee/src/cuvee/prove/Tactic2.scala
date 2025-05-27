@@ -18,7 +18,7 @@ trait Sel{
 case class ConstructorSelector(constructor: (Fun, List[Fun]), variables: List[Var]) extends Sel{
   def matches(sel: Sel): Boolean = sel match{
     case ConstructorSelector(cons, vars) => 
-      cons._1.name == constructor._1.name //TODO ib is constructor name unique enough? 
+      cons._1.name == constructor._1.name
     case _ => false
   }
 }
@@ -46,6 +46,7 @@ case object Auto2 extends Tactic2
 case object Sorry2 extends Tactic2
 case class Simplify2(rw: Map[Fun, List[Rule]]) extends Tactic2
 case object BreakPoint extends Tactic2
+case class SimpleProver2() extends Tactic2
 
 // as written in input file
 case class Proof(tactic: Tactic2, subproofs: List[(Sel, Proof)])
@@ -95,7 +96,7 @@ object ProofUtils{
     }
   }
 
-  def apply(goal: Expr, tactic: Tactic2, state: State): List[(Sel, Expr)] = tactic match {
+  def apply(goal: Expr, tactic: Tactic2, state: State, cmds: List[Cmd]): List[(Sel, Expr)] = tactic match {
     case Induction2(variable) =>
       goal match{
         case Clause(xs, _, _) if !(xs.contains(variable)) => 
@@ -200,19 +201,29 @@ object ProofUtils{
         e
       }
       List((IndexSelector(0), goal_))
-    case Auto2 => List((IndexSelector(0), goal)) //TODO ib call prover
+    //case Auto2 => List((IndexSelector(0), goal)) //TODO ib call prover
     case Sorry2 => Nil
     case BreakPoint => List((IndexSelector(0), goal))
+    case Auto2 => 
+      val solver = Solver.z3()
+      //initialize solver
+      for(cmd <- cmds){
+        solver.exec(cmd, state)
+      }
+      val prover = new SimpleProver(solver)
+      val subgoal: Expr = prover.reduce(goal)
+      List((IndexSelector(0), subgoal))
+
   }
 
 
-  def apply(goal: Expr, proof: Proof, state: State): Attempt = proof match {
+  def apply(goal: Expr, proof: Proof, state: State, cmds: List[Cmd]): Attempt = proof match {
     case Proof(tactic, subproofs) =>
-      val subgoals = apply(goal, tactic, state)
+      val subgoals = apply(goal, tactic, state, cmds)
       val (found, rest) = match_subproofs_to_subgoals(subproofs, subgoals)
       val prems_found = found map { 
         case (sel, expr, proof) => 
-          val next = apply(expr, proof, state)
+          val next = apply(expr, proof, state, cmds)
           (sel, Step(expr, 0, List(next)))
       }
       val prems_rest = rest map { //no proof parsed 
@@ -321,7 +332,7 @@ class Test(
 
       case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
         val goal = expr
-        for (goal_ <- reduce(goal, tactic, rws, state) if !(goal_ == True))
+        for (goal_ <- reduce(goal, tactic, rws, state, cmds) if !(goal_ == True))
           yield {
             println(goal_)
             val expr_ = goal_
@@ -330,7 +341,7 @@ class Test(
 
       case cmd @ Lemma(expr, tactic, None, label) =>
         val goal = expr
-        for (goal_ <- reduce(goal, tactic, rws, state))
+        for (goal_ <- reduce(goal, tactic, rws, state, cmds))
           yield {
             println(goal_)
             val expr_ = goal_
@@ -348,7 +359,7 @@ class Test(
         val goal = expr
         // println("proving " + goal)
         // println(rws)
-        for (goal_ <- reduce(goal, None, rws, state))
+        for (goal_ <- reduce(goal, None, rws, state, cmds))
           yield {
             println(goal_)
             val expr_ = goal_
@@ -368,7 +379,8 @@ class Test(
     goal: Expr,
     tactic: Option[Tactic],
     rws: Map[Fun, List[Rule]],
-    state: State
+    state: State,
+    cmds: List[Cmd]
   ): List[Expr] = {
     val tactic2: Tactic2 = tactic match{
       case None => Auto2
@@ -378,8 +390,10 @@ class Test(
       case Some(Sorry) => Sorry2
     }
     
-    val proof_cont: List[(Sel, Proof)] = List((ThenSelector, Proof(Sorry2, Nil))) :+ (ProofSelector, Proof(Auto2, Nil))
-    val attempt = ProofUtils.apply(goal, Proof(tactic2, proof_cont ), state)
+    val cmds_ = cmds.dropRight(1)
+    //val proof_cont: List[(Sel, Proof)] = List((ThenSelector, Proof(Sorry2, Nil))) :+ (ProofSelector, Proof(Auto2, Nil))
+    val proof_cont: List[(Sel, Proof)] = Nil
+    val attempt = ProofUtils.apply(goal, Proof(tactic2, proof_cont ), state, cmds_)
     val tree = ProofUtils.insertAttempt(Nil, Step(goal, -1, Nil), attempt)
     println(attempt)
     /*
