@@ -15,20 +15,20 @@ trait Sel{
   def matches(sel: Sel): Boolean
 }
 
-case class ConstructorSelector(constructor: (Fun, List[Fun]), variables: List[Var]) extends Sel{
+case class ConstructorSelector(constructor: Fun, variables: List[Var]) extends Sel{
   def matches(sel: Sel): Boolean = sel match{
     case ConstructorSelector(cons, vars) => 
-      cons._1.name == constructor._1.name
+      cons == constructor
     case _ => false
   }
 }
 
 case object ProofSelector extends Sel{
-  def matches(sel: Sel): Boolean = sel eq ProofSelector
+  def matches(sel: Sel): Boolean = sel == ProofSelector
 }
 
 case object ThenSelector extends Sel{
-    def matches(sel: Sel): Boolean = sel eq ThenSelector
+    def matches(sel: Sel): Boolean = sel == ThenSelector
 }
 
 case class IndexSelector(index: Int) extends Sel{
@@ -52,6 +52,22 @@ case class SimpleProver2() extends Tactic2
 case class Proof(tactic: Tactic2, subproofs: List[(Sel, Proof)])
 
 object ProofUtils{
+
+  def match_subproof_to_subgoals2(pat: Sel, subproof: Proof, subgoals: List[(Sel, Expr)]): ((Sel, Expr, Proof), List[(Sel, Expr)]) = {
+    (pat, subgoals) match {
+      case (_, Nil) =>
+        ???
+
+      case (ConstructorSelector(sel, vars), (ConstructorSelector(sel_, vars_), subgoal) :: restgoals) if sel == sel_ =>
+        val re = Expr.subst(vars, vars_)
+        val subgoal_ = subgoal rename re
+        ((pat, subgoal_, subproof), restgoals)
+
+      case (ThenSelector, (ThenSelector, subgoal) :: restgoals) =>
+        ((pat, subgoal, subproof), restgoals)
+    }
+  }
+
   def match_subproof_to_subgoals(pat: Sel, subproof: Proof, subgoals: List[(Sel, Expr)]): ((Sel, Expr, Proof), List[(Sel, Expr)]) = {
     subgoals match {
       case Nil => ???
@@ -61,9 +77,8 @@ object ProofUtils{
         val success = sel.matches(pat)
         if(success)  { // match succeeded
           sel match{
-            case ConstructorSelector(constructor, variables) =>
+            case ConstructorSelector(constr, variables) =>
               val ConstructorSelector(pat_constr, pat_vars) = pat
-              val (constr, consel) = constructor
               val su : Map[Var, Var] =
                 (for ((variable, i) <- variables.zipWithIndex)
                 yield{
@@ -140,7 +155,7 @@ object ProofUtils{
               for ((Var(_, Sort(con_, _)), i) <- args.zipWithIndex if con_ == con) 
               yield i
           
-          (Inst(constr, su), args, hyps, ConstructorSelector((constr, sels), xs.filterNot(_ == variable) ++ args))
+          (Inst(constr, su), args, hyps, ConstructorSelector(constr, xs.filterNot(_ == variable) ++ args))
         }
   
       for ((constr, args, hyps, selector) <- ind) yield {
@@ -299,8 +314,7 @@ case class Step(goal: Expr, current: Int = -1, attempts: List[Attempt] = Nil){
 
 case class Attempt(tactic: Tactic2, prems: List[(Sel, Step)]){
   def closed : Boolean = {
-    if(prems.isEmpty) true
-    else(prems.forall(_._2.closed))
+    prems.forall(_._2.closed)
   }
 }
 
