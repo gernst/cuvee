@@ -94,7 +94,7 @@ object ProofUtils{
 
     case Show2(expr) => 
       goal match {
-        case Clause(xs, _, _) => ()
+        case Bind(Quant("forall"), xs, _, _) => ()
         case _ => throw new TacticNotApplicableException(
             f"Can't apply show to $goal"
           )
@@ -105,9 +105,8 @@ object ProofUtils{
       val goals = Horn.assume(List(expr), Nil, xs, ant, List(suc))
       val goal_ = 
         if(goals.isEmpty) True 
-        else if(goals.length <= 1) goals.head 
-        else throw new TacticNotApplicableException(f"assume created more goals than expected: $goals")
-  
+        else And(goals)
+      
       List(
         (ProofSel, expr), 
         (ThenSel, goal_)
@@ -115,36 +114,20 @@ object ProofUtils{
 
          
     case Unfold2(target , places) => 
-      var i = 0
-
-      val goal_ = goal.topdown {
-      case e @ App(inst, args) if (inst.fun.name, args.length) == target =>
-        i += 1
-
-        if (places.isDefined && !places.get.contains(i)) {
-          e
-        } else {
-          val (params, body) = state.fundefs(target)
-          val su = params.zip(args).toMap
-          body.subst(su)
-        }
-
-      case e =>
-        e
-      }
-      List((IndexSel(0), goal_))
+      unfold(goal, target, places, state)
     
     case Auto2 => 
       val solver = Solver.z3()
       //initialize solver
-      for(cmd <- cmds){
+      val cmds_ = cmds.dropRight(1)
+      for(cmd <- cmds_){
         solver.exec(cmd, state)
       }
       val prover = new SimpleProver(solver)
       val subgoal: Expr = prover.reduce(goal)
-      List((IndexSel(0), subgoal))
+      List((ProofSel, subgoal))
 
-    case BreakPoint => List((IndexSel(0), goal))
+    case BreakPoint => List((ProofSel, goal))
     
     case Sorry2 => Nil
 
@@ -170,69 +153,55 @@ object ProofUtils{
   def induction(variable: Var, goal: Expr, state: State): List[(Sel, Expr)] = {
     //TODO ib call methods of InductionProver
     goal match{
-        case Clause(xs, _, _) if !(xs.contains(variable)) => 
-          throw new TacticNotApplicableException(
-            f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier"
-          )
-        case _ if goal.isAtomic => 
-          throw new TacticNotApplicableException(
-            "Atom not supported in induction tactic, got:" + goal
-          )
-        case _ => ()
-      }
-  
-      // First determine the variable's datatype
-      val sort = variable.typ.asInstanceOf[Sort]
-      val dt = state.datatypes
-        .get(sort.con.name)
-        .getOrElse(
-          throw new TacticNotApplicableException(
-            f"Can't apply induction to variable $variable, as it has no associated data type"
-          )
+      case Forall(xs, _) if !(xs.contains(variable)) => 
+        throw new TacticNotApplicableException(
+          f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier"
         )
-  
-      assert(dt.params.length == sort.args.length)
+      case _ if goal.isAtomic => 
+        throw new TacticNotApplicableException(
+          "Atom not supported in induction tactic, got:" + goal
+        )
+      case _ => ()
+    }
 
-      val Clause(xs, ant, suc) = goal
-      val Sort(con, args) = sort
-      val Datatype(params, constrs) = dt
-      val su: Map[Param, Type] = Type.subst(params, args)
+    // First determine the variable's datatype
+    val sort = variable.typ.asInstanceOf[Sort]
+    val dt = state.datatypes
+      .get(sort.con.name)
+      .getOrElse(
+        throw new TacticNotApplicableException(
+          f"Can't apply induction to variable $variable, as it has no associated data type"
+        )
+      )
 
-      //goal without induction variable in top level
-      val goal_ = Clause(xs.filterNot(_ == variable), ant, suc)
-      
-      val ind = 
-        for ((constr, sels) <- constrs) yield {
-          val args =
-              for (Fun(name, _, _, res) <- sels)
-              yield Expr.fresh(name, res subst su)
+    assert(dt.params.length == sort.args.length)
+    val ind = InductiveProver.induction(sort, dt)
+    val sels = ind.map{case (inst, vars, ints) => ConstrSel(inst.fun, vars)}
+    val subgoal = InductiveProver.induction(goal, variable, dt)
+    println(subgoal)
+    val And(phis) = subgoal  
+    sels.zip(phis)
+  }
 
-          val hyps = 
-              for ((Var(_, Sort(con_, _)), i) <- args.zipWithIndex if con_ == con) 
-              yield i
-          
-          (Inst(constr, su), args, hyps, ConstrSel(constr, xs.filterNot(_ == variable) ++ args))
-        }
-  
-      for ((constr, args, hyps, selector) <- ind) yield {
-        val expr = App(constr, args)
+  def unfold(goal: Expr, target: (Name, Int), places: Option[List[BigInt]], state: State): List[(Sel, Expr)] = {
+    var i = 0
 
-        val prems = for (i <- hyps) yield {
-          val y = args(i)
-          val re = Map(variable -> y)
+    val goal_ = goal.topdown {
+    case e @ App(inst, args) if (inst.fun.name, args.length) == target =>
+      i += 1
 
-          Clause(
-            xs filter (_ != variable),
-            ant rename re,
-            suc rename re
-          )
-        }
+      if (places.isDefined && !places.get.contains(i)) {
+        e
+      } else {
+        val (params, body) = state.fundefs(target)
+        val su = params.zip(args).toMap
+        body.subst(su)
+      }
 
-        val su = Map(variable -> expr)
-        val new_goal = Clause(xs.filterNot(_ == variable) ++ args, prems ++ (ant subst su), suc subst su)
-        
-        (selector, new_goal)
-      }  
+    case e =>
+      e
+    }
+    List((ProofSel, goal_))
   }
 
 
@@ -280,10 +249,13 @@ object ProofUtils{
     case Nil =>  ??? //should not happen
     case sel_curr :: sel_rest => 
       val subgoals = attempt.prems
-      val updatedPrems = for((sel, step) <- subgoals) yield{
-        if(sel.matches(sel_curr)) (sel, redoAttempt(sel_rest, step, direction))
-        else (sel, step)
-      }
+      val updatedPrems = 
+        for((sel, step) <- subgoals) yield{
+          if(sel.matches(sel_curr)) 
+            (sel, redoAttempt(sel_rest, step, direction))
+          else 
+            (sel, step)
+        }
       Attempt(attempt.tactic, updatedPrems)
   }
 }
@@ -296,9 +268,7 @@ case class Step(goal: Expr, current: Int = -1, attempts: List[Attempt] = Nil){
 }
 
 case class Attempt(tactic: Tactic2, prems: List[(Sel, Step)]){
-  def closed : Boolean = {
-    prems.forall(_._2.closed)
-  }
+  def closed : Boolean = prems.forall(_._2.closed)
 }
 
 class Test(
@@ -385,21 +355,15 @@ class Test(
       case Some(Show(expr, proof, cont)) => Show2(expr)
       case Some(Auto) => Auto2 
       case Some(Sorry) => Sorry2
+      case Some(Unfold(target, places, _)) => Unfold2(target, places)
     }
-    
-    val cmds_ = cmds.dropRight(1)
     //val proof_cont: List[(Sel, Proof)] = List((ThenSel, Proof(Sorry2, Nil))) :+ (ProofSel, Proof(Auto2, Nil))
     val proof_cont: List[(Sel, Proof)] = Nil
-    val attempt = ProofUtils.apply(goal, Proof(tactic2, proof_cont ), state, cmds_)
-    val tree = ProofUtils.insertAttempt(Nil, Step(goal, -1, Nil), attempt)
+    val Forall(xs, _) = goal
+    val attempt = ProofUtils.apply(goal, Proof(Induction2(xs.head), proof_cont ), state, cmds)
     println(attempt)
-    /*
-    val attempt = ProofUtils.apply(goal, Proof(BreakPoint, Nil), state)
-    val tree = ProofUtils.apply(Nil, Step(goal, -1, Nil), attempt)
-    */
-    val tree2 = Step(goal, 0, List(Attempt(Sorry2, Nil)))
-    println(tree2 + "\n" + tree2.closed)
-    
+    val tree = ProofUtils.insertAttempt(Nil, Step(goal, -1, Nil), attempt)
+    println(tree)
     attempt.prems.map{case (sel, step) => step.goal}
   }
 }
