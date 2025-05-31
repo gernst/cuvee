@@ -13,12 +13,7 @@ import cuvee.ListOps
 object Parser extends TestSuite {
   val testResources = new File("cuvee/test/src/cuvee/resources/")
 
-  val stream = new ByteArrayOutputStream
-  System.setOut(new java.io.PrintStream(stream))
-
   val tests = Tests {
-    // TODO problem with "requirement failed: procedure already declared"
-    // Does cuvee keep parts of the state with collect?
     test("parser") {
       val files = getAllFiles(testResources)
 
@@ -27,19 +22,17 @@ object Parser extends TestSuite {
         val tmpFile = File.createTempFile("tmp-" + task, ".bpl")
         tmpFile.deleteOnExit()
 
-        try { // TODO debug
-          val fst = Cuvee.collect(Array(task))
-          val fos = new FileOutputStream(tmpFile)
-          stream.writeTo(fos);
+        val stream = new ByteArrayOutputStream
+        System.setOut(new java.io.PrintStream(stream))
 
-          val snd = Cuvee.collect(Array(tmpFile.getAbsolutePath()))
+        val fst = Cuvee.collect(Array(task))
+        val fos = new FileOutputStream(tmpFile)
+        stream.writeTo(fos);
+        stream.close()
 
-          assert(fst == snd)
-        } catch { // TODO debug
-          case e: Exception =>
-            println(task)
-            println(e.getMessage())
-        }
+        val snd = Cuvee.collect(Array(tmpFile.getAbsolutePath()))
+
+        assert(fst == snd)
       }
     }
   }
