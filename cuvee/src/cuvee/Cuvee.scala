@@ -43,6 +43,7 @@ class Config {
   var annotate: Set[String] = Set()
 
   var simplify = false
+  var simplify2 = false
   var rewrite = false
 
   var prove = "none"
@@ -189,6 +190,9 @@ class Config {
     },
     option("-simplify", "simplify using internal algorithms") {
       simplify = true
+    },
+    option("-simplify2", "simplify using internal algorithms") {
+      simplify2 = true
     },
     option(
       "-simplify+rewrite",
@@ -434,6 +438,10 @@ object Config {
         )
 
       case _ =>
+    }
+
+    if (config.simplify2) {
+      sink = new Incremental(cuvee.simplify.Simplify, sink)
     }
 
     if (config.quickcheck) {
