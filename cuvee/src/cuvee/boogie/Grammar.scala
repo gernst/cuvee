@@ -384,7 +384,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
   /* TACTICS */
   // SORRY
   val sorry =
-    P(Sorry(KW("sorry")));
+    P(Proof(Sorry(KW("sorry")) ~ ret(Nil)));
 
   // INDUCTION
   def patargs(typ: Type): (Name => Parser[Expr, Token]) = {
@@ -408,6 +408,29 @@ class Grammar(parser: cuvee.boogie.Parser) {
       P(ret(Var(name, typ)))
   }
 
+  def constargs(typ: Type): ((Name) => Parser[(Fun, Expr), Token]) = {
+     case name if state.constrs exists (_.name == name) =>
+      val sort = typ.asInstanceOf[Sort]
+      val dt = state.datatypes(sort.con.name)
+
+      dt.constrs.find(_._1.name == name) match {
+        case None => cuvee.error("Could not find constructor")
+        case Some((con, sels)) =>
+          val su = Type.bind(con.res, typ)
+          val inst = Inst(con, su)
+
+          val args = for (Fun(name, _, _, res) <- sels)
+            yield Expr.fresh(name, res subst su)
+
+          val mkapp: (List[Expr] => Expr) = l => App(inst, l)
+
+          P(ret(con) ~ mkapp(patargs(inst)))
+      }
+    //TODO ib what if selector is variable?
+    //case name =>
+      //P(ret(Var(name, typ)))
+  }
+
   def patargs(inst: Inst): Parser[List[Expr], Token] = {
     val ts = inst.args
     if (ts.isEmpty)
@@ -421,47 +444,87 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def pat(implicit typ: Type): Parser[Expr, Token] =
     P(name ~>@ patargs(typ))
 
-  def case_(typ: Type)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("case" ~ pat(typ) ~ "=>" ~@ (expr => tactic(scope ++ expr.free.asScope, ctx)))
+  def constpat(implicit typ: Type): Parser[(Fun, Expr), Token] = 
+    P(name ~>@ constargs(typ))
 
-  def cases(arg: Expr)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    braces(case_(arg.typ).*) | ret(Nil)
+  def case_(typ: Type)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[((Fun, Expr), Proof), Token] =
+    P("case" ~ constpat(typ) ~ "=>" ~@ {case (fun, expr) => tactic(scope ++ expr.free.asScope, ctx)}) 
+
+  def cases(tactic: Induction)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] =
+    braces(case_(tactic.x.typ).map{case ((fun, expr), proof) => (ConstrSel(fun, expr.free.toList), proof)}.+ ) | ret(Nil)
 
   def induction(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Induction("induction" ~ var_ ~@ cases));
+    P(Proof("induction" ~ Induction(var_) ~@ cases));
 
   def maybe_proof(
       phi: Expr
   )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P("proof" ~ scoped_tactic(phi)).?
 
+
+  def subproofs(
+      phi: Expr
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+    def collect_all_the_vars(phi: Expr): List[Var] = phi match {
+      case Forall(bound, body) =>
+        bound ++ collect_all_the_vars(body)
+      case _ =>
+        Nil
+    }
+
+    val xs = collect_all_the_vars(phi)
+    tactic(scope ++ xs.asScope, ctx)
+  }
+
   // SHOW
   def show(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Show("show" ~ formula ~@ maybe_proof ~ ("then" ~ tactic).?))
+    P(Proof(
+        Show( "show" ~ formula )
+        ~@ maybe_proof_sel //TODO ib then case
+      )
+    )
+
+  def maybe_proof_sel(
+      tactic: Show
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] =
+    P("proof" ~ ret(ProofSel) ~ scoped_tactic(tactic.expression) ~ then_sel) map{ 
+        case (sel1 ~ proof1) ~ rest => (sel1, proof1) :: rest
+      }
+
+  def then_sel(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] = 
+    P(("then" ~ ret(ThenSel) ~ tactic).+ | ret(Nil))
 
   // UNFOLD
   def unfold(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(
-      Unfold(
-        "unfold" ~ make_fun_ref(
-          name ~ ("[" ~ int_ ~ "]").?
-        ) ~ ("at" ~ (int_ ~+ ",")).? ~ ("then" ~ tactic).?
+    P(Proof(
+        Unfold(
+          "unfold" ~ make_fun_ref(
+            name ~ ("[" ~ int_ ~ "]").?
+          ) ~ ("at" ~ (int_ ~+ ",")).? 
+        ) 
+        ~ "then" ~ (ret(ProofSel) ~ tactic).+
       )
     )
 
   // AUTO
-  def auto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = "auto" ~ ret(Auto)
+  def auto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = 
+    "auto" ~ Proof(ret(Auto) ~ ret(Nil))
 
   // NOAUTO
   def noauto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(NoAuto("noauto" ~ tactic))
+    P("noauto" ~ Proof(ret(NoAuto) ~ (ret(ProofSel) ~ tactic).+ ))
+
+  //BREAKPOINT
+  def breakpoint(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = 
+    "break" ~ Proof(ret(BreakPoint) ~ ret(Nil))
 
   // ANY TACTIC
   def tactic(implicit
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
-  ): Parser[Tactic, Token] =
-    P(sorry | show | induction | unfold | auto | noauto);
+  ): Parser[Proof, Token] =
+    P(sorry | show  | auto | noauto | unfold | induction | breakpoint); 
+    
 
   def scoped_tactic(
       phi: Expr

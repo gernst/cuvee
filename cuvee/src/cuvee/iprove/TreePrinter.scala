@@ -378,10 +378,11 @@ object TreePrinter extends cuvee.util.Printer {
   }
 
   def tactic_(t: cuvee.prove.Tactic): List[String] =  t match {
-      case prove.Induction(variable, cases) =>
+      case prove.Induction(variable) =>
         val header = "induction " + variable.name.toString
   
         var result: List[String] = Nil
+        val cases: List[(Expr, prove.Tactic)] = Nil
         if (cases.isEmpty) {
           result = List(header)
         } else {
@@ -393,17 +394,18 @@ object TreePrinter extends cuvee.util.Printer {
         }
   
         indent(result)
-      case prove.Show(prop, tactic, cont) =>
+
+      case prove.Show(prop) =>
         var result: List[String] = Nil
         val head = "show (" + line(prop) + ")"
   
-        if (tactic.nonEmpty)
-          result ++= "proof " +: tactic_(tactic.orNull)
-        if (cont.nonEmpty)
-          result ++= "then " +: tactic_(cont.orNull)
+        // if (tactic.nonEmpty)
+        //   result ++= "proof " +: tactic_(tactic.orNull)
+        // if (cont.nonEmpty)
+        //   result ++= "then " +: tactic_(cont.orNull)
   
         indent(head +: result)
-      case prove.Unfold(target, places, cont) =>
+      case prove.Unfold(target, places) =>
         val (name, num) = target
   
         var head: String = "unfold " + name
@@ -412,13 +414,13 @@ object TreePrinter extends cuvee.util.Printer {
         if (places.nonEmpty)
           head += " at " + places.orNull.mkString(", ") + " then"
   
-        if (cont.nonEmpty)
-          result ++= tactic_(cont.orNull)
+        //if (cont.nonEmpty)
+          //result ++= tactic_(cont.orNull)
   
         result = head +: result
         indent(result)
       case prove.Auto           => indent(List("auto"))
-      case prove.NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
+      case prove.NoAuto         => indent(List("noauto "))//:: tactic_(proof.tactic))
       case prove.Sorry          => indent(List("sorry"))
     }
   
@@ -500,10 +502,11 @@ object TreePrinter extends cuvee.util.Printer {
     }
   }
 
+
   def formatProveTactic(tactic: prove.Tactic): String = tactic match {
     case prove.Auto => "auto"
-    case prove.Induction(variable, cases) => "induction " + variable
-    case prove.Show(expr, _ , _) => "show " + expr
+    case prove.Induction(variable) => "induction " + variable
+    case prove.Show(expr) => "show " + expr
     case prove.Sorry => "sorry"
     //case prove.Skip | _ => "skip"
   }

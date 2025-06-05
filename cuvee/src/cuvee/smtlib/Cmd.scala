@@ -10,6 +10,7 @@ import cuvee.util.Name
 import cuvee.util
 import cuvee.imp.Spec
 import cuvee.sexpr
+import cuvee.prove.Proof
 
 sealed trait Res extends util.Syntax {}
 
@@ -91,7 +92,7 @@ case object Goal extends Mode
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
 case class Lemma(
     expr: Expr,
-    tactic: Option[Tactic],
+    tactic: Option[Proof],
     mode: Option[Mode],
     named: List[(sexpr.Kw, Option[sexpr.Expr])]
 ) extends Cmd {

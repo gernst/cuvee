@@ -1,140 +1,253 @@
 package cuvee.prove
 
-import scala.annotation.varargs
-import scala.language.postfixOps
-
-import cuvee.State
+import cuvee.pure.Fun
 import cuvee.pure._
-import cuvee.smtlib._
+import cuvee.sub
+import cuvee.pure.True
+import cuvee.State
 import cuvee.util.Name
-import cuvee.prove.Rating
-import cuvee.pure.Quant.forall
+import cuvee.smtlib._
+import cuvee.pipe.Stage
+import cuvee.iprove
+import scala.collection.DoubleStepper
 
-/** Represents an instance of a tactic, possibly with arguments.
-  * 
-  * An instance of this trait may be applied to a proof obligation.
-  */
-trait Tactic {
+trait Sel{
+  def matches(sel: Sel): Boolean
+}
 
-  /** Apply the tactic to a proposition in a given state
-    *
-    * @param state
-    * @param goal
-    * @return
-    *   A list of subgoals, given as tuples (prop, tactic?), where prop is the
-    *   formula corresponding to the subgoal and tactic? is an optional tactic
-    *   to prove the subgoal.
-    */
+case class ConstrSel(constructor: Fun, variables: List[Var]) extends Sel{
+  def matches(sel: Sel): Boolean = sel match{
+    case ConstrSel(cons, vars) => 
+      cons == constructor
+    case _ => false
+  }
+}
+
+case object ProofSel extends Sel{
+  def matches(sel: Sel): Boolean = sel == ProofSel
+}
+
+case object ThenSel extends Sel{
+    def matches(sel: Sel): Boolean = sel == ThenSel
+}
+
+case class IndexSel(index: Int) extends Sel{
+  def matches(sel: Sel): Boolean = sel match{
+    case IndexSel(index_) => index == index
+    case _ => false 
+  }
+}
+
+trait Tactic {}
+class TacticNotApplicableException(s: String) extends Exception(s) {}
+
+case class Induction(x: Var) extends Tactic
+case class Show(expression: Expr) extends Tactic
+case class Unfold(target: (Name, Int), places: Option[List[BigInt]]) extends Tactic
+case object NoAuto extends Tactic
+case class SimpleProver2() extends Tactic
+case object Auto extends Tactic
+case object BreakPoint extends Tactic
+case object Sorry extends Tactic
+
+
+
+// as written in input file
+case class Proof(tactic: Tactic, subproofs: List[(Sel, Proof)])
+
+object ProofUtils{
+
+  def match_subproof_to_subgoals(pat: Sel, subproof: Proof, subgoals: List[(Sel, Expr)]): ((Sel, Expr, Proof), List[(Sel, Expr)]) = 
+    (pat, subgoals) match {
+      case (_, Nil) =>
+        ???
+
+      case (ConstrSel(sel, vars), (ConstrSel(sel_, vars_), subgoal) :: restgoals) if sel == sel_ =>
+        val re = Expr.subst(vars_, vars) //TODO ib check if vars are always compatible
+        println(re)
+        val subgoal_ = subgoal rename re
+        ((pat, subgoal_, subproof), restgoals)
+
+      case (ThenSel, (ThenSel, subgoal) :: restgoals) =>
+        ((pat, subgoal, subproof), restgoals)
+
+      case (ProofSel, (ProofSel, subgoal) :: restgoals) => 
+        ((pat, subgoal, subproof), restgoals)
+
+      case (IndexSel(x), (IndexSel(x_), subgoal) :: restgoals) if x == x_ => 
+        ((pat, subgoal, subproof), restgoals)
+
+      case (_, (sel, subgoal) :: restgoals) => // otherwise, maybe pat = nil does not match
+        val (result, restgoals_) = match_subproof_to_subgoals(pat, subproof, restgoals)
+        (result, (sel, subgoal) :: restgoals_) // keep the unmatched goal!
+        
+    }
+
+  def match_subproofs_to_subgoals(subproofs: List[(Sel, Proof)], subgoals: List[(Sel, Expr)]): (List[(Sel, Expr, Proof)], List[(Sel, Expr)]) = 
+  subproofs match {
+    case Nil =>
+      (Nil, subgoals)
+
+    case (pat, subproof) :: rest =>
+      val (first_, subgoals_) = match_subproof_to_subgoals(pat, subproof, subgoals)
+      val (rest_, subgoals__) = match_subproofs_to_subgoals(rest, subgoals_)
+      (first_ :: rest_, subgoals__)
+  }
+
+  def apply(goal: Expr, tactic: Tactic, state: State, cmds: List[Cmd]): List[(Sel, Expr)] = tactic match {
+    case Induction(variable) =>
+      induction(variable, goal, state)
+
+    case Show(expr) => 
+      goal match {
+        case Bind(Quant("forall"), xs, _, _) => ()
+        case _ => throw new TacticNotApplicableException(
+            f"Can't apply show to $goal"
+          )
+      } 
+    
+      val Clause(xs, ant, suc) = goal
+      //TODO without clause
+      val goals = Horn.assume(List(expr), Nil, xs, ant, List(suc))
+      val goal_ = 
+        if(goals.isEmpty) True 
+        else And(goals)
+      
+      List(
+        (ProofSel, expr), 
+        (ThenSel, goal_)
+      )   
+
+         
+    case Unfold(target , places) => 
+      unfold(goal, target, places, state)
+    
+    case Auto => 
+      val solver = Solver.z3()
+      //initialize solver
+      val cmds_ = cmds.dropRight(1)
+      for(cmd <- cmds_){
+        solver.exec(cmd, state)
+      }
+      val prover = new SimpleProver(solver)
+      val subgoal: Expr = prover.reduce(goal)
+      List((ProofSel, subgoal))
+
+    case BreakPoint => List((ProofSel, goal))
+    
+    case Sorry => Nil
+
+  }
+
+
+  def apply(goal: Expr, proof: Proof, state: State, cmds: List[Cmd]): Attempt = proof match {
+    case Proof(tactic, subproofs) =>
+      val subgoals = apply(goal, tactic, state, cmds)
+      print(subgoals)
+      val (found, rest) = match_subproofs_to_subgoals(subproofs, subgoals)
+      val prems_found = found map { 
+        case (sel, expr, proof) => 
+          val next = apply(expr, proof, state, cmds)
+          (sel, Step(expr, 0, List(next)))
+      }
+      val prems_rest = rest map { //no proof parsed 
+        case (sel, expr) => (sel, Step(expr, -1, Nil))
+      }
+      Attempt(tactic, prems_found ++ prems_rest)
+  }
+
   @throws[TacticNotApplicableException](
     "if the tactic is not applicable to the given goal and state"
   )
-  def apply(state: State, goal: Expr): List[(Expr, Option[Tactic])]
-
-  // TODO da: Does the current implementation work for most / some cases?
-  /** Heuristic that tries to determine whether a tactic application that
-    * produced the given `cases` made progress.
-    *
-    * When the application is deemed successful, this method returns
-    *
-    * This default implementation only measures whether the sum of the cases'
-    * complexities is strictly lower than the complexity of the original goal.
-    */
-  def makesProgress(state: State, goal: Expr)(implicit
+  def makesProgress(state: State, goal: Expr, tactic: Tactic, cmds: List[Cmd])(implicit
       prover: Prover
-  ): Option[Int] = {
-    val orig = Rating.complexity(goal)
-    val cases = apply(state, goal)
+  ): Option[Int] = tactic match {
+    case Induction(variable) => {
+      val sort = variable.typ.asInstanceOf[Sort]
+      val dt = state.datatypes
+        .get(sort.con.name)
+        .getOrElse(
+          throw new TacticNotApplicableException(
+            f"Can't apply induction to variable $variable, as it has no associated data type"
+          )
+        )
 
-    val snew = cases.map(c => Rating.complexity(c._1)).max
+      val su = dt.params.zip(sort.args).toMap
+      val insts = dt.constrs map (c => Inst(c._1, su))
 
-    if (snew < orig)
-      Some(orig - snew)
-    else
-      None
-  }
-}
+      // Determine the non-recursive constructors and their indices in the list of generated cases
+      val baseCases = insts.zipWithIndex.filterNot { case (i, _) =>
+        i.args.contains(i.res)
+      }
 
-/** A trait that allows some implementation to suggest a tactic that may be
-  * applied to a given goal in a given state.
-  */
-trait Suggest {
+      // Check whether the goals of all resulting base cases can be proved automatically
+      val baseIndices = baseCases map (_._2)
 
-  /** Suggest some tactics that could be applied for the given `state` and
-    * `goal`
-    *
-    * @param state
-    * @param goal
-    * @return
-    *   List of tactics that are applicable for the given state and goal
-    */
-  def suggest(state: State, goal: Expr): List[Tactic]
+      // Apply the tactic
+      val goals = apply(goal, tactic, state, cmds)
+      val baseGoals = baseIndices map (goals(_))
 
-  /** Suggest some tactics that could be automatically applied for the given
-    * `state` and `goal`.
-    *
-    * By default, this returns the same tactics as `suggest`.
-    *
-    * @param state
-    * @param goal
-    * @return
-    *   List of tactics that are applicable for the given state and goal
-    */
-  def suggestAuto(state: State, goal: Expr): List[Tactic] = suggest(state, goal)
-}
+      val success = baseGoals forall { case (goal, _) =>
+        ???
+        // Proving.proveAndSimplify(goal, prover, state) == Atom.t
+      }
 
-object Suggest extends Suggest {
-  val suggesters: List[Suggest] = List(Induction, Unfold)
+      success match {
+        case true =>
+          // Determine the progress we've made
+          // As we know that the base cases can be proven automatically, the remaining complexity is given only by the remaining cases
+          val originalComplexity = Rating.complexity(goal)
+          val remainingComplexity = goals.zipWithIndex
+            .filterNot(baseIndices.contains)
+            .map(p => Rating.complexity(p._1._2))
+            .max
 
-  def suggest(state: State, goal: Expr): List[Tactic] = goal match {
-    case True | False => Nil
-    case goal            => suggesters flatMap (_.suggest(state, goal))
-  }
+          Some(originalComplexity - remainingComplexity)
+        case _ => None
+      }
+    }
 
-  override def suggestAuto(state: State, goal: Expr): List[Tactic] = goal match {
-    case True | False => Nil
-    case goal            => suggesters flatMap (_.suggestAuto(state, goal))
-  }
-}
+    case Unfold(target, places) => {
+      
+      val result = apply(goal, tactic, state, cmds)
+      // We know that the applying the tactic yields exactly one subgoal (see above)
+      val new_goal = result.head._2
+      val goal_p = prover.reduce(new_goal, null)
 
-class TacticNotApplicableException(s: String) extends Exception(s) {}
+      val diff = Rating.size(new_goal)(state) - Rating.size(goal_p)(state)
 
-case object Sorry extends Tactic {
-  def apply(state: State, goal: Expr) = {
-    // Currently a no-op
-    println("\u001b[93m⚠\u001b[0m Use of the \u001b[93msorry\u001b[0m tactic!")
-    Nil
-  }
-}
+      if (diff > 0)
+        Some(diff)
+      else
+        None
+    }
 
-object Induction
-    extends ((Var, List[(Expr, Tactic)]) => Induction)
-    with Suggest {
+    case _ => {
+      val orig = Rating.complexity(goal)
+      val cases = apply(goal, tactic, state, cmds)
 
-  def suggest(state: State, goal: Expr): List[Tactic] = goal match {
-    case Clause(xs, neg, pos) =>
-      for (x <- xs if getDatatype(x)(state).isDefined)
-        yield Induction(x, Nil)
-    case _ => Nil
+      val snew = cases.map(c => Rating.complexity(c._2)).max
+
+      if (snew < orig)
+        Some(orig - snew)
+      else
+        None
+    }
   }
 
-  def getDatatype(variable: Var)(implicit state: State): Option[Datatype] = {
-    val sort = variable.typ.asInstanceOf[Sort]
-    state.datatypes.get(sort.con.name)
-  }
-}
 
-case class Induction(variable: Var, cases: List[(Expr, Tactic)]) extends Tactic {
 
-  def apply(state: State, goal: Expr) = {
+  def induction(variable: Var, goal: Expr, state: State): List[(Sel, Expr)] = {
+    //TODO ib call methods of InductionProver
     goal match{
-      case Clause(xs, _, _) if !(xs.contains(variable)) => 
+      case Forall(xs, _) if !(xs.contains(variable)) => 
         throw new TacticNotApplicableException(
-        f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier"
-      )
+          f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier"
+        )
       case _ if goal.isAtomic => 
         throw new TacticNotApplicableException(
-        "Atom not supported in induction tactic, got:" + goal
-      )
+          "Atom not supported in induction tactic, got:" + goal
+        )
       case _ => ()
     }
 
@@ -149,259 +262,190 @@ case class Induction(variable: Var, cases: List[(Expr, Tactic)]) extends Tactic 
       )
 
     assert(dt.params.length == sort.args.length)
-    
-    val con_tactics = cases
-      .collect({ case (expr: App, tactic) =>
-        (expr.inst, (expr, tactic))
-      })
-      .toMap
-      
-    val Clause(xs, ant, suc) = goal
-    val Sort(con, args) = sort
-    val Datatype(params, constrs) = dt
-    val su: Map[Param, Type] = Type.subst(params, args)
-    
-    val ind = 
-      for ((constr, sels) <- constrs) yield {
-        val args =
-          for (Fun(name, _, _, res) <- sels)
-            yield Expr.fresh(name, res subst su)
-
-        val hyps = 
-          for ((Var(_, Sort(con_, _)), i) <- args.zipWithIndex if con_ == con) 
-            yield i
-        
-        (Inst(constr, su), args, hyps)
-      }
-
-    for ((constr, args, hyps) <- ind) yield {
-      val expr = App(constr, args)
-
-      val prems = for (i <- hyps) yield {
-        val y = args(i)
-        val re = Map(variable -> y)
-
-        Clause(
-          xs filter (_ != variable),
-          ant rename re,
-          suc rename re
-        )
-      }
-
-      val su = Map(variable -> expr)
-      val new_goal = Clause(xs.filterNot(_ == variable) ++ args, prems ++ (ant subst su), suc subst su)
-      
-      (new_goal, con_tactics.get(constr) map (_._2))
-    }
+    val ind = InductiveProver.induction(sort, dt) //TODO fix ib this is called again and thus new variable names are generated
+    val sels = ind.map{case (inst, vars, ints) => ConstrSel(inst.fun, vars)}
+    val subgoal = InductiveProver.induction(goal, variable, dt)
+    println(subgoal)
+    val And(phis) = subgoal  
+    sels.zip(phis)
   }
 
-  override def makesProgress(
-      state: State,
-      goal: Expr
-  )(implicit
-      prover: Prover
-  ): Option[Int] = {
-    // Determine the variable's datatype
-    val sort = variable.typ.asInstanceOf[Sort]
-    val dt = state.datatypes
-      .get(sort.con.name)
-      .getOrElse(
-        throw new TacticNotApplicableException(
-          f"Can't apply induction to variable $variable, as it has no associated data type"
-        )
-      )
-
-    val su = dt.params.zip(sort.args).toMap
-    val insts = dt.constrs map (c => Inst(c._1, su))
-
-    // Determine the non-recursive constructors and their indices in the list of generated cases
-    val baseCases = insts.zipWithIndex.filterNot { case (i, _) =>
-      i.args.contains(i.res)
-    }
-
-    // Check whether the goals of all resulting base cases can be proved automatically
-    val baseIndices = baseCases map (_._2)
-
-    // Apply the tactic
-    val goals = apply(state, goal)
-    val baseGoals = baseIndices map (goals(_))
-
-    val success = baseGoals forall { case (goal, _) =>
-      ???
-      // Proving.proveAndSimplify(goal, prover, state) == Atom.t
-    }
-
-    success match {
-      case true =>
-        // Determine the progress we've made
-        // As we know that the base cases can be proven automatically, the remaining complexity is given only by the remaining cases
-        val originalComplexity = Rating.complexity(goal)
-        val remainingComplexity = goals.zipWithIndex
-          .filterNot(baseIndices.contains)
-          .map(p => Rating.complexity(p._1._1))
-          .max
-
-        Some(originalComplexity - remainingComplexity)
-      case _ => None
-    }
-  }
-}
-
-case class Show(
-    expr: Expr,
-    tactic: Option[Tactic],
-    cont: Option[Tactic]
-) extends Tactic {
-  def apply(state: State, goal: Expr) = {
-    goal match {
-      case Clause(xs, _, _) => ()
-      case _ => throw new TacticNotApplicableException(
-          f"Can't apply show to $goal"
-        )
-    } 
-
-    val Clause(xs, ant, suc) = goal
-
-    val goals = Horn.assume(List(expr), Nil, xs, ant, List(suc))
-    val goal_ = 
-      if(goals.isEmpty) True 
-      else if(goals.length <= 1) goals.head 
-      else throw new TacticNotApplicableException(f"assume created more goals than expected: $goals")
-
-    List(
-      (expr, tactic), //TODO replace from?
-      (goal_, cont)
-    )
-  }
-}
-
-object Unfold
-    extends (((Name, Int), Option[List[BigInt]], Option[Tactic]) => Unfold)
-    with Suggest {
-
-  /** Suggest to unfold definitions.
-    *
-    * This function produces suggestions for unfolding definitions.
-    * If a function / constant occurs more than once in the goal, unfolding
-    * every ocurrence is suggested, as well as unfolding all occurrences.
-    *
-    * @param state
-    * @param goal
-    * @return
-    */
-  def suggest(state: State, expr: Expr): List[Tactic] = {
-    // First, find all unfoldable functions in the goal
-    var functions = collection.mutable.Map[(Name, Int), Int]()
-
-    expr.topdown {
-      case app @ App(inst, args)
-          if state.fundefs.contains((inst.fun.name, args.length)) => {
-        val name = inst.fun.name
-        val arity = args.length
-        val (_, body) = state.fundefs((name, arity))
-
-        // In case of a recursive definition, bail out
-        if (!body.funs.contains(inst.fun))
-          functions.update((name, arity), functions.getOrElse((name, arity), 0) + 1)
-
-        app
-      }
-      case e => e
-    }
-
-    // Generate the tactic suggestions for the unfoldable functions
-    functions.flatMap { case (fn, cnt) =>
-      if (cnt == 1)
-        List(Unfold(fn, Some(List(1)), None))
-      else
-        (1 to cnt).map(i => 
-          Unfold(fn, Some(List(i)), None)
-        ) :+ Unfold(fn, None, None)
-    }.toList
-  }
-
-  /** Suggest definitions to automatically unfold.
-    *
-    * Here we reduce the suggestions from `suggest` to those, in which we have a
-    * predicate that we unfold.
-    *
-    * @param state
-    * @param goal
-    * @return
-    */
-  override def suggestAuto(state: State, goal: Expr): List[Tactic] = {
-    val suggestions = suggest(state, goal) map (t => t.asInstanceOf[Unfold])
-    // At this point we know that the function exists, so we can request the definition from the state
-    // and filter for unfodings of predicates
-    suggestions filter (t => state.funs(t.target).res == Sort.bool)
-  }
-}
-
-case class Unfold(
-    target: (Name, Int),
-    places: Option[List[BigInt]],
-    cont: Option[Tactic]
-) extends Tactic {
-  require(!places.isDefined || places.get.forall(i => 1 <= i))
-
-  def apply(state: State, expr: Expr) = {
+  def unfold(goal: Expr, target: (Name, Int), places: Option[List[BigInt]], state: State): List[(Sel, Expr)] = {
     var i = 0
 
-    val goal_ = expr.topdown {
-      case e @ App(inst, args) if (inst.fun.name, args.length) == target =>
-        i += 1
+    val goal_ = goal.topdown {
+    case e @ App(inst, args) if (inst.fun.name, args.length) == target =>
+      i += 1
 
-        if (places.isDefined && !places.get.contains(i)) {
-          e
-        } else {
-          val (params, body) = state.fundefs(target)
-          val su = params.zip(args).toMap
-          body.subst(su)
-        }
-
-      case e =>
+      if (places.isDefined && !places.get.contains(i)) {
         e
+      } else {
+        val (params, body) = state.fundefs(target)
+        val su = params.zip(args).toMap
+        body.subst(su)
+      }
+
+    case e =>
+      e
     }
-    //TODO replaced from
-    List((goal_, cont))
+    List((ProofSel, goal_))
   }
 
-  override def makesProgress(state: State, goal: Expr)(implicit prover: Prover): Option[Int] = {
-    // Tentatively apply every suggested unfolding of predicates
-    val result = apply(state, goal)
-    // We know that the applying the tactic yields exactly one subgoal (see above)
-    val new_goal = result.head._1
-    val goal_p = prover.reduce(new_goal, null)
 
-    val diff = Rating.size(new_goal)(state) - Rating.size(goal_p)(state)
 
-    if (diff > 0)
-      Some(diff)
-    else
-      None
+  def insertAttempt(path: List[Sel], tree: Step, attempt: Attempt): Step = (path, tree.attempts) match {
+    case (Nil, _) => Step(tree.goal, 0, attempt :: tree.attempts) //insert 
+    
+    case (head :: next, Nil) =>  tree
+        
+    case (head:: next, _ :: _) => 
+      val attempt_curr = tree.attempts(tree.current)
+      val updated_attempt = insertAttempt(path, attempt_curr) 
+      Step(tree.goal, tree.current, tree.attempts.updated(tree.current, updated_attempt))
+  }
+
+  def insertAttempt(path: List[Sel], attempt: Attempt): Attempt = path match{
+    case Nil =>  ??? //should not happen
+    case sel_curr :: sel_rest => 
+      val subgoals = attempt.prems
+      val updatedPrems = for((sel, step) <- subgoals) yield{
+        if(sel.matches(sel_curr)) (sel, insertAttempt(sel_rest, step, attempt))
+        else (sel, step)
+      }
+      Attempt(attempt.tactic, updatedPrems)
+  }
+
+  def redoAttempt(path: List[Sel], tree: Step, direction: Int): Step = 
+    (path, tree.attempts) match {
+      case (_, Nil) => tree 
+      
+      case (Nil, _ :: _) => 
+        val curr_attempts = tree.attempts
+        val len = curr_attempts.length
+        val nextIndex = (tree.current + direction) % len
+        val nextIndexPos = if(nextIndex >= 0) nextIndex else nextIndex + len
+        Step(tree.goal, nextIndexPos, tree.attempts)
+      
+      case (head :: tail, _ :: _) => 
+        val attempt_curr = tree.attempts(tree.current)
+        val updated_attempt = redoAttempt(path, attempt_curr, direction) 
+        Step(tree.goal, tree.current, tree.attempts.updated(tree.current, updated_attempt))
+    }
+
+  def redoAttempt(path: List[Sel], attempt: Attempt, direction: Int): Attempt = path match{
+    case Nil =>  ??? //should not happen
+    case sel_curr :: sel_rest => 
+      val subgoals = attempt.prems
+      val updatedPrems = 
+        for((sel, step) <- subgoals) yield{
+          if(sel.matches(sel_curr)) 
+            (sel, redoAttempt(sel_rest, step, direction))
+          else 
+            (sel, step)
+        }
+      Attempt(attempt.tactic, updatedPrems)
   }
 }
 
-/** This "tactic" only returns the original goal with no tactic.
-  * It can be used to make it explicit, where goals shall be closed automatically.
-  *
-  * @param tactic
-  */
-object Auto extends Tactic {
-
-  def apply(state: State, goal: Expr): List[(Expr, Option[Tactic])] =
-    List((goal, None))
+case class Step(goal: Expr, current: Int = -1, attempts: List[Attempt] = Nil){
+  def closed : Boolean = {
+    if(attempts.isEmpty) false
+    else attempts(current).closed
+  }
 }
 
+case class Attempt(tactic: Tactic, prems: List[(Sel, Step)]){
+  def closed : Boolean = prems.forall(_._2.closed)
+}
 
-/** This "tactic" is actually just a wrapper for another tactic. It serves to
-  * signal that no automatic proving attempt shall happen, before the contained
-  * tactic has been applied.
-  *
-  * @param tactic
-  */
-case class NoAuto(tactic: Tactic) extends Tactic {
+class Test(
+    prover: Prover,
+    simplify: Boolean,
+    rewrite: Boolean,
+    proveNegatedAsserts: Boolean,
+    crosscheckProver: Boolean
+) extends Stage {
+  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
+    val results = exec(prefix, cmds, state)
+    prover.exec(last, state)
+    results
+  }
 
-  def apply(state: State, goal: Expr): List[(Expr, Option[Tactic])] =
-    tactic.apply(state, goal)
+  def exec(prefix: List[Cmd], cmds: List[Cmd], state: State) = {
+    val rws = if (rewrite) {
+      val rules = Rewrite.from(prefix ++ cmds, state) // add some new rewrite rules
+      rules.groupBy(_.fun) // update rule index
+    } else {
+      Map[Fun, List[Rule]]()
+    }
+
+    cmds flatMap {
+      case cmd @ Lemma(expr, tactic, Some(Free), label) =>
+        prover.exec(cmd, state)
+        List(cmd)
+
+      case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
+        val goal = expr
+        for (goal_ <- reduce(goal, tactic, rws, state, cmds) if !(goal_ == True))
+          yield {
+            println(goal_)
+            val expr_ = goal_
+            Lemma(expr_, None, Some(Goal), label)
+          }
+
+      case cmd @ Lemma(expr, tactic, None, label) =>
+        val goal = expr
+        for (goal_ <- reduce(goal, tactic, rws, state, cmds))
+          yield {
+            println(goal_)
+            val expr_ = goal_
+            val mode_ = if (expr_ == True) Some(Free) else None
+            Lemma(expr, None, mode_, label)
+          }
+
+      case cmd @ Assert(Not(App(Inst(fun, _), _)))
+          if proveNegatedAsserts && (rws contains fun) && rws(fun).nonEmpty =>
+        // println(rws(fun))
+        prover.exec(cmd, state)
+        List(cmd)
+
+      case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
+        val goal = expr
+        // println("proving " + goal)
+        // println(rws)
+        for (goal_ <- reduce(goal, None, rws, state, cmds))
+          yield {
+            println(goal_)
+            val expr_ = goal_
+            Assert(Simplify.not(expr_))
+          }
+
+      case cmd: DeclareVar =>
+        List(cmd)
+
+      case cmd =>
+        prover.exec(cmd, state)
+        List(cmd)
+    }
+  }
+
+  def reduce(
+    goal: Expr,
+    proof: Option[Proof],
+    rws: Map[Fun, List[Rule]],
+    state: State,
+    cmds: List[Cmd]
+  ): List[Expr] = {
+    println(proof)
+    val proof_cont = proof match{
+      case None => Proof(Auto, Nil)
+      case Some(value) => value
+    }
+    val attempt = ProofUtils.apply(goal, proof_cont, state, cmds)
+    println("attempt:")
+    println(attempt)
+    val tree = ProofUtils.insertAttempt(Nil, Step(goal, -1, Nil), attempt)
+    println(tree)
+    attempt.prems.map{case (sel, step) => step.goal}
+  }
 }

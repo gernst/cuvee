@@ -136,7 +136,7 @@ class Prove(
 
   def reduce(
       goal: Expr,
-      tactic: Option[Tactic],
+      tactic: Option[Proof],
       rws: Map[Fun, List[Rule]],
       state: State
   ): List[Expr] = tactic match {
@@ -147,13 +147,14 @@ class Prove(
       reduce(goal, tactic, rws, state)
   }
 
-  def reduce(goal: Expr, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Expr] =
-    tactic match {
-      case NoAuto(tactic) =>
-        noauto(goal, tactic, rws, state)
+  def reduce(goal: Expr, proof: Proof, rws: Map[Fun, List[Rule]], state: State): List[Expr] =
+    proof.tactic match {
+      case NoAuto =>
+        noauto(goal, ???, Nil, rws, state)
 
       case _: Induction | _: Show =>
-        noauto(goal, tactic, rws, state)
+        val tactic = proof.tactic
+        noauto(goal, proof, Nil, rws, state)
 
       case Auto =>
         List(auto(goal, rws, state))
@@ -162,21 +163,23 @@ class Prove(
         List(goal)
 
       case _ =>
-        noauto(auto(goal, rws, state), tactic, rws, state)
+        noauto(auto(goal, rws, state), proof, Nil, rws, state)
     }
 
-  def noauto(goal: Expr, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Expr] =
-    tactic match {
-      case NoAuto(tactic) =>
-        noauto(goal, tactic, rws, state) // yeah, you can write noauto twice
+  def noauto(goal: Expr, tactic: Proof , subproof: List[(Sel, Proof)], rws: Map[Fun, List[Rule]], state: State): List[Expr] =
+    tactic.tactic match {
+      case NoAuto =>
+        //TODO mathcing
+        noauto(goal, Proof(Auto, Nil), Nil, rws, state) // yeah, you can write noauto twice
 
       case Auto =>
         ??? // should never happen
 
       case _ =>
         for (
-          (subgoal, subtactic) <- tactic.apply(state, goal);
-          goal_ <- reduce(subgoal, subtactic, rws, state)
+          (sel, subgoal) <- ProofUtils.apply(goal, tactic.tactic, state, Nil);
+          //TODO find proof with matching sel in subproofs 
+          goal_ <- reduce(subgoal, Proof(Auto, Nil), rws, state)
         ) yield {
           goal_
         }

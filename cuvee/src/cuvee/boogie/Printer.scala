@@ -107,7 +107,7 @@ object Printer extends cuvee.util.Printer {
       if (tactic.nonEmpty) {
         val old = result.last.patch(result.last.length - 1, "", 1)
         result = result.updated(result.length - 1, old)
-        result ++= "proof " +: tactic_(tactic.orNull)
+        result ++= "proof " +: proof_(tactic.orNull)
 
         val last = result.last.patch(result.last.length, ";", 1)
         result = result.updated(result.length - 1, last)
@@ -602,7 +602,25 @@ object Printer extends cuvee.util.Printer {
     }
   }
 
-  private def tactic_(t: Tactic): List[String] = t match {
+  private def proof_(p: Proof): List[String] = p match {
+    case Proof(Induction(variable), subproofs) => 
+      val header = "induction " + variable.name.toString
+
+      var result: List[String] = Nil
+      if (subproofs.isEmpty) {
+        result = List(header)
+      } else {
+        val body =
+          for ((sel, subproof) <- subproofs)
+            yield ("case " + ??? + " => ") +: proof_(subproof)
+
+        result = (header + " {") +: indent(body.flatten) :+ "}"
+      }
+
+      indent(result)
+
+    //TODO ib rest
+    /*
     case Induction(variable, cases) =>
       val header = "induction " + variable.name.toString
 
@@ -623,9 +641,9 @@ object Printer extends cuvee.util.Printer {
       val head = "show (" + line(prop) + ")"
 
       if (tactic.nonEmpty)
-        result ++= "proof " +: tactic_(tactic.orNull)
+        result ++= "proof " +: proof_(tactic.orNull)
       if (cont.nonEmpty)
-        result ++= "then " +: tactic_(cont.orNull)
+        result ++= "then " +: proof_(cont.orNull)
 
       indent(head +: result)
     case Unfold(target, places, cont) =>
@@ -638,13 +656,14 @@ object Printer extends cuvee.util.Printer {
         head += " at " + places.orNull.mkString(", ") + " then"
 
       if (cont.nonEmpty)
-        result ++= tactic_(cont.orNull)
+        result ++= proof_(cont.orNull)
 
       result = head +: result
       indent(result)
     case Auto           => indent(List("auto"))
-    case NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
+    case NoAuto(tactic) => indent("noauto " :: proof_(tactic))
     case Sorry          => indent(List("sorry"))
+  */
   }
 
   private def indent(lines: List[String], times: Int = 1) =

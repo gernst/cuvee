@@ -44,7 +44,7 @@ class ProveTree(
   auto: Boolean
 ) extends Stage {  
   val defaultIP: Tactic = if(auto) Auto(prover) else Skip
-  val defaultP: prove.Tactic = prove.Auto//TODO restore if(auto) prove.Auto else prove.Skip
+  val defaultP: prove.Proof = prove.Proof(prove.Auto, Nil)//TODO restore if(auto) prove.Auto else prove.Skip
   
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
     val results = exec(prefix, cmds, state)
@@ -88,7 +88,7 @@ class ProveTree(
           List(cmd)
 
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
-        val proofTree = repl(expr, Some(prove.Auto), state, rws, sessionFile)
+        val proofTree = repl(expr, Some(prove.Proof(prove.Auto, Nil)), state, rws, sessionFile)
         for (goal_ <- proofTree.results)
         yield {
           Assert(Simplify.not(goal_))
@@ -116,7 +116,7 @@ class ProveTree(
     * @param sessionPath optional path to a (input/output) session file
     * @return the tree object when the interactive session was exited
     */
-  def repl(expr: Expr, tactic: Option[prove.Tactic], state: State, rws: Map[Fun, List[Rule]], sessionPath: Option[String]): Tree = {
+  def repl(expr: Expr, tactic: Option[prove.Proof], state: State, rws: Map[Fun, List[Rule]], sessionPath: Option[String]): Tree = {
     var currentTactic: Tactic = Skip
     var exit: Boolean = false
     var message = ""
@@ -298,7 +298,7 @@ class ProveTree(
      * @param sessionPath given path for session input
      * @return the reconstructed Tree Structure, the File Object for session output
      */
-    def restoreSession(expr: Expr, tactic: Option[prove.Tactic], state: State, rws: Map[Fun, List[Rule]], sessionPath: Option[String]): (Tree, File) = {
+    def restoreSession(expr: Expr, tactic: Option[prove.Proof], state: State, rws: Map[Fun, List[Rule]], sessionPath: Option[String]): (Tree, File) = {
       var session: List[String] = Nil
       var rest: List[String] = Nil
       val datePattern = "yyyy-MM-dd_HH:mm"
@@ -518,12 +518,12 @@ class ProveTree(
    * @param fw FileWriter writes the applied tactics to output file
    * @return generated Tree
    * */ 
-  def restoreProof(expr: Expr, tactic: prove.Tactic, state: State, rws: Map[Fun, List[Rule]], index: String, fw: Option[FileWriter]): Tree = {
+  def restoreProof(expr: Expr, tactic: prove.Proof, state: State, rws: Map[Fun, List[Rule]], index: String, fw: Option[FileWriter]): Tree = {
     fw match{
       case None => ()
-      case Some(fw_) => fw_.write("\n" + index + " : " + TreePrinter.formatProveTactic(tactic))  
+      case Some(fw_) => fw_.write("\n" + index + " : " + TreePrinter.formatProveTactic(tactic.tactic))  
     }
-    tactic match {
+    /*tactic match {
       case prove.Induction(variable, cases) => 
         //using variables names from iprove tactic to avoid inconsistent namings - leads to errors when restoring session
         val contGoals = Induction(variable).apply(expr, state, rws) 
@@ -561,7 +561,8 @@ class ProveTree(
       case prove.NoAuto(tactic_) => restoreProof(expr, tactic_, state, rws, index, fw)
       case prove.Sorry           => Step(expr, List(Attempt(Sorry, Nil)), index, 0)
       //case prove.Skip | _        => Step(expr, Nil, index)
-    }
+    }*/
+    ???
   }
 
 
