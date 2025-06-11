@@ -41,7 +41,9 @@ object Neutral extends Stage {
   def holds(phi: Expr, x: Var, st: State, solver: Solver) = x.typ match {
     case Sort(Con(name, _), _) if st.datatypes contains name =>
       val dt = st datatypes name
-      val ind = InductiveProver.induction(phi, x, dt)
+      val phis = InductiveProver.induction(phi, x, dt)
+      val Clause(xs, _, _) = phi
+      val ind = Forall(xs, And(phis.unzip._2))
       lazy val a = solver.isTrue(phi)
       lazy val b = solver.isTrue(ind)
 

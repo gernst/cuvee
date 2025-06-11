@@ -91,7 +91,11 @@ object InductiveProver {
       datatypes: Map[Name, Datatype]
   ): List[(Var, Expr)] = {
     for ((x, dt) <- inductionVariables(phi, datatypes))
-      yield x -> induction(phi, x, dt)
+      yield x -> {
+        val Clause(xs, _, _) = phi
+        val (sels, phis) = induction(phi, x, dt).unzip
+        Forall(xs, And(phis))
+      }
   }
 
   def induction(
@@ -116,13 +120,13 @@ object InductiveProver {
     }
   }
 
-  def induction(phi: Expr, x: Var, dt: Datatype): Expr = {
+  def induction(phi: Expr, x: Var, dt: Datatype):  List[(Sel, Expr)] = {
     val Var(name, t: Sort) = x
     val Clause(xs, ant, suc) = phi
 
     val ind = induction(t, dt)
 
-    val phis = for ((constr, args, hyps) <- ind) yield {
+    val selphis = for ((constr, args, hyps) <- ind) yield {
       val expr = App(constr, args)
 
       val prems = for (i <- hyps) yield {
@@ -137,9 +141,13 @@ object InductiveProver {
       }
 
       val su = Map(x -> expr)
-      Clause(args, prems ++ (ant subst su), suc subst su)
+      (ConstrSel(constr.fun, args), Clause(args, prems ++ (ant subst su), suc subst su))
     }
 
-    Forall(xs, And(phis))
+    //Forall(xs, And(phis))
+    selphis
   }
 }
+
+  
+
