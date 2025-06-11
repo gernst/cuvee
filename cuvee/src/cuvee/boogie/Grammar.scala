@@ -409,7 +409,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
   }
 
   def constargs(typ: Type): ((Name) => Parser[(Fun, Expr), Token]) = {
-     case name if state.constrs exists (_.name == name) =>
+    case name if state.constrs exists (_.name == name) =>
       val sort = typ.asInstanceOf[Sort]
       val dt = state.datatypes(sort.con.name)
 
@@ -419,16 +419,12 @@ class Grammar(parser: cuvee.boogie.Parser) {
           val su = Type.bind(con.res, typ)
           val inst = Inst(con, su)
 
-          val args = for (Fun(name, _, _, res) <- sels)
-            yield Expr.fresh(name, res subst su)
-
           val mkapp: (List[Expr] => Expr) = l => App(inst, l)
 
           P(ret(con) ~ mkapp(patargs(inst)))
       }
-    //TODO ib what if selector is variable?
-    //case name =>
-      //P(ret(Var(name, typ)))
+    
+    case _ => cuvee.error("Could not find constructor")
   }
 
   def patargs(inst: Inst): Parser[List[Expr], Token] = {
@@ -444,11 +440,8 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def pat(implicit typ: Type): Parser[Expr, Token] =
     P(name ~>@ patargs(typ))
 
-  def constpat(implicit typ: Type): Parser[(Fun, Expr), Token] = 
-    P(name ~>@ constargs(typ))
-
   def case_(typ: Type)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[((Fun, Expr), Proof), Token] =
-    P("case" ~ constpat(typ) ~ "=>" ~@ {case (fun, expr) => tactic(scope ++ expr.free.asScope, ctx)}) 
+    P("case" ~ name ~>@ constargs(typ) ~ "=>" ~@ {case (fun, expr) => tactic(scope ++ expr.free.asScope, ctx)}) 
 
   def cases(tactic: Induction)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] =
     braces(case_(tactic.x.typ).map{case ((fun, expr), proof) => (ConstrSel(fun, expr.free.toList), proof)}.+ ) | ret(Nil)
@@ -480,7 +473,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def show(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Proof(
         Show( "show" ~ formula )
-        ~@ maybe_proof_sel //TODO ib then case
+        ~@ maybe_proof_sel
       )
     )
 
