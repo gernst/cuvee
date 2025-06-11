@@ -63,9 +63,11 @@ object ProofUtils{
         ???
 
       case (ConstrSel(sel, vars), (ConstrSel(sel_, vars_), subgoal) :: restgoals) if sel == sel_ =>
-        val re = Expr.subst(vars_, vars) //TODO ib check if vars are always compatible
-        println(re)
-        val subgoal_ = subgoal rename re
+        val re = Expr.subst(vars_, vars)
+        //val subgoal__ = subgoal rename re println(subgoal__)
+        val Clause(xs, ant, suc) = subgoal
+        val subgoal_ = Clause(xs rename re, ant rename re, suc rename re)
+        println(subgoal_)
         ((pat, subgoal_, subproof), restgoals)
 
       case (ThenSel, (ThenSel, subgoal) :: restgoals) =>
@@ -99,12 +101,7 @@ object ProofUtils{
       induction(variable, goal, state)
 
     case Show(expr) => 
-      goal match {
-        case Bind(Quant("forall"), xs, _, _) => ()
-        case _ => throw new TacticNotApplicableException(
-            f"Can't apply show to $goal"
-          )
-      } 
+      //TODO ib replace check whether goal is Disj??? 
     
       val Clause(xs, ant, suc) = goal
       //TODO without clause
@@ -129,9 +126,10 @@ object ProofUtils{
       for(cmd <- cmds_){
         solver.exec(cmd, state)
       }
-      val prover = new SimpleProver(solver)
-      val subgoal: Expr = prover.reduce(goal)
-      List((ProofSel, subgoal))
+      val prover = Prover.fromSolver(solver, true)
+      val subgoal: Expr = prover.reduce(goal, state)
+      
+      if(subgoal == True) Nil else List((ProofSel, subgoal))
 
     case BreakPoint => List((ProofSel, goal))
     
@@ -143,7 +141,6 @@ object ProofUtils{
   def apply(goal: Expr, proof: Proof, state: State, cmds: List[Cmd]): Attempt = proof match {
     case Proof(tactic, subproofs) =>
       val subgoals = apply(goal, tactic, state, cmds)
-      print(subgoals)
       val (found, rest) = match_subproofs_to_subgoals(subproofs, subgoals)
       val prems_found = found map { 
         case (sel, expr, proof) => 
@@ -238,7 +235,6 @@ object ProofUtils{
 
 
   def induction(variable: Var, goal: Expr, state: State): List[(Sel, Expr)] = {
-    //TODO ib call methods of InductionProver
     goal match{
       case Forall(xs, _) if !(xs.contains(variable)) => 
         throw new TacticNotApplicableException(
@@ -262,12 +258,7 @@ object ProofUtils{
       )
 
     assert(dt.params.length == sort.args.length)
-    val ind = InductiveProver.induction(sort, dt) //TODO fix ib this is called again and thus new variable names are generated
-    val sels = ind.map{case (inst, vars, ints) => ConstrSel(inst.fun, vars)}
-    val subgoal = InductiveProver.induction(goal, variable, dt)
-    println(subgoal)
-    val And(phis) = subgoal  
-    sels.zip(phis)
+    InductiveProver.induction(goal, variable, dt)
   }
 
   def unfold(goal: Expr, target: (Name, Int), places: Option[List[BigInt]], state: State): List[(Sel, Expr)] = {
@@ -352,10 +343,28 @@ case class Step(goal: Expr, current: Int = -1, attempts: List[Attempt] = Nil){
     if(attempts.isEmpty) false
     else attempts(current).closed
   }
+
+  def toString(offset: String = ""): String = {
+    if(attempts.isEmpty) offset + goal.toString
+    else offset + goal.toString + attempts(current).toString(offset + "   ")
+  }
+
+  def leaves : List[Expr] = {
+    if(attempts.isEmpty) List(goal)
+    else attempts(current).leaves
+  }
 }
 
 case class Attempt(tactic: Tactic, prems: List[(Sel, Step)]){
   def closed : Boolean = prems.forall(_._2.closed)
+
+  def toString(offset: String = ""): String = {
+    offset + tactic.toString + "\n" + prems.map{case (sel, step) => step.toString(offset + "   ") + "\n"}
+  }
+
+  def leaves : List[Expr] = {
+    prems flatMap {case (sel, step) => step.leaves}
+  }
 }
 
 class Test(
@@ -415,7 +424,6 @@ class Test(
         // println(rws)
         for (goal_ <- reduce(goal, None, rws, state, cmds))
           yield {
-            println(goal_)
             val expr_ = goal_
             Assert(Simplify.not(expr_))
           }
@@ -436,16 +444,14 @@ class Test(
     state: State,
     cmds: List[Cmd]
   ): List[Expr] = {
-    println(proof)
     val proof_cont = proof match{
       case None => Proof(Auto, Nil)
       case Some(value) => value
     }
+    print(cuvee.boogie.Printer.proof(proof_cont))
     val attempt = ProofUtils.apply(goal, proof_cont, state, cmds)
-    println("attempt:")
-    println(attempt)
     val tree = ProofUtils.insertAttempt(Nil, Step(goal, -1, Nil), attempt)
-    println(tree)
-    attempt.prems.map{case (sel, step) => step.goal}
+    println(tree.closed)
+    tree.leaves
   }
 }
