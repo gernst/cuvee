@@ -8,6 +8,8 @@ import cuvee.util
 import cuvee.util.Alpha
 import cuvee.util.Name
 
+trait Extra extends Expr
+
 sealed trait Expr extends Expr.term with util.Syntax {
   def funs: Set[Fun]
   def typ: Type
@@ -718,6 +720,8 @@ case class LetEq(x: Var, e: Expr) extends util.Syntax {
     LetEq(x rename a, e subst su)
   def inst(su: Map[Param, Type]) =
     LetEq(x inst su, e inst su)
+  def map(f: Expr => Expr, g: Expr => Expr) =
+    LetEq(x, e map (f, g))
 
   def toEq = Eq(x, e)
 }

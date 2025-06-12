@@ -57,6 +57,35 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
     }
   }
 
+    trait bind2[A] {
+    def bound: Set[V]
+
+    def rename(a: Map[V, V], re: Map[V, V], are: Map[V, V]): A with bind2[A]
+    def subst(a: Map[V, V], su: Map[V, E], asu: Map[V, E]): A with bind2[A]
+
+    def avoid(xs: Iterable[V]) = {
+      val captured = xs filter bound
+      context.fresh(captured)
+    }
+
+    def refresh(xs: Iterable[V]) = {
+      val alpha = avoid(xs)
+      rename(alpha, Map(), alpha)
+    }
+
+    def rename(re: Map[V, V]): A = {
+      val xs = context.free(re)
+      val alpha = avoid(xs)
+      rename(alpha, re, re -- bound ++ alpha)
+    }
+
+    def subst(su: Map[V, E]): A = {
+      val xs = context.free(su)
+      val alpha = avoid(xs)
+      subst(alpha, su, su -- bound ++ alpha)
+    }
+  }
+
   class xs(xs: List[V]) {
     def rename(re: Map[V, V]) = xs map (_ rename re)
   }
