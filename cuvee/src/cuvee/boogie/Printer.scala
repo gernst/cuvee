@@ -666,12 +666,19 @@ object Printer extends cuvee.util.Printer {
   }
 
   private def btype(typ: Type): String = typ match {
-    case Sort.bool                   => "bool"
-    case Sort.int                    => "int"
-    case Sort.real                   => "real"
-    case Sort(Con.list, List(a))     => btype(a)
-    case Sort(Con.array, List(a, b)) => "[" + btype(a) + "]" + btype(b)
-    case Param(name)                 => name.toString
-    case _                           => typ.toString
+    case Param(name) => name.toString
+    case Sort.bool   => "bool"
+    case Sort.int    => "int"
+    case Sort.real   => "real"
+
+    case Sort(Con.array, List(a, b)) =>
+      "[" + btype(a) + "]" + btype(b)
+
+    case Sort(con, Nil) =>
+      con.name.toString()
+
+    case Sort(con, args) =>
+      val args_ = args map btype
+      con.name.toString() + args_.mkString("<", ",", ">")
   }
 }

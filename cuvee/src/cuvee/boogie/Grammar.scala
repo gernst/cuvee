@@ -136,14 +136,14 @@ class Grammar(parser: cuvee.boogie.Parser) {
       P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
 
     def ordered_formals(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(brackets(expr ~+ ",") ~ ret(Sequential)) |
-        P(sqbraces(expr ~+ ",") ~ ret(IngoreDuplicates)) |
-        P(bags(expr ~+ ",") ~ ret(Parallel)) |
-        P(braces(expr ~+ ",") ~ ret(Pointwise))
+      P(brackets(expr ~* ",") ~ ret(Sequential)) |
+        P(sqbraces(expr ~* ",") ~ ret(IngoreDuplicates)) |
+        P(bags(expr ~* ",") ~ ret(Parallel)) |
+        P(braces(expr ~* ",") ~ ret(Pointwise))
 
     // warning: not type-checked here!
     def iteration[A](implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
-      P(make_iteration("for" ~ (var_generic ~+ ",") ~ "<-" ~ ordered_formals))
+      P(make_iteration("for" ~ (var_generic ~* ",") ~ "<-" ~ ordered_formals))
     }
 
     // def counter(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
