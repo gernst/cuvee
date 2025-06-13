@@ -11,10 +11,10 @@ object Simplify extends Stage {
 
   def simplify(cmds: List[Cmd], state: State, polarity: Option[Boolean], expr: Expr): Expr = {
     val rules = Rewrite.from(cmds, state)
-    println("using rewrite rule:")
-    for (eq <- rules)
-      println("  " + eq)
-    println()
+    // println("using rewrite rule:")
+    // for (eq <- rules)
+    //   println("  " + eq)
+    // println()
 
     simplify(polarity, rules.groupBy(_.fun), state.constrs, expr)
   }
@@ -23,7 +23,7 @@ object Simplify extends Stage {
     cmds flatMap {
       case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
         simplify(prefix ++ cmds, state, Some(true), expr) match {
-          case True  => List()
+          // case True  => List()
           case expr_ => List(Lemma(expr_, tactic, Some(Goal), label))
         }
 
@@ -56,19 +56,19 @@ object Simplify extends Stage {
   }
 
   def repeat[A](a: A)(f: A => A): A = {
-    a match {
-      case expr: Expr =>
-        println()
-        println("========== simplify ==========")
-        for (line <- cuvee.boogie.printer.lines(Goal(expr)))
-          println(line)
-        println()
-      case _ =>
-        println()
-        println("========== simplify ==========")
-        println(a)
-        println()
-    }
+    // a match {
+    //   case expr: Expr =>
+    //     println()
+    //     println("========== simplify ==========")
+    //     for (line <- cuvee.boogie.printer.lines(Goal(expr)))
+    //       println(line)
+    //     println()
+    //   case _ =>
+    //     println()
+    //     println("========== simplify ==========")
+    //     println(a)
+    //     println()
+    // }
 
     val a_ = f(a)
     if (a_ == a) {
@@ -101,12 +101,13 @@ object Simplify extends Stage {
     // for(phi <- done) println("  " + phi)
     // println("todo")
     // for(phi <- todo) println("  " + phi)
+
     todo match {
       case Nil =>
         done
 
       case phi :: rest =>
-        // println("looking at: " + phi)
+        // println("looking at: " + phi + " with rest: " + rest)
         // mildly inelegant, but at least clear
         val pos = if (flip) Nil else done ++ rest
         val neg = if (flip) done ++ rest else Nil
@@ -114,7 +115,9 @@ object Simplify extends Stage {
         // Note: should not flip polarity, x must be treated the same in the following two scenarios
         // ==> exists x :: x == e || B
         // ==> exists x :: x == e && B
-        val phi_ = simplify(assuming(ctx, pos, neg), phi)
+        val ctx_ = assuming(ctx, pos, neg)
+        // println("context assumptions: " + ctx_)
+        val phi_ = simplify(ctx_, phi)
         nary(ctx, done ++ List(phi_), rest, flip)
     }
   }
@@ -321,19 +324,6 @@ object Simplify extends Stage {
     }
   }
 
-  def canInstantiate(ctx: Context, x: Var) = {
-    ctx.polarity match {
-      case Some(true) =>
-        ctx.bound contains x
-
-      case Some(false) =>
-        ctx.fixed contains x
-
-      case None =>
-        false
-    }
-  }
-
   def eq(ctx: Context, left: Expr, right: Expr): Expr = {
     (left, right) match {
       case (phi, True)        => phi
@@ -347,7 +337,7 @@ object Simplify extends Stage {
         False
 
       case (x: Var, _)
-          if !(right.free contains x) && !(ctx.free contains x) && canInstantiate(ctx, x) =>
+          if !(right.free contains x) && !(ctx.free contains x) && (ctx canInstantiate x) =>
         // println("dropping " + x + " == " + right)
         True
 
@@ -419,11 +409,12 @@ object Simplify extends Stage {
   }
 
   def rewrite(ctx: Context, expr: Expr): Expr = {
-    // println("rewriting " + expr)
-    // println()
+    // println("rewriting " + expr + " in " + ctx)
 
     // val su = Context.eqs(ctx)
     val expr_ = expr subst ctx.su
+    // println(expr_)
+    // println()
 
     expr_ match {
       case Le(Lit(m: BigInt, _), Lit(n: BigInt, _)) =>

@@ -6,18 +6,20 @@ import cuvee.util.Fix
 import cuvee.util.Name
 
 case class Context(
-    polarity: Option[Boolean],
-    fixed: Set[Var],
-    bound: Set[Var],
-    pos: List[Expr],
-    neg: List[Expr],
-    su: Map[Var, Expr], // trivial substitutions
-    eq: Map[Var, Expr], // unsolved equations
-    rules: Map[Fun, List[Rule]],
-    constrs: Set[Fun],
-    depth: Int = 0,
-    repeat: Int = 0,
-    arith: Boolean = true
+    polarity: Option[
+      Boolean
+    ], // polarity wrt. top-level, where false are assumptions and true are conclusions
+    fixed: Set[Var], // global variables that cannot be instantiated
+    bound: Set[Var], // variables that can be instantiated
+    pos: List[Expr], // formulas that are assumed true, resp. proved false
+    neg: List[Expr], // formulas that are assumed false, resp. proved true
+    su: Map[Var, Expr], // trivial substitutions to Var or Lit
+    eq: Map[Var, Expr], // unsolved equations, possibly recursive
+    rules: Map[Fun, List[Rule]], // rewrite rules to be used
+    constrs: Set[Fun], // information about data type constructors (injective and disjoint)
+    depth: Int = 0, // nesting level of rewriting to catch cycles
+    repeat: Int = 0, // count how many times simplify was called at top-level to catch cycles
+    arith: Boolean = true // whether arithmetic expressions have been normalized
 ) {
   def vars =
     fixed ++ bound
@@ -60,6 +62,13 @@ case class Context(
 
   def isTrivial =
     (pos contains False) || (neg contains True)
+
+  def canInstantiate(x: Var) =
+    polarity match {
+      case Some(true)  => bound contains x
+      case Some(false) => fixed contains x
+      case None        => false
+    }
 
   def recurse =
     copy(depth = depth + 1)
@@ -109,12 +118,12 @@ object Context {
         val ctx_ = ctx.copy(su = ctx.su + (x -> y))
         assuming(ctx_, pos, neg)
 
-      case (Eq(x: Var, y: Lit) :: pos, neg) =>
+      case (Eq(x: Var, y) :: pos, neg) if y.free.isEmpty =>
         require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x)
         val ctx_ = ctx.copy(su = ctx.su + (x -> y))
         assuming(ctx_, pos, neg)
 
-      case (Eq(y: Lit, x: Var) :: pos, neg) =>
+      case (Eq(y, x: Var) :: pos, neg) if y.free.isEmpty =>
         require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x)
         val ctx_ = ctx.copy(su = ctx.su + (x -> y))
         assuming(ctx_, pos, neg)

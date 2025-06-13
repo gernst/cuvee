@@ -158,18 +158,18 @@ object Clause extends Stage {
         for ((ys, ant, suc) <- flatten(bound ++ xs, pos, phi :: neg))
           yield (xs ++ ys, ant, suc)
 
-      case (pos, Exists(ys, Or(phis)) :: neg) =>
-        val phis_ = phis map (Exists(ys, _))
-        flatten(bound, pos, phis_ ++ neg)
+      // case (pos, Exists(ys, Or(phis)) :: neg) =>
+      //   val phis_ = phis map (Exists(ys, _))
+      //   flatten(bound, pos, phis_ ++ neg)
 
       // case (pos, Exists(ys, Ite(test, left, right)) :: neg) =>
       //   val phi = Exists(ys, test && left)
       //   val psi = Exists(ys, !test && right)
       //   flatten(bound, pos, phi :: psi :: neg)
 
-      case (Forall(ys, And(phis)) :: pos, neg) =>
-        val phis_ = phis map (Forall(ys, _))
-        flatten(bound, phis_ ++ pos, neg)
+      // case (Forall(ys, And(phis)) :: pos, neg) =>
+      //   val phis_ = phis map (Forall(ys, _))
+      //   flatten(bound, phis_ ++ pos, neg)
 
       case (Forall(ys, Ite(test, left, right)) :: pos, neg) =>
         val phi = Forall(ys, Imp(test, left))
