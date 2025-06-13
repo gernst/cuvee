@@ -57,7 +57,7 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
     }
   }
 
-    trait bind2[A] {
+  trait bind2[A] {
     def bound: Set[V]
 
     def rename(a: Map[V, V], re: Map[V, V], are: Map[V, V]): A with bind2[A]

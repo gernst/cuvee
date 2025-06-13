@@ -45,6 +45,7 @@ sealed trait Expr extends Expr.term with util.Syntax {
   // def ::(that: Expr) = App(Fun.cons, List(that, this))
   // def ++(that: Expr) = App(Fun.append, List(this, that))
   // def append(that: Expr) = App(Fun.append, List(this, that))
+
   def stripNotes = bottomup {
     case Note(expr, attr) => expr
     case expr             => expr
@@ -79,6 +80,8 @@ sealed trait Expr extends Expr.term with util.Syntax {
       case Bind(quant, formals, body, typ) =>
         // println("recursive map at bind, beware! " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
+      case extra: Extra =>
+        extra.map(f, g)
     }
   }
 
