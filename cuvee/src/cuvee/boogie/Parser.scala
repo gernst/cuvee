@@ -23,6 +23,8 @@ import cuvee.smtlib.DefineProc
 import cuvee.smtlib.DeclareVar
 import cuvee.smtlib.DeclareAbstractions
 import cuvee.smtlib.DeclareContracts
+import cuvee.prove.Tactic
+import cuvee.sexpr.Attrs
 
 class Parser(val state: State) {
   object toplevel {
@@ -330,6 +332,14 @@ class Parser(val state: State) {
 
       val (arities, dts) = stuff.unzip
       DeclareAbstractions(arities, dts)
+  }
+
+  val make_lemma: (
+      Option[smtlib.Mode],
+      List[(sexpr.Kw, Option[sexpr.Expr])],
+      (Expr, Option[Tactic])
+  ) => Lemma = { case (mode, attrs, (expr, tactic)) =>
+    Lemma(expr, tactic, mode, Attrs(attrs))
   }
 
   val make_script: (List[Cmd] => (List[Cmd], State)) = { case cmds =>

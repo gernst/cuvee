@@ -4,6 +4,7 @@ import easyparse._
 import easyparse.implicits._
 
 import cuvee.util.Name
+import cuvee.sexpr
 import cuvee.pure._
 import cuvee.imp._
 import cuvee.prove._
@@ -15,6 +16,7 @@ import cuvee.smtlib.Goal
 import cuvee.imp.Mode.In
 import cuvee.imp.Mode.Out
 import cuvee.imp.Mode.InOut
+import cuvee.imp.traces._
 
 class Grammar(parser: cuvee.boogie.Parser) {
   import easyparse.implicits._
@@ -29,6 +31,11 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def parens[A](p: Parser[A, Token]) = "(" ~ p ~ ")"
   def braces[A](p: Parser[A, Token]) = "{" ~ p ~ "}"
   def brackets[A](p: Parser[A, Token]) = "[" ~ p ~ "]"
+  def bags[A](p: Parser[A, Token]) = "⟅" ~ p ~ "⟆"
+  def sqbraces[A](p: Parser[A, Token]) = "⦃" ~ p ~ "⦄"
+  def sembrackets[A](p: Parser[A, Token]) = "〚" ~ p ~ "〛"
+
+  // angular brackets are also operators, hence cannot match literal strings
   def angle[A](p: Parser[A, Token]) = la ~ p ~ ra
 
   def none[A](p: Parser[A, Token]) = p map { a => None }
@@ -65,17 +72,17 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def array(implicit ctx: Map[Name, Param]) =
     P(Sort.array(brackets(typ) ~ typ))
 
+  def var_generic =
+    P(Var(name ~ ret(Param.fresh("a"))))
+
   def var_(implicit scope: Map[Name, Var]) =
     P(make_var(scope)(name))
-
-  def vars(implicit scope: Map[Name, Var]) =
-    P(var_ ~* ",")
 
   def formal(implicit ctx: Map[Name, Param]) =
     P(Var(name ~ ":" ~ typ))
 
-  def formals(implicit ctx: Map[Name, Param]) =
-    P(formal ~* ",")
+  // def formals(implicit ctx: Map[Name, Param]) =
+  //   P(formal ~* ",")
 
   def mode: Parser[Mode, Token] =
     P(In("in") | Out("out") | InOut("inout"))
@@ -83,8 +90,8 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def formalWithMode(implicit ctx: Map[Name, Param]) =
     P(name ~ ":" ~ mode ~ typ map { case (n ~ m ~ t) => (m, Var(n, t)) })
 
-  def formalsWithMode(implicit ctx: Map[Name, Param]) =
-    P(formalWithMode ~* ",")
+  // def formalsWithMode(implicit ctx: Map[Name, Param]) =
+  //   P(formalWithMode ~* ",")
 
   object unresolved {
     def expr(implicit
@@ -97,34 +104,82 @@ class Grammar(parser: cuvee.boogie.Parser) {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | wp | box | dia | ite | bind | map)
+      P(parens(expr) | num | wp | box | dia | ite | bind | trace | mapping | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~+ ",") | ret(Nil))
 
     def map(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(zip((at | app) ~ access.*))
+      P(zip((at | app) ~ apply.? ~ access.*))
 
     def app(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_app(scope)(name ~ args))
 
-    def update(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(":=" ~ expr)
-
     def access(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(brackets(expr ~ update.?))
+      P(brackets(expr ~ (":=" ~ expr).?))
 
-    val zip: ((Expr, List[(Expr, Option[Expr])]) => Expr) = {
-      case (base, Nil) =>
+    def apply(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(sembrackets(expr))
+
+    val zip: ((Expr, Option[Expr], List[(Expr, Option[Expr])]) => Expr) = {
+      case (base, Some(arg), Nil) =>
+        make_select_(base, arg)
+      case (base, None, Nil) =>
         base
-      case (base, (index, None) :: rest) =>
-        zip(make_select(base, index), rest)
-      case (base, (index, Some(value)) :: rest) =>
-        zip(make_store(base, index, value), rest)
+      case (base, None, (index, None) :: rest) =>
+        zip(make_select(base, index), None, rest)
+      case (base, None, (index, Some(value)) :: rest) =>
+        zip(make_store(base, index, value), None, rest)
     }
 
     def ite(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
+
+    def ordered_formals(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(brackets(expr ~+ ",") ~ ret(Sequential)) |
+        P(sqbraces(expr ~+ ",") ~ ret(IngoreDuplicates)) |
+        P(bags(expr ~+ ",") ~ ret(Parallel)) |
+        P(braces(expr ~+ ",") ~ ret(Pointwise))
+
+    // warning: not type-checked here!
+    def iteration[A](implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+      P(make_iteration("for" ~ (var_generic ~+ ",") ~ "<-" ~ ordered_formals))
+    }
+
+    // def counter(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    //   P(
+    //     Counter(
+    //       "counter" ~ "(" ~ var_ ~ "," ~ iteration ~ "while" ~ formula ~ "unless" ~ formula ~ ")"
+    //     )
+    //   )
+
+    // warning: not type-checked here!
+    def update(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(Update("if" ~ expr ~ "then" ~ expr)) | P(Update(ret(True) ~ expr))
+
+    def scoped_result(
+        iteration: Iteration
+    )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+      val bound = iteration.formals.vars
+      val scope_ = scope ++ bound.asScope
+      "do" ~ expr(scope_, ctx)
+    }
+
+    def scoped_updates(
+        iteration: Iteration
+    )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+      "do" ~ var_generic ~ ":=" ~@ { x =>
+        val bound = x :: iteration.formals.vars
+        val scope_ = scope ++ bound.asScope
+        (update(scope_, ctx) ~* "|")
+      }
+    }
+
+    def mapping(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(make_mapping("map" ~ "(" ~ (iteration ~@ scoped_result) ~ ")"))
+
+    def trace(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(make_trace("trace" ~ "(" ~ expr ~ "," ~ (iteration ~@ scoped_updates) ~ ")"))
 
     def wp(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(WP(braces(block_) ~ formula))
@@ -141,7 +196,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
       expr(scope ++ bound.asScope, ctx)
 
     def bind(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(make_bind(quant ~ (formals ~ "::" ~@ scoped_expr)))
+      P(make_bind(quant ~ ((formal ~+ ",") ~ "::" ~@ scoped_expr)))
 
     def at(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_at(loc ~ "(" ~ expr ~ ")"))
@@ -225,14 +280,14 @@ class Grammar(parser: cuvee.boogie.Parser) {
   }
 
   // def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-  //   P(Assign((var_ ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
+  //   P(Assign(vars1 ~ ":=" ~ (expr ~+ ",") ~ ";"))
   // TODO: we can narrow the type of expr to that of the corresponding var
 
   def assign(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Assign.froms((expr ~+ ",") ~ ":=" ~ (expr ~+ ",") ~ ";"))
 
   def call(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(make_call((var_ ~+ ",") ?~ ":=" ?~ "call" ~ name ~ "(" ~ (expr ~+ ",") ~ ")" ~ ";"))
+    P(make_call((var_ ~+ ",") ?~ ":=" ?~ "call" ~ name ~ parens(expr ~* ",") ~ ";"))
 
   def local(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
     P(Local("var" ~ (formal ~+ ",") ~ (":=" ~ (expr ~+ ",")).? ~ ";"))
@@ -277,19 +332,19 @@ class Grammar(parser: cuvee.boogie.Parser) {
     }
 
   def maybe_returns(implicit ctx: Map[Name, Param]) =
-    ("returns" ~ parens(formals)) | ret(Nil)
+    ("returns" ~ parens(formal ~+ ",")) | ret(Nil)
 
   def maybe_modifies(implicit scope: Map[Name, Var]) =
-    ("modifies" ~ vars ~ ";") | ret(Nil)
+    ("modifies" ~ (var_ ~* ",") ~ ";") | ret(Nil)
 
   def proc(implicit ctx: Map[Name, Param]) = {
     implicit val scope = state.vars
-    P(((parens(formals) ~ maybe_returns ~ maybe_modifies) ~@ scoped_body))
+    P(((parens(formal ~* ",") ~ maybe_returns ~ maybe_modifies) ~@ scoped_body))
   }
 
   def contract(implicit ctx: Map[Name, Param]) = {
     implicit val scope = state.vars
-    P((parens(formalsWithMode) ~@ scoped_behaviors))
+    P((parens(formalWithMode ~* ",") ~@ scoped_behaviors))
   }
 
   def rhs(name: Name, params: List[Param])(implicit ctx: Map[Name, Param]) =
@@ -319,7 +374,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(define_fun("const" ~ name ~ gens ~@ gen_rhs(ctx => ret(Nil))))
 
   val fundef =
-    P(define_fun("function" ~ name ~ gens ~@ gen_rhs(ctx => parens(formals(ctx)))))
+    P(define_fun("function" ~ name ~ gens ~@ gen_rhs(ctx => parens((formal(ctx) ~* ",")))))
 
   // val constdef = {
   //   import toplevel.ctx
@@ -477,14 +532,39 @@ class Grammar(parser: cuvee.boogie.Parser) {
     tactic(scope ++ xs.asScope, ctx)
   }
 
+  def as_kw =
+    (name: Name) => sexpr.Kw(name.name)
+
+  def attr =
+    P(as_kw(name) ~ ret(None))
+
+  def attrs =
+    P("{" ~ ":" ~ (attr ~* ",") ~ "}")
+
+  def maybe_attrs =
+    P(attrs | ret(Nil))
+
+  def with_gens[A](
+      p: (Map[Name, Var], Map[Name, Param]) => Parser[A, Token]
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(gens ~>@ (params => p(scope, ctx ++ Map(params.names zip params: _*))))
+
+  def formula_with_maybe_proof(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(formula ~@ maybe_proof)
+
+  def lemma_(
+      mode: Option[cuvee.smtlib.Mode]
+  )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(make_lemma(ret(mode) ~ maybe_attrs ~ with_gens(formula_with_maybe_proof(_, _)) ~ ";"))
+
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(None)))
+    P("lemma" ~ lemma_(None))
 
   def free_lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("free lemma" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Free))))
+    P("free lemma" ~ lemma_(Some(Free)))
 
   def goal(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P(Lemma("goal" ~ formula ~@ maybe_proof ~ ";" ~ ret(Some(Goal))))
+    P("goal" ~ lemma_(Some(Goal)))
 
   def datadef_(kw: String, declare: Boolean) =
     (kw ?~ name ?~ gens ?~ "=") ~@ constrs(declare)
