@@ -23,7 +23,8 @@ package object boogie {
   }
 
   def parse(file: String) = {
-    val parser = new Parser()
+    val state = State.default
+    val parser = new Parser(state)
     val grammar = new Grammar(parser)
 
     val in = scan(file)
@@ -35,7 +36,8 @@ package object boogie {
   }
 
   def source(path: String) = new Source {
-    val parser = new Parser()
+    val state = State.default
+    val parser = new Parser(state)
     val grammar = new Grammar(parser)
 
     val from = {
@@ -48,7 +50,6 @@ package object boogie {
       grammar.cmd.iterator(in)
     }
 
-    def state = parser.state
     def hasNext = from.hasNext
     def next() = from.next()
   }

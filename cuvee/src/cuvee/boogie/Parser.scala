@@ -8,6 +8,7 @@ import cuvee._
 import cuvee.State
 import cuvee.pure._
 import cuvee.imp._
+import cuvee.imp.traces._
 import cuvee.util.Name
 import cuvee.smtlib.Cmd
 import cuvee.smtlib.Assert
@@ -23,7 +24,7 @@ import cuvee.smtlib.DeclareVar
 import cuvee.smtlib.DeclareAbstractions
 import cuvee.smtlib.DeclareContracts
 
-class Parser(val state: State = State.default) {
+class Parser(val state: State) {
   object toplevel {
     implicit val scope: Map[Name, Var] = Map()
     implicit val ctx: Map[Name, Param] = Map()
@@ -68,6 +69,30 @@ class Parser(val state: State = State.default) {
       val quant = Quant(name)
       unify(body.typ, typ)
       Bind(quant, bound, body, typ)
+    }
+
+    // named tr to avoid clash with cuvee.trace
+    def tr(init: Expr, iteration: Iteration, acc: Var, updates: List[Update]) = {
+      unify(acc.typ, init.typ) // prefer init's type
+
+      for (LetEq(x, e) <- iteration.formals) {
+        unify(Sort.trace(x.typ), e.typ)
+      }
+
+      for (Update(path, rhs) <- updates) {
+        unify(path.typ, Sort.bool)
+        unify(rhs.typ, init.typ)
+      }
+
+      new Trace(init, iteration, acc, updates)
+    }
+
+    def mp(iteration: Iteration, result: Expr) = {
+      for (LetEq(x, e) <- iteration.formals) {
+        unify(Sort.trace(x.typ), e.typ)
+      }
+
+      new Mapping(iteration, result)
     }
 
     def resolved(arg: Expr) = {
@@ -170,10 +195,30 @@ class Parser(val state: State = State.default) {
     (left: Expr, right: Expr) => typing.app("=", List(left, right))
   def make_select =
     (base: Expr, index: Expr) => typing.app("select", List(base, index))
+  def make_select_ =
+    (base: Expr, index: Expr) => typing.app("select_", List(base, index))
   def make_store =
     (base: Expr, index: Expr, value: Expr) => typing.app("store", List(base, index, value))
   def make_ite =
     (test: Expr, left: Expr, right: Expr) => typing.app("ite", List(test, left, right))
+
+  def make_iteration: (List[Var], (List[Expr], Order)) => Iteration = {
+    case (vars, (exprs, order)) =>
+      require(vars.length == exprs.length)
+      val formals =
+        for ((x, e) <- (vars zip exprs))
+          yield LetEq(x, e)
+      Iteration(order, formals)
+  }
+
+  def make_mapping: (Iteration, Expr) => Expr = { case (iteration, result) =>
+    typing.mp(iteration, result)
+  }
+
+  def make_trace: (Expr, (Iteration, (Var, List[Update]))) => Expr = {
+    case (init, (iteration, (acc, updates))) =>
+      typing.tr(init, iteration, acc, updates)
+  }
 
   val define_sort: ((Name, List[Param], Option[Type]) => Cmd) = {
     case (name, params, None) =>

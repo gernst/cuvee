@@ -128,7 +128,6 @@ object Clause extends Stage {
       pos: List[Expr],
       neg: List[Expr]
   ): Option[(List[Var], List[Expr], List[Expr])] = {
-    // println(pos, neg)
     (pos, neg) match {
       case (Nil, Nil)          => Some((Nil, Nil, Nil))
       case (False :: pos, neg) => None // trivial
@@ -158,23 +157,25 @@ object Clause extends Stage {
         for ((ys, ant, suc) <- flatten(bound ++ xs, pos, phi :: neg))
           yield (xs ++ ys, ant, suc)
 
+      // NOTE: the ones below possibly interfere with simplify and generally blow up the formula
+
       // case (pos, Exists(ys, Or(phis)) :: neg) =>
       //   val phis_ = phis map (Exists(ys, _))
       //   flatten(bound, pos, phis_ ++ neg)
+
+      // case (Forall(ys, And(phis)) :: pos, neg) =>
+      //   val phis_ = phis map (Forall(ys, _))
+      //   flatten(bound, phis_ ++ pos, neg)
 
       // case (pos, Exists(ys, Ite(test, left, right)) :: neg) =>
       //   val phi = Exists(ys, test && left)
       //   val psi = Exists(ys, !test && right)
       //   flatten(bound, pos, phi :: psi :: neg)
 
-      // case (Forall(ys, And(phis)) :: pos, neg) =>
-      //   val phis_ = phis map (Forall(ys, _))
-      //   flatten(bound, phis_ ++ pos, neg)
-
-      case (Forall(ys, Ite(test, left, right)) :: pos, neg) =>
-        val phi = Forall(ys, Imp(test, left))
-        val psi = Forall(ys, Imp(!test, right))
-        flatten(bound, phi :: psi :: pos, neg)
+      // case (Forall(ys, Ite(test, left, right)) :: pos, neg) =>
+      //   val phi = Forall(ys, Imp(test, left))
+      //   val psi = Forall(ys, Imp(!test, right))
+      //   flatten(bound, phi :: psi :: pos, neg)
 
       case (Let(eqs, body) :: pos, neg) =>
         val phi = Exists(eqs.vars, And(eqs.toEqs ++ List(body)))
