@@ -1,13 +1,15 @@
-name: Build Cuvée
+name: Build and Test Cuvée
 on: [push, pull_request]
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Checkout Parser Library
       run: git submodule init && git submodule set-url easyparse https://github.com/gernst/easyparse.git && git submodule update
     - name: Build Cuvée assembly
       run: ./mill cuvee.assembly
+    - name: Install Z3 prover
+      run: apt-get install -y z3
     - name: Test Cuvée (parser, provers, simplifier, ...)
       run: ./mill cuvee.test
