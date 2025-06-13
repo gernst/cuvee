@@ -8,7 +8,8 @@ import cuvee.smtlib._
 import cuvee.imp.transform.Inline
 import cuvee.sexpr.Id
 import cuvee.sexpr.Kw
-import cuvee.pure.Fun.not
+import cuvee.imp.traces._
+import cuvee.sexpr.Parser.sexpr
 
 class VCGenStage(partial: Boolean) extends Stage {
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State) = {
@@ -110,28 +111,97 @@ class VCGen(val state: State) {
       val args_ = args map (eval(_, scope, st, old))
       Distinct(args_)
 
-    case bind: Bind =>
-      val zs = Expr.free(st)
-      val Bind(quant, xs, body, typ) = bind refresh zs
+    case expr: Expr.bind[_] =>
+      val expr_ = expr refresh Expr.free(st)
+      val scope_ = scope ++ Expr.id(expr_.bound)
 
-      val su = Expr.id(xs)
-      val body_ = eval(body, scope ++ su, st, old)
-      Bind(quant, xs, body_, typ)
+      expr_ match {
+        case Bind(quant, xs, body, typ) =>
+          val body_ = eval(body, scope_, st, old)
+          Bind(quant, xs, body_, typ)
 
-    case let: Let =>
-      val zs = Expr.free(st)
-      val Let(eqs, body) = let refresh zs
+        case Let(eqs, body) =>
+          val eqs_ = evalq(eqs, scope, st, old)
+          val body_ = eval(body, scope_, st, old)
+          Let(eqs_, body_)
+      }
 
-      val su = Expr.id(eqs.bound)
-      val eqs_ =
-        for (LetEq(x, e) <- eqs)
-          yield LetEq(x, eval(e, scope, st, old))
+    case expr: Expr.bind2[_] =>
+      val expr_ = expr refresh Expr.free(st)
+      val scope_ = scope ++ Expr.id(expr_.bound)
 
-      val body_ = eval(body, scope ++ su, st, old)
-      Let(eqs_, body_)
+      expr_ match {
+        case Mapping(iteration, result) =>
+          val iteration_ = eval(iteration, scope, st, old)
+          val result_ = eval(result, scope_, st, old)
+          Mapping(iteration_, result_)
+
+        case Invariant(iteration, result) =>
+          val iteration_ = eval(iteration, scope, st, old)
+          val result_ = eval(result, scope_, st, old)
+          Invariant(iteration_, result_)
+
+        case Trace(init, iteration, acc, updates) =>
+          val init_ = eval(init, scope, st, old)
+          val iteration_ = eval(iteration, scope, st, old)
+          val updates_ = evalu(updates, scope_, st, old)
+          Trace(init_, iteration_, acc, updates_)
+      }
 
     case Post(how, prog, post) =>
       wp(how, prog, scope, st, post, old)
+  }
+
+  def eval(
+      update: Update,
+      scope: Map[Var, Expr],
+      st: Map[Var, Expr],
+      old: List[Map[Var, Expr]]
+  ): Update = {
+    val Update(path, rhs) = update
+    val path_ = eval(path, scope, st, old)
+    val rhs_ = eval(rhs, scope, st, old)
+    Update(path_, rhs_)
+  }
+
+  def evalu(
+      updates: List[Update],
+      scope: Map[Var, Expr],
+      st: Map[Var, Expr],
+      old: List[Map[Var, Expr]]
+  ): List[Update] = {
+    for (update <- updates)
+      yield eval(update, scope, st, old)
+  }
+
+  def eval(
+      iteration: Iteration,
+      scope: Map[Var, Expr],
+      st: Map[Var, Expr],
+      old: List[Map[Var, Expr]]
+  ): Iteration = {
+    val Iteration(order, formals) = iteration
+    val formals_ = evalq(formals, scope, st, old)
+    Iteration(order, formals_)
+  }
+  def evalq(
+      eqs: List[LetEq],
+      scope: Map[Var, Expr],
+      st: Map[Var, Expr],
+      old: List[Map[Var, Expr]]
+  ): List[LetEq] = {
+    for (LetEq(x, e) <- eqs)
+      yield LetEq(x, eval(e, scope, st, old))
+  }
+
+  def evals(
+      exprs: List[Expr],
+      scope: Map[Var, Expr],
+      st: Map[Var, Expr],
+      old: List[Map[Var, Expr]]
+  ): List[Expr] = {
+    for (expr <- exprs)
+      yield eval(expr, scope, st, old)
   }
 
   def havoc(xs: List[Var]) = {
@@ -161,7 +231,7 @@ class VCGen(val state: State) {
       old: List[Map[Var, Expr]]
   ) = {
     val post_ = eval(post, scope, st, old)
-    post_ named "ensures"
+    post_ source "ensures"
   }
 
   def wp(
@@ -291,7 +361,7 @@ class VCGen(val state: State) {
         val (xs_, re) = havoc(xs)
         val st_ = assign(st, xs, xs_)
 
-        val phi_ = eval(phi, scope, st, old) named "assert"
+        val phi_ = eval(phi, scope, st, old) source "assert"
         val psi_ = eval(psi, scope, st_, st :: old)
         val chi = wp(how, rest, cont, scope, st_, old, live, not_live, post, brk, ret)
 
@@ -347,12 +417,26 @@ class VCGen(val state: State) {
         val xs0 = xm.toList
         val (xs1, re) = havoc(xs0)
 
-        var inv = inv_
+        val free = inv_ match {
+          case Note(inv_, attrs) if attrs.contains("free") =>
+            inv_
+          case _ =>
+            True
+        }
+
+        var inv = inv_ match {
+          case Note(inv_, attrs) if attrs.contains("free") =>
+            True
+          case _ =>
+            inv_
+        }
+
         var sum = sum_
 
         // Add requirement that decreases clause is non-negative to invariant
-        if (how == WP)
-          inv = inv && (Zero <= term)
+        // XXX: this may be too strict, when we jump below zero but the test becomes false
+        // if (how == WP)
+        //   inv = inv && (Zero <= term)
 
         // Prepare some states:
         // 0. current state at loop entry
@@ -361,24 +445,24 @@ class VCGen(val state: State) {
         val st1 = assign(st, xs0, xs1)
 
         // invariant to show at loop head upon entry
-        val inv0 = eval(inv, scope, st0, st0 :: old) named "invariant entry"
+        val inv0 = eval(inv, scope, st0, st0 :: old) source "invariant entry"
 
         // test and invariant at loop head before some iteration
         val test1 = test subst st1
-        val inv1 = eval(inv, scope, st1, st0 :: old)
+        val inv1 = eval(inv && free, scope, st1, st0 :: old)
 
         // below we adjust the three exit cases (termination, break, return)
         // for a single iteration of the loop body
 
         def post_(st2: Map[Var, Expr], live: Set[Id], not_live: Set[Id]) = {
           // invariant that needs to be preserved (from inv1)
-          val inv2 = eval(inv, scope, st2, st0 :: old) named "invariant forward"
+          val inv2 = eval(inv, scope, st2, st0 :: old) source "invariant forward"
 
           // propagate summary from st2 to st1 wrt. arbitrary state stk
           val (xsk, re) = havoc(xs0)
           val stk = assign(st2, xs0, xsk)
 
-          val sum1k = eval(sum, scope, stk, st1 :: old) named "summary backward"
+          val sum1k = eval(sum, scope, stk, st1 :: old) source "summary backward"
           val sum2k = eval(sum, scope, stk, st2 :: old)
 
           val needs_decreases =
@@ -391,7 +475,7 @@ class VCGen(val state: State) {
             val term2 = eval(term, scope, st2, st0 :: old)
 
             // Note: can assume test is positive otherwise loop terminates anyway
-            test2 ==> (Zero <= term2 && term2 < term1) named "decreases"
+            test2 ==> (Zero <= term2 && term2 < term1) source "decreases"
           } else {
             True
           }

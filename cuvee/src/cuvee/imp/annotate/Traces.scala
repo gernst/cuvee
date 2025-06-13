@@ -72,7 +72,7 @@ object Traces extends Annotate(ExecNoLoops) {
         yield Eq(x, Last(tr(x)))
 
     val fresh = su.values.toList
-    val inv_ = Exists(fresh, And(inv_guard ++ inv_traces ++ inv_last))
+    val inv_ = Exists(fresh, And(inv_guard ++ inv_traces ++ inv_last)) note "free"
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
     val paths_ = exec.spec(paths, ws, inv_, inv_ && !test)

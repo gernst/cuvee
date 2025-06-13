@@ -23,7 +23,7 @@ object Simplify extends Stage {
     cmds flatMap {
       case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
         simplify(prefix ++ cmds, state, Some(true), expr) match {
-          // case True  => List()
+          case True  => List()
           case expr_ => List(Lemma(expr_, tactic, Some(Goal), label))
         }
 

@@ -20,8 +20,17 @@ sealed trait Expr extends Expr.term with util.Syntax {
 
   def toStringTyped = toString + ": " + typ
 
-  def named(named: String) =
-    Note(this, sexpr.Attrs(List(sexpr.Kw("named") -> Some(sexpr.Id(named)))))
+  def named(arg: String) =
+    note("named", arg)
+
+  def source(arg: String) =
+    note("source", arg)
+
+  def note(kw: String) =
+    Note(this, sexpr.Attrs(List(sexpr.Kw(kw) -> None)))
+
+  def note(kw: String, arg: String) =
+    Note(this, sexpr.Attrs(List(sexpr.Kw(kw) -> Some(sexpr.Id(arg)))))
 
   def unary_+ = this
   def unary_- = UMinus(this)
@@ -143,12 +152,12 @@ object Expr extends Alpha[Expr, Var] {
   }
 
   def fresh(name: Name, types: List[Type]): List[Var] = {
-    for(typ <- types)
+    for (typ <- types)
       yield fresh(name, typ)
   }
 
   def fresh(names: List[Name], types: List[Type]): List[Var] = {
-    for((name, typ) <- (names zip types))
+    for ((name, typ) <- (names zip types))
       yield fresh(name, typ)
   }
 

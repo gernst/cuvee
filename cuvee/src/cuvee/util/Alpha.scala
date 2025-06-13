@@ -31,8 +31,8 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
   trait bind[A] {
     def bound: Set[V]
 
-    def rename(a: Map[V, V], re: Map[V, V]): A
-    def subst(a: Map[V, V], su: Map[V, E]): A
+    def rename(a: Map[V, V], re: Map[V, V]): A with bind[A]
+    def subst(a: Map[V, V], su: Map[V, E]): A with bind[A]
 
     def avoid(xs: Iterable[V]) = {
       val captured = xs filter bound
