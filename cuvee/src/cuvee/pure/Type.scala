@@ -190,6 +190,8 @@ object Con {
   val string = Con("String", 0)
   val list = Con("List", 1)
   val array = Con("Array", 2)
+
+  val trace = Con("Trace", 1)
 }
 
 case class Sort(con: Con, args: List[Type]) extends Type {
@@ -220,4 +222,7 @@ object Sort extends ((Con, List[Type]) => Sort) {
 
   val array: ((Type, Type) => Type) =
     (a: Type, b: Type) => Sort(Con.array, List(a, b))
+
+  def trace(arg: Type) =
+    Sort(Con.trace, List(arg))
 }
