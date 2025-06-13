@@ -4,7 +4,6 @@ import cuvee.State
 import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.pipe.Stage
-import cuvee.imp.traces._
 import cuvee.util.Matching
 
 object Simplify extends Stage {
