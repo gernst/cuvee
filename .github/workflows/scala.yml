@@ -10,6 +10,6 @@ jobs:
     - name: Build Cuvée assembly
       run: ./mill cuvee.assembly
     - name: Install Z3 prover
-      run: apt-get install -y z3
+      run: sudo apt-get install -y z3
     - name: Test Cuvée (parser, provers, simplifier, ...)
       run: ./mill cuvee.test
