@@ -10,6 +10,10 @@ object Pipe {
   var printSuccess = false
 
   def run(source: Source, sink: Sink, report: Report) {
+    report.safe {
+      sink.init(source.state)
+    }
+
     source foreach {
       case SetOption("print-success", Id("true")) =>
         report.printSuccess = true
@@ -35,6 +39,9 @@ object Pipe {
 // as long as copy produces an independent copy.
 
 trait Stage {
+  // executed once
+  def preamble(in: State): List[Cmd] = Nil
+
   // executed with every check-sat command (but not lemmas, they just return success or not)
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, in: State): List[Cmd]
 }
@@ -56,7 +63,12 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
   var stack = reset
   def top = stack.head
 
-  def done(state: State) {
+  override def init(state: State) {
+    sink.init(top.state)
+    sink.exec(stage.preamble(top.state), top.state)
+  }
+
+  override def done(state: State) {
     flush(Exit, state)
     sink.done(top.state)
   }
@@ -100,7 +112,7 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
         flush(cmd, in)
         assert(pending.isEmpty)
 
-        val add = List.tabulate(n) { _ => stack.head.copy }
+        val add = List.tabulate(n) { _ => stack.head.copy() }
         stack = add ++ stack
         sink.exec(cmd, top.state)
 

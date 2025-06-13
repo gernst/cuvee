@@ -254,7 +254,7 @@ object JavaBenchmarkWriter {
           }
       }
 
-      def done(state: State) {
+      override def done(state: State) {
         try {
           val file = new PrintStream(new FileOutputStream(path))
           var klass = path

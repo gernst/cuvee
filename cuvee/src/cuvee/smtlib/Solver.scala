@@ -108,7 +108,6 @@ object Solver {
   var fail = false
 
   object dummy extends Solver {
-    def done(state: State) {}
     def ack(cmd: Cmd) = Success
     def check() = Unknown
     def info(attr: String) = Error("no such info: " + attr)
@@ -146,7 +145,7 @@ object Solver {
 
     require(ack(PrintSuccess) == Success)
 
-    def done(state: State) {
+    override def done(state: State) {
       destroy()
     }
 

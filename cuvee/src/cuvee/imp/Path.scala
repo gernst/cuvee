@@ -32,6 +32,10 @@ case class Path(
     Path.lookup(fresh, stack, x)
   }
 
+  def lookup(xs: List[Var]) = {
+    xs map { Path.lookup(fresh, stack, _) }
+  }
+
   def eval(expr: Expr) = {
     Path.eval(fresh, stack, old, expr)
   }
@@ -68,7 +72,7 @@ case class Path(
 
   def assume(phi: Expr) = {
     val phi_ = Path.eval(fresh, stack, old, phi)
-    val constraints_ = phi_ :: constraints
+    val constraints_ = And.flattenStrong(phi_) ++ constraints
     Path(fresh, constraints_, stack, old)
   }
 
@@ -82,10 +86,10 @@ case class Path(
     // println(su)
     // println(stack)
     // println()
-    
+
     val rel_ = Path.eval(fresh, su :: stack, stack :: old, rel)
     val fresh_ = fresh ++ xs_
-    val constraints_ = rel_ :: constraints
+    val constraints_ = And.flattenStrong(rel_) ++ constraints
     val stack_ = Path.store(stack, xs zip xs_)
     Path(fresh_, constraints_, stack_, old)
   }
@@ -109,10 +113,10 @@ object Path {
           lookup(bound, stack, x)
         } catch {
           case Unbound =>
-    // println("bound:      " + bound)
-    // println("stack:      " + stack)
-    // println("old:        " + old)
-    // println()
+            // println("bound:      " + bound)
+            // println("stack:      " + stack)
+            // println("old:        " + old)
+            // println()
             cuvee.error("unbound variable: " + x + " in " + stack.flatMap(_.keySet).mkString(", "))
         }
 
@@ -140,6 +144,11 @@ object Path {
         val su = Expr.id(formals)
         val body_ = eval(bound ++ formals, stack, old, body)
         Bind(quant, formals, body_, typ)
+
+      // XXX: stuff from loop summary approximated with subst
+      case expr: Extra =>
+        val su = stack.reduceRight(_ ++ _)
+        expr subst su
     }
   }
 

@@ -12,8 +12,9 @@ import cuvee.State
 import java.io.FileOutputStream
 
 trait Sink {
+  def init(state: State) {}
+  def done(state: State) {}
   def exec(cmd: Cmd, state: State): Res
-  def done(state: State)
 
   def exec(cmds: List[Cmd], state: State): List[Res] = {
     for (cmd <- cmds)
@@ -22,6 +23,15 @@ trait Sink {
 }
 
 object Sink {
+  object dummy extends Sink {
+    def exec(cmd: Cmd, state: State) = cmd match {
+      case CheckSat =>
+        Unknown
+      case _ =>
+        Success
+    }
+  }
+
   def stdout(implicit printer: Printer) =
     new print(System.out)
 
@@ -38,13 +48,9 @@ object Sink {
       rcmds = cmd :: rcmds
       Success
     }
-
-    override def done(state: State): Unit = {}
   }
 
   class print(stream: PrintStream)(implicit printer: Printer) extends Sink {
-    def done(state: State) {}
-
     var status: Res = Unknown
 
     def exec(cmd: Cmd, state: State): Res = {
@@ -64,7 +70,13 @@ object Sink {
   }
 
   class tee(primary: Sink, secondary: Sink*) extends Sink {
-    def done(state: State) = {
+    override def init(state: State) = {
+      for (that <- secondary)
+        that.init(state)
+      primary.init(state)
+    }
+
+    override def done(state: State) = {
       for (that <- secondary)
         that.done(state)
       primary.done(state)

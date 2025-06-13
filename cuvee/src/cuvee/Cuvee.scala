@@ -217,10 +217,10 @@ class Config {
     option("-eval", "obsolete flag, may change meaning in the future") {
       cuvee.error("the -eval flag has been superseded by the -vcgen flag")
     },
-    option(
-      "-annotate:polyhedra",
-      "infer loop annotations (polyhedra abstract domain)"
-    ) {
+    option("-annotate:traces", "infer loop summaries as traces") {
+      annotate += "traces"
+    },
+    option("-annotate:polyhedra", "infer loop annotations (polyhedra abstract domain)") {
       annotate += "polyhedra"
     },
     option("-annotate:new-arrays", "infer loop annotations (array acceleration)") {
@@ -494,6 +494,10 @@ object Config {
         ),
         sink
       )
+    }
+
+    if (config.annotate contains "traces") {
+      sink = new Incremental(annotate.Traces, sink)
     }
 
     // println("pipeline: " + sink)

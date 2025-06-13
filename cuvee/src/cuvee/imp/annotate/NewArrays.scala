@@ -27,7 +27,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val vars = test.free ++ mod ++ read
     val xs = vars.toList
 
-    val (before, after, body_) =
+    val (cmds, before, after, body_) =
       iter(state, paths, xs, test, body, term, inv0, sum, frames)
 
     val counters = Accelerate.counters(paths.running, after.running, ys)
@@ -149,7 +149,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val prog_ = While(test, body_, term_, inv__, sum, frames)
     val paths_ = exec.spec(paths, mod.toList, inv__, inv__ && !test)
 
-    (paths_, prog_)
+    (cmds, paths_, prog_)
   }
 
   def maybeOldOtherArrays(mod: Set[Var], rhs: Expr): Expr = rhs topdown {

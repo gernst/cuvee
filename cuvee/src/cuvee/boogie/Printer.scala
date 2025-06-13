@@ -517,6 +517,9 @@ object Printer extends cuvee.util.Printer {
       ) + ";" // TODO: fix and test
     case note @ cuvee.pure.Note(expr, attrs) =>
       attrs.flatten.mkString("{", ", ", "} ") + line(expr)
+
+    case extra: Extra =>
+      extra.toString
   }
 
   private def modality(how: Modality) = how match {

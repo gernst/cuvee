@@ -28,7 +28,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
     val vars = test.free ++ mod ++ read
     val xs = vars.toList
 
-    val (before, after, body_) =
+    val (cmds, before, after, body_) =
       iter(state, paths, xs, test, body, term, inv, sum, frames)
 
     val counters = Accelerate.counters(paths.running, after.running, ys)
@@ -91,7 +91,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
     val prog_ = While(test, body_, term_, inv_, sum, frames)
     val paths_ = exec.spec(paths, mod.toList, inv_, inv_ && !test)
 
-    (paths_, prog_)
+    (cmds, paths_, prog_)
   }
 
   def accelerateGuard(

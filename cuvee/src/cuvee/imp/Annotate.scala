@@ -16,8 +16,8 @@ abstract class Annotate(val exec: Exec) extends Stage {
     cmds flatMap {
       case DefineProc(name, params, in, out, spec, body) =>
         val paths = exec.entry(in, out, spec)
-        val (paths_, body_) = annotate(state, paths, body)
-        List(DefineProc(name, params, in, out, spec, body_))
+        val (cmds_, paths_, body_) = annotate(state, paths, body)
+        cmds_ ++ List(DefineProc(name, params, in, out, spec, body_))
 
       case cmd =>
         List(cmd)
@@ -37,7 +37,7 @@ abstract class Annotate(val exec: Exec) extends Stage {
       inv: Expr,
       sum: Expr,
       frames: List[Frame]
-  ): (Paths, Prog)
+  ): (List[Cmd], Paths, Prog)
 
   def iter(
       state: State,
@@ -49,41 +49,51 @@ abstract class Annotate(val exec: Exec) extends Stage {
       inv: Expr,
       sum: Expr,
       frames: List[Frame]
-  ): (Paths, Paths, Prog) = {
+  ): (List[Cmd], Paths, Paths, Prog) = {
     val scope = List(vars)
 
     val su = Expr.id(vars)
     val fresh = Nil
-    val constraints = List(test, inv)
+    val constraints = And.flattenStrong(test && inv)
     val stack = List(su)
 
     val init = Path(fresh, constraints, stack, List(stack))
     val before = Paths(List(init))
-    val (after, body_) = annotate(state, before, body)
+    val (cmds, after, body_) = annotate(state, before, body)
 
-    (before, after, body_)
+    (cmds, before, after, body_)
   }
 
-  def break_(paths: Paths) =
-    (exec.break(paths), Break)
-
-  def return_(paths: Paths) =
-    (exec.return_(paths), Return)
-
-  def resume(stuff: (Paths, Prog)) = {
-    val (paths, prog) = stuff
-    (exec.resume(paths), prog)
+  def entry(state: State, vars: List[Var], constraints: List[Expr]): Paths = {
+    exec.entry(vars, constraints)
   }
 
-  def spec(paths: Paths, xs: List[Var], pre: Expr, post: Expr) = {
-    (exec.spec(paths, xs, pre, post), Spec(xs, pre, post))
+  def break_(state: State, paths: Paths): (List[Cmd], Paths, Prog) =
+    (Nil, exec.break(paths), Break)
+
+  def return_(state: State, paths: Paths): (List[Cmd], Paths, Prog) =
+    (Nil, exec.return_(paths), Return)
+
+  def resume(stuff: (List[Cmd], Paths, Prog)): (List[Cmd], Paths, Prog) = {
+    val (cmds, paths, prog) = stuff
+    (cmds, exec.resume(paths), prog)
   }
 
-  def local(paths: Paths, xs: List[Var], rhs: List[Expr]) =
-    (exec.local(paths, xs, rhs), Local(xs, rhs))
+  def spec(
+      state: State,
+      paths: Paths,
+      xs: List[Var],
+      pre: Expr,
+      post: Expr
+  ): (List[Cmd], Paths, Prog) = {
+    (Nil, exec.spec(paths, xs, pre, post), Spec(xs, pre, post))
+  }
 
-  def assign(paths: Paths, xs: List[Var], rhs: List[Expr]) =
-    (exec.assign(paths, xs, rhs), Assign(xs, rhs))
+  def local(state: State, paths: Paths, xs: List[Var], rhs: List[Expr]): (List[Cmd], Paths, Prog) =
+    (Nil, exec.local(paths, xs, rhs), Local(xs, rhs))
+
+  def assign(state: State, paths: Paths, xs: List[Var], rhs: List[Expr]): (List[Cmd], Paths, Prog) =
+    (Nil, exec.assign(paths, xs, rhs), Assign(xs, rhs))
 
   def call(
       state: State,
@@ -91,20 +101,22 @@ abstract class Annotate(val exec: Exec) extends Stage {
       name: cuvee.util.Name,
       in: List[Expr],
       out: List[Var]
-  ) = (exec.call(state, paths, name, in, out), Call(name, in, out))
+  ): (List[Cmd], Paths, Prog) = {
+    (Nil, exec.call(state, paths, name, in, out), Call(name, in, out))
+  }
 
   def block(
       state: State,
       paths0: Paths,
       progs: List[Prog]
-  ): (Paths, List[Prog]) = progs match {
+  ): (List[Cmd], Paths, List[Prog]) = progs match {
     case Nil =>
-      (paths0, Nil)
+      (Nil, paths0, Nil)
 
     case (prog: Prog) :: (rest: List[Prog]) =>
-      val (paths1, prog_) = annotate(state, paths0, prog)
-      val (paths2, rest_) = block(state, paths1, rest)
-      (paths2, prog_ :: rest_)
+      val (cmds1, paths1, prog_) = annotate(state, paths0, prog)
+      val (cmds2, paths2, rest_) = block(state, paths1, rest)
+      (cmds1 ++ cmds2, paths2, prog_ :: rest_)
   }
 
   def if_(
@@ -113,32 +125,32 @@ abstract class Annotate(val exec: Exec) extends Stage {
       test: Expr,
       left: Prog,
       right: Prog
-  ): (Paths, Prog) = {
-    val (paths1, left_) = annotate(state, exec.assume(paths0, test), left)
-    val (paths2, right_) = annotate(state, exec.assume(paths0, !test), right)
-    (exec.join(paths1, paths2), If(test, left_, right_))
+  ): (List[Cmd], Paths, Prog) = {
+    val (cmds1, paths1, left_) = annotate(state, exec.assume(paths0, test), left)
+    val (cmds2, paths2, right_) = annotate(state, exec.assume(paths0, !test), right)
+    (cmds1 ++ cmds2, exec.join(paths1, paths2), If(test, left_, right_))
   }
 
-  def annotate(state: State, paths: Paths, prog: Prog): (Paths, Prog) =
+  def annotate(state: State, paths: Paths, prog: Prog): (List[Cmd], Paths, Prog) = {
     prog match {
       case Break =>
-        break_(paths)
+        break_(state, paths)
 
       case Return =>
-        return_(paths)
+        return_(state, paths)
 
       case Block(progs) =>
-        val (paths_, progs_) = block(state, paths, progs)
-        (paths_, Block(progs_))
+        val (cmds_, paths_, progs_) = block(state, paths, progs)
+        (cmds_, paths_, Block(progs_))
 
       case Local(xs, rhs) =>
-        local(paths, xs, rhs)
+        local(state, paths, xs, rhs)
 
       case Assign(xs, rhs) =>
-        assign(paths, xs, rhs)
+        assign(state, paths, xs, rhs)
 
       case Spec(xs, pre, post) =>
-        spec(paths, xs, pre, post)
+        spec(state, paths, xs, pre, post)
 
       case Call(name, in, out) =>
         call(state, paths, name, in, out)
@@ -152,9 +164,10 @@ abstract class Annotate(val exec: Exec) extends Stage {
         //     cuvee.error("annotating nested loops is not supported.")
 
         //   case _ =>
-            resume {
-              while_(state, paths, test, body, term, inv, sum, frames)
-            }
-        // }
+        resume {
+          while_(state, paths, test, body, term, inv, sum, frames)
+        }
+      // }
     }
+  }
 }
