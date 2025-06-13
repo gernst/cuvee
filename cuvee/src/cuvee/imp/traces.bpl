@@ -1,3 +1,3 @@
 type Trace<a>;
-// function earlier<a>(value: a, as: Trace<a>): bool;
-function last<a>(as: Trace<a>): a;
+function earlier<a>(x: a, xs: Trace<a>): bool;
+function last<a>(xs: Trace<a>): a;

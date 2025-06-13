@@ -18,8 +18,6 @@ object Last extends Sugar.unary(Fun.last)
 object Traces extends Annotate(ExecNoLoops) {
   override def preamble(state: State) = {
     val (cmds, _) = cuvee.boogie.parse("cuvee/src/cuvee/imp/traces.bpl")
-    // state.add(cmds)
-    println(state)
     cmds
   }
 
@@ -34,8 +32,6 @@ object Traces extends Annotate(ExecNoLoops) {
       frames: List[Frame]
   ): (List[Cmd], Paths, Prog) = {
     // object Earlier extends Sugar.binary(state.funs("earlier", 2))
-    println(state)
-
     val mod = body.mod
     val read = body.read
 
@@ -77,8 +73,6 @@ object Traces extends Annotate(ExecNoLoops) {
 
     val fresh = su.values.toList
     val inv_ = Exists(fresh, And(inv_guard ++ inv_traces ++ inv_last))
-    println("fresh: " + fresh)
-    println(inv_)
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
     val paths_ = exec.spec(paths, ws, inv_, inv_ && !test)

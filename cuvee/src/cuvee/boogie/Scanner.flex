@@ -37,7 +37,7 @@ op = [+\-*/%] | "&&" | "||" | "==>" | "<==>" | "!"
    | "==" | "!=" | "<=" | "<" | ">" | ">="
 
 quant = "forall" | "exists"
-loc = "old" | "final" | "earlier"
+loc = "old" | "final"
 
 %%
 
