@@ -16,6 +16,17 @@ case class Rule(
     "rule " + this + " not type correct: " + lhs.typ + ", " + rhs.typ
   )
 
+  def gen = {
+    val re = Expr.fresh(vars)
+
+    Rule(
+      lhs rename re,
+      rhs rename re,
+      cond rename re,
+      avoid map { case (e, f) => (e rename re, f rename re) }
+    )
+  }
+
   // require(
   //   rhs.free subsetOf lhs.free,
   //   "rule " + this + " does not bind " + (rhs.free -- lhs.free) + " in rhs " + rhs
@@ -26,7 +37,9 @@ case class Rule(
   //   "rule " + this + " does not bind " + (cond.free -- lhs.free) + " in guard " + cond
   // )
 
-  val vars = lhs.free.toList
+  // val vars = lhs.free.toList
+
+  def vars = lhs.free ++ rhs.free ++ cond.free
   def funs = lhs.funs ++ rhs.funs ++ cond.funs
 
   def canFlip = rhs match {
@@ -48,22 +61,21 @@ case class Rule(
       None
   }
 
-  def fun = {
-    val App(inst, _) = lhs
-    inst.fun
+  def fun = lhs match {
+    case App(inst, _) => inst.fun
   }
 
   val toExpr =
     (vars, cond) match {
       case (Nil, True) => Eq(lhs, rhs)
-      case (_, True)   => Forall(vars, Eq(lhs, rhs))
+      case (_, True)   => Forall(vars.toList, Eq(lhs, rhs))
       case (Nil, _)    => Imp(cond, Eq(lhs, rhs))
-      case _           => Forall(vars, Imp(cond, Eq(lhs, rhs)))
+      case _           => Forall(vars.toList, Imp(cond, Eq(lhs, rhs)))
     }
 
-  def sexpr = toExpr
+  // def sexpr = toExpr
 
-  def cmd = Assert(toExpr)
+  // def cmd = Assert(toExpr)
 
   def replace(f: Fun, g: Fun) = Rule(
     lhs.replace(f, g),
@@ -113,6 +125,7 @@ object Rules {
   ): List[Rule] =
     rhs match {
       case _ if !(ok contains lhs.fun) =>
+        println("discarding rule for " + lhs)
         Nil
 
       case Ite(test, left, right) if ite =>
@@ -149,7 +162,7 @@ object Rules {
         )
           yield res
 
-      case _ if guard.free subsetOf lhs.free =>
+      case _ if rhs.free subsetOf (lhs.free ++ guard.free) =>
         List(Rule(lhs, rhs, guard))
 
       case _ =>
@@ -162,6 +175,7 @@ object Rules {
       body: Expr,
       ok: Set[Fun]
   ): List[Rule] = {
+    // Note: from DefineFun(fun, xs, ...)
     val lhs = App(fun, xs)
     from(xs, True, lhs, body, ok)
   }
@@ -175,8 +189,6 @@ object Rules {
     suc match {
       case Eq(lhs: App, rhs) =>
         from(xs, guard, lhs, rhs, ok)
-      // case Not(lhs: Bind) =>
-      //   Nil
       case Not(lhs: App) =>
         from(xs, guard, lhs, False, ok)
       case lhs: App =>

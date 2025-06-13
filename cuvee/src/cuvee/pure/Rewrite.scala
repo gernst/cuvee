@@ -11,6 +11,7 @@ object Rewrite {
   var debug = false
 
   case object PremiseNotValid extends Exception
+  case object InstanceAvoided extends Exception
 
   case class RewriteDepthExceeded(exprs: List[Expr], rules: Map[Fun, List[Rule]]) extends Exception
 
