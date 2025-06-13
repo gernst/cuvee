@@ -700,6 +700,7 @@ case class Match(expr: Expr, cases: List[Case], typ: Type) extends Expr {
 class LetEqList(eqs: List[LetEq]) {
   def vars = eqs map (_.x)
   def args = eqs map (_.e)
+  def toEqs = eqs map (_.toEq)
   def bound = Set(eqs map (_.bound): _*)
   def free = Set(eqs flatMap (_.free): _*)
   def funs = Set(eqs flatMap (_.funs): _*)
