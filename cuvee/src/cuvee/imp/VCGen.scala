@@ -136,11 +136,6 @@ class VCGen(val state: State) {
           val result_ = eval(result, scope_, st, old)
           Mapping(iteration_, result_)
 
-        case Invariant(iteration, result) =>
-          val iteration_ = eval(iteration, scope, st, old)
-          val result_ = eval(result, scope_, st, old)
-          Invariant(iteration_, result_)
-
         case Trace(init, iteration, acc, updates) =>
           val init_ = eval(init, scope, st, old)
           val iteration_ = eval(iteration, scope, st, old)

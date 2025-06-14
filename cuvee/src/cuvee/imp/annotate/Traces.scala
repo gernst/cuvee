@@ -13,7 +13,8 @@ import scala.collection.immutable
 import cuvee.smtlib.DeclareSort
 import cuvee.smtlib.DeclareFun
 
-object Last extends Sugar.unary(Fun.last)
+object Current extends Sugar.binary(Fun.current)
+object Earlier extends Sugar.binary(Fun.earlier)
 
 object Traces extends Annotate(ExecNoLoops) {
   override def preamble(state: State) = {
@@ -60,46 +61,21 @@ object Traces extends Annotate(ExecNoLoops) {
 
     val su = tr ++ nd
 
-    val inv_guard =
-      List(invariant(su, mod ++ zs, after.running))
-
     val inv_traces =
       for (x <- ws)
         yield Eq(tr(x), trace(x, su, mod ++ zs, after.running))
 
     val inv_last =
       for (x <- ws)
-        yield Eq(x, Last(tr(x)))
+        yield Current(x, tr(x))
 
     val fresh = su.values.toList
-    val inv_ = Exists(fresh, And(inv_guard ++ inv_traces ++ inv_last)) note "free"
+    val inv_ = Exists(fresh, And(inv_traces ++ inv_last)) note "free"
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
     val paths_ = exec.spec(paths, ws, inv_, inv_ && !test)
 
     (cmds_, paths_, prog_)
-  }
-
-  def invariant(su: Map[Var, Expr], vars: Set[Var], running: List[Path]) = {
-    val ys =
-      for (
-        path <- running;
-        y <- path.constraints.free & vars
-      )
-        yield y
-
-    val formals =
-      for (y <- ys.distinct)
-        yield LetEq(y, su(y))
-
-    val iteration =
-      Iteration(Sequential, formals)
-
-    val paths =
-      for (path <- running)
-        yield And(path.constraints)
-
-    Invariant(iteration, Or(paths))
   }
 
   def trace(x: Var, su: Map[Var, Expr], vars: Set[Var], running: List[Path]) = {

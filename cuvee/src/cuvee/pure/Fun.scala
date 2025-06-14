@@ -135,7 +135,8 @@ object Fun {
   val lt = Fun("<", Nil, List(int, int), bool)
   val gt = Fun(">", Nil, List(int, int), bool)
 
-  val last = Fun("last", List(a), List(Sort.trace(a)), a)
+  val current = Fun("current", List(a), List(a, Sort.trace(a)), Sort.bool)
+  val earlier = Fun("earlier", List(a), List(a, Sort.trace(a)), Sort.bool)
 
   val builtin = Set(
     eq_,
