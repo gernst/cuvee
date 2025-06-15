@@ -42,8 +42,12 @@ object Traces extends Annotate(ExecNoLoops) {
     val (cmds_, before, after, body_) =
       iter(state, paths, xs, test, body, term, inv, sum, frames)
 
-    // require(after.breaked.isEmpty, "breaks are currently unsupported")
-    // require(after.returned.isEmpty, "returns are currently unsupported")
+    // prepare variables:
+    // k is a counter that denotes the current loop iteration
+    // ws are all regular modified variables
+    // zs are all nondet variables
+
+    val k = Expr.fresh("#", Sort.int)
 
     val ws = mod.toList
 
@@ -52,7 +56,7 @@ object Traces extends Annotate(ExecNoLoops) {
         yield y
 
     val tr =
-      for ((x, Var(Name(name, index), typ)) <- Expr.fresh(ws))
+      for ((x, Var(Name(name, index), typ)) <- Expr.fresh(k :: ws))
         yield (x, Var(Name("@" + name, index), Sort.trace(typ)))
 
     val nd =
@@ -63,14 +67,14 @@ object Traces extends Annotate(ExecNoLoops) {
 
     val inv_traces =
       for (x <- ws)
-        yield Eq(tr(x), trace(x, su, mod ++ zs, after.running))
+        yield Eq(tr(x), trace(x, k, su, mod ++ zs, after.running))
 
     val inv_last =
-      for (x <- ws)
+      for (x <- k :: ws)
         yield Current(x, tr(x))
 
     val fresh = su.values.toList
-    val inv_ = Exists(fresh, And(inv_traces ++ inv_last)) note "free"
+    val inv_ = Exists(k :: fresh, And(inv_traces ++ inv_last)) note "free"
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
     val paths_ = exec.spec(paths, ws, inv_, inv_ && !test)
@@ -78,7 +82,7 @@ object Traces extends Annotate(ExecNoLoops) {
     (cmds_, paths_, prog_)
   }
 
-  def trace(x: Var, su: Map[Var, Expr], vars: Set[Var], running: List[Path]) = {
+  def trace(x: Var, k: Var, su: Map[Var, Expr], vars: Set[Var], running: List[Path]) = {
     val ys =
       for (
         path <- running;
@@ -88,8 +92,11 @@ object Traces extends Annotate(ExecNoLoops) {
         yield y
 
     val formals =
-      for (y <- ys.distinct)
-        yield LetEq(y, su(y))
+      if (ys.isEmpty)
+        List(LetEq(k, su(k)))
+      else
+        for (y <- ys.distinct)
+          yield LetEq(y, su(y))
 
     val iteration =
       Iteration(Sequential, formals)

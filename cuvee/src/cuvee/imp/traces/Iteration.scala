@@ -28,6 +28,8 @@ case object Pointwise extends Order {
 // inserted as marker when we know that the operation is commutative and associative
 // main use case are arithmetics and some bitwise operations
 case class Iteration(order: Order, formals: List[LetEq]) {
+  require(formals.nonEmpty, "cannot have empty iteration: " + this)
+
   override def toString = {
     val lhs = formals.vars.mkString(", ")
     val rhs = order bracket formals.args.mkString(" | ")
