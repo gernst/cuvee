@@ -618,13 +618,8 @@ object Printer extends cuvee.util.Printer {
       if (subproofs.isEmpty) {
         result = List(header)
       } else {
-        val body = subproofs map {
-          case (ConstrSel(constr, Nil), subproof) => 
-            ("case " + constr.name + " => ") +: proof_(subproof)
-          case (ConstrSel(constr, vars), subproof) => 
-            ("case " + constr.name + vars.mkString("(", ",", ")") + " => ") +: proof_(subproof)
-        }
-
+        val body = for ((sel, subproof) <- subproofs) 
+          yield sel.toString() +: proof_(subproof)
         result = (header + " {") +: indent(body.flatten) :+ "}"
       }
 
@@ -635,8 +630,7 @@ object Printer extends cuvee.util.Printer {
       val head = "show (" + line(expr) + ")"
 
       val cont = subproofs map {
-        case (ProofSel, proof) => "proof " +: proof_(proof)
-        case (ThenSel, proof) => "then " +: proof_(proof)
+        case (sel, proof) => sel.toString +: proof_(proof)
       }
 
       indent(head +: indent(cont.flatten))
@@ -648,19 +642,20 @@ object Printer extends cuvee.util.Printer {
       var result: List[String] = Nil
 
       if (places.nonEmpty)
-        head += " at " + places.orNull.mkString(", ") + " then"
+        head += " at " + places.orNull.mkString(", ")
 
       assert(subproofs.length <= 1)
       if (subproofs.nonEmpty){
         val (sel, subproof) = subproofs.head
-        result ++= proof_(subproof)
+        result ++= sel.toString +: proof_(subproof)
       }
 
       result = head +: result
       indent(result)
 
-    case Proof(Sorry, subproofs) => indent(List("sorry"))
-    case Proof(Auto, subproofs) => indent(List("auto"))
+    case Proof(Sorry, _)      => indent(List("sorry"))
+    case Proof(Auto, _)       => indent(List("auto"))
+    case Proof(BreakPoint, _) => indent(List("break"))
   }
 
   private def indent(lines: List[String], times: Int = 1) =

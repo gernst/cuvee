@@ -495,7 +495,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
             name ~ ("[" ~ int_ ~ "]").?
           ) ~ ("at" ~ (int_ ~+ ",")).? 
         ) 
-        ~ "then" ~ (ret(ProofSel) ~ tactic).+
+        ~ "then" ~ (ret(ThenSel) ~ tactic).+
       )
     )
 
