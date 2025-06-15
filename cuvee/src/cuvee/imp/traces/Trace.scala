@@ -63,7 +63,7 @@ case class Trace(
 
   def subst(a: Map[Var, Var], su: Map[Var, Expr], asu: Map[Var, Expr]) =
     Trace(
-      init subst su, // XXX WRONG! su contains a, too, but initi is independent of this
+      init subst su,
       iteration subst (a, asu),
       acc rename a,
       updates map (_ subst asu)

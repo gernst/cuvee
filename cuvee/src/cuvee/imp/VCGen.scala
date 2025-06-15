@@ -36,7 +36,7 @@ class VCGenStage(partial: Boolean) extends Stage {
         val su = Expr.subst(in, Old(in))
         val xs = in ++ out
 
-        val scope: Map[Var, Expr] = Map()
+        val scope: Map[Var, Var] = Map()
         val st = Expr.id(xs)
         val old = List(st)
 
@@ -51,7 +51,7 @@ class VCGenStage(partial: Boolean) extends Stage {
         val xs = in ++ out ++ globals
         val post_ = post subst su
 
-        val scope: Map[Var, Expr] = Map()
+        val scope: Map[Var, Var] = Map()
         val st = Expr.id(xs)
         val old = List(st)
 
@@ -70,15 +70,17 @@ class VCGenStage(partial: Boolean) extends Stage {
 class VCGen(val state: State) {
   def eval(
       expr: Expr,
-      scope: Map[Var, Expr] = Map(),
+      scope: Map[Var, Var] = Map(),
       st: Map[Var, Expr] = Map(),
       old: List[Map[Var, Expr]] = Nil
   ): Expr = expr match {
-    case x: Var if (st contains x) =>
-      st(x)
-
+    // Note: must take from scope first!
+    //       binders determine bound variables
     case x: Var if (scope contains x) =>
       scope(x)
+
+    case x: Var if (st contains x) =>
+      st(x)
 
     case x: Var =>
       error(
@@ -149,7 +151,7 @@ class VCGen(val state: State) {
 
   def eval(
       update: Update,
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       old: List[Map[Var, Expr]]
   ): Update = {
@@ -161,7 +163,7 @@ class VCGen(val state: State) {
 
   def evalu(
       updates: List[Update],
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       old: List[Map[Var, Expr]]
   ): List[Update] = {
@@ -171,7 +173,7 @@ class VCGen(val state: State) {
 
   def eval(
       iteration: Iteration,
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       old: List[Map[Var, Expr]]
   ): Iteration = {
@@ -181,7 +183,7 @@ class VCGen(val state: State) {
   }
   def evalq(
       eqs: List[LetEq],
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       old: List[Map[Var, Expr]]
   ): List[LetEq] = {
@@ -191,7 +193,7 @@ class VCGen(val state: State) {
 
   def evals(
       exprs: List[Expr],
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       old: List[Map[Var, Expr]]
   ): List[Expr] = {
@@ -218,7 +220,7 @@ class VCGen(val state: State) {
     cuvee.error("return not within procedure")
 
   def done(
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       live: Set[Id],
       not_live: Set[Id],
@@ -232,7 +234,7 @@ class VCGen(val state: State) {
   def wp(
       how: Modality,
       prog: Prog,
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       post: Expr,
       old: List[Map[Var, Expr]] = Nil
@@ -255,7 +257,7 @@ class VCGen(val state: State) {
   def wp_proc(
       how: Modality,
       prog: Prog,
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       post: Expr
   ): Expr = {
@@ -280,7 +282,7 @@ class VCGen(val state: State) {
       how: Modality,
       progs: List[Prog], /* current block */
       cont: List[List[Prog]],
-      scope: Map[Var, Expr],
+      scope: Map[Var, Var],
       st: Map[Var, Expr],
       old: List[Map[Var, Expr]],
       live: Set[Id],
