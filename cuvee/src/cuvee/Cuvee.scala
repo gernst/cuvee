@@ -22,7 +22,6 @@ import cuvee.util.Main
 import cuvee.pure.Expr
 import cuvee.smtlib.{Cmd, Res}
 import cuvee.smtlib.Success
-import cuvee.iprove.ProveTree
 
 class Config {
   var file: Option[String] = None
@@ -338,25 +337,13 @@ object Config {
         if (config.induct)
           error("induction not supported by auto prover")
         sink = new Incremental(
-          (if(config.debug)
-            new ProveTree(
-              prover,
-              config.simplify,
-              config.rewrite,
-              config.proveNegatedAsserts,
-              config.crosscheckProver,
-              config.debug,
-              config.session,
-              config.auto
-            )
-          else 
             new Prove(
               prover,
               config.simplify,
               config.rewrite,
               config.proveNegatedAsserts,
               config.crosscheckProver
-          )),
+          ),
           sink
         )
 
@@ -380,18 +367,6 @@ object Config {
         val solver = Solver.z3()
         val prover = Prover.fromSolver(solver, config.induct)
         sink = new Incremental(
-          if(config.debug)
-            new ProveTree(
-              prover,
-              config.simplify,
-              config.rewrite,
-              config.proveNegatedAsserts,
-              config.crosscheckProver,
-              config.debug,
-              config.session,
-              config.auto
-            )
-          else
             new Prove(
               prover,
               config.simplify,
