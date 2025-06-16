@@ -6,9 +6,7 @@ import cuvee.util.Fix
 import cuvee.util.Name
 
 case class Context(
-    polarity: Option[
-      Boolean
-    ], // polarity wrt. top-level, where false are assumptions and true are conclusions
+    polarity: Option[Boolean], // polarity wrt. top-level, false=assumptions, true=conclusions
     fixed: Set[Var], // global variables that cannot be instantiated
     bound: Set[Var], // variables that can be instantiated
     pos: List[Expr], // formulas that are assumed true, resp. proved false

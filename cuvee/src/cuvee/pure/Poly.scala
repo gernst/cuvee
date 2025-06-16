@@ -110,6 +110,11 @@ object Poly {
   def const(c: BigInt) = Poly(c, Nil)
   def factor(k: BigInt, e: Expr) = Poly(0, List(Mono(k, e)))
 
+  def simplify(expr: Expr) = {
+    val poly = apply(expr)
+    poly.compact.toExpr
+  }
+
   /*
    * Try to build a linear polynomial form out of an Expr */
   def apply(expr: Expr): Poly = {

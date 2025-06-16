@@ -225,8 +225,7 @@ object Simplify extends Stage {
       case _ if expr.typ == Sort.int && ctx.arith =>
         // maybe need to enable arith at leaves again
         val expr_ = simplify(ctx.noArith, expr)
-        val poly = Poly(expr_)
-        poly.compact.toExpr
+        Poly.simplify(expr_)
 
       case expr @ Let(eqs, body) =>
         require(expr.bound disjoint ctx.vars, "variables already bound: " + (expr.bound & ctx.vars))
@@ -436,15 +435,13 @@ object Simplify extends Stage {
 
       case App(inst, args) if ctx.rules contains inst.fun =>
         val use = ctx.rules(inst.fun)
-        ???
-        // rewrite(ctx, use, expr_)
+        rewrite(ctx, use, expr_)
 
       case _ =>
         expr_
     }
   }
 
-/*
   def rewrite(ctx: Context, use: List[Rule], expr: Expr): Expr = {
     use match {
       case Nil =>
@@ -460,19 +457,17 @@ object Simplify extends Stage {
   def rewrite(ctx: Context, eqn: Rule, use: List[Rule], expr: Expr): Expr = {
     val Rule(pat, rhs, cond, avoid) = eqn.gen
 
-    import Bnd._
-
     try {
-      val xs = ctx.free ++ expr.free // need both!
-      val ys = pat.free ++ cond.free // need both!
-      val dep = ys map (x => (x, xs))
-      val bn = Bnd(dep.toMap, Set(), Map(), Map(), Map(), List(), Map(), Map())
-      val binding = bind("lhs rule", ctx, pat, expr, bn)
+      // val xs = ctx.free ++ expr.free // need both!
+      // val ys = pat.free ++ cond.free // need both!
+      // val dep = ys map (x => (x, xs))
+      // val bn = Bnd(dep.toMap, Set(), Map(), Map(), Map(), List(), Map(), Map())
+      // val binding = bind("lhs rule", ctx, pat, expr, bn)
 
       // println("rule matched: " + pat + " at " + expr)
-      println()
-      println("applying rule: " + eqn)
-      println("to " + expr)
+      // println()
+      // println("applying rule: " + eqn)
+      // println("to " + expr)
 
       if (cond != True) {
         // println("checking side condition " + cond)
@@ -491,24 +486,31 @@ object Simplify extends Stage {
 
       // println()
       // println("again for rule: " + eq)
-      val binding_ = find(ctx, cond, binding)
+      // val binding_ = find(ctx, cond, binding)
 
       // if (cond_ != True) {
       //   throw Rewrite.PremiseNotValid
       // }
 
+      val (ty, su) = Expr.bind(pat, expr)
+
+      val _cond = simplify(ctx, cond inst (ty, su))
+
+      if (_cond != True) {
+        // if (debug)
+        //   println("  " * depth + "condition not satisfied " + _cond)
+        throw Rewrite.PremiseNotValid // ("side-condition not satisfied " + _cond)
+      }
+
       for ((a, b) <- avoid) {
-        if (binding_(a) == binding_(b))
+        if ((a inst (ty, su)) == (b inst (ty, su)))
           throw Rewrite.InstanceAvoided
       }
 
-      val rhs_ = binding_(rhs)
+      val rhs_ = rhs inst (ty, su)
 
       println("rewrite " + expr)
       println("    ~ > " + rhs_)
-
-      // XXX: seems good now:
-      // require(binding_.tr.isEmpty, "oops, forgot to replace: " + binding_.tr)
 
       rewrite(ctx.again, rhs_)
 
@@ -525,5 +527,44 @@ object Simplify extends Stage {
         rewrite(ctx, use, expr)
     }
   }
-  */
+
+  def bind(
+      pat: Expr,
+      arg: Expr,
+      ty: Map[Param, Type] = Map(),
+      su: Map[Var, Expr] = Map()
+  ): (Map[Param, Type], Map[Var, Expr]) = {
+    (pat, arg) match {
+      case (x: Var, _) if su contains x =>
+        if (su(x) != arg)
+          throw Expr.CannotBind(pat, arg, ty, su)
+        (ty, su)
+      case (x: Var, _) =>
+        val ty_ = Type.bind(x.typ, arg.typ, ty)
+        (ty_, su + (x -> arg))
+      case (a: Lit, b: Lit) if a == b =>
+        (ty, su)
+      case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
+        val ty_ = Type.binds(inst1.args, inst1.res, inst2.args, inst2.res, ty)
+        val (ty__, su_) = bind(pats, args, ty_, su)
+        (ty__, su_)
+      case _ =>
+        throw Expr.CannotBind(pat, arg, ty, su)
+    }
+  }
+
+  def bind(
+      pats: List[Expr],
+      args: List[Expr],
+      ty: Map[Param, Type],
+      su: Map[Var, Expr]
+  ): (Map[Param, Type], Map[Var, Expr]) = {
+    (pats, args) match {
+      case (Nil, Nil) =>
+        (ty, su)
+      case (pat :: pats, arg :: args) =>
+        val (ty_, su_) = bind(pat, arg, ty, su)
+        bind(pats, args, ty_, su_)
+    }
+  }
 }
