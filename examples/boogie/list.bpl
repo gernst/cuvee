@@ -126,24 +126,37 @@ axiom forall p: [elem]bool, y: elem, ys: list<elem> ::
 lemma forall xs: list<elem> ::
   length(xs) >= 0
 proof
-  induction xs;
+  induction xs{
+    case nil => auto
+    case cons(x, xs) => auto
+  };
 
 lemma forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
   append(append(xs, ys), zs) == append(xs, append(ys, zs))
-proof
-  induction xs;
+proof induction xs{
+    case nil => auto
+    case cons(x, xs) => auto
+  };
 
 lemma forall xs: list<elem>, ys: list<elem> ::
   length(append(xs, ys)) == length(xs) + length(ys)
 proof
-  induction xs;
+  induction xs{
+    case nil => auto
+    case cons(x, xs) => auto
+  };
 
 lemma forall xs: list<elem> ::
   reverse(reverse(xs)) == xs
 proof
   induction xs {
+    case nil => auto
     case cons(y, ys) =>
       show (forall z: elem, zs: list<elem> :: reverse(reverse(cons(z, zs))) == cons(z, reverse(reverse(zs))))
       proof show (forall z: elem, zs: list<elem> :: reverse(snoc(zs, z)) == cons(z, reverse(zs)))
-           proof induction zs
+           proof induction zs{
+            case nil => auto
+            case cons(t, ts) => auto
+           }
+           then split
   };

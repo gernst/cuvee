@@ -44,3 +44,9 @@ function rope_concat(r: rope, s: rope): rope;
 axiom forall r: rope, s: rope ::
   rope_concat(r, s) == node(rope_length(r), r, s);
 
+lemma forall s: string, r: rope ::
+  s == repr(r) <==> (string_concat(repr(left(r)), repr(right(r))) == s || text(r) == nil)
+proof induction s{
+  case nil => auto
+  case cons(c, s) => auto
+};
