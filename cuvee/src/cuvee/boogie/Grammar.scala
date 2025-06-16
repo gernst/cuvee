@@ -441,7 +441,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
     P(name ~>@ patargs(typ))
 
   def case_(typ: Type)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[((Fun, Expr), Proof), Token] =
-    P("case" ~ name ~>@ constargs(typ) ~ "=>" ~@ {case (fun, expr) => tactic(scope ++ expr.free.asScope, ctx)}) 
+    P("case" ~ name ~>@ constargs(typ) ~ "=>" ~@ {case (fun, expr) => proof(scope ++ expr.free.asScope, ctx)}) 
 
   def cases(tactic: Induction)(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] =
     braces(case_(tactic.x.typ).map{case ((fun, expr), proof) => (ConstrSel(fun, expr.free.toList), proof)}.+ ) | ret(Nil)
@@ -452,8 +452,17 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def maybe_proof(
       phi: Expr
   )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("proof" ~ scoped_tactic(phi)).?
+    P("proof" ~ scoped_proof(phi)).?
 
+  // SPLIT
+  def split_case_(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[(Sel, Proof), Token] =
+    P("case" ~ IndexSel(int_) ~ "=>" ~ proof) 
+
+  def split_cases(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] =
+    braces(split_case_.+) | ret(Nil)
+
+  def split(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+    P(Proof("split" ~ ret(Split) ~ split_cases))
 
   def subproofs(
       phi: Expr
@@ -466,7 +475,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
     }
 
     val xs = collect_all_the_vars(phi)
-    tactic(scope ++ xs.asScope, ctx)
+    proof(scope ++ xs.asScope, ctx)
   }
 
   // SHOW
@@ -480,12 +489,12 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def maybe_proof_sel(
       tactic: Show
   )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] =
-    P("proof" ~ ret(ProofSel) ~ scoped_tactic(tactic.expression) ~ then_sel) map{ 
-        case (sel1 ~ proof1) ~ rest => (sel1, proof1) :: rest
+    P("proof" ~ ret(ProofSel) ~ scoped_proof(tactic.expression) ~ then_sel) map{ 
+        case (sel ~ proof) ~ rest => (sel, proof) :: rest
       }
 
   def then_sel(implicit scope: Map[Name, Var], ctx: Map[Name, Param]): Parser[List[(Sel, Proof)], Token] = 
-    P(("then" ~ ret(ThenSel) ~ tactic).+ | ret(Nil))
+    P(("then" ~ ret(ThenSel) ~ proof).+ | ret(Nil))
 
   // UNFOLD
   def unfold(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
@@ -495,7 +504,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
             name ~ ("[" ~ int_ ~ "]").?
           ) ~ ("at" ~ (int_ ~+ ",")).? 
         ) 
-        ~ "then" ~ (ret(ThenSel) ~ tactic).+
+        ~ "then" ~ (ret(ThenSel) ~ proof).+
       )
     )
 
@@ -505,21 +514,21 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
   // NOAUTO
   def noauto(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-    P("noauto" ~ Proof(ret(NoAuto) ~ (ret(ProofSel) ~ tactic).+ ))
+    P("noauto" ~ Proof(ret(NoAuto) ~ (ret(ProofSel) ~ proof).+ ))
 
   //BREAKPOINT
   def breakpoint(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = 
     "break" ~ Proof(ret(BreakPoint) ~ ret(Nil))
 
   // ANY TACTIC
-  def tactic(implicit
+  def proof(implicit
       scope: Map[Name, Var],
       ctx: Map[Name, Param]
   ): Parser[Proof, Token] =
-    P(sorry | show  | auto | noauto | unfold | induction | breakpoint); 
+    P(sorry | show  | auto | noauto | unfold | induction | breakpoint | split); 
     
 
-  def scoped_tactic(
+  def scoped_proof(
       phi: Expr
   )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
     def collect_all_the_vars(phi: Expr): List[Var] = phi match {
@@ -530,7 +539,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
     }
 
     val xs = collect_all_the_vars(phi)
-    tactic(scope ++ xs.asScope, ctx)
+    proof(scope ++ xs.asScope, ctx)
   }
 
   def lemma(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =

@@ -28,7 +28,7 @@ kw = "function" | "axiom" | "const" | "lemma" | "data" | "abstractions" | "contr
    | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "havoc" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
    | "while" | "if" | "else" | "break" | "return"
    | "proof" | "sorry" | "show" | "then" | "case" | "free lemma" | "goal"
-   | "induction" | "unfold" | "at" | "=>" | "end" | "auto" | "noauto" | "break"
+   | "induction" | "unfold" | "at" | "=>" | "end" | "auto" | "noauto" | "break" | "split"
    | "in" | "out" | "inout"
 
 id = [a-zA-Z_][a-zA-Z0-9⁰-⁹₀-₉_~#$.?]* | "seq.++"
