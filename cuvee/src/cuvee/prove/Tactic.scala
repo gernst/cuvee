@@ -25,7 +25,7 @@ case class ConstrSel(constructor: Fun, variables: List[Var]) extends Sel{
   
   override def toString = variables match{
     case Nil => "case " + constructor.name + " => "
-    case _ => "case " + constructor.name + variables.mkString("(", ",", ")") + " => "
+    case _ => "case " + constructor.name + variables.mkString("(", ",", ")") + " => " 
   }
 }
 
@@ -39,7 +39,7 @@ case object ThenSel extends Sel{
     override def toString = "then "
 }
 
-case class IndexSel(index: Int) extends Sel{
+case class IndexSel(index: BigInt) extends Sel{
   def matches(sel: Sel): Boolean = sel match{
     case IndexSel(index_) => index_ == index
     case _ => false 
@@ -49,8 +49,6 @@ case class IndexSel(index: Int) extends Sel{
 }
 
 trait Tactic {}
-class TacticNotApplicableException(s: String) extends Exception(s) {}
-
 case class Induction(x: Var) extends Tactic
 case class Show(expression: Expr) extends Tactic
 case class Unfold(target: (Name, Int), places: Option[List[BigInt]]) extends Tactic
@@ -58,10 +56,12 @@ case object NoAuto extends Tactic
 case object Auto extends Tactic
 case object BreakPoint extends Tactic
 case object Sorry extends Tactic
+case object Split extends Tactic
 
 
 
 // as written in input file
+//TODO move to Tree name to Proof
 case class Proof(tactic: Tactic, subproofs: List[(Sel, Proof)])
 
 object ProofUtils{
@@ -73,7 +73,6 @@ object ProofUtils{
 
       case (ConstrSel(sel, vars), (ConstrSel(sel_, vars_), subgoal) :: restgoals) if sel == sel_ =>
         val re = Expr.subst(vars_, vars)
-        //val subgoal__ = subgoal rename re println(subgoal__)
         val Clause(xs, ant, suc) = subgoal
         val subgoal_ = Clause(xs rename re, ant rename re, suc rename re)
         ((pat, subgoal_, subproof), restgoals)
@@ -104,22 +103,17 @@ object ProofUtils{
       (first_ :: rest_, subgoals__)
   }
 
-  def apply(goal: Expr, tactic: Tactic, state: State, cmds: List[Cmd]): List[(Sel, Expr)] = tactic match {
+  def apply(goal: Expr, tactic: Tactic, state: State, prover:Prover, rws: Map[Fun, List[Rule]]): List[(Sel, Expr)] = tactic match {
     case Induction(variable) =>
       induction(variable, goal, state)
 
     case Show(expr) => 
-      //TODO ib replace check whether goal is Disj??? 
-      //TODO without clause
       val Clause(xs, ant, suc) = goal
-      val goals = Horn.assume(List(expr), Nil, xs, ant, List(suc))
-      val goal_ = 
-        if(goals.isEmpty) True 
-        else And(goals)
+      val goal_ = Clause(xs, expr::ant, suc)
       
       List(
-        (ProofSel, expr), 
-        (ThenSel, goal_)
+        ProofSel -> expr,
+        ThenSel -> goal_
       )   
 
          
@@ -127,150 +121,57 @@ object ProofUtils{
       unfold(goal, target, places, state)
     
     case Auto => 
-      val solver = Solver.z3()
+      /*val solver = Solver.z3()
       //initialize solver
       val cmds_ = cmds.dropRight(1)
       for(cmd <- cmds_){
         solver.exec(cmd, state)
       }
-      val prover = Prover.fromSolver(solver, true)
+      val prover = Prover.fromSolver(solver)
+      */
+      val goal_ = Simplify.simplify(goal, rws, state.constrs)
       val subgoal: Expr = prover.reduce(goal, state)
       
-      if(subgoal == True) Nil else List((ProofSel, subgoal))
+      if(subgoal == True) Nil else List(ProofSel -> subgoal)
 
     case BreakPoint =>
       val input = StdIn.readLine(s"\nbreakpoint: ${goal} >")
-      List((ProofSel, goal))
+      List(ProofSel -> goal)
     
     case Sorry => Nil
 
-    case NoAuto => List((ProofSel, goal))
-
+    case Split => 
+      val goals = Horn.assume(List(goal), Nil, Nil, Nil, Nil)
+      goals.zipWithIndex map{case (expr, i) => (IndexSel(i), expr)}
   }
 
 
-  def apply(goal: Expr, proof: Proof, state: State, cmds: List[Cmd]): Attempt = proof match {
+  def apply(goal: Expr, proof: Proof, state: State, prover: Prover, rws: Map[Fun, List[Rule]]): Attempt = proof match {
     case Proof(tactic, subproofs) =>
-      val subgoals = apply(goal, tactic, state, cmds)
+      val subgoals = apply(goal, tactic, state, prover, rws)
       val (found, rest) = match_subproofs_to_subgoals(subproofs, subgoals)
       val prems_found = found map { 
         case (sel, expr, proof) => 
-          val next = apply(expr, proof, state, cmds)
+          val next = apply(expr, proof, state, prover, rws)
           (sel, Step(expr, 0, List(next)))
       }
       val prems_rest = rest map { //no proof parsed 
-        case (sel, expr) => (sel, Step(expr, -1, Nil))
+        case (sel, expr) =>
+          //val next = apply(expr, Proof(Auto, Nil), state, prover, rws)
+          //(sel, Step(expr, 0, List(next)))
+          (sel, Step(expr, -1, Nil))
       }
       Attempt(tactic, prems_found ++ prems_rest)
   }
 
-  @throws[TacticNotApplicableException](
-    "if the tactic is not applicable to the given goal and state"
-  )
-  def makesProgress(state: State, goal: Expr, tactic: Tactic, cmds: List[Cmd])(implicit
-      prover: Prover
-  ): Option[Int] = tactic match {
-    case Induction(variable) => {
-      val sort = variable.typ.asInstanceOf[Sort]
-      val dt = state.datatypes
-        .get(sort.con.name)
-        .getOrElse(
-          throw new TacticNotApplicableException(
-            f"Can't apply induction to variable $variable, as it has no associated data type"
-          )
-        )
-
-      val su = dt.params.zip(sort.args).toMap
-      val insts = dt.constrs map (c => Inst(c._1, su))
-
-      // Determine the non-recursive constructors and their indices in the list of generated cases
-      val baseCases = insts.zipWithIndex.filterNot { case (i, _) =>
-        i.args.contains(i.res)
-      }
-
-      // Check whether the goals of all resulting base cases can be proved automatically
-      val baseIndices = baseCases map (_._2)
-
-      // Apply the tactic
-      val goals = apply(goal, tactic, state, cmds)
-      val baseGoals = baseIndices map (goals(_))
-
-      val success = baseGoals forall { case (goal, _) =>
-        ???
-        // Proving.proveAndSimplify(goal, prover, state) == Atom.t
-      }
-
-      success match {
-        case true =>
-          // Determine the progress we've made
-          // As we know that the base cases can be proven automatically, the remaining complexity is given only by the remaining cases
-          val originalComplexity = Rating.complexity(goal)
-          val remainingComplexity = goals.zipWithIndex
-            .filterNot(baseIndices.contains)
-            .map(p => Rating.complexity(p._1._2))
-            .max
-
-          Some(originalComplexity - remainingComplexity)
-        case _ => None
-      }
-    }
-
-    case Unfold(target, places) => {
-      
-      val result = apply(goal, tactic, state, cmds)
-      // We know that the applying the tactic yields exactly one subgoal (see above)
-      val new_goal = result.head._2
-      val goal_p = prover.reduce(new_goal, null)
-
-      val diff = Rating.size(new_goal)(state) - Rating.size(goal_p)(state)
-
-      if (diff > 0)
-        Some(diff)
-      else
-        None
-    }
-
-    case _ => {
-      val orig = Rating.complexity(goal)
-      val cases = apply(goal, tactic, state, cmds)
-
-      val snew = cases.map(c => Rating.complexity(c._2)).max
-
-      if (snew < orig)
-        Some(orig - snew)
-      else
-        None
-    }
-  }
-
-
-
   def induction(variable: Var, goal: Expr, state: State): List[(Sel, Expr)] = {
-    goal match{
-      case Forall(xs, _) if !(xs.contains(variable)) => 
-        throw new TacticNotApplicableException(
-          f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier"
-        )
-      case _ if goal.isAtomic => 
-        throw new TacticNotApplicableException(
-          "Atom not supported in induction tactic, got:" + goal
-        )
-      case _ => ()
-    }
+    require(!goal.isAtomic)
+    val Sort(con, args) = variable.typ.asInstanceOf[Sort]
+    val dt = state.datatypes(con.name)
 
-    // First determine the variable's datatype
-    val sort = variable.typ.asInstanceOf[Sort]
-    val dt = state.datatypes
-      .get(sort.con.name)
-      .getOrElse(
-        throw new TacticNotApplicableException(
-          f"Can't apply induction to variable $variable, as it has no associated data type"
-        )
-      )
-
-    assert(dt.params.length == sort.args.length)
     InductiveProver.induction(goal, variable, dt)
   }
+
 
   def unfold(goal: Expr, target: (Name, Int), places: Option[List[BigInt]], state: State): List[(Sel, Expr)] = {
     var i = 0

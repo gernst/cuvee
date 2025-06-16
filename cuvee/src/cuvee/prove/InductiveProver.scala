@@ -141,10 +141,8 @@ object InductiveProver {
       }
 
       val su = Map(x -> expr)
-      (ConstrSel(constr.fun, args), Clause(args, prems ++ (ant subst su), suc subst su))
+      (ConstrSel(constr.fun, args), Clause(xs ++ args, prems ++ (ant subst su), suc subst su))
     }
-
-    //Forall(xs, And(phis))
     selphis
   }
 }

@@ -44,6 +44,7 @@ class Prove(
         val goal = expr
         for (goal_ <- reduce(goal, tactic, rws, state, cmds) if !(goal_ == True))
           yield {
+            println(goal_)
             val expr_ = goal_
             crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             Lemma(expr_, None, Some(Goal), label)
@@ -53,6 +54,7 @@ class Prove(
         val goal = expr
         for (goal_ <- reduce(goal, tactic, rws, state, cmds))
           yield {
+            println(goal_)
             val expr_ = goal_
             crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             val mode_ = if (expr_ == True) Some(Free) else None
@@ -147,27 +149,10 @@ class Prove(
 
   def reduce(goal: Expr, proof: Proof, rws: Map[Fun, List[Rule]], state: State, cmds: List[Cmd]): List[Expr] = {
     //print(cuvee.boogie.Printer.proof(proof))
-    val attempt = ProofUtils.apply(goal, proof, state, cmds)
+    val attempt = ProofUtils.apply(goal, proof, state, prover, rws)
     val tree = ProofUtils.insertAttempt(Nil, Step(goal), attempt)
     //println(tree.toString(0))
     tree.leaves
-    
-    /*proof.tactic match {
-      case NoAuto =>
-        noauto(goal, ???, rws, state)
-
-      case _: Induction | _: Show =>
-        val tactic = proof.tactic
-        noauto(goal, proof, rws, state)
-
-      case Auto =>
-        List(auto(goal, rws, state))
-
-      case Sorry =>
-        List(goal)
-
-      case _ =>
-        noauto(auto(goal, rws, state), proof, rws, state)*/
   }
 
   def noauto(goal: Expr, proof: Proof, rws: Map[Fun, List[Rule]], state: State, cmds: List[Cmd]): List[Expr] =
@@ -185,7 +170,7 @@ class Prove(
 
       case Proof(tactic, subproofs) =>
         for (
-          (sel, subgoal) <- ProofUtils.apply(goal, tactic, state, cmds);
+          (sel, subgoal) <- ProofUtils.apply(goal, tactic, state, prover, rws);
           //TODO find proof with matching sel in subproofs
           
           goal_ <- reduce(subgoal, Proof(???, ???), rws, state, cmds)
@@ -194,16 +179,3 @@ class Prove(
         }
     }
 }
-
-/* 
-val (found, rest) = match_subproofs_to_subgoals(subproofs, subgoals)
-val prems_found = found map { 
-  case (sel, expr, proof) => 
-    val next = apply(expr, proof, state, cmds)
-    (sel, Step(expr, 0, List(next)))
-}
-val prems_rest = rest map { //no proof parsed 
-  case (sel, expr) => (sel, Step(expr, -1, Nil))
-}
-Attempt(tactic, prems_found ++ prems_rest)
- */

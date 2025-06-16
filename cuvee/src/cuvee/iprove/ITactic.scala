@@ -11,44 +11,16 @@ sealed trait Tactic{
   def apply(goal: Expr, state: State, rws: Map[Fun, List[Rule]]): List[(Expr, String)]
 }
 
-class TacticNotApplicableException(s: String) extends Exception(s) {}
 
 
 case class Induction(variable: Var, hyp: Boolean = true) extends Tactic{
     def apply(goal: Expr, state: State, rws: Map[Fun, List[Rule]]): List[(Expr, String)] = {
-      goal match{
-        case Clause(xs, _, _) if !(xs.contains(variable)) => 
-          throw new TacticNotApplicableException(
-          f"Can't apply induction to variable $variable, as it is not bound by topmost quantifier"
-        )
-        case _ if goal.isAtomic => 
-          throw new TacticNotApplicableException(
-          "Atom not supported in induction tactic, got:" + goal
-        )
-        case _ => ()
-      }
   
       // First determine the variable's datatype
-      val sort = variable.typ.asInstanceOf[Sort]
-      val dt = state.datatypes
-        .get(sort.con.name)
-        .getOrElse(
-          throw new TacticNotApplicableException(
-            f"Can't apply induction to variable $variable, as it has no associated data type"
-          )
-        )
-  
-      assert(dt.params.length == sort.args.length)
-      val cases: List[(Expr, cuvee.prove.Tactic)]  = Nil
-      
-      val con_tactics = cases
-        .collect({ case (expr: App, tactic) =>
-          (expr.inst, (expr, tactic))
-        })
-        .toMap
+      val Sort(con, args) = variable.typ.asInstanceOf[Sort]
+      val dt = state.datatypes(con.name)
         
       val Clause(xs, ant, suc) = goal
-      val Sort(con, args) = sort
       val Datatype(params, constrs) = dt
       val su: Map[Param, Type] = Type.subst(params, args)
         
@@ -89,23 +61,11 @@ case class Induction(variable: Var, hyp: Boolean = true) extends Tactic{
 
 case class Show(expr: Expr) extends Tactic{
   def apply(goal: Expr, state: State, rws: Map[Fun, List[Rule]]) = {
-    goal match {
-      case Clause(xs, _, _) => ()
-      case _ => throw new TacticNotApplicableException(
-          f"Can't apply show to $goal"
-        )
-    } 
-
     val Clause(xs, ant, suc) = goal
-
-    val goals = Horn.assume(List(expr), Nil, xs, ant, List(suc))
-    val goal_ = 
-      if(goals.isEmpty) True 
-      else if(goals.length <= 1) goals.head 
-      else throw new TacticNotApplicableException(f"assume created more goals than expected: $goals")
-
-    List((expr, "0"),
-        (goal_, "1"))
+    val goal_ = Clause(xs, expr::ant, suc)
+   
+    List(expr -> "0",
+        goal_ -> "1")
   }   
 }
 

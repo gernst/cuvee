@@ -637,14 +637,8 @@ object TreePrinter extends cuvee.util.Printer {
       val header = if(hyp) "induction " + variable else "//cases " + variable
       var result: List[String] = Nil
       
-      val sort = variable.typ.asInstanceOf[Sort]
-      val dt = state.datatypes
-      .get(sort.con.name)
-      .getOrElse(
-        throw new TacticNotApplicableException(
-          f"Can't apply induction to variable $variable, as it has no associated data type"
-        )
-      )
+      val Sort(con, args) = variable.typ.asInstanceOf[Sort]
+      val dt = state.datatypes(con.name)
 
       val cases = dt.constrs
       //for(case_ <- cases) {print(getConstrCase(case_._1, case_._2))}
