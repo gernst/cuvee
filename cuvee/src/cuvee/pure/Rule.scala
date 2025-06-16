@@ -4,6 +4,7 @@ import cuvee.util.Syntax
 import cuvee.smtlib.Assert
 import cuvee.State
 import cuvee.util.Name
+import cuvee.imp.traces.Trace
 
 case class Rule(
     lhs: Expr,
@@ -63,6 +64,7 @@ case class Rule(
 
   def fun = lhs match {
     case App(inst, _) => inst.fun
+    case _: Trace     => Fun.trace
   }
 
   val toExpr =
@@ -189,6 +191,8 @@ object Rules {
     suc match {
       case Eq(lhs: App, rhs) =>
         from(xs, guard, lhs, rhs, ok)
+      case Eq(lhs: Trace, rhs) =>
+        List(Rule(lhs, rhs, guard))
       case Not(lhs: App) =>
         from(xs, guard, lhs, False, ok)
       case lhs: App =>

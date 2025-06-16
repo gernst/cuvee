@@ -44,14 +44,20 @@ object Rewrite {
       ok: Set[Fun],
       st: State,
       assert: Boolean,
-      define: Boolean
+      define: Boolean,
+      lemma: Boolean
   ): List[Rule] = {
     cmd match {
       case Assert(expr) if assert =>
         Rules.from(expr, ok)
+
       case DefineFun(name, params, xs, _, body, rec) if define =>
         val fun = st.funs(name, xs.length)
         Rules.from(fun, xs, body, ok + fun)
+
+      case Lemma(expr, tactic, mode, attrs) if lemma && (attrs contains "rw") =>
+        Rules.from(expr, ok ++ expr.funs) // work around checking for admitted functions
+
       case _ =>
         Nil
     }
@@ -61,14 +67,15 @@ object Rewrite {
       cmds: List[Cmd],
       st: State,
       assert: Boolean = true,
-      define: Boolean = true
+      define: Boolean = true,
+      lemma: Boolean = true
   ): List[Rule] = {
     val ok =
       for (DeclareFun(name, params, args, res) <- cmds)
         yield st.funs(name, args.length)
     for (
       cmd <- cmds;
-      rule <- from(cmd, ok.toSet, st, assert, define)
+      rule <- from(cmd, ok.toSet, st, assert, define, lemma)
     )
       yield rule
   }

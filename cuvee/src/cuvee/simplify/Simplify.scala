@@ -5,16 +5,19 @@ import cuvee.pure._
 import cuvee.smtlib._
 import cuvee.pipe.Stage
 import cuvee.util.Matching
+import cuvee.imp.traces.Trace
+import cuvee.imp.traces.Iteration
+import cuvee.imp.traces.Update
 
 object Simplify extends Stage {
   import Context.assuming
 
   def simplify(cmds: List[Cmd], state: State, polarity: Option[Boolean], expr: Expr): Expr = {
     val rules = Rewrite.from(cmds, state)
-    // println("using rewrite rule:")
-    // for (eq <- rules)
-    //   println("  " + eq)
-    // println()
+    println("using rewrite rules:")
+    for (eq <- rules)
+      println("  " + eq)
+    println()
 
     simplify(polarity, rules.groupBy(_.fun), state.constrs, expr)
   }
@@ -257,11 +260,35 @@ object Simplify extends Stage {
         val args_ = simplify(ctx.unpolar, args)
         App(inst, args_)
 
+      case expr: Trace =>
+        val Trace(init, iteration, acc, updates) = expr refresh ctx.vars
+        // XXX: how does that not crash with unbound variables?
+        val init_ = simplify(ctx.unpolar, init)
+        val iteration_ = simplify(ctx.unpolar, iteration)
+        val updates_ = simplify_updates(ctx.unpolar, updates)
+        Trace(init_, iteration_, acc, updates_)
+
       case expr =>
         expr
     }
   }
 
+  def simplify(ctx: Context, iteration: Iteration): Iteration = {
+    Iteration(iteration.order, simplify_leteqs(ctx, iteration.formals))
+  }
+
+  def simplify_updates(ctx: Context, updates: List[Update]): List[Update] = {
+    val updates_ =
+      for (Update(path, rhs) <- updates) yield {
+        // argh below very inelegant
+        val path_ = simplify(ctx, path)
+        val rhs_ = simplify(assuming(ctx, pos = List(path_)), rhs)
+        Update(path_, rhs_)
+      }
+
+    updates_.filterNot(_.path == False)
+  }
+  
   def not(phi: Expr): Expr = {
     phi match {
       case False    => True
@@ -437,6 +464,10 @@ object Simplify extends Stage {
         val use = ctx.rules(inst.fun)
         rewrite(ctx, use, expr_)
 
+      case Trace(init, iteration, acc, updates) if ctx.rules contains Fun.trace =>
+        val use = ctx.rules(Fun.trace)
+        rewrite(ctx, use, expr_)
+
       case _ =>
         expr_
     }
@@ -492,7 +523,7 @@ object Simplify extends Stage {
       //   throw Rewrite.PremiseNotValid
       // }
 
-      val (ty, su) = Expr.bind(pat, expr)
+      val (ty, su) = bind(ctx, pat, expr)
 
       val _cond = simplify(ctx, cond inst (ty, su))
 
@@ -529,6 +560,7 @@ object Simplify extends Stage {
   }
 
   def bind(
+      ctx: Context,
       pat: Expr,
       arg: Expr,
       ty: Map[Param, Type] = Map(),
@@ -539,21 +571,40 @@ object Simplify extends Stage {
         if (su(x) != arg)
           throw Expr.CannotBind(pat, arg, ty, su)
         (ty, su)
+
       case (x: Var, _) =>
         val ty_ = Type.bind(x.typ, arg.typ, ty)
         (ty_, su + (x -> arg))
+
       case (a: Lit, b: Lit) if a == b =>
         (ty, su)
+
+      // follow non-substituted equation
+      case (_, y: Var) if ctx.eq contains y =>
+        bind(ctx, pat, ctx eq y, ty, su)
+
       case (App(inst1, pats), App(inst2, args)) if inst1.fun == inst2.fun =>
         val ty_ = Type.binds(inst1.args, inst1.res, inst2.args, inst2.res, ty)
-        val (ty__, su_) = bind(pats, args, ty_, su)
+        val (ty__, su_) = bind(ctx, pats, args, ty_, su)
         (ty__, su_)
+
+      case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
+        println("binding traces")
+        println("pat: " + pat)
+        println("arg: " + arg)
+
+        val Trace(init1, iteration1, acc1, updates1) = trace.gen
+        var (ty1, su1) = bind(ctx, init1, init2, ty, su)
+
+        ???
+
       case _ =>
         throw Expr.CannotBind(pat, arg, ty, su)
     }
   }
 
   def bind(
+      ctx: Context,
       pats: List[Expr],
       args: List[Expr],
       ty: Map[Param, Type],
@@ -562,9 +613,10 @@ object Simplify extends Stage {
     (pats, args) match {
       case (Nil, Nil) =>
         (ty, su)
+
       case (pat :: pats, arg :: args) =>
-        val (ty_, su_) = bind(pat, arg, ty, su)
-        bind(pats, args, ty_, su_)
+        val (ty_, su_) = bind(ctx, pat, arg, ty, su)
+        bind(ctx, pats, args, ty_, su_)
     }
   }
 }

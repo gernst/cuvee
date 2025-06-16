@@ -7,6 +7,8 @@ import cuvee.sexpr
 import cuvee.util
 import cuvee.util.Alpha
 import cuvee.util.Name
+import cuvee.imp.traces.Trace
+import cuvee.imp.traces.Mapping
 
 trait Extra extends Expr
 
@@ -89,6 +91,10 @@ sealed trait Expr extends Expr.term with util.Syntax {
       case Bind(quant, formals, body, typ) =>
         // println("recursive map at bind, beware! " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
+      case Mapping(iteration, result) =>
+        g(Mapping(iteration.map(f, g), result.map(f, g)))
+      case Trace(init, iteration, acc, updates) =>
+        g(Trace(init.map(f, g), iteration.map(f, g), acc, updates map (_.map(f, g))))
       case extra: Extra =>
         extra.map(f, g)
     }

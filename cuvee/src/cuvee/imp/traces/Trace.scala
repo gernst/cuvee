@@ -25,10 +25,6 @@ case class Update(path: Expr, rhs: Expr) {
       "if " + path + " then " + rhs
 }
 
-// case class Zip(traces: List[Expr]) extends Extra {
-
-// }
-
 case class Trace(
     init: Expr,
     iteration: Iteration,
@@ -47,11 +43,6 @@ case class Trace(
     val re = Expr.fresh(bound)
     rename(re, re, re)
   }
-
-  // have to give up these in favor of inference
-  // require(acc.typ == init.typ, "accumulator type " + acc.typ + " mismatches initializer " + init.typ)
-  // for (up <- updates)
-  //   require(acc.typ == up.rhs.typ, "accumulator type " + acc.typ + " mismatches update " + up + ": " + up.rhs.typ)
 
   def rename(a: Map[Var, Var], re: Map[Var, Var], are: Map[Var, Var]) =
     Trace(
@@ -87,34 +78,3 @@ case class Trace(
     f + "(" + init + ", for " + iteration + " do " + u + ")"
   }
 }
-
-/*
-case class Mapping(
-    counter: Expr,
-    iteration: Iteration,
-    update: Expr
-) extends Extra
-    with Expr.bind2[Mapping] {
-  def typ = Sort.stream(update.typ)
-  def bound = iteration.bound
-  def funs = counter.funs ++ iteration.funs ++ update.funs
-  def free = counter.free ++ iteration.free ++ (update.free -- bound)
-
-  def map(f: Expr => Expr, g: Expr => Expr) =
-    Mapping(counter map (f, g), iteration map (f, g), update map (f, g))
-
-  def rename(a: Map[Var, Var], re: Map[Var, Var], are: Map[Var, Var]) =
-    Mapping(counter rename re, iteration rename (a, are), update rename are)
-
-  def subst(a: Map[Var, Var], su: Map[Var, Expr], asu: Map[Var, Expr]) =
-    Mapping(counter subst su, iteration subst (a, asu), update subst asu)
-
-  def inst(su: Map[Param, Type]) =
-    Mapping(counter inst su, iteration inst su, update inst su)
-
-  override def toString = {
-    import cuvee.StringOps
-    "map(" + counter + ", " + iteration + " | " + update + ")"
-  }
-}
- */
