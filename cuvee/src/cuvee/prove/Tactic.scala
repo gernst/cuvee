@@ -8,7 +8,6 @@ import cuvee.State
 import cuvee.util.Name
 import cuvee.smtlib._
 import cuvee.pipe.Stage
-import cuvee.iprove
 import scala.collection.DoubleStepper
 import scala.io.StdIn
 
