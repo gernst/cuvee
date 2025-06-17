@@ -116,22 +116,12 @@ object ProofUtils{
         ThenSel -> goal_
       )   
 
-         
     case Unfold(target , places) => 
       unfold(goal, target, places, state)
     
     case Auto => 
-      /*val solver = Solver.z3()
-      //initialize solver
-      val cmds_ = cmds.dropRight(1)
-      for(cmd <- cmds_){
-        solver.exec(cmd, state)
-      }
-      val prover = Prover.fromSolver(solver)
-      */
-      val goal_ = Simplify.simplify(goal, rws, state.constrs)
+      //val goal_ = Simplify.simplify(goal, rws, state.constrs)
       val subgoal: Expr = prover.reduce(goal, state)
-      
       if(subgoal == True) Nil else List(ProofSel -> subgoal)
 
     case BreakPoint =>
@@ -156,12 +146,20 @@ object ProofUtils{
           (sel, Step(expr, 0, List(next)))
       }
       val prems_rest = rest map { //no proof parsed 
-        case (sel, expr) =>
-          //val next = apply(expr, Proof(Auto, Nil), state, prover, rws)
-          //(sel, Step(expr, 0, List(next)))
-          (sel, Step(expr, -1, Nil))
+        case (sel, expr) if tactic != Auto =>
+          val next = auto(expr, state, prover, rws)
+          (sel, Step(expr, 0, List(next)))
+        
+        case (sel, expr) => 
+          (sel, Step(expr))
       }
       Attempt(tactic, prems_found ++ prems_rest)
+  }
+
+  def auto(goal: Expr, state: State, prover: Prover, rws: Map[Fun, List[Rule]]) = {
+    //val goal_ = Simplify.simplify(goal, rws, state.constrs)
+    val goal__ = prover.reduce(goal, state)
+    if(goal__ == True) Attempt(Auto, Nil) else Attempt(Auto, List(ProofSel -> Step(goal__)))
   }
 
   def induction(variable: Var, goal: Expr, state: State): List[(Sel, Expr)] = {
@@ -193,7 +191,6 @@ object ProofUtils{
     }
     List((ThenSel, goal_))
   }
-
 
 
   def insertAttempt(path: List[Sel], tree: Step, attempt: Attempt): Step = (path, tree.attempts) match {

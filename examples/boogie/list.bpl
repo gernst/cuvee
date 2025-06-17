@@ -133,30 +133,22 @@ proof
 
 lemma forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
   append(append(xs, ys), zs) == append(xs, append(ys, zs))
-proof induction xs{
-    case nil => auto
-    case cons(x, xs) => auto
-  };
+proof induction xs;
 
 lemma forall xs: list<elem>, ys: list<elem> ::
   length(append(xs, ys)) == length(xs) + length(ys)
 proof
-  induction xs{
-    case nil => auto
-    case cons(x, xs) => auto
-  };
+  induction xs;
 
 lemma forall xs: list<elem> ::
   reverse(reverse(xs)) == xs
 proof
   induction xs {
-    case nil => auto
     case cons(y, ys) =>
       show (forall z: elem, zs: list<elem> :: reverse(reverse(cons(z, zs))) == cons(z, reverse(reverse(zs))))
       proof show (forall z: elem, zs: list<elem> :: reverse(snoc(zs, z)) == cons(z, reverse(zs)))
-           proof induction zs{
-            case nil => auto
-            case cons(t, ts) => auto
+           proof induction zs
+           then split{
+            case 0 => auto
            }
-           then split
   };

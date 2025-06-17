@@ -44,21 +44,17 @@ class Prove(
         val goal = expr
         for (goal_ <- reduce(goal, tactic, rws, state, cmds) if !(goal_ == True))
           yield {
-            println(goal_)
-            val expr_ = goal_
-            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
-            Lemma(expr_, None, Some(Goal), label)
+            //crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
+            Lemma(goal_, None, Some(Goal), label)
           }
 
       case cmd @ Lemma(expr, tactic, None, label) =>
         val goal = expr
         for (goal_ <- reduce(goal, tactic, rws, state, cmds))
           yield {
-            println(goal_)
-            val expr_ = goal_
-            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
-            val mode_ = if (expr_ == True) Some(Free) else None
-            Lemma(expr, None, mode_, label)
+            //crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
+            val mode_ = if (goal_ == True) Some(Free) else None
+            Lemma(goal_, None, mode_, label)
           }
 
       case cmd @ Assert(Not(App(Inst(fun, _), _)))
@@ -151,7 +147,7 @@ class Prove(
     //print(cuvee.boogie.Printer.proof(proof))
     val attempt = ProofUtils.apply(goal, proof, state, prover, rws)
     val tree = ProofUtils.insertAttempt(Nil, Step(goal), attempt)
-    //println(tree.toString(0))
+    println(tree.toString(0))
     tree.leaves
   }
 

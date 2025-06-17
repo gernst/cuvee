@@ -134,14 +134,14 @@ object InductiveProver {
         val re = Map(x -> y)
 
         Clause(
-          xs filter (_ != x),
+          //xs filter (_ != x), //TODO ib this would be doubled
+          Nil,
           ant rename re,
           suc rename re
         )
       }
-
       val su = Map(x -> expr)
-      (ConstrSel(constr.fun, args), Clause(xs ++ args, prems ++ (ant subst su), suc subst su))
+      (ConstrSel(constr.fun, args), Clause(xs.filter(_ != x) ++ args, prems ++ (ant subst su), suc subst su))
     }
     selphis
   }
