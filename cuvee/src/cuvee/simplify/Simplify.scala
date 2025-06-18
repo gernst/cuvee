@@ -8,6 +8,8 @@ import cuvee.util.Matching
 import cuvee.imp.traces.Trace
 import cuvee.imp.traces.Iteration
 import cuvee.imp.traces.Update
+import cuvee.imp.traces.Sequential
+import cuvee.imp.traces.Mapping
 
 object Simplify extends Stage {
   import Context.assuming
@@ -601,8 +603,8 @@ object Simplify extends Stage {
         println("pat: " + pat)
         println("arg: " + arg)
 
-        val from =
-          iteration1.formals.asMap
+        val it1 = iteration1.formals.asMap
+        val it2 = iteration2.formals.asMap
 
         // we can just bind the accumulator and ignore to remove it,
         // because the left-hand side of the rule is completely fresh
@@ -626,13 +628,39 @@ object Simplify extends Stage {
         // - a pattern variable that has an unconstrained trace (given as variable) is bound to a combound expression of concrete traces
         //   -> instantiate the pattern trace with a map(...) expression
 
-        for ((ty3, su3) <- updates) {
-          for ((x, e) <- su3 if from contains x) {
-            println("consider dependencies of " + x + " -> " + e)
-          }
-        }
+        val matches =
+          for ((ty3, su3) <- updates) yield {
 
-        val List((ty_, su_)) = updates
+            try {
+              val iteration = su3 filter { case (x, e) => it1 contains x }
+
+              val result =
+                iteration.foldLeft((ty3, su3)) {
+                  case ((ty4, su4), (x, y: Var)) if it2 contains y =>
+                    bind(ctx, it1(x), it2(y), ty4, su4)
+
+                  case ((ty4, su4), (x, e)) =>
+                    val ys =
+                      for (y <- e.free.toList if it2 contains y)
+                        yield LetEq(y, it2(y))
+
+                    if (ys.isEmpty) {
+                      (ty4, su4) // no trace-dependencies, can compute globally
+                    } else {
+                      val iteration = Iteration(Sequential, ys)
+                      val zs = Mapping(iteration, e)
+                      bind(ctx, it1(x), zs, ty4, su4)
+                    }
+                }
+
+              List(result)
+            } catch {
+              case _: Type.CannotBind => Nil
+              case _: Expr.CannotBind => Nil
+            }
+          }
+
+        val List((ty_, su_)) = matches.flatten
         (ty_, su_)
 
       case _ =>
