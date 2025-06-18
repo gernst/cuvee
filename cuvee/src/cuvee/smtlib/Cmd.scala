@@ -10,6 +10,7 @@ import cuvee.util.Name
 import cuvee.util
 import cuvee.imp.Spec
 import cuvee.sexpr
+import cuvee.prove.Proof
 
 sealed trait Res extends util.Syntax {}
 
@@ -84,8 +85,8 @@ case object Reset extends Ctrl
 case class Assert(expr: Expr) extends Cmd
 
 sealed trait Mode {
-  def apply(expr: Expr, tactic: Option[Tactic] = None, attrs: sexpr.Attrs = sexpr.Attrs(Nil)) =
-    Lemma(expr, tactic, Some(this), attrs)
+  def apply(expr: Expr, proof: Option[Proof] = None, attrs: sexpr.Attrs = sexpr.Attrs(Nil)) =
+    Lemma(expr, proof, Some(this), attrs)
 }
 
 case object Free extends Mode
@@ -94,7 +95,7 @@ case object Goal extends Mode
 // This is part neither of SMT-LIB nor of Boogie (but we support it there).
 case class Lemma(
     expr: Expr,
-    tactic: Option[Tactic],
+    tactic: Option[Proof],
     mode: Option[Mode],
     attrs: sexpr.Attrs
 ) extends Cmd {
@@ -109,9 +110,9 @@ case class Lemma(
   }
 }
 
-object Lemma extends ((Expr, Option[Tactic], Option[Mode]) => Lemma) {
-  def apply(expr: Expr, tactic: Option[Tactic] = None, mode: Option[Mode] = None): Lemma = {
-    Lemma(expr, tactic, mode, sexpr.Attrs(Nil))
+object Lemma extends ((Expr, Option[Proof], Option[Mode]) => Lemma) {
+  def apply(expr: Expr, proof: Option[Proof] = None, mode: Option[Mode] = None): Lemma = {
+    Lemma(expr, proof, mode, sexpr.Attrs(Nil))
   }
 }
 

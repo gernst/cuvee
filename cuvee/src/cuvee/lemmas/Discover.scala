@@ -644,7 +644,9 @@ class Discover(
         def holds(phi: Expr, x: Var) = x.typ match {
           case Sort(Con(name, _), _) if st.datatypes contains name =>
             val dt = st datatypes name
-            val ind = InductiveProver.induction(phi, x, dt)
+            val phis = InductiveProver.induction(phi, x, dt)
+            val Clause(xs, _, _) = phi
+            val ind = Forall(xs, And(phis.unzip._2))
             var a = solver.isTrue(phi)
             val b = solver.isTrue(ind)
             if (!a && b) {

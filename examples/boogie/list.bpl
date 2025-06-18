@@ -126,12 +126,14 @@ axiom forall p: [elem]bool, y: elem, ys: list<elem> ::
 lemma forall xs: list<elem> ::
   length(xs) >= 0
 proof
-  induction xs;
+  induction xs{
+    case nil => auto
+    case cons(x, xs) => auto
+  };
 
 lemma forall xs: list<elem>, ys: list<elem>, zs: list<elem> ::
   append(append(xs, ys), zs) == append(xs, append(ys, zs))
-proof
-  induction xs;
+proof induction xs;
 
 lemma forall xs: list<elem>, ys: list<elem> ::
   length(append(xs, ys)) == length(xs) + length(ys)
