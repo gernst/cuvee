@@ -660,8 +660,22 @@ object Simplify extends Stage {
             }
           }
 
-        val List((ty_, su_)) = matches.flatten
-        (ty_, su_)
+        matches.flatten match {
+          case Nil =>
+            throw Expr.CannotBind(pat, arg, ty, su)
+
+          case List((ty_, su_)) =>
+            (ty_, su_)
+
+          case results =>
+            // bad setup of rewrite theory?
+            // could potentially happen, for example with
+            // current(_, range(0, 1, n))
+            // current(_, range(0, c, n))
+            
+            // but maybe fix the later one with avoiding c -> 1
+            cuvee.error("multiple matches: " + results)
+        }
 
       case _ =>
         throw Expr.CannotBind(pat, arg, ty, su)
