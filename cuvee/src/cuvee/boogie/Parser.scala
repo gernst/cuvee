@@ -25,6 +25,7 @@ import cuvee.smtlib.DeclareAbstractions
 import cuvee.smtlib.DeclareContracts
 import cuvee.prove.Tactic
 import cuvee.sexpr.Attrs
+import cuvee.prove.Proof
 
 class Parser(val state: State) {
   object toplevel {
@@ -337,7 +338,7 @@ class Parser(val state: State) {
   val make_lemma: (
       Option[smtlib.Mode],
       List[(sexpr.Kw, Option[sexpr.Expr])],
-      (Expr, Option[Tactic])
+      (Expr, Option[Proof])
   ) => Lemma = { case (mode, attrs, (expr, tactic)) =>
     Lemma(expr, tactic, mode, Attrs(attrs))
   }

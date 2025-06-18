@@ -74,7 +74,7 @@ object Printer extends cuvee.util.Printer {
           List("axiom " + line(expr) + ";")
       }
     // Work in progress - print lemmas in cuvee format
-    case Lemma(expr, tactic, mode, attrs) =>
+    case Lemma(expr, proof, mode, attrs) =>
       var result: List[String] = Nil
 
       // TODO
@@ -104,10 +104,10 @@ object Printer extends cuvee.util.Printer {
           result = format(s"lemma$named_", expr)
       }
 
-      if (tactic.nonEmpty) {
+      if (proof.nonEmpty) {
         val old = result.last.patch(result.last.length - 1, "", 1)
         result = result.updated(result.length - 1, old)
-        result ++= "proof " +: tactic_(tactic.orNull)
+        result ++= "proof " +: proof_(proof.orNull)
 
         val last = result.last.patch(result.last.length, ";", 1)
         result = result.updated(result.length - 1, last)
@@ -605,49 +605,60 @@ object Printer extends cuvee.util.Printer {
     }
   }
 
-  private def tactic_(t: Tactic): List[String] = t match {
-    case Induction(variable, cases) =>
+  def proof(p: Proof): String = {
+    var result: String = ""
+    for(line <- proof_(p)) 
+      result += line ++ "\n"
+    result 
+  }
+
+
+  private def proof_(p: Proof): List[String] = p match {
+    case Proof(Induction(variable), subproofs) => 
       val header = "induction " + variable.name.toString
 
       var result: List[String] = Nil
-      if (cases.isEmpty) {
+      if (subproofs.isEmpty) {
         result = List(header)
       } else {
-        val body =
-          for ((expr, tactic) <- cases)
-            yield ("case " + expr.toString + " => ") +: tactic_(tactic)
-
+        val body = for ((sel, subproof) <- subproofs) 
+          yield sel.toString() +: proof_(subproof)
         result = (header + " {") +: indent(body.flatten) :+ "}"
       }
 
       indent(result)
-    case Show(prop, tactic, cont) =>
+
+    case Proof(Show(expr), subproofs) => 
       var result: List[String] = Nil
-      val head = "show (" + line(prop) + ")"
+      val head = "show (" + line(expr) + ")"
 
-      if (tactic.nonEmpty)
-        result ++= "proof " +: tactic_(tactic.orNull)
-      if (cont.nonEmpty)
-        result ++= "then " +: tactic_(cont.orNull)
+      val cont = subproofs map {
+        case (sel, proof) => sel.toString +: proof_(proof)
+      }
 
-      indent(head +: result)
-    case Unfold(target, places, cont) =>
+      indent(head +: indent(cont.flatten))
+
+    case Proof(Unfold(target, places), subproofs) => 
       val (name, num) = target
 
       var head: String = "unfold " + name
       var result: List[String] = Nil
 
       if (places.nonEmpty)
-        head += " at " + places.orNull.mkString(", ") + " then"
+        head += " at " + places.orNull.mkString(", ")
 
-      if (cont.nonEmpty)
-        result ++= tactic_(cont.orNull)
+      assert(subproofs.length <= 1)
+      if (subproofs.nonEmpty){
+        val (sel, subproof) = subproofs.head
+        result ++= sel.toString +: proof_(subproof)
+      }
 
       result = head +: result
       indent(result)
-    case Auto           => indent(List("auto"))
-    case NoAuto(tactic) => indent("noauto " :: tactic_(tactic))
-    case Sorry          => indent(List("sorry"))
+
+    case Proof(Sorry, _)      => indent(List("sorry"))
+    case Proof(Auto, _)       => indent(List("auto"))
+    case Proof(BreakPoint, _) => indent(List("break"))
   }
 
   private def indent(lines: List[String], times: Int = 1) =

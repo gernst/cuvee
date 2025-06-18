@@ -41,38 +41,26 @@ class Prove(
         List(cmd)
 
       case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
-        val goal = expr
-        for (goal_ <- reduce(goal, tactic, rws, state) if !(goal_ == True))
+        for (expr_ <- reduce(expr, tactic, rws, state, cmds) if !(expr_ == True))
           yield {
-            val expr_ = goal_
-            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             Lemma(expr_, None, Some(Goal), label)
           }
 
       case cmd @ Lemma(expr, tactic, None, label) =>
-        val goal = expr
-        for (goal_ <- reduce(goal, tactic, rws, state))
+        for (expr_ <- reduce(expr, tactic, rws, state, cmds))
           yield {
-            val expr_ = goal_
-            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             val mode_ = if (expr_ == True) Some(Free) else None
-            Lemma(expr, None, mode_, label)
+            Lemma(expr_, None, mode_, label)
           }
 
       case cmd @ Assert(Not(App(Inst(fun, _), _)))
           if proveNegatedAsserts && (rws contains fun) && rws(fun).nonEmpty =>
-        // println(rws(fun))
         prover.exec(cmd, state)
         List(cmd)
 
       case cmd @ Assert(Not(expr)) if proveNegatedAsserts =>
-        val goal = expr
-        // println("proving " + goal)
-        // println(rws)
-        for (goal_ <- reduce(goal, None, rws, state))
+        for (expr_ <- reduce(expr, None, rws, state, cmds))
           yield {
-            val expr_ = goal_
-            crosscheck(expr, goal, goal_, expr_, prefix ++ cmds, state)
             Assert(Simplify.not(expr_))
           }
 
@@ -85,98 +73,44 @@ class Prove(
     }
   }
 
-  def crosscheck(
-      expr: Expr,
-      goal: Expr,
-      goal_ : Expr,
-      expr_ : Expr,
-      ctx: List[Cmd],
-      state: State
-  ) = {
-    if (crosscheckProver) {
-      val solver = Solver.cvc5(timeout = 10000)
-      try {
-        ctx foreach {
-          case _: Lemma =>
-          case cmd =>
-            solver.exec(cmd, state)
-        }
-      } catch {
-        case cuvee.smtlib.Error(info) =>
-          println(info)
-        // ???
-      }
-
-      if (!solver.isTrue(expr === goal)) {
-        println(expr)
-        println(goal)
-        assert(false, "conversion to prop did not produce original formula!")
-      }
-
-      if (!solver.isTrue(expr_ === goal_)) {
-        // println(expr)
-        assert(false, "conversion to prop did not produce reduced formula!")
-      }
-
-      if (!solver.isTrue(expr === expr_)) {
-        println(expr + " != " + expr_)
-        assert(false, "reduce did not produce formulas recognized equivalent!")
-      }
-    }
-
-  }
-
-  def auto(goal: Expr, rws: Map[Fun, List[Rule]], state: State) = if (simplify) {
-    val goal_ = Simplify.simplify(goal, rws, state.constrs)
-    prover.reduce(goal_, state)
-  } else {
-    val goal_ = prover.reduce(goal, state)
-    goal_
-  }
-
   def reduce(
       goal: Expr,
-      tactic: Option[Tactic],
+      proof: Option[Proof],
       rws: Map[Fun, List[Rule]],
-      state: State
-  ): List[Expr] = tactic match {
-    case None =>
-      List(auto(goal, rws, state))
-
-    case Some(tactic) =>
-      reduce(goal, tactic, rws, state)
+      state: State,
+      cmds: List[Cmd]
+  ): List[Expr] = proof match{
+    case None => reduce(goal, Proof(Auto, Nil), rws, state, cmds)
+    case Some(proof_) => reduce(goal, proof_, rws, state, cmds )
   }
 
-  def reduce(goal: Expr, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Expr] =
-    tactic match {
-      case NoAuto(tactic) =>
-        noauto(goal, tactic, rws, state)
+  def reduce(goal: Expr, proof: Proof, rws: Map[Fun, List[Rule]], state: State, cmds: List[Cmd]): List[Expr] = {
+    //print(cuvee.boogie.Printer.proof(proof))
+    val attempt = ProofUtils.apply(goal, proof, state, prover, rws)
+    val tree = TreeUtils.insertAttempt(Nil, Step(goal), attempt)
+    println(tree.toString(0))
+    tree.leaves
+  }
 
-      case _: Induction | _: Show =>
-        noauto(goal, tactic, rws, state)
 
-      case Auto =>
-        List(auto(goal, rws, state))
+  def noauto(goal: Expr, proof: Proof, rws: Map[Fun, List[Rule]], state: State, cmds: List[Cmd]): List[Expr] =
+    proof match {
+      case Proof(NoAuto, Nil) => 
+        reduce(goal, Proof(BreakPoint, Nil), rws, state, cmds)
 
-      case Sorry =>
-        List(goal)
+      case Proof(NoAuto, cont) =>
+        for ((sel, subproof) <- cont;
+          goal_ <- reduce(goal, subproof, rws, state, cmds))// yeah, you can write noauto twice
+        yield{goal_}
 
-      case _ =>
-        noauto(auto(goal, rws, state), tactic, rws, state)
-    }
-
-  def noauto(goal: Expr, tactic: Tactic, rws: Map[Fun, List[Rule]], state: State): List[Expr] =
-    tactic match {
-      case NoAuto(tactic) =>
-        noauto(goal, tactic, rws, state) // yeah, you can write noauto twice
-
-      case Auto =>
+      case Proof(Auto, _) =>
         ??? // should never happen
 
-      case _ =>
+      case Proof(tactic, subproofs) =>
         for (
-          (subgoal, subtactic) <- tactic.apply(state, goal);
-          goal_ <- reduce(subgoal, subtactic, rws, state)
+          (sel, subgoal) <- ProofUtils.apply(goal, tactic, state, prover, rws);
+          
+          goal_ <- reduce(subgoal, Proof(???, ???), rws, state, cmds)
         ) yield {
           goal_
         }
