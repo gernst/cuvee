@@ -148,7 +148,4 @@ proof
       show (forall z: elem, zs: list<elem> :: reverse(reverse(cons(z, zs))) == cons(z, reverse(reverse(zs))))
       proof show (forall z: elem, zs: list<elem> :: reverse(snoc(zs, z)) == cons(z, reverse(zs)))
            proof induction zs
-           then split{
-            case 0 => auto
-           }
   };

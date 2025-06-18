@@ -147,7 +147,7 @@ object PositiveProver {
     for ((phi, _) <- phis) {
       val psi = phi //TODO replace from with simplification?
 
-      val ok = true // solver.isTrue(phi === psi)
+      val ok = solver.isTrue(phi === psi)
 
       if (!ok) {
         println(phi)
