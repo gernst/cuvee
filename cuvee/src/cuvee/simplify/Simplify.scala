@@ -288,7 +288,7 @@ object Simplify extends Stage {
 
     updates_.filterNot(_.path == False)
   }
-  
+
   def not(phi: Expr): Expr = {
     phi match {
       case False    => True
@@ -541,7 +541,7 @@ object Simplify extends Stage {
       val rhs_ = rhs inst (ty, su)
 
       println("rewrite " + expr)
-      println("    ~ > " + rhs_)
+      println("    ~~> " + rhs_)
 
       rewrite(ctx.again, rhs_)
 
@@ -559,6 +559,9 @@ object Simplify extends Stage {
     }
   }
 
+  def maybe[A](f: => A) = try { List(f) }
+  catch { case e: Exception => List() }
+
   def bind(
       ctx: Context,
       pat: Expr,
@@ -568,8 +571,11 @@ object Simplify extends Stage {
   ): (Map[Param, Type], Map[Var, Expr]) = {
     (pat, arg) match {
       case (x: Var, _) if su contains x =>
-        if (su(x) != arg)
+        if (su(x) != arg) {
+          println("cannot bind " + pat + " to " + arg + " with " + ty + " and " + su)
           throw Expr.CannotBind(pat, arg, ty, su)
+        }
+
         (ty, su)
 
       case (x: Var, _) =>
@@ -589,14 +595,45 @@ object Simplify extends Stage {
         (ty__, su_)
 
       case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
+        val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen
+
         println("binding traces")
         println("pat: " + pat)
         println("arg: " + arg)
 
-        val Trace(init1, iteration1, acc1, updates1) = trace.gen
-        var (ty1, su1) = bind(ctx, init1, init2, ty, su)
+        val from =
+          iteration1.formals.asMap
 
-        ???
+        // we can just bind the accumulator and ignore to remove it,
+        // because the left-hand side of the rule is completely fresh
+        var (ty1, su1) =
+          bind(ctx, List(init1, acc1), List(init2, acc2), ty, su)
+
+        // cover every actual update
+        val updates =
+          cover(updates1, updates2, (ty1, su1)) {
+            case (up1 @ Update(path1, rhs1), up2 @ Update(path2, rhs2), (ty2, su2)) =>
+              bind(ctx, List(path1, rhs1), List(path2, rhs2), ty2, su2)
+          }
+
+        println("got updates: " + updates)
+
+        // check the dependencies of every update, according to some cases
+        // - a global pattern variable can be bound to a concrete term that is independent of concrete trace variables,
+        //   -> fail if this condition is not satisfied
+        // - a pattern variable that comes from a trace is instantiated by a concrete variable from a concrete trace
+        //   -> match and bind the respective trace terms recursively
+        // - a pattern variable that has an unconstrained trace (given as variable) is bound to a combound expression of concrete traces
+        //   -> instantiate the pattern trace with a map(...) expression
+
+        for ((ty3, su3) <- updates) {
+          for ((x, e) <- su3 if from contains x) {
+            println("consider dependencies of " + x + " -> " + e)
+          }
+        }
+
+        val List((ty_, su_)) = updates
+        (ty_, su_)
 
       case _ =>
         throw Expr.CannotBind(pat, arg, ty, su)
@@ -618,5 +655,39 @@ object Simplify extends Stage {
         val (ty_, su_) = bind(ctx, pat, arg, ty, su)
         bind(ctx, pats, args, ty_, su_)
     }
+  }
+
+  // for all bs find some matching as
+  def cover[A, B, S](as: List[A], bs: List[B], s: S)(
+      f: (A, B, S) => S
+  ): List[S] = bs match {
+    case Nil =>
+      List(s)
+
+    case b :: bs =>
+      for (
+        s_ <- cover(as, b, s)(f);
+        s__ <- cover(as, bs, s_)(f)
+      )
+        yield (s__)
+  }
+
+  def cover[A, B, S](as: List[A], b: B, s: S)(
+      f: (A, B, S) => S
+  ): List[S] = as match {
+    case Nil =>
+      Nil
+
+    case a :: as =>
+      val here =
+        try {
+          List(f(a, b, s))
+        } catch {
+          case _: Type.CannotBind => Nil
+          case _: Expr.CannotBind => Nil
+        }
+
+      val there = cover(as, b, s)(f)
+      here ++ there
   }
 }

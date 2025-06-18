@@ -727,6 +727,7 @@ class LetEqList(eqs: List[LetEq]) {
   def rename(a: Map[Var, Var], re: Map[Var, Var]) = eqs map (_ rename (a, re))
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) = eqs map (_ subst (a, su))
   def inst(su: Map[Param, Type]) = eqs map (_ inst su)
+  def asMap = Map(eqs map (_.toArrow): _*)
 }
 
 case class LetEq(x: Var, e: Expr) extends util.Syntax {
@@ -743,6 +744,7 @@ case class LetEq(x: Var, e: Expr) extends util.Syntax {
     LetEq(x, e map (f, g))
 
   def toEq = Eq(x, e)
+  def toArrow = (x -> e)
 }
 
 case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {

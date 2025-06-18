@@ -132,4 +132,30 @@ object Matching {
     for ((ab, st_) <- f(a, b, st))
       yield (ab, b, st_)
   }
+
+  def cover[A, B, AB, S](as: List[A], bs: List[B], s: S)(
+      f: (A, B, S) => List[(AB, S)]
+  ): List[(List[AB], S)] = as match {
+    case Nil =>
+      List((Nil, s))
+
+    case a :: as =>
+      for (
+        (ab, s_) <- cover(a, bs, s)(f);
+        (abs, s__) <- cover(as, bs, s_)(f)
+      )
+        yield (ab :: abs, s__)
+  }
+
+  def cover[A, B, AB, S](a: A, bs: List[B], s: S)(
+      f: (A, B, S) => List[(AB, S)]
+  ): List[(AB, S)] = bs match {
+    case Nil =>
+      Nil
+
+    case b :: bs =>
+      val here = f(a, b, s)
+      val there = cover(a, bs, s)(f)
+      here ++ there
+  }
 }
