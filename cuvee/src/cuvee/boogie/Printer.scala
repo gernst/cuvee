@@ -310,7 +310,10 @@ object Printer extends cuvee.util.Printer {
       List(a + " " + name + " " + b)
     case Not(phi) =>
       val phi_ = formula(phi)
-      ("!(" + phi_.head) +: phi_.tail :+ ")"
+      val first = "!(" + phi_.head
+      val phi__ = phi_.updated(0, first)
+      val last = phi__.last + ")"
+      phi__.updated(phi__.length - 1, last)
     case Forall(x, phi) =>
       val quant = "(forall " ++ vartypes(x) ++ " ::"
       val phi_ = indent(formula(phi), 3)
@@ -417,11 +420,11 @@ object Printer extends cuvee.util.Printer {
     case i: BigInt => List(i.toString)
     case f: Float  => List(f.toString)
     // Name
-    case n: util.Name      => List(n.toLabel)
+    case n: util.Name => List(n.toLabel)
 
     case smtlib.Error(info) => lines("error: " + info.mkString(" "))
 
-    case res: Res          => List(res.toString)
+    case res: Res => List(res.toString)
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax => lines(s.bexpr)
     // String (= Id)
@@ -611,38 +614,38 @@ object Printer extends cuvee.util.Printer {
 
   def proof(p: Proof): String = {
     var result: String = ""
-    for(line <- proof_(p)) 
+    for (line <- proof_(p))
       result += line ++ "\n"
-    result 
+    result
   }
 
-
   private def proof_(p: Proof): List[String] = p match {
-    case Proof(Induction(variable), subproofs) => 
+    case Proof(Induction(variable), subproofs) =>
       val header = "induction " + variable.name.toString
 
       var result: List[String] = Nil
       if (subproofs.isEmpty) {
         result = List(header)
       } else {
-        val body = for ((sel, subproof) <- subproofs) 
-          yield sel.toString() +: proof_(subproof)
+        val body =
+          for ((sel, subproof) <- subproofs)
+            yield sel.toString() +: proof_(subproof)
         result = (header + " {") +: indent(body.flatten) :+ "}"
       }
 
       indent(result)
 
-    case Proof(Show(expr), subproofs) => 
+    case Proof(Show(expr), subproofs) =>
       var result: List[String] = Nil
       val head = "show (" + line(expr) + ")"
 
-      val cont = subproofs map {
-        case (sel, proof) => sel.toString +: proof_(proof)
+      val cont = subproofs map { case (sel, proof) =>
+        sel.toString +: proof_(proof)
       }
 
       indent(head +: indent(cont.flatten))
 
-    case Proof(Unfold(target, places), subproofs) => 
+    case Proof(Unfold(target, places), subproofs) =>
       val (name, num) = target
 
       var head: String = "unfold " + name
@@ -652,7 +655,7 @@ object Printer extends cuvee.util.Printer {
         head += " at " + places.orNull.mkString(", ")
 
       assert(subproofs.length <= 1)
-      if (subproofs.nonEmpty){
+      if (subproofs.nonEmpty) {
         val (sel, subproof) = subproofs.head
         result ++= sel.toString +: proof_(subproof)
       }
