@@ -418,7 +418,9 @@ object Printer extends cuvee.util.Printer {
     case f: Float  => List(f.toString)
     // Name
     case n: util.Name      => List(n.toLabel)
-    case smtlib.Error(msg) => List(msg.mkString("\"", " ", "\""))
+
+    case smtlib.Error(info) => lines("error: " + info.mkString(" "))
+
     case res: Res          => List(res.toString)
     // Syntax (recursive call on the syntax' s-expression)
     case s: Syntax => lines(s.bexpr)
@@ -426,7 +428,9 @@ object Printer extends cuvee.util.Printer {
     case s: String => List(s)
     // Pairs and lists consist of tokens and more syntax elements
     // Call lines on the elements recursively
+
     case (a, b) => lines(a) ++ lines(b)
+
     case xs: List[_] =>
       val args = xs flatMap lines
       val max = args.maxBy(_.length)

@@ -6,6 +6,8 @@ import cuvee.util.Printer
 
 trait Report {
   var printSuccess: Boolean
+  var incremental: Boolean
+
   def report(f: => Res)
 
   def apply(f: => Res) = safe {
@@ -17,6 +19,8 @@ trait Report {
   } catch {
     case e: cuvee.smtlib.Error =>
       report(e)
+      if (!incremental)
+        cuvee.abort()
 
     // Escalate internal errors to terminal for now
     // case e: Exception if !Solver.fail =>
@@ -31,6 +35,7 @@ object Report {
 
   class print(stream: PrintStream)(implicit printer: Printer) extends Report {
     var printSuccess = false
+    var incremental = false
 
     def report(f: => Res) = f match {
       case ack: Ack if !printSuccess =>

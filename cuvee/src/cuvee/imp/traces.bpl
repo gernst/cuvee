@@ -13,7 +13,7 @@ lemma forall i0: int, c: int, k: int, ks: Trace<int>, n: int ::
 // so far, only have step of 1
 lemma forall j: int, i: int, n: int ::
     current(j, range(i, 1, n))
-        == i <= j && j <= n;
+        <==> i <= j && j <= n;
 
 lemma {:rw} forall a0: [int]int, a: [int]int, ks: Trace<int>, vs: Trace<int> :: 
     current(a, trace(a0, for k, v <- [ ks, vs ] do a := a[k := v]))

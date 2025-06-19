@@ -16,10 +16,10 @@ object Simplify extends Stage {
 
   def simplify(cmds: List[Cmd], state: State, polarity: Option[Boolean], expr: Expr): Expr = {
     val rules = Rewrite.from(cmds, state)
-    println("using rewrite rules:")
-    for (eq <- rules)
-      println("  " + eq)
-    println()
+    // println("using rewrite rules:")
+    // for (eq <- rules)
+    //   println("  " + eq)
+    // println()
 
     simplify(polarity, rules.groupBy(_.fun), state.constrs, expr)
   }
@@ -244,7 +244,6 @@ object Simplify extends Stage {
         val left_ = simplify(assuming(ctx, pos = List(test_)), left)
         val right_ = simplify(assuming(ctx, neg = List(test_)), right)
         val res = ite(test_, left_, right_)
-        println(res)
         res
 
       case Select(base, index) =>
@@ -599,9 +598,9 @@ object Simplify extends Stage {
       case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
         val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen
 
-        println("binding traces")
-        println("pat: " + pat)
-        println("arg: " + arg)
+        // println("binding traces")
+        // println("pat: " + pat)
+        // println("arg: " + arg)
 
         val it1 = iteration1.formals.asMap
         val it2 = iteration2.formals.asMap
@@ -618,7 +617,7 @@ object Simplify extends Stage {
               bind(ctx, List(path1, rhs1), List(path2, rhs2), ty2, su2)
           }
 
-        println("got updates: " + updates)
+        // println("got updates: " + updates)
 
         // check the dependencies of every update, according to some cases
         // - a global pattern variable can be bound to a concrete term that is independent of concrete trace variables,

@@ -35,11 +35,21 @@ class Parser(val state: State) {
 
   object typing extends Scope[Param, Type] {
     def unify(typ1: Type, typ2: Type) = {
-      value = Type.unify(typ1, typ2, value)
+      try {
+        value = Type.unify(typ1, typ2, value)
+      } catch {
+        case e: Type.CannotUnify =>
+          cuvee.error(e.toString)
+      }
     }
 
     def unify(types1: List[Type], types2: List[Type]) = {
-      value = Type.unify(types1, types2, value)
+      try {
+        value = Type.unify(types1, types2, value)
+      } catch {
+        case e: Type.CannotUnify =>
+          cuvee.error(e.toString)
+      }
     }
 
     def app(name: Name, args: List[Expr]) = {

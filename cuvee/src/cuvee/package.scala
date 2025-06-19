@@ -1,5 +1,7 @@
 import scala.annotation.tailrec
 import cuvee.smtlib.Lemma
+import cuvee.pure.Type
+import cuvee.pure.Expr
 
 package object cuvee {
   val version = "dev"
@@ -16,9 +18,18 @@ package object cuvee {
       System.err.println(levelName(self) + (msg mkString " "))
   }
 
-  def error(msg: => String) = {
-    require(false, msg)
+  def abort() {
+    System.exit(1)
     ???
+  }
+
+  def expect(test: => Boolean, message: String) {
+    if (!test)
+      smtlib.Error(message)
+  }
+
+  def error(message: String) = {
+    smtlib.Error(message)
   }
 
   def trace[A](msg: => String)(f: => A) = {
