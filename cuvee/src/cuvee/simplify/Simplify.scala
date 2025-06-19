@@ -463,6 +463,8 @@ object Simplify extends Stage {
         if (m <= n) True else False
       case Lt(Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
         if (m < n) True else False
+      case DivBy(Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
+        Lit(m / n, Sort.int)
 
       case Le(left, right) if ctx.pos contains Le(right, left) =>
         Eq(left, right)
@@ -664,10 +666,17 @@ object Simplify extends Stage {
           for ((ty3, su3) <- updates) yield {
 
             try {
-              val iteration = su3 filter { case (x, e) => it1 contains x }
+              val dependencies = su3 filter { case (x, e) => it1 contains x }
+              val constrained = iteration1.formals filter {
+                case LetEq(x, y: Var) => false
+                case LetEq(x, e)      => true
+              }
+
+              println("need to capture: " + constrained)
+              require(constrained.isEmpty, "constrained dependencies not implemented yet")
 
               val result =
-                iteration.foldLeft((ty3, su3)) {
+                dependencies.foldLeft((ty3, su3)) {
                   case ((ty4, su4), (x, y: Var)) if it2 contains y =>
                     bind(ctx, it1(x), it2(y), ty4, su4)
 
