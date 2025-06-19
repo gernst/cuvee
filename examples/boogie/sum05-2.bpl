@@ -35,8 +35,8 @@ free lemma forall a: [int]int, from: int, to: int, delta: int, k: int ::
        else a[k];
 
 free lemma forall a: [int]int, n: int ::
-  sum(shift(a, 0, n - 1, 1), 1, n, 0, 1)
-    == sum(a, 0, n - 1, 0, 1);
+  sum(shift(a, 0, n - 1, 1), 0, n - 1, 0, 1)
+    == sum(a, 1, n, 0, 1);
 
 data c#void = c#void;
 
@@ -53,7 +53,7 @@ function c#bitand(x₀: int, x₁: int): int;
 function c#bitor(x₀: int, x₁: int): int;
 
 const N: int;
-axiom 2 <= N;
+axiom 2 < N;
 
 procedure sum(x: [int]int)
   returns (c#result: int)
@@ -92,6 +92,20 @@ procedure main()
     x[i] := nondet_int₂;
     i := i + 1;
   }
+
+  assert x[0 := x[1]][1 := x[0]][0] == x[1];
+
+  assert sum(shift(x[0 := x[1]][1 := x[0]], 0, N - 1, 1), 0, N - 1, 0, 1)
+            == sum(x[0 := x[1]][1 := x[0]], 1, N, 0, 1);
+
+  assert sum(x, 0, N, 0, 1)
+          == sum(shift(x[0 := x[1]][1 := x[0]], 0, N - 1, 1), 0, N, 0, 1)
+              + x[1]
+              - x[N - 1];
+
+  assert sum(x, 0, N, 0, 1)
+          == sum(shift(x[0 := x[1]][1 := x[0]], 0, N - 1, 1)[N - 1 := x[1]], 0, N, 0, 1);
+
   var sum₄: int;
   sum₄ := call sum(x);
   ret := sum₄;

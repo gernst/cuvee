@@ -362,7 +362,7 @@ class VCGen(val state: State) {
         val psi_ = eval(psi, scope, st_, st :: old)
         val chi = wp(how, rest, cont, scope, st_, old, live, not_live, post, brk, ret)
 
-        phi_ && how.spec(xs_, psi_, chi)
+        phi_ && (phi_ ==> how.spec(xs_, psi_, chi))
 
       case Call(name, in, out) :: rest =>
         require(state.procs contains name, "unknown procedure: " + name)
