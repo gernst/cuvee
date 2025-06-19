@@ -126,8 +126,8 @@ object Path {
       case Is(arg, fun) =>
         Is(eval(bound, stack, old, arg), fun)
 
-      case Note(expr, attr) =>
-        Note(eval(bound, stack, old, expr), attr)
+      case Note(expr, patterns, attr) =>
+        Note(eval(bound, stack, old, expr), patterns map (eval(bound, stack, old, _)), attr)
 
       case App(inst, args) =>
         App(inst, eval(bound, stack, old, args))

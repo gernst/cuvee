@@ -34,8 +34,8 @@ public class Scanner {
   private static final int [] ZZ_CMAP_TOP = zzUnpackcmap_top();
 
   private static final String ZZ_CMAP_TOP_PACKED_0 =
-    "\1\0\37\u0100\1\u0200\6\u0100\1\u0300\1\u0100\1\u0400\6\u0100"+
-    "\1\u0500\247\u0100\10\u0600\u1020\u0100";
+    "\1\0\37\u0100\1\u0200\2\u0100\1\u0300\3\u0100\1\u0400\1\u0100"+
+    "\1\u0500\6\u0100\1\u0600\247\u0100\10\u0700\u1020\u0100";
 
   private static int [] zzUnpackcmap_top() {
     int [] result = new int[4352];
@@ -72,11 +72,11 @@ public class Scanner {
     "\1\42\1\43\1\44\1\45\1\46\1\47\1\50\1\51"+
     "\1\52\1\53\1\54\1\55\1\56\1\57\1\27\1\14"+
     "\1\60\1\14\1\11\6\0\1\3\u01a2\0\2\3\106\0"+
-    "\12\11\6\0\12\11\u013b\0\2\14\274\0\2\14\225\0"+
-    "\2\14\344\0\u0100\3";
+    "\12\11\6\0\12\11\237\0\2\14\u019a\0\2\14\43\0"+
+    "\2\14\227\0\2\14\225\0\2\14\344\0\u0100\3";
 
   private static int [] zzUnpackcmap_blocks() {
-    int [] result = new int[1792];
+    int [] result = new int[2048];
     int offset = 0;
     offset = zzUnpackcmap_blocks(ZZ_CMAP_BLOCKS_PACKED_0, offset, result);
     return result;

@@ -50,9 +50,9 @@ class SimpleProver(solver: Solver) extends Prover {
         Forall(xs, body__ rename re_)
       }
 
-    case Note(expr, attr) =>
+    case Note(expr, patterns, attr) =>
       val expr_ = reduce(expr)
-      Simplify.note(expr_, attr)
+      Simplify.note(expr_, patterns, attr)
 
     case _ if solver.isTrue(expr) =>
       True

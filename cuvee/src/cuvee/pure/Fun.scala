@@ -69,7 +69,7 @@ case class Fun(name: Name, params: List[Param], args: List[Type], res: Type) {
   def in(expr: Expr): Boolean =
     expr match {
       case _: Lit | _: Var                 => false
-      case Note(expr, attr)                => this in expr
+      case Note(expr, patterns, attr)      => this in expr
       case Is(arg, fun)                    => (fun == this) || (this in arg)
       case App(Inst(fun, _), args)         => (fun == this) || (this in args)
       case Distinct(exprs)                 => this in exprs
@@ -136,7 +136,8 @@ object Fun {
   val gt = Fun(">", Nil, List(int, int), bool)
 
   // dummy functions for rewriting
-  val trace = Fun("trace", List(a, b), List(a, Sort.trace(a), Sort.array(b, Sort.array(a, b))), Sort.trace(b))
+  val trace =
+    Fun("trace", List(a, b), List(a, Sort.trace(a), Sort.array(b, Sort.array(a, b))), Sort.trace(b))
   val map = Fun("map", List(a, b), List(a, Sort.trace(a), Sort.array(a, b)), Sort.trace(b))
 
   val current = Fun("current", List(a), List(a, Sort.trace(a)), Sort.bool)

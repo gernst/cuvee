@@ -35,7 +35,7 @@ package object lemmas {
     val eqs0 =
       for (
         Assert(expr) <- cmds;
-        eq <- Rules.from(expr, decl.toSet)
+        eq <- Rules.from(expr, decl.toSet, split = true)
       )
         yield eq
 
@@ -43,7 +43,7 @@ package object lemmas {
       for (
         DefineFun(name, params, formals, res, body, _) <- cmds;
         fun = st.funs(name, formals.length);
-        eq <- Rules.from(fun, formals, body, defn.toSet)
+        eq <- Rules.from(fun, formals, body, defn.toSet, split = true)
       )
         yield eq
 

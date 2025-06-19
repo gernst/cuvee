@@ -194,8 +194,13 @@ class Parser(val state: State) {
       error(s"unknown variable: ${name.toString}")
   }
 
-  def make_bind: ((String, (List[Var], Expr)) => Expr) = { case (name, (bound, body)) =>
-    typing.bind(name, bound, body, Sort.bool)
+  def make_bind: ((String, (List[Var], (List[Expr], Expr))) => Expr) = {
+    case (name, (bound, (Nil, body))) =>
+      typing.bind(name, bound, body, Sort.bool)
+
+    case (name, (bound, (trigger, body))) =>
+      val body_ = pure.Note(body, List(trigger))
+      typing.bind(name, bound, body_, Sort.bool)
   }
 
   def make_at: (((String, Expr)) => Expr) = { case (loc, arg) =>

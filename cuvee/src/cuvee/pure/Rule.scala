@@ -99,8 +99,8 @@ case class Rule(
 }
 
 object Rules {
-  var ite = true
-  var shortcut = true
+  // var ite = true
+  var shortcut = false
 
   def from(
       xs: List[Var],
@@ -110,12 +110,13 @@ object Rules {
       x: Var,
       pat: Expr,
       body: Expr,
-      ok: Set[Fun]
+      ok: Set[Fun],
+      split: Boolean
   ): List[Rule] = {
     val su = Map(x -> pat)
     val _args = args subst su
     val _lhs = App(inst, _args)
-    from(xs ++ pat.free, guard, _lhs, body, ok)
+    from(xs ++ pat.free, guard, _lhs, body, ok, split)
   }
 
   def from(
@@ -123,33 +124,34 @@ object Rules {
       guard: Expr,
       lhs: App,
       rhs: Expr,
-      ok: Set[Fun]
+      ok: Set[Fun],
+      split: Boolean
   ): List[Rule] =
     rhs match {
       case _ if !(ok contains lhs.fun) =>
         // println("discarding rule for " + lhs)
         Nil
 
-      case Ite(test, left, right) if ite =>
-        val l = from(xs, test && guard, lhs, left, ok)
-        val r = from(xs, Not(test) && guard, lhs, right, ok)
+      case Ite(test, left, right) if split =>
+        val l = from(xs, test && guard, lhs, left, ok, split)
+        val r = from(xs, Not(test) && guard, lhs, right, ok, split)
         l ++ r
 
       // boolean right-hand sides are taken apart according to short-cut semantics
       case Or(List(test, expr)) if shortcut => // TODO: generalize
-        val l = from(xs, test && guard, lhs, True, ok)
-        val r = from(xs, Not(test) && guard, lhs, expr, ok)
+        val l = from(xs, test && guard, lhs, True, ok, split)
+        val r = from(xs, Not(test) && guard, lhs, expr, ok, split)
         l ++ r
 
       case Or(List(test1, test2, expr)) if shortcut => // TODO: generalize
-        val a = from(xs, test1 && guard, lhs, True, ok)
-        val b = from(xs, Not(test1) && test2 && guard, lhs, expr, ok)
-        val c = from(xs, Not(test1) && Not(test2) && guard, lhs, expr, ok)
+        val a = from(xs, test1 && guard, lhs, True, ok, split)
+        val b = from(xs, Not(test1) && test2 && guard, lhs, expr, ok, split)
+        val c = from(xs, Not(test1) && Not(test2) && guard, lhs, expr, ok, split)
         a ++ b ++ c
 
       case And(List(test, expr)) if shortcut => // TODO: generalize
-        val l = from(xs, test && guard, lhs, expr, ok)
-        val r = from(xs, Not(test) && guard, lhs, False, ok)
+        val l = from(xs, test && guard, lhs, expr, ok, split)
+        val r = from(xs, Not(test) && guard, lhs, False, ok, split)
         l ++ r
 
       // case matches can only be decomposed if they are over an unconstrained variable argument,
@@ -160,56 +162,55 @@ object Rules {
       case Match(x: Var, cases, typ) if xs contains x =>
         for (
           Case(pat, body) <- cases;
-          res <- from(xs, guard, lhs.inst, lhs.args, x, pat, body, ok)
+          res <- from(xs, guard, lhs.inst, lhs.args, x, pat, body, ok, split)
         )
           yield res
 
       case _ if rhs.free subsetOf (lhs.free ++ guard.free) =>
         List(Rule(lhs, rhs, guard))
-
-      case _ =>
-        Nil
     }
 
   def from(
       fun: Fun,
       xs: List[Var],
       body: Expr,
-      ok: Set[Fun]
+      ok: Set[Fun],
+      split: Boolean
   ): List[Rule] = {
     // Note: from DefineFun(fun, xs, ...)
     val lhs = App(fun, xs)
-    from(xs, True, lhs, body, ok)
+    from(xs, True, lhs, body, ok, split)
   }
 
   def from(
       xs: List[Var],
       guard: Expr,
       suc: Expr,
-      ok: Set[Fun]
+      ok: Set[Fun],
+      split: Boolean
   ): List[Rule] =
     suc match {
       case Eq(lhs: App, rhs) =>
-        from(xs, guard, lhs, rhs, ok)
+        from(xs, guard, lhs, rhs, ok, split)
       case Eq(lhs: Trace, rhs) =>
         List(Rule(lhs, rhs, guard))
       case Not(lhs: App) =>
-        from(xs, guard, lhs, False, ok)
+        from(xs, guard, lhs, False, ok, split)
       case lhs: App =>
-        from(xs, guard, lhs, True, ok)
+        from(xs, guard, lhs, True, ok, split)
       case _ =>
         Nil
     }
 
-  def from(expr: Expr, ok: Set[Fun]): List[Rule] = {
+  def from(expr: Expr, ok: Set[Fun], split: Boolean): List[Rule] = {
     val Clause(xs, ant, suc) = expr.stripNotes
-    from(xs, And(ant), suc, ok)
+    from(xs, And(ant), suc, ok, split)
   }
 
-  def from(exprs: List[Expr], ok: Set[Fun]): List[Rule] = {
+  def from(exprs: List[Expr], ok: Set[Fun], split: Boolean): List[Rule] = {
     for (
       expr <- And.flatten(exprs);
-      rule <- from(expr, ok)
+      rule <- from(expr, ok, split)
     )
       yield rule
   }

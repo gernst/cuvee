@@ -95,8 +95,10 @@ class VCGen(val state: State) {
     case Is(arg, fun) =>
       Is(eval(arg, scope, st, old), fun)
 
-    case Note(expr, attr) =>
-      Note(eval(expr, scope, st, old), attr)
+    case Note(expr, patterns, attr) =>
+      val expr_ = eval(expr, scope, st, old)
+      val patterns_ = patterns map (evals(_, scope, st, old))
+      Note(expr_, patterns_, attr)
 
     case Old(expr) =>
       require(
@@ -362,7 +364,7 @@ class VCGen(val state: State) {
         val psi_ = eval(psi, scope, st_, st :: old)
         val chi = wp(how, rest, cont, scope, st_, old, live, not_live, post, brk, ret)
 
-        phi_ && (phi_ ==> how.spec(xs_, psi_, chi))
+        phi_ && how.spec(xs_, psi_, chi)
 
       case Call(name, in, out) :: rest =>
         require(state.procs contains name, "unknown procedure: " + name)
@@ -415,14 +417,14 @@ class VCGen(val state: State) {
         val (xs1, re) = havoc(xs0)
 
         val free = inv_ match {
-          case Note(inv_, attrs) if attrs.contains("free") =>
+          case Note(inv_, _, attrs) if attrs.contains("free") =>
             inv_
           case _ =>
             True
         }
 
         var inv = inv_ match {
-          case Note(inv_, attrs) if attrs.contains("free") =>
+          case Note(inv_, _, attrs) if attrs.contains("free") =>
             True
           case _ =>
             inv_

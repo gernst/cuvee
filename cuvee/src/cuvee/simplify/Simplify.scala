@@ -15,7 +15,7 @@ object Simplify extends Stage {
   import Context.assuming
 
   def simplify(cmds: List[Cmd], state: State, polarity: Option[Boolean], expr: Expr): Expr = {
-    val rules = Rewrite.from(cmds, state)
+    val rules = Rewrite.from(cmds, state, split = false)
     // println("using rewrite rules:")
     // for (eq <- rules)
     //   println("  " + eq)
@@ -26,10 +26,18 @@ object Simplify extends Stage {
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State): List[Cmd] = {
     cmds flatMap {
-      case cmd @ Lemma(expr, tactic, Some(Goal), label) =>
+      case cmd @ Lemma(expr, tactic, Some(Free), label) =>
+        List(cmd)
+
+      case cmd @ Lemma(expr, tactic, mode, label) =>
         simplify(prefix ++ cmds, state, Some(true), expr) match {
-          case True  => List()
-          case expr_ => List(Lemma(expr_, tactic, Some(Goal), label))
+          case True =>
+            List()
+          case Clause(xs, ant, Note(suc, pattern, attrs)) =>
+            val expr_ = Clause(xs, ant, suc)
+            List(Lemma(expr_, tactic, mode, label ++ attrs))
+          case expr_ =>
+            List(Lemma(expr_, tactic, mode, label))
         }
 
       case cmd @ Assert(Not(expr)) =>
@@ -152,7 +160,11 @@ object Simplify extends Stage {
 
   def simplify(ctx: Context, init: Expr): Expr = {
     // println("looking at: " + init)
-    // println("bound:    " + ctx.free)
+    // println("given:      " + ctx.assms)
+    // println("bound:      " + ctx.bound)
+    // println("fixed:      " + ctx.fixed)
+    // println()
+
     // println("clausify: " + init)
     var expr = Clause.goal(ctx.vars, init)
     // println("       ~> " + expr)
@@ -179,6 +191,9 @@ object Simplify extends Stage {
 
   def canon(ctx: Context, expr: Expr): Expr = {
     expr match {
+      case Note(True, _, _)  => True
+      case Note(False, _, _) => False
+
       case Eq(left, right) =>
         val left_ = simplify(ctx, left)
         val right_ = simplify(ctx, right)
@@ -541,8 +556,8 @@ object Simplify extends Stage {
 
       val rhs_ = rhs inst (ty, su)
 
-      println("rewrite " + expr)
-      println("    ~~> " + rhs_)
+      // println("rewrite " + expr)
+      // println("    ~~> " + rhs_)
 
       rewrite(ctx.again, rhs_)
 
@@ -560,9 +575,6 @@ object Simplify extends Stage {
     }
   }
 
-  def maybe[A](f: => A) = try { List(f) }
-  catch { case e: Exception => List() }
-
   def bind(
       ctx: Context,
       pat: Expr,
@@ -573,7 +585,7 @@ object Simplify extends Stage {
     (pat, arg) match {
       case (x: Var, _) if su contains x =>
         if (su(x) != arg) {
-          println("cannot bind " + pat + " to " + arg + " with " + ty + " and " + su)
+          // println("cannot bind " + pat + " to " + arg + " with " + ty + " and " + su)
           throw Expr.CannotBind(pat, arg, ty, su)
         }
 
@@ -613,10 +625,31 @@ object Simplify extends Stage {
         // cover every actual update
         val updates =
           cover(updates1, updates2, (ty1, su1)) {
+            case (up1 @ Update(True, rhs1), up2 @ Update(path2, rhs2), (ty2, su2)) =>
+              bind(ctx, rhs1, rhs2, ty2, su2)
+
             case (up1 @ Update(path1, rhs1), up2 @ Update(path2, rhs2), (ty2, su2)) =>
-              bind(ctx, List(path1, rhs1), List(path2, rhs2), ty2, su2)
+              val (ty3, su3) = bind(ctx, rhs1, rhs2, ty2, su2)
+
+              // once the rhs matches, we need to ensure the guard of the pattern, here by two cases:
+              // - all variables of the guard are already bound: simplify under assumption path2
+              // - some variables are not bound, try to bind some condition from path2
+
+              val ctx_ = assuming(ctx, pos = List(path2))
+
+              find(ctx_, path1, ty3, su3) match {
+                case List(res) =>
+                  res
+
+                case Nil =>
+                  throw Expr.CannotBind(path1, path2, ty3, su3)
+
+                case results =>
+                  cuvee.error("multiple matches for update guard: " + results)
+              }
           }
 
+        // uh we might want to ignore conditional updates!!
         // println("got updates: " + updates)
 
         // check the dependencies of every update, according to some cases
@@ -671,9 +704,9 @@ object Simplify extends Stage {
             // could potentially happen, for example with
             // current(_, range(0, 1, n))
             // current(_, range(0, c, n))
-            
+
             // but maybe fix the later one with avoiding c -> 1
-            cuvee.error("multiple matches: " + results)
+            cuvee.error("multiple for iteration matches: " + results)
         }
 
       case _ =>
@@ -695,6 +728,36 @@ object Simplify extends Stage {
       case (pat :: pats, arg :: args) =>
         val (ty_, su_) = bind(ctx, pat, arg, ty, su)
         bind(ctx, pats, args, ty_, su_)
+    }
+  }
+
+  def find(
+      ctx: Context,
+      phi: Expr,
+      ty: Map[Param, Type],
+      su: Map[Var, Expr]
+  ): List[(Map[Param, Type], Map[Var, Expr])] = {
+    val phis = And.flatten(phi)
+    // println("finding:  " + phi)
+    // println("given su: " + su)
+    // println("context:  " + ctx.assms)
+
+    cover(ctx.assms, phis, (ty, su)) {
+      case (assm, phi, (ty, su)) if phi.free subsetOf su.keySet =>
+        val phi_ = simplify(ctx, phi inst (ty, su))
+        if (phi_ == True) {
+          // println("found " + phi + " == true ")
+          (ty, su)
+        } else {
+          // println("not found " + phi + " != true ")
+          throw Expr.CannotBind(assm, phi, ty, su)
+        }
+
+      case (assm, phi, (ty, su)) =>
+        // println("bind? " + (phi inst (ty, su)) + " == " + assm)
+        val res = bind(ctx, phi, assm, ty, su)
+        // println("found " + phi + " == " + assm)
+        res
     }
   }
 

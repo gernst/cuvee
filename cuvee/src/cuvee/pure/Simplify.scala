@@ -76,8 +76,8 @@ object Simplify {
       case App(inst, args) =>
         app(expr, inst, simplify(args, rules, constrs), rules, constrs)
 
-      case Note(expr, attr) =>
-        note(simplify(expr, rules, constrs), attr)
+      case Note(expr, patterns, attr) =>
+        note(simplify(expr, rules, constrs), patterns, attr)
     }
 
   def app(
@@ -145,10 +145,10 @@ object Simplify {
       yield simplify(expr, rules, constrs)
   }
 
-  def note(expr: Expr, attrs: sexpr.Attrs) =
+  def note(expr: Expr, patterns: List[List[Expr]], attrs: sexpr.Attrs) =
     expr match {
       case True | False => expr
-      case _            => Note(expr, attrs)
+      case _            => Note(expr, patterns, attrs)
     }
 
   def at(where: Loc, arg: Expr) = {

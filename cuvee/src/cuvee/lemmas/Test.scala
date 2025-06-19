@@ -110,7 +110,7 @@ object Test extends Main {
 
     for (
       Lemma(phi, _, _, _) <- cmds;
-      Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
+      Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original, split = true)
     ) {
       lemmas.addLemma("provided", lhs, rhs, cond)
       // lemmas.lemmas = ("provided", eq) :: lemmas.lemmas
@@ -156,7 +156,6 @@ object Test extends Main {
   }
 
   def main(args: Array[String]) {
-    Rules.ite = true
     Rules.shortcut = false
     val files = configure(args.toList)
 

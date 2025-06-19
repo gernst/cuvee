@@ -1,42 +1,43 @@
 // from inclusive, to exclusive
 function sum(a: [int]int, from: int, to: int, base: int, factor: int): int;
 
-// normalize base and factor
-free lemma forall a: [int]int, from: int, to: int, base: int, factor: int ::
-    sum(a, from, to, base, factor) == sum(a, from, to, 0, 1) * factor + base;
-
 // base case
 free lemma forall a:[int]int ::
     sum(a, 0, 0, 0, 1) == 0;
 
 // recursion
 free lemma forall a: [int]int, to: int ::
-    1 <= to ==> sum(a, 1, to, 0, 1) == sum(a, 0, to, 0, 1) - a[to];
+    { sum(a, 1, to, 0, 1) }
+    1 <= to ==> sum(a, 1, to, 0, 1) == sum(a, 0, to, 0, 1) - a[0];
 
 free lemma forall a: [int]int, to: int ::
+    { sum(a, 0, to+1, 0, 1) }
     0 <= to ==> sum(a, 0, to+1, 0, 1) == sum(a, 0, to, 0, 1) + a[to];
 
-free lemma forall a: [int]int, i: int, j: int, n: int, z: int ::
-    0 <= i && i < n ==> sum(a[i:=z], 0, n, 0, 1) == sum(a, 0, n, 0, 1) - a[i] + z;
-
-free lemma forall a: [int]int, i: int, j: int, n: int, z: int ::
-    i < 0 && 0 <= n ==> sum(a[i:=z], 0, n, 0, 1) == sum(a, 0, n, 0, 1);
-  
-free lemma forall a: [int]int, i: int, j: int, n: int, z: int ::
-    0 <= n && n <= i ==> sum(a[i:=z], 0, n, 0, 1) == sum(a, 0, n, 0, 1);
+free lemma {:rw} forall a: [int]int, i: int, n: int, z: int ::
+    { sum(a[i:=z], 0, n, 0, 1) }
+    sum(a[i:=z], 0, n, 0, 1)
+      == if 0 <= i && i < n
+         then sum(a, 0, n, 0, 1) - a[i] + z
+         else sum(a, 0, n, 0, 1);
 
 // from inclusive, to exclusive
 function shift(a: [int]int, from: int, to: int, delta: int): [int]int;
 
 free lemma forall a: [int]int, from: int, to: int, delta: int, k: int ::
+  { shift(a, from, to, delta)[k] }
   shift(a, from, to, delta)[k]
     == if from <= k && k < to
        then a[k + delta]
        else a[k];
 
-free lemma forall a: [int]int, n: int ::
+free lemma {:rw} forall a: [int]int, n: int ::
+    { sum(shift(a, 0, n - 1, 1), 0, n - 1, 0, 1) }
   sum(shift(a, 0, n - 1, 1), 0, n - 1, 0, 1)
     == sum(a, 1, n, 0, 1);
+
+const N: int;
+axiom 2 < N;
 
 data c#void = c#void;
 
@@ -51,9 +52,6 @@ function c#bitxor(x₀: int, x₁: int): int;
 function c#bitand(x₀: int, x₁: int): int;
 
 function c#bitor(x₀: int, x₁: int): int;
-
-const N: int;
-axiom 2 < N;
 
 procedure sum(x: [int]int)
   returns (c#result: int)
@@ -93,18 +91,7 @@ procedure main()
     i := i + 1;
   }
 
-  assert x[0 := x[1]][1 := x[0]][0] == x[1];
-
-  assert sum(shift(x[0 := x[1]][1 := x[0]], 0, N - 1, 1), 0, N - 1, 0, 1)
-            == sum(x[0 := x[1]][1 := x[0]], 1, N, 0, 1);
-
-  assert sum(x, 0, N, 0, 1)
-          == sum(shift(x[0 := x[1]][1 := x[0]], 0, N - 1, 1), 0, N, 0, 1)
-              + x[1]
-              - x[N - 1];
-
-  assert sum(x, 0, N, 0, 1)
-          == sum(shift(x[0 := x[1]][1 := x[0]], 0, N - 1, 1)[N - 1 := x[1]], 0, N, 0, 1);
+  var y: [int]int := x;
 
   var sum₄: int;
   sum₄ := call sum(x);
@@ -129,6 +116,7 @@ procedure main()
   var sum₇: int;
   sum₇ := call sum(x);
   ret5 := sum₇;
+
   if(ret != ret2 || ret != ret5) {
     assert false;
   }

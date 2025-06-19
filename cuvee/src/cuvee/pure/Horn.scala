@@ -17,7 +17,7 @@ object Horn extends Stage {
       case Lemma(todo, None, flag, named) =>
         val goals = assert(List(todo), Nil, Nil, Nil)
         goals.distinct map {
-          case Clause(xs, ant, Note(expr, attrs)) =>
+          case Clause(xs, ant, Note(expr, patterns, attrs)) =>
             Lemma(Clause(xs, ant, expr), None, flag, named ++ attrs)
           case expr =>
             Lemma(expr, None, flag, named)
@@ -50,8 +50,8 @@ object Horn extends Stage {
       case Imp(phi, psi) :: rest =>
         assume(List(phi), psi :: rest, xs, ant, suc)
 
-      case Note(Imp(phi, psi), attr) :: rest =>
-        assume(List(phi), Note(psi, attr) :: rest, xs, ant, suc)
+      case Note(Imp(phi, psi), patterns, attr) :: rest =>
+        assume(List(phi), Note(psi, patterns, attr) :: rest, xs, ant, suc)
 
       case Or(exprs) :: rest =>
         assert(exprs ++ rest, xs, ant, suc)
@@ -63,10 +63,10 @@ object Horn extends Stage {
         )
           yield clause
 
-      case Note(And(exprs), attr) :: rest =>
+      case Note(And(exprs), patterns, attr) :: rest =>
         for (
           expr <- exprs;
-          clause <- assert(Note(expr, attr) :: rest, xs, ant, suc)
+          clause <- assert(Note(expr, patterns, attr) :: rest, xs, ant, suc)
         )
           yield clause
 
@@ -74,9 +74,9 @@ object Horn extends Stage {
         val Forall(bound, body) = expr refresh xs
         assert(body :: rest, xs ++ bound, ant, suc)
 
-      case Note(expr @ Forall(_, _), attr) :: rest =>
+      case Note(expr @ Forall(_, _), patterns, attr) :: rest =>
         val Forall(bound, body) = expr refresh xs
-        assert(Note(body, attr) :: rest, xs ++ bound, ant, suc)
+        assert(Note(body, patterns, attr) :: rest, xs ++ bound, ant, suc)
 
       case phi :: rest =>
         assert(rest, xs, ant, suc ++ List(phi))

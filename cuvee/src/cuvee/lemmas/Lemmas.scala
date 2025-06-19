@@ -37,7 +37,7 @@ class Lemmas(rounds: Int, conditionalLemmas: Boolean, lemmasWithSyntheticFunctio
 
       for (
         lemma@Lemma(phi, _, _, _) <- cmds if !lemma.isGoal;
-        Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original)
+        Rule(lhs, rhs, cond, Nil) <- Rules.from(phi, lemmas.original, split = false)
       ) {
         lemmas.addLemma("provided", lhs, rhs, cond)
       }

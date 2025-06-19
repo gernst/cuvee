@@ -37,6 +37,8 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
   // angular brackets are also operators, hence cannot match literal strings
   def angle[A](p: Parser[A, Token]) = la ~ p ~ ra
+  def sangle[A](p: Parser[A, Token]) = "〈" ~ p ~ "〉"
+  def dangle[A](p: Parser[A, Token]) = "⟪" ~ p ~ "⟫"
 
   def none[A](p: Parser[A, Token]) = p map { a => None }
   def some[A](p: Parser[A, Token]) = p map { a => Some(a) }
@@ -182,7 +184,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
       P(make_trace("trace" ~ "(" ~ expr ~ "," ~ (iteration ~@ scoped_updates) ~ ")"))
 
     def wp(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(WP(braces(block_) ~ formula))
+      P(WP(dangle(block_) ~ formula))
 
     def box(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(Box(brackets(block_) ~ formula))
@@ -192,8 +194,13 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
     def scoped_expr(
         bound: List[Var]
-    )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      expr(scope ++ bound.asScope, ctx)
+    )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
+      val scope_ = scope ++ bound.asScope
+      val expr_ = expr(scope_, ctx)
+
+      val trigger = braces(expr_ ~+ ",") | ret(Nil)
+      trigger ~ expr_
+    }
 
     def bind(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_bind(quant ~ ((formal ~+ ",") ~ "::" ~@ scoped_expr)))

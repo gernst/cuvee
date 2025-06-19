@@ -522,7 +522,7 @@ object Printer extends cuvee.util.Printer {
       "match " + line(expr) + cases.toString + btype(
         typ
       ) + ";" // TODO: fix and test
-    case note @ cuvee.pure.Note(expr, attrs) =>
+    case note @ cuvee.pure.Note(expr, patterns, attrs) =>
       attrs.flatten.mkString("{", ", ", "} ") + line(expr)
 
     case extra: Extra =>

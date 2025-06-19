@@ -92,3 +92,7 @@ case class Attrs(attrs: List[(Kw, Option[Expr])]) {
       case (kw, Some(sexpr)) => List(kw, sexpr)
     }
 }
+
+object Attrs {
+  val empty = Attrs(Nil)
+}

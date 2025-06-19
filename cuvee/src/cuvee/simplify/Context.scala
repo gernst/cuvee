@@ -137,12 +137,12 @@ object Context {
         assuming(ctx_, pos, neg)
 
       case (phi :: pos, neg) =>
-        require(phi.typ == Sort.bool)
+        require(phi.typ == Sort.bool, "not a boolean: " + phi)
         val ctx_ = ctx.copy(pos = ctx.pos ++ List(phi))
         assuming(ctx_, pos, neg)
 
       case (pos, phi :: neg) =>
-        require(phi.typ == Sort.bool)
+        require(phi.typ == Sort.bool, "not a boolean: " + phi)
         val ctx_ = ctx.copy(neg = ctx.neg ++ List(phi))
         assuming(ctx_, pos, neg)
     }

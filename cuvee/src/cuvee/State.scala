@@ -309,8 +309,8 @@ class State(
       app("ite", List(test, left, right))
     }
 
-    def note(expr: Pre, attrs: List[(sexpr.Kw, Option[sexpr.Expr])]) = {
-      Pre(pure.Note(expr.expr, sexpr.Attrs(attrs)))
+    def note(expr: Pre, patterns: List[List[Pre]], attrs: List[(sexpr.Kw, Option[sexpr.Expr])]) = {
+      Pre(pure.Note(expr.expr, patterns map (_ map (_.expr)), sexpr.Attrs(attrs)))
     }
 
     def commutative(fun: Name, neutral: Pre, args: List[Pre]): Pre = args match {

@@ -158,8 +158,9 @@ object Printer extends cuvee.util.Printer {
     case note @ cuvee.imp.Note(prog, attrs) =>
       parens2("!", prog)(attrs.flatten)
 
-    case note @ cuvee.pure.Note(expr, attrs) =>
-      parens2("!", expr)(attrs.flatten)
+    case note @ cuvee.pure.Note(expr, patterns, attrs) =>
+      val extra = patterns map (":pattern" :: _)
+      parens2("!", expr)(extra.flatten ++ attrs.flatten)
 
     case Bind(quant, formals, body, _) =>
       parens(quant.name, formals.asFormals, body)

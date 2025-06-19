@@ -606,7 +606,7 @@ class Parser(init: State) {
           const(name)
 
         case App(Id("!"), from, rest @ _*) =>
-          note(expr(from, ctx, scope), attrs(rest.toList))
+          note(expr(from, ctx, scope), Nil, attrs(rest.toList))
 
         case App(Id("distinct"), rest @ _*) =>
           distinct(exprs(rest.toList, ctx, scope))

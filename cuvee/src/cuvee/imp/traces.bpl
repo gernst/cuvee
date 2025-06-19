@@ -7,7 +7,7 @@ function update<a,b>(array: [a]b, as: Trace<a>, bs: Trace<b>): [a]b;
 
 // dependency ks is dummy
 free lemma {:rw} forall i0: int, c: int, k: int, ks: Trace<int>, n: int ::
-    trace(i0, for k <- [ ks ] do i := if (i < n) then (c + i))
+    trace(i0, for k <- [ ks ] do i := if i < n then (c + i))
         == range(i0, c, n);
 
 // so far, only have step of 1

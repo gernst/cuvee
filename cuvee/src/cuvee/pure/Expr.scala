@@ -29,10 +29,13 @@ sealed trait Expr extends Expr.term with util.Syntax {
     note("source", arg)
 
   def note(kw: String) =
-    Note(this, sexpr.Attrs(List(sexpr.Kw(kw) -> None)))
+    Note(this, Nil, sexpr.Attrs(List(sexpr.Kw(kw) -> None)))
 
   def note(kw: String, arg: String) =
-    Note(this, sexpr.Attrs(List(sexpr.Kw(kw) -> Some(sexpr.Id(arg)))))
+    Note(this, Nil, sexpr.Attrs(List(sexpr.Kw(kw) -> Some(sexpr.Id(arg)))))
+
+  def note(kw: String, arg: sexpr.Expr) =
+    Note(this, Nil, sexpr.Attrs(List(sexpr.Kw(kw) -> Some(arg))))
 
   def unary_+ = this
   def unary_- = UMinus(this)
@@ -58,8 +61,10 @@ sealed trait Expr extends Expr.term with util.Syntax {
   // def append(that: Expr) = App(Fun.append, List(this, that))
 
   def stripNotes = bottomup {
-    case Note(expr, attr) => expr
-    case expr             => expr
+    case Note(expr, patterns, attr) =>
+      expr
+    case expr =>
+      expr
   }
 
   def bottomup(g: Expr => Expr): Expr = {
@@ -76,8 +81,8 @@ sealed trait Expr extends Expr.term with util.Syntax {
         g(lit)
       case id: Var =>
         g(id)
-      case Note(expr, attr) =>
-        g(Note(expr.map(f, g), attr))
+      case Note(expr, patterns, attr) =>
+        g(Note(expr.map(f, g), patterns map (_ map (_.map(f, g))), attr))
       case Is(arg, fun) =>
         g(Is(arg map (f, g), fun))
       case At(where, arg) =>
@@ -321,13 +326,13 @@ case class Var(name: Name, typ: Type) extends Expr with Expr.x {
 
   def in(that: Expr): Boolean =
     that match {
-      case that: Var        => this == that
-      case App(_, args)     => this in args
-      case _: Lit           => false
-      case Distinct(exprs)  => this in exprs
-      case Is(arg, fun)     => this in arg
-      case At(where, arg)   => false
-      case Note(expr, attr) => this in expr
+      case that: Var                  => this == that
+      case App(_, args)               => this in args
+      case _: Lit                     => false
+      case Distinct(exprs)            => this in exprs
+      case Is(arg, fun)               => this in arg
+      case At(where, arg)             => false
+      case Note(expr, patterns, attr) => this in expr
       case self @ Let(eqs, body) =>
         val bound = self.bound
         (eqs exists (this in _.e)) || ((this in body) && !(bound contains this))
@@ -764,20 +769,21 @@ case class Let(eqs: List[LetEq], body: Expr) extends Expr with Expr.bind[Let] {
     cuvee.undefined // need to fix let eqs, too
 }
 
-case class Note(expr: Expr, attrs: sexpr.Attrs) extends Expr {
+case class Note(expr: Expr, patterns: List[List[Expr]], attrs: sexpr.Attrs = sexpr.Attrs.empty)
+    extends Expr {
   def typ = expr.typ
 
   def free = expr.free
   def funs = expr.funs
 
   def rename(re: Map[Var, Var]) =
-    Note(expr rename re, attrs)
+    Note(expr rename re, patterns map (_ rename re), attrs)
   def subst(su: Map[Var, Expr]) =
-    Note(expr subst su, attrs)
+    Note(expr subst su, patterns map (_ subst su), attrs)
   def inst(su: Map[Param, Type]) =
-    Note(expr inst su, attrs)
+    Note(expr inst su, patterns map (_ inst su), attrs)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    Note(expr inst (ty, su), attrs)
+    Note(expr inst (ty, su), patterns map (_ inst (ty, su)), attrs)
 }
 
 case class Distinct(exprs: List[Expr]) extends Expr {

@@ -23,7 +23,7 @@ ws = {nl} | [ \t\f]
 number  = [1-9][0-9]* | 0
 
 kw = "function" | "axiom" | "const" | "lemma" | "data" | "abstractions" | "contract" | "type" | "procedure" | "where"
-   | "(" | ")" | "[" | "]" | "::" | [;,:{}⟅⟆⦃⦄〚〛] | ":=" | "<-"
+   | "(" | ")" | "[" | "]" | "::" | [;,:{}⟅⟆⦃⦄〚〛〈〉⟪⟫] | ":=" | "<-"
    | "bool" | "int" | "real" | "=" | "|"
    | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "havoc" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
    | "while" | "if" | "else" | "break" | "return"
