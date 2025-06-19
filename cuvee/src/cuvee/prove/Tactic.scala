@@ -123,7 +123,7 @@ object ProofUtils{
 
     case Split => 
       val goals = Horn.assume(List(goal), Nil, Nil, Nil, Nil)
-      println(goals.length)
+      // println(goals.length)
       goals.zipWithIndex map{case (expr, i) => (IndexSel(i), expr)}
   }
 

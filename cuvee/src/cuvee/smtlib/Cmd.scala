@@ -22,7 +22,9 @@ case class Info(arg: Any) extends Res
 case object Success extends Ack
 case object Unsupported extends Ack
 
-case class Error(info: List[Any]) extends Exception with Res {}
+case class Error(info: List[Any]) extends Exception with Res {
+  override def toString = info.mkString("error: ", " ", " ")
+}
 
 object Error extends (List[Any] => Error) {
   def apply(info: List[Any]): Nothing = {

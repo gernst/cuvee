@@ -127,7 +127,7 @@ object Rules {
   ): List[Rule] =
     rhs match {
       case _ if !(ok contains lhs.fun) =>
-        println("discarding rule for " + lhs)
+        // println("discarding rule for " + lhs)
         Nil
 
       case Ite(test, left, right) if ite =>

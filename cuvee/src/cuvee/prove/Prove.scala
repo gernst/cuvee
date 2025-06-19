@@ -88,7 +88,7 @@ class Prove(
     //print(cuvee.boogie.Printer.proof(proof))
     val attempt = ProofUtils.apply(goal, proof, state, prover, rws)
     val tree = TreeUtils.insertAttempt(Nil, Step(goal), attempt)
-    println(tree.toString(0))
+    // println(tree.toString(0))
     tree.leaves
   }
 
