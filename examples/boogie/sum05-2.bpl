@@ -11,6 +11,9 @@ free lemma forall a:[int]int ::
 
 // recursion
 free lemma forall a: [int]int, to: int ::
+    1 <= to ==> sum(a, 1, to, 0, 1) == sum(a, 0, to, 0, 1) - a[to];
+
+free lemma forall a: [int]int, to: int ::
     0 <= to ==> sum(a, 0, to+1, 0, 1) == sum(a, 0, to, 0, 1) + a[to];
 
 free lemma forall a: [int]int, i: int, j: int, n: int, z: int ::
@@ -25,25 +28,15 @@ free lemma forall a: [int]int, i: int, j: int, n: int, z: int ::
 // from inclusive, to exclusive
 function shift(a: [int]int, from: int, to: int, delta: int): [int]int;
 
-free lemma forall a: [int]int, pos: int, delta: int ::
-    shift(a, pos, pos, delta) == a;
+free lemma forall a: [int]int, from: int, to: int, delta: int, k: int ::
+  shift(a, from, to, delta)[k]
+    == if from <= k && k < to
+       then a[k + delta]
+       else a[k];
 
-free lemma forall a: [int]int, i: int, j: int, v: int ::
-  !(1 <= j && j < i+1) && (0 <= j && j < i)
-    ==> shift(a[j:=v], 0, i, 1) == shift(a, 0, i, 1);
-
-free lemma forall a: [int]int, i: int, j: int, v: int ::
-  !(1 <= j && j < i+1) && !(0 <= j && j < i)
-    ==> shift(a[j:=v], 0, i, 1) == shift(a, 0, i, 1)[j:=v];
-
-free lemma forall a: [int]int, i: int, j: int, v: int ::
-  (1 <= j && j < i+1) && (0 <= j && j < i)
-    ==> shift(a[j:=v], 0, i, 1) == shift(a, 0, i, 1)[j-1:=v];
-
-free lemma forall a: [int]int, i: int, j: int, v: int ::
-  (1 <= j && j < i+1) && !(0 <= j && j < i)
-    ==> shift(a[j:=v], 0, i, 1) == shift(a, 0, i, 1)[j-1:=v][j:=v];
-
+free lemma forall a: [int]int, n: int ::
+  sum(shift(a, 0, n - 1, 1), 1, n, 0, 1)
+    == sum(a, 0, n - 1, 0, 1);
 
 data c#void = c#void;
 
