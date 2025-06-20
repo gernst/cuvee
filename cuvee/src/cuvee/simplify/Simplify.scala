@@ -180,8 +180,8 @@ object Simplify extends Stage {
       init
     } else {
       // don't run again here! could come in with different context
-      // println("step " + init)
-      // println("  ~> " + expr)
+      println("step " + init)
+      println("  ~> " + expr)
       // println()
       // simplify(ctx.again, expr)
 
@@ -616,40 +616,28 @@ object Simplify extends Stage {
         // println("pat: " + pat)
         // println("arg: " + arg)
 
-        val it1 = iteration1.formals.asMap
-        val it2 = iteration2.formals.asMap
-
         // we can just bind the accumulator and ignore to remove it,
         // because the left-hand side of the rule is completely fresh
         var (ty1, su1) =
           bind(ctx, List(init1, acc1), List(init2, acc2), ty, su)
 
-        // cover every actual update
-        val updates =
-          cover(updates1, updates2, (ty1, su1)) {
-            case (up1 @ Update(True, rhs1), up2 @ Update(path2, rhs2), (ty2, su2)) =>
-              bind(ctx, rhs1, rhs2, ty2, su2)
+        // cover every actual update and every pattern trace
+        val results =
+          for (
+            (ty3, su3) <- cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
+              bind(ctx, up1, up2, ty2, su2)
+            };
+            (ty5, su5) <- cover(iteration1.formals, iteration2.formals, (ty3, su3)) {
+              case (let1, let2, (ty4, su4)) =>
+                bind(ctx, let1, let2, ty4, su4)
+            }
+          )
+            yield (ty5, su5)
 
-            case (up1 @ Update(path1, rhs1), up2 @ Update(path2, rhs2), (ty2, su2)) =>
-              val (ty3, su3) = bind(ctx, rhs1, rhs2, ty2, su2)
-
-              // once the rhs matches, we need to ensure the guard of the pattern, here by two cases:
-              // - all variables of the guard are already bound: simplify under assumption path2
-              // - some variables are not bound, try to bind some condition from path2
-
-              val ctx_ = assuming(ctx, pos = List(path2))
-
-              find(ctx_, path1, ty3, su3) match {
-                case List(res) =>
-                  res
-
-                case Nil =>
-                  throw Expr.CannotBind(path1, path2, ty3, su3)
-
-                case results =>
-                  cuvee.error("multiple matches for update guard: " + results)
-              }
-          }
+        // val iterations =
+        //   cover(updates1, updates2, (ty1, su1)) { case (up1, up2, (ty2, su2)) =>
+        //     bind(ctx, up1, up2, ty2, su2)
+        //   }
 
         // uh we might want to ignore conditional updates!!
         // println("got updates: " + updates)
@@ -662,46 +650,46 @@ object Simplify extends Stage {
         // - a pattern variable that has an unconstrained trace (given as variable) is bound to a combound expression of concrete traces
         //   -> instantiate the pattern trace with a map(...) expression
 
-        val matches =
-          for ((ty3, su3) <- updates) yield {
+        // val matches =
+        //   for ((ty3, su3) <- updates) yield {
 
-            try {
-              val dependencies = su3 filter { case (x, e) => it1 contains x }
-              val constrained = iteration1.formals filter {
-                case LetEq(x, y: Var) => false
-                case LetEq(x, e)      => true
-              }
+        //     try {
+        //       val dependencies = su3 filter { case (x, e) => it1 contains x }
+        //       val constrained = iteration1.formals filter {
+        //         case LetEq(x, y: Var) => false
+        //         case LetEq(x, e)      => true
+        //       }
 
-              println("need to capture: " + constrained)
-              require(constrained.isEmpty, "constrained dependencies not implemented yet")
+        //       println("need to capture: " + constrained)
+        //       require(constrained.isEmpty, "constrained dependencies not implemented yet")
 
-              val result =
-                dependencies.foldLeft((ty3, su3)) {
-                  case ((ty4, su4), (x, y: Var)) if it2 contains y =>
-                    bind(ctx, it1(x), it2(y), ty4, su4)
+        //       val result =
+        //         dependencies.foldLeft((ty3, su3)) {
+        //           case ((ty4, su4), (x, y: Var)) if it2 contains y =>
+        //             bind(ctx, it1(x), it2(y), ty4, su4)
 
-                  case ((ty4, su4), (x, e)) =>
-                    val ys =
-                      for (y <- e.free.toList if it2 contains y)
-                        yield LetEq(y, it2(y))
+        //           case ((ty4, su4), (x, e)) =>
+        //             val ys =
+        //               for (y <- e.free.toList if it2 contains y)
+        //                 yield LetEq(y, it2(y))
 
-                    if (ys.isEmpty) {
-                      (ty4, su4) // no trace-dependencies, can compute globally
-                    } else {
-                      val iteration = Iteration(Sequential, ys)
-                      val zs = Mapping(iteration, e)
-                      bind(ctx, it1(x), zs, ty4, su4)
-                    }
-                }
+        //             if (ys.isEmpty) {
+        //               (ty4, su4) // no trace-dependencies, can compute globally
+        //             } else {
+        //               val iteration = Iteration(Sequential, ys)
+        //               val zs = Mapping(iteration, e)
+        //               bind(ctx, it1(x), zs, ty4, su4)
+        //             }
+        //         }
 
-              List(result)
-            } catch {
-              case _: Type.CannotBind => Nil
-              case _: Expr.CannotBind => Nil
-            }
-          }
+        //       List(result)
+        //     } catch {
+        //       case _: Type.CannotBind => Nil
+        //       case _: Expr.CannotBind => Nil
+        //     }
+        //   }
 
-        matches.flatten match {
+        results match {
           case Nil =>
             throw Expr.CannotBind(pat, arg, ty, su)
 
@@ -720,6 +708,44 @@ object Simplify extends Stage {
 
       case _ =>
         throw Expr.CannotBind(pat, arg, ty, su)
+    }
+  }
+
+  def bind(
+      ctx: Context,
+      pat: LetEq,
+      arg: LetEq,
+      ty: Map[Param, Type],
+      su: Map[Var, Expr]
+  ): (Map[Param, Type], Map[Var, Expr]) = {
+    (pat, arg) match {
+      case (LetEq(x1, xs1), LetEq(x2, xs2)) =>
+        bind(ctx, xs1, xs2, ty, su)
+    }
+  }
+
+  def bind(
+      ctx: Context,
+      pat: Update,
+      arg: Update,
+      ty: Map[Param, Type],
+      su: Map[Var, Expr]
+  ): (Map[Param, Type], Map[Var, Expr]) = {
+    (pat, arg) match {
+      case (Update(path1, rhs1), Update(path2, rhs2)) =>
+        val (ty_, su_) = bind(ctx, rhs1, rhs2, ty, su)
+        val ctx_ = assuming(ctx, pos = List(path2))
+
+        find(ctx_, path1, ty_, su_) match {
+          case List(res) =>
+            res
+
+          case Nil =>
+            throw Expr.CannotBind(path1, path2, ty_, su_)
+
+          case results =>
+            cuvee.error("multiple matches for update guard: " + results)
+        }
     }
   }
 
@@ -746,13 +772,13 @@ object Simplify extends Stage {
       ty: Map[Param, Type],
       su: Map[Var, Expr]
   ): List[(Map[Param, Type], Map[Var, Expr])] = {
-    val phis = And.flatten(phi)
-    // println("finding:  " + phi)
+    val phis = And.flattenStrong(phi) // ensure absence of true here
+    // println("finding:  " + phis)
     // println("given su: " + su)
     // println("context:  " + ctx.assms)
 
-    cover(ctx.assms, phis, (ty, su)) {
-      case (assm, phi, (ty, su)) if phi.free subsetOf su.keySet =>
+    cover(phis, ctx.assms, (ty, su)) {
+      case (phi, assm, (ty, su)) if phi.free subsetOf su.keySet =>
         val phi_ = simplify(ctx, phi inst (ty, su))
         if (phi_ == True) {
           // println("found " + phi + " == true ")
@@ -762,7 +788,7 @@ object Simplify extends Stage {
           throw Expr.CannotBind(assm, phi, ty, su)
         }
 
-      case (assm, phi, (ty, su)) =>
+      case (phi, assm, (ty, su)) =>
         // println("bind? " + (phi inst (ty, su)) + " == " + assm)
         val res = bind(ctx, phi, assm, ty, su)
         // println("found " + phi + " == " + assm)
@@ -773,25 +799,25 @@ object Simplify extends Stage {
   // for all bs find some matching as
   def cover[A, B, S](as: List[A], bs: List[B], s: S)(
       f: (A, B, S) => S
-  ): List[S] = bs match {
+  ): List[S] = as match {
     case Nil =>
       List(s)
 
-    case b :: bs =>
+    case a :: as =>
       for (
-        s_ <- cover(as, b, s)(f);
+        s_ <- cover(a, bs, s)(f);
         s__ <- cover(as, bs, s_)(f)
       )
         yield (s__)
   }
 
-  def cover[A, B, S](as: List[A], b: B, s: S)(
+  def cover[A, B, S](a: A, bs: List[B], s: S)(
       f: (A, B, S) => S
-  ): List[S] = as match {
+  ): List[S] = bs match {
     case Nil =>
       Nil
 
-    case a :: as =>
+    case b :: bs =>
       val here =
         try {
           List(f(a, b, s))
@@ -800,7 +826,7 @@ object Simplify extends Stage {
           case _: Expr.CannotBind => Nil
         }
 
-      val there = cover(as, b, s)(f)
+      val there = cover(a, bs, s)(f)
       here ++ there
   }
 }

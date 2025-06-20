@@ -7,15 +7,12 @@ free lemma forall a:[int]int ::
 
 // recursion
 free lemma forall a: [int]int, to: int ::
-    { sum(a, 1, to, 0, 1) }
-    1 <= to ==> sum(a, 1, to, 0, 1) == sum(a, 0, to, 0, 1) - a[0];
+    0 < to ==> sum(a, 1, to, 0, 1) == sum(a, 0, to, 0, 1) - a[0];
 
 free lemma forall a: [int]int, to: int ::
-    { sum(a, 0, to+1, 0, 1) }
     0 <= to ==> sum(a, 0, to+1, 0, 1) == sum(a, 0, to, 0, 1) + a[to];
 
 free lemma {:rw} forall a: [int]int, i: int, n: int, z: int ::
-    { sum(a[i:=z], 0, n, 0, 1) }
     sum(a[i:=z], 0, n, 0, 1)
       == if 0 <= i && i < n
          then sum(a, 0, n, 0, 1) - a[i] + z
@@ -25,16 +22,14 @@ free lemma {:rw} forall a: [int]int, i: int, n: int, z: int ::
 function shift(a: [int]int, from: int, to: int, delta: int): [int]int;
 
 free lemma forall a: [int]int, from: int, to: int, delta: int, k: int ::
-  { shift(a, from, to, delta)[k] }
   shift(a, from, to, delta)[k]
     == if from <= k && k < to
        then a[k + delta]
        else a[k];
 
 free lemma {:rw} forall a: [int]int, n: int ::
-    { sum(shift(a, 0, n - 1, 1), 0, n - 1, 0, 1) }
-  sum(shift(a, 0, n - 1, 1), 0, n - 1, 0, 1)
-    == sum(a, 1, n, 0, 1);
+  0 < n ==> sum(shift(a, 0, n - 1, 1), 0, n - 1, 0, 1)
+              == sum(a, 1, n, 0, 1);
 
 const N: int;
 axiom 2 < N;
