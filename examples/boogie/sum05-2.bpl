@@ -40,9 +40,14 @@ free lemma {:rw} forall a: [int]int, n: int, s: int ::
   current(s, trace(0, for i <- [ range(0, 1, n)] do s := a[i] + s))
     <==> s == sum(a, 0, n, 0, 1);
 
+// unclear why duplicate is needed currently
+free lemma {:rw} forall a: [int]int, n: int, s: int ::
+  current(s, trace(0, for i <- [ range(0, 1, n)] do s := s + a[i]))
+    <==> s == sum(a, 0, n, 0, 1);
+
 free lemma {:rw} forall a0: [int]int, a1: [int]int, n: int ::
-  current(a1, trace(a0, for i <- [ range(0, 1, -1 + n)] do a := a[i:=a[i + 1]]))
-    <==> a1 == shift(a0, 0, n - 1, 1);
+  current(a1, trace(a0, for i <- [ range(0, 1, n)] do a := a[i:=a[i + 1]]))
+    <==> a1 == shift(a0, 0, n, 1);
 
 const N: int;
 axiom 2 < N;
