@@ -31,6 +31,19 @@ free lemma {:rw} forall a: [int]int, n: int ::
   0 < n ==> sum(shift(a, 0, n - 1, 1), 0, n - 1, 0, 1)
               == sum(a, 1, n, 0, 1);
 
+type Trace<a>;
+function current<a>(x: a, xs: Trace<a>): bool;
+
+function range(start: int, step: int, stop: int): Trace<int>;
+
+free lemma {:rw} forall a: [int]int, n: int, s: int ::
+  current(s, trace(0, for i <- [ range(0, 1, n)] do s := a[i] + s))
+    <==> s == sum(a, 0, n, 0, 1);
+
+free lemma {:rw} forall a0: [int]int, a1: [int]int, n: int ::
+  current(a1, trace(a0, for i <- [ range(0, 1, -1 + n)] do a := a[i:=a[i + 1]]))
+    <==> a1 == shift(a0, 0, n - 1, 1);
+
 const N: int;
 axiom 2 < N;
 
@@ -56,9 +69,6 @@ procedure sum(x: [int]int)
   ret := 0;
   i := 0;
   while(i < N)
-    decreases N - i;
-    invariant 0 <= i && i <= N;
-    invariant ret == sum(x, 0, i, old(ret), 1);
   {
     ret := ret + x[i];
     i := i + 1;
@@ -100,9 +110,6 @@ procedure main()
   temp := x[0];
   var i: int := 0;
   while(i < N - 1)
-    decreases N - i;
-    invariant 0 <= i && i <= N - 1;
-    invariant x == shift(old(x), 0, i, 1);
   {
     x[i] := x[i + 1];
     i := i + 1;

@@ -10,6 +10,8 @@ import cuvee.imp.traces.Iteration
 import cuvee.imp.traces.Update
 import cuvee.imp.traces.Sequential
 import cuvee.imp.traces.Mapping
+import cuvee.imp.annotate.Current
+import cuvee.imp.annotate.Earlier
 
 object Simplify extends Stage {
   import Context.assuming
@@ -166,6 +168,7 @@ object Simplify extends Stage {
     // println()
 
     // println("clausify: " + init)
+    // XXX: applied to ANY expression, not just bool
     var expr = Clause.goal(ctx.vars, init)
     // println("       ~> " + expr)
 
@@ -180,8 +183,8 @@ object Simplify extends Stage {
       init
     } else {
       // don't run again here! could come in with different context
-      println("step " + init)
-      println("  ~> " + expr)
+      // println("step " + init)
+      // println("  ~> " + expr)
       // println()
       // simplify(ctx.again, expr)
 
@@ -278,10 +281,11 @@ object Simplify extends Stage {
 
       case expr: Trace =>
         val Trace(init, iteration, acc, updates) = expr refresh ctx.vars
+        val ctx_ = ctx.unpolar
         // XXX: how does that not crash with unbound variables?
-        val init_ = simplify(ctx.unpolar, init)
-        val iteration_ = simplify(ctx.unpolar, iteration)
-        val updates_ = simplify_updates(ctx.unpolar, updates)
+        val init_ = simplify(ctx_, init)
+        val iteration_ = simplify(ctx_, iteration)
+        val updates_ = simplify_updates(ctx_, iteration_, updates)
         Trace(init_, iteration_, acc, updates_)
 
       case expr =>
@@ -293,12 +297,22 @@ object Simplify extends Stage {
     Iteration(iteration.order, simplify_leteqs(ctx, iteration.formals))
   }
 
-  def simplify_updates(ctx: Context, updates: List[Update]): List[Update] = {
+  def simplify_updates(
+      ctx: Context,
+      iteration_ : Iteration,
+      updates: List[Update]
+  ): List[Update] = {
+    val assms =
+      for (LetEq(x, e) <- iteration_.formals)
+        yield simplify(ctx, Earlier(x, e))
+
+    val ctx_ = assuming(ctx, pos = assms)
+
     val updates_ =
       for (Update(path, rhs) <- updates) yield {
         // argh below very inelegant
-        val path_ = simplify(ctx, path)
-        val rhs_ = simplify(assuming(ctx, pos = List(path_)), rhs)
+        val path_ = simplify(ctx_, path)
+        val rhs_ = simplify(assuming(ctx_, pos = List(path_)), rhs)
         Update(path_, rhs_)
       }
 
@@ -559,7 +573,7 @@ object Simplify extends Stage {
       val rhs_ = rhs inst (ty, su)
 
       // println("rewrite " + expr)
-      // println("    ~~> " + rhs_)
+      // println("    ~> " + rhs_)
 
       rewrite(ctx.again, rhs_)
 
@@ -634,7 +648,8 @@ object Simplify extends Stage {
           )
             yield (ty5, su5)
 
-        results match {
+        val foo = results
+        results.distinct match {
           case Nil =>
             throw Expr.CannotBind(pat, arg, ty, su)
 
@@ -648,7 +663,10 @@ object Simplify extends Stage {
             // current(_, range(0, c, n))
 
             // but maybe fix the later one with avoiding c -> 1
-            cuvee.error("multiple for iteration matches: " + results)
+            for ((ty_, su_) <- results) {
+              println("  " + ty_ + " " + su_)
+            }
+            cuvee.error("multiple for iteration matches of " + pat + " for " + arg)
         }
 
       case _ =>
@@ -665,7 +683,7 @@ object Simplify extends Stage {
   ): (Map[Param, Type], Map[Var, Expr]) = {
     (pat, arg) match {
       case (LetEq(x1, xs1), LetEq(x2, xs2)) =>
-        bind(ctx, xs1, xs2, ty, su)
+        bind(ctx, List(x1, xs1), List(x2, xs2), ty, su)
     }
   }
 

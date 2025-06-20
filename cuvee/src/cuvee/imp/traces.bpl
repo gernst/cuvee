@@ -11,16 +11,12 @@ free lemma {:rw} forall i0: int, c: int, ks: Trace<int>, n: int ::
         == range(i0, c, n);
 
 free lemma {:rw} forall j: int, i: int, n: int ::
-    enters(range(i, 1, n))
-        <==> i < n;
-
-free lemma {:rw} forall j: int, i: int, n: int ::
     current(j, range(i, 1, n))
         <==> i <= j && j <= n;
 
 free lemma {:rw} forall j: int, i: int, n: int ::
-    current(j, range(i, k, n))
-        <==> i <= j && (j + i) % k == 0 && j <= n;
+    earlier(j, range(i, 1, n))
+        <==> i <= j && j < n;
 
 free lemma {:rw} forall a0: [int]int, a: [int]int, ks: Trace<int>, vs: Trace<int> :: 
     current(a, trace(a0, for k, v <- [ ks, vs ] do a := a[k := v]))
