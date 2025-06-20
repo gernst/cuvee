@@ -634,61 +634,6 @@ object Simplify extends Stage {
           )
             yield (ty5, su5)
 
-        // val iterations =
-        //   cover(updates1, updates2, (ty1, su1)) { case (up1, up2, (ty2, su2)) =>
-        //     bind(ctx, up1, up2, ty2, su2)
-        //   }
-
-        // uh we might want to ignore conditional updates!!
-        // println("got updates: " + updates)
-
-        // check the dependencies of every update, according to some cases
-        // - a global pattern variable can be bound to a concrete term that is independent of concrete trace variables,
-        //   -> fail if this condition is not satisfied
-        // - a pattern variable that comes from a trace is instantiated by a concrete variable from a concrete trace
-        //   -> match and bind the respective trace terms recursively
-        // - a pattern variable that has an unconstrained trace (given as variable) is bound to a combound expression of concrete traces
-        //   -> instantiate the pattern trace with a map(...) expression
-
-        // val matches =
-        //   for ((ty3, su3) <- updates) yield {
-
-        //     try {
-        //       val dependencies = su3 filter { case (x, e) => it1 contains x }
-        //       val constrained = iteration1.formals filter {
-        //         case LetEq(x, y: Var) => false
-        //         case LetEq(x, e)      => true
-        //       }
-
-        //       println("need to capture: " + constrained)
-        //       require(constrained.isEmpty, "constrained dependencies not implemented yet")
-
-        //       val result =
-        //         dependencies.foldLeft((ty3, su3)) {
-        //           case ((ty4, su4), (x, y: Var)) if it2 contains y =>
-        //             bind(ctx, it1(x), it2(y), ty4, su4)
-
-        //           case ((ty4, su4), (x, e)) =>
-        //             val ys =
-        //               for (y <- e.free.toList if it2 contains y)
-        //                 yield LetEq(y, it2(y))
-
-        //             if (ys.isEmpty) {
-        //               (ty4, su4) // no trace-dependencies, can compute globally
-        //             } else {
-        //               val iteration = Iteration(Sequential, ys)
-        //               val zs = Mapping(iteration, e)
-        //               bind(ctx, it1(x), zs, ty4, su4)
-        //             }
-        //         }
-
-        //       List(result)
-        //     } catch {
-        //       case _: Type.CannotBind => Nil
-        //       case _: Expr.CannotBind => Nil
-        //     }
-        //   }
-
         results match {
           case Nil =>
             throw Expr.CannotBind(pat, arg, ty, su)
