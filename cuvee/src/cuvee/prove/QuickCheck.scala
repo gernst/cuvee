@@ -45,7 +45,7 @@ class QuickCheck(rws: Map[Fun, List[Rule]], state: State) {
     )
       yield state.sort(name) // assumes anonymous sorts have no params
 
-  def hasSimpleCounterexample(phi: Expr, depth: Int): Boolean = {
+  def hasSimpleCounterexample(phi: Expr, depth: Int): Boolean = try {
     phi match {
       case Forall(xs, body) =>
         val repeat = 1
@@ -72,5 +72,9 @@ class QuickCheck(rws: Map[Fun, List[Rule]], state: State) {
       case _ =>
         false
     }
+  } catch {
+    case _: Exception =>
+      // don't complain, this is a best-effort CEX generator
+      false
   }
 }
