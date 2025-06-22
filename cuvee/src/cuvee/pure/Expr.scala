@@ -12,7 +12,7 @@ import cuvee.imp.traces.Mapping
 
 trait Extra extends Expr
 
-sealed trait Expr extends Expr.term with util.Syntax {
+sealed trait Expr extends Expr.term {
   def funs: Set[Fun]
   def typ: Type
   def inst(su: Map[Param, Type]): Expr
@@ -696,7 +696,7 @@ class CaseList(cases: List[Case]) {
   def inst(su: Map[Param, Type]) = cases map (_ inst su)
 }
 
-case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] with util.Syntax {
+case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] {
 
   def funs = pat.funs ++ expr.funs
   def bound = pat.free
@@ -735,7 +735,7 @@ class LetEqList(eqs: List[LetEq]) {
   def asMap = Map(eqs map (_.toArrow): _*)
 }
 
-case class LetEq(x: Var, e: Expr) extends util.Syntax {
+case class LetEq(x: Var, e: Expr) {
   def bound = x
   def free = e.free
   def funs = e.funs

@@ -69,23 +69,23 @@ package object lemmas {
     (decls1 ++ decls2, eqs, dfs.toList)
   }
 
-  def dump(out: PrintStream, syntax: util.Syntax, comment: Boolean = false) {
-    for (line <- syntax.lines) {
-      if (comment)
-        out.print("; ")
-      out.println(line)
-    }
-    out.println()
-  }
+  // def dump(out: PrintStream, syntax: util.Syntax, comment: Boolean = false) {
+  //   for (line <- syntax.lines) {
+  //     if (comment)
+  //       out.print("; ")
+  //     out.println(line)
+  //   }
+  //   out.println()
+  // }
 
-  def dump(out: PrintStream, section: String, stuff: List[Any]) {
-    if (stuff.nonEmpty) {
-      out.println(section)
-      for (item <- stuff)
-        out.println("  " + item)
-      out.println()
-    }
-  }
+  // def dump(out: PrintStream, section: String, stuff: List[Any]) {
+  //   if (stuff.nonEmpty) {
+  //     out.println(section)
+  //     for (item <- stuff)
+  //       out.println("  " + item)
+  //     out.println()
+  //   }
+  // }
 
   def log(file: String) = {
     new PrintStream(new FileOutputStream(file))

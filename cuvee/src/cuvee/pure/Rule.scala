@@ -1,6 +1,5 @@
 package cuvee.pure
 
-import cuvee.util.Syntax
 import cuvee.smtlib.Assert
 import cuvee.State
 import cuvee.util.Name
@@ -11,7 +10,7 @@ case class Rule(
     rhs: Expr,
     cond: Expr = True,
     avoid: List[(Expr, Expr)] = Nil
-) extends Syntax {
+){
   require(
     lhs.typ == rhs.typ && cond.typ == Sort.bool,
     "rule " + this + " not type correct: " + lhs.typ + ", " + rhs.typ

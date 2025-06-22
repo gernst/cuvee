@@ -12,7 +12,7 @@ import cuvee.imp.Spec
 import cuvee.sexpr
 import cuvee.prove.Proof
 
-sealed trait Res extends util.Syntax {}
+sealed trait Res {}
 
 sealed trait IsSat extends Res
 sealed trait Ack extends Res
@@ -55,7 +55,7 @@ case class Model(defs: List[DefineFun]) extends Res {
   }
 }
 
-sealed trait Cmd extends util.Syntax
+sealed trait Cmd
 sealed trait Decl extends Cmd
 sealed trait Ctrl extends Cmd
 
@@ -76,6 +76,8 @@ case class Push(depth: Int) extends Ctrl
 case class Pop(depth: Int) extends Ctrl
 
 case object GetModel extends Cmd
+
+case object GetProof extends Cmd
 
 case class Apply(tactic: cuvee.sexpr.Expr) extends Cmd
 

@@ -30,10 +30,10 @@ trait Report {
 }
 
 object Report {
-  def stdout(implicit printer: Printer) = new print(System.out)
-  def stderr(implicit printer: Printer) = new print(System.err)
+  def stdout(printer: Printer) = new print(System.out, printer)
+  def stderr(printer: Printer) = new print(System.err,printer)
 
-  class print(stream: PrintStream)(implicit printer: Printer) extends Report {
+  class print(stream: PrintStream, printer: Printer) extends Report {
     var printSuccess = false
     var incremental = false
 
@@ -42,7 +42,7 @@ object Report {
       // suppressed response
 
       case res =>
-        for (line <- res.lines)
+        for (line <- printer.lines(res))
           stream.println(line)
     }
   }

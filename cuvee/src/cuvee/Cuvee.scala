@@ -281,7 +281,7 @@ class Config {
       configure(rest)
 
     case "-o" :: path :: rest =>
-      sink = Sink.file(path)(_)
+      sink = Sink.file(path, _)
       report = Report.stdout(_)
 
       if (path endsWith ".bpl")

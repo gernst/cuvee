@@ -12,11 +12,10 @@ import cuvee.ListOps
 
 object Parser extends TestSuite {
   val testResources = new File("cuvee/test/src/cuvee/resources/")
-  val exclude = List("simplify")
 
   val tests = Tests {
     test("parser") {
-      val files = getAllFiles(testResources)
+      val files = find(testResources, ".bpl", exclude = List("simplify"))
 
       for (file <- files) {
         val task = file.toString
@@ -36,16 +35,5 @@ object Parser extends TestSuite {
         assert(fst == snd)
       }
     }
-  }
-
-  def getAllFiles(current: File): List[File] = {
-    var allFiles: List[File] = List()
-    for (file <- current.listFiles()) {
-      if (file.isDirectory() && !(exclude contains file.getName()))
-        allFiles = allFiles ++ getAllFiles(file)
-      else if (file.toString.endsWith(".bpl"))
-        allFiles = allFiles :+ file
-    }
-    allFiles
   }
 }

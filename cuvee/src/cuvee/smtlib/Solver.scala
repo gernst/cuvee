@@ -26,26 +26,27 @@ trait Solver extends Sink {
     cmd match {
       case CheckSat =>
         check()
-      case Lemma(expr, tactic, None, _) =>
-        scoped {
-          assert(!expr)
-          require(check() == Unsat, "goal does not hold: " + expr)
-        }
-        this.assert(expr)
+
       case Lemma(expr, tactic, Some(Free), _) =>
         this.assert(expr)
+
+      case Lemma(expr, tactic, None, _) =>
+        require(isTrue(expr), "lemma does not hold: " + expr)
+        this.assert(expr)
+
       case Lemma(expr, tactic, Some(Goal), _) =>
-        scoped {
-          assert(!expr)
-          require(check() == Unsat, "goal does not hold: " + expr)
-        }
+        require(isTrue(expr), "goal does not hold: " + expr)
         Success
+
       case GetModel =>
         model(state)
+
       case GetInfo(attr) =>
         info(attr)
+
       case Labels =>
         labels()
+
       case cmd =>
         ack(cmd)
     }
@@ -154,7 +155,7 @@ object Solver {
     }
 
     def write(cmd: Cmd) {
-      for (line <- cmd.lines) {
+      for (line <- printer.lines(cmd)) {
         out.println(line)
         if (debug)
           println(proc.pid + "> " + line)
@@ -208,5 +209,6 @@ object Solver {
     }
   }
 
+  // support JVM versions where processes don't have .pid
   implicit class ProcessWithPid(process: java.lang.Process) { def pid = 0 }
 }

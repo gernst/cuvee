@@ -5,7 +5,7 @@ import cuvee.util
 import cuvee.StringOps
 import cuvee.util.Name
 
-case class Inst(fun: Fun, ty: Map[Param, Type]) extends util.Syntax {
+case class Inst(fun: Fun, ty: Map[Param, Type]) {
   require(
     ty.keySet == fun.bound,
     "some uninstantiated parameters " + ty.keySet + " for " + fun

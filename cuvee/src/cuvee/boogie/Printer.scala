@@ -9,10 +9,6 @@ import cuvee.util
 import cuvee.prove._
 import cuvee.sexpr
 
-trait Syntax extends util.Syntax {
-  def bexpr: List[Any]
-}
-
 /** Printer for boogie format */
 object Printer extends cuvee.util.Printer {
   import easyparse.Assoc
@@ -425,8 +421,6 @@ object Printer extends cuvee.util.Printer {
     case smtlib.Error(info) => lines("error: " + info.mkString(" "))
 
     case res: Res => List(res.toString)
-    // Syntax (recursive call on the syntax' s-expression)
-    case s: Syntax => lines(s.bexpr)
     // String (= Id)
     case s: String => List(s)
     // Pairs and lists consist of tokens and more syntax elements

@@ -21,6 +21,7 @@ object Verify extends TestSuite {
   val tests = Tests {
     test("annotated") {
       val annotated = new File(testResources, "annotated")
+      val files = find(testResources, ".bpl", exclude = List("simplify"))
 
       for (file <- annotated.listFiles()) {
         val task = file.toString

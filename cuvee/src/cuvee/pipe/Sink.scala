@@ -32,14 +32,11 @@ object Sink {
     }
   }
 
-  def stdout(implicit printer: Printer) =
-    new print(System.out)
+  def stdout(printer: Printer) = new print(System.out, printer)
+  def stderr(printer: Printer) = new print(System.err, printer)
 
-  def stderr(implicit printer: Printer) =
-    new print(System.err)
-
-  def file(name: String)(implicit printer: Printer) =
-    new print(new PrintStream(new FileOutputStream(name)))
+  def file(name: String, printer: Printer) =
+    new print(new PrintStream(new FileOutputStream(name)), printer)
 
   class capture extends Sink {
     var rcmds: List[Cmd] = Nil
@@ -50,11 +47,11 @@ object Sink {
     }
   }
 
-  class print(stream: PrintStream)(implicit printer: Printer) extends Sink {
+  class print(stream: PrintStream, printer: Printer) extends Sink {
     var status: Res = Unknown
 
     def exec(cmd: Cmd, state: State): Res = {
-      for (line <- cmd.lines)
+      for (line <- printer.lines(cmd))
         stream.println(line)
 
       cmd match {

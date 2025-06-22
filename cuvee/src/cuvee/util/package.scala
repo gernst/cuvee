@@ -5,4 +5,8 @@ import cuvee.pure.Expr
 package object util {
   implicit def toTheoryComparison(exprs: List[Expr]) =
     new util.TheoryComparison(exprs)
+
+  trait Printer {
+    def lines(repr: Any): List[String]
+  }
 }

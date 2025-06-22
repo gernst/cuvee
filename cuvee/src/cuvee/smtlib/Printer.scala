@@ -5,14 +5,6 @@ import cuvee.pure._
 import cuvee.imp._
 import cuvee.sexpr
 
-trait Syntax extends cuvee.util.Syntax {
-  def sexpr: Any
-}
-
-class SyntaxList(xs: List[Syntax]) {
-  def sexpr = xs map (_.sexpr)
-}
-
 object Printer extends cuvee.util.Printer {
   def just(any: Any): List[String] =
     List(any.toString)

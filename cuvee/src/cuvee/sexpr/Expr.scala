@@ -3,7 +3,7 @@ package cuvee.sexpr
 import easyparse._
 import scala.reflect.ClassTag
 
-sealed trait Expr extends cuvee.util.Syntax {
+sealed trait Expr {
   def apply(index: Int) =
     this match {
       case App(args @ _*) => args(index)

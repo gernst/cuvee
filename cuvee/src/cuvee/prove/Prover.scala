@@ -80,7 +80,7 @@ object Prover {
     def reduce(prop: Expr, state: State) = {
       val file = prefix + next + ".smt2"
       val stream = new PrintStream(new FileOutputStream(file))
-      val sink = new Sink.print(stream)
+      val sink = new Sink.print(stream, printer)
 
       for (cmd <- prelude)
         sink.exec(cmd, null)

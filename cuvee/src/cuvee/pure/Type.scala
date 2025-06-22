@@ -6,9 +6,9 @@ import cuvee.util
 import cuvee.util.Name
 import cuvee.util.Alpha
 
-sealed trait Type extends Type.term with util.Syntax {}
+sealed trait Type extends Type.term {}
 
-case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])]) extends util.Syntax
+case class Datatype(params: List[Param], constrs: List[(Fun, List[Fun])])
 
 object Type extends Alpha[Type, Param] {
   case class CannotUnify(reason: String) extends Exception {

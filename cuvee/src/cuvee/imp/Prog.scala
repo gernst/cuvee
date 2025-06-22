@@ -58,7 +58,7 @@ case class Post(how: Modality, prog: Prog, post: Expr) extends Expr {
   override def toString = Printer.post(how, prog, post)
 } */
 
-sealed trait Prog extends util.Syntax {
+sealed trait Prog {
   def vars: Set[Var]
   def mod: Set[Var]
   def read: Set[Var]
