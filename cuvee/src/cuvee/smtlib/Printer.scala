@@ -4,6 +4,7 @@ import cuvee.util.Name
 import cuvee.pure._
 import cuvee.imp._
 import cuvee.sexpr
+import cuvee.imp.traces.Trace
 
 object Printer extends cuvee.util.Printer {
   def just(any: Any): List[String] =
@@ -83,15 +84,24 @@ object Printer extends cuvee.util.Printer {
     case DeclareVar(name, typ) => // not in SMT-LIB
       parens("declare-var", name, typ)
 
-    // XXX: no params supported below yet
     case DeclareFun(name, Nil, args, res) =>
       parens("declare-fun", name, args, res)
+
+    // support parameters in alt-ergo format
+    case DeclareFun(name, params, args, res) =>
+      parens("declare-fun", name, parens("par", parens(params), args, res))
 
     case DefineFun(name, Nil, formals, res, body, true) =>
       parens("define-fun-rec", name, formals.asFormals, res, body)
 
+    case DefineFun(name, params, formals, res, body, true) =>
+      parens("define-fun-rec", name, parens("par", parens(params), formals.asFormals, res, body))
+
     case DefineFun(name, Nil, formals, res, body, false) =>
       parens("define-fun", name, formals.asFormals, res, body)
+
+    case DefineFun(name, params, formals, res, body, false) =>
+      parens("define-fun", name, parens("par", parens(params), formals.asFormals, res, body))
 
     case DeclareDatatypes(arities, datatypes) =>
       parens("declare-datatypes", arities, datatypes)
@@ -129,7 +139,14 @@ object Printer extends cuvee.util.Printer {
       val avoid = in ++ out
       val (local, body_) = Prog.liftLocals(avoid.toSet, body)
       val attr = List(":modifies", mod, ":requires", pre, ":ensures", post)
-      parens("define-proc", name, in.asFormals, out.asFormals, local.asFormals, parens2("!", body_)(attr))
+      parens(
+        "define-proc",
+        name,
+        in.asFormals,
+        out.asFormals,
+        local.asFormals,
+        parens2("!", body_)(attr)
+      )
 
     // pure.Expr
     case Lit(i: BigInt, _) =>
@@ -168,6 +185,9 @@ object Printer extends cuvee.util.Printer {
 
     case App(inst, args) =>
       parens2(inst.fun.name)(args)
+
+    case Trace(init, iteration, acc, updates) =>
+      parens()
 
     // pure.Fun
     case Inst(fun, ty) if fun.params.nonEmpty =>

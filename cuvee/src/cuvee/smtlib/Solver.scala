@@ -119,6 +119,9 @@ object Solver {
   def z3(timeout: Int = 1000) =
     new solver("z3", "-t:" + timeout, "-in")
 
+  def alt_ergo(timeout: Int = 1000) =
+    new solver("alt-ergo", "-timelimit" + (timeout/1000), "-timelimit-per-goal", "-i", "psmt2,")
+
   def cvc4(timeout: Int = 1000) =
     new solver(
       "cvc4",

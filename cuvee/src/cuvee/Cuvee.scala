@@ -151,6 +151,9 @@ class Config {
     option("-prove:cvc5", "prove lemmas with tactics and CVC5 as endgame solver") {
       prove = "cvc5"
     },
+    option("-prove:alt-ergo", "prove lemmas with tactics and alt-ergo as endgame solver") {
+      prove = "alt-ergo"
+    },
     option("-prove:simplify", "use the internal simplifier to reduce lemmas") {
       prove = "simplify"
     },
@@ -393,6 +396,20 @@ object Config {
 
       case "cvc5" =>
         val solver = Solver.cvc5()
+        val prover = Prover.fromSolver(solver, config.induct)
+        sink = new Incremental(
+          new Prove(
+            prover,
+            config.simplify,
+            config.rewrite,
+            config.proveNegatedAsserts,
+            config.crosscheckProver
+          ),
+          sink
+        )
+
+      case "alt-ergo" =>
+        val solver = Solver.alt_ergo()
         val prover = Prover.fromSolver(solver, config.induct)
         sink = new Incremental(
           new Prove(

@@ -521,47 +521,11 @@ object Simplify extends Stage {
     val Rule(pat, rhs, cond, avoid) = eqn.gen
 
     try {
-      // val xs = ctx.free ++ expr.free // need both!
-      // val ys = pat.free ++ cond.free // need both!
-      // val dep = ys map (x => (x, xs))
-      // val bn = Bnd(dep.toMap, Set(), Map(), Map(), Map(), List(), Map(), Map())
-      // val binding = bind("lhs rule", ctx, pat, expr, bn)
-
-      // println("rule matched: " + pat + " at " + expr)
-      // println()
-      // println("applying rule: " + eqn)
-      // println("to " + expr)
-
-      if (cond != True) {
-        // println("checking side condition " + cond)
-        // for (phi <- ctx.assms)
-        //   println("  given: " + phi)
-        // for (eq <- ctx.su)
-        //   println("  subst: " + eq)
-        // for (eq <- ctx.eq)
-        //   println("  defn:  " + eq)
-      }
-
-      // val cond_ = simplify(ctx, cond)
-      // if (cond_ == True) {
-      //   println("  success")
-      // }
-
-      // println()
-      // println("again for rule: " + eq)
-      // val binding_ = find(ctx, cond, binding)
-
-      // if (cond_ != True) {
-      //   throw Rewrite.PremiseNotValid
-      // }
-
       val (ty, su) = bind(ctx, pat, expr)
 
       val _cond = simplify(ctx, cond inst (ty, su))
 
       if (_cond != True) {
-        // if (debug)
-        //   println("  " * depth + "condition not satisfied " + _cond)
         throw Rewrite.PremiseNotValid // ("side-condition not satisfied " + _cond)
       }
 
@@ -571,9 +535,6 @@ object Simplify extends Stage {
       }
 
       val rhs_ = rhs inst (ty, su)
-
-      // println("rewrite " + expr)
-      // println("    ~> " + rhs_)
 
       rewrite(ctx.again, rhs_)
 
