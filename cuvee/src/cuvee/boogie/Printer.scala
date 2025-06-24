@@ -657,6 +657,7 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
 
+    case Proof(Split, _)      => indent(List("split"))
     case Proof(Sorry, _)      => indent(List("sorry"))
     case Proof(Auto, _)       => indent(List("auto"))
     case Proof(BreakPoint, _) => indent(List("break"))

@@ -88,20 +88,20 @@ object Printer extends cuvee.util.Printer {
       parens("declare-fun", name, args, res)
 
     // support parameters in alt-ergo format
-    case DeclareFun(name, params, args, res) =>
-      parens("declare-fun", name, List("par", params, args, res))
+    case DeclareFun(name, params, formals, res) =>
+      parens("declare-fun", name, args("par", params, formals, res))
 
     case DefineFun(name, Nil, formals, res, body, true) =>
       parens("define-fun-rec", name, formals.asFormals, res, body)
 
     case DefineFun(name, params, formals, res, body, true) =>
-      parens("define-fun-rec", name, List("par", params, formals.asFormals, res, body))
+      parens("define-fun-rec", name, args("par", params, formals.asFormals, res, body))
 
     case DefineFun(name, Nil, formals, res, body, false) =>
       parens("define-fun", name, formals.asFormals, res, body)
 
     case DefineFun(name, params, formals, res, body, false) =>
-      parens("define-fun", name, List("par", params, formals.asFormals, res, body))
+      parens("define-fun", name, args("par", params, formals.asFormals, res, body))
 
     case DeclareDatatypes(arities, datatypes) =>
       parens("declare-datatypes", arities, datatypes)
