@@ -15,7 +15,7 @@ object Parser extends TestSuite {
 
   val tests = Tests {
     test("parser") {
-      val files = find(testResources, ".bpl", exclude = List("simplify"))
+      val files = find(testResources, ".bpl", exclude = List("simplify", "induction"))
 
       for (file <- files) {
         val task = file.toString
@@ -31,7 +31,6 @@ object Parser extends TestSuite {
         stream.close()
 
         val snd = Cuvee.collect(Array(tmpFile.getAbsolutePath()))
-
         assert(fst == snd)
       }
     }

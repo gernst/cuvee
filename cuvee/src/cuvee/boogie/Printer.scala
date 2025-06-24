@@ -657,7 +657,17 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
 
-    case Proof(Split, _)      => indent(List("split"))
+    case Proof(Split, subproofs)      => indent(List("split"))
+      val head = "split"
+      var result : List[String] = Nil
+      for (subproof <- subproofs){
+        val (sel, subproof_) = subproof
+        result ++= sel.toString() +: proof_(subproof_)
+      }
+
+      result = head +: result
+      indent(result)
+
     case Proof(Sorry, _)      => indent(List("sorry"))
     case Proof(Auto, _)       => indent(List("auto"))
     case Proof(BreakPoint, _) => indent(List("break"))

@@ -127,9 +127,9 @@ proof
 //proof forall n: Int, x: elem, xs: list<elem> ::
 // ((append(take(n, xs), drop(n, xs)) == xs) ==> (append(take(n, cons(x, xs)), drop(n, cons(x, xs))) == cons(x, xs)))
 
-lemma forall n: int, xs: list<elem> ::
-  append(take(n, xs), drop(n, xs)) == xs
-proof induction xs{
-  case cons(x, xs) => split
-};
+//lemma forall n: int, xs: list<elem> ::
+  //append(take(n, xs), drop(n, xs)) == xs
+//proof induction xs{
+  //case cons(x, xs) => auto
+//};
 

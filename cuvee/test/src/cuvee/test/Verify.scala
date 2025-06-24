@@ -14,37 +14,27 @@ import cuvee.smtlib.Unsupported
 
 object Verify extends TestSuite {
   val testResources = new File("cuvee/test/src/cuvee/resources/")
-
-  val stream = new ByteArrayOutputStream
-  System.setOut(new java.io.PrintStream(stream))
+  val exclude = List("simplify", "induction")
 
   val tests = Tests {
     test("annotated") {
       val annotated = new File(testResources, "annotated")
-      val files = find(testResources, ".bpl", exclude = List("simplify"))
-
-      for (file <- annotated.listFiles()) {
+      val files = find(annotated, ".bpl", exclude)
+      for (file <- files){
         val task = file.toString
         val cmds = Array("-vcgen:partial", "-split", "-z3", task)
-
-        val result = eval(cmds)
-
-        assert(result == Success)
+        Cuvee.main(cmds)
       }
     }
-  }
-
-  def eval(task: Array[String]) = {
-    try {
-      Cuvee.main(task)
-      Success
-    } catch {
-      case e: IllegalArgumentException =>
-        e.getMessage() match {
-          case "requirement failed: Could not prove all goals." => Unknown
-          case _                                                => Unsupported
-        }
-      case e: Exception => Unsupported
+    
+    test("induction") {
+      val induction = new File(testResources, "induction")
+      val files = find(induction, ".bpl", exclude)
+      for (file <- files){
+        val task = file.toString
+        val cmds = Array("-prove:z3", "-z3", task)
+        Cuvee.main(cmds)
+      }
     }
   }
 }
