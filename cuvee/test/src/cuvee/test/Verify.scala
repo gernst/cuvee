@@ -1,7 +1,7 @@
 package cuvee.test
 
 import cuvee.Cuvee
-import utest._
+import minitest._
 
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -12,39 +12,21 @@ import cuvee.smtlib.Success
 import cuvee.smtlib.Unknown
 import cuvee.smtlib.Unsupported
 
-object Verify extends TestSuite {
+object Verify extends SimpleTestSuite {
   val testResources = new File("cuvee/test/src/cuvee/resources/")
 
   val stream = new ByteArrayOutputStream
   System.setOut(new java.io.PrintStream(stream))
 
-  val tests = Tests {
-    test("annotated") {
-      val annotated = new File(testResources, "annotated")
-      val files = find(testResources, ".bpl", exclude = List("simplify"))
+  test("annotated") {
+    val annotated = new File(testResources, "annotated")
+    val files = find(testResources, ".bpl", exclude = List("simplify"))
 
-      for (file <- annotated.listFiles()) {
-        val task = file.toString
-        val cmds = Array("-vcgen:partial", "-split", "-z3", task)
+    for (file <- annotated.listFiles()) {
+      val task = file.toString
+      val args = Array("-vcgen:partial", "-split", "-z3", task)
 
-        val result = eval(cmds)
-
-        assert(result == Success)
-      }
-    }
-  }
-
-  def eval(task: Array[String]) = {
-    try {
-      Cuvee.main(task)
-      Success
-    } catch {
-      case e: IllegalArgumentException =>
-        e.getMessage() match {
-          case "requirement failed: Could not prove all goals." => Unknown
-          case _                                                => Unsupported
-        }
-      case e: Exception => Unsupported
+        Cuvee.main(args)
     }
   }
 }

@@ -1,7 +1,7 @@
 package cuvee.test
 
 import cuvee.Cuvee
-import utest._
+import minitest._
 
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -10,30 +10,24 @@ import cuvee.smtlib.DefineProc
 import cuvee.pure.Simplify
 import cuvee.ListOps
 
-object Parser extends TestSuite {
+object Parser extends SimpleTestSuite {
   val testResources = new File("cuvee/test/src/cuvee/resources/")
 
-  val tests = Tests {
-    test("parser") {
-      val files = find(testResources, ".bpl", exclude = List("simplify"))
+  test("parser") {
+    val files = find(testResources, ".bpl", exclude = List("simplify"))
 
-      for (file <- files) {
-        val task = file.toString
-        val tmpFile = File.createTempFile("tmp-" + task, ".bpl")
-        tmpFile.deleteOnExit()
+    for (file <- files) {
+      val task = file.toString
+      val tmpFile = File.createTempFile("tmp-" + task, ".bpl")
+      tmpFile.deleteOnExit()
 
-        val stream = new ByteArrayOutputStream
-        System.setOut(new java.io.PrintStream(stream))
+      val args = Array(task, "-o", tmpFile.getAbsolutePath())
+      val fst = Cuvee.collect(args)
+      val fos = new FileOutputStream(tmpFile)
 
-        val fst = Cuvee.collect(Array(task))
-        val fos = new FileOutputStream(tmpFile)
-        stream.writeTo(fos);
-        stream.close()
+      val snd = Cuvee.collect(Array(tmpFile.getAbsolutePath()))
 
-        val snd = Cuvee.collect(Array(tmpFile.getAbsolutePath()))
-
-        assert(fst == snd)
-      }
+      assert(fst == snd)
     }
   }
 }

@@ -28,7 +28,7 @@ object cuvee extends ScalaModule {
   )
 
   object test extends ScalaTests {
-    def ivyDeps = Agg(ivy"com.lihaoyi::utest:0.8.4")
-    def testFramework = "utest.runner.Framework"
+    def ivyDeps = Agg(ivy"io.monix::minitest:2.9.6")
+    def testFramework = "minitest.runner.Framework"
   }
 }
