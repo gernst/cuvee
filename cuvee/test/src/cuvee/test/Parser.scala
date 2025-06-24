@@ -15,7 +15,7 @@ object Parser extends TestSuite {
 
   val tests = Tests {
     test("parser") {
-      val files = find(testResources, ".bpl", exclude = List("simplify", "induction"))
+      val files = find(testResources, ".bpl", exclude = List("simplify"))
 
       for (file <- files) {
         val task = file.toString

@@ -14,7 +14,7 @@ import cuvee.smtlib.Unsupported
 
 object Verify extends TestSuite {
   val testResources = new File("cuvee/test/src/cuvee/resources/")
-  val exclude = List("simplify", "induction")
+  val exclude = List("simplify")
 
   val tests = Tests {
     test("annotated") {
