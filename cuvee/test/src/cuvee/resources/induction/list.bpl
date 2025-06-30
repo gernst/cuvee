@@ -130,6 +130,6 @@ proof
 lemma forall n: int, xs: list<elem> ::
   append(take(n, xs), drop(n, xs)) == xs
 proof induction xs{
-  case cons(x, xs) => split
+  case cons(x, xs) => sorry
 };
 

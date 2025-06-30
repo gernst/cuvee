@@ -20,6 +20,13 @@ package object smtlib {
     res
   }
 
+  def parse(reader: Reader): (List[Cmd], State) = {
+    val from = sexpr.parse(reader)
+    val st = State.default
+    val res = parse(from, st)
+    (res, st)
+  }
+
   def source(): Source = source(new InputStreamReader(System.in))
   def source(path: String): Source = source(new FileReader(path))
 
