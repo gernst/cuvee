@@ -11,22 +11,37 @@ import cuvee.smtlib.DefineProc
 import cuvee.smtlib.Success
 import cuvee.smtlib.Unknown
 import cuvee.smtlib.Unsupported
+import cuvee.smtlib.Lemma
+import cuvee.smtlib.Goal
 
 object Verify extends SimpleTestSuite {
   val testResources = new File("cuvee/test/src/cuvee/resources/")
 
-  val stream = new ByteArrayOutputStream
-  System.setOut(new java.io.PrintStream(stream))
+  
+  val annotated = new File(testResources, "annotated")
+  val annotatedFiles = find(annotated, ".bpl", exclude = List("simplify", "induction"))
 
-  test("annotated") {
-    val annotated = new File(testResources, "annotated")
-    val files = find(testResources, ".bpl", exclude = List("simplify"))
+  for (file <- annotatedFiles) {
+    val task = file.toString
+    val args = Array("-vcgen:partial", "-split", "-z3", task)
+    test(task){
+      Cuvee.main(args)
+    }
+  }
 
-    for (file <- annotated.listFiles()) {
-      val task = file.toString
-      val args = Array("-vcgen:partial", "-split", "-z3", task)
-
-        Cuvee.main(args)
+  val inductionFiles = find(new File(testResources, "induction"), ".bpl", Nil)
+  
+  for (file <- inductionFiles){
+    val task = file.toString
+    val args = Array("-prove:z3", "-z3", task)
+    val cmds = Cuvee.collect(args)
+    test(task){
+      assert(cmds.forall{
+        case Lemma(expr, proof, None, _) => false
+        case Lemma(expr, proof, Some(Goal), _) => false
+        case _ => true
+      })
+      Cuvee.main(args)
     }
   }
 }
