@@ -183,9 +183,9 @@ object Simplify extends Stage {
       init
     } else {
       // don't run again here! could come in with different context
-      // println("step " + init)
-      // println("  ~> " + expr)
-      // println()
+      println("step " + init)
+      println("  ~> " + expr)
+      println()
       // simplify(ctx.again, expr)
 
       expr
@@ -523,6 +523,7 @@ object Simplify extends Stage {
     try {
       val (ty, su) = bind(ctx, pat, expr)
 
+      // XXX: check if the instance is partial
       val _cond = simplify(ctx, cond inst (ty, su))
 
       if (_cond != True) {
@@ -540,11 +541,13 @@ object Simplify extends Stage {
 
     } catch { // this rule does not apply, try other rules
       case Type.CannotBind(pat, arg, ty) =>
-        // println("cannot bind " + pat + " to " + arg + " with " + ty)
+        println("cannot bind " + pat + " to " + arg + " with " + ty)
         rewrite(ctx, use, expr)
 
-      case Expr.CannotBind(pat, arg, ty, su) =>
-        // println("cannot bind " + pat + " to " + arg + " with " + ty + " and " + su)
+      case Expr.CannotBind(pat, arg, ty, su, reason) =>
+        println(
+          "cannot bind " + pat + " to " + arg + " with " + ty + " and " + su + " (" + reason + ")"
+        )
         rewrite(ctx, use, expr)
 
       case Rewrite.PremiseNotValid | Rewrite.InstanceAvoided =>
@@ -559,11 +562,15 @@ object Simplify extends Stage {
       ty: Map[Param, Type] = Map(),
       su: Map[Var, Expr] = Map()
   ): (Map[Param, Type], Map[Var, Expr]) = {
+    println("binding")
+    println("pat: " + pat)
+    println("arg: " + arg)
+
     (pat, arg) match {
       case (x: Var, _) if su contains x =>
         if (su(x) != arg) {
           // println("cannot bind " + pat + " to " + arg + " with " + ty + " and " + su)
-          throw Expr.CannotBind(pat, arg, ty, su)
+          throw Expr.CannotBind(pat, arg, ty, su, "not equal")
         }
 
         (ty, su)
@@ -587,32 +594,65 @@ object Simplify extends Stage {
       case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
         val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen
 
-        // println("binding traces")
-        // println("pat: " + pat)
-        // println("arg: " + arg)
+        val tr2 =
+          Expr.subst(
+            for (LetEq(x2, xs2) <- iteration2.formals)
+              yield x2 -> xs2
+          )
 
         // we can just bind the accumulator and ignore to remove it,
         // because the left-hand side of the rule is completely fresh
         var (ty1, su1) =
           bind(ctx, List(init1, acc1), List(init2, acc2), ty, su)
 
-        // cover every actual update and every pattern trace
-        val results =
-          for (
-            (ty3, su3) <- cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
-              bind(ctx, up1, up2, ty2, su2)
-            };
-            (ty5, su5) <- cover(iteration1.formals, iteration2.formals, (ty3, su3)) {
-              case (let1, let2, (ty4, su4)) =>
-                bind(ctx, let1, let2, ty4, su4)
-            }
-          )
-            yield (ty5, su5)
+        // cover every actual update: the rule must be applicable to each possible transition of the iteration
+        val updates =
+          cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
+            bind(ctx, up1, up2, ty2, su2)
+          };
 
-        val foo = results
-        results.distinct match {
+        // the goal is to then cover all *trace* variables occurring in the iteration of the pattern,
+        // however, we first leverage that we have a mapping for some *local* bindings,
+        // and then try to figure out the rest
+        val iteration =
+          for ((ty3, su3) <- updates)
+            yield iteration1.formals.foldLeft((ty3, su3)) {
+              case (((ty4, su4)), LetEq(x1, xs1)) if su4 contains x1 =>
+                // require(!(su4 contains xs1), "trace already bound from update " + xs1)
+
+                su4(x1) match {
+                  // pattern iteration variable x1 is bound just to a simple variable x2
+                  // then just map xs1 to the corresponding trace xs2 (special case)
+                  case x2: Var if tr2 contains x2 =>
+                    bind(ctx, xs1, tr2(x2), ty4, su4)
+
+                  case e2 =>
+                    val ys = e2.free
+                    val formals = iteration2.formals.filter(eq => ys.contains(eq.x))
+                    val iteration = Iteration(Sequential, formals)
+                    bind(ctx, xs1, Mapping(iteration, e2), ty4, su4)
+                }
+
+              case (((ty4, su4)), LetEq(x1, xs1)) =>
+                println("warning: unbound pattern iteration " + x1 + " <- " + xs1)
+                (ty4, su4)
+            }
+
+        // val results =
+        //   for (
+        //     (ty3, su3) <- cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
+        //       bind(ctx, up1, up2, ty2, su2)
+        //     };
+        //     (ty5, su5) <- cover(iteration1.formals, iteration2.formals, (ty3, su3)) {
+        //       case (let1, let2, (ty4, su4)) =>
+        //         bind(ctx, let1, let2, ty4, su4)
+        //     }
+        //   )
+        //     yield (ty5, su5)
+
+        iteration.distinct match {
           case Nil =>
-            throw Expr.CannotBind(pat, arg, ty, su)
+            throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
 
           case List((ty_, su_)) =>
             (ty_, su_)
@@ -631,19 +671,26 @@ object Simplify extends Stage {
         }
 
       case _ =>
-        throw Expr.CannotBind(pat, arg, ty, su)
+        throw Expr.CannotBind(pat, arg, ty, su, "incompatible")
     }
   }
 
   def bind(
-      ctx: Context,
+      ctx: Context, // AAAARGH. No, x1, x2 are bound and can be renamed!!
       pat: LetEq,
       arg: LetEq,
       ty: Map[Param, Type],
       su: Map[Var, Expr]
   ): (Map[Param, Type], Map[Var, Expr]) = {
+    // Note: this is called after the updates have all been matched,
+    //       so we know the instantiations for x1 already (if they occur).
+    //       we *must* determine an instance for xs1 but this is questionable if x1 is unbound!
     (pat, arg) match {
       case (LetEq(x1, xs1), LetEq(x2, xs2)) =>
+        ???
+
+      case (LetEq(x1, xs1), LetEq(x2, xs2)) =>
+        ??? // AAAARGH. No, x1, x2 are bound and can be renamed!!
         bind(ctx, List(x1, xs1), List(x2, xs2), ty, su)
     }
   }
@@ -665,7 +712,7 @@ object Simplify extends Stage {
             res
 
           case Nil =>
-            throw Expr.CannotBind(path1, path2, ty_, su_)
+            throw Expr.CannotBind(path1, path2, ty_, su_, "not found")
 
           case results =>
             cuvee.error("multiple matches for update guard: " + results)
@@ -709,7 +756,7 @@ object Simplify extends Stage {
           (ty, su)
         } else {
           // println("not found " + phi + " != true ")
-          throw Expr.CannotBind(assm, phi, ty, su)
+          throw Expr.CannotBind(assm, phi, ty, su, "not covered")
         }
 
       case (phi, assm, (ty, su)) =>
@@ -746,8 +793,8 @@ object Simplify extends Stage {
         try {
           List(f(a, b, s))
         } catch {
-          case _: Type.CannotBind => Nil
-          case _: Expr.CannotBind => Nil
+          case e: Type.CannotBind => println(e); Nil
+          case e: Expr.CannotBind => println(e); Nil
         }
 
       val there = cover(a, bs, s)(f)

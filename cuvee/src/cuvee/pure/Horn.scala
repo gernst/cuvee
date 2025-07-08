@@ -16,11 +16,18 @@ object Horn extends Stage {
     cmds flatMap {
       case Lemma(todo, None, flag, named) =>
         val goals = assert(List(todo), Nil, Nil, Nil)
-        goals.distinct map {
+        goals.distinct flatMap {
+          case Clause(xs, ant, Note(True, patterns, attrs)) =>
+            Nil
+
           case Clause(xs, ant, Note(expr, patterns, attrs)) =>
-            Lemma(Clause(xs, ant, expr), None, flag, named ++ attrs)
+            List(Lemma(Clause(xs, ant, expr), None, flag, named ++ attrs))
+
+          case True =>
+            Nil
+
           case expr =>
-            Lemma(expr, None, flag, named)
+            List(Lemma(expr, None, flag, named))
         }
 
       case cmd =>

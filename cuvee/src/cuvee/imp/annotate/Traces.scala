@@ -13,6 +13,7 @@ import scala.collection.immutable
 import cuvee.smtlib.DeclareSort
 import cuvee.smtlib.DeclareFun
 
+object Range extends Sugar.ternary(Fun.range)
 object Current extends Sugar.binary(Fun.current)
 object Earlier extends Sugar.binary(Fun.earlier)
 
@@ -47,7 +48,8 @@ object Traces extends Annotate(ExecNoLoops) {
     // ws are all regular modified variables
     // zs are all nondet variables
 
-    val k = Expr.fresh("#", Sort.int)
+    val k = Expr.fresh("#k", Sort.int)
+    val N = Expr.fresh("#N", Sort.int)
 
     val ws = mod.toList
 
@@ -55,26 +57,29 @@ object Traces extends Annotate(ExecNoLoops) {
       for (path <- after.running; y <- path.fresh)
         yield y
 
-    val tr =
-      for ((x, Var(Name(name, index), typ)) <- Expr.fresh(k :: ws))
+    val tr1 =
+      Map(k -> Range(Zero, One, N))
+
+    val tr2 =
+      for ((x, Var(Name(name, index), typ)) <- Expr.fresh(ws))
         yield (x, Var(Name("@" + name, index), Sort.trace(typ)))
 
-    val nd =
+    val nd3 =
       for ((x, Var(Name(name, index), typ)) <- Expr.fresh(zs))
         yield (x, Var(Name("?" + name, index), Sort.trace(typ)))
 
-    val su = tr ++ nd
+    val su = tr1 ++ tr2 ++ nd3
 
     val inv_traces =
       for (x <- ws)
-        yield Eq(tr(x), trace(x, k, su, mod ++ zs, after.running))
+        yield Eq(su(x), trace(x, k, su, mod ++ zs, after.running))
 
-    val inv_last =
+    val inv_current =
       for (x <- k :: ws)
-        yield Current(x, tr(x))
+        yield Current(x, su(x))
 
-    val fresh = su.values.toList
-    val inv_ = Exists(k :: fresh, And(inv_traces ++ inv_last)) note "free"
+    val fresh = k :: N :: (ws map tr2) ::: (zs map nd3)
+    val inv_ = Exists(fresh, And(inv_traces ++ inv_current)) note "free"
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
     val paths_ = exec.spec(paths, ws, inv_, inv_ && !test)
