@@ -9,6 +9,8 @@ import scala.collection.mutable.ListBuffer
 import cuvee.sexpr.Tok
 import cuvee.pipe.Source
 import cuvee.smtlib.Cmd
+import java.io.PrintStream
+import java.io.FileInputStream
 
 package object boogie {
   def scan(file: String): Seq[Token] = {
@@ -29,6 +31,18 @@ package object boogie {
 
     val in = scan(file)
 
+    implicit val ctx: Map[Name, Param] = Map()
+    implicit val scope: Map[Name, Var] = Map()
+
+    grammar.script.parseAll(in)
+  }
+
+  def parse(reader: Reader) = {
+    val state = State.default
+    val parser = new Parser(state)
+    val grammar = new Grammar(parser)
+
+    val in = scan(reader)
     implicit val ctx: Map[Name, Param] = Map()
     implicit val scope: Map[Name, Var] = Map()
 
