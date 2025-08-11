@@ -77,6 +77,7 @@ object tree extends Run(Test, "evaluation/lemmas/tree.bpl")
 object prop extends Run(Test, "evaluation/lemmas/tree/prop.bpl")
 object simplify extends Run(Test, "examples/boogie/simplifier.bpl")
 
+object runlength_e extends Run(Test, "evaluation/lemmas/list/runlength.bpl")
 object runlength extends Run(Test, "examples/lemmas/runlength.bpl")
 object runlength_other extends Run(Test, "examples/lemmas/runlength_other.bpl")
 
