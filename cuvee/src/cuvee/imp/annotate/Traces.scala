@@ -71,8 +71,10 @@ object Traces extends Annotate(ExecNoLoops) {
 
     val su = tr ++ nd
 
-    val inv_counter =
+    val inv_counter = List(
+      Eq(su(k), Counter(n)),
       Holds(entry(k, su, mod ++ zs, test, after.breaked ++ after.returned))
+    )
 
     val inv_traces =
       for (x <- ws)
@@ -82,8 +84,8 @@ object Traces extends Annotate(ExecNoLoops) {
       for (x <- k :: ws)
         yield Eq(x, Current(su(x)))
 
-    val fresh = k :: tr(k) :: (ws map tr) ::: (zs map nd)
-    val inv_ = Exists(fresh, And(inv_counter :: inv_traces ::: inv_current)) note "free"
+    val fresh = k :: n :: tr(k) :: (ws map tr) ::: (zs map nd)
+    val inv_ = Exists(fresh, And(inv_counter ++ inv_traces ++ inv_current)) note "free"
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
     val paths_ = exec.spec(paths, ws, inv_, inv_ && !test)
