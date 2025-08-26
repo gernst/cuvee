@@ -497,6 +497,14 @@ object Simplify extends Stage {
       case Le(left, right) if left == right =>
         True
 
+      // case Current(Mapping(iteration, result)) =>
+      //   val su = Expr.subst(
+      //     for (LetEq(y, ys) <- iteration.formals)
+      //       yield y -> Current(ys)
+      //   )
+
+      //   result subst su
+
       case App(inst, args) if ctx.rules contains inst.fun =>
         val use = ctx.rules(inst.fun)
         rewrite(ctx, use, expr_)

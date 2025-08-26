@@ -17,7 +17,6 @@ object Traces extends Annotate(ExecNoLoops) {
   override def preamble(state: State) = {
     val (cmds, _) = cuvee.boogie.parse("cuvee/src/cuvee/imp/traces.bpl")
     state.add(cmds) // make the commands visible in this stage's state!
-    println(state)
     cmds
   }
 
@@ -31,8 +30,6 @@ object Traces extends Annotate(ExecNoLoops) {
       sum: Expr,
       frames: List[Frame]
   ): (List[Cmd], Paths, Prog) = {
-    println(state)
-
     object Current extends Sugar.unary(state.funs("current", 1))
     object Holds extends Sugar.unary(state.funs("holds", 1))
 
