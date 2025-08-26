@@ -136,13 +136,8 @@ object Fun {
   val gt = Fun(">", Nil, List(int, int), bool)
 
   // dummy functions for rewriting
-  val trace =
-    Fun("trace", List(a, b), List(a, Sort.trace(a), Sort.array(b, Sort.array(a, b))), Sort.trace(b))
+  val trace = Fun("trace", List(a, b), List(a, Sort.trace(a), Sort.array(b, Sort.array(a, b))), Sort.trace(b))
   val map = Fun("map", List(a, b), List(a, Sort.trace(a), Sort.array(a, b)), Sort.trace(b))
-
-  val range = Fun("range", List(), List(int, int, int), Sort.trace(int))
-  val current = Fun("current", List(a), List(a, Sort.trace(a)), Sort.bool)
-  val earlier = Fun("earlier", List(a), List(a, Sort.trace(a)), Sort.bool)
 
   val builtin = Set(
     eq_,

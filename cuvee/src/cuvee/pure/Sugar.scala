@@ -95,6 +95,20 @@ object Sugar {
     }
   }
 
+  class quartic(val fun: Fun) extends ((Expr, Expr, Expr, Expr) => Expr) {
+    def unapply(expr: Expr) =
+      expr match {
+        case App(inst, List(arg1, arg2, arg3, arg4)) if inst.fun == fun =>
+          Some((arg1, arg2, arg3, arg4))
+        case _ =>
+          None
+      }
+
+    def apply(arg1: Expr, arg2: Expr, arg3: Expr, arg4: Expr): Expr = {
+      App(fun, List(arg1, arg2, arg3, arg4))
+    }
+  }
+
   class associative(fun: Fun, val assoc: Assoc) extends binary(fun) {
     def apply(args: List[Expr]): Expr =
       assoc.reduce(args, this)

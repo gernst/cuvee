@@ -35,6 +35,6 @@ case class Mapping(
 
   override def toString = {
     import cuvee.StringOps
-    "map(for " + iteration + " do " + result + ")"
+    "map(for " + iteration + " yield " + result + ")"
   }
 }

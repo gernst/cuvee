@@ -10,8 +10,7 @@ import cuvee.imp.traces.Iteration
 import cuvee.imp.traces.Update
 import cuvee.imp.traces.Sequential
 import cuvee.imp.traces.Mapping
-import cuvee.imp.annotate.Current
-import cuvee.imp.annotate.Earlier
+import cuvee.imp.annotate.Traces
 
 object Simplify extends Stage {
   import Context.assuming
@@ -302,9 +301,15 @@ object Simplify extends Stage {
       iteration_ : Iteration,
       updates: List[Update]
   ): List[Update] = {
-    val assms =
-      for (LetEq(x, e) <- iteration_.formals)
-        yield simplify(ctx, Earlier(x, e))
+    // TODO: earlier or current?
+    //       probably earlier, because all current is with respect to the external counter k
+    //       but also the problem is that they are not viewed jointly from an earlier state!!
+    //       here should introduce another counter for the earlier state
+    // val assms =
+    //   for (LetEq(x, e) <- iteration_.formals)
+    //     yield simplify(ctx, Traces.Current(x, e))
+
+    val assms = Nil
 
     val ctx_ = assuming(ctx, pos = assms)
 
@@ -707,7 +712,11 @@ object Simplify extends Stage {
         val (ty_, su_) = bind(ctx, rhs1, rhs2, ty, su)
         val ctx_ = assuming(ctx, pos = List(path2))
 
-        find(ctx_, path1, ty_, su_) match {
+        val results = find(ctx_, path1, ty_, su_)
+        
+        // hack due to find reeturning the same match many times
+        // for conditions that have no further variables to be matched
+        results.distinct match {
           case List(res) =>
             res
 
@@ -744,15 +753,17 @@ object Simplify extends Stage {
       su: Map[Var, Expr]
   ): List[(Map[Param, Type], Map[Var, Expr])] = {
     val phis = And.flattenStrong(phi) // ensure absence of true here
-    // println("finding:  " + phis)
-    // println("given su: " + su)
-    // println("context:  " + ctx.assms)
+    println("finding:  " + phis)
+    println("given su: " + su)
+    println("context:  " + ctx.assms)
 
+    // TODO: pick those from phis first which have no free variables,
+    //       currently results end up many times
     cover(phis, ctx.assms, (ty, su)) {
       case (phi, assm, (ty, su)) if phi.free subsetOf su.keySet =>
         val phi_ = simplify(ctx, phi inst (ty, su))
         if (phi_ == True) {
-          // println("found " + phi + " == true ")
+          println("found " + phi + " == true ")
           (ty, su)
         } else {
           // println("not found " + phi + " != true ")
@@ -760,9 +771,9 @@ object Simplify extends Stage {
         }
 
       case (phi, assm, (ty, su)) =>
-        // println("bind? " + (phi inst (ty, su)) + " == " + assm)
+        println("bind? " + (phi inst (ty, su)) + " == " + assm)
         val res = bind(ctx, phi, assm, ty, su)
-        // println("found " + phi + " == " + assm)
+        println("found " + phi + " == " + assm)
         res
     }
   }

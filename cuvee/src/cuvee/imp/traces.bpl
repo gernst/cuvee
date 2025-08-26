@@ -1,23 +1,12 @@
 type Trace<a>;
-function earlier<a>(x: a, xs: Trace<a>): bool;
-function current<a>(x: a, xs: Trace<a>): bool;
 
+function current<a>(xs: Trace<a>): a;
+
+function counter(stop: int): Trace<int>;
 function range(start: int, step: int, stop: int): Trace<int>;
-function update<a,b>(array: [a]b, as: Trace<a>, bs: Trace<b>): [a]b;
 
-// dependency ks is dummy
-free lemma {:rw} forall i0: int, c: int, ks: Trace<int>, n: int ::
-    trace(i0, for k <- [ ks ] do i := if i < n then (c + i))
-        == range(i0, c, n);
+function selects<a,b>(init: [a]b, keys: Trace<a>): Trace<b>;
+function stores<a,b>(init: [a]b, keys: Trace<a>, values: Trace<b>): Trace<[a]b>;
 
-free lemma {:rw} forall j: int, i: int, n: int ::
-    current(j, range(i, 1, n))
-        <==> i <= j && j <= n;
-
-free lemma {:rw} forall j: int, i: int, n: int ::
-    earlier(j, range(i, 1, n))
-        <==> i <= j && j < n;
-
-free lemma {:rw} forall a0: [int]int, a: [int]int, ks: Trace<int>, vs: Trace<int> :: 
-    current(a, trace(a0, for k, v <- [ ks, vs ] do a := a[k := v]))
-        <==> a == update(a0, ks, vs);
+function holds<a>(xs: Trace<a>): bool;
+function sums<a>(array: [a]int, keys: Trace<a>): Trace<int>;

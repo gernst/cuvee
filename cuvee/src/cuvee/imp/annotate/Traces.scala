@@ -13,13 +13,11 @@ import scala.collection.immutable
 import cuvee.smtlib.DeclareSort
 import cuvee.smtlib.DeclareFun
 
-object Range extends Sugar.ternary(Fun.range)
-object Current extends Sugar.binary(Fun.current)
-object Earlier extends Sugar.binary(Fun.earlier)
-
 object Traces extends Annotate(ExecNoLoops) {
   override def preamble(state: State) = {
     val (cmds, _) = cuvee.boogie.parse("cuvee/src/cuvee/imp/traces.bpl")
+    state.add(cmds) // make the commands visible in this stage's state!
+    println(state)
     cmds
   }
 
@@ -33,7 +31,13 @@ object Traces extends Annotate(ExecNoLoops) {
       sum: Expr,
       frames: List[Frame]
   ): (List[Cmd], Paths, Prog) = {
-    // object Earlier extends Sugar.binary(state.funs("earlier", 2))
+    println(state)
+
+    object Current extends Sugar.unary(state.funs("current", 1))
+    object Holds extends Sugar.unary(state.funs("holds", 1))
+
+    object Counter extends Sugar.unary(state.funs("counter", 1))
+
     val mod = body.mod
     val read = body.read
 
@@ -41,15 +45,15 @@ object Traces extends Annotate(ExecNoLoops) {
     val xs = vars.toList
 
     val (cmds_, before, after, body_) =
-      iter(state, paths, xs, test, body, term, inv, sum, frames)
+      iter(state, paths, xs, test = True, body, term, inv, sum, frames)
 
     // prepare variables:
-    // k is a counter that denotes the current loop iteration
+    // #k <- counter(#n)
     // ws are all regular modified variables
     // zs are all nondet variables
 
-    val k = Expr.fresh("#k", Sort.int)
-    val N = Expr.fresh("#N", Sort.int)
+    val k = Expr.fresh("k", Sort.int)
+    val n = Expr.fresh("#n", Sort.int)
 
     val ws = mod.toList
 
@@ -57,18 +61,18 @@ object Traces extends Annotate(ExecNoLoops) {
       for (path <- after.running; y <- path.fresh)
         yield y
 
-    val tr1 =
-      Map(k -> Range(Zero, One, N))
-
-    val tr2 =
-      for ((x, Var(Name(name, index), typ)) <- Expr.fresh(ws))
+    val tr =
+      for ((x, Var(Name(name, index), typ)) <- Expr.fresh(k :: ws))
         yield (x, Var(Name("@" + name, index), Sort.trace(typ)))
 
-    val nd3 =
+    val nd =
       for ((x, Var(Name(name, index), typ)) <- Expr.fresh(zs))
         yield (x, Var(Name("?" + name, index), Sort.trace(typ)))
 
-    val su = tr1 ++ tr2 ++ nd3
+    val su = tr ++ nd
+
+    val inv_counter =
+      Holds(entry(k, su, mod ++ zs, test, after.breaked ++ after.returned))
 
     val inv_traces =
       for (x <- ws)
@@ -76,15 +80,31 @@ object Traces extends Annotate(ExecNoLoops) {
 
     val inv_current =
       for (x <- k :: ws)
-        yield Current(x, su(x))
+        yield Eq(x, Current(su(x)))
 
-    val fresh = k :: N :: (ws map tr2) ::: (zs map nd3)
-    val inv_ = Exists(fresh, And(inv_traces ++ inv_current)) note "free"
+    val fresh = k :: tr(k) :: (ws map tr) ::: (zs map nd)
+    val inv_ = Exists(fresh, And(inv_counter :: inv_traces ::: inv_current)) note "free"
 
     val prog_ = While(test, body_, term, inv_, sum, frames)
     val paths_ = exec.spec(paths, ws, inv_, inv_ && !test)
 
     (cmds_, paths_, prog_)
+  }
+
+  def entry(k: Var, su: Map[Var, Expr], vars: Set[Var], test: Expr, stopped: List[Path]) = {
+    val avoid =
+      for (path <- stopped)
+        yield !And(path.constraints)
+
+    val cond = And(test :: avoid)
+    val ys = cond.free & vars
+
+    val eqs =
+      for (y <- ys.toList)
+        yield LetEq(y, su(y))
+
+    val iteration = Iteration(Sequential, eqs)
+    Mapping(iteration, cond)
   }
 
   def trace(x: Var, k: Var, su: Map[Var, Expr], vars: Set[Var], running: List[Path]) = {
@@ -96,12 +116,18 @@ object Traces extends Annotate(ExecNoLoops) {
       )
         yield y
 
+    val eqs1 =
+      List(LetEq(k, su(k)))
+
+    val eqs2 =
+      for (y <- ys.distinct)
+        yield LetEq(y, su(y))
+
+    // val formals =
+    //   if (ys.isEmpty) eqs1 else eqs2
+
     val formals =
-      if (ys.isEmpty)
-        List(LetEq(k, su(k)))
-      else
-        for (y <- ys.distinct)
-          yield LetEq(y, su(y))
+      eqs1 ++ eqs2
 
     val iteration =
       Iteration(Sequential, formals)
@@ -113,6 +139,6 @@ object Traces extends Annotate(ExecNoLoops) {
         Update(And(constraints), rhs)
       }
 
-    Trace(init = Old(x), iteration, x, updates)
+    Trace(init = Old(x), iteration, acc = x, updates)
   }
 }

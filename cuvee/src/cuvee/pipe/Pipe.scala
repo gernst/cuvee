@@ -60,8 +60,9 @@ class Incremental(stage: Stage, sink: Sink) extends Sink {
   def top = stack.head
 
   override def init(state: State) {
+    val cmds = stage.preamble(state)
     sink.init(top.state)
-    sink.exec(stage.preamble(top.state), top.state)
+    sink.exec(cmds, top.state)
   }
 
   override def done(state: State) {
