@@ -10,3 +10,12 @@ function stores<a,b>(init: [a]b, keys: Trace<a>, values: Trace<b>): Trace<[a]b>;
 
 function holds<a>(xs: Trace<a>): bool;
 function sums<a>(array: [a]int, keys: Trace<a>): Trace<int>;
+
+
+free lemma {:rw} forall stop: int ::
+    current(counter(stop)) == stop;
+
+
+free lemma {:rw} forall start: int, step: int, stop: int ::
+    current(trace(start, for k <- [ counter(stop) ] do i := step + i))
+        == start + step * stop;

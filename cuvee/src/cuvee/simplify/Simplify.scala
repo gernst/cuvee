@@ -639,8 +639,7 @@ object Simplify extends Stage {
                 }
 
               case (((ty4, su4)), LetEq(x1, xs1)) =>
-                println("warning: unbound pattern iteration " + x1 + " <- " + xs1)
-                (ty4, su4)
+                bindFirst(ctx, xs1, iteration2.formals.args, ty4, su4)
             }
 
         // val results =
@@ -713,7 +712,7 @@ object Simplify extends Stage {
         val ctx_ = assuming(ctx, pos = List(path2))
 
         val results = find(ctx_, path1, ty_, su_)
-        
+
         // hack due to find reeturning the same match many times
         // for conditions that have no further variables to be matched
         results.distinct match {
@@ -743,6 +742,29 @@ object Simplify extends Stage {
       case (pat :: pats, arg :: args) =>
         val (ty_, su_) = bind(ctx, pat, arg, ty, su)
         bind(ctx, pats, args, ty_, su_)
+    }
+  }
+
+  def bindFirst(
+      ctx: Context,
+      pat: Expr,
+      args: List[Expr],
+      ty: Map[Param, Type],
+      su: Map[Var, Expr]
+  ): (Map[Param, Type], Map[Var, Expr]) = {
+    args match {
+      case Nil =>
+        (ty, su)
+
+      case arg :: args =>
+        try {
+          bind(ctx, pat, arg, ty, su)
+        } catch {
+          case e: Type.CannotBind =>
+            bindFirst(ctx, pat, args, ty, su)
+          case e: Expr.CannotBind =>
+            bindFirst(ctx, pat, args, ty, su)
+        }
     }
   }
 

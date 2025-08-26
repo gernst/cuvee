@@ -81,7 +81,7 @@ object Traces extends Annotate(ExecNoLoops) {
         yield Eq(su(x), trace(x, k, su, mod ++ zs, after.running))
 
     val inv_current =
-      for (x <- k :: ws)
+      for (x <- ws)
         yield Eq(x, Current(su(x)))
 
     val fresh = k :: n :: tr(k) :: (ws map tr) ::: (zs map nd)
