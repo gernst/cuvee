@@ -9,6 +9,7 @@ import cuvee.imp.traces.Trace
 import cuvee.imp.traces.Update
 import cuvee.imp.traces.Mapping
 import cuvee.imp.annotate.Traces
+import cuvee.imp.traces.Invariant
 
 object Simplify extends Stage {
   import Context.assuming
@@ -275,6 +276,18 @@ object Simplify extends Stage {
       case App(inst, args) =>
         val args_ = simplify(ctx.unpolar, args)
         App(inst, args_)
+
+      case Invariant(formals, cond) =>
+        val phis = And.flattenStrong(cond)
+        val invs =
+          for (phi <- phis)
+            yield {
+              val xs = phi.free
+              val eqs = formals filter { xs contains _.x }
+              Invariant(eqs, phi)
+            }
+
+        And(invs)
 
       case expr: Trace =>
         val Trace(init, formals, acc, updates) = expr refresh ctx.vars
