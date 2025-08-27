@@ -21,7 +21,8 @@ object Simplify extends Stage {
     //   println("  " + eq)
     // println()
 
-    simplify(polarity, rules.groupBy(_.fun), state.constrs, expr)
+    val rws = rules.groupBy(_.fun)
+    simplify(polarity, rws, state.constrs, expr)
   }
 
   def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State): List[Cmd] = {
@@ -277,17 +278,30 @@ object Simplify extends Stage {
         val args_ = simplify(ctx.unpolar, args)
         App(inst, args_)
 
-      case Invariant(formals, cond) =>
+      case expr: Invariant =>
+        val Invariant(formals, cond) = expr refresh ctx.vars
+        val ctx_ = ctx.unpolar
         val phis = And.flattenStrong(cond)
         val invs =
           for (phi <- phis)
             yield {
               val xs = phi.free
               val eqs = formals filter { xs contains _.x }
-              Invariant(eqs, phi)
+
+              val eqs_ = simplify_leteqs(ctx_, eqs)
+              val phi_ = simplify(ctx, phi)
+              Invariant(eqs_, phi_)
             }
 
         And(invs)
+
+      case expr: Mapping =>
+        val Mapping(formals, result) = expr refresh ctx.vars
+        val ctx_ = ctx.unpolar
+        // XXX: how does that not crash with unbound variables?
+        val formals_ = simplify_leteqs(ctx_, formals)
+        val result_ = simplify(ctx, result)
+        Mapping(formals_, result_)
 
       case expr: Trace =>
         val Trace(init, formals, acc, updates) = expr refresh ctx.vars
@@ -516,7 +530,15 @@ object Simplify extends Stage {
         val use = ctx.rules(inst.fun)
         rewrite(ctx, use, expr_)
 
-      case Trace(init, iteration, acc, updates) if ctx.rules contains Fun.trace =>
+      case _: Mapping if ctx.rules contains Fun.map =>
+        val use = ctx.rules(Fun.map)
+        rewrite(ctx, use, expr_)
+
+      case _: Invariant if ctx.rules contains Fun.inv =>
+        val use = ctx.rules(Fun.inv)
+        rewrite(ctx, use, expr_)
+
+      case _: Trace if ctx.rules contains Fun.trace =>
         val use = ctx.rules(Fun.trace)
         rewrite(ctx, use, expr_)
 
@@ -610,6 +632,14 @@ object Simplify extends Stage {
         val ty_ = Type.binds(inst1.args, inst1.res, inst2.args, inst2.res, ty)
         val (ty__, su_) = bind(ctx, pats, args, ty_, su)
         (ty__, su_)
+
+      case (map: Mapping, Mapping(formals2, cond2)) =>
+        val pat @ Mapping(formals1, cond1) = map.gen
+        ???
+
+      case (inv: Invariant, Invariant(formals2, cond2)) =>
+        val pat @ Invariant(formals1, cond1) = inv.gen
+        ???
 
       case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
         val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen

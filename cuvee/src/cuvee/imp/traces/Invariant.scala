@@ -14,6 +14,12 @@ case class Invariant(
   def funs = formals.funs ++ result.funs
   def free = formals.free ++ (result.free -- bound)
 
+  def gen = {
+    // rename all bound variables
+    val re = Expr.fresh(bound)
+    rename(re, re, re)
+  }
+  
   def inst(su: Map[Param, Type]) =
     Invariant(
       formals inst su,

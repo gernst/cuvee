@@ -4,13 +4,15 @@ import cuvee.smtlib.Assert
 import cuvee.State
 import cuvee.util.Name
 import cuvee.imp.traces.Trace
+import cuvee.imp.traces.Mapping
+import cuvee.imp.traces.Invariant
 
 case class Rule(
     lhs: Expr,
     rhs: Expr,
     cond: Expr = True,
     avoid: List[(Expr, Expr)] = Nil
-){
+) {
   require(
     lhs.typ == rhs.typ && cond.typ == Sort.bool,
     "rule " + this + " not type correct: " + lhs.typ + ", " + rhs.typ
@@ -63,6 +65,8 @@ case class Rule(
 
   def fun = lhs match {
     case App(inst, _) => inst.fun
+    case _: Mapping   => Fun.map
+    case _: Invariant => Fun.inv
     case _: Trace     => Fun.trace
   }
 
@@ -191,6 +195,10 @@ object Rules {
     suc match {
       case Eq(lhs: App, rhs) =>
         from(xs, guard, lhs, rhs, ok, split)
+      case Eq(lhs: Mapping, rhs) =>
+        List(Rule(lhs, rhs, guard))
+      case Eq(lhs: Invariant, rhs) =>
+        List(Rule(lhs, rhs, guard))
       case Eq(lhs: Trace, rhs) =>
         List(Rule(lhs, rhs, guard))
       case Not(lhs: App) =>
