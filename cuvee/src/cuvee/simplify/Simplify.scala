@@ -6,9 +6,7 @@ import cuvee.smtlib._
 import cuvee.pipe.Stage
 import cuvee.util.Matching
 import cuvee.imp.traces.Trace
-import cuvee.imp.traces.Iteration
 import cuvee.imp.traces.Update
-import cuvee.imp.traces.Sequential
 import cuvee.imp.traces.Mapping
 import cuvee.imp.annotate.Traces
 
@@ -279,26 +277,22 @@ object Simplify extends Stage {
         App(inst, args_)
 
       case expr: Trace =>
-        val Trace(init, iteration, acc, updates) = expr refresh ctx.vars
+        val Trace(init, formals, acc, updates) = expr refresh ctx.vars
         val ctx_ = ctx.unpolar
         // XXX: how does that not crash with unbound variables?
         val init_ = simplify(ctx_, init)
-        val iteration_ = simplify(ctx_, iteration)
-        val updates_ = simplify_updates(ctx_, iteration_, updates)
-        Trace(init_, iteration_, acc, updates_)
+        val formals_ = simplify_leteqs(ctx_, formals)
+        val updates_ = simplify_updates(ctx_, formals_, updates)
+        Trace(init_, formals_, acc, updates_)
 
       case expr =>
         expr
     }
   }
 
-  def simplify(ctx: Context, iteration: Iteration): Iteration = {
-    Iteration(iteration.order, simplify_leteqs(ctx, iteration.formals))
-  }
-
   def simplify_updates(
       ctx: Context,
-      iteration_ : Iteration,
+      formals_ : List[LetEq],
       updates: List[Update]
   ): List[Update] = {
     // TODO: earlier or current?
@@ -609,7 +603,7 @@ object Simplify extends Stage {
 
         val tr2 =
           Expr.subst(
-            for (LetEq(x2, xs2) <- iteration2.formals)
+            for (LetEq(x2, xs2) <- iteration2)
               yield x2 -> xs2
           )
 
@@ -629,7 +623,7 @@ object Simplify extends Stage {
         // and then try to figure out the rest
         val iteration =
           for ((ty3, su3) <- updates)
-            yield iteration1.formals.foldLeft((ty3, su3)) {
+            yield iteration1.foldLeft((ty3, su3)) {
               case (((ty4, su4)), LetEq(x1, xs1)) if su4 contains x1 =>
                 // require(!(su4 contains xs1), "trace already bound from update " + xs1)
 
@@ -641,13 +635,12 @@ object Simplify extends Stage {
 
                   case e2 =>
                     val ys = e2.free
-                    val formals = iteration2.formals.filter(eq => ys.contains(eq.x))
-                    val iteration = Iteration(Sequential, formals)
-                    bind(ctx, xs1, Mapping(iteration, e2), ty4, su4)
+                    val formals = iteration2.filter(eq => ys.contains(eq.x))
+                    bind(ctx, xs1, Mapping(formals, e2), ty4, su4)
                 }
 
               case (((ty4, su4)), LetEq(x1, xs1)) =>
-                bindFirst(ctx, xs1, iteration2.formals.args, ty4, su4)
+                bindFirst(ctx, xs1, iteration2.args, ty4, su4)
             }
 
         // val results =

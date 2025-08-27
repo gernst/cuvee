@@ -31,7 +31,6 @@ object Traces extends Annotate(ExecNoLoops) {
       frames: List[Frame]
   ): (List[Cmd], Paths, Prog) = {
     object Current extends Sugar.unary(state.funs("current", 1))
-    object Holds extends Sugar.unary(state.funs("holds", 1))
 
     object Counter extends Sugar.unary(state.funs("counter", 1))
 
@@ -70,7 +69,7 @@ object Traces extends Annotate(ExecNoLoops) {
 
     val inv_counter = List(
       Eq(su(k), Counter(n)),
-      Holds(entry(k, su, mod ++ zs, test, after.breaked ++ after.returned))
+      invariant(k, su, mod ++ zs, test, after.breaked ++ after.returned)
     )
 
     val inv_traces =
@@ -90,7 +89,7 @@ object Traces extends Annotate(ExecNoLoops) {
     (cmds_, paths_, prog_)
   }
 
-  def entry(k: Var, su: Map[Var, Expr], vars: Set[Var], test: Expr, stopped: List[Path]) = {
+  def invariant(k: Var, su: Map[Var, Expr], vars: Set[Var], test: Expr, stopped: List[Path]) = {
     val avoid =
       for (path <- stopped)
         yield !And(path.constraints)
@@ -102,8 +101,7 @@ object Traces extends Annotate(ExecNoLoops) {
       for (y <- ys.toList)
         yield LetEq(y, su(y))
 
-    val iteration = Iteration(Sequential, eqs)
-    Mapping(iteration, cond)
+    Invariant(eqs, cond)
   }
 
   def trace(x: Var, k: Var, su: Map[Var, Expr], vars: Set[Var], running: List[Path]) = {
@@ -128,9 +126,6 @@ object Traces extends Annotate(ExecNoLoops) {
     val formals =
       eqs1 ++ eqs2
 
-    val iteration =
-      Iteration(Sequential, formals)
-
     val updates =
       for (path <- running) yield {
         val constraints = path.constraints
@@ -138,6 +133,6 @@ object Traces extends Annotate(ExecNoLoops) {
         Update(And(constraints), rhs)
       }
 
-    Trace(init = Old(x), iteration, acc = x, updates)
+    Trace(init = Old(x), formals, acc = x, updates)
   }
 }

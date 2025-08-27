@@ -27,16 +27,16 @@ case class Update(path: Expr, rhs: Expr) {
 
 case class Trace(
     init: Expr,
-    iteration: Iteration,
+    formals: List[LetEq],
     acc: Var,
     updates: List[Update]
 ) extends Extra
     with Expr.bind2[Trace] {
   def typ = Sort.trace(acc.typ)
-  def bound = iteration.bound + acc
-  def funs = init.funs ++ iteration.funs ++ updates.flatMap(_.funs)
+  def bound = Set(acc :: formals.vars: _*)
+  def funs = init.funs ++ formals.funs ++ updates.flatMap(_.funs)
   def free =
-    init.free ++ iteration.free ++ (Set(updates.flatMap(_.free): _*) -- bound)
+    init.free ++ formals.free ++ (Set(updates.flatMap(_.free): _*) -- bound)
 
   def gen = {
     // rename all bound variables
@@ -47,7 +47,7 @@ case class Trace(
   def rename(a: Map[Var, Var], re: Map[Var, Var], are: Map[Var, Var]) =
     Trace(
       init rename re,
-      iteration rename (a, are),
+      formals rename (a, are),
       acc rename a,
       updates map (_ rename are)
     )
@@ -55,7 +55,7 @@ case class Trace(
   def subst(a: Map[Var, Var], su: Map[Var, Expr], asu: Map[Var, Expr]) =
     Trace(
       init subst su,
-      iteration subst (a, asu),
+      formals subst (a, asu),
       acc rename a,
       updates map (_ subst asu)
     )
@@ -63,7 +63,7 @@ case class Trace(
   def inst(su: Map[Param, Type]) =
     Trace(
       init inst su,
-      iteration inst su,
+      formals inst su,
       acc inst su,
       updates map (_ inst su)
     )
@@ -72,9 +72,11 @@ case class Trace(
     ???
 
   override def toString = {
-    import cuvee.StringOps
-    val f = "trace" // ^^ loop
-    val u = acc + " := " + updates.mkString(" | ")
-    f + "(" + init + ", for " + iteration + " do " + u + ")"
+    val iteration =
+      if (formals.isEmpty) ""
+      else "for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ")
+
+    val update = acc + " := " + updates.mkString(" | ")
+    "trace(" + init + ", " + iteration + " do " + update + ")"
   }
 }

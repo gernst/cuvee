@@ -92,14 +92,17 @@ sealed trait Expr extends Expr.term {
       case Distinct(exprs) =>
         g(Distinct(exprs map (_.map(f, g))))
       case Let(eqs, body) =>
-        g(Let(eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }, body.map(f, g)))
+        val eqs_ = eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }
+        g(Let(eqs_, body.map(f, g)))
       case Bind(quant, formals, body, typ) =>
         // println("recursive map at bind, beware! " + this)
         g(Bind(quant, formals, body.map(f, g), typ))
-      case Mapping(iteration, result) =>
-        g(Mapping(iteration.map(f, g), result.map(f, g)))
-      case Trace(init, iteration, acc, updates) =>
-        g(Trace(init.map(f, g), iteration.map(f, g), acc, updates map (_.map(f, g))))
+      case Mapping(eqs, result) =>
+        val eqs_ = eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }
+        g(Mapping(eqs_, result.map(f, g)))
+      case Trace(init, eqs, acc, updates) =>
+        val eqs_ = eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }
+        g(Trace(init.map(f, g), eqs_, acc, updates map (_.map(f, g))))
       case extra: Extra =>
         extra.map(f, g)
     }

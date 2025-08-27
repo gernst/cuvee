@@ -3,18 +3,18 @@ package cuvee.imp.traces
 import cuvee.pure._
 
 case class Mapping(
-    iteration: Iteration,
+    formals: List[LetEq],
     result: Expr
 ) extends Extra
     with Expr.bind2[Mapping] {
   def typ = Sort.trace(result.typ)
-  def bound = iteration.bound
-  def funs = iteration.funs ++ result.funs
-  def free = iteration.free ++ (result.free -- bound)
+  def bound = Set(formals.vars: _*)
+  def funs = formals.funs ++ result.funs
+  def free = formals.free ++ (result.free -- bound)
 
   def inst(su: Map[Param, Type]) =
     Mapping(
-      iteration inst su,
+      formals inst su,
       result inst su
     )
 
@@ -23,18 +23,21 @@ case class Mapping(
 
   def rename(a: Map[Var, Var], re: Map[Var, Var], are: Map[Var, Var]) =
     Mapping(
-      iteration rename (a, are),
+      formals rename (a, are),
       result rename are
     )
 
   def subst(a: Map[Var, Var], su: Map[Var, Expr], asu: Map[Var, Expr]) =
     Mapping(
-      iteration subst (a, asu),
+      formals subst (a, asu),
       result subst asu
     )
 
   override def toString = {
-    import cuvee.StringOps
-    "map(for " + iteration + " yield " + result + ")"
+    val iteration =
+      if (formals.isEmpty) ""
+      else "for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ")
+
+    "map(" + iteration + " yield " + result + ")"
   }
 }

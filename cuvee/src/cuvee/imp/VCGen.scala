@@ -135,16 +135,21 @@ class VCGen(val state: State) {
       val scope_ = scope ++ Expr.id(expr_.bound)
 
       expr_ match {
-        case Mapping(iteration, result) =>
-          val iteration_ = eval(iteration, scope, st, old)
+        case Mapping(formals, result) =>
+          val formals_ = evalq(formals, scope, st, old)
           val result_ = eval(result, scope_, st, old)
-          Mapping(iteration_, result_)
+          Mapping(formals_, result_)
 
-        case Trace(init, iteration, acc, updates) =>
+        case Invariant(formals, result) =>
+          val formals_ = evalq(formals, scope, st, old)
+          val result_ = eval(result, scope_, st, old)
+          Invariant(formals_, result_)
+
+        case Trace(init, formals, acc, updates) =>
           val init_ = eval(init, scope, st, old)
-          val iteration_ = eval(iteration, scope, st, old)
+          val formals_ = evalq(formals, scope, st, old)
           val updates_ = evalu(updates, scope_, st, old)
-          Trace(init_, iteration_, acc, updates_)
+          Trace(init_, formals_, acc, updates_)
       }
 
     case Post(how, prog, post) =>
@@ -173,16 +178,6 @@ class VCGen(val state: State) {
       yield eval(update, scope, st, old)
   }
 
-  def eval(
-      iteration: Iteration,
-      scope: Map[Var, Var],
-      st: Map[Var, Expr],
-      old: List[Map[Var, Expr]]
-  ): Iteration = {
-    val Iteration(order, formals) = iteration
-    val formals_ = evalq(formals, scope, st, old)
-    Iteration(order, formals_)
-  }
   def evalq(
       eqs: List[LetEq],
       scope: Map[Var, Var],

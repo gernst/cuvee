@@ -137,15 +137,9 @@ class Grammar(parser: cuvee.boogie.Parser) {
     def ite(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_ite("if" ~ expr ~ "then" ~ expr ~ "else" ~ expr))
 
-    def ordered_formals(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
-      P(brackets(expr ~* ",") ~ ret(Sequential)) |
-        P(sqbraces(expr ~* ",") ~ ret(IngoreDuplicates)) |
-        P(bags(expr ~* ",") ~ ret(Parallel)) |
-        P(braces(expr ~* ",") ~ ret(Pointwise))
-
     // warning: not type-checked here!
     def iteration[A](implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
-      P(make_iteration("for" ~ (var_generic ~* ",") ~ "<-" ~ ordered_formals))
+      P(make_iteration("for" ~ (var_generic ~* ",") ~ "<-" ~ (expr ~* ",")))
     }
 
     // def counter(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
@@ -160,18 +154,18 @@ class Grammar(parser: cuvee.boogie.Parser) {
       P(Update("if" ~ expr ~ "then" ~ expr)) | P(Update(ret(True) ~ expr))
 
     def scoped_result(
-        iteration: Iteration
+        formals: List[LetEq]
     )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
-      val bound = iteration.formals.vars
+      val bound = formals.vars
       val scope_ = scope ++ bound.asScope
-      "do" ~ expr(scope_, ctx)
+      "yield" ~ expr(scope_, ctx)
     }
 
     def scoped_updates(
-        iteration: Iteration
+        formals: List[LetEq]
     )(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) = {
       "do" ~ var_generic ~ ":=" ~@ { x =>
-        val bound = x :: iteration.formals.vars
+        val bound = x :: formals.vars
         val scope_ = scope ++ bound.asScope
         (update(scope_, ctx) ~* "|")
       }

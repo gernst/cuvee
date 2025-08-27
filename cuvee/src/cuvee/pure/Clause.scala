@@ -158,6 +158,7 @@ object Clause extends Stage {
           yield (xs ++ ys, ant, suc)
 
       // NOTE: the ones below possibly interfere with simplify and generally blow up the formula
+      //       but consider re-adding these, and instantiate other conjuncts/disjuncts when building up contexts?
 
       // case (pos, Exists(ys, Or(phis)) :: neg) =>
       //   val phis_ = phis map (Exists(ys, _))
