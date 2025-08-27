@@ -106,7 +106,7 @@ class Grammar(parser: cuvee.boogie.Parser) {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | wp | box | dia | ite | bind | trace | mapping | map)
+      P(parens(expr) | num | wp | box | dia | ite | bind | trace | mapping | invariant | map)
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~+ ",") | ret(Nil))
@@ -173,6 +173,9 @@ class Grammar(parser: cuvee.boogie.Parser) {
 
     def mapping(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_mapping("map" ~ "(" ~ (iteration ~@ scoped_result) ~ ")"))
+
+    def invariant(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(make_invariant("invariant" ~ "(" ~ (iteration ~@ scoped_result) ~ ")"))
 
     def trace(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(make_trace("trace" ~ "(" ~ expr ~ "," ~ (iteration ~@ scoped_updates) ~ ")"))

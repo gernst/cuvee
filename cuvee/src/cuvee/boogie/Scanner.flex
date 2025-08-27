@@ -27,7 +27,7 @@ kw = "function" | "axiom" | "const" | "lemma" | "data" | "abstractions" | "contr
    | "bool" | "int" | "real" | "=" | "|"
    | "var" | "call" | "invariant" | "summary" | "assume" | "assert" | "havoc" | "requires" | "ensures" | "modifies" | "returns" | "decreases"
    | "while" | "if" | "else" | "break" | "return"
-   | "for" | "do" | "trace" | "map"
+   | "for" | "do" | "trace" | "map" | "yield"
    | "proof" | "sorry" | "show" | "then" | "case" | "free lemma" | "goal"
    | "induction" | "unfold" | "at" | "=>" | "end" | "auto" | "noauto" | "break" | "split"
    | "in" | "out" | "inout"

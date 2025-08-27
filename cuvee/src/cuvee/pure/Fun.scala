@@ -138,6 +138,7 @@ object Fun {
   // dummy functions for rewriting
   val trace = Fun("trace", List(a, b), List(a, Sort.trace(a), Sort.array(b, Sort.array(a, b))), Sort.trace(b))
   val map = Fun("map", List(a, b), List(a, Sort.trace(a), Sort.array(a, b)), Sort.trace(b))
+  val inv = Fun("invariant", List(a), List(Sort.trace(a), Sort.array(a, Sort.bool)), Sort.bool)
 
   val builtin = Set(
     eq_,

@@ -108,6 +108,16 @@ class Parser(val state: State) {
       new Mapping(formals, result)
     }
 
+    def inv(formals: List[LetEq], result: Expr) = {
+      for (LetEq(x, e) <- formals) {
+        unify(Sort.trace(x.typ), e.typ)
+      }
+
+      unify(result.typ, Sort.bool)
+
+      new Invariant(formals, result)
+    }
+
     def resolved(arg: Expr) = {
       val su = Type.prune(value)
       arg inst su
@@ -228,6 +238,10 @@ class Parser(val state: State) {
 
   def make_mapping: (List[LetEq], Expr) => Expr = { case (formals, result) =>
     typing.mp(formals, result)
+  }
+
+  def make_invariant: (List[LetEq], Expr) => Expr = { case (formals, result) =>
+    typing.inv(formals, result)
   }
 
   def make_trace: (Expr, (List[LetEq], (Var, List[Update]))) => Expr = {

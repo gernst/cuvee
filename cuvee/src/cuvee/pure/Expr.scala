@@ -9,6 +9,7 @@ import cuvee.util.Alpha
 import cuvee.util.Name
 import cuvee.imp.traces.Trace
 import cuvee.imp.traces.Mapping
+import cuvee.imp.traces.Invariant
 
 trait Extra extends Expr
 
@@ -100,6 +101,9 @@ sealed trait Expr extends Expr.term {
       case Mapping(eqs, result) =>
         val eqs_ = eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }
         g(Mapping(eqs_, result.map(f, g)))
+      case Invariant(eqs, result) =>
+        val eqs_ = eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }
+        g(Invariant(eqs_, result.map(f, g)))
       case Trace(init, eqs, acc, updates) =>
         val eqs_ = eqs map { case LetEq(x, e) => LetEq(x, e.map(f, g)) }
         g(Trace(init.map(f, g), eqs_, acc, updates map (_.map(f, g))))

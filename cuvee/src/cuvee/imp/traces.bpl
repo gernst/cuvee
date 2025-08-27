@@ -32,3 +32,7 @@ free lemma {:rw} forall n: int ::
 
 free lemma {:rw} forall start: int, step: int, n: int ::
     current(range(start, step, n)) == start + step * n;
+
+free lemma {:rw} forall k: int, n: int ::
+    invariant(for i <- counter(k) yield i < n)
+        <==> k <= n;
