@@ -36,12 +36,12 @@ free lemma {:rw} forall start: int, step: int, n: int ::
 
 free lemma {:rw} forall k: int, n: int ::
     invariant(for i <- counter(k) yield i < n)
-        <==> k <= n;
+        <==> 0 <= k && k <= n;
 
 free lemma {:rw} forall start: int, k: int, n: int ::
     invariant(for i <- range(start, 1, k) yield i < n)
-        <==> k <= n;
+        <==> 0 <= k && k <= n;
 
 free lemma {:rw} forall start: int, k: int, n: int ::
     invariant(for i <- range(start, -1, k) yield n < i)
-        <==> n <= k;
+        <==> 0 <= k && k <= n;
