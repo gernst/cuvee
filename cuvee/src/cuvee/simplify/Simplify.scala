@@ -633,70 +633,26 @@ object Simplify extends Stage {
         val (ty__, su_) = bind(ctx, pats, args, ty_, su)
         (ty__, su_)
 
-      case (map: Mapping, Mapping(formals2, cond2)) =>
-        val pat @ Mapping(formals1, cond1) = map.gen
-        ???
+      // case (map: Mapping, Mapping(formals2, cond2)) =>
+      //   val pat @ Mapping(formals1, cond1) = map.gen
+      //   ???
 
       case (inv: Invariant, Invariant(formals2, cond2)) =>
         val pat @ Invariant(formals1, cond1) = inv.gen
-        ???
+        val tr2 = formals2.asMap
 
-      case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
-        val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen
-
-        val tr2 =
-          Expr.subst(
-            for (LetEq(x2, xs2) <- iteration2)
-              yield x2 -> xs2
-          )
-
-        // we can just bind the accumulator and ignore to remove it,
-        // because the left-hand side of the rule is completely fresh
         var (ty1, su1) =
-          bind(ctx, List(init1, acc1), List(init2, acc2), ty, su)
+          bind(ctx, cond1, cond2, ty, su)
 
-        // cover every actual update: the rule must be applicable to each possible transition of the iteration
-        val updates =
-          cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
-            bind(ctx, up1, up2, ty2, su2)
-          };
+        println(ty1, su1)
 
-        // the goal is to then cover all *trace* variables occurring in the iteration of the pattern,
-        // however, we first leverage that we have a mapping for some *local* bindings,
-        // and then try to figure out the rest
         val iteration =
-          for ((ty3, su3) <- updates)
-            yield iteration1.foldLeft((ty3, su3)) {
-              case (((ty4, su4)), LetEq(x1, xs1)) if su4 contains x1 =>
-                // require(!(su4 contains xs1), "trace already bound from update " + xs1)
+          cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
+            println("try match " + eq1 + " to " + formals2)
+            find(ctx, eq1, formals2, tr2, ty4, su4)
+          }
 
-                su4(x1) match {
-                  // pattern iteration variable x1 is bound just to a simple variable x2
-                  // then just map xs1 to the corresponding trace xs2 (special case)
-                  case x2: Var if tr2 contains x2 =>
-                    bind(ctx, xs1, tr2(x2), ty4, su4)
-
-                  case e2 =>
-                    val ys = e2.free
-                    val formals = iteration2.filter(eq => ys.contains(eq.x))
-                    bind(ctx, xs1, Mapping(formals, e2), ty4, su4)
-                }
-
-              case (((ty4, su4)), LetEq(x1, xs1)) =>
-                bindFirst(ctx, xs1, iteration2.args, ty4, su4)
-            }
-
-        // val results =
-        //   for (
-        //     (ty3, su3) <- cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
-        //       bind(ctx, up1, up2, ty2, su2)
-        //     };
-        //     (ty5, su5) <- cover(iteration1.formals, iteration2.formals, (ty3, su3)) {
-        //       case (let1, let2, (ty4, su4)) =>
-        //         bind(ctx, let1, let2, ty4, su4)
-        //     }
-        //   )
-        //     yield (ty5, su5)
+        println(iteration)
 
         iteration.distinct match {
           case Nil =>
@@ -718,28 +674,52 @@ object Simplify extends Stage {
             cuvee.error("multiple for iteration matches of " + pat + " for " + arg)
         }
 
+      case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
+        val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen
+        val tr2 = iteration2.asMap
+
+        // we can just bind the accumulator and ignore to remove it,
+        // because the left-hand side of the rule is completely fresh
+        var (ty1, su1) =
+          bind(ctx, List(init1, acc1), List(init2, acc2), ty, su)
+
+        // cover every actual update: the rule must be applicable to each possible transition of the iteration
+        val updates =
+          cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
+            bind(ctx, up1, up2, ty2, su2)
+          };
+
+        // the goal is to then cover all *trace* variables occurring in the iteration of the pattern,
+        // however, we first leverage that we have a mapping for some *local* bindings,
+        // and then try to figure out the rest
+        val iteration =
+          for ((ty3, su3) <- updates)
+            yield cover2(iteration1, iteration2, (ty3, su3)) { case (eq1, iteration2, (ty4, su4)) =>
+              find(ctx, eq1, iteration2, tr2, ty4, su4)
+            }
+
+        iteration.flatten.distinct match {
+          case Nil =>
+            throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
+
+          case List((ty_, su_)) =>
+            (ty_, su_)
+
+          case results =>
+            // bad setup of rewrite theory?
+            // could potentially happen, for example with
+            // current(_, range(0, 1, n))
+            // current(_, range(0, c, n))
+
+            // but maybe fix the later one with avoiding c -> 1
+            for ((ty_, su_) <- results) {
+              println("  " + ty_ + " " + su_)
+            }
+            cuvee.error("multiple for iteration matches of " + pat + " for " + arg)
+        }
+
       case _ =>
         throw Expr.CannotBind(pat, arg, ty, su, "incompatible")
-    }
-  }
-
-  def bind(
-      ctx: Context, // AAAARGH. No, x1, x2 are bound and can be renamed!!
-      pat: LetEq,
-      arg: LetEq,
-      ty: Map[Param, Type],
-      su: Map[Var, Expr]
-  ): (Map[Param, Type], Map[Var, Expr]) = {
-    // Note: this is called after the updates have all been matched,
-    //       so we know the instantiations for x1 already (if they occur).
-    //       we *must* determine an instance for xs1 but this is questionable if x1 is unbound!
-    (pat, arg) match {
-      case (LetEq(x1, xs1), LetEq(x2, xs2)) =>
-        ???
-
-      case (LetEq(x1, xs1), LetEq(x2, xs2)) =>
-        ??? // AAAARGH. No, x1, x2 are bound and can be renamed!!
-        bind(ctx, List(x1, xs1), List(x2, xs2), ty, su)
     }
   }
 
@@ -789,25 +769,35 @@ object Simplify extends Stage {
     }
   }
 
-  def bindFirst(
+  def find(
       ctx: Context,
-      pat: Expr,
-      args: List[Expr],
+      pat: LetEq,
+      formals: List[LetEq],
+      tr: Map[Var, Expr],
       ty: Map[Param, Type],
       su: Map[Var, Expr]
-  ): (Map[Param, Type], Map[Var, Expr]) = {
-    args match {
-      case Nil =>
-        (ty, su)
+  ): List[(Map[Param, Type], Map[Var, Expr])] = {
+    pat match {
+      case LetEq(x1, xs1: Var) if su contains x1 =>
+        // require(!(su4 contains xs1), "trace already bound from update " + xs1)
 
-      case arg :: args =>
-        try {
-          bind(ctx, pat, arg, ty, su)
-        } catch {
-          case e: Type.CannotBind =>
-            bindFirst(ctx, pat, args, ty, su)
-          case e: Expr.CannotBind =>
-            bindFirst(ctx, pat, args, ty, su)
+        su(x1) match {
+          // pattern iteration variable x1 is bound just to a simple variable x2
+          // then just map xs1 to the corresponding trace xs2 (special case)
+          case x2: Var if tr contains x2 =>
+            List(bind(ctx, xs1, tr(x2), ty, su))
+
+          case e2 =>
+            val ys = e2.free
+            val formals_ = formals.filter(eq => ys.contains(eq.x))
+            println(xs1 + " -> map(" + formals_ + " yield " + e2 + ")")
+            List(bind(ctx, xs1, Mapping(formals_, e2), ty, su))
+        }
+
+      case LetEq(x1, xs1) =>
+        println("looking for " + xs1 + " among " + formals)
+        cover(xs1, formals.args, (ty, su)) { case (pat, arg, (ty_, sy_)) =>
+          bind(ctx, pat, arg, ty_, sy_)
         }
     }
   }
@@ -874,7 +864,24 @@ object Simplify extends Stage {
           case e: Expr.CannotBind => println(e); Nil
         }
 
-      val there = cover(a, bs, s)(f)
+      val there =
+        cover(a, bs, s)(f)
+
       here ++ there
+  }
+
+  // for all bs find some matching as
+  def cover2[A, B, S](as: List[A], bs: List[B], s: S)(
+      f: (A, List[B], S) => List[S]
+  ): List[S] = as match {
+    case Nil =>
+      List(s)
+
+    case a :: as =>
+      for (
+        s_ <- f(a, bs, s);
+        s__ <- cover2(as, bs, s_)(f)
+      )
+        yield (s__)
   }
 }
