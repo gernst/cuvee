@@ -648,13 +648,7 @@ object Simplify extends Stage {
           formals2.vars.toSet & result2.free
 
         if (uncaptured.nonEmpty)
-          throw Expr.CannotBind(
-            pat,
-            arg,
-            ty,
-            su,
-            "uncaptured variables: " + uncaptured.mkString(", ")
-          )
+          throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
 
         val iteration =
           cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
@@ -670,6 +664,12 @@ object Simplify extends Stage {
         var (ty1, su1) =
           bind(ctx, cond1, cond2, ty, su)
 
+        val uncaptured =
+          formals2.vars.toSet & cond2.free
+
+        if (uncaptured.nonEmpty)
+          throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
+
         val iteration =
           cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
             find(ctx, eq1, formals2, tr2, ty4, su4)
@@ -677,9 +677,9 @@ object Simplify extends Stage {
 
         first(pat, arg, ty, su, iteration)
 
-      case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
-        val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen
-        val tr2 = iteration2.asMap
+      case (trace: Trace, Trace(init2, formals2, acc2, updates2)) =>
+        val pat @ Trace(init1, formals1, acc1, updates1) = trace.gen
+        val tr2 = formals2.asMap
 
         // we can just bind the accumulator and ignore to remove it,
         // because the left-hand side of the rule is completely fresh
@@ -689,6 +689,12 @@ object Simplify extends Stage {
         // cover every actual update: the rule must be applicable to each possible transition of the iteration
         val updates =
           cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
+            val uncaptured =
+              formals2.vars.toSet & up2.free
+
+            if (uncaptured.nonEmpty)
+              throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
+
             bind(ctx, up1, up2, ty2, su2)
           }
 
@@ -697,8 +703,8 @@ object Simplify extends Stage {
         // and then try to figure out the rest
         val iteration =
           for ((ty3, su3) <- updates)
-            yield cover2(iteration1, iteration2, (ty3, su3)) { case (eq1, iteration2, (ty4, su4)) =>
-              find(ctx, eq1, iteration2, tr2, ty4, su4)
+            yield cover2(formals1, formals2, (ty3, su3)) { case (eq1, formals2, (ty4, su4)) =>
+              find(ctx, eq1, formals2, tr2, ty4, su4)
             }
 
         first(pat, arg, ty, su, iteration.flatten)
