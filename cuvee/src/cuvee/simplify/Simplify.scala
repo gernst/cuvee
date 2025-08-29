@@ -689,12 +689,6 @@ object Simplify extends Stage {
         // cover every actual update: the rule must be applicable to each possible transition of the iteration
         val updates =
           cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
-            val uncaptured =
-              formals2.vars.toSet & up2.free
-
-            if (uncaptured.nonEmpty)
-              throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
-
             bind(ctx, up1, up2, ty2, su2)
           }
 
