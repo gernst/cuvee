@@ -653,48 +653,15 @@ object Simplify extends Stage {
 
       case (map: Mapping, Mapping(formals2, result2)) =>
         val pat @ Mapping(formals1, result1) = map.gen
-        val tr2 = formals2.asMap
-
-        var (ty1, su1) =
-          bind(ctx, result1, result2, ty, su)
-
-        val uncaptured =
-          result2.free -- formals2.vars
-
-        if (uncaptured.nonEmpty)
-          throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
-
-        val iteration =
-          cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
-            find(ctx, eq1, formals2, tr2, ty4, su4)
-          }
-
-        first(pat, arg, ty, su, iteration)
+        var (ty1, su1) = bind(ctx, result1, result2, ty, su)
+        val results = bind(ctx, pat, arg, formals1, formals2, List((ty1, su1)))
+        first(pat, arg, ty, su, results)
 
       case (inv: Invariant, Invariant(formals2, cond2)) =>
         val pat @ Invariant(formals1, cond1) = inv.gen
-        val tr2 = formals2.asMap
-
-        var (ty1, su1) =
-          bind(ctx, cond1, cond2, ty, su)
-
-        // val mod =
-        //   cond2.free & formals2.vars.toSet
-
-        // if (uncaptured.nonEmpty) {
-        //   println(uncaptured)
-        //   ???
-        // }
-
-        // if (uncaptured.nonEmpty)
-        //   throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
-
-        val iteration =
-          cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
-            find(ctx, eq1, formals2, tr2, ty4, su4)
-          }
-
-        first(pat, arg, ty, su, iteration)
+        var (ty1, su1) = bind(ctx, cond1, cond2, ty, su)
+        val results = bind(ctx, pat, arg, formals1, formals2, List((ty1, su1)))
+        first(pat, arg, ty, su, results)
 
       case (trace: Trace, Trace(init2, formals2, acc2, updates2)) =>
         val pat @ Trace(init1, formals1, acc1, updates1) = trace.gen
@@ -715,15 +682,44 @@ object Simplify extends Stage {
         // however, we first leverage that we have a mapping for some *local* bindings,
         // and then try to figure out the rest
         val iteration =
-          for ((ty3, su3) <- updates)
-            yield cover2(formals1, formals2, (ty3, su3)) { case (eq1, formals2, (ty4, su4)) =>
-              find(ctx, eq1, formals2, tr2, ty4, su4)
-            }
+          bind(ctx, pat, arg, formals1, formals2, updates)
 
-        first(pat, arg, ty, su, iteration.flatten)
+        first(pat, arg, ty, su, iteration)
 
       case _ =>
         throw Expr.CannotBind(pat, arg, ty, su, "incompatible")
+    }
+  }
+
+  def bind(
+      ctx: Context,
+      pat: Expr,
+      arg: Expr,
+      formals1: List[LetEq],
+      formals2: List[LetEq],
+      inst: List[(Map[Param, Type], Map[Var, Expr])]
+  ) = {
+    val tr2 = formals2.asMap
+    val static1 = pat.free -- formals1.vars
+
+    val inst_ =
+      for ((ty, su) <- inst)
+        yield cover2(formals1, formals2, (ty, su)) { case (eq1, formals2, (ty_, su_)) =>
+          find(ctx, eq1, formals2, tr2, ty_, su_)
+        }
+
+    inst_.flatten filter { case (ty, su) =>
+      // no static variable is bound to a term containing a dynamic variable
+      val static2 = static1 map su
+      static2.forall { expr =>
+        val ok = expr.free disjoint formals2.vars.toSet
+        // if (!ok) {
+        //   println("discarding match of " + pat + " for " + arg)
+        //   println("reason: " + expr)
+        //   println(su)
+        // }
+        ok
+      }
     }
   }
 
