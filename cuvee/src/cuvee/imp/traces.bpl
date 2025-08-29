@@ -65,7 +65,7 @@ free lemma {:rw} <a,b> forall init: [a]b, keys: Trace<a>, values: Trace<b> ::
     trace(init, for k, v <- keys, values do a := a[k:=v])
         == stores(init, keys, values);
 
-free lemma {:} <b> forall init: [int]b, values: Trace<b>, j: int, n: int ::
+free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, n: int ::
     current(stores(init, counter(n), values))[j]
         == if 0 <= j && j < n then earlier(j, values) else init[j];
 

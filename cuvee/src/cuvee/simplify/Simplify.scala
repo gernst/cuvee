@@ -644,6 +644,18 @@ object Simplify extends Stage {
         var (ty1, su1) =
           bind(ctx, result1, result2, ty, su)
 
+        val uncaptured =
+          formals2.vars.toSet & result2.free
+
+        if (uncaptured.nonEmpty)
+          throw Expr.CannotBind(
+            pat,
+            arg,
+            ty,
+            su,
+            "uncaptured variables: " + uncaptured.mkString(", ")
+          )
+
         val iteration =
           cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
             find(ctx, eq1, formals2, tr2, ty4, su4)

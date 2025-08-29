@@ -117,22 +117,22 @@ object Context {
         assuming(ctx_, pos, neg)
 
       case (Eq(x: Var, y) :: pos, neg) if y.free.isEmpty =>
-        require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x)
+        require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x + ": " + y + " and " + ctx.su(x))
         val ctx_ = ctx.copy(su = ctx.su + (x -> y))
         assuming(ctx_, pos, neg)
 
       case (Eq(y, x: Var) :: pos, neg) if y.free.isEmpty =>
-        require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x)
+        require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x + ": " + y + " and " + ctx.su(x))
         val ctx_ = ctx.copy(su = ctx.su + (x -> y))
         assuming(ctx_, pos, neg)
 
       case (Eq(x: Var, e) :: pos, neg) =>
-        require(!(ctx.eq contains x), "unhandled cases with multiple equations for " + x)
+        require(!(ctx.eq contains x), "unhandled cases with multiple equations for " + x + ": " + e + " and " + ctx.eq(x))
         val ctx_ = ctx.copy(eq = ctx.eq + (x -> e))
         assuming(ctx_, pos, neg)
 
       case (Eq(e, x: Var) :: pos, neg) =>
-        require(!(ctx.eq contains x), "unhandled cases with multiple equations for " + x)
+        require(!(ctx.eq contains x), "unhandled cases with multiple equations for " + x + ": " + e + " and " + ctx.eq(x))
         val ctx_ = ctx.copy(eq = ctx.eq + (x -> e))
         assuming(ctx_, pos, neg)
 
