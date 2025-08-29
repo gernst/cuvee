@@ -270,6 +270,7 @@ object Printer extends cuvee.util.Printer {
       }
 
       indent(head ++ tail.flatten)
+
     case Or(phis) =>
       val head = formula(phis.head)
 
@@ -280,6 +281,7 @@ object Printer extends cuvee.util.Printer {
       }
 
       indent(head ++ tail.flatten)
+
     case Imp(pre, ant) =>
       val a = formula(pre)
       val a_ = "(" + a.head
@@ -292,6 +294,7 @@ object Printer extends cuvee.util.Printer {
       // Where do you want it? Either " ==> " or "==>  "
       val impl = indent(List(" ==> " + ant_.head.trim))
       pre_ ++ impl ++ indent(ant_.tail)
+
     case Not(Eq(left, right)) =>
       val (name, prec, assoc) = ("!=", 5, easyparse.Left)
       var a = line(left)
@@ -304,12 +307,14 @@ object Printer extends cuvee.util.Printer {
       if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
 
       List(a + " " + name + " " + b)
+
     case Not(phi) =>
       val phi_ = formula(phi)
       val first = "!(" + phi_.head
       val phi__ = phi_.updated(0, first)
       val last = phi__.last + ")"
       phi__.updated(phi__.length - 1, last)
+
     case Forall(x, phi) =>
       val quant = "(forall " ++ vartypes(x) ++ " ::"
       val phi_ = indent(formula(phi), 3)
@@ -320,11 +325,13 @@ object Printer extends cuvee.util.Printer {
       val phi_ = indent(formula(phi), 3)
       val last = phi_.last + ")"
       quant :: phi_.updated(phi_.length - 1, last)
+
     case Post(how, prog, post) =>
       val as = lines(prog)
       val bs = lines(post)
       val (lp, rp) = modality(how)
       List(lp) ++ indent(as) ++ List(rp + "(") ++ indent(bs) ++ List(")")
+
     case _ =>
       List(line(expr))
   }
@@ -657,10 +664,11 @@ object Printer extends cuvee.util.Printer {
       result = head +: result
       indent(result)
 
-    case Proof(Split, subproofs)      => indent(List("split"))
+    case Proof(Split, subproofs) =>
+      indent(List("split"))
       val head = "split"
-      var result : List[String] = Nil
-      for (subproof <- subproofs){
+      var result: List[String] = Nil
+      for (subproof <- subproofs) {
         val (sel, subproof_) = subproof
         result ++= sel.toString() +: proof_(subproof_)
       }

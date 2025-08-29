@@ -66,6 +66,11 @@ free lemma {:rw} forall start: int, k: int, n: int ::
         <==> 0 <= k && k <= n;
 
 
+free lemma {:rw} forall n: int, bs: Trace<bool> ::
+    invariant(for k, b <- counter(n), bs yield b)
+        <==> forall j: int :: 0 <= j && j < n ==> earlier(j, bs);
+
+
 free lemma {:rw} <a,b> forall init: [a]b, keys: Trace<a>, values: Trace<b> ::
     trace(init, for k, v <- keys, values do a := a[k:=v])
         == stores(init, keys, values);

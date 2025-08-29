@@ -76,6 +76,31 @@ case class Context(
 }
 
 object Context {
+  def assigning(ctx: Context, x: Var, e: Expr): Context = {
+    val isConst = e.free.isEmpty
+    val alreadyReplaces = ctx.su contains x
+    val alreadyAssigned = ctx.eq contains x
+
+    // Note: neither e nor su(x) nor eq(e) can be another variable
+    if (isConst) {
+      // look at ctx.su
+      if (!alreadyReplaces) {
+        ctx.copy(su = ctx.su + (x -> e))
+      } else {
+        val phi = Eq(ctx.su(x), e)
+        ctx.copy(pos = ctx.pos ++ List(phi))
+      }
+    } else {
+      // look at ctx.eq
+      if (!alreadyAssigned) {
+        ctx.copy(eq = ctx.eq + (x -> e))
+      } else {
+        val phi = Eq(ctx.eq(x), e)
+        ctx.copy(pos = ctx.pos ++ List(phi))
+      }
+    }
+  }
+
   // Note: requires that the formula over which we run has been normalized already by Clause.flatten,
   // we don't introduce new bound variables etc to the context here,
   // rather, just expand some simple propositional structure.
@@ -116,24 +141,12 @@ object Context {
         val ctx_ = ctx.copy(su = ctx.su + (x -> y))
         assuming(ctx_, pos, neg)
 
-      case (Eq(x: Var, y) :: pos, neg) if y.free.isEmpty =>
-        require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x + ": " + y + " and " + ctx.su(x))
-        val ctx_ = ctx.copy(su = ctx.su + (x -> y))
-        assuming(ctx_, pos, neg)
-
-      case (Eq(y, x: Var) :: pos, neg) if y.free.isEmpty =>
-        require(!(ctx.su contains x), "unhandled cases with multiple equations for " + x + ": " + y + " and " + ctx.su(x))
-        val ctx_ = ctx.copy(su = ctx.su + (x -> y))
-        assuming(ctx_, pos, neg)
-
       case (Eq(x: Var, e) :: pos, neg) =>
-        require(!(ctx.eq contains x), "unhandled cases with multiple equations for " + x + ": " + e + " and " + ctx.eq(x))
-        val ctx_ = ctx.copy(eq = ctx.eq + (x -> e))
+        val ctx_ = assigning(ctx, x, e)
         assuming(ctx_, pos, neg)
 
       case (Eq(e, x: Var) :: pos, neg) =>
-        require(!(ctx.eq contains x), "unhandled cases with multiple equations for " + x + ": " + e + " and " + ctx.eq(x))
-        val ctx_ = ctx.copy(eq = ctx.eq + (x -> e))
+        val ctx_ = assigning(ctx, x, e)
         assuming(ctx_, pos, neg)
 
       case (phi :: pos, neg) =>

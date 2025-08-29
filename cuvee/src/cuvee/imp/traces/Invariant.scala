@@ -7,7 +7,8 @@ case class Invariant(
     result: Expr
 ) extends Extra
     with Expr.bind2[Invariant] {
-  require(result.typ == Sort.bool)
+  // require(result.typ == Sort.bool, "not boolean: " + result.toStringTyped)
+  // cannot be checked on unresolved instances
 
   def typ = Sort.bool
   def bound = Set(formals.vars: _*)

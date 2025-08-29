@@ -690,7 +690,10 @@ case class Bind(quant: Quant, formals: List[Var], body: Expr, typ: Type)
   def inst(su: Map[Param, Type]) =
     Bind(quant, formals inst su, body inst su, typ subst su)
   def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
-    cuvee.undefined // uh oh mess with bound variables
+    if (ty.isEmpty)
+      subst(su)
+    else
+      cuvee.undefined // uh oh mess with bound variables
 
   def refreshAll = {
     val re = Expr.fresh(formals)
