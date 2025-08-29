@@ -504,12 +504,12 @@ case class Loc(name: String) {
 
 object Loc {
   val old = Loc("old")
-  val earlier = Loc("earlier")
+  // val earlier = Loc("earlier")
   val final_ = Loc("final")
 }
 
 object Old extends Sugar.at(Loc.old)
-object Earlier extends Sugar.at(Loc.earlier)
+// object Earlier extends Sugar.at(Loc.earlier)
 object Final extends Sugar.at(Loc.final_)
 
 case class At(where: Loc, arg: Expr) extends Expr {

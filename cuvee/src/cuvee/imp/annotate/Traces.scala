@@ -13,6 +13,9 @@ import scala.collection.immutable
 import cuvee.smtlib.DeclareSort
 import cuvee.smtlib.DeclareFun
 
+object Current extends Sugar.unary(Fun.current)
+object Earlier extends Sugar.binary(Fun.earlier)
+
 object Traces extends Annotate(ExecNoLoops) {
   override def preamble(state: State) = {
     val (cmds, _) = cuvee.boogie.parse("cuvee/src/cuvee/imp/traces.bpl")
@@ -30,7 +33,6 @@ object Traces extends Annotate(ExecNoLoops) {
       sum: Expr,
       frames: List[Frame]
   ): (List[Cmd], Paths, Prog) = {
-    object Current extends Sugar.unary(state.funs("current", 1))
     object Counter extends Sugar.unary(state.funs("counter", 1))
 
     val mod = body.mod

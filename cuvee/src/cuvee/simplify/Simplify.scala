@@ -8,8 +8,10 @@ import cuvee.util.Matching
 import cuvee.imp.traces.Trace
 import cuvee.imp.traces.Update
 import cuvee.imp.traces.Mapping
-import cuvee.imp.annotate.Traces
 import cuvee.imp.traces.Invariant
+import cuvee.imp.annotate.Traces
+import cuvee.imp.annotate.Current
+import cuvee.imp.annotate.Earlier
 
 object Simplify extends Stage {
   import Context.assuming
@@ -279,6 +281,18 @@ object Simplify extends Stage {
         val index_ = simplify(ctx.unpolar, index)
         val value_ = simplify(ctx.unpolar, value)
         store(base_, index_, value_)
+
+      case Current(Mapping(formals, result)) =>
+        val su =
+          for ((x, e) <- formals.asMap)
+            yield (x, Current(e))
+        result subst su
+
+      case Earlier(j, Mapping(formals, result)) =>
+        val su =
+          for ((x, e) <- formals.asMap)
+            yield (x, Earlier(j, e))
+        result subst su
 
       case App(inst, args) =>
         val args_ = simplify(ctx.unpolar, args)
@@ -645,7 +659,7 @@ object Simplify extends Stage {
           bind(ctx, result1, result2, ty, su)
 
         val uncaptured =
-          formals2.vars.toSet & result2.free
+          result2.free -- formals2.vars
 
         if (uncaptured.nonEmpty)
           throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
@@ -664,11 +678,16 @@ object Simplify extends Stage {
         var (ty1, su1) =
           bind(ctx, cond1, cond2, ty, su)
 
-        val uncaptured =
-          formals2.vars.toSet & cond2.free
+        // val mod =
+        //   cond2.free & formals2.vars.toSet
 
-        if (uncaptured.nonEmpty)
-          throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
+        // if (uncaptured.nonEmpty) {
+        //   println(uncaptured)
+        //   ???
+        // }
+
+        // if (uncaptured.nonEmpty)
+        //   throw Expr.CannotBind(pat, arg, ty, su, "uncaptured: " + uncaptured)
 
         val iteration =
           cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>

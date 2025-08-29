@@ -140,6 +140,9 @@ object Fun {
   val map = Fun("map", List(a, b), List(a, Sort.trace(a), Sort.array(a, b)), Sort.trace(b))
   val inv = Fun("invariant", List(a), List(Sort.trace(a), Sort.array(a, Sort.bool)), Sort.bool)
 
+  val current = Fun("current", List(a), List(Sort.trace(a)), a)
+  val earlier = Fun("earlier", List(a), List(int, Sort.trace(a)), a)
+
   val builtin = Set(
     eq_,
     ite,

@@ -44,6 +44,11 @@ free lemma {:rw} forall n: int ::
     current(counter(n))
         == n;
 
+free lemma {:rw} <a> forall value: a, j: int, n: int ::
+    0 <= j && j < n
+        ==> earlier(j, counter(n))
+            == j;
+
 free lemma {:rw} forall start: int, step: int, n: int ::
     current(range(start, step, n))
         == start + step * n;
