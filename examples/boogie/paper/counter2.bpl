@@ -8,5 +8,5 @@ procedure counter()
         x2 := x2 + 1;
     }
 
-    assert x1 == 0;
+    assert x1 <= 0;
 }

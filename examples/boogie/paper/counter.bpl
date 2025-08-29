@@ -3,7 +3,7 @@ procedure counter()
     var n: int;
     assume 0 <= n;
 
-    var i: int := 0;
+    var i: int;
 
     while(i < n) {
         i := i + 1;

@@ -431,26 +431,25 @@ object Simplify extends Stage {
       // case _ if left.typ == Sort.int && right.typ == Sort.int =>
       //   ???
 
-      /* TODO: add proper solver for ADTs
+      // TODO: add proper solver for ADTs
       case (App(Inst(f, _), la), App(Inst(g, _), ra))
-          if (constrs contains f) && (constrs contains g) =>
+          if (ctx.constrs contains f) && (ctx.constrs contains g) =>
         if (f == g) {
           // unpack arguments as equations
           val eqs =
             for ((l, r) <- (la zip ra))
-              yield eq(l, r)
+              yield eq(ctx, l, r)
           and(eqs)
         } else {
           // data types are freely generated, so constructors never overlap
           False
         }
 
-      case (App(Inst(f, _), la), r) if (constrs contains f) && (la contains r) =>
+      case (App(Inst(f, _), la), r) if (ctx.constrs contains f) && (la contains r) =>
         False
 
-      case (l, App(Inst(g, _), ra)) if (constrs contains g) && (ra contains l) =>
+      case (l, App(Inst(g, _), ra)) if (ctx.constrs contains g) && (ra contains l) =>
         False
-       */
 
       case _ =>
         Eq(left, right)

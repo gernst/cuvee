@@ -47,6 +47,8 @@ object Traces extends Annotate(ExecNoLoops) {
     // ws are all regular modified variables
     // zs are all nondet variables
 
+    // Note: Simplify will keep dependencies if they start with # even if these variables do not occur in the result expression/update.
+    //       Make sure to adapt that code whenever names change here.
     val k = Expr.fresh("#k", Sort.int)
     val n = Expr.fresh("#n", Sort.int)
 
