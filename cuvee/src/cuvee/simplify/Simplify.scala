@@ -182,6 +182,12 @@ object Simplify extends Stage {
       init
     } else {
       // don't run again here! could come in with different context
+      for (eq <- ctx.su)
+        println("su   " + eq)
+      for (eq <- ctx.eq)
+        println("eq   " + eq)
+      for (phi <- ctx.assms)
+        println("assm " + phi)
       println("step " + init)
       println("  ~> " + expr)
       println()
@@ -420,7 +426,6 @@ object Simplify extends Stage {
 
       case (x: Var, _)
           if !(right.free contains x) && !(ctx.free contains x) && (ctx canInstantiate x) =>
-        // println("dropping " + x + " == " + right)
         True
 
       // case _ if left.typ == Sort.int && right.typ == Sort.int =>
@@ -583,13 +588,13 @@ object Simplify extends Stage {
 
     } catch { // this rule does not apply, try other rules
       case Type.CannotBind(pat, arg, ty) =>
-        println("cannot bind " + pat + " to " + arg + " with " + ty)
+        // println("cannot bind " + pat + " to " + arg + " with " + ty)
         rewrite(ctx, use, expr)
 
       case Expr.CannotBind(pat, arg, ty, su, reason) =>
-        println(
-          "cannot bind " + pat + " to " + arg + " with " + ty + " and " + su + " (" + reason + ")"
-        )
+        // println(
+        //   "cannot bind " + pat + " to " + arg + " with " + ty + " and " + su + " (" + reason + ")"
+        // )
         rewrite(ctx, use, expr)
 
       case Rewrite.PremiseNotValid | Rewrite.InstanceAvoided =>
@@ -604,9 +609,9 @@ object Simplify extends Stage {
       ty: Map[Param, Type] = Map(),
       su: Map[Var, Expr] = Map()
   ): (Map[Param, Type], Map[Var, Expr]) = {
-    println("binding")
-    println("pat: " + pat)
-    println("arg: " + arg)
+    // println("binding")
+    // println("pat: " + pat)
+    // println("arg: " + arg)
 
     (pat, arg) match {
       case (x: Var, _) if su contains x =>
@@ -633,9 +638,19 @@ object Simplify extends Stage {
         val (ty__, su_) = bind(ctx, pats, args, ty_, su)
         (ty__, su_)
 
-      // case (map: Mapping, Mapping(formals2, cond2)) =>
-      //   val pat @ Mapping(formals1, cond1) = map.gen
-      //   ???
+      case (map: Mapping, Mapping(formals2, result2)) =>
+        val pat @ Mapping(formals1, result1) = map.gen
+        val tr2 = formals2.asMap
+
+        var (ty1, su1) =
+          bind(ctx, result1, result2, ty, su)
+
+        val iteration =
+          cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
+            find(ctx, eq1, formals2, tr2, ty4, su4)
+          }
+
+        first(pat, arg, ty, su, iteration)
 
       case (inv: Invariant, Invariant(formals2, cond2)) =>
         val pat @ Invariant(formals1, cond1) = inv.gen
@@ -644,35 +659,12 @@ object Simplify extends Stage {
         var (ty1, su1) =
           bind(ctx, cond1, cond2, ty, su)
 
-        println(ty1, su1)
-
         val iteration =
           cover2(formals1, formals2, (ty1, su1)) { case (eq1, formals2, (ty4, su4)) =>
-            println("try match " + eq1 + " to " + formals2)
             find(ctx, eq1, formals2, tr2, ty4, su4)
           }
 
-        println(iteration)
-
-        iteration.distinct match {
-          case Nil =>
-            throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
-
-          case List((ty_, su_)) =>
-            (ty_, su_)
-
-          case results =>
-            // bad setup of rewrite theory?
-            // could potentially happen, for example with
-            // current(_, range(0, 1, n))
-            // current(_, range(0, c, n))
-
-            // but maybe fix the later one with avoiding c -> 1
-            for ((ty_, su_) <- results) {
-              println("  " + ty_ + " " + su_)
-            }
-            cuvee.error("multiple for iteration matches of " + pat + " for " + arg)
-        }
+        first(pat, arg, ty, su, iteration)
 
       case (trace: Trace, Trace(init2, iteration2, acc2, updates2)) =>
         val pat @ Trace(init1, iteration1, acc1, updates1) = trace.gen
@@ -687,7 +679,7 @@ object Simplify extends Stage {
         val updates =
           cover(updates2, updates1, (ty1, su1)) { case (up2, up1, (ty2, su2)) =>
             bind(ctx, up1, up2, ty2, su2)
-          };
+          }
 
         // the goal is to then cover all *trace* variables occurring in the iteration of the pattern,
         // however, we first leverage that we have a mapping for some *local* bindings,
@@ -698,28 +690,38 @@ object Simplify extends Stage {
               find(ctx, eq1, iteration2, tr2, ty4, su4)
             }
 
-        iteration.flatten.distinct match {
-          case Nil =>
-            throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
-
-          case List((ty_, su_)) =>
-            (ty_, su_)
-
-          case results =>
-            // bad setup of rewrite theory?
-            // could potentially happen, for example with
-            // current(_, range(0, 1, n))
-            // current(_, range(0, c, n))
-
-            // but maybe fix the later one with avoiding c -> 1
-            for ((ty_, su_) <- results) {
-              println("  " + ty_ + " " + su_)
-            }
-            cuvee.error("multiple for iteration matches of " + pat + " for " + arg)
-        }
+        first(pat, arg, ty, su, iteration.flatten)
 
       case _ =>
         throw Expr.CannotBind(pat, arg, ty, su, "incompatible")
+    }
+  }
+
+  def first(
+      pat: Expr,
+      arg: Expr,
+      ty: Map[Param, Type],
+      su: Map[Var, Expr],
+      results: List[(Map[Param, Type], Map[Var, Expr])]
+  ) = {
+    results.distinct match {
+      case Nil =>
+        throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
+
+      case List((ty_, su_)) =>
+        (ty_, su_)
+
+      case results =>
+        // bad setup of rewrite theory?
+        // could potentially happen, for example with
+        // current(_, range(0, 1, n))
+        // current(_, range(0, c, n))
+
+        // but maybe fix the later one with avoiding c -> 1
+        for ((ty_, su_) <- results) {
+          println("  " + ty_ + " " + su_)
+        }
+        cuvee.error("multiple for iteration matches of " + pat + " for " + arg)
     }
   }
 
@@ -789,13 +791,18 @@ object Simplify extends Stage {
 
           case e2 =>
             val ys = e2.free
-            val formals_ = formals.filter(eq => ys.contains(eq.x))
-            println(xs1 + " -> map(" + formals_ + " yield " + e2 + ")")
+            val formals_ = formals.filter { case LetEq(x, e) => // XXX: big hack! keep counter here
+              (x.name.name startsWith "#") || (ys contains x)
+            }
+
+            require(ys.nonEmpty, "uh oh generating trace without dependencies")
+
+            // println(xs1 + " -> map(" + formals_ + " yield " + e2 + ")")
             List(bind(ctx, xs1, Mapping(formals_, e2), ty, su))
         }
 
       case LetEq(x1, xs1) =>
-        println("looking for " + xs1 + " among " + formals)
+        // println("looking for " + xs1 + " among " + formals)
         cover(xs1, formals.args, (ty, su)) { case (pat, arg, (ty_, sy_)) =>
           bind(ctx, pat, arg, ty_, sy_)
         }
@@ -809,9 +816,9 @@ object Simplify extends Stage {
       su: Map[Var, Expr]
   ): List[(Map[Param, Type], Map[Var, Expr])] = {
     val phis = And.flattenStrong(phi) // ensure absence of true here
-    println("finding:  " + phis)
-    println("given su: " + su)
-    println("context:  " + ctx.assms)
+    // println("finding:  " + phis)
+    // println("given su: " + su)
+    // println("context:  " + ctx.assms)
 
     // TODO: pick those from phis first which have no free variables,
     //       currently results end up many times
@@ -819,7 +826,7 @@ object Simplify extends Stage {
       case (phi, assm, (ty, su)) if phi.free subsetOf su.keySet =>
         val phi_ = simplify(ctx, phi inst (ty, su))
         if (phi_ == True) {
-          println("found " + phi + " == true ")
+          // println("found " + phi + " == true ")
           (ty, su)
         } else {
           // println("not found " + phi + " != true ")
@@ -827,9 +834,9 @@ object Simplify extends Stage {
         }
 
       case (phi, assm, (ty, su)) =>
-        println("bind? " + (phi inst (ty, su)) + " == " + assm)
+        // println("bind? " + (phi inst (ty, su)) + " == " + assm)
         val res = bind(ctx, phi, assm, ty, su)
-        println("found " + phi + " == " + assm)
+        // println("found " + phi + " == " + assm)
         res
     }
   }

@@ -31,7 +31,6 @@ object Traces extends Annotate(ExecNoLoops) {
       frames: List[Frame]
   ): (List[Cmd], Paths, Prog) = {
     object Current extends Sugar.unary(state.funs("current", 1))
-
     object Counter extends Sugar.unary(state.funs("counter", 1))
 
     val mod = body.mod
@@ -48,7 +47,7 @@ object Traces extends Annotate(ExecNoLoops) {
     // ws are all regular modified variables
     // zs are all nondet variables
 
-    val k = Expr.fresh("k", Sort.int)
+    val k = Expr.fresh("#k", Sort.int)
     val n = Expr.fresh("#n", Sort.int)
 
     val ws = mod.toList
