@@ -1,6 +1,7 @@
 type Trace<a>;
 
 function current<a>(xs: Trace<a>): a;
+function earlier<a>(k: int, xs: Trace<a>): a;
 
 function counter(n: int): Trace<int>;
 function range(start: int, step: int, n: int): Trace<int>;
@@ -33,6 +34,15 @@ free lemma {:rw} <a> forall value: a, n: int ::
     current(consts(value, n))
         == value;
 
+free lemma {:rw} <a> forall value: a, j: int, n: int ::
+    0 <= j && j < n
+        ==> earlier(j, consts(value, n))
+            == value;
+
+free lemma {:rw} <a> forall value: a, j: int, n: int ::
+    current(consts(value, n))
+        == value;
+
 free lemma {:rw} forall n: int ::
     current(counter(n))
         == n;
@@ -58,6 +68,6 @@ free lemma {:rw} <a,b> forall init: [a]b, keys: Trace<a>, values: Trace<b> ::
     trace(init, for k, v <- keys, values do a := a[k:=v])
         == stores(init, keys, values);
 
-free lemma {:rw} <b> forall init: [int]b, value: b, j: int, n: int ::
-    current(stores(init, counter(n), consts(value, n)))[j]
-        == if 0 <= j && j < n then value else init[j];
+free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, n: int ::
+    current(stores(init, counter(n), values))[j]
+        == if 0 <= j && j < n then earlier(j, values) else init[j];
