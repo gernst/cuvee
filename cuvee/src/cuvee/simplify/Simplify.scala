@@ -12,6 +12,7 @@ import cuvee.imp.traces.Invariant
 import cuvee.imp.annotate.Traces
 import cuvee.imp.annotate.Current
 import cuvee.imp.annotate.Earlier
+import cuvee.imp.annotate.Counter
 
 object Simplify extends Stage {
   import Context.assuming
@@ -317,18 +318,47 @@ object Simplify extends Stage {
 
       case expr: Mapping =>
         val Mapping(formals, result) = expr refresh ctx.vars
-        val ctx_ = ctx.unpolar
+
         // XXX: how does that not crash with unbound variables?
-        val formals_ = simplify_leteqs(ctx_, formals)
-        val result_ = simplify(ctx, result)
+        val formals_ = simplify_leteqs(ctx, formals)
+        val LetEq(k, ks: Var) :: eqs = formals_
+        val Counter(n) = ctx.eq(ks)
+
+    println("local assms for " + result)
+    // XXX: Oh wow.  cannot have k < n because a mapping inside Current would
+    //      actually make use of that last result, whereas a mapping inside
+    //      trace will *not* make use of the last one
+    val ctx1 = assuming(ctx, pos = List(Zero <= k, k <= n))
+        val assms =
+          for (LetEq(x, e) <- formals_)
+            yield {
+             val phi = simplify(ctx1, Eq(x, Earlier(k, e)))
+          println(Eq(x, Earlier(k, e)) + " -> " + phi)
+          phi
+            }
+
+        // val assms = Nil
+        val ctx_ = assuming(ctx1, pos = assms)
+
+        val result_ = simplify(ctx_, result)
         Mapping(formals_, result_)
 
       case expr: Trace =>
         val Trace(init, formals, acc, updates) = expr refresh ctx.vars
-        val ctx_ = ctx.unpolar
+
+        val init_ = simplify(ctx, init)
+        val formals_ = simplify_leteqs(ctx, formals)
+        val LetEq(k, _) :: eqs = formals_
+
+        val assms =
+          for (LetEq(x, e) <- formals_)
+            yield simplify(ctx, Eq(x, Earlier(k, e)))
+
+        // val assms = Nil
+
+        val ctx_ = assuming(ctx, pos = assms)
+
         // XXX: how does that not crash with unbound variables?
-        val init_ = simplify(ctx_, init)
-        val formals_ = simplify_leteqs(ctx_, formals)
         val updates_ = simplify_updates(ctx_, formals_, updates)
         Trace(init_, formals_, acc, updates_)
 
@@ -342,15 +372,17 @@ object Simplify extends Stage {
       formals_ : List[LetEq],
       updates: List[Update]
   ): List[Update] = {
+    val LetEq(k, _) :: eqs = formals_
+
     // TODO: earlier or current?
     //       probably earlier, because all current is with respect to the external counter k
     //       but also the problem is that they are not viewed jointly from an earlier state!!
     //       here should introduce another counter for the earlier state
-    // val assms =
-    //   for (LetEq(x, e) <- iteration_.formals)
-    //     yield simplify(ctx, Traces.Current(x, e))
+    val assms =
+      for (LetEq(x, e) <- formals_)
+        yield simplify(ctx, Eq(x, Earlier(k, e)))
 
-    val assms = Nil
+    // val assms = Nil
 
     val ctx_ = assuming(ctx, pos = assms)
 
@@ -737,7 +769,7 @@ object Simplify extends Stage {
       case List((ty_, su_)) =>
         (ty_, su_)
 
-      case results =>
+      case first :: results =>
         // bad setup of rewrite theory?
         // could potentially happen, for example with
         // current(_, range(0, 1, n))
@@ -747,7 +779,8 @@ object Simplify extends Stage {
         for ((ty_, su_) <- results) {
           println("  " + ty_ + " " + su_)
         }
-        cuvee.error("multiple for iteration matches of " + pat + " for " + arg)
+        println("multiple for iteration matches of " + pat + " for " + arg)
+        first
     }
   }
 
@@ -774,8 +807,9 @@ object Simplify extends Stage {
           case Nil =>
             throw Expr.CannotBind(path1, path2, ty_, su_, "not found")
 
-          case results =>
-            cuvee.error("multiple matches for update guard: " + results)
+          case first :: results =>
+            println("multiple matches for update guard: " + results)
+            first
         }
     }
   }

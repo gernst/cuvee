@@ -74,9 +74,9 @@ case class Trace(
   override def toString = {
     val iteration =
       if (formals.isEmpty) ""
-      else "for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ")
+      else " for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ") + " "
 
     val update = acc + " := " + updates.mkString(" | ")
-    "trace(" + init + ", " + iteration + " do " + update + ")"
+    "trace(" + init + ", " + iteration + "do " + update + ")"
   }
 }

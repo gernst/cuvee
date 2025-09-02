@@ -143,6 +143,8 @@ object Fun {
   val current = Fun("current", List(a), List(Sort.trace(a)), a)
   val earlier = Fun("earlier", List(a), List(int, Sort.trace(a)), a)
 
+  val counter = Fun("counter", Nil, List(int), Sort.trace(int))
+
   val builtin = Set(
     eq_,
     ite,

@@ -99,7 +99,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
       as: List[Var],
       ys: List[Var],
       re: Map[Var, Var],
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       test: Expr,
       inv: Expr,
       avoid: List[Path]
@@ -126,7 +126,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
       as: List[Var],
       ys: List[Var],
       re: Map[Var, Var],
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       paths: List[Path]
   ): List[Expr] = {
     for (a <- as; inv <- accelerateWrites(mod, ys, re, counters, paths, a))
@@ -137,7 +137,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
       mod: Set[Var],
       ys: List[Var],
       re: Map[Var, Var],
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       paths: List[Path],
       a: Var
   ): List[Expr] = {
@@ -168,7 +168,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
       mod: Set[Var],
       ys: List[Var],
       re: Map[Var, Var],
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       paths: List[Path],
       a: Var,
       x: Var
@@ -189,7 +189,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
   }
 
   def indexEqualities(
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       re: Map[Var, Var],
       a: Var,
       x: Var,
@@ -207,7 +207,7 @@ case class Arrays(frame: Boolean, guard: Boolean)
 
   def assignmentEqualities(
       mod: Set[Var],
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       re: Map[Var, Var],
       a: Var,
       x: Var,

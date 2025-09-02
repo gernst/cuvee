@@ -471,6 +471,13 @@ class State(
     fun("<", Nil, List(Int, Int), Bool)
     fun(">", Nil, List(Int, Int), Bool)
 
+    // make trace theory available in the (Boogie) parser by default
+    con("Trace", 1)
+    val tr = sort("Trace", List(a))
+
+    fun("current", List(a), List(tr), a)
+    fun("earlier", List(a), List(Int, tr), a)
+
     this
   }
 

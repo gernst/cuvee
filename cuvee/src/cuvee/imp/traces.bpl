@@ -9,7 +9,6 @@ function range(start: int, step: int, n: int): Trace<int>;
 function consts<a>(value: a, n: int): Trace<int>;
 
 function stores<a,b>(init: [a]b, keys: Trace<a>, values: Trace<b>): Trace<[a]b>;
-function sums<a>(init: int, factor: int, array: [a]int, keys: Trace<a>): Trace<int>;
 
 
 // general rules that can only be implemented in the simplifier,
@@ -29,7 +28,8 @@ free lemma {:rw} forall start: int, step: int, n: int ::
 
 
 free lemma {:rw} forall start: int, n: int ::
-    range(0, 1, n) == counter(n);
+    range(0, 1, n) ==
+        counter(n);
 
 free lemma {:rw} <a> forall value: a, n: int ::
     current(consts(value, n))
@@ -80,10 +80,20 @@ free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, n: int ::
         == if 0 <= j && j < n then earlier(j, values) else init[j];
 
 
-free lemma {:rw} <a> forall init: int, array: [a]int, keys: Trace<a> ::
-    trace(init, for k <- keys do s := s + array[k])
-        == sums(init, 1, array, keys);
+function sums(init: int, values: Trace<int>): Trace<int>;
 
-free lemma {:rw} <a> forall init: int, factor: int, array: [a]int, keys: Trace<a> ::
-    trace(init, for k <- keys do s := s + factor * array[k])
-        == sums(init, factor, array, keys);
+free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+    trace(init, for v <- values do s := s + v)
+        == sums(init, values);
+
+free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+    current(sums(init, map(for v <- values yield - v)))
+        == - current(sums(init, values));
+
+free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+    current(sums(init, values))
+        == init + current(sums(0, values));
+
+free lemma {:rw} <a> forall values: Trace<a>, n: int ::
+    map(for k <- counter(n) yield earlier(k, values))
+        == values;

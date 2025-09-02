@@ -45,8 +45,8 @@ case class Invariant(
   override def toString = {
     val iteration =
       if (formals.isEmpty) ""
-      else "for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ")
+      else "for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ") + " "
 
-    "invariant(" + iteration + " yield " + result + ")"
+    "invariant(" + iteration + "yield " + result + ")"
   }
 }

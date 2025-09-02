@@ -42,8 +42,8 @@ case class Mapping(
   override def toString = {
     val iteration =
       if (formals.isEmpty) ""
-      else "for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ")
+      else "for " + formals.vars.mkString(", ") + " <- " + formals.args.mkString(", ") + " "
 
-    "map(" + iteration + " yield " + result + ")"
+    "map(" + iteration + "yield " + result + ")"
   }
 }

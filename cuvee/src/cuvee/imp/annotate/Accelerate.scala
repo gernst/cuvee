@@ -4,22 +4,22 @@ import cuvee.SetOps
 import cuvee.pure._
 import cuvee.imp.Path
 
-case class Counter(init: Expr, step: BigInt)
+case class Kounter(init: Expr, step: BigInt)
 
 object Accelerate {
   val plus_one = BigInt(1)
   val minus_one = BigInt(-1)
 
   def isEarlierValueOf(
-      counter: Counter,
+      counter: Kounter,
       current: Var,
       rho: Map[Var, Var]
   ): Option[Expr] = {
     counter match {
-      case Counter(init, `plus_one`) =>
+      case Kounter(init, `plus_one`) =>
         Some(Old(current) <= rho(current) && rho(current) < current)
 
-      case Counter(init, `minus_one`) =>
+      case Kounter(init, `minus_one`) =>
         Some(current < rho(current) && rho(current) <= Old(current))
 
       case _ =>
@@ -27,13 +27,13 @@ object Accelerate {
     }
   }
 
-  def lbsFromCounter(counters: Map[Var, Counter]): List[Expr] = {
+  def lbsFromCounter(counters: Map[Var, Kounter]): List[Expr] = {
     val lb = for ((var_, counter) <- counters) yield {
       counter match {
-        case Counter(init, step) if step > 0 =>
+        case Kounter(init, step) if step > 0 =>
           Old(var_) <= var_
 
-        case Counter(init, step) if step < 0 =>
+        case Kounter(init, step) if step < 0 =>
           var_ <= Old(var_)
 
         case _ =>
@@ -43,7 +43,7 @@ object Accelerate {
     lb.toList
   }
 
-  def lockstepCounters(counters: Map[Var, Counter]): List[Expr] = {
+  def lockstepCounters(counters: Map[Var, Kounter]): List[Expr] = {
     val groups = counters.groupBy { case (x, c) => c.step }
 
     for ((_, group) <- groups.toList if group.size >= 2) yield {
@@ -90,7 +90,7 @@ object Accelerate {
   }
 
   def checkEarlierValueOf(
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       current: Expr,
       rho: Map[Var, Var]
   ): Expr = {
@@ -99,7 +99,7 @@ object Accelerate {
   }
 
   def tryEarlierValuesOf(
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       current: List[Expr],
       rho: Map[Var, Var]
   ): List[Expr] = {
@@ -111,7 +111,7 @@ object Accelerate {
   }
 
   def checkEarlierValuesOf(
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       current: List[Expr],
       rho: Map[Var, Var]
   ): Expr = {
@@ -120,7 +120,7 @@ object Accelerate {
   }
 
   def isEarlierValuesOf(
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       current: List[Expr],
       rho: Map[Var, Var]
   ): Option[Expr] = {
@@ -139,7 +139,7 @@ object Accelerate {
   }
 
   def isEarlierValueOf(
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       current: Expr,
       rho: Map[Var, Var]
   ): Option[Expr] = {
@@ -162,7 +162,7 @@ object Accelerate {
       states: List[Path],
       states_ : List[Path],
       mod: List[Var]
-  ): Map[Var, Counter] = {
+  ): Map[Var, Kounter] = {
     val pairs =
       for (
         i <- mod if i.typ == Sort.int;
@@ -176,7 +176,7 @@ object Accelerate {
       states: List[Path],
       states_ : List[Path],
       i: Var
-  ): Option[(Var, Counter)] = {
+  ): Option[(Var, Kounter)] = {
     val is = states map (_ eval i)
     val init = is.distinct match {
       case List(i0) =>
@@ -205,7 +205,7 @@ object Accelerate {
 
     (init, step) match {
       case (Some(init), Some(step)) =>
-        Some(i -> Counter(init, step))
+        Some(i -> Kounter(init, step))
       case _ =>
         None
     }

@@ -39,7 +39,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
     val (ub, decreases) = Accelerate.ubAndDecreaseFromTest(And.flatten(test))
 
     for (
-      (x, Counter(init, step)) <- counters;
+      (x, Kounter(init, step)) <- counters;
       phi <- And.flatten(test)
     )
       (init, phi) match {
@@ -161,7 +161,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
 
   def assignmentEqualities(
       mod: Set[Var],
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       re: Map[Var, Var],
       a: Var,
       overwritten: List[Expr],
@@ -194,7 +194,7 @@ case object NewArrays extends Annotate(ExecNoLoops) {
   // this one works on renamed done/todo already
   def assignmentEqualities(
       mod: Set[Var],
-      counters: Map[Var, Counter],
+      counters: Map[Var, Kounter],
       base: Var,
       done: List[List[Expr]],
       todo: List[(List[Expr], Expr)]
