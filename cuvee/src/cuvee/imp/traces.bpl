@@ -65,11 +65,9 @@ free lemma {:rw} forall start: int, k: int, n: int ::
     invariant(for i <- range(start, -1, k) yield n < i)
         <==> 0 <= k && k <= n;
 
-
 free lemma {:rw} forall n: int, bs: Trace<bool> ::
     invariant(for k, b <- counter(n), bs yield b)
         <==> forall j: int :: 0 <= j && j < n ==> earlier(j, bs);
-
 
 free lemma {:rw} <a,b> forall init: [a]b, keys: Trace<a>, values: Trace<b> ::
     trace(init, for k, v <- keys, values do a := a[k:=v])
@@ -79,6 +77,13 @@ free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, n: int ::
     current(stores(init, counter(n), values))[j]
         == if 0 <= j && j < n then earlier(j, values) else init[j];
 
+free lemma {:rw} <b> forall n: int, c: int ::
+    map(for k, i <- counter(n), counter(n) yield c + i)
+        == range(c, 1, n);
+
+free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, n: int, c: int ::
+    current(stores(init, range(c, 1, n), values))[j]
+        == if c <= j && j < c + n then earlier(j, values) else init[j];
 
 function sums(init: int, values: Trace<int>): Trace<int>;
 
