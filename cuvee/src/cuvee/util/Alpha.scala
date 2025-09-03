@@ -151,4 +151,12 @@ trait Alpha[E <: Alpha.term[E, V], V <: E with Alpha.x[E, V]] {
     }
     updated ++ outer
   }
+
+  def alpha[B >: V <: E](bound: Iterable[V], su: Map[V, B]) = {
+    val avoid = free(su)
+    val captured = bound filter avoid
+    val a = context.fresh(captured)
+    val su_ = su -- bound ++ a
+    (a, su_)
+  }
 }

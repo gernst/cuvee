@@ -17,6 +17,7 @@ import cuvee.imp.Mode.In
 import cuvee.imp.Mode.Out
 import cuvee.imp.Mode.InOut
 import cuvee.imp.traces._
+import cuvee.imp.annotate.Butlast
 
 class Grammar(parser: cuvee.boogie.Parser) {
   import easyparse.implicits._
@@ -34,6 +35,8 @@ class Grammar(parser: cuvee.boogie.Parser) {
   def bags[A](p: Parser[A, Token]) = "⟅" ~ p ~ "⟆"
   def sqbraces[A](p: Parser[A, Token]) = "⦃" ~ p ~ "⦄"
   def sembrackets[A](p: Parser[A, Token]) = "〚" ~ p ~ "〛"
+  def ceil[A](p: Parser[A, Token]) = "⌈" ~ p ~ "⌉"
+  def floor[A](p: Parser[A, Token]) = "⌊" ~ p ~ "⌋"
 
   // angular brackets are also operators, hence cannot match literal strings
   def angle[A](p: Parser[A, Token]) = la ~ p ~ ra
@@ -106,7 +109,11 @@ class Grammar(parser: cuvee.boogie.Parser) {
         scope: Map[Name, Var],
         ctx: Map[Name, Param]
     ): Parser[Expr, Token] =
-      P(parens(expr) | num | wp | box | dia | ite | bind | trace | mapping | invariant | map)
+      P(parens(expr) | num | wp | box | dia | ite | bind | trace | mapping | invariant | butlast | map)
+
+
+    def butlast(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
+      P(make_unary("⌊⌋")(floor(expr)))
 
     def args(implicit scope: Map[Name, Var], ctx: Map[Name, Param]) =
       P(parens(expr ~+ ",") | ret(Nil))

@@ -15,6 +15,7 @@ import cuvee.smtlib.DeclareFun
 
 object Current extends Sugar.unary(Fun.current)
 object Earlier extends Sugar.binary(Fun.earlier)
+object Butlast extends Sugar.unary(Fun.butlast)
 
 object Counter extends Sugar.unary(Fun.counter)
 
@@ -101,11 +102,11 @@ object Traces extends Annotate(ExecNoLoops) {
     val cond = And(test :: avoid)
     val ys = cond.free & vars
 
-    val eqs =
-      for (y <- ys.toList)
-        yield LetEq(y, su(y))
+    val formals =
+      for (y <- k :: ys.toList)
+        yield LetEq(y, Butlast(su(y)))
 
-    Invariant(eqs, cond)
+    Invariant(formals, cond)
   }
 
   def trace(x: Var, k: Var, su: Map[Var, Expr], vars: Set[Var], running: List[Path]) = {
@@ -117,18 +118,9 @@ object Traces extends Annotate(ExecNoLoops) {
       )
         yield y
 
-    val eqs1 =
-      List(LetEq(k, su(k)))
-
-    val eqs2 =
-      for (y <- ys.distinct)
-        yield LetEq(y, su(y))
-
-    // val formals =
-    //   if (ys.isEmpty) eqs1 else eqs2
-
     val formals =
-      eqs1 ++ eqs2
+      for (y <- k :: ys.distinct)
+        yield LetEq(y, Butlast(su(y)))
 
     val updates =
       for (path <- running) yield {

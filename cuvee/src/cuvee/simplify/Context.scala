@@ -25,6 +25,15 @@ case class Context(
   def free =
     pos.free ++ neg.free ++ su.keys ++ eq.keys ++ Expr.free(su) ++ Expr.free(eq)
 
+  def resolve(expr: Expr): Expr = expr match {
+    case x: Var if su contains x =>
+      resolve(su(x))
+    case x: Var if eq contains x =>
+      resolve(eq(x))
+    case _ =>
+      expr
+  }
+
   def flip =
     polarity match {
       case None           => this

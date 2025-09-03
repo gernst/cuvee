@@ -8,6 +8,7 @@ import cuvee.smtlib._
 import cuvee.util
 import cuvee.prove._
 import cuvee.sexpr
+import cuvee.imp.annotate.Butlast
 
 /** Printer for boogie format */
 object Printer extends cuvee.util.Printer {
@@ -456,14 +457,21 @@ object Printer extends cuvee.util.Printer {
     case Lit(any, typ)  => any.toString
     case Var(name, typ) => name.toString
     case App(inst, Nil) => inst.toString
+
     // Map access
     case Select(arr, idx) =>
       lines(arr).mkString + "[" + lines(idx).mkString + "]"
+
     case Store(arr, idx, newval) =>
       val assign = (lines(idx) :+ ":=") ++ lines(newval)
       lines(arr).mkString + "[" + assign.mkString(" ") + "]"
+
+    case Butlast(arg) =>
+      "⌊" + line(arg) + "⌋"
+
     case Ite(test, left, right) =>
       "if(" + line(test) + ") then " + line(left) + " else " + line(right)
+
     case Not(Eq(left, right)) =>
       val (name, prec, assoc) = ("!=", 5, easyparse.Left)
       var a = line(left)
@@ -476,6 +484,7 @@ object Printer extends cuvee.util.Printer {
       if (precB < prec || (precB == prec && assocB != assoc)) b = "(" + b + ")"
 
       a + " " + name + " " + b
+
     case App(inst, List(left, right)) if infix contains inst.toString =>
       val (name, prec, assoc) = infix(inst.toString)
       var a = line(left)

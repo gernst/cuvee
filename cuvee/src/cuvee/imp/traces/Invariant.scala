@@ -27,9 +27,21 @@ case class Invariant(
       result inst su
     )
 
-  def inst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr =
-    ???
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) = {
+    val (a, su_) = Expr.alpha(bound, su)
 
+    val formals_ =
+      for (LetEq(x, e) <- formals)
+        yield LetEq(x rename a inst ty, e inst (ty, su))
+
+    val re = Expr.subst(formals.vars, formals_.vars)
+
+    Invariant(
+      formals_,
+      result inst (ty, su_ ++ re)
+    )
+  }
+  
   def rename(a: Map[Var, Var], re: Map[Var, Var], are: Map[Var, Var]) =
     Invariant(
       formals rename (a, are),

@@ -15,6 +15,9 @@ case class Update(path: Expr, rhs: Expr) {
   def inst(su: Map[Param, Type]) =
     Update(path inst su, rhs inst su)
 
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) =
+    Update(path inst (ty, su), rhs inst (ty, su))
+
   def map(f: Expr => Expr, g: Expr => Expr) =
     Update(path map (f, g), rhs)
 
@@ -68,8 +71,23 @@ case class Trace(
       updates map (_ inst su)
     )
 
-  def inst(ty: Map[Param, Type], su: Map[Var, Expr]): Expr =
-    ???
+  def inst(ty: Map[Param, Type], su: Map[Var, Expr]) = {
+    val (a, su_) = Expr.alpha(bound, su)
+
+    val formals_ =
+      for (LetEq(x, e) <- formals)
+        yield LetEq(x rename a inst ty, e inst (ty, su))
+
+    val re = Expr.subst(formals.vars, formals_.vars)
+    val su__ = su_ ++ re
+
+    Trace(
+      init inst (ty, su),
+      formals_,
+      acc rename a inst ty,
+      updates map (_ inst (ty, su__))
+    )
+  }
 
   override def toString = {
     val iteration =

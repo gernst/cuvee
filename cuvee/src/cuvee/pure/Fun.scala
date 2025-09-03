@@ -144,6 +144,7 @@ object Fun {
   val earlier = Fun("earlier", List(a), List(int, Sort.trace(a)), a)
 
   val counter = Fun("counter", Nil, List(int), Sort.trace(int))
+  val butlast = Fun("⌊⌋", List(a), List(Sort.trace(a)), Sort.trace(a))
 
   val builtin = Set(
     eq_,

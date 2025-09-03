@@ -164,6 +164,10 @@ class Parser(val state: State) {
   val make_formula: (Expr => Expr) =
     arg => typing.checked(arg, Sort.bool)
 
+  def make_unary(name: Name) = (arg: Expr) => {
+    typing.app(name, List(arg))
+  }
+
   def make_app(scope: Map[Name, Var]): ((Name, List[Expr]) => Expr) = {
     case (name, Nil) if scope contains name =>
       scope(name)

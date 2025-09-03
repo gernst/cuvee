@@ -477,6 +477,7 @@ class State(
 
     fun("current", List(a), List(tr), a)
     fun("earlier", List(a), List(Int, tr), a)
+    fun("⌊⌋", List(a), List(tr), tr)
 
     this
   }

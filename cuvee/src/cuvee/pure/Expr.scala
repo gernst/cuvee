@@ -10,6 +10,7 @@ import cuvee.util.Name
 import cuvee.imp.traces.Trace
 import cuvee.imp.traces.Mapping
 import cuvee.imp.traces.Invariant
+import cuvee.imp.annotate.Butlast
 
 trait Extra extends Expr
 
@@ -648,6 +649,8 @@ case class App(inst: Inst, args: List[Expr]) extends Expr {
       "(" + lhs + " / " + rhs + ")"
     case Mod(lhs, rhs) =>
       "(" + lhs + " % " + rhs + ")"
+    case Butlast(arg) =>
+      "⌊" + arg + "⌋"
     case Ite(test, left, right) =>
       "(if " + test + " then " + left + " else " + right + ")"
     // Infix operators
@@ -713,7 +716,6 @@ class CaseList(cases: List[Case]) {
 }
 
 case class Case(pat: Expr, expr: Expr) extends Expr.bind[Case] {
-
   def funs = pat.funs ++ expr.funs
   def bound = pat.free
   def free = expr.free -- pat.free
@@ -748,6 +750,7 @@ class LetEqList(eqs: List[LetEq]) {
   def rename(a: Map[Var, Var], re: Map[Var, Var]) = eqs map (_ rename (a, re))
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) = eqs map (_ subst (a, su))
   def inst(su: Map[Param, Type]) = eqs map (_ inst su)
+  def inst(a: Map[Var, Var], ty: Map[Param, Type], su: Map[Var, Expr]) = eqs map (_ inst (a, ty, su))
   def asMap = Map(eqs map (_.toArrow): _*)
 }
 
@@ -759,6 +762,8 @@ case class LetEq(x: Var, e: Expr) {
     LetEq(x rename a, e rename re)
   def subst(a: Map[Var, Var], su: Map[Var, Expr]) =
     LetEq(x rename a, e subst su)
+  def inst(a: Map[Var, Var], ty: Map[Param, Type], su: Map[Var, Expr]) =
+    LetEq(x rename a, e inst (ty, su))
   def inst(su: Map[Param, Type]) =
     LetEq(x inst su, e inst su)
   def map(f: Expr => Expr, g: Expr => Expr) =

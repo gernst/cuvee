@@ -13,6 +13,7 @@ import cuvee.imp.annotate.Traces
 import cuvee.imp.annotate.Current
 import cuvee.imp.annotate.Earlier
 import cuvee.imp.annotate.Counter
+import cuvee.imp.annotate.Butlast
 
 object Simplify extends Stage {
   import Context.assuming
@@ -303,6 +304,7 @@ object Simplify extends Stage {
         val Invariant(formals, cond) = expr refresh ctx.vars
         val ctx_ = ctx.unpolar
         val phis = And.flattenStrong(cond)
+
         val invs =
           for (phi <- phis)
             yield {
@@ -321,27 +323,27 @@ object Simplify extends Stage {
 
         // XXX: how does that not crash with unbound variables?
         val formals_ = simplify_leteqs(ctx, formals)
-        val LetEq(k, ks: Var) :: eqs = formals_
-        val Counter(n) = ctx.eq(ks)
+        // val LetEq(k, ks) :: eqs = formals_
+        // val Counter(n) = ctx.resolve(ks)
 
-    println("local assms for " + result)
-    // XXX: Oh wow.  cannot have k < n because a mapping inside Current would
-    //      actually make use of that last result, whereas a mapping inside
-    //      trace will *not* make use of the last one
-    val ctx1 = assuming(ctx, pos = List(Zero <= k, k <= n))
-        val assms =
-          for (LetEq(x, e) <- formals_)
-            yield {
-             val phi = simplify(ctx1, Eq(x, Earlier(k, e)))
-          println(Eq(x, Earlier(k, e)) + " -> " + phi)
-          phi
-            }
+        // println("local assms for " + result)
+        // // XXX: Oh wow.  cannot have k < n because a mapping inside Current would
+        // //      actually make use of that last result, whereas a mapping inside
+        // //      trace will *not* make use of the last one
+        // val ctx1 = assuming(ctx, pos = List(Zero <= k, k < n))
+        // val assms =
+        //   for (LetEq(x, e) <- formals_)
+        //     yield {
+        //       val phi = simplify(ctx1, Eq(x, Earlier(k, e)))
+        //       println(Eq(x, Earlier(k, e)) + " -> " + phi)
+        //       phi
+        //     }
 
-        // val assms = Nil
-        val ctx_ = assuming(ctx1, pos = assms)
+        // // val assms = Nil
+        // val ctx_ = assuming(ctx1, pos = assms)
 
-        val result_ = simplify(ctx_, result)
-        Mapping(formals_, result_)
+        val result_ = simplify(ctx, result)
+        mapping(formals_, result_)
 
       case expr: Trace =>
         val Trace(init, formals, acc, updates) = expr refresh ctx.vars
@@ -540,6 +542,17 @@ object Simplify extends Stage {
     }
   }
 
+  def mapping(formals: List[LetEq], result: Expr): Expr = {
+    (formals, result) match {
+      case (_, x: Var) if formals.vars contains x =>
+        val Some(LetEq(_, e)) = formals find (_.x == x)
+        e
+
+      case _ =>
+        Mapping(formals, result)
+    }
+  }
+
   def rewrite(ctx: Context, expr: Expr): Expr = {
     // println("rewriting " + expr + " in " + ctx)
 
@@ -686,13 +699,13 @@ object Simplify extends Stage {
       case (map: Mapping, Mapping(formals2, result2)) =>
         val pat @ Mapping(formals1, result1) = map.gen
         var (ty1, su1) = bind(ctx, result1, result2, ty, su)
-        val results = bind(ctx, pat, arg, formals1, formals2, List((ty1, su1)))
+        val results = bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
         first(pat, arg, ty, su, results)
 
       case (inv: Invariant, Invariant(formals2, cond2)) =>
         val pat @ Invariant(formals1, cond1) = inv.gen
         var (ty1, su1) = bind(ctx, cond1, cond2, ty, su)
-        val results = bind(ctx, pat, arg, formals1, formals2, List((ty1, su1)))
+        val results = bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
         first(pat, arg, ty, su, results)
 
       case (trace: Trace, Trace(init2, formals2, acc2, updates2)) =>
@@ -714,7 +727,7 @@ object Simplify extends Stage {
         // however, we first leverage that we have a mapping for some *local* bindings,
         // and then try to figure out the rest
         val iteration =
-          bind(ctx, pat, arg, formals1, formals2, updates)
+          bind(ctx, pat, arg, formals1, formals2, Set(acc2), updates)
 
         first(pat, arg, ty, su, iteration)
 
@@ -729,6 +742,7 @@ object Simplify extends Stage {
       arg: Expr,
       formals1: List[LetEq],
       formals2: List[LetEq],
+      avoid2: Set[Var],
       inst: List[(Map[Param, Type], Map[Var, Expr])]
   ) = {
     val tr2 = formals2.asMap
@@ -737,7 +751,7 @@ object Simplify extends Stage {
     val inst_ =
       for ((ty, su) <- inst)
         yield cover2(formals1, formals2, (ty, su)) { case (eq1, formals2, (ty_, su_)) =>
-          find(ctx, eq1, formals2, tr2, ty_, su_)
+          find(ctx, eq1, formals2, avoid2, tr2, ty_, su_)
         }
 
     inst_.flatten filter { case (ty, su) =>
@@ -835,6 +849,7 @@ object Simplify extends Stage {
       ctx: Context,
       pat: LetEq,
       formals: List[LetEq],
+      avoid2: Set[Var],
       tr: Map[Var, Expr],
       ty: Map[Param, Type],
       su: Map[Var, Expr]
@@ -849,7 +864,7 @@ object Simplify extends Stage {
           case x2: Var if tr contains x2 =>
             List(bind(ctx, xs1, tr(x2), ty, su))
 
-          case e2 =>
+          case e2 if e2.free disjoint avoid2 =>
             val ys = e2.free
             val formals_ = formals.filter { case LetEq(x, e) => // XXX: big hack! keep counter here
               (x.name.name startsWith "#") || (ys contains x)
@@ -859,6 +874,10 @@ object Simplify extends Stage {
 
             // println(xs1 + " -> map(" + formals_ + " yield " + e2 + ")")
             List(bind(ctx, xs1, Mapping(formals_, e2), ty, su))
+
+          case e2 =>
+            require(false, "uh oh capturing accumulator in " + e2 + " from bad variables " + avoid2)
+            Nil
         }
 
       case LetEq(x1, xs1) =>
