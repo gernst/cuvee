@@ -43,6 +43,10 @@ free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, n: int ::
     current(stores(init, ⌊counter(n)⌋, values))[j]
         == if 0 <= j && j < n then earlier(j, values) else init[j];
 
+free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, start: int, n: int ::
+    current(stores(init, map(for k <- ⌊counter(n)⌋ yield start + k), values))[j]
+        == if start <= j && j < start + n then earlier(j, values) else init[j];
+
 free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, k: int, n: int ::
     0 <= k && k < n
         ==> earlier(k, stores(init, ⌊counter(n)⌋, values))[j]
