@@ -47,3 +47,4 @@ free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, k: int, n: i
     0 <= k && k < n
         ==> earlier(k, stores(init, ⌊counter(n)⌋, values))[j]
             == if 0 <= j && j < k then earlier(j, values) else init[j];
+
