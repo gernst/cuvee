@@ -302,18 +302,18 @@ object Simplify extends Stage {
 
       case expr: Invariant =>
         val Invariant(formals, cond) = expr refresh ctx.vars
-        val ctx_ = ctx.unpolar
         val phis = And.flattenStrong(cond)
 
         val invs =
           for (phi <- phis)
             yield {
               val xs = phi.free
-              val eqs = formals filter { xs contains _.x }
+              val formals_ = simplify_leteqs(ctx.unpolar, formals)
+              val ctx_ = iterating(ctx, formals_)
 
-              val eqs_ = simplify_leteqs(ctx_, eqs)
-              val phi_ = simplify(ctx, phi)
-              Invariant(eqs_, phi_)
+              // XXX: how does that not crash with unbound variables?
+              val phi_ = simplify(ctx_, phi)
+              Invariant(formals_, phi_)
             }
 
         And(invs)
@@ -321,44 +321,21 @@ object Simplify extends Stage {
       case expr: Mapping =>
         val Mapping(formals, result) = expr refresh ctx.vars
 
+        val formals_ = simplify_leteqs(ctx.unpolar, formals)
+        val ctx_ = iterating(ctx, formals_)
+
         // XXX: how does that not crash with unbound variables?
-        val formals_ = simplify_leteqs(ctx, formals)
-        // val LetEq(k, ks) :: eqs = formals_
-        // val Counter(n) = ctx.resolve(ks)
-
-        // println("local assms for " + result)
-        // // XXX: Oh wow.  cannot have k < n because a mapping inside Current would
-        // //      actually make use of that last result, whereas a mapping inside
-        // //      trace will *not* make use of the last one
-        // val ctx1 = assuming(ctx, pos = List(Zero <= k, k < n))
-        // val assms =
-        //   for (LetEq(x, e) <- formals_)
-        //     yield {
-        //       val phi = simplify(ctx1, Eq(x, Earlier(k, e)))
-        //       println(Eq(x, Earlier(k, e)) + " -> " + phi)
-        //       phi
-        //     }
-
-        // // val assms = Nil
-        // val ctx_ = assuming(ctx1, pos = assms)
-
-        val result_ = simplify(ctx, result)
+        println("==================")
+        val result_ = simplify(ctx_, result)
+        println("==================")
         mapping(formals_, result_)
 
       case expr: Trace =>
         val Trace(init, formals, acc, updates) = expr refresh ctx.vars
 
         val init_ = simplify(ctx, init)
-        val formals_ = simplify_leteqs(ctx, formals)
-        val LetEq(k, _) :: eqs = formals_
-
-        val assms =
-          for (LetEq(x, e) <- formals_)
-            yield simplify(ctx, Eq(x, Earlier(k, e)))
-
-        // val assms = Nil
-
-        val ctx_ = assuming(ctx, pos = assms)
+        val formals_ = simplify_leteqs(ctx.unpolar, formals)
+        val ctx_ = iterating(ctx, formals_)
 
         // XXX: how does that not crash with unbound variables?
         val updates_ = simplify_updates(ctx_, formals_, updates)
@@ -366,6 +343,29 @@ object Simplify extends Stage {
 
       case expr =>
         expr
+    }
+  }
+
+  def earlier(ctx: Context, k: Var, formals: List[LetEq]) = {
+    for (LetEq(x, e) <- formals)
+      yield simplify(ctx, Eq(x, Earlier(k, e)))
+  }
+
+  def iterating(ctx0: Context, formals: List[LetEq]): Context = {
+    formals match {
+      case LetEq(k, Butlast(ks)) :: _ =>
+        // the fact that k is strictly smaller than n
+        // comes from the ⌊_⌋ resp. Butlast around the counter dependency
+        val Counter(n) = ctx0.resolve(ks)
+        val ctx1 = assuming(ctx0, pos = List(Zero <= k, k < n))
+        val ctx2 = assuming(ctx1, pos = earlier(ctx1, k, formals))
+        ctx2
+
+      case LetEq(k, ks) :: _ =>
+        val Counter(n) = ctx0.resolve(ks)
+        val ctx1 = assuming(ctx0, pos = List(Zero <= k, k <= n))
+        val ctx2 = assuming(ctx1, pos = earlier(ctx1, k, formals))
+        ctx2
     }
   }
 

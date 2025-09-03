@@ -11,11 +11,13 @@ free lemma {:rw} forall start: int, step: int, n: int ::
     trace(start, for k <- ⌊counter(n)⌋ do i := step + i)
         == map(for k <- counter(n) yield start + step * k);
 
+free lemma {:rw} <a> forall n: int, values: Trace<a> ::
+    map(for k <- ⌊counter(n)⌋ yield earlier(k, values))
+        == values;
 
 free lemma {:rw} <a> forall m: int, n: int ::
     invariant(for k <- ⌊counter(n)⌋ yield k < m)
         <==> 0 <= n && n <= m;
-
 
 function consts<a>(value: a, n: int): Trace<int>;
 
