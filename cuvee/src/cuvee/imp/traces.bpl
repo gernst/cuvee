@@ -52,3 +52,17 @@ free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, k: int, n: i
         ==> earlier(k, stores(init, ⌊counter(n)⌋, values))[j]
             == if 0 <= j && j < k then earlier(j, values) else init[j];
 
+
+function sums(init: int, values: Trace<int>): Trace<int>;
+
+free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+    trace(init, for v <- values do s := s + v)
+        == sums(init, values);
+
+free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+    current(sums(init, map(for v <- values yield - v)))
+        == - current(sums(init, values));
+
+free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+    current(sums(init, values))
+        == init + current(sums(0, values));
