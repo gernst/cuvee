@@ -34,6 +34,11 @@ case class Context(
       expr
   }
 
+  object ↑ {
+    def unapply(expr: Expr) =
+      Some(resolve(expr))
+  }
+
   def flip =
     polarity match {
       case None           => this

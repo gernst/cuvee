@@ -284,13 +284,13 @@ object Simplify extends Stage {
         val value_ = simplify(ctx.unpolar, value)
         store(base_, index_, value_)
 
-      case Current(Mapping(formals, result)) =>
+      case Current(ctx.↑(Mapping(formals, result))) =>
         val su =
           for ((x, e) <- formals.asMap)
             yield (x, Current(e))
         result subst su
 
-      case Earlier(j, Mapping(formals, result)) =>
+      case Earlier(j, ctx.↑(Mapping(formals, result))) =>
         val su =
           for ((x, e) <- formals.asMap)
             yield (x, Earlier(j, e))
@@ -353,19 +353,22 @@ object Simplify extends Stage {
 
   def iterating(ctx0: Context, formals: List[LetEq]): Context = {
     formals match {
-      case LetEq(k, Butlast(ks)) :: _ =>
+      case LetEq(k, Butlast(ctx0.↑(Counter(n)))) :: _ =>
         // the fact that k is strictly smaller than n
         // comes from the ⌊_⌋ resp. Butlast around the counter dependency
-        val Counter(n) = ctx0.resolve(ks)
         val ctx1 = assuming(ctx0, pos = List(Zero <= k, k < n))
         val ctx2 = assuming(ctx1, pos = earlier(ctx1, k, formals))
         ctx2
 
-      case LetEq(k, ks) :: _ =>
-        val Counter(n) = ctx0.resolve(ks)
+      case LetEq(k, ctx0.↑(Counter(n))) :: _ =>
         val ctx1 = assuming(ctx0, pos = List(Zero <= k, k <= n))
         val ctx2 = assuming(ctx1, pos = earlier(ctx1, k, formals))
         ctx2
+
+      case _ =>
+        require(false, "unexpected iteration without counter: " + formals)
+        // can we just ignore this for now?
+        ???
     }
   }
 
@@ -580,14 +583,6 @@ object Simplify extends Stage {
         False
       case Le(left, right) if left == right =>
         True
-
-      // case Current(Mapping(iteration, result)) =>
-      //   val su = Expr.subst(
-      //     for (LetEq(y, ys) <- iteration.formals)
-      //       yield y -> Current(ys)
-      //   )
-
-      //   result subst su
 
       case App(inst, args) if ctx.rules contains inst.fun =>
         val use = ctx.rules(inst.fun)
@@ -876,7 +871,7 @@ object Simplify extends Stage {
             List(bind(ctx, xs1, Mapping(formals_, e2), ty, su))
 
           case e2 =>
-            require(false, "uh oh capturing accumulator in " + e2 + " from bad variables " + avoid2)
+            // require(false, "uh oh capturing accumulator in " + e2 + " from bad variables " + avoid2)
             Nil
         }
 
