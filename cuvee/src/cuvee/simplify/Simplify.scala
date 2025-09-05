@@ -876,7 +876,6 @@ object Simplify extends Stage {
             List(bind(ctx, xs1, Mapping(formals_, e2), ty, su))
 
           case e2 =>
-            require(false, "uh oh capturing accumulator in " + e2 + " from bad variables " + avoid2)
             Nil
         }
 
