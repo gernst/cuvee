@@ -55,6 +55,19 @@ free lemma {:rw} <b> forall init: [int]b, values: Trace<b>, j: int, k: int, n: i
             == if 0 <= j && j < k then earlier(j, values) else init[j];
 
 
+function shift(a: [int]int, keys: Trace<int>, delta: int): Trace<[int]int>;
+
+free lemma {:rw} <a,b> forall init: [a]b, keys: Trace<a>, delta: b ::
+    trace(init, for k <- keys do a := a[k:=a[k + delta]])
+        == shift(init, keys, delta);
+
+free lemma {:rw} forall a: [int]int, n: int, delta: int, k: int ::
+  current(shift(a, ⌊counter(n)⌋, delta))[k]
+    == if 0 <= k && k < n && 0 <= delta
+       then a[k + delta]
+       else a[k];
+
+
 function sums(init: int, values: Trace<int>): Trace<int>;
 
 free lemma {:rw} <a> forall init: int, values: Trace<int> ::
