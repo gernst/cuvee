@@ -63,7 +63,7 @@ free lemma {:rw} <a,b> forall init: [a]b, keys: Trace<a>, delta: b ::
 
 free lemma {:rw} forall a: [int]int, n: int, delta: int, k: int ::
   current(shift(a, ⌊counter(n)⌋, delta))[k]
-    == if 0 <= k && k < n
+    == if 0 <= k && k < n && 0 <= delta
        then a[k + delta]
        else a[k];
 
