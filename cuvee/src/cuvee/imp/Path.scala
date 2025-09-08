@@ -44,6 +44,10 @@ case class Path(
     Path.eval(fresh, stack, old, exprs)
   }
 
+  def auxiliary(xs: List[Var]) = {
+    Path(fresh ++ xs, constraints, stack, old)
+  }
+
   def local(xs: List[Var], rhs: List[Expr]) = {
     require(rhs.isEmpty || xs.length == rhs.length)
 

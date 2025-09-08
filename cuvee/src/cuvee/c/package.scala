@@ -45,9 +45,7 @@ package object c {
   }
 
   object yml {
-    var onlySafe = false
-
-    def source(path: String) = {
+    def source(path: String, onlySafe: Boolean = false) = {
       val data = Yaml.load(path)
 
       val file = new File(path)

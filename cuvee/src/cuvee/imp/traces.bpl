@@ -15,6 +15,10 @@ free lemma {:rw} <a> forall n: int, values: Trace<a> ::
     map(for k <- ⌊counter(n)⌋ yield earlier(k, values))
         == values;
 
+free lemma {:rw} <a> forall init: a, n: int, values: Trace<a> ::
+    current(trace(init, for k, v <- ⌊counter(n)⌋, values do x := v))
+        == if n == 0 then init else current(values);
+
 free lemma {:rw} <a> forall m: int, n: int ::
     invariant(for k <- ⌊counter(n)⌋ yield k < m)
         <==> 0 <= n && n <= m;

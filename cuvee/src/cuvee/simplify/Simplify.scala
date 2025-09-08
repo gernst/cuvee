@@ -203,8 +203,9 @@ object Simplify extends Stage {
 
   def canon(ctx: Context, expr: Expr): Expr = {
     expr match {
-      case Note(True, _, _)  => True
-      case Note(False, _, _) => False
+      case Note(expr, patterns, attrs) =>
+        val expr_ = simplify(ctx, expr)
+        note(expr, patterns, attrs)
 
       case Eq(left, right) =>
         val left_ = simplify(ctx, left)
@@ -366,40 +367,51 @@ object Simplify extends Stage {
         ctx2
 
       case _ =>
-        require(false, "unexpected iteration without counter: " + formals)
+        // println(ctx0.su)
+        // println(ctx0.eq)
+        // require(false, "unexpected iteration without counter: " + formals)
         // can we just ignore this for now?
-        ???
+        ctx0
     }
   }
 
   def simplify_updates(
       ctx: Context,
       formals_ : List[LetEq],
-      updates: List[Update]
+      updates0: List[Update]
   ): List[Update] = {
-    val LetEq(k, _) :: eqs = formals_
 
-    // TODO: earlier or current?
-    //       probably earlier, because all current is with respect to the external counter k
-    //       but also the problem is that they are not viewed jointly from an earlier state!!
-    //       here should introduce another counter for the earlier state
-    val assms =
-      for (LetEq(x, e) <- formals_)
-        yield simplify(ctx, Eq(x, Earlier(k, e)))
-
-    // val assms = Nil
-
-    val ctx_ = assuming(ctx, pos = assms)
-
-    val updates_ =
-      for (Update(path, rhs) <- updates) yield {
+    val updates1 =
+      for (Update(path, rhs) <- updates0) yield {
         // argh below very inelegant
-        val path_ = simplify(ctx_, path)
-        val rhs_ = simplify(assuming(ctx_, pos = List(path_)), rhs)
+        val path_ = simplify(ctx, path)
+        val ctx_ = assuming(ctx, pos = List(path_))
+        val rhs_ = simplify(ctx_, rhs)
         Update(path_, rhs_)
       }
 
-    updates_.filterNot(_.path == False)
+    val paths =
+      for (Update(path, rhs) <- updates1)
+        yield Set(And.flattenStrong(path): _*)
+
+    val common =
+      cuvee.Intersect(paths)
+
+    val updates2 =
+      for (Update(path, rhs) <- updates1 if path != False) yield {
+        val constraints = And.flattenStrong(path)
+        val path_ = And(constraints filterNot common)
+        Update(path_, rhs)
+      }
+
+    updates2
+  }
+
+  def note(expr: Expr, patterns: List[List[Expr]], attrs: cuvee.sexpr.Attrs): Expr = {
+    expr match {
+      case True | False => expr
+      case _            => Note(expr, patterns, attrs)
+    }
   }
 
   def not(phi: Expr): Expr = {

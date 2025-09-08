@@ -54,6 +54,8 @@ class Config {
 
   var useContractlib = false
 
+  var ymlOnlySafe = false
+
   var proveNegatedAsserts = true
   var crosscheckProver = false
 
@@ -118,6 +120,9 @@ class Config {
       "do not make a quick check for counterexamples for lemmas"
     ) {
       quickcheck = false
+    },
+    option("-yml:safe", "abort if yml benchmark is not safe") {
+      ymlOnlySafe = true
     },
     option("-print:smtlib", "force output to SMT-LIB format") {
       printer = cuvee.smtlib.printer
@@ -317,7 +322,7 @@ class Config {
         source = c.source(path)
       } else if (path endsWith ".yml") {
         printer = boogie.printer
-        source = c.yml.source(path)
+        source = c.yml.source(path, ymlOnlySafe)
       } else if (path endsWith ".th") {
         if (!overridePrinter) printer = thesy.printer
         source = thesy.source(path)
