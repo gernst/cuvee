@@ -303,32 +303,37 @@ object Simplify extends Stage {
 
       case expr: Invariant =>
         val Invariant(formals, cond) = expr refresh ctx.vars
-        val phis = And.flattenStrong(cond)
 
-        val invs =
-          for (phi <- phis)
-            yield {
-              val xs = phi.free
-              val formals_ = simplify_leteqs(ctx.unpolar, formals)
-              val ctx_ = iterating(ctx, formals_)
+        val formals_ = simplify_leteqs(ctx.unpolar, formals)
+        val ctx_ = iterating(ctx, formals_)
+        // XXX: how does that not crash with unbound variables?
+        val cond_ = simplify(ctx_, cond)
+        invariant(formals_, cond_)
 
-              // XXX: how does that not crash with unbound variables?
-              val phi_ = simplify(ctx_, phi)
-              Invariant(formals_, phi_)
-            }
+      // ARGH. splitting loses context
+      // val phis = And.flattenStrong(cond)
 
-        And(invs)
+      // val invs =
+      //   for (phi <- phis)
+      //     yield {
+      //       val xs = phi.free
+      //       val formals_ = simplify_leteqs(ctx.unpolar, formals)
+      //       val ctx_ = iterating(ctx, formals_)
+
+      //       // XXX: how does that not crash with unbound variables?
+      //       val phi_ = simplify(ctx_, phi)
+      //       Invariant(formals_, phi_)
+      //     }
+
+      // And(invs)
 
       case expr: Mapping =>
         val Mapping(formals, result) = expr refresh ctx.vars
 
         val formals_ = simplify_leteqs(ctx.unpolar, formals)
         val ctx_ = iterating(ctx, formals_)
-
         // XXX: how does that not crash with unbound variables?
-        println("==================")
         val result_ = simplify(ctx_, result)
-        println("==================")
         mapping(formals_, result_)
 
       case expr: Trace =>
@@ -557,6 +562,10 @@ object Simplify extends Stage {
     }
   }
 
+  def invariant(formals: List[LetEq], cond: Expr): Expr = {
+    Invariant(formals, cond)
+  }
+
   def mapping(formals: List[LetEq], result: Expr): Expr = {
     (formals, result) match {
       case (_, x: Var) if formals.vars contains x =>
@@ -709,11 +718,33 @@ object Simplify extends Stage {
         val results = bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
         first(pat, arg, ty, su, results)
 
-      case (inv: Invariant, Invariant(formals2, cond2)) =>
-        val pat @ Invariant(formals1, cond1) = inv.gen
-        var (ty1, su1) = bind(ctx, cond1, cond2, ty, su)
+
+      case (inv: Invariant, Invariant(formals2, result2)) =>
+        val pat @ Invariant(formals1, result1) = inv.gen
+        var (ty1, su1) = bind(ctx, result1, result2, ty, su)
         val results = bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
         first(pat, arg, ty, su, results)
+
+      // case (inv: Invariant, Invariant(formals2, cond2)) =>
+      //   val pat @ Invariant(formals1, cond1) = inv.gen
+
+      //   val phis1 = And.flattenStrong(cond1)
+      //   val phis2 = And.flattenStrong(cond2)
+
+      //   val foo = pick(phis1, phis2, (ty, su)) { case (cond1, cond2, (ty_, su_)) =>
+      //     bind(ctx, cond1, cond2, ty, su)
+      //   }
+
+      //   val results =
+      //     for (
+      //       ((ty, su), phis2_) <- foo;
+      //       result <- bind(ctx, pat, arg, formals1, formals2, Set(), List((ty, su)))
+      //     ) yield (result, phis2_)
+
+      //   // var (ty1, su1) = bind(ctx, cond1, cond2, ty, su)
+      //   // val results = bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
+      //   val (ty_, su_, phis2_) = first2(pat, arg, ty, su, results)
+      //   ???
 
       case (trace: Trace, Trace(init2, formals2, acc2, updates2)) =>
         val pat @ Trace(init1, formals1, acc1, updates1) = trace.gen
@@ -803,6 +834,18 @@ object Simplify extends Stage {
         println("multiple for iteration matches of " + pat + " for " + arg)
         first
     }
+  }
+
+  def first2[A](
+      pat: Expr,
+      arg: Expr,
+      ty: Map[Param, Type],
+      su: Map[Var, Expr],
+      results: List[((Map[Param, Type], Map[Var, Expr]), A)]
+  ) = results.distinct match {
+    case Nil                   => throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
+    case List(((ty_, su_), a)) => (ty_, su_, a)
+    case ((ty_, su_), a) :: results => (ty_, su_, a)
   }
 
   def bind(
@@ -962,7 +1005,6 @@ object Simplify extends Stage {
       here ++ there
   }
 
-  // for all bs find some matching as
   def cover2[A, B, S](as: List[A], bs: List[B], s: S)(
       f: (A, List[B], S) => List[S]
   ): List[S] = as match {
@@ -975,5 +1017,40 @@ object Simplify extends Stage {
         s__ <- cover2(as, bs, s_)(f)
       )
         yield (s__)
+  }
+
+  def pick[A, B, S](as: List[A], bs: List[B], s: S)(
+      f: (A, B, S) => S
+  ): List[(S, List[B])] = as match {
+    case Nil =>
+      List((s, bs))
+
+    case a :: as =>
+      for (
+        (s_, bs_) <- pick(a, bs, s)(f);
+        s__ <- pick(as, bs_, s_)(f)
+      )
+        yield (s__)
+  }
+
+  def pick[A, B, S](a: A, bs: List[B], s: S)(
+      f: (A, B, S) => S
+  ): List[(S, List[B])] = bs match {
+    case Nil =>
+      Nil
+
+    case b :: bs =>
+      val here =
+        try {
+          List((f(a, b, s), bs))
+        } catch {
+          case e: Type.CannotBind => println(e); Nil
+          case e: Expr.CannotBind => println(e); Nil
+        }
+
+      val there =
+        pick(a, bs, s)(f)
+
+      here ++ there
   }
 }

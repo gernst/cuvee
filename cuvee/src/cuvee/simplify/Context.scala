@@ -102,7 +102,7 @@ object Context {
         ctx.copy(su = ctx.su + (x -> e))
       } else {
         val phi = Eq(ctx.su(x), e)
-        ctx.copy(pos = ctx.pos ++ List(phi))
+        ctx.copy(su = ctx.su + (x -> e), pos = ctx.pos ++ List(phi))
       }
     } else {
       // look at ctx.eq
@@ -110,7 +110,7 @@ object Context {
         ctx.copy(eq = ctx.eq + (x -> e))
       } else {
         val phi = Eq(ctx.eq(x), e)
-        ctx.copy(pos = ctx.pos ++ List(phi))
+        ctx.copy(eq = ctx.eq + (x -> e), pos = ctx.pos ++ List(phi))
       }
     }
   }
