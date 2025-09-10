@@ -66,16 +66,21 @@ free lemma {:rw} <a,b> forall init: [a]b, keys: Trace<a>, delta: b ::
         == shift(init, keys, delta);
 
 free lemma {:rw} forall a: [int]int, n: int, delta: int, k: int ::
-  current(shift(a, ⌊counter(n)⌋, delta))[k]
-    == if 0 <= k && k < n && 0 <= delta
-       then a[k + delta]
-       else a[k];
+  0 <= delta ==>
+    current(shift(a, ⌊counter(n)⌋, delta))[k]
+      == if 0 <= k && k < n
+         then a[k + delta]
+         else a[k];
 
 
 function sums(init: int, values: Trace<int>): Trace<int>;
 
 free lemma {:rw} <a> forall init: int, values: Trace<int> ::
     trace(init, for v <- values do s := s + v)
+        == sums(init, values);
+
+free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+    trace(init, for v <- values do s := v + s)
         == sums(init, values);
 
 free lemma {:rw} <a> forall init: int, values: Trace<int> ::
