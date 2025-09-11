@@ -84,9 +84,9 @@ free lemma {:rw} <a> forall init: int, values: Trace<int> ::
         == sums(init, values);
 
 free lemma {:rw} <a> forall init: int, values: Trace<int> ::
-    current(sums(init, map(for v <- values yield - v)))
-        == - current(sums(init, values));
+    current(sums(0, map(for v <- values yield - v)))
+        == - current(sums(0, values));
 
-free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+free lemma {:rw} forall init: int, values: Trace<int> ::
     current(sums(init, values))
         == init + current(sums(0, values));
