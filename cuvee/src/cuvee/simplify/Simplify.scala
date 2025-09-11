@@ -258,6 +258,14 @@ object Simplify extends Stage {
       case _ if expr.typ == Sort.int && ctx.arith =>
         // maybe need to enable arith at leaves again
         val expr_ = simplify(ctx.noArith, expr)
+
+        // println("----------------------expr------------------------")
+        // println(expr)
+        // println("----------------------expr_-----------------------")
+        // println(expr_)
+        // println("----------------------poly-----------------------")
+        // println(Poly.simplify(expr_))
+
         Poly.simplify(expr_)
 
       case expr @ Let(eqs, body) =>
@@ -920,7 +928,7 @@ object Simplify extends Stage {
               (x.name.name startsWith "#") || (ys contains x)
             }
 
-            require(ys.nonEmpty, "uh oh generating trace without dependencies")
+            require(formals_.nonEmpty, "uh oh generating trace without dependencies")
 
             // println(xs1 + " -> map(" + formals_ + " yield " + e2 + ")")
             List(bind(ctx, xs1, Mapping(formals_, e2), ty, su))
