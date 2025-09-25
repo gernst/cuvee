@@ -12,8 +12,12 @@ import cuvee.smtlib.CheckSat
 import cuvee.pure.Simplify
 import cuvee.pure.Rewrite
 import cuvee.pure.Expr
+import cuvee.pure.Fun
 import cuvee.pure.True
+import cuvee.smtlib.Lemma
 
+import cuvee.smtlib.DeclareFun
+import cuvee.SetOps
 trait Prover extends Tactic {
   def exec(cmd: Cmd, state: State)
   def reduce(expr: Expr, state: State): Expr
@@ -47,9 +51,33 @@ object Prover {
     }
   }
 
-  def fromSolver(solver: Solver, useInduction: Boolean = false) = new Prover {
+  def fromSolver(
+      solver: Solver,
+      useInduction: Boolean = false,
+      removeParametricCommands: Boolean = true
+  ) = new Prover {
     def exec(cmd: Cmd, state: State) {
-      solver.exec(cmd, state)
+      cmd match {
+        case Lemma(expr, _, _, _) if (removeParametricCommands) =>
+          val dont = Set(
+            "current",
+            "earlier",
+            "⌊⌋",
+            "stores",
+            "sums"
+          )
+          val names = expr.funs.collect(e => e.name.name)
+          if (names.disjoint(dont)) {
+            solver.exec(cmd, state)
+          }
+
+        case DeclareFun(_, params, _, _)
+            if (removeParametricCommands) && params.nonEmpty =>
+        // Do nothing!
+
+        case _ =>
+          solver.exec(cmd, state)
+      }
     }
 
     def reduce(expr: Expr, state: State) = {
@@ -58,7 +86,13 @@ object Prover {
       if (solver.isTrue(phi)) {
         // println("success!")
         True
-      } else if (useInduction && InductiveProver.holdsByInduction(solver, phi, state.datatypes)) {
+      } else if (
+        useInduction && InductiveProver.holdsByInduction(
+          solver,
+          phi,
+          state.datatypes
+        )
+      ) {
         True
       } else {
         // println("unknown.")
