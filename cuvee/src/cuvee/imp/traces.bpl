@@ -1,3 +1,5 @@
+type Trace<a>;
+
 function counter(n: int): Trace<int>;
 
 free lemma {:rw} forall n: int ::
@@ -75,18 +77,24 @@ free lemma {:rw} forall a: [int]int, n: int, delta: int, k: int ::
 
 function sums(init: int, values: Trace<int>): Trace<int>;
 
-free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+free lemma {:rw} forall init: int, values: Trace<int> ::
     trace(init, for v <- values do s := s + v)
         == sums(init, values);
 
-free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+free lemma {:rw} forall init: int, values: Trace<int> ::
     trace(init, for v <- values do s := v + s)
         == sums(init, values);
 
-free lemma {:rw} <a> forall init: int, values: Trace<int> ::
+free lemma {:rw} forall init: int, values: Trace<int> ::
     current(sums(0, map(for v <- values yield - v)))
         == - current(sums(0, values));
 
 free lemma {:rw} forall init: int, values: Trace<int> ::
     current(sums(init, values))
         == init + current(sums(0, values));
+
+function sum(init: int, values: Trace<int>): int;
+
+free lemma {:rw} forall values: Trace<int> ::
+     0 + current(sums(0, values))
+        == sum(0, values);
