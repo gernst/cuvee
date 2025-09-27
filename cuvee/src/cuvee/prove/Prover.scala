@@ -18,6 +18,18 @@ import cuvee.smtlib.Lemma
 
 import cuvee.smtlib.DeclareFun
 import cuvee.SetOps
+import cuvee.pure.Note
+import cuvee.pure.Extra
+import cuvee.pure.Var
+import cuvee.pure.Is
+import cuvee.pure.Distinct
+import cuvee.pure
+import cuvee.pure.Post
+import cuvee.pure.Let
+import cuvee.pure.Bind
+import cuvee.pure.Match
+import cuvee.pure.Lit
+import cuvee.pure.At
 trait Prover extends Tactic {
   def exec(cmd: Cmd, state: State)
   def reduce(expr: Expr, state: State): Expr
@@ -59,17 +71,8 @@ object Prover {
     def exec(cmd: Cmd, state: State) {
       cmd match {
         case Lemma(expr, _, _, _) if (removeParametricCommands) =>
-          val dont = Set(
-            "current",
-            "earlier",
-            "⌊⌋",
-            "stores",
-            "sums"
-          )
-          val names = expr.funs.collect(e => e.name.name)
-          if (names.disjoint(dont)) {
+          if (expr.funs.forall(f => f.params == Nil))
             solver.exec(cmd, state)
-          }
 
         case DeclareFun(_, params, _, _)
             if (removeParametricCommands) && params.nonEmpty =>
