@@ -74,11 +74,6 @@ object Printer extends cuvee.util.Printer {
     case Lemma(expr, proof, mode, attrs) =>
       var result: List[String] = Nil
 
-      // TODO
-      // val label = maybeLabel match {
-      //   case Some(l) => s" {:$l}"
-      //   case None    => ""
-      // }
       val named = for (attr <- attrs.attrs) yield {
         attr match {
           case (kw, None)                 => kw.toString
@@ -116,9 +111,15 @@ object Printer extends cuvee.util.Printer {
     case DeclareSort(name, 0) =>
       List("type " + name + ";")
     case DeclareSort(name, arity) =>
-      List("type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";")
+      List(
+        "type " + name + Type.params("a", arity).mkString("<", ", ", ">") + ";"
+      )
     case DefineSort(name, params, body) =>
-      List("type " + name + params.mkString("<", ", ", ">") + " = " + btype(body) + ";")
+      List(
+        "type " + name + params.mkString("<", ", ", ">") + " = " + btype(
+          body
+        ) + ";"
+      )
     case DeclareVar(name, typ) =>
       List("var " + name + ": " + btype(typ) + ";")
     case x @ DeclareFun(name, Nil, Nil, res) =>
@@ -291,8 +292,6 @@ object Printer extends cuvee.util.Printer {
       val b = formula(ant)
       val b_ = b.last + ")"
       val ant_ = b.updated(b.length - 1, b_)
-      // TODO Gidon: Needs one additional space (3 is a horrible number)
-      // Where do you want it? Either " ==> " or "==>  "
       val impl = indent(List(" ==> " + ant_.head.trim))
       pre_ ++ impl ++ indent(ant_.tail)
 
@@ -566,27 +565,29 @@ object Printer extends cuvee.util.Printer {
     indent(result)
   }
 
-  private def bcontracts(contracts: List[(Expr, Expr)]): List[String] = contracts match {
-    case Nil =>
-      Nil
+  private def bcontracts(contracts: List[(Expr, Expr)]): List[String] =
+    contracts match {
+      case Nil =>
+        Nil
 
-    case (pre, post) :: rest =>
-      val pres = And.flattenStrong(pre)
-      val posts = And.flattenStrong(post)
+      case (pre, post) :: rest =>
+        val pres = And.flattenStrong(pre)
+        val posts = And.flattenStrong(post)
 
-      val pre_ = pres flatMap (format("requires", _))
-      val post_ = posts flatMap (format("ensures ", _))
+        val pre_ = pres flatMap (format("requires", _))
+        val post_ = posts flatMap (format("ensures ", _))
 
-      val here = indent(pre_ ++ post_)
-      val there = bcontracts(rest)
+        val here = indent(pre_ ++ post_)
+        val there = bcontracts(rest)
 
-      if (rest.isEmpty)
-        here
-      else
-        here ++ List("also") ++ there
-  }
+        if (rest.isEmpty)
+          here
+        else
+          here ++ List("also") ++ there
+    }
 
-  /** Provides a tuple containing precedence and associativity for the given expression.
+  /** Provides a tuple containing precedence and associativity for the given
+    * expression.
     *
     * @param expr
     *   to get prec and assoc for
