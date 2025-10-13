@@ -219,12 +219,12 @@ object Printer extends cuvee.util.Printer {
     case Break           => parens("break")
     case Return          => parens("return")
     case Local(xs, Nil)  => parens("local", xs.asFormals)
-    case Local(xs, rhs)  => parens("local", (xs.asFormals zip rhs))
-    case Assign(xs, rhs) => parens("assign", xs zip rhs)
+    case Local(xs, rhs)  => parens2("local")(xs.asFormals zip rhs)
+    case Assign(xs, rhs) => parens2("assign")(xs zip rhs)
 
     case Spec(Nil, True, post) => parens("assume", post)
-    case Spec(Nil, pre, True)  => parens("assert", pre)
-    case Spec(xs, True, True)  => parens("havoc", xs)
+    case Spec(Nil, pre, True)  => parens("assert", pre) // Note: in SV-LIB should be transformed away!
+    case Spec(xs, True, True)  => parens2("havoc")(xs)
     case Spec(xs, pre, post)   => parens("spec", xs, pre, post)
 
     case Call(name, in, out) => parens("call", name, in, out)
