@@ -11,10 +11,11 @@ import java.io.PrintStream
 import java.io.FileOutputStream
 import cuvee.smtlib.Cmd
 import cuvee.smtlib.Lemma
+import cuvee.smtlib.Goal
 
 object annotate
     extends Run(
-      Earlier(mode = "annotate"),
+      TEQs(mode = "annotate"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
       "evaluation/earlier/rapid",
       "examples/boogie/sv-benchmarks"
@@ -22,7 +23,7 @@ object annotate
 
 object reduce
     extends Run(
-      Earlier(mode = "reduce"),
+      TEQs(mode = "reduce"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
       "evaluation/earlier/rapid",
       "examples/boogie/sv-benchmarks"
@@ -30,29 +31,14 @@ object reduce
 
 object evaluate
     extends Run(
-      Earlier(mode = "evaluate"),
+      TEQs(mode = "evaluate"),
       "examples/chc/maxpranq/bench_precondn/c_serialized",
       "evaluation/earlier/rapid",
       "examples/boogie/sv-benchmarks"
     )
 
-object evaluate_maxpranq
-    extends Run(
-      Earlier(mode = "evaluate"),
-      "examples/chc/maxpranq/bench_precondn/c_serialized"
-    )
-object evaluate_rapid
-    extends Run(Earlier(mode = "evaluate"), "evaluation/earlier/rapid")
-object evaluate_sv_benchmarks_array
-    extends Run(Earlier(mode = "evaluate"), "examples/boogie/sv-benchmarks")
-object evaluate_sv_benchmarks_loop
-    extends Run(
-      Earlier(mode = "evaluate"),
-      "examples/boogie/sv-benchmarks/loop"
-    )
-
-case class Earlier(mode: String) extends Main {
-  val dst = "evaluation/earlier/"
+case class TEQs(mode: String) extends Main {
+  val dst = "evaluation/teqs/"
 
   def main(args: Array[String]) {
     for (path <- args) {
@@ -81,7 +67,7 @@ case class Earlier(mode: String) extends Main {
           case "annotate" =>
             var args = Array(
               path + "/" + file,
-              "-annotate:new-arrays",
+              "-annotate:traces",
               // "-vcgen:partial", DO NOT VCGEN THIS
               "-o",
               dst_ + file_ + ".annotated.bpl"
@@ -92,11 +78,11 @@ case class Earlier(mode: String) extends Main {
           case "evaluate" =>
             var args = Array(
               path + "/" + file,
-              "-annotate:new-arrays",
+              "-annotate:traces",
               "-vcgen:partial",
-              "-prove:simple",
-              "-prove:crosscheck",
-              "-prove:strict"
+              "-split",
+              "-simplify2",
+              "-prove:z3"
             )
 
             file -> eval(args)
@@ -138,10 +124,10 @@ case class Earlier(mode: String) extends Main {
 
         var args = Array(
           path + "/" + file,
-          "-annotate:new-arrays",
+          "-annotate:traces",
           "-vcgen:partial",
-          "-prove:simple",
           "-split",
+          "-simplify2",
           "-o",
           dst_ + file_ + ".reduced.bpl"
         )
@@ -152,37 +138,18 @@ case class Earlier(mode: String) extends Main {
     val file = path.replace("/", "_")
     val csv = new PrintStream(new FileOutputStream(dst + file + ".table.csv"))
     csv.println(
-      "name, result, ensures/assert, invariant entry, invariant forward, summary backward, decreases, other lemmas"
+      "name, goal"
     )
 
     for ((name, result) <- results) {
-      var (ens, ien, ifo, sba, dec, lem) = (0, 0, 0, 0, 0, 0)
-      for (cmd <- result) {
-        cmd match {
-          case Lemma(_, _, _, List((_, Some(sexpr.Id(named))))) =>
-            if (named == "ensures" || named == "assert")
-              ens += 1
-            if (named == "invariant entry")
-              ien += 1
-            if (named == "invariant forward")
-              ifo += 1
-            if (named == "summary backward")
-              sba += 1
-            if (named == "decreases")
-              dec += 1
-
-          case _: Lemma =>
-            lem += 1
-
-          case _ =>
-        }
+      val solved = for (cmd <- result) yield cmd match {
+        case Lemma(_, _, Some(Goal), _) =>
+          false
+        case _ =>
+          true
       }
-
-      val bad = ens + ien + ifo + sba + dec + lem
-      val res = if (bad == 0) Success else Unknown
-      csv.println(
-        s"${name}, ${res}, ${ens}, ${ien}, ${ifo}, ${sba}, ${dec}, ${lem}"
-      )
+      val res = if (solved.forall(b => b)) Success else Unknown
+      csv.println(s"${name}, ${res}")
     }
   }
 
