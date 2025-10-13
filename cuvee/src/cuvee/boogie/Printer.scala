@@ -321,6 +321,7 @@ object Printer extends cuvee.util.Printer {
       val phi_ = indent(formula(phi), 3)
       val last = phi_.last + ")"
       quant :: phi_.updated(phi_.length - 1, last)
+
     case Exists(x, phi) =>
       val quant = "(exists " ++ vartypes(x) ++ " ::"
       val phi_ = indent(formula(phi), 3)
@@ -519,8 +520,9 @@ object Printer extends cuvee.util.Printer {
       where + "(" + arg + ")"
     case Bind(quant, formals, body, typ) =>
       val vars = for (x <- formals) yield x + ": " + btype(x.typ)
-      val quantifier = quant.toString + vars.mkString(" ", ", ", " :: ")
-      quantifier + line(body)
+      val quantifier = quant.toString + vars.mkString(" ", ", ", " ::")
+      val q = format(quantifier, body)
+      q.head + "\n" + indent(q.tail, 3).mkString("\n")
     case Is(arg, fun) =>
       "is#" + fun.name + "(" + line(arg) + ")"
     case Distinct(exprs) =>
