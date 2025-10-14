@@ -68,7 +68,7 @@ package object boogie {
       try {
         from.hasNext
       } catch {
-        case e @ easyparse.Error(msg, in) =>
+        case e @ easyparse.Error(msg, in, trace) =>
           cuvee.error(e.toString)
       }
     }
