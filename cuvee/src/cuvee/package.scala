@@ -18,7 +18,7 @@ package object cuvee {
       System.err.println(levelName(self) + (msg mkString " "))
   }
 
-  def abort() {
+  def abort() = {
     System.exit(1)
     ???
   }

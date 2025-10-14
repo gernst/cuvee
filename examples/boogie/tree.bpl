@@ -4,7 +4,7 @@ data Lst<a> = nil  | cons(head: a, tail: Lst<a>);
 data Tree<a> = leaf | node(value: a, left: Tree<a>, right: Tree<a>);
 
 function length(xs: Lst<Elem>): int;
-function map (f: [Elem]Elem, xs: Lst<Elem>): Lst<Elem>;
+function maps(f: [Elem]Elem, xs: Lst<Elem>): Lst<Elem>;
 function append(xs: Lst<Elem>, ys: Lst<Elem>): Lst<Elem>;
 function contains(x: Elem, xs: Lst<Elem>): bool;
 
@@ -22,9 +22,9 @@ axiom forall x: Elem, xs: Lst<Elem> ::
   length(cons(x,xs)) == length(xs) + 1;
 
 axiom forall f: [Elem]Elem ::
-  map(f, nil) == nil;
+  maps(f, nil) == nil;
 axiom forall f: [Elem]Elem, y: Elem, ys: Lst<Elem> ::
-  map(f, cons(y, ys)) == cons(f[y], map(f, ys));
+  maps(f, cons(y, ys)) == cons(f[y], maps(f, ys));
 
 axiom forall ys: Lst<Elem> ::
   append(nil, ys) == ys;

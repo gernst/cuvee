@@ -14,13 +14,15 @@ trait Report {
     report(f)
   }
 
-  def safe[A](f: => A) = try {
-    f
+  def safe[A](f: => A): Option[A] = try {
+    Some(f)
   } catch {
     case e: cuvee.smtlib.Error =>
       report(e)
       if (!incremental)
         cuvee.abort()
+      else
+        None
 
     // Escalate internal errors to terminal for now
     // case e: Exception if !Solver.fail =>

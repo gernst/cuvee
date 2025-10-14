@@ -14,15 +14,19 @@ object Pipe {
       sink.init(source.state)
     }
 
-    source foreach {
-      case SetOption("print-success", Id("true")) =>
-        report.printSuccess = true
-      case SetOption("print-success", Id("false")) =>
-        report.printSuccess = false
-      case cmd =>
-        report {
-          sink.exec(cmd, source.state)
-        }
+    while (source.hasNext) {
+      report.safe(source.next) foreach {
+        case SetOption("print-success", Id("true")) =>
+          report.printSuccess = true
+          
+        case SetOption("print-success", Id("false")) =>
+          report.printSuccess = false
+
+        case cmd =>
+          report {
+            sink.exec(cmd, source.state)
+          }
+      }
     }
 
     report.safe {

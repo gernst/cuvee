@@ -5,7 +5,7 @@ data tree = leaf | node(value: nat, left: tree, right: tree);
 function add(m: nat, n: nat): nat;
 
 function length(xs: list): nat;
-function map (f: [nat]nat, xs: list): list;
+function maps (f: [nat]nat, xs: list): list;
 function append(xs: list, ys: list): list;
 function contains(x: nat, xs: list): bool;
 
@@ -28,9 +28,9 @@ axiom forall x: nat, xs: list ::
   length(cons(x,xs)) == succ(length(xs));
 
 axiom forall f: [nat]nat ::
-  map(f, nil) == nil;
+  maps(f, nil) == nil;
 axiom forall f: [nat]nat, y: nat, ys: list ::
-  map(f, cons(y, ys)) == cons(f[y], map(f, ys));
+  maps(f, cons(y, ys)) == cons(f[y], maps(f, ys));
 
 axiom forall ys: list ::
   append(nil, ys) == ys;

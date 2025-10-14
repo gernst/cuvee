@@ -64,8 +64,18 @@ package object boogie {
       grammar.cmd.iterator(in)
     }
 
-    def hasNext = from.hasNext
-    def next() = from.next()
+    def hasNext = {
+      try {
+        from.hasNext
+      } catch {
+        case e @ easyparse.Error(msg, in) =>
+          cuvee.error(e.toString)
+      }
+    }
+
+    def next() = {
+      from.next()
+    }
   }
 
   class ScannerIterator(scanner: boogie.Scanner) extends Iterator[Token] {
