@@ -1,3 +1,4 @@
+// ./Cuvee.sh examples/boogie/paper/init2.bpl -annotate:traces -vcgen:partial -split -simplify2
 procedure init(n: int, z: int, c: int)
     returns (a: [int]int)
     requires 0 <= n;

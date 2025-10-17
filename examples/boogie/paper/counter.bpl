@@ -1,3 +1,4 @@
+// ./Cuvee.sh examples/boogie/paper/counter.bpl -annotate:traces -vcgen:partial -split -simplify2
 procedure counter()
 {
     var n: int;

@@ -1,3 +1,4 @@
+// ./Cuvee.sh examples/boogie/paper/shift.bpl -annotate:traces -vcgen:partial -split -simplify2
 procedure shift(n: int)
     returns (a: [int]int)
     requires 0 <= n;
