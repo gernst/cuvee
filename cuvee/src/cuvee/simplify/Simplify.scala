@@ -18,7 +18,12 @@ import cuvee.imp.annotate.Butlast
 object Simplify extends Stage {
   import Context.assuming
 
-  def simplify(cmds: List[Cmd], state: State, polarity: Option[Boolean], expr: Expr): Expr = {
+  def simplify(
+      cmds: List[Cmd],
+      state: State,
+      polarity: Option[Boolean],
+      expr: Expr
+  ): Expr = {
     val rules = Rewrite.from(cmds, state, split = false)
     // println("using rewrite rules:")
     // for (eq <- rules)
@@ -29,7 +34,12 @@ object Simplify extends Stage {
     simplify(polarity, rws, state.constrs, expr)
   }
 
-  def exec(prefix: List[Cmd], cmds: List[Cmd], last: Cmd, state: State): List[Cmd] = {
+  def exec(
+      prefix: List[Cmd],
+      cmds: List[Cmd],
+      last: Cmd,
+      state: State
+  ): List[Cmd] = {
     cmds flatMap {
       case cmd @ Lemma(expr, tactic, Some(Free), label) =>
         List(cmd)
@@ -62,15 +72,52 @@ object Simplify extends Stage {
       constrs: Set[Fun],
       expr: Expr
   ): Expr = {
-    simplify(polarity, expr.free, Set(), List(), List(), Map(), Map(), rules, constrs, expr)
+    simplify(
+      polarity,
+      expr.free,
+      Set(),
+      List(),
+      List(),
+      Map(),
+      Map(),
+      rules,
+      constrs,
+      expr
+    )
   }
 
   def goal(rules: Map[Fun, List[Rule]], constrs: Set[Fun], expr: Expr): Expr = {
-    simplify(Some(true), expr.free, Set(), List(), List(), Map(), Map(), rules, constrs, expr)
+    simplify(
+      Some(true),
+      expr.free,
+      Set(),
+      List(),
+      List(),
+      Map(),
+      Map(),
+      rules,
+      constrs,
+      expr
+    )
   }
 
-  def sequent(rules: Map[Fun, List[Rule]], constrs: Set[Fun], expr: Expr): Expr = {
-    simplify(Some(false), expr.free, Set(), List(), List(), Map(), Map(), rules, constrs, expr)
+  def sequent(
+      rules: Map[Fun, List[Rule]],
+      constrs: Set[Fun],
+      expr: Expr
+  ): Expr = {
+    simplify(
+      Some(false),
+      expr.free,
+      Set(),
+      List(),
+      List(),
+      Map(),
+      Map(),
+      rules,
+      constrs,
+      expr
+    )
   }
 
   def repeat[A](a: A)(f: A => A): A = {
@@ -108,13 +155,19 @@ object Simplify extends Stage {
       constrs: Set[Fun],
       expr: Expr
   ): Expr = {
-    val ctx = Context(polarity, fixed, arbitrary, pos, neg, su, eq, rules, constrs)
+    val ctx =
+      Context(polarity, fixed, arbitrary, pos, neg, su, eq, rules, constrs)
     // repeating at top-level rather than on individual subterms seems more efficient
     // maybe we can even memoize simplify(_, _) but that would speed up the last round only
     repeat(expr) { simplify(ctx, _) }
   }
 
-  def nary(ctx: Context, done: List[Expr], todo: List[Expr], flip: Boolean): List[Expr] = {
+  def nary(
+      ctx: Context,
+      done: List[Expr],
+      todo: List[Expr],
+      flip: Boolean
+  ): List[Expr] = {
     // println("done")
     // for(phi <- done) println("  " + phi)
     // println("todo")
@@ -214,11 +267,17 @@ object Simplify extends Stage {
 
       case Ge(left, right) => le(ctx, simplify(ctx, right), simplify(ctx, left))
       case Gt(left, right) => lt(ctx, simplify(ctx, right), simplify(ctx, left))
+      case Le(left, right) => le(ctx, simplify(ctx, left), simplify(ctx, right))
+      case Lt(left, right) => lt(ctx, simplify(ctx, left), simplify(ctx, right))
 
-      case Not(Ge(left, right)) => lt(ctx, simplify(ctx, left), simplify(ctx, right))
-      case Not(Gt(left, right)) => le(ctx, simplify(ctx, left), simplify(ctx, right))
-      case Not(Le(left, right)) => lt(ctx, simplify(ctx, right), simplify(ctx, left))
-      case Not(Lt(left, right)) => le(ctx, simplify(ctx, right), simplify(ctx, left))
+      case Not(Ge(left, right)) =>
+        lt(ctx, simplify(ctx, left), simplify(ctx, right))
+      case Not(Gt(left, right)) =>
+        le(ctx, simplify(ctx, left), simplify(ctx, right))
+      case Not(Le(left, right)) =>
+        lt(ctx, simplify(ctx, right), simplify(ctx, left))
+      case Not(Lt(left, right)) =>
+        le(ctx, simplify(ctx, right), simplify(ctx, left))
 
       case Not(phi) =>
         val phi_ = simplify(ctx.flip, phi)
@@ -244,12 +303,18 @@ object Simplify extends Stage {
         and(phis_)
 
       case expr @ Forall(formals, body) =>
-        require(expr.bound disjoint ctx.vars, "variables already bound: " + (expr.bound & ctx.vars))
+        require(
+          expr.bound disjoint ctx.vars,
+          "variables already bound: " + (expr.bound & ctx.vars)
+        )
         val body_ = simplify(ctx forall formals, body)
         forall(formals, body_)
 
       case expr @ Exists(formals, body) =>
-        require(expr.bound disjoint ctx.vars, "variables already bound: " + (expr.bound & ctx.vars))
+        require(
+          expr.bound disjoint ctx.vars,
+          "variables already bound: " + (expr.bound & ctx.vars)
+        )
         val body_ = simplify(ctx exists formals, body)
         exists(formals, body_)
 
@@ -269,7 +334,10 @@ object Simplify extends Stage {
         Poly.simplify(expr_)
 
       case expr @ Let(eqs, body) =>
-        require(expr.bound disjoint ctx.vars, "variables already bound: " + (expr.bound & ctx.vars))
+        require(
+          expr.bound disjoint ctx.vars,
+          "variables already bound: " + (expr.bound & ctx.vars)
+        )
         require(ctx.isUnpolar, "unexpected top-level let")
         val eqs_ = simplify_leteqs(ctx, eqs)
         val body_ = simplify(ctx, body)
@@ -420,7 +488,11 @@ object Simplify extends Stage {
     updates2
   }
 
-  def note(expr: Expr, patterns: List[List[Expr]], attrs: cuvee.sexpr.Attrs): Expr = {
+  def note(
+      expr: Expr,
+      patterns: List[List[Expr]],
+      attrs: cuvee.sexpr.Attrs
+  ): Expr = {
     expr match {
       case True | False => expr
       case _            => Note(expr, patterns, attrs)
@@ -521,10 +593,12 @@ object Simplify extends Stage {
           False
         }
 
-      case (App(Inst(f, _), la), r) if (ctx.constrs contains f) && (la contains r) =>
+      case (App(Inst(f, _), la), r)
+          if (ctx.constrs contains f) && (la contains r) =>
         False
 
-      case (l, App(Inst(g, _), ra)) if (ctx.constrs contains g) && (ra contains l) =>
+      case (l, App(Inst(g, _), ra))
+          if (ctx.constrs contains g) && (ra contains l) =>
         False
 
       case _ =>
@@ -533,11 +607,30 @@ object Simplify extends Stage {
   }
 
   def le(ctx: Context, left: Expr, right: Expr) = {
-    Le(left, right)
+    (left, right) match {
+      case (Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
+        if (m <= n) True else False
+      case _ if ctx.pos contains Le(right, left) =>
+        Eq(left, right)
+      case _ if (ctx.pos contains Lt(left, right)) || left == right =>
+        True
+      case _ if ctx.pos contains Lt(right, left) =>
+        False
+      case _ =>
+        Le(left, right)
+    }
+
   }
 
   def lt(ctx: Context, left: Expr, right: Expr) = {
-    Lt(left, right)
+    (left, right) match {
+      case (Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
+        if (m < n) True else False
+      case _ if (ctx.pos contains Lt(right, left)) || left == right =>
+        False
+      case _ =>
+        Lt(left, right)
+    }
   }
 
   def select(base: Expr, index: Expr): Expr = {
@@ -594,24 +687,8 @@ object Simplify extends Stage {
     // println()
 
     expr_ match {
-      case Le(Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
-        if (m <= n) True else False
-      case Lt(Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
-        if (m < n) True else False
       case DivBy(Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
         Lit(m / n, Sort.int)
-
-      case Le(left, right) if ctx.pos contains Le(right, left) =>
-        Eq(left, right)
-
-      case Le(left, right) if ctx.pos contains Lt(left, right) =>
-        True
-      case Le(left, right) if ctx.pos contains Lt(right, left) =>
-        False
-      case Lt(left, right) if ctx.pos contains Lt(right, left) =>
-        False
-      case Le(left, right) if left == right =>
-        True
 
       case App(inst, args) if ctx.rules contains inst.fun =>
         val use = ctx.rules(inst.fun)
@@ -723,14 +800,15 @@ object Simplify extends Stage {
       case (map: Mapping, Mapping(formals2, result2)) =>
         val pat @ Mapping(formals1, result1) = map.gen
         var (ty1, su1) = bind(ctx, result1, result2, ty, su)
-        val results = bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
+        val results =
+          bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
         first(pat, arg, ty, su, results)
-
 
       case (inv: Invariant, Invariant(formals2, result2)) =>
         val pat @ Invariant(formals1, result1) = inv.gen
         var (ty1, su1) = bind(ctx, result1, result2, ty, su)
-        val results = bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
+        val results =
+          bind(ctx, pat, arg, formals1, formals2, Set(), List((ty1, su1)))
         first(pat, arg, ty, su, results)
 
       // case (inv: Invariant, Invariant(formals2, cond2)) =>
@@ -796,8 +874,9 @@ object Simplify extends Stage {
 
     val inst_ =
       for ((ty, su) <- inst)
-        yield cover2(formals1, formals2, (ty, su)) { case (eq1, formals2, (ty_, su_)) =>
-          find(ctx, eq1, formals2, avoid2, tr2, ty_, su_)
+        yield cover2(formals1, formals2, (ty, su)) {
+          case (eq1, formals2, (ty_, su_)) =>
+            find(ctx, eq1, formals2, avoid2, tr2, ty_, su_)
         }
 
     inst_.flatten filter { case (ty, su) =>
@@ -851,8 +930,9 @@ object Simplify extends Stage {
       su: Map[Var, Expr],
       results: List[((Map[Param, Type], Map[Var, Expr]), A)]
   ) = results.distinct match {
-    case Nil                   => throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
-    case List(((ty_, su_), a)) => (ty_, su_, a)
+    case Nil =>
+      throw Expr.CannotBind(pat, arg, ty, su, "no intermediate results")
+    case List(((ty_, su_), a))      => (ty_, su_, a)
     case ((ty_, su_), a) :: results => (ty_, su_, a)
   }
 
@@ -924,11 +1004,15 @@ object Simplify extends Stage {
 
           case e2 if e2.free disjoint avoid2 =>
             val ys = e2.free
-            val formals_ = formals.filter { case LetEq(x, e) => // XXX: big hack! keep counter here
-              (x.name.name startsWith "#") || (ys contains x)
+            val formals_ = formals.filter {
+              case LetEq(x, e) => // XXX: big hack! keep counter here
+                (x.name.name startsWith "#") || (ys contains x)
             }
 
-            require(formals_.nonEmpty, "uh oh generating trace without dependencies")
+            require(
+              formals_.nonEmpty,
+              "uh oh generating trace without dependencies"
+            )
 
             // println(xs1 + " -> map(" + formals_ + " yield " + e2 + ")")
             List(bind(ctx, xs1, Mapping(formals_, e2), ty, su))
