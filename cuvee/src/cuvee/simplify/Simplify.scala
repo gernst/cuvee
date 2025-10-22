@@ -606,7 +606,7 @@ object Simplify extends Stage {
     }
   }
 
-  def le(ctx: Context, left: Expr, right: Expr) = {
+  def le(ctx: Context, left: Expr, right: Expr): Expr = {
     (left, right) match {
       case (Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
         if (m <= n) True else False
@@ -617,19 +617,42 @@ object Simplify extends Stage {
       case _ if ctx.pos contains Lt(right, left) =>
         False
       case _ =>
-        Le(left, right)
+        val p = Poly.simplify(left - right)
+        Le(p, Zero)
     }
-
   }
 
-  def lt(ctx: Context, left: Expr, right: Expr) = {
+  def lt(ctx: Context, left: Expr, right: Expr): Expr = {
     (left, right) match {
       case (Lit(m: BigInt, _), Lit(n: BigInt, _)) =>
         if (m < n) True else False
       case _ if (ctx.pos contains Lt(right, left)) || left == right =>
         False
       case _ =>
-        Lt(left, right)
+        val p = Poly.simplify(left - right)
+        Lt(p, Zero)
+
+        // p match {
+        //   case Lit(_: BigInt, _) =>
+        //     lt(ctx, p, Zero)
+        //   case App(inst, args) =>
+        //     var neg: List[Expr] = List()
+        //     var pos: List[Expr] = List()
+        //     for (arg <- args) {
+        //       arg match {
+        //         case Lit(i: BigInt, _) if i < 0 =>
+        //           neg = neg :+ arg
+        //         case UMinus(e) =>
+        //           neg = neg :+ arg
+        //         // TODO this does not hold if arg contains signed variables
+        //         case _ =>
+        //           pos = pos :+ arg
+        //       }
+        //     }
+        //     // TODO this loops - shuffle minus
+        //     Lt(Plus(neg), Plus(pos))
+        //   case _ => Lt(left, right)
+        // }
     }
   }
 
