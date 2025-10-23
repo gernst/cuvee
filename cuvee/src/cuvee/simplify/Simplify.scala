@@ -617,8 +617,13 @@ object Simplify extends Stage {
       case _ if ctx.pos contains Lt(right, left) =>
         False
       case _ =>
-        val p = Poly.simplify(left - right)
-        Le(p, Zero)
+        val p = Poly(left - right)
+
+        val neg = p.negatives.toExpr
+        val pos = p.positives.toExpr
+
+        // Note: without Poly.simplify we would get --val for the elements of neg
+        Le(pos, Poly.simplify(-neg))
     }
   }
 
@@ -629,30 +634,13 @@ object Simplify extends Stage {
       case _ if (ctx.pos contains Lt(right, left)) || left == right =>
         False
       case _ =>
-        val p = Poly.simplify(left - right)
-        Lt(p, Zero)
+        val p = Poly(left - right)
 
-        // p match {
-        //   case Lit(_: BigInt, _) =>
-        //     lt(ctx, p, Zero)
-        //   case App(inst, args) =>
-        //     var neg: List[Expr] = List()
-        //     var pos: List[Expr] = List()
-        //     for (arg <- args) {
-        //       arg match {
-        //         case Lit(i: BigInt, _) if i < 0 =>
-        //           neg = neg :+ arg
-        //         case UMinus(e) =>
-        //           neg = neg :+ arg
-        //         // TODO this does not hold if arg contains signed variables
-        //         case _ =>
-        //           pos = pos :+ arg
-        //       }
-        //     }
-        //     // TODO this loops - shuffle minus
-        //     Lt(Plus(neg), Plus(pos))
-        //   case _ => Lt(left, right)
-        // }
+        val neg = p.negatives.toExpr
+        val pos = p.positives.toExpr
+
+        // Note: without Poly.simplify we would get --val for the elements of neg
+        Lt(pos, Poly.simplify(-neg))
     }
   }
 

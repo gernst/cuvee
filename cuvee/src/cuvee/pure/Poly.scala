@@ -64,6 +64,20 @@ case class Poly(c: BigInt, ms: List[Mono]) {
     Poly(c, ms_.toList filterNot (mono => mono.k == 0))
   }
 
+  def negatives: Poly = {
+    val neg = ms.filter(m => m.k < 0)
+    if (c < 0)
+      return Poly(c, neg)
+    Poly(0, neg)
+  }
+
+  def positives: Poly = {
+    val pos = ms.filter(m => m.k > 0)
+    if (c > 0)
+      return Poly(c, pos)
+    Poly(0, pos)
+  }
+
   /* Returns a list of all possible Ids to solve
    * You could of course just use a fun, but thats harder and i dont want to right now
    */
