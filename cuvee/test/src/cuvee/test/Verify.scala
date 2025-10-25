@@ -23,7 +23,7 @@ object Verify extends SimpleTestSuite {
 
   for (file <- annotatedFiles) {
     val task = file.toString
-    val args = Array("-vcgen:partial", "-split", "-z3", task)
+    val args = Array("-vcgen:partial", "-split", "-prove:z3", task)
     test(task){
       Cuvee.main(args)
     }
@@ -33,7 +33,7 @@ object Verify extends SimpleTestSuite {
   
   for (file <- inductionFiles){
     val task = file.toString
-    val args = Array("-prove:z3", "-z3", task)
+    val args = Array("-prove:z3", task)
     val cmds = Cuvee.collect(args)
     test(task){
       assert(cmds.forall{
