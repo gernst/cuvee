@@ -51,7 +51,7 @@ case class TEQs(mode: String) extends Main {
     }
   }
 
-  def eval(path: String): Array[(String, Res)] = {
+  def eval(path: String): Array[(String, (Res, Option[String]))] = {
     val dir = new File(path)
     var (dst_, typ) = destinations(path, dir)
     if (typ == "") return Array()
@@ -91,23 +91,23 @@ case class TEQs(mode: String) extends Main {
     results
   }
 
-  def eval(task: Array[String]): Res = {
+  def eval(task: Array[String]): (Res, Option[String]) = {
     println(task.mkString("./Cuvee.sh ", " ", ""))
     try {
       Cuvee.main(task)
-      Success
+      (Success, None)
     } catch {
       case e: IllegalArgumentException =>
         println(e.getMessage())
         e.getMessage() match {
           case "requirement failed: Could not prove all goals." =>
-            Unknown
+            (Unknown, None)
           case _ =>
-            Unsupported
+            (Unsupported, Some(e.getMessage()))
         }
       case e: Exception =>
         println("failed: " + e.getMessage())
-        Unsupported
+        (Unsupported, Some(e.getMessage()))
     }
   }
 
@@ -167,19 +167,24 @@ case class TEQs(mode: String) extends Main {
     }
   }
 
-  def record(path: String, results: Array[(String, Res)]) {
+  def record(path: String, results: Array[(String, (Res, Option[String]))]) {
     val file = path.replace("/", "_")
     val csv = new PrintStream(new FileOutputStream(dst + file + ".csv"))
-    csv.println("Name, Result")
-    for ((name, result) <- results) csv.println(s"${name}, ${result}")
+    csv.println("Name, Result, Error")
+    for ((name, (result, error)) <- results) {
+      error match {
+        case None        => csv.println(s"${name}, ${result},")
+        case Some(value) => csv.println(s"${name}, ${result}, ${value}")
+      }
+    }
     csv.close()
 
     val tex = new PrintStream(new FileOutputStream(dst + file + ".tex"))
-    val success = results.count(x => x._2 == Success)
+    val success = results.count(x => x._2._1 == Success)
     tex.println("\\newcommand{\\Success}{" + success + "}")
-    val unknown = results.count(x => x._2 == Unknown)
+    val unknown = results.count(x => x._2._1 == Unknown)
     tex.println("\\newcommand{\\Unknown}{" + unknown + "}")
-    val unsupported = results.count(x => x._2 == Unsupported)
+    val unsupported = results.count(x => x._2._1 == Unsupported)
     tex.println("\\newcommand{\\Unsupported}{" + unsupported + "}")
     tex.close()
   }
