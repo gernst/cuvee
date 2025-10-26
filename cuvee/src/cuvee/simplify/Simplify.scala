@@ -617,11 +617,7 @@ object Simplify extends Stage {
       case _ if ctx.pos contains Lt(right, left) =>
         False
       case _ =>
-        val p = Poly(left - right)
-
-        val neg = p.negatives.toExpr
-        val pos = p.positives.toExpr
-
+        val (pos, neg) = simplify_comparison(left, right)
         // Note: without Poly.simplify we would get --val for the elements of neg
         Le(pos, Poly.simplify(-neg))
     }
@@ -634,14 +630,14 @@ object Simplify extends Stage {
       case _ if (ctx.pos contains Lt(right, left)) || left == right =>
         False
       case _ =>
-        val p = Poly(left - right)
-
-        val neg = p.negatives.toExpr
-        val pos = p.positives.toExpr
-
+        val (pos, neg) = simplify_comparison(left, right)
         // Note: without Poly.simplify we would get --val for the elements of neg
         Lt(pos, Poly.simplify(-neg))
     }
+  }
+  def simplify_comparison(left: Expr, right: Expr) = {
+    val p = Poly(left - right).compact
+    (p.positives.toExpr, p.negatives.toExpr)
   }
 
   def select(base: Expr, index: Expr): Expr = {
