@@ -500,7 +500,7 @@ object Config {
     }
 
     if (config.split) {
-      sink = new Incremental(Horn, sink)
+      sink = new Incremental(Horn(config.proveNegatedAsserts), sink)
     }
 
     if (config.vcgen) {

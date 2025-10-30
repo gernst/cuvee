@@ -4,8 +4,30 @@ import cuvee.pipe.Stage
 import cuvee.State
 import cuvee.smtlib.Cmd
 import cuvee.smtlib.Lemma
+import cuvee.prove.Proof
+import cuvee.smtlib.Mode
+import cuvee.sexpr
+import cuvee.smtlib.Assert
+import cuvee.prove.InductiveProver.prove
+import cuvee.smtlib.Goal
 
-object Horn extends Stage {
+case class Horn(proveNegatedAsserts: Boolean) extends Stage {
+  def split(expr: Expr, tactic: Option[Proof], mode: Option[Mode], attrs: sexpr.Attrs) = {
+    val goals = Horn.assert(List(expr), Nil, Nil, Nil)
+    goals.distinct flatMap {
+      case Clause(xs, ant, Note(True, patterns, attrs_)) =>
+        Nil
+
+      case Clause(xs, ant, Note(expr, patterns, attrs_)) =>
+        List(Lemma(Clause(xs, ant, expr), tactic, mode, attrs ++ attrs_))
+
+      case True =>
+        Nil
+
+      case expr =>
+        List(Lemma(expr, tactic, mode, attrs))
+    }
+  }
 
   override def exec(
       prefix: List[Cmd],
@@ -14,27 +36,19 @@ object Horn extends Stage {
       in: State
   ): List[Cmd] = {
     cmds flatMap {
-      case Lemma(todo, None, flag, named) =>
-        val goals = assert(List(todo), Nil, Nil, Nil)
-        goals.distinct flatMap {
-          case Clause(xs, ant, Note(True, patterns, attrs)) =>
-            Nil
+      case Lemma(expr, tactic, mode, attrs) =>
+        split(expr, tactic, mode, attrs)
 
-          case Clause(xs, ant, Note(expr, patterns, attrs)) =>
-            List(Lemma(Clause(xs, ant, expr), None, flag, named ++ attrs))
-
-          case True =>
-            Nil
-
-          case expr =>
-            List(Lemma(expr, None, flag, named))
-        }
+      case Assert(Not(expr)) if proveNegatedAsserts =>
+        split(expr, None, Some(Goal), sexpr.Attrs.empty)
 
       case cmd =>
         List(cmd)
     }
   }
+}
 
+object Horn {
   def assert(
       todo: List[Expr],
       xs: List[Var],
@@ -62,6 +76,11 @@ object Horn extends Stage {
 
       case Or(exprs) :: rest =>
         assert(exprs ++ rest, xs, ant, suc)
+
+      case Ite(test, left, right) :: rest =>
+        val left_ = assume(List(test), left :: rest, xs, ant, suc)
+        val right_ = assume(List(!test), right :: rest, xs, ant, suc)
+        left_ ++ right_
 
       case And(exprs) :: rest =>
         for (
@@ -134,6 +153,11 @@ object Horn extends Stage {
 
       case And(exprs) :: rest =>
         assume(exprs ++ rest, todo, xs, ant, suc)
+
+      case Ite(test, left, right) :: rest =>
+        val left_ = assume(test :: left :: rest, todo, xs, ant, suc)
+        val right_ = assume(!test :: right :: rest, todo, xs, ant, suc)
+        left_ ++ right_
 
       //   case Eq(x: Id, right) :: rest if !(right.free contains x) && (xs.ids contains x) =>
       //     val _xs = xs filterNot (_.id == x)

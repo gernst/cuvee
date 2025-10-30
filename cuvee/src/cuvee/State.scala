@@ -280,6 +280,10 @@ class State(
       (x, arg)
     }
 
+    def acc(name: String) = {
+      Var(name, Param.fresh("a"))
+    }
+
     def let(
         eqs: List[(Var, Pre)],
         body: Pre
